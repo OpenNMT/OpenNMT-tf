@@ -1,0 +1,17 @@
+run:
+  type: "train"
+  model_dir: "ckpt"
+  save_checkpoints_steps: 100
+  save_summary_steps: 50
+  eval_steps: 5000
+  batch_size: 64
+  gpu_allow_growth: true
+data:
+  train_features_file: "data/en.txt"
+  train_labels_file: "data/fr.txt"
+  eval_features_file: "data/en-test.txt"
+  eval_labels_file: "data/fr-test.txt"
+params:
+  optimizer: "Adam"
+  learning_rate: 0.0002
+  clip_gradients: 5.0
