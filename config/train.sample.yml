@@ -10,6 +10,9 @@ run:
   # Save a checkpoint every this many steps.
   save_checkpoints_steps: 1000
 
+  # How many checkpoints to keep on disk.
+  keep_checkpoint_max: 3
+
   # Save summaries every this many steps.
   save_summary_steps: 50
 

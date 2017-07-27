@@ -51,6 +51,7 @@ def main():
 
     run_config = _replace(run_config, config["run"], "model_dir")
     run_config = _maybe_replace(run_config, config["run"], "save_checkpoints_steps")
+    run_config = _maybe_replace(run_config, config["run"], "keep_checkpoint_max")
     run_config = _maybe_replace(run_config, config["run"], "save_summary_steps")
 
     eval_every = config["run"].get("eval_steps")
