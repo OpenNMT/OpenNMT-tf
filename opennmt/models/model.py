@@ -86,7 +86,7 @@ class Model(object):
     elif mode == tf.estimator.ModeKeys.EVAL:
       dataset = dataset.repeat()
 
-    if mode == tf.estimator.ModeKeys.PREDICT:
+    if mode == tf.estimator.ModeKeys.PREDICT or num_buckets <= 1:
       dataset = dataset.padded_batch(
         batch_size,
         padded_shapes=padded_shapes)
