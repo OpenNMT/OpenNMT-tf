@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from opennmt.models.model import Model
 from opennmt.utils.misc import count_lines
+from opennmt.utils.losses import masked_sequence_loss
 
 
 class SequenceTagger(Model):
@@ -81,13 +82,10 @@ class SequenceTagger(Model):
         self.num_labels)
 
     if mode != tf.estimator.ModeKeys.PREDICT:
-      mask = tf.sequence_mask(self.embedder.get_data_field(features, "length"))
-      weights = tf.cast(mask, tf.float32)
-
-      loss = tf.contrib.seq2seq.sequence_loss(
+      loss = masked_sequence_loss(
         logits,
         labels,
-        weights)
+        self.embedder.get_data_field(features, "length"))
 
       return tf.estimator.EstimatorSpec(
         mode,

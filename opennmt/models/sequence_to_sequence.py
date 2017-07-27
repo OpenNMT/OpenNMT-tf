@@ -5,6 +5,7 @@ import tensorflow as tf
 import opennmt.constants as constants
 
 from opennmt.models.model import Model
+from opennmt.utils.losses import masked_sequence_loss
 
 
 class SequenceToSequence(Model):
@@ -144,13 +145,10 @@ class SequenceToSequence(Model):
           memory_sequence_length=encoder_sequence_length)
 
     if mode != tf.estimator.ModeKeys.PREDICT:
-      mask = tf.sequence_mask(self.target_embedder.get_data_field(labels, "length"))
-      weights = tf.cast(mask, tf.float32)
-
-      loss = tf.contrib.seq2seq.sequence_loss(
+      loss = masked_sequence_loss(
         decoder_outputs.rnn_output,
         self.target_embedder.get_data_field(labels, "ids_out"),
-        weights)
+        self.target_embedder.get_data_field(labels, "length"))
 
       return tf.estimator.EstimatorSpec(
         mode,
