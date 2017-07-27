@@ -1,17 +1,45 @@
+# Run description.
 run:
-  type: "train"
+  # The type of the run, either "train" or "infer".
+  type: train
+
+  # The directory where models and summaries will be saved.
+  # It is created if it does not exist.
   model_dir: "ckpt"
-  save_checkpoints_steps: 100
+
+  # Save a checkpoint every this many steps.
+  save_checkpoints_steps: 1000
+
+  # Save summaries every this many steps.
   save_summary_steps: 50
+
+  # Evaluate every this many steps.
   eval_steps: 5000
-  batch_size: 64
+
+  # If true, GPU memory will be allocated dynamically, otherwise
+  # all the memory will be mapped by TensorFlow.
   gpu_allow_growth: true
+
+# Paths to data files.
 data:
   train_features_file: "data/en.txt"
   train_labels_file: "data/fr.txt"
   eval_features_file: "data/en-test.txt"
   eval_labels_file: "data/fr-test.txt"
+
+  # The pre-fetch buffer size (e.g. for shuffling examples).
+  buffer_size: 10000
+
+  # The number of buckets by sequence length.
+  num_buckets: 5
+
+# Dynamic hyperparameters.
 params:
-  optimizer: "Adam"
+  batch_size: 64
+
+  # The optimizer as a string (see https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/layers/python/layers/optimizers.py#L40)
+  optimizer: Adam
   learning_rate: 0.0002
+
+  # Maximum gradients norm.
   clip_gradients: 5.0

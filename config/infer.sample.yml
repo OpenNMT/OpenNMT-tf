@@ -1,10 +1,12 @@
 run:
-  type: "infer"
+  type: infer
+
+  # The last checkpoint from this directory will be loaded.
   model_dir: "ckpt"
-  batch_size: 1
 data:
   features_file: "data/en-test.txt"
 params:
+  batch_size: 1
   beam_width: 5
   length_penalty: 0.2
   maximum_iterations: 250

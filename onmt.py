@@ -81,14 +81,14 @@ def main():
 
     train_input_fn = model.input_fn(
       tf.estimator.ModeKeys.TRAIN,
-      config["run"]["batch_size"],
+      config["params"]["batch_size"],
       buffer_size,
       num_buckets,
       config["data"]["train_features_file"],
       labels_file=config["data"]["train_labels_file"])
     eval_input_fn = model.input_fn(
       tf.estimator.ModeKeys.EVAL,
-      config["run"]["batch_size"],
+      config["params"]["batch_size"],
       buffer_size,
       num_buckets,
       config["data"]["eval_features_file"],
@@ -106,7 +106,7 @@ def main():
 
     test_input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
-      config["run"]["batch_size"],
+      config["params"]["batch_size"],
       buffer_size,
       num_buckets,
       config["data"]["features_file"],
