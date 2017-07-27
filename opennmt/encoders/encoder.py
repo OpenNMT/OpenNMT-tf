@@ -3,6 +3,8 @@ import tensorflow as tf
 import abc
 import six
 
+from opennmt.utils.reducer import SumReducer, JoinReducer
+
 
 def create_position_embedding(embedding_size,
                               maximum_position,
@@ -76,3 +78,42 @@ class SequentialEncoder(Encoder):
       global_state += states
 
     return (inputs, global_state, sequence_length)
+
+
+class ParallelEncoder(Encoder):
+  """An encoder that encodes an input with several encoders."""
+
+  def __init__(self,
+               encoders,
+               outputs_reducer=SumReducer(),
+               states_reducer=JoinReducer()):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      encoders: A list of `Encoder`.
+      outputs_reducer: A `Reducer` to merge all outputs.
+      states_reducer: A `Reducer` to merge all states.
+    """
+    self.encoders = encoders
+    self.outputs_reducer = outputs_reducer
+    self.states_reducer = states_reducer
+
+  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+    final_outputs = None
+    final_states = None
+
+    # TODO: execute in parallel?
+    for encoder in self.encoders:
+      outputs, states, sequence_length = encoder.encode(
+        inputs,
+        sequence_length=sequence_length,
+        mode=mode)
+
+      if final_outputs:
+        final_outputs = self.output_reducer(final_outputs, outputs)
+        final_states = self.states_reducer(final_states, states)
+      else:
+        final_outputs = outputs
+        final_states = states
+
+    return (final_outputs, final_states, sequence_length)
