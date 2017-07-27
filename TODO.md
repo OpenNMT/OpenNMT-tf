@@ -8,6 +8,8 @@
 * Parallel encoder
   * i.e. encode the same input with multiple encoders and merge outputs and states
 * Other validation metrics
+* Self attention encoder
+  * https://arxiv.org/abs/1706.03762
 
 ## Improvements
 
