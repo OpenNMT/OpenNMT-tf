@@ -16,7 +16,7 @@ class RNNDecoder(Decoder):
                num_units,
                bridge,
                cell_class=tf.contrib.rnn.LSTMCell,
-               dropout_keep_prob=0.3,
+               dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.
 
@@ -25,14 +25,14 @@ class RNNDecoder(Decoder):
       num_units: The number of units in each layer.
       bridge: A `Bridge` to pass the encoder states to the decoder.
       cell_class: The inner cell class.
-      dropout_keep_prob: The probability to keep units in each layer output.
+      dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
     """
     self.num_layers = num_layers
     self.num_units = num_units
     self.bridge = bridge
     self.cell_class = cell_class
-    self.dropout_keep_prob = dropout_keep_prob
+    self.dropout = dropout
     self.residual_connections = residual_connections
 
   def _build_cell(self,
@@ -45,7 +45,7 @@ class RNNDecoder(Decoder):
       self.num_layers,
       self.num_units,
       mode,
-      dropout_keep_prob=self.dropout_keep_prob,
+      dropout=self.dropout,
       residual_connections=self.residual_connections,
       cell_class=self.cell_class)
 
@@ -182,7 +182,7 @@ class AttentionalRNNDecoder(RNNDecoder):
                bridge,
                attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
                cell_class=tf.contrib.rnn.LSTMCell,
-               dropout_keep_prob=0.3,
+               dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.
 
@@ -192,14 +192,14 @@ class AttentionalRNNDecoder(RNNDecoder):
       bridge: A `Bridge` to pass the encoder states to the decoder.
       attention_mechanism_class: A class inheriting from `AttentionMechanism`.
       cell_class: The inner cell class.
-      dropout_keep_prob: The probability to keep units in each layer output.
+      dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
     """
     super(AttentionalRNNDecoder, self).__init__(num_layers,
                                                 num_units,
                                                 bridge,
                                                 cell_class=cell_class,
-                                                dropout_keep_prob=dropout_keep_prob,
+                                                dropout=dropout,
                                                 residual_connections=residual_connections)
     self.attention_mechanism_class = attention_mechanism_class
 
@@ -228,9 +228,9 @@ class AttentionalRNNDecoder(RNNDecoder):
       attention_mechanism,
       initial_cell_state=initial_cell_state)
 
-    if mode == tf.estimator.ModeKeys.TRAIN and self.dropout_keep_prob > 0:
+    if mode == tf.estimator.ModeKeys.TRAIN and self.dropout > 0.0:
       cell = tf.contrib.rnn.DropoutWrapper(
-        cell, output_keep_prob=1.0 - self.dropout_keep_prob)
+        cell, output_keep_prob=1.0 - self.dropout)
 
     initial_state = cell.zero_state(batch_size, dtype=tf.float32)
 

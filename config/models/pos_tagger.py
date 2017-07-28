@@ -10,7 +10,7 @@ def model():
       num_layers=2,
       num_units=128,
       cell_class=tf.contrib.rnn.LSTMCell,
-      dropout_keep_prob=0.3,
+      dropout=0.3,
       residual_connections=False),
     labels_vocabulary_file="data/wsj/tags.txt")
 

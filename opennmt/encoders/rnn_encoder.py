@@ -18,13 +18,13 @@ class RNNEncoder(Encoder):
                num_layers,
                num_units,
                cell_class=tf.contrib.rnn.LSTMCell,
-               dropout_keep_prob=0.3,
+               dropout=0.0,
                residual_connections=False):
     """Common constructor to save parameters."""
     self.num_layers = num_layers
     self.num_units = num_units
     self.cell_class = cell_class
-    self.dropout_keep_prob = dropout_keep_prob
+    self.dropout = dropout
     self.residual_connections = residual_connections
 
   def _build_cell(self, mode):
@@ -32,7 +32,7 @@ class RNNEncoder(Encoder):
       self.num_layers,
       self.num_units,
       mode,
-      dropout_keep_prob=self.dropout_keep_prob,
+      dropout=self.dropout,
       residual_connections=self.residual_connections,
       cell_class=self.cell_class)
 
@@ -48,7 +48,7 @@ class UnidirectionalRNNEncoder(RNNEncoder):
                num_layers,
                num_units,
                cell_class=tf.contrib.rnn.LSTMCell,
-               dropout_keep_prob=0.7,
+               dropout=0.3,
                residual_connections=False):
     """Initializes the parameters of the encoder.
 
@@ -56,14 +56,14 @@ class UnidirectionalRNNEncoder(RNNEncoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       cell_class: The inner cell class.
-      dropout_keep_prob: The probability to keep units in each layer output.
+      dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
     """
     super(UnidirectionalRNNEncoder, self).__init__(
       num_layers,
       num_units,
       cell_class=cell_class,
-      dropout_keep_prob=dropout_keep_prob,
+      dropout=dropout,
       residual_connections=residual_connections)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
@@ -86,7 +86,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
                num_units,
                reducer=SumReducer(),
                cell_class=tf.contrib.rnn.LSTMCell,
-               dropout_keep_prob=0.7,
+               dropout=0.3,
                residual_connections=False):
     """Initializes the parameters of the encoder.
 
@@ -95,7 +95,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
       num_units: The number of units in each layer.
       reducer: A `StatesReducer` instance to merge bidirectional states and outputs.
       cell_class: The inner cell class.
-      dropout_keep_prob: The probability to keep units in each layer output.
+      dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
     """
     if isinstance(reducer, ConcatReducer):
@@ -109,7 +109,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
       num_layers,
       num_units,
       cell_class=cell_class,
-      dropout_keep_prob=dropout_keep_prob,
+      dropout=dropout,
       residual_connections=residual_connections)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):

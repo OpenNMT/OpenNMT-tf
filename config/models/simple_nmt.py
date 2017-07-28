@@ -13,7 +13,7 @@ def model():
       num_layers=2,
       num_units=512,
       cell_class=tf.contrib.rnn.LSTMCell,
-      dropout_keep_prob=0.3,
+      dropout=0.3,
       residual_connections=False),
     decoder=onmt.decoders.AttentionalRNNDecoder(
       num_layers=4,
@@ -21,7 +21,7 @@ def model():
       bridge=onmt.utils.DenseBridge(),
       attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
       cell_class=tf.contrib.rnn.LSTMCell,
-      dropout_keep_prob=0.3,
+      dropout=0.3,
       residual_connections=False))
 
 def train(model):

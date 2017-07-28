@@ -74,21 +74,21 @@ class WordEmbedder(TextEmbedder):
   def __init__(self,
                vocabulary_file,
                embedding_size,
-               dropout_keep_prob=1.0,
+               dropout=0.0,
                name=None):
     """Initializes the parameters of the word embedder.
 
     Args:
       vocabulary_file: The vocabulary filename.
       embedding_size: The size of the resulting embedding.
-      dropout_keep_prob: The probability to keep units in the embedding.
+      dropout: The probability to drop units in the embedding.
       name: The name of this embedders used to prefix data fields.
     """
     super(WordEmbedder, self).__init__(name=name)
 
     self.vocabulary_file = vocabulary_file
     self.embedding_size = embedding_size
-    self.dropout_keep_prob = dropout_keep_prob
+    self.dropout = dropout
 
     self.num_oov_buckets = 1
     self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
@@ -125,7 +125,9 @@ class WordEmbedder(TextEmbedder):
 
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
 
-    if mode == tf.estimator.ModeKeys.TRAIN and self.dropout_keep_prob < 1.0:
-      outputs = tf.nn.dropout(outputs, self.dropout_keep_prob)
+    outputs = tf.contrib.layers.dropout(
+      outputs,
+      keep_prob=1.0 - self.dropout,
+      is_training=mode == tf.estimator.ModeKeys.TRAIN)
 
     return outputs

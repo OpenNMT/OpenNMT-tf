@@ -13,7 +13,7 @@ class ConvEncoder(Encoder):
                num_layers,
                num_units,
                kernel_size=3,
-               dropout_keep_prob=0.3,
+               dropout=0.3,
                position_embedding=True,
                position_embedding_max=128,
                position_embedding_reducer=SumReducer()):
@@ -23,7 +23,7 @@ class ConvEncoder(Encoder):
       num_layers: The number of convolutional layers.
       num_units: The number of output filters.
       kernel_size: The kernel size.
-      dropout_keep_prob: The probability to keep units from the inputs.
+      dropout: The probability to drop units from the inputs.
       position_embedding: If `True`, add position embedding.
       position_embedding_max: Maximum position.
       position_embedding_reducer: A `Reducer` to merge inputs and position
@@ -32,7 +32,7 @@ class ConvEncoder(Encoder):
     self.num_layers = num_layers
     self.num_units = num_units
     self.kernel_size = kernel_size
-    self.dropout_keep_prob = dropout_keep_prob
+    self.dropout = dropout
 
     self.position_embedding = position_embedding
     self.position_embedding_max = position_embedding_max
@@ -51,7 +51,7 @@ class ConvEncoder(Encoder):
     # Apply dropout to inputs.
     inputs = tf.contrib.layers.dropout(
       inputs,
-      keep_prob=self.dropout_keep_prob,
+      keep_prob=1.0 - self.dropout,
       is_training=mode == tf.estimator.ModeKeys.TRAIN)
 
     with tf.variable_scope("conv"):
