@@ -8,5 +8,3 @@ from opennmt.utils.reducer import JoinReducer
 from opennmt.utils.bridge import CopyBridge
 from opennmt.utils.bridge import ZeroBridge
 from opennmt.utils.bridge import DenseBridge
-
-from opennmt.utils.misc import count_lines
