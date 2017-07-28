@@ -6,8 +6,6 @@
 * Character convolution embedder
   * Blocked by https://github.com/tensorflow/tensorflow/issues/11715
 * Other validation metrics
-* Self attention encoder
-  * https://arxiv.org/abs/1706.03762
 
 ## Improvements
 
