@@ -1,14 +1,16 @@
-import tensorflow as tf
+"""Define generic embedders."""
 
 import abc
 import six
+
+import tensorflow as tf
 
 from opennmt.utils.reducer import ConcatReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
 class Embedder(object):
-  """Abstract class for embedders."""
+  """Base class for embedders."""
 
   def __init__(self, name=None):
     self.name = name
