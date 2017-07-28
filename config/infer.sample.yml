@@ -3,11 +3,21 @@ run:
 
   # The last checkpoint from this directory will be loaded.
   model_dir: "ckpt"
+
 data:
   features_file: "data/en-test.txt"
+
 params:
   batch_size: 1
+
+  # (optional) Width of the beam search.
   beam_width: 5
+
+  # (optional) Length penaly weight to apply on hypotheses.
   length_penalty: 0.2
+
+  # (optional) Maximum decoding iterations before stopping.
   maximum_iterations: 250
+
+  # (optional) How many hypotheses to predict.
   n_best: 5

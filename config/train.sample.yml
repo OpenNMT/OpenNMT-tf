@@ -7,19 +7,19 @@ run:
   # It is created if it does not exist.
   model_dir: "ckpt"
 
-  # Save a checkpoint every this many steps.
+  # (optional) Save a checkpoint every this many steps.
   save_checkpoints_steps: 1000
 
-  # How many checkpoints to keep on disk.
+  # (optional) How many checkpoints to keep on disk.
   keep_checkpoint_max: 3
 
-  # Save summaries every this many steps.
+  # (optional) Save summaries every this many steps.
   save_summary_steps: 50
 
-  # Evaluate every this many steps.
+  # (optional) Evaluate every this many steps.
   eval_steps: 5000
 
-  # If true, GPU memory will be allocated dynamically, otherwise
+  # (optional) If true, GPU memory will be allocated dynamically, otherwise
   # all the memory will be mapped by TensorFlow.
   gpu_allow_growth: true
 
@@ -30,10 +30,10 @@ data:
   eval_features_file: "data/en-test.txt"
   eval_labels_file: "data/fr-test.txt"
 
-  # The pre-fetch buffer size (e.g. for shuffling examples).
+  # (optional) The pre-fetch buffer size (e.g. for shuffling examples).
   buffer_size: 10000
 
-  # The number of buckets by sequence length.
+  # (optional) The number of buckets by sequence length.
   num_buckets: 5
 
 # Dynamic hyperparameters.
@@ -44,5 +44,5 @@ params:
   optimizer: Adam
   learning_rate: 0.0002
 
-  # Maximum gradients norm.
+  # (optional) Maximum gradients norm.
   clip_gradients: 5.0
