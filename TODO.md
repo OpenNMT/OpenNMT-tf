@@ -6,6 +6,11 @@
 * Character convolution embedder
   * Blocked by https://github.com/tensorflow/tensorflow/issues/11715
 * Other validation metrics
+  * BLEU
+  * Accuracy
+* Pretrained embeddings
+* CRF decoding in sequence tagger
+  * Beginners tutorial: https://guillaumegenthial.github.io/sequence-tagging-with-tensorflow.html
 
 ## Improvements
 

@@ -197,5 +197,6 @@ class MixedEmbedder(Embedder):
   def _embed(self, inputs, mode):
     embs = []
     for embedder, elem in zip(self.embedders, inputs):
+      # TODO: call to each _embed method should be in different scopes.
       embs.append(embedder._embed(elem, mode))
     return self.reducer.reducal_all(embs)
