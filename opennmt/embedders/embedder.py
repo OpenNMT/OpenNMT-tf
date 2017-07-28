@@ -99,7 +99,7 @@ class Embedder(object):
     Subclasses should extend this function to transform the raw value read
     from the dataset to an input they can consume. See also `embed_from_data`.
 
-    This base implementation make sure the data is a dictionary so sublcassed
+    This base implementation makes sure the data is a dictionary so subclasses
     can populate it.
 
     Args:
