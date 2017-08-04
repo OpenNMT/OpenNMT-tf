@@ -24,7 +24,7 @@ def _visualize(log_dir, embedding_var, vocabulary_file):
 
   config = projector.ProjectorConfig()
 
-  # If the projectpr file exists, load it.
+  # If the projector file exists, load it.
   target = os.path.join(log_dir, "projector_config.pbtxt")
   if os.path.exists(target):
     with open(target) as target_file:
