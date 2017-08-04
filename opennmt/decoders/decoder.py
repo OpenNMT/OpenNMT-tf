@@ -46,7 +46,7 @@ class Decoder(object):
                      mode=tf.estimator.ModeKeys.TRAIN,
                      memory=None,
                      memory_sequence_length=None):
-    """Decodes dynamically from `start_tokens` with beam search.
+    """Decodes dynamically from `start_tokens` with greedy search.
 
     Usually used for inference.
 
