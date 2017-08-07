@@ -1,59 +1,10 @@
 """Define the self-attention encoder."""
 
 import tensorflow as tf
+import opennmt.utils.transformer as transformer
 
 from opennmt.encoders.encoder import Encoder, create_position_embedding
 from opennmt.utils.reducer import SumReducer
-from opennmt.utils.attention import multi_head_attention
-
-
-def transformer_ffn(x, inner_dim):
-  """Implements the Transformer's "Feed Forward" layer.
-
-  ffn(x) = max(0, x*W_1 + b_1)*W_2 + b_2
-
-  Args:
-    x: The input.
-    inner_dim: The number of units of the inner linear transformation.
-
-  Returns:
-    The transformed input.
-  """
-  input_dim = x.get_shape().as_list()[-1]
-
-  with tf.variable_scope("ffn"):
-    inner = tf.layers.dense(
-      inputs=x,
-      units=inner_dim,
-      activation=tf.nn.relu)
-    outer = tf.layers.dense(
-      inputs=inner,
-      units=input_dim)
-
-    return outer
-
-def transformer_add_and_norm(inputs,
-                             outputs,
-                             mode,
-                             dropout=0.1):
-  """Implements the Transformer's "Add & Norm" layer.
-
-  Args:
-    inputs: The input of the previous layer.
-    outputs: The output of the previous layer.
-    mode: A `tf.estimator.ModeKeys` mode.
-    dropout: The probability to drop units in `outputs`.
-
-  Returns:
-    The residual and normalized output.
-  """
-  outputs = tf.contrib.layers.dropout(
-    outputs,
-    keep_prob=1.0 - dropout,
-    is_training=mode == tf.estimator.ModeKeys.TRAIN)
-  outputs += inputs
-  outputs = tf.contrib.layers.layer_norm(outputs)
-  return outputs
 
 
 class SelfAttentionEncoder(Encoder):
@@ -100,7 +51,7 @@ class SelfAttentionEncoder(Encoder):
 
     for l in range(self.num_layers):
       with tf.variable_scope("layer_" + str(l)):
-        context = multi_head_attention(
+        context = transformer.multi_head_attention(
           self.num_heads,
           inputs,
           inputs,
@@ -108,14 +59,14 @@ class SelfAttentionEncoder(Encoder):
           mode,
           values_length=sequence_length,
           dropout=self.dropout)
-        context = transformer_add_and_norm(
+        context = transformer.add_and_norm(
           inputs,
           context,
           mode,
           dropout=self.dropout)
 
-        transformed = transformer_ffn(context, self.ffn_inner_dim)
-        transformed = transformer_add_and_norm(
+        transformed = transformer.feed_forward(context, self.ffn_inner_dim)
+        transformed = transformer.add_and_norm(
           context,
           transformed,
           mode,
