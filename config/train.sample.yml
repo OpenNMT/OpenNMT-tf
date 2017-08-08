@@ -27,7 +27,7 @@ run:
 hosts:
   # List of master hosts for distributed training (usually 1).
   # The master manages checkpoints, summaries, and evaluation.
-  master:
+  masters:
     - "localhost:2224"
 
   # List of worker hosts.
