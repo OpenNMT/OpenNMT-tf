@@ -57,23 +57,23 @@ def main():
     })
 
   session_config = tf.ConfigProto()
-  session_config.gpu_options.allow_growth = config.get("gpu_allow_growth", default=False)
+  session_config.gpu_options.allow_growth = config.get("gpu_allow_growth", False)
 
   run_config = tf.contrib.learn.RunConfig(
-    save_summary_steps=config["run"].get("save_summary_steps", default=100),
+    save_summary_steps=config["run"].get("save_summary_steps", 100),
     save_checkpoints_secs=None,
-    save_checkpoints_steps=config["run"].get("save_checkpoints_steps", default=1000),
-    keep_checkpoint_max=config["run"].get("keep_checkpoint_max", default=5),
-    log_step_count_steps=config["run"].get("save_summary_steps", default=100),
+    save_checkpoints_steps=config["run"].get("save_checkpoints_steps", 1000),
+    keep_checkpoint_max=config["run"].get("keep_checkpoint_max", 5),
+    log_step_count_steps=config["run"].get("save_summary_steps", 100),
     model_dir=config["run"]["model_dir"],
     session_config=session_config)
 
-  params = config.get("params", default={})
+  params = config.get("params", {})
   params["log_dir"] = config["run"]["model_dir"]
 
   eval_every = config["run"].get("eval_steps")
-  buffer_size = config["data"].get("buffer_size", default=10000)
-  num_buckets = config["data"].get("num_buckets", default=5)
+  buffer_size = config["data"].get("buffer_size", 10000)
+  num_buckets = config["data"].get("num_buckets", 5)
 
   # Load model configuration.
   model_config = load_config_module(args.model)
