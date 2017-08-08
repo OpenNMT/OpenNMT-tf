@@ -6,7 +6,6 @@
 * Other validation metrics
   * BLEU
   * Accuracy
-* Pretrained embeddings
 
 ## Improvements
 

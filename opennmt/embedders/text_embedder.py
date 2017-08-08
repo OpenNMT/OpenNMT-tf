@@ -3,6 +3,7 @@
 import os
 import shutil
 
+import numpy as np
 import tensorflow as tf
 
 from tensorflow.contrib.tensorboard.plugins import projector
@@ -47,6 +48,33 @@ def _visualize(log_dir, embedding_var, vocabulary_file):
 
   projector.visualize_embeddings(summary_writer, config)
 
+def _load_pretrained_embeddings(embedding_file, vocabulary_file):
+  # Map words to ids from the vocabulary.
+  word_to_id = {}
+  with open(vocabulary_file) as vocabulary:
+    count = 0
+    for word in vocabulary:
+      word_to_id[word.strip()] = count
+      count += 1
+
+  # Fill pretrained embedding matrix.
+  with open(embedding_file) as embedding:
+    pretrained = None
+
+    for line in embedding:
+      fields = line.strip().split()
+      word = fields[0]
+
+      if pretrained is None:
+        pretrained = np.random.normal(size=(count + 1, len(fields) - 1))
+
+      # Lookup word in the vocabulary.
+      if word in word_to_id:
+        index = word_to_id[word]
+        pretrained[index] = np.asarray(fields[1:])
+
+  return pretrained
+
 
 class TextEmbedder(Embedder):
   """An abstract embedder that process text."""
@@ -73,14 +101,26 @@ class WordEmbedder(TextEmbedder):
 
   def __init__(self,
                vocabulary_file,
-               embedding_size,
+               embedding_size=None,
+               embedding_file=None,
+               trainable=True,
                dropout=0.0,
                name=None):
     """Initializes the parameters of the word embedder.
 
     Args:
-      vocabulary_file: The vocabulary filename.
+      vocabulary_file: The vocabulary file containing one word per line.
       embedding_size: The size of the resulting embedding.
+        If `None`, an embedding file must be provided.
+      embedding_file: The embedding file with the format:
+        ```
+        word1 val1 val2 ... valM
+        word2 val1 val2 ... valM
+        ...
+        wordN val1 val2 ... valM
+        ```
+        Entries will be matched against `vocabulary_file`.
+      trainable: If `False`, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
       name: The name of this embedders used to prefix data fields.
     """
@@ -88,7 +128,12 @@ class WordEmbedder(TextEmbedder):
 
     self.vocabulary_file = vocabulary_file
     self.embedding_size = embedding_size
+    self.embedding_file = embedding_file
+    self.trainable = trainable
     self.dropout = dropout
+
+    if embedding_size is None and embedding_file is None:
+      raise ValueError("Must either provide embedding_size or embedding_file")
 
     self.num_oov_buckets = 1
     self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
@@ -120,8 +165,25 @@ class WordEmbedder(TextEmbedder):
     return self.embed(self.get_data_field(data, "ids"), mode)
 
   def _embed(self, inputs, mode):
-    embeddings = tf.get_variable(
-      "w_embs", shape=[self.vocabulary_size, self.embedding_size])
+    try:
+      embeddings = tf.get_variable("w_embs", trainable=self.trainable)
+    except ValueError:
+      # Variable does not exist yet.
+      if self.embedding_file:
+        pretrained = _load_pretrained_embeddings(self.embedding_file, self.vocabulary_file)
+        self.embedding_size = pretrained.shape[-1]
+
+        shape = None
+        initializer = tf.constant(pretrained.astype(np.float32))
+      else:
+        shape = [self.vocabulary_size, self.embedding_size]
+        initializer = None
+
+      embeddings = tf.get_variable(
+        "w_embs",
+        shape=shape,
+        initializer=initializer,
+        trainable=self.trainable)
 
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
 

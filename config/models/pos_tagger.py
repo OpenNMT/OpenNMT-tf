@@ -5,7 +5,9 @@ def model():
   return onmt.models.SequenceTagger(
     embedder=onmt.embedders.WordEmbedder(
       vocabulary_file="data/en-dict.txt",
-      embedding_size=80),
+      embedding_size=None,
+      embedding_file="data/glove.6B.50d.txt",
+      trainable=False),
     encoder=onmt.encoders.BidirectionalRNNEncoder(
       num_layers=2,
       num_units=128,
