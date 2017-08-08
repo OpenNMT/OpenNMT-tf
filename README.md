@@ -1,12 +1,12 @@
 # OpenNMT-tf
 
-*OpenNMT-tf* is a general purpose sequence modeling tools in *TensorFlow* for:
+OpenNMT-tf is a general purpose sequence modeling tools in TensorFlow for:
 
 * sequence to sequence mapping
 * sequence tagging
 * sequence classification
 
-It focuses on modularity and extensibility using standard *TensorFlow* modules and practices.
+It focuses on modularity and extensibility using standard TensorFlow modules and practices.
 
 ## Requirements
 
@@ -40,7 +40,7 @@ Runs are described in separate YAML files. They define how to train or infer a p
 
 ## Monitoring
 
-*OpenNMT-tf* uses [*TensorBoard*](https://github.com/tensorflow/tensorboard) to log information during the training. Simply start `tensorboard` by setting the active log directory, e.g.:
+OpenNMT-tf uses [TensorBoard](https://github.com/tensorflow/tensorboard) to log information during the training. Simply start `tensorboard` by setting the active log directory, e.g.:
 
 ```
 tensorboard --logdir="."
@@ -56,7 +56,7 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 
 ## Distributed training
 
-OpenNMT-tf provides asynchronous training (see the [*TensorFlow* documentation](https://www.tensorflow.org/deploy/distributed) for a general description of distributed training). The user should list in the run description:
+OpenNMT-tf provides asynchronous training (see the [TensorFlow documentation](https://www.tensorflow.org/deploy/distributed) for a general description of distributed training). The user should list in the run description:
 
 * the **master** host: manages checkpoints, summaries, and evaluation
 * the **worker** hosts: run the training loop
