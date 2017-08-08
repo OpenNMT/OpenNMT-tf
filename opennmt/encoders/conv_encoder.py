@@ -7,7 +7,9 @@ from opennmt.utils.reducer import SumReducer
 
 
 class ConvEncoder(Encoder):
-  """An encoder that applies a convolution over the input sequence."""
+  """An encoder that applies a convolution over the input sequence
+  as described in https://arxiv.org/abs/1611.02344.
+  """
 
   def __init__(self,
                num_layers,
@@ -54,7 +56,16 @@ class ConvEncoder(Encoder):
       keep_prob=1.0 - self.dropout,
       is_training=mode == tf.estimator.ModeKeys.TRAIN)
 
-    with tf.variable_scope("conv"):
+    cnn_a = self._cnn_stack(inputs, "cnn_a")
+    cnn_c = self._cnn_stack(inputs, "cnn_c")
+
+    encoder_output = cnn_a
+    encoder_state = tf.reduce_mean(cnn_c, axis=1)
+
+    return (encoder_output, encoder_state, sequence_length)
+
+  def _cnn_stack(self, inputs, scope_name):
+    with tf.variable_scope(scope_name):
       next_input = inputs
 
       for l in range(self.num_layers):
@@ -71,7 +82,4 @@ class ConvEncoder(Encoder):
 
         next_input = tf.tanh(outputs)
 
-    encoder_output = next_input
-    encoder_state = tf.reduce_mean(next_input, axis=1)
-
-    return (encoder_output, encoder_state, sequence_length)
+      return next_input
