@@ -23,6 +23,21 @@ run:
   # all the memory will be mapped by TensorFlow.
   gpu_allow_growth: true
 
+# (optional) Hosts for distributed training.
+hosts:
+  # List of master hosts for distributed training (usually 1).
+  # The master manages checkpoints, summaries, and evaluation.
+  master:
+    - "localhost:2224"
+
+  # List of worker hosts.
+  workers:
+    - "localhost:2223"
+
+  # List of parameter server hosts.
+  ps:
+    - "localhost:2222"
+
 # Paths to data files.
 data:
   train_features_file: "data/en.txt"

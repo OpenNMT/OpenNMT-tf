@@ -1,7 +1,5 @@
 ## Features
 
-* Distributed training
-  * General documentation: https://www.tensorflow.org/deploy/distributed
 * Learning rate decay
 * Character convolution embedder
   * Blocked by https://github.com/tensorflow/tensorflow/issues/11715

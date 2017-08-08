@@ -1,4 +1,6 @@
 import argparse
+import json
+import os
 import yaml
 
 from importlib import import_module
@@ -30,40 +32,48 @@ def main():
                       help="run configuration file")
   parser.add_argument("--model", required=True,
                       help="model configuration file")
+  parser.add_argument("--task_type", default="worker", choices=["master", "worker", "ps"],
+                      help="type of task to run")
+  parser.add_argument("--task_id", type=int, default=0,
+                      help="id of the task")
   args = parser.parse_args()
 
   # Load run configuration.
-  params = {}
-  run_config = tf.estimator.RunConfig()
-
   with open(args.run) as config_file:
     config = yaml.load(config_file.read())
 
-    def _replace(run_config, section, key):
-      kwargs = {}
-      kwargs[key] = section[key]
-      return run_config.replace(**kwargs)
+  # Setup cluster if defined.
+  if "hosts" in config:
+    cluster = {
+      "ps": config["hosts"]["ps"],
+      "worker": config["hosts"]["workers"],
+      "master": config["hosts"]["masters"]
+    }
 
-    def _maybe_replace(run_config, section, key):
-      if key in section:
-        run_config = _replace(run_config, section, key)
-      return run_config
+    os.environ["TF_CONFIG"] = json.dumps({
+      "cluster": cluster,
+      "task": {"type": args.task_type, "index": args.task_id},
+      "environment": "cloud"
+    })
 
-    run_config = _replace(run_config, config["run"], "model_dir")
-    run_config = _maybe_replace(run_config, config["run"], "save_checkpoints_steps")
-    run_config = _maybe_replace(run_config, config["run"], "keep_checkpoint_max")
-    run_config = _maybe_replace(run_config, config["run"], "save_summary_steps")
+  session_config = tf.ConfigProto()
+  session_config.gpu_options.allow_growth = config.get("gpu_allow_growth", default=False)
 
-    eval_every = config["run"].get("eval_steps")
+  run_config = tf.contrib.learn.RunConfig(
+    save_summary_steps=config["run"].get("save_summary_steps", default=100),
+    save_checkpoints_secs=None,
+    save_checkpoints_steps=config["run"].get("save_checkpoints_steps", default=1000),
+    keep_checkpoint_max=config["run"].get("keep_checkpoint_max", default=5),
+    log_step_count_steps=config["run"].get("save_summary_steps", default=100),
+    model_dir=config["run"]["model_dir"],
+    session_config=session_config)
 
-    session_config = tf.ConfigProto()
-    if "gpu_allow_growth" in config["run"]:
-      session_config.gpu_options.allow_growth = config["run"]["gpu_allow_growth"]
-    run_config = run_config.replace(session_config=session_config)
+  params = config.get("params", default={})
+  params["log_dir"] = config["run"]["model_dir"]
 
-    if "params" in config:
-      params.update(config["params"])
-    params["log_dir"] = config["run"]["model_dir"]
+  eval_every = config["run"].get("eval_steps")
+  buffer_size = config["data"].get("buffer_size", default=10000)
+  num_buckets = config["data"].get("num_buckets", default=5)
 
   # Load model configuration.
   model_config = load_config_module(args.model)
@@ -73,9 +83,6 @@ def main():
     model_fn=model,
     config=run_config,
     params=params)
-
-  buffer_size = config["data"].get("buffer_size") or 10000
-  num_buckets = config["data"].get("num_buckets") or 5
 
   if config["run"]["type"] == "train":
     model_config.train(model)
@@ -99,9 +106,14 @@ def main():
       estimator=estimator,
       train_input_fn=train_input_fn,
       eval_input_fn=eval_input_fn,
-      train_steps_per_iteration=eval_every)
+      min_eval_frequency=eval_every)
 
-    experiment.continuous_train_and_eval()
+    if args.task_type == "ps":
+      experiment.run_std_server()
+    elif run_config.is_chief:
+      experiment.train_and_evaluate()
+    else:
+      experiment.train()
   else:
     model_config.infer(model)
 
