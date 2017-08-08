@@ -7,8 +7,6 @@
   * BLEU
   * Accuracy
 * Pretrained embeddings
-* CRF decoding in sequence tagger
-  * Beginners tutorial: https://guillaumegenthial.github.io/sequence-tagging-with-tensorflow.html
 
 ## Improvements
 
