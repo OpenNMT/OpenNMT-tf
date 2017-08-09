@@ -56,15 +56,15 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 
 ## Distributed training
 
-OpenNMT-tf provides asynchronous training (see the [TensorFlow documentation](https://www.tensorflow.org/deploy/distributed) for a general description of distributed training). The user should list in the run description:
+OpenNMT-tf provides asynchronous distributed training (see the [TensorFlow documentation](https://www.tensorflow.org/deploy/distributed) for a general description of distributed training). The user should list in the run description:
 
 * the **master** host: manages checkpoints, summaries, and evaluation
 * the **worker** hosts: run the training loop
 * the **parameter server** hosts: synchronize the parameters
 
-*Note: the master also runs the training loop.*
+*Note: the master also runs a training loop.*
 
-Then a training instance should be start on each machine with a selected task, e.g.:
+Then a training instance should be started on each machine with a selected task, e.g.:
 
 ```
 python onmt.py [...] --task_type worker --task_id 1
