@@ -14,7 +14,7 @@ from opennmt.embedders.embedder import Embedder
 from opennmt.utils.misc import count_lines
 
 
-def _visualize(log_dir, embedding_var, vocabulary_file):
+def _visualize(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
   # Copy vocabulary file to log_dir.
   if not os.path.isdir(log_dir):
     os.makedirs(log_dir)
@@ -22,6 +22,14 @@ def _visualize(log_dir, embedding_var, vocabulary_file):
   basename = os.path.basename(vocabulary_file)
   destination = os.path.join(log_dir, basename)
   shutil.copy(vocabulary_file, destination)
+
+  # Append <unk> tokens.
+  with open(destination, "a") as vocab:
+    if num_oov_buckets == 1:
+      vocab.write("<unk>\n")
+    else:
+      for i in range(num_oov_buckets):
+        vocab.write("<unk" + str(i) + ">\n")
 
   config = projector.ProjectorConfig()
 
@@ -159,7 +167,7 @@ class WordEmbedder(TextEmbedder):
       embeddings = tf.get_variable(
         "w_embs", shape=[self.vocabulary_size, self.embedding_size])
 
-      _visualize(log_dir, embeddings, self.vocabulary_file)
+      _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
   def embed_from_data(self, data, mode):
     return self.embed(self.get_data_field(data, "ids"), mode)
