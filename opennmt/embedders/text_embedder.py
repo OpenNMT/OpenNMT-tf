@@ -174,7 +174,7 @@ class WordEmbedder(TextEmbedder):
   def embed_from_data(self, data, mode):
     return self.embed(self.get_data_field(data, "ids"), mode)
 
-  def _embed(self, inputs, mode):
+  def _embed(self, inputs, mode, reuse=None):
     try:
       embeddings = tf.get_variable("w_embs", trainable=self.trainable)
     except ValueError:

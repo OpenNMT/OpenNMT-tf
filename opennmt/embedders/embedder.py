@@ -149,14 +149,14 @@ class Embedder(object):
     if not scope is None:
       reuse = reuse_next and self.resolved
       with tf.variable_scope(scope, reuse=reuse):
-        outputs = self._embed(inputs, mode)
+        outputs = self._embed(inputs, mode, reuse=reuse)
     else:
       outputs = self._embed(inputs, mode)
     self.resolved = True
     return outputs
 
   @abc.abstractmethod
-  def _embed(self, inputs, mode):
+  def _embed(self, inputs, mode, reuse=None):
     """Implementation of `embed`."""
     raise NotImplementedError()
 
@@ -174,9 +174,7 @@ class MixedEmbedder(Embedder):
     super(MixedEmbedder, self).__init__(name=name)
     self.embedders = embedders
     self.reducer = reducer
-
-    if name:
-      self.set_name(name)
+    self.set_name(name)
 
   def set_name(self, name):
     self.name = name
@@ -198,9 +196,11 @@ class MixedEmbedder(Embedder):
       embs.append(embedder.embed_from_data(data, mode))
     return self.reducer.reduce_all(embs)
 
-  def _embed(self, inputs, mode):
+  def _embed(self, inputs, mode, reuse=None):
     embs = []
+    index = 0
     for embedder, elem in zip(self.embedders, inputs):
-      # TODO: call to each _embed method should be in different scopes.
-      embs.append(embedder._embed(elem, mode))
+      with tf.variable_scope(str(index), reuse=reuse):
+        embs.append(embedder._embed(elem, mode))
+      index += 1
     return self.reducer.reducal_all(embs)
