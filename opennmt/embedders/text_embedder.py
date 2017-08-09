@@ -94,12 +94,13 @@ class TextEmbedder(Embedder):
     """Tokenizes raw text."""
     data = super(TextEmbedder, self).process(data)
 
-    text = self.get_data_field(data, "raw")
-    tokens = tf.string_split([text]).values
-    length = tf.shape(tokens)[0]
+    if not self.has_data_field(data, "tokens"):
+      text = self.get_data_field(data, "raw")
+      tokens = tf.string_split([text]).values
+      length = tf.shape(tokens)[0]
 
-    data = self.set_data_field(data, "tokens", tokens, padded_shape=[None])
-    data = self.set_data_field(data, "length", length, padded_shape=[])
+      data = self.set_data_field(data, "tokens", tokens, padded_shape=[None])
+      data = self.set_data_field(data, "length", length, padded_shape=[])
 
     return data
 
@@ -156,10 +157,12 @@ class WordEmbedder(TextEmbedder):
     """Converts words tokens to ids."""
     data = super(WordEmbedder, self).process(data)
 
-    tokens = self.get_data_field(data, "tokens")
-    ids = self.vocabulary.lookup(tokens)
+    if not self.has_data_field(data, "ids"):
+      tokens = self.get_data_field(data, "tokens")
+      ids = self.vocabulary.lookup(tokens)
 
-    data = self.set_data_field(data, "ids", ids, padded_shape=[None])
+      data = self.set_data_field(data, "ids", ids, padded_shape=[None])
+
     return data
 
   def visualize(self, log_dir):
