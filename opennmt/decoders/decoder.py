@@ -9,15 +9,15 @@ class Decoder(object):
   """Abstract class for decoders."""
 
   @abc.abstractmethod
-  def read_inputs(self,
-                  inputs,
-                  sequence_length,
-                  vocab_size,
-                  encoder_states=None,
-                  mode=tf.estimator.ModeKeys.TRAIN,
-                  memory=None,
-                  memory_sequence_length=None):
-    """Reads a full input sequence.
+  def decode(self,
+             inputs,
+             sequence_length,
+             vocab_size,
+             encoder_states=None,
+             mode=tf.estimator.ModeKeys.TRAIN,
+             memory=None,
+             memory_sequence_length=None):
+    """Decodes a full input sequence.
 
     Usually used for training and evaluation where target sequences are known.
 

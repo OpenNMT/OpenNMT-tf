@@ -122,7 +122,7 @@ class SequenceToSequence(Model):
         target_inputs = self.target_embedder.embed_from_data(labels, mode)
         self.target_embedder.visualize(params["log_dir"])
 
-        decoder_outputs, _, decoded_length = self.decoder.read_inputs(
+        decoder_outputs, _, decoded_length = self.decoder.decode(
           target_inputs,
           self.target_embedder.get_data_field(labels, "length"),
           self.target_embedder.vocabulary_size,

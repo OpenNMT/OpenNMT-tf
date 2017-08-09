@@ -59,14 +59,14 @@ class RNNDecoder(Decoder):
   def _build_output_layer(self, vocab_size):
     return Dense(vocab_size, use_bias=True)
 
-  def read_inputs(self,
-                  inputs,
-                  sequence_length,
-                  vocab_size,
-                  encoder_states=None,
-                  mode=tf.estimator.ModeKeys.TRAIN,
-                  memory=None,
-                  memory_sequence_length=None):
+  def decode(self,
+             inputs,
+             sequence_length,
+             vocab_size,
+             encoder_states=None,
+             mode=tf.estimator.ModeKeys.TRAIN,
+             memory=None,
+             memory_sequence_length=None):
     batch_size = tf.shape(inputs)[0]
     helper = tf.contrib.seq2seq.TrainingHelper(inputs, sequence_length)
 
