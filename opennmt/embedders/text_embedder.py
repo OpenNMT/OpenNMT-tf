@@ -164,8 +164,7 @@ class WordEmbedder(TextEmbedder):
 
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable(
-        "w_embs", shape=[self.vocabulary_size, self.embedding_size])
+      embeddings = tf.get_variable("w_embs")
 
       _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
