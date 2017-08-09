@@ -188,6 +188,10 @@ class MixedEmbedder(Embedder):
       data = embedder.process(data)
     return data
 
+  def visualize(self, log_dir):
+    for embedder in self.embedders:
+      embedder.visualize(log_dir)
+
   def embed_from_data(self, data, mode):
     embs = []
     for embedder in self.embedders:
