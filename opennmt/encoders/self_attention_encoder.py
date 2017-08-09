@@ -47,6 +47,11 @@ class SelfAttentionEncoder(Encoder):
         sequence_length)
       inputs = self.position_encoding_reducer.reduce(inputs, position_embedding)
 
+    inputs = tf.contrib.layers.dropout(
+      inputs,
+      keep_prob=1.0 - self.dropout,
+      is_training=mode == tf.estimator.ModeKeys.TRAIN)
+
     states = []
 
     for l in range(self.num_layers):
