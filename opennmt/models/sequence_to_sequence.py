@@ -159,9 +159,8 @@ class SequenceToSequence(Model):
         self.target_embedder.vocabulary_file,
         vocab_size=self.target_embedder.vocabulary_size - self.target_embedder.num_oov_buckets,
         default_value=constants.UNKNOWN_TOKEN)
-      predicted_ids = tf.transpose(decoder_outputs, perm=[0, 2, 1])
       predictions = {}
-      predictions["tokens"] = target_vocab_rev.lookup(tf.cast(predicted_ids, tf.int64))
+      predictions["tokens"] = target_vocab_rev.lookup(tf.cast(decoder_outputs, tf.int64))
       predictions["length"] = decoded_length
 
       return tf.estimator.EstimatorSpec(

@@ -170,7 +170,9 @@ class RNNDecoder(Decoder):
 
     outputs, states, length = tf.contrib.seq2seq.dynamic_decode(
       decoder, maximum_iterations=maximum_iterations)
-    return (outputs.predicted_ids, states, length)
+    predicted_ids = tf.transpose(outputs.predicted_ids, perm=[0, 2, 1])
+
+    return (predicted_ids, states, length)
 
 
 class AttentionalRNNDecoder(RNNDecoder):
