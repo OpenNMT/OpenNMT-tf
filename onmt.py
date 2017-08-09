@@ -106,6 +106,7 @@ def main():
       estimator=estimator,
       train_input_fn=train_input_fn,
       eval_input_fn=eval_input_fn,
+      eval_steps=None,
       min_eval_frequency=eval_every)
 
     if args.task_type == "ps":
