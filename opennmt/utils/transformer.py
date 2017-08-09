@@ -8,6 +8,7 @@ def scaled_dot_attention(queries,
                          values,
                          mode,
                          values_length=None,
+                         mask_future=False,
                          dropout=0.1):
   """Computes the scaled dot-product attention as described
   in https://arxiv.org/abs/1706.03762.
@@ -18,6 +19,7 @@ def scaled_dot_attention(queries,
     values: The sequence to attend. A tensor of shape `[B, T2, ...]`.
     mode: A `tf.estimator.ModeKeys` mode.
     values_length: The length of the values to attend.
+    mask_future: Mask attention to future positions.
     dropout: The probability to drop units from the inputs.
 
   Returns:
@@ -29,11 +31,20 @@ def scaled_dot_attention(queries,
 
   if not values_length is None:
     # Give no weight to illegal connections.
-    mask = tf.sequence_mask(
-      values_length,
-      tf.shape(values)[1],
-      dtype=tf.float32)
-    mask = tf.expand_dims(mask, axis=1)
+    if mask_future:
+      mask = tf.map_fn(
+        lambda x: tf.sequence_mask(
+          tf.minimum(tf.range(tf.shape(values)[1]) + 1, x),
+          tf.shape(values)[1],
+          dtype=tf.float32),
+        values_length,
+        dtype=tf.float32)
+    else:
+      mask = tf.sequence_mask(
+        values_length,
+        tf.shape(values)[1],
+        dtype=tf.float32)
+      mask = tf.expand_dims(mask, axis=1)
     dot = dot * mask + ((1.0 - mask) * tf.float32.min)
 
   # Compute attention weights.
@@ -56,6 +67,7 @@ def multi_head_attention(num_heads,
                          values,
                          mode,
                          values_length=None,
+                         mask_future=False,
                          dropout=0.1):
   """Computes the multi-head attention as described in
   https://arxiv.org/abs/1706.03762.
@@ -67,6 +79,7 @@ def multi_head_attention(num_heads,
     values: The sequence to attend. A tensor of shape `[B, T2, ...]`.
     mode: A `tf.estimator.ModeKeys` mode.
     values_length: The length of the values to attend.
+    mask_future: Mask attention to future positions.
     dropout: The probability to drop units from the inputs.
 
   Returns:
@@ -100,46 +113,13 @@ def multi_head_attention(num_heads,
           values_proj,
           mode,
           values_length=values_length,
+          mask_future=mask_future,
           dropout=dropout)
 
         heads.append(head_i)
 
     # Concatenate all heads output.
     return tf.concat(heads, axis=2)
-
-
-def masked_multi_head_attention(num_heads,
-                                queries,
-                                keys,
-                                values,
-                                mode,
-                                keep_prob=0.9):
-  """Computes the masked multi-head attention giving no
-  weights to future timesteps as described in
-  https://arxiv.org/abs/1706.03762.
-
-  Args:
-    num_heads: The number of attention heads.
-    queries: The sequence of queries. A tensor of shape `[B, T, ...]`.
-    keys: The sequence use to calculate attention scores. A tensor of shape `[B, T, ...]`.
-    values: The sequence to attend. A tensor of shape `[B, T, ...]`.
-    mode: A `tf.estimator.ModeKeys` mode.
-    values_length: The length of the values to attend.
-    dropout: The probability to drop units from the inputs.
-
-  Returns:
-    The concatenated attention context of each head.
-  """
-  values_length = tf.range(tf.shape(values)[1])
-
-  return multi_head_attention(
-    num_heads,
-    queries,
-    keys,
-    values,
-    mode,
-    values_length=values_length,
-    dropout=dropout)
 
 def feed_forward(x, inner_dim):
   """Implements the Transformer's "Feed Forward" layer.
