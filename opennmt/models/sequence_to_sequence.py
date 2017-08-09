@@ -146,7 +146,7 @@ class SequenceToSequence(Model):
 
     if mode != tf.estimator.ModeKeys.PREDICT:
       loss = masked_sequence_loss(
-        decoder_outputs.rnn_output,
+        decoder_outputs,
         self.target_embedder.get_data_field(labels, "ids_out"),
         self.target_embedder.get_data_field(labels, "length"))
 
@@ -159,7 +159,7 @@ class SequenceToSequence(Model):
         self.target_embedder.vocabulary_file,
         vocab_size=self.target_embedder.vocabulary_size - self.target_embedder.num_oov_buckets,
         default_value=constants.UNKNOWN_TOKEN)
-      predicted_ids = tf.transpose(decoder_outputs.predicted_ids, perm=[0, 2, 1])
+      predicted_ids = tf.transpose(decoder_outputs, perm=[0, 2, 1])
       predictions = {}
       predictions["tokens"] = target_vocab_rev.lookup(tf.cast(predicted_ids, tf.int64))
       predictions["length"] = decoded_length

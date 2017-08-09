@@ -85,7 +85,8 @@ class RNNDecoder(Decoder):
       initial_state,
       output_layer=output_layer)
 
-    return tf.contrib.seq2seq.dynamic_decode(decoder)
+    outputs, states, length = tf.contrib.seq2seq.dynamic_decode(decoder)
+    return (outputs.rnn_output, states, length)
 
   def dynamic_decode(self,
                      embeddings,
@@ -119,8 +120,9 @@ class RNNDecoder(Decoder):
       initial_state,
       output_layer=output_layer)
 
-    return tf.contrib.seq2seq.dynamic_decode(
+    outputs, states, length = tf.contrib.seq2seq.dynamic_decode(
       decoder, maximum_iterations=maximum_iterations)
+    return (outputs.rnn_output, states, length)
 
   def dynamic_decode_and_search(self,
                                 embeddings,
@@ -166,8 +168,9 @@ class RNNDecoder(Decoder):
       output_layer=output_layer,
       length_penalty_weight=length_penalty)
 
-    return tf.contrib.seq2seq.dynamic_decode(
+    outputs, states, length = tf.contrib.seq2seq.dynamic_decode(
       decoder, maximum_iterations=maximum_iterations)
+    return (outputs.predicted_ids, states, length)
 
 
 class AttentionalRNNDecoder(RNNDecoder):
