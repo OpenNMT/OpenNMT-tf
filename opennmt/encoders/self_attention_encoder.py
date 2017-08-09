@@ -56,26 +56,28 @@ class SelfAttentionEncoder(Encoder):
 
     for l in range(self.num_layers):
       with tf.variable_scope("layer_" + str(l)):
-        context = transformer.multi_head_attention(
-          self.num_heads,
-          inputs,
-          inputs,
-          inputs,
-          mode,
-          values_length=sequence_length,
-          dropout=self.dropout)
-        context = transformer.add_and_norm(
-          inputs,
-          context,
-          mode,
-          dropout=self.dropout)
+        with tf.variable_scope("multi_head"):
+          context = transformer.multi_head_attention(
+            self.num_heads,
+            inputs,
+            inputs,
+            inputs,
+            mode,
+            values_length=sequence_length,
+            dropout=self.dropout)
+          context = transformer.add_and_norm(
+            inputs,
+            context,
+            mode,
+            dropout=self.dropout)
 
-        transformed = transformer.feed_forward(context, self.ffn_inner_dim)
-        transformed = transformer.add_and_norm(
-          context,
-          transformed,
-          mode,
-          dropout=self.dropout)
+        with tf.variable_scope("ffn"):
+          transformed = transformer.feed_forward(context, self.ffn_inner_dim)
+          transformed = transformer.add_and_norm(
+            context,
+            transformed,
+            mode,
+            dropout=self.dropout)
 
         inputs = transformed
 
