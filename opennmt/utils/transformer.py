@@ -32,6 +32,7 @@ def scaled_dot_attention(queries,
   if not values_length is None:
     # Give no weight to illegal connections.
     if mask_future:
+      # When masking the future, a position can only attend to previous timesteps.
       mask = tf.map_fn(
         lambda x: tf.sequence_mask(
           tf.minimum(tf.range(tf.shape(values)[1]) + 1, x),
@@ -40,11 +41,13 @@ def scaled_dot_attention(queries,
         values_length,
         dtype=tf.float32)
     else:
+      # Otherwise, simply prevent attention on out-of-range positions.
       mask = tf.sequence_mask(
         values_length,
         tf.shape(values)[1],
         dtype=tf.float32)
       mask = tf.expand_dims(mask, axis=1)
+
     dot = dot * mask + ((1.0 - mask) * tf.float32.min)
 
   # Compute attention weights.
