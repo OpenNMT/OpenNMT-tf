@@ -6,3 +6,4 @@ e.g., from a line of text to a sequence of embeddings.
 
 from opennmt.embedders.embedder import MixedEmbedder
 from opennmt.embedders.text_embedder import WordEmbedder
+from opennmt.embedders.text_embedder import CharConvEmbedder

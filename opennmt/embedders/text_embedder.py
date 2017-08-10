@@ -12,6 +12,7 @@ from google.protobuf import text_format
 
 from opennmt.embedders.embedder import Embedder
 from opennmt.utils.misc import count_lines
+from opennmt.constants import PADDING_TOKEN
 
 
 def _visualize(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
@@ -82,6 +83,44 @@ def _load_pretrained_embeddings(embedding_file, vocabulary_file):
         pretrained[index] = np.asarray(fields[1:])
 
   return pretrained
+
+def _tokens_to_chars(tokens):
+  """Splits a list of tokens into unicode characters.
+  This is an in-graph transformation.
+  """
+
+  def split_chars(token, max_length, delimiter=" "):
+    chars = list(token.decode("utf-8"))
+    while len(chars) < max_length:
+      chars.append(PADDING_TOKEN)
+    return delimiter.join(chars).encode("utf-8")
+
+  def string_len(token):
+    return len(token.decode("utf-8"))
+
+  # Get the length of each token.
+  lengths = tf.map_fn(
+    lambda x: tf.py_func(string_len, [x], [tf.int64]),
+    tokens,
+    dtype=[tf.int64])
+
+  max_length = tf.reduce_max(lengths)
+
+  # Add a delimiter between each unicode character.
+  spaced_chars = tf.map_fn(
+    lambda x: tf.py_func(split_chars, [x, max_length], [tf.string]),
+    tokens,
+    dtype=[tf.string],
+    back_prop=False)
+
+  # Split on this delimiter
+  chars = tf.map_fn(
+    lambda x: tf.string_split(x, delimiter=" ").values,
+    spaced_chars,
+    dtype=tf.string,
+    back_prop=False)
+
+  return chars
 
 
 class TextEmbedder(Embedder):
@@ -201,5 +240,98 @@ class WordEmbedder(TextEmbedder):
       outputs,
       keep_prob=1.0 - self.dropout,
       is_training=mode == tf.estimator.ModeKeys.TRAIN)
+
+    return outputs
+
+
+class CharConvEmbedder(TextEmbedder):
+  """An embedder that applies a convolution on characters embeddings."""
+
+  def __init__(self,
+               vocabulary_file,
+               embedding_size,
+               num_outputs,
+               kernel_size=5,
+               stride=3,
+               dropout=0.0,
+               name=None):
+    """Initializes the parameters of the character convolution embedder.
+
+    Args:
+      vocabulary_file: The vocabulary file containing one character per line.
+      embedding_size: The size of the character embedding.
+      num_outputs: The dimension of the convolution output space.
+      kernel_size: Length of the convolution window.
+      stride: Length of the convolution stride.
+      dropout: The probability to drop units in the embedding.
+      name: The name of this embedders used to prefix data fields.
+    """
+    super(CharConvEmbedder, self).__init__(name=name)
+
+    self.vocabulary_file = vocabulary_file
+    self.embedding_size = embedding_size
+    self.num_outputs = num_outputs
+    self.kernel_size = kernel_size
+    self.stride = stride
+    self.dropout = dropout
+
+    self.num_oov_buckets = 1
+    self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
+
+  def init(self):
+    self.vocabulary = tf.contrib.lookup.index_table_from_file(
+      self.vocabulary_file,
+      vocab_size=self.vocabulary_size - self.num_oov_buckets,
+      num_oov_buckets=self.num_oov_buckets)
+
+  def process(self, data):
+    """Converts words to characters."""
+    data = super(CharConvEmbedder, self).process(data)
+
+    if not self.has_data_field(data, "char_ids"):
+      tokens = self.get_data_field(data, "tokens")
+      chars = _tokens_to_chars(tokens)
+      ids = self.vocabulary.lookup(chars)
+
+      data = self.set_data_field(data, "char_ids", ids, padded_shape=[None, None])
+
+    return data
+
+  def visualize(self, log_dir):
+    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
+      embeddings = tf.get_variable("w_char_embs")
+      _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
+
+  def embed_from_data(self, data, mode):
+    return self.embed(self.get_data_field(data, "char_ids"), mode)
+
+  def _embed(self, inputs, mode):
+    embeddings = tf.get_variable(
+      "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
+
+    outputs = tf.nn.embedding_lookup(embeddings, inputs)
+    outputs = tf.contrib.layers.dropout(
+      outputs,
+      keep_prob=1.0 - self.dropout,
+      is_training=mode == tf.estimator.ModeKeys.TRAIN)
+
+    # Merge batch and sequence timesteps dimensions.
+    outputs = tf.reshape(
+      outputs,
+      [-1, tf.shape(inputs)[-1], self.embedding_size])
+
+    outputs = tf.layers.conv1d(
+      outputs,
+      self.num_outputs,
+      self.kernel_size,
+      strides=self.stride)
+
+    # Max pooling over depth.
+    outputs = tf.reduce_max(outputs, axis=1)
+
+    # Split batch and sequence timesteps dimensions.
+    outputs = tf.reshape(
+      outputs,
+      [-1, tf.shape(inputs)[1], self.num_outputs])
 
     return outputs

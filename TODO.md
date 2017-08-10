@@ -1,8 +1,6 @@
 ## Features
 
 * Learning rate decay
-* Character convolution embedder
-  * Blocked by https://github.com/tensorflow/tensorflow/issues/11715
 * Other validation metrics
   * BLEU
   * Accuracy
