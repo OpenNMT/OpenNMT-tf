@@ -1,5 +1,6 @@
 """Define word-based embedders."""
 
+import collections
 import os
 import shutil
 
@@ -59,11 +60,12 @@ def _visualize(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
 
 def _load_pretrained_embeddings(embedding_file, vocabulary_file):
   # Map words to ids from the vocabulary.
-  word_to_id = {}
+  word_to_id = collections.defaultdict(list)
   with open(vocabulary_file) as vocabulary:
     count = 0
     for word in vocabulary:
-      word_to_id[word.strip()] = count
+      word = word.strip().lower()
+      word_to_id[word].append(count)
       count += 1
 
   # Fill pretrained embedding matrix.
@@ -79,8 +81,9 @@ def _load_pretrained_embeddings(embedding_file, vocabulary_file):
 
       # Lookup word in the vocabulary.
       if word in word_to_id:
-        index = word_to_id[word]
-        pretrained[index] = np.asarray(fields[1:])
+        ids = word_to_id[word]
+        for index in ids:
+          pretrained[index] = np.asarray(fields[1:])
 
   return pretrained
 
