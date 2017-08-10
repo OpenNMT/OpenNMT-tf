@@ -164,16 +164,23 @@ class Embedder(object):
 class MixedEmbedder(Embedder):
   """An embedder that mixes several embedders."""
 
-  def __init__(self, embedders, reducer=ConcatReducer(), name=None):
+  def __init__(self,
+               embedders,
+               reducer=ConcatReducer(),
+               dropout=0.0,
+               name=None):
     """Initializes a mixed embedder.
 
     Args:
       embedders: A list of `Embedder`.
       reducer: A `Reducer` to merge all embeddings.
+      dropout: The probability to drop units in the merged embedding.
+      name: The name of this embedders used to prefix data fields.
     """
     super(MixedEmbedder, self).__init__(name=name)
     self.embedders = embedders
     self.reducer = reducer
+    self.dropout = dropout
     self.set_name(name)
 
   def set_name(self, name):
@@ -208,4 +215,9 @@ class MixedEmbedder(Embedder):
       with tf.variable_scope(str(index), reuse=reuse):
         embs.append(embedder._embed(elem, mode))
       index += 1
-    return self.reducer.reducal_all(embs)
+    outputs = self.reducer.reducal_all(embs)
+    outputs = tf.layers.dropout(
+      outputs,
+      rate=self.dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
+    return outputs
