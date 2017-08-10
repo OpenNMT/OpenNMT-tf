@@ -15,7 +15,7 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
 
 ## Overview
 
-An *OpenNMT-tf* run consists of two elements:
+An OpenNMT-tf run consists of two elements:
 
 * a Python file describing the **model**
 * a YAML file describing the **run**
