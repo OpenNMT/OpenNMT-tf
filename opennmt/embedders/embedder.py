@@ -181,9 +181,14 @@ class MixedEmbedder(Embedder):
     for embedder in self.embedders:
       embedder.set_name(name)
 
+  def init(self):
+    for embedder in self.embedders:
+      embedder.init()
+
   def process(self, data):
     for embedder in self.embedders:
       data = embedder.process(data)
+      self.padded_shapes.update(embedder.padded_shapes)
     return data
 
   def visualize(self, log_dir):
