@@ -173,7 +173,7 @@ class WordEmbedder(TextEmbedder):
         Entries will be matched against `vocabulary_file`.
       trainable: If `False`, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
-      name: The name of this embedders used to prefix data fields.
+      name: The name of this embedder used to prefix data fields.
     """
     super(WordEmbedder, self).__init__(name=name)
 
@@ -267,7 +267,7 @@ class CharConvEmbedder(TextEmbedder):
       kernel_size: Length of the convolution window.
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
-      name: The name of this embedders used to prefix data fields.
+      name: The name of this embedder used to prefix data fields.
     """
     super(CharConvEmbedder, self).__init__(name=name)
 

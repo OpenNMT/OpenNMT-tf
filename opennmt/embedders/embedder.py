@@ -175,7 +175,7 @@ class MixedEmbedder(Embedder):
       embedders: A list of `Embedder`.
       reducer: A `Reducer` to merge all embeddings.
       dropout: The probability to drop units in the merged embedding.
-      name: The name of this embedders used to prefix data fields.
+      name: The name of this embedder used to prefix data fields.
     """
     super(MixedEmbedder, self).__init__(name=name)
     self.embedders = embedders
