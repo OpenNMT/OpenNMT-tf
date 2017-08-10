@@ -51,10 +51,10 @@ class ConvEncoder(Encoder):
         inputs = self.position_embedding_reducer.reduce(inputs, position_embedding)
 
     # Apply dropout to inputs.
-    inputs = tf.contrib.layers.dropout(
+    inputs = tf.layers.dropout(
       inputs,
-      keep_prob=1.0 - self.dropout,
-      is_training=mode == tf.estimator.ModeKeys.TRAIN)
+      rate=self.dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
 
     cnn_a = self._cnn_stack(inputs, "cnn_a")
     cnn_c = self._cnn_stack(inputs, "cnn_c")

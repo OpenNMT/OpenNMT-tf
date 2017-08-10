@@ -53,10 +53,10 @@ def scaled_dot_attention(queries,
   # Compute attention weights.
   attn = tf.nn.softmax(dot)
 
-  attn = tf.contrib.layers.dropout(
+  attn = tf.layers.dropout(
     attn,
-    keep_prob=1.0 - dropout,
-    is_training=mode == tf.estimator.ModeKeys.TRAIN)
+    rate=dropout,
+    training=mode == tf.estimator.ModeKeys.TRAIN)
 
   # Compute attention context.
   context = tf.matmul(attn, values)
@@ -164,10 +164,10 @@ def add_and_norm(inputs,
   Returns:
     The residual and normalized output.
   """
-  outputs = tf.contrib.layers.dropout(
+  outputs = tf.layers.dropout(
     outputs,
-    keep_prob=1.0 - dropout,
-    is_training=mode == tf.estimator.ModeKeys.TRAIN)
+    rate=dropout,
+    training=mode == tf.estimator.ModeKeys.TRAIN)
   outputs += inputs
   outputs = tf.contrib.layers.layer_norm(outputs)
   return outputs

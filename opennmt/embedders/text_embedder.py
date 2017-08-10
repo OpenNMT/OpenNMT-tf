@@ -236,10 +236,10 @@ class WordEmbedder(TextEmbedder):
 
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
 
-    outputs = tf.contrib.layers.dropout(
+    outputs = tf.layers.dropout(
       outputs,
-      keep_prob=1.0 - self.dropout,
-      is_training=mode == tf.estimator.ModeKeys.TRAIN)
+      rate=self.dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
 
     return outputs
 
@@ -310,10 +310,10 @@ class CharConvEmbedder(TextEmbedder):
       "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
 
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
-    outputs = tf.contrib.layers.dropout(
+    outputs = tf.layers.dropout(
       outputs,
-      keep_prob=1.0 - self.dropout,
-      is_training=mode == tf.estimator.ModeKeys.TRAIN)
+      rate=self.dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
 
     # Merge batch and sequence timesteps dimensions.
     outputs = tf.reshape(
