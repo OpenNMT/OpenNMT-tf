@@ -102,6 +102,7 @@ def main():
       config["data"]["eval_features_file"],
       labels_file=config["data"]["eval_labels_file"])
 
+    # TODO: evaluate on the whole dataset and not by chunk of 100 (the default).
     experiment = tf.contrib.learn.Experiment(
       estimator=estimator,
       train_input_fn=train_input_fn,
