@@ -55,7 +55,7 @@ if args.with_sequence_tokens:
 # Add each token from the corpus.
 with open(args.data) as data:
   for line in data:
-    line = line.strip()
+    line = line.strip().decode("utf-8")
     if not args.delimiter:
       tokens = list(line)
     else:
@@ -91,5 +91,5 @@ if new_size < len(id_to_token):
 # Generate the vocabulary file.
 with open(args.save_vocab, "w") as vocab:
   for token in id_to_token:
-    vocab.write(token)
+    vocab.write(token.encode("utf-8"))
     vocab.write("\n")
