@@ -84,7 +84,25 @@ class Embedder(object):
     """
     return self._prefix_key(key) in data
 
-  def init(self):
+  def make_dataset(self, data_file):
+    """Creates the dataset required by this embedder.
+
+    Args:
+      data_file: The data file.
+
+    Returns:
+      A `tf.contrib.data.Dataset`.
+    """
+    self._initialize()
+    dataset = self._make_dataset(data_file)
+    dataset = dataset.map(self.process)
+    return dataset
+
+  @abc.abstractmethod
+  def _make_dataset(self, data_file):
+    raise NotImplementedError()
+
+  def _initialize(self):
     """Initializes the embedder within the current graph.
 
     For example, one can create lookup tables in this method
@@ -188,9 +206,13 @@ class MixedEmbedder(Embedder):
     for embedder in self.embedders:
       embedder.set_name(name)
 
-  def init(self):
+  def _make_dataset(self, data_file):
+    # TODO: support multi source.
+    return self.embedders[0].make_dataset(data_file)
+
+  def _initialize(self):
     for embedder in self.embedders:
-      embedder.init()
+      embedder._initialize()
 
   def process(self, data):
     for embedder in self.embedders:

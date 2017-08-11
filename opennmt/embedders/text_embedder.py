@@ -132,6 +132,9 @@ class TextEmbedder(Embedder):
   def __init__(self, name=None):
     super(TextEmbedder, self).__init__(name=name)
 
+  def _make_dataset(self, data_file):
+    return tf.contrib.data.TextLineDataset(data_file)
+
   def process(self, data):
     """Tokenizes raw text."""
     data = super(TextEmbedder, self).process(data)
@@ -189,7 +192,7 @@ class WordEmbedder(TextEmbedder):
     self.num_oov_buckets = 1
     self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
 
-  def init(self):
+  def _initialize(self):
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
       self.vocabulary_file,
       vocab_size=self.vocabulary_size - self.num_oov_buckets,
@@ -281,7 +284,7 @@ class CharConvEmbedder(TextEmbedder):
     self.num_oov_buckets = 1
     self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
 
-  def init(self):
+  def _initialize(self):
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
       self.vocabulary_file,
       vocab_size=self.vocabulary_size - self.num_oov_buckets,

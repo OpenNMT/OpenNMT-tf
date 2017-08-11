@@ -50,10 +50,7 @@ class SequenceTagger(Model):
     return cond
 
   def _build_dataset(self, mode, batch_size, features_file, labels_file=None):
-    features_dataset = tf.contrib.data.TextLineDataset(features_file)
-
-    self.embedder.init()
-    features_dataset = features_dataset.map(lambda x: self.embedder.process(x))
+    features_dataset = self.embedder.make_dataset(features_file)
 
     if labels_file is None:
       dataset = features_dataset
@@ -66,7 +63,7 @@ class SequenceTagger(Model):
         vocab_size=self.num_labels)
 
       labels_dataset = labels_dataset.map(lambda x: tf.string_split([x]).values)
-      labels_dataset = labels_dataset.map(lambda x: labels_vocabulary.lookup(x))
+      labels_dataset = labels_dataset.map(labels_vocabulary.lookup)
 
       dataset = tf.contrib.data.Dataset.zip((features_dataset, labels_dataset))
       padded_shapes = (self.embedder.padded_shapes, [None])

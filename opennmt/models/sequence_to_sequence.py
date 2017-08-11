@@ -87,19 +87,14 @@ class SequenceToSequence(Model):
     source_file = features_file
     target_file = labels_file
 
-    source_dataset = tf.contrib.data.TextLineDataset(source_file)
-    self.source_embedder.init()
-    source_dataset = source_dataset.map(lambda x: self.source_embedder.process(x))
+    source_dataset = self.source_embedder.make_dataset(source_file)
 
     if target_file is None:
       dataset = source_dataset
       padded_shapes = self.source_embedder.padded_shapes
     else:
-      target_dataset = tf.contrib.data.TextLineDataset(target_file)
-
-      self.target_embedder.init()
-      target_dataset = target_dataset.map(lambda x: self.target_embedder.process(x))
-      target_dataset = target_dataset.map(lambda x: self._shift_target(x))
+      target_dataset = self.target_embedder.make_dataset(target_file)
+      target_dataset = target_dataset.map(self._shift_target)
       dataset = tf.contrib.data.Dataset.zip((source_dataset, target_dataset))
       padded_shapes = (self.source_embedder.padded_shapes, self.target_embedder.padded_shapes)
 

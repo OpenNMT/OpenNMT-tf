@@ -42,10 +42,7 @@ class SequenceClassifier(Model):
     return cond
 
   def _build_dataset(self, mode, batch_size, features_file, labels_file=None):
-    features_dataset = tf.contrib.data.TextLineDataset(features_file)
-
-    self.embedder.init()
-    features_dataset = features_dataset.map(lambda x: self.embedder.process(x))
+    features_dataset = self.embedder.make_dataset(features_file)
 
     if labels_file is None:
       dataset = features_dataset
