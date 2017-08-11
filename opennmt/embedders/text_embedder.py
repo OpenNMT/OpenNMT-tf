@@ -153,7 +153,7 @@ class TextEmbedder(Embedder):
     return data
 
   @abc.abstractmethod
-  def embed_from_data(self, data, mode):
+  def _embed_from_data(self, data, mode):
     raise NotImplementedError()
 
   @abc.abstractmethod
@@ -225,10 +225,9 @@ class WordEmbedder(TextEmbedder):
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       embeddings = tf.get_variable("w_embs")
-
       _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
-  def embed_from_data(self, data, mode):
+  def _embed_from_data(self, data, mode):
     return self.embed(self.get_data_field(data, "ids"), mode)
 
   def _embed(self, inputs, mode, reuse=None):
@@ -321,7 +320,7 @@ class CharConvEmbedder(TextEmbedder):
       embeddings = tf.get_variable("w_char_embs")
       _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
-  def embed_from_data(self, data, mode):
+  def _embed_from_data(self, data, mode):
     return self.embed(self.get_data_field(data, "char_ids"), mode)
 
   def _embed(self, inputs, mode, reuse=None):

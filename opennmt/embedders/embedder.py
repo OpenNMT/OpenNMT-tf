@@ -136,8 +136,7 @@ class Embedder(object):
     """Optionally visualize embeddings."""
     pass
 
-  @abc.abstractmethod
-  def embed_from_data(self, data, mode):
+  def embed_from_data(self, data, mode, log_dir=None):
     """Embeds inputs from the processed data.
 
     This is usually a simple forward of a `data` field to `embed`.
@@ -146,11 +145,16 @@ class Embedder(object):
     Args:
       data: A dictionary of data fields.
       mode: A `tf.estimator.ModeKeys` mode.
+      log_dir: The log directory. If set, embeddings visualization
+        will be setup.
 
     Returns:
       The embedding.
     """
-    raise NotImplementedError()
+    embed = self._embed_from_data(data, mode)
+    if log_dir:
+      self.visualize(log_dir)
+    return embed
 
   def embed(self, inputs, mode, scope=None, reuse_next=None):
     """Embeds inputs.
@@ -172,6 +176,10 @@ class Embedder(object):
       outputs = self._embed(inputs, mode)
     self.resolved = True
     return outputs
+
+  @abc.abstractmethod
+  def _embed_from_data(self, data, mode):
+    raise NotImplementedError()
 
   @abc.abstractmethod
   def _embed(self, inputs, mode, reuse=None):
@@ -224,10 +232,10 @@ class MixedEmbedder(Embedder):
     for embedder in self.embedders:
       embedder.visualize(log_dir)
 
-  def embed_from_data(self, data, mode):
+  def _embed_from_data(self, data, mode):
     embs = []
     for embedder in self.embedders:
-      embs.append(embedder.embed_from_data(data, mode))
+      embs.append(embedder._embed_from_data(data, mode)) # pylint: disable=protected-access
     return self.reducer.reduce_all(embs)
 
   def _embed(self, inputs, mode, reuse=None):

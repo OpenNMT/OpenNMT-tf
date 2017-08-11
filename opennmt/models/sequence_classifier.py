@@ -64,8 +64,10 @@ class SequenceClassifier(Model):
 
   def _build(self, features, labels, params, mode):
     with tf.variable_scope("encoder"):
-      inputs = self.embedder.embed_from_data(features, mode)
-      self.embedder.visualize(params["log_dir"])
+      inputs = self.embedder.embed_from_data(
+        features,
+        mode,
+        log_dir=params.get("log_dir"))
 
       encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
         inputs,

@@ -107,8 +107,10 @@ class SequenceToSequence(Model):
     batch_size = tf.shape(self.source_embedder.get_data_field(features, "length"))[0]
 
     with tf.variable_scope("encoder"):
-      source_inputs = self.source_embedder.embed_from_data(features, mode)
-      self.source_embedder.visualize(params["log_dir"])
+      source_inputs = self.source_embedder.embed_from_data(
+        features,
+        mode,
+        log_dir=params.get("log_dir"))
 
       encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
         source_inputs,
@@ -117,8 +119,10 @@ class SequenceToSequence(Model):
 
     with tf.variable_scope("decoder") as decoder_scope:
       if mode != tf.estimator.ModeKeys.PREDICT:
-        target_inputs = self.target_embedder.embed_from_data(labels, mode)
-        self.target_embedder.visualize(params["log_dir"])
+        target_inputs = self.target_embedder.embed_from_data(
+          labels,
+          mode,
+          log_dir=params.get("log_dir"))
 
         decoder_outputs, _, decoded_length = self.decoder.decode(
           target_inputs,
