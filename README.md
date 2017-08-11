@@ -10,7 +10,7 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
 
 ## Requirements
 
-* `tensorflow` (version TBD)
+* `tensorflow` (`nightly`)
 * `pyyaml`
 
 ## Overview
