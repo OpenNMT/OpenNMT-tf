@@ -80,7 +80,7 @@ class Model(object):
       labels_file=labels_file)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      dataset = dataset.filter(lambda features, labels: self._filter_example(features, labels))
+      dataset = dataset.filter(self._filter_example)
       dataset = dataset.shuffle(buffer_size=buffer_size)
       dataset = dataset.repeat()
     elif mode == tf.estimator.ModeKeys.EVAL:

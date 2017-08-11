@@ -1,8 +1,10 @@
 """Define word-based embedders."""
 
+import abc
 import collections
 import os
 import shutil
+import six
 
 import numpy as np
 import tensorflow as tf
@@ -126,6 +128,7 @@ def _tokens_to_chars(tokens):
   return chars
 
 
+@six.add_metaclass(abc.ABCMeta)
 class TextEmbedder(Embedder):
   """An abstract embedder that process text."""
 
@@ -148,6 +151,14 @@ class TextEmbedder(Embedder):
       data = self.set_data_field(data, "length", length, padded_shape=[])
 
     return data
+
+  @abc.abstractmethod
+  def embed_from_data(self, data, mode):
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def _embed(self, inputs, mode, reuse=None):
+    raise NotImplementedError()
 
 
 class WordEmbedder(TextEmbedder):
@@ -191,6 +202,7 @@ class WordEmbedder(TextEmbedder):
 
     self.num_oov_buckets = 1
     self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
+    self.vocabulary = None
 
   def _initialize(self):
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
@@ -283,6 +295,7 @@ class CharConvEmbedder(TextEmbedder):
 
     self.num_oov_buckets = 1
     self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
+    self.vocabulary = None
 
   def _initialize(self):
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
@@ -311,7 +324,7 @@ class CharConvEmbedder(TextEmbedder):
   def embed_from_data(self, data, mode):
     return self.embed(self.get_data_field(data, "char_ids"), mode)
 
-  def _embed(self, inputs, mode):
+  def _embed(self, inputs, mode, reuse=None):
     embeddings = tf.get_variable(
       "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
 

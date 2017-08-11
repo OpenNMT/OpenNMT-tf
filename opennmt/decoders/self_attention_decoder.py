@@ -42,7 +42,7 @@ class SelfAttentionDecoder(Decoder):
              memory=None,
              memory_sequence_length=None,
              return_logits=True):
-    # TODO: implements positional encoding as described in the paper.
+    # TODO: implement positional encoding as described in the paper.
     with tf.variable_scope("position_embedding"):
       input_dim = inputs.get_shape().as_list()[-1]
       position_embedding = create_position_embedding(

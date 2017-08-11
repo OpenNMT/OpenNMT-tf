@@ -27,6 +27,9 @@ class SequenceToSequence(Model):
     self.source_embedder.set_name("source")
     self.target_embedder.set_name("target")
 
+    self.maximum_source_length = 0
+    self.maximum_target_length = 0
+
   def set_filters(self,
                   maximum_source_length,
                   maximum_target_length):
@@ -45,13 +48,13 @@ class SequenceToSequence(Model):
       tf.greater(self.source_embedder.get_data_field(features, "length"), 0),
       tf.greater(self.target_embedder.get_data_field(labels, "length"), 0))
 
-    if hasattr(self, "maximum_source_length"):
+    if self.maximum_source_length > 0:
       cond = tf.logical_and(
         cond,
         tf.less_equal(self.source_embedder.get_data_field(features, "length"),
                       self.maximum_source_length))
 
-    if hasattr(self, "maximum_target_length"):
+    if self.maximum_target_length > 0:
       cond = tf.logical_and(
         cond,
         tf.less_equal(self.target_embedder.get_data_field(labels, "length"),

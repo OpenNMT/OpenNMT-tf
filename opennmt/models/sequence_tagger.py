@@ -22,6 +22,7 @@ class SequenceTagger(Model):
     self.labels_vocabulary_file = labels_vocabulary_file
     self.num_labels = count_lines(labels_vocabulary_file)
     self.crf_decoding = crf_decoding
+    self.maximum_length = 0
 
     self.id_to_label = []
     with open(labels_vocabulary_file) as labels_vocabulary:
@@ -41,7 +42,7 @@ class SequenceTagger(Model):
     """Filters examples with invalid length."""
     cond = tf.greater(self.embedder.get_data_field(features, "length"), 0)
 
-    if hasattr(self, "maximum_length"):
+    if self.maximum_length > 0:
       cond = tf.logical_and(
         cond,
         tf.less_equal(self.embedder.get_data_field(features, "length"),

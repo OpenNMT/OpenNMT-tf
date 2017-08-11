@@ -19,6 +19,7 @@ class SequenceClassifier(Model):
     self.encoder = encoder
     self.labels_vocabulary_file = labels_vocabulary_file
     self.num_labels = count_lines(labels_vocabulary_file)
+    self.maximum_length = 0
 
   def set_filters(self, maximum_length):
     self.maximum_length = maximum_length
@@ -33,7 +34,7 @@ class SequenceClassifier(Model):
     """Filters examples with invalid length."""
     cond = tf.greater(self.embedder.get_data_field(features, "length"), 0)
 
-    if hasattr(self, "maximum_length"):
+    if self.maximum_length > 0:
       cond = tf.logical_and(
         cond,
         tf.less_equal(self.embedder.get_data_field(features, "length"),

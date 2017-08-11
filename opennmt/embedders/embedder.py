@@ -235,7 +235,7 @@ class MixedEmbedder(Embedder):
     index = 0
     for embedder, elem in zip(self.embedders, inputs):
       with tf.variable_scope(str(index), reuse=reuse):
-        embs.append(embedder._embed(elem, mode))
+        embs.append(embedder._embed(elem, mode)) # pylint: disable=protected-access
       index += 1
     outputs = self.reducer.reducal_all(embs)
     outputs = tf.layers.dropout(
