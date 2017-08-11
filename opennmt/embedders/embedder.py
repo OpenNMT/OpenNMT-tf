@@ -216,7 +216,7 @@ class MixedEmbedder(Embedder):
 
   def _make_dataset(self, data_file):
     # TODO: support multi source.
-    return self.embedders[0].make_dataset(data_file)
+    return self.embedders[0]._make_dataset(data_file)
 
   def _initialize(self):
     for embedder in self.embedders:
