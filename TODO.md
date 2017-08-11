@@ -19,5 +19,5 @@
 Also:
 
 ```
-grep -r TODO opennmt/
+grep -r TODO *.py opennmt/
 ```
