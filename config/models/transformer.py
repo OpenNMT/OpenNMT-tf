@@ -1,0 +1,23 @@
+import tensorflow as tf
+import opennmt as onmt
+
+def model():
+  return onmt.models.Transformer(
+    source_embedder=onmt.embedders.WordEmbedder(
+      vocabulary_file="data/en-dict.txt",
+      embedding_size=512),
+    target_embedder=onmt.embedders.WordEmbedder(
+      vocabulary_file="data/fr-dict.txt",
+      embedding_size=512),
+    num_layers=4,
+    num_heads=8,
+    ffn_inner_dim=2048,
+    dropout=0.1)
+
+def train(model):
+  model.set_filters(
+    maximum_source_length=70,
+    maximum_target_length=70)
+
+def infer(model):
+  pass

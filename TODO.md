@@ -4,10 +4,10 @@
 * Other validation metrics
   * BLEU
   * Accuracy
-* Self attention decoder
-  * https://arxiv.org/abs/1706.03762
 * Convolutional decoder
   * https://arxiv.org/abs/1705.03122
+* Generic beam search
+  * Maybe https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/utils/beam_search.py
 
 ## Improvements
 

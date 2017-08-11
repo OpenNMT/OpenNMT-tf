@@ -26,9 +26,9 @@ class SelfAttentionEncoder(Encoder):
       ffn_inner_dim: The number of units of the inner linear transformation
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
-      keep_layers_output: If `True`, the states of the encoder will contain
-        the complete output of each layers. Otherwise, it will contain the
-        mean of these outputs. This is `True` in the Transformer model.
+      keep_layers_output: If `True`, the memory of the encoder will contain
+        the output of each layer. Otherwise, it will only contain the
+        last layer output. This is `True` in the Transformer model.
     """
     self.num_layers = num_layers
     self.num_heads = num_heads
@@ -52,6 +52,7 @@ class SelfAttentionEncoder(Encoder):
       rate=self.dropout,
       training=mode == tf.estimator.ModeKeys.TRAIN)
 
+    outputs = []
     states = []
 
     for l in range(self.num_layers):
@@ -80,10 +81,9 @@ class SelfAttentionEncoder(Encoder):
             dropout=self.dropout)
 
         inputs = transformed
+        state = tf.reduce_mean(inputs, axis=1)
 
-        state = inputs
-        if not self.keep_layers_output:
-          state = tf.reduce_mean(state, axis=1)
-        states.append(state)
+        if self.keep_layers_output:
+          outputs.append(inputs)
 
-    return (inputs, states, sequence_length)
+    return (inputs if not outputs else outputs, states, sequence_length)
