@@ -133,8 +133,8 @@ class SelfAttentionDecoder(Decoder):
     finished = tf.tile([False], [batch_size])
     step = tf.constant(0)
 
-    # TODO: `inputs` is currently flattened to respect shape invariance, workaround?
-    inputs = start_tokens
+    inputs = tf.expand_dims(start_tokens, 1)
+    inputs._shape = tf.TensorShape([None, None]) # Ensure shape invariance in tf.while_loop.
     lengths = tf.zeros([batch_size], dtype=tf.int32)
 
     def condition(step, finished, inputs, lengths):
@@ -142,11 +142,10 @@ class SelfAttentionDecoder(Decoder):
 
     def body(step, finished, inputs, lengths):
       inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, tf.int32))
-      embeds = embeddings(tf.reshape(inputs, [-1, step + 1]))
 
       # Decode inputs.
       outputs, _, _ = self.decode(
-        embeds,
+        embeddings(inputs),
         inputs_lengths,
         vocab_size,
         encoder_states=encoder_states,
@@ -157,16 +156,17 @@ class SelfAttentionDecoder(Decoder):
 
       # Only sample the last timestep.
       last_output = tf.slice(outputs, [0, step, 0], [-1, 1, -1])
-      last_output = tf.squeeze(last_output, axis=[1])
       logits = tf.layers.dense(
         last_output,
         vocab_size)
       probs = tf.nn.softmax(logits)
       sample_ids = tf.argmax(probs, axis=-1)
 
-      next_inputs = tf.concat([inputs, tf.cast(sample_ids, tf.int32)], 0)
+      next_inputs = tf.concat([inputs, tf.cast(sample_ids, tf.int32)], -1)
       next_lengths = inputs_lengths
-      next_finished = tf.logical_or(finished, tf.equal(sample_ids, end_token))
+      next_finished = tf.logical_or(
+        finished,
+        tf.equal(tf.squeeze(sample_ids, axis=[1]), end_token))
       step = step + 1
 
       if maximum_iterations is not None:
@@ -182,9 +182,7 @@ class SelfAttentionDecoder(Decoder):
 
     step = res[0]
     lengths = res[3]
-
-    outputs = tf.reshape(res[2], [-1, step + 1]) # Restore time dimension.
-    outputs = tf.slice(outputs, [0, 1], [-1, -1]) # Ignore <s>.
+    outputs = tf.slice(res[2], [0, 1], [-1, -1]) # Ignore <s>.
 
     # Make shape consistent with beam search.
     outputs = tf.expand_dims(outputs, 1)
