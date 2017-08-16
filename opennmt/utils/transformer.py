@@ -93,36 +93,35 @@ def multi_head_attention(num_heads,
   input_dim = keys.get_shape().as_list()[-1]
   head_dim = input_dim / num_heads
 
-  with tf.variable_scope("multi_head"):
-    for i in range(num_heads):
-      with tf.variable_scope("head_" + str(i)):
-        # Project queries, keys and values to different and smaller subspaces.
-        queries_proj = tf.layers.dense(
-          queries,
-          head_dim,
-          use_bias=False)
-        keys_proj = tf.layers.dense(
-          keys,
-          head_dim,
-          use_bias=False)
-        values_proj = tf.layers.dense(
-          values,
-          head_dim,
-          use_bias=False)
+  for i in range(num_heads):
+    with tf.variable_scope("head_" + str(i)):
+      # Project queries, keys and values to different and smaller subspaces.
+      queries_proj = tf.layers.dense(
+        queries,
+        head_dim,
+        use_bias=False)
+      keys_proj = tf.layers.dense(
+        keys,
+        head_dim,
+        use_bias=False)
+      values_proj = tf.layers.dense(
+        values,
+        head_dim,
+        use_bias=False)
 
-        head_i = scaled_dot_attention(
-          queries_proj,
-          keys_proj,
-          values_proj,
-          mode,
-          values_length=values_length,
-          mask_future=mask_future,
-          dropout=dropout)
+      head_i = scaled_dot_attention(
+        queries_proj,
+        keys_proj,
+        values_proj,
+        mode,
+        values_length=values_length,
+        mask_future=mask_future,
+        dropout=dropout)
 
-        heads.append(head_i)
+      heads.append(head_i)
 
-    # Concatenate all heads output.
-    return tf.concat(heads, axis=2)
+  # Concatenate all heads output.
+  return tf.concat(heads, axis=2)
 
 def feed_forward(x, inner_dim):
   """Implements the Transformer's "Feed Forward" layer.
@@ -138,16 +137,15 @@ def feed_forward(x, inner_dim):
   """
   input_dim = x.get_shape().as_list()[-1]
 
-  with tf.variable_scope("ffn"):
-    inner = tf.layers.dense(
-      inputs=x,
-      units=inner_dim,
-      activation=tf.nn.relu)
-    outer = tf.layers.dense(
-      inputs=inner,
-      units=input_dim)
+  inner = tf.layers.dense(
+    inputs=x,
+    units=inner_dim,
+    activation=tf.nn.relu)
+  outer = tf.layers.dense(
+    inputs=inner,
+    units=input_dim)
 
-    return outer
+  return outer
 
 def add_and_norm(inputs,
                  outputs,
