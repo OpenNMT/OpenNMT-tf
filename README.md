@@ -30,7 +30,7 @@ python onmt.py --model config/models/my_model.py --run config/my_run.yml
 
 Models are defined from the code to allow a high level of modeling freedom and ensuring that the library exposes consistent interfaces. The user should provide a `opennmt.models.Model` instance using available or user-defined modules.
 
-*See example models in `config/models/`.*
+*See the template file `config/models/template.py` and examples in `config/models/`.*
 
 ### Run configuration
 
