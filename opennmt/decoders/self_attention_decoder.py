@@ -132,9 +132,7 @@ class SelfAttentionDecoder(Decoder):
     batch_size = tf.shape(start_tokens)[0]
     finished = tf.tile([False], [batch_size])
     step = tf.constant(0)
-
     inputs = tf.expand_dims(start_tokens, 1)
-    inputs._shape = tf.TensorShape([None, None]) # Ensure shape invariance in tf.while_loop.
     lengths = tf.zeros([batch_size], dtype=tf.int32)
 
     def condition(step, finished, inputs, lengths):
@@ -178,6 +176,12 @@ class SelfAttentionDecoder(Decoder):
       condition,
       body,
       loop_vars=(step, finished, inputs, lengths),
+      shape_invariants=(
+        tf.TensorShape([]),
+        finished.get_shape(),
+        tf.TensorShape([None, None]),
+        lengths.get_shape()
+      ),
       parallel_iterations=32)
 
     step = res[0]
