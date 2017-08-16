@@ -1,4 +1,4 @@
-## Features
+## To add
 
 * Learning rate decay
 * Other validation metrics
@@ -7,7 +7,7 @@
 * Convolutional decoder
   * https://arxiv.org/abs/1705.03122
 
-## Improvements
+## To improve
 
 * Write modules tests
 * Validate Python 2 & 3 compatibility
@@ -15,6 +15,12 @@
   * https://github.com/tensorflow/tensorflow/pull/12056
 * Set TensorFlow target version. Waiting for:
   * https://github.com/tensorflow/tensorflow/commit/865b92da01582081576728504bedf932b367b26c
+
+## To explore
+
+* Model deployement (Is it just about exporting an inference graph?)
+  * Inference from the C++ API
+  * [TensorFlow Serving](https://www.tensorflow.org/serving/)
 
 Also:
 
