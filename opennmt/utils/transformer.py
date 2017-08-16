@@ -121,7 +121,13 @@ def multi_head_attention(num_heads,
       heads.append(head_i)
 
   # Concatenate all heads output.
-  return tf.concat(heads, axis=2)
+  combined = tf.concat(heads, axis=2)
+  outputs = tf.layers.dense(
+    combined,
+    input_dim,
+    use_bias=False)
+
+  return outputs
 
 def feed_forward(x, inner_dim):
   """Implements the Transformer's "Feed Forward" layer.
