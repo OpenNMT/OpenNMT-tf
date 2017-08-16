@@ -6,6 +6,7 @@ import opennmt.utils.transformer as transformer
 from opennmt.encoders.encoder import create_position_embedding
 from opennmt.decoders.decoder import Decoder
 from opennmt.utils.reducer import SumReducer
+from opennmt.utils.beam_search import beam_search
 
 
 class SelfAttentionDecoder(Decoder):
@@ -207,15 +208,49 @@ class SelfAttentionDecoder(Decoder):
                                 mode=tf.estimator.ModeKeys.TRAIN,
                                 memory=None,
                                 memory_sequence_length=None):
-    tf.logging.warning("Beam search is not yet implemented, using greedy decoding instead.")
+    if not encoder_states is None:
+      encoder_states = tf.contrib.seq2seq.tile_batch(
+        encoder_states, multiplier=beam_width)
+    if not memory is None:
+      memory = tf.contrib.seq2seq.tile_batch(
+        memory, multiplier=beam_width)
+    if not memory_sequence_length is None:
+      memory_sequence_length = tf.contrib.seq2seq.tile_batch(
+        memory_sequence_length, multiplier=beam_width)
 
-    return self.dynamic_decode(
-      embeddings,
+    def symbols_to_logits_fn(symbols):
+      batch_size = tf.shape(symbols)[0]
+      step = tf.shape(symbols)[1]
+      sequence_length = tf.fill([batch_size], step)
+      outputs, _, _ = self.decode(
+        embeddings(symbols),
+        sequence_length,
+        vocab_size,
+        encoder_states=encoder_states,
+        mode=mode,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length,
+        return_logits=False)
+
+      # Only sample the last timestep.
+      last_output = tf.slice(outputs, [0, step - 1, 0], [-1, 1, -1])
+      logits = tf.layers.dense(
+        last_output,
+        vocab_size)
+      return logits
+
+    outputs, _ = beam_search(
+      symbols_to_logits_fn,
       start_tokens,
-      end_token,
+      beam_width,
+      maximum_iterations,
       vocab_size,
-      encoder_states=encoder_states,
-      maximum_iterations=maximum_iterations,
-      mode=mode,
-      memory=memory,
-      memory_sequence_length=memory_sequence_length)
+      length_penalty,
+      eos_id=end_token)
+    outputs = tf.slice(outputs, [0, 0, 1], [-1, -1, -1]) # Ignore <s>.
+
+    lengths = tf.not_equal(outputs, 0)
+    lengths = tf.cast(lengths, tf.int32)
+    lengths = tf.reduce_sum(lengths, axis=-1)
+
+    return (outputs, None, lengths)
