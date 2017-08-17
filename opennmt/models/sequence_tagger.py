@@ -22,33 +22,14 @@ class SequenceTagger(Model):
     self.labels_vocabulary_file = labels_vocabulary_file
     self.num_labels = count_lines(labels_vocabulary_file)
     self.crf_decoding = crf_decoding
-    self.maximum_length = 0
 
     self.id_to_label = []
     with open(labels_vocabulary_file) as labels_vocabulary:
       for label in labels_vocabulary:
         self.id_to_label.append(label.strip())
 
-  def set_filters(self, maximum_length):
-    self.maximum_length = maximum_length
-
-  def _get_size(self, features, labels):
+  def features_length(self, features):
     return self.embedder.get_data_field(features, "length")
-
-  def _get_maximum_size(self):
-    return getattr(self, "maximum_length", None)
-
-  def _filter_example(self, features, labels):
-    """Filters examples with invalid length."""
-    cond = tf.greater(self.embedder.get_data_field(features, "length"), 0)
-
-    if self.maximum_length > 0:
-      cond = tf.logical_and(
-        cond,
-        tf.less_equal(self.embedder.get_data_field(features, "length"),
-                      self.maximum_length))
-
-    return cond
 
   def _build_dataset(self, mode, batch_size, features_file, labels_file=None):
     features_dataset = self.embedder.make_dataset(features_file)

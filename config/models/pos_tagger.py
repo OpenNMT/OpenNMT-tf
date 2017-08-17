@@ -29,9 +29,3 @@ def model():
       residual_connections=False),
     labels_vocabulary_file="data/wsj/tags.txt",
     crf_decoding=True)
-
-def train(model):
-  model.set_filters(maximum_length=70)
-
-def infer(model):
-  pass

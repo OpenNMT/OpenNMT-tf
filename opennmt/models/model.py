@@ -1,9 +1,10 @@
 """Base class for models."""
 
-import tensorflow as tf
-
 import abc
 import six
+import time
+
+import tensorflow as tf
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -37,21 +38,43 @@ class Model(object):
 
     return train_op
 
-  def _filter_example(self, features, labels):
+  def _filter_example(self,
+                      features,
+                      labels,
+                      maximum_features_length=None,
+                      maximum_labels_length=None):
     """Defines an example filtering condition."""
-    return True
+    features_length = self.features_length(features)
+    labels_length = self.labels_length(labels)
 
-  @abc.abstractmethod
-  def _get_size(self, features, labels):
-    """Defines a size to an example for data bucketing."""
-    raise NotImplementedError()
+    cond = []
 
-  def _get_maximum_size(self):
-    """Defines the maximum size of an example for data bucketing."""
+    if features_length is not None:
+      cond.append(tf.greater(features_length, 0))
+      if maximum_features_length is not None:
+        cond.append(tf.less_equal(features_length, maximum_features_length))
+
+    if labels_length is not None:
+      cond.append(tf.greater(labels_length, 0))
+      if maximum_labels_length is not None:
+        cond.append(tf.less_equal(labels_length, maximum_labels_length))
+
+    return tf.reduce_all(cond)
+
+  def features_length(self, features):
+    """Attributes a length to a feature (if defined)."""
+    return None
+
+  def labels_length(self, labels):
+    """Attributes a length to a label (if defined)."""
     return None
 
   @abc.abstractmethod
-  def _build_dataset(self, mode, batch_size, features_file, labels_file=None):
+  def _build_dataset(self,
+                     mode,
+                     batch_size,
+                     features_file,
+                     labels_file=None):
     """Builds a dataset from features and labels files.
 
     Args:
@@ -71,7 +94,9 @@ class Model(object):
                      buffer_size,
                      num_buckets,
                      features_file,
-                     labels_file=None):
+                     labels_file=None,
+                     maximum_features_length=None,
+                     maximum_labels_length=None):
     """See `input_fn`."""
     dataset, padded_shapes = self._build_dataset(
       mode,
@@ -80,8 +105,12 @@ class Model(object):
       labels_file=labels_file)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      dataset = dataset.filter(self._filter_example)
-      dataset = dataset.shuffle(buffer_size=buffer_size)
+      dataset = dataset.filter(lambda features, labels: self._filter_example(
+        features,
+        labels,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length))
+      dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
       dataset = dataset.repeat()
     elif mode == tf.estimator.ModeKeys.EVAL:
       dataset = dataset.repeat()
@@ -94,14 +123,12 @@ class Model(object):
       # For training and evaluation, use bucketing.
 
       def key_func(features, labels):
-        maximum_size = self._get_maximum_size()
-
-        if maximum_size:
-          bucket_width = (maximum_size + num_buckets - 1) // num_buckets
+        if maximum_features_length:
+          bucket_width = (maximum_features_length + num_buckets - 1) // num_buckets
         else:
           bucket_width = 10
 
-        bucket_id = self._get_size(features, labels) // bucket_width
+        bucket_id = self.features_length(features) // bucket_width
         bucket_id = tf.minimum(bucket_id, num_buckets)
         return tf.to_int64(bucket_id)
 
@@ -128,7 +155,9 @@ class Model(object):
                buffer_size,
                num_buckets,
                features_file,
-               labels_file=None):
+               labels_file=None,
+               maximum_features_length=None,
+               maximum_labels_length=None):
     """Returns an input function.
 
     See also `tf.estimator.Estimator`.
@@ -140,6 +169,10 @@ class Model(object):
       num_buckets: The number of buckets to store examples of similar sizes.
       features_file: The file containing input features.
       labels_file: The file containing output labels.
+      maximum_features_length: The maximum length of feature sequences
+        during training (if it applies).
+      maximum_labels_length: The maximum length of label sequences
+        during training (if it applies).
 
     Returns:
       A callable that returns the next element.
@@ -153,7 +186,9 @@ class Model(object):
       buffer_size,
       num_buckets,
       features_file,
-      labels_file=labels_file)
+      labels_file=labels_file,
+      maximum_features_length=maximum_features_length,
+      maximum_labels_length=maximum_labels_length)
 
   def format_prediction(self, prediction, params=None):
     """Formats the model prediction.

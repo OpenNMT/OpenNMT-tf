@@ -11,24 +11,3 @@ def model():
     A `opennmt.models.Model`.
   """
   pass
-
-def train(model):
-  """Run training specific code.
-
-  You usually call methods on `model` to set training specific
-  attributes, e.g. the longest sequence lengths accepted.
-
-  Args:
-    model: The model previously built.
-  """
-  pass
-
-def infer(model):
-  """Run inference specific code.
-
-  Similar to `train` but for inference.
-
-  Args:
-    model: The model previously built.
-  """
-  pass

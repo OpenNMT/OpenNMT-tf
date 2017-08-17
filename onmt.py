@@ -85,15 +85,15 @@ def main():
     params=params)
 
   if config["run"]["type"] == "train":
-    model_config.train(model)
-
     train_input_fn = model.input_fn(
       tf.estimator.ModeKeys.TRAIN,
       config["params"]["batch_size"],
       buffer_size,
       num_buckets,
       config["data"]["train_features_file"],
-      labels_file=config["data"]["train_labels_file"])
+      labels_file=config["data"]["train_labels_file"],
+      maximum_features_length=config["data"].get("maximum_features_length"),
+      maximum_labels_length=config["data"].get("maximum_labels_length"))
     eval_input_fn = model.input_fn(
       tf.estimator.ModeKeys.EVAL,
       config["params"]["batch_size"],
@@ -116,8 +116,6 @@ def main():
     else:
       experiment.train()
   else:
-    model_config.infer(model)
-
     test_input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
       config["params"]["batch_size"],

@@ -45,6 +45,12 @@ data:
   eval_features_file: "data/en-test.txt"
   eval_labels_file: "data/fr-test.txt"
 
+  # (optional) The maximum length of feature sequences during training (if it applies).
+  maximum_features_length: 70
+
+  # (optional) The maximum length of label sequences during training (if it applies).
+  maximum_labels_length: 70
+
   # (optional) The pre-fetch buffer size (e.g. for shuffling examples).
   buffer_size: 10000
 

@@ -27,40 +27,11 @@ class SequenceToSequence(Model):
     self.source_embedder.set_name("source")
     self.target_embedder.set_name("target")
 
-    self.maximum_source_length = 0
-    self.maximum_target_length = 0
-
-  def set_filters(self,
-                  maximum_source_length,
-                  maximum_target_length):
-    self.maximum_source_length = maximum_source_length
-    self.maximum_target_length = maximum_target_length
-
-  def _get_size(self, features, labels):
+  def features_length(self, features):
     return self.source_embedder.get_data_field(features, "length")
 
-  def _get_maximum_size(self):
-    return getattr(self, "maximum_source_length", None)
-
-  def _filter_example(self, features, labels):
-    """Filters examples with invalid length."""
-    cond = tf.logical_and(
-      tf.greater(self.source_embedder.get_data_field(features, "length"), 0),
-      tf.greater(self.target_embedder.get_data_field(labels, "length"), 0))
-
-    if self.maximum_source_length > 0:
-      cond = tf.logical_and(
-        cond,
-        tf.less_equal(self.source_embedder.get_data_field(features, "length"),
-                      self.maximum_source_length))
-
-    if self.maximum_target_length > 0:
-      cond = tf.logical_and(
-        cond,
-        tf.less_equal(self.target_embedder.get_data_field(labels, "length"),
-                      self.maximum_target_length + 1)) # "+ 1" because <s> was already added.
-
-    return cond
+  def labels_length(self, labels):
+    return self.target_embedder.get_data_field(labels, "length")
 
   def _shift_target(self, labels):
     """Generate shifted target sequences with <s> and </s>."""

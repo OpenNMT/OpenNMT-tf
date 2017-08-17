@@ -23,11 +23,3 @@ def model():
       cell_class=tf.contrib.rnn.LSTMCell,
       dropout=0.3,
       residual_connections=False))
-
-def train(model):
-  model.set_filters(
-    maximum_source_length=70,
-    maximum_target_length=70)
-
-def infer(model):
-  pass
