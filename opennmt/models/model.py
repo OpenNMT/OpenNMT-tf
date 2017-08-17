@@ -70,15 +70,22 @@ class Model(object):
     return None
 
   @abc.abstractmethod
-  def _build_dataset(self,
-                     mode,
-                     features_file,
-                     labels_file=None):
-    """Builds a dataset from features and labels files.
+  def _build_features(self, features_file):
+    """Builds a dataset from features file.
 
     Args:
-      mode: A `tf.estimator.ModeKeys` mode.
       features_file: The file of features.
+
+    Returns:
+      (`tf.contrib.data.Dataset`, `padded_shapes`)
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def _build_labels(self, labels_file):
+    """Builds a dataset from labels file.
+
+    Args:
       labels_file: The file of labels.
 
     Returns:
@@ -96,10 +103,15 @@ class Model(object):
                      maximum_features_length=None,
                      maximum_labels_length=None):
     """See `input_fn`."""
-    dataset, padded_shapes = self._build_dataset(
-      mode,
-      features_file,
-      labels_file=labels_file)
+    features_dataset, features_padded_shapes = self._build_features(features_file)
+
+    if labels_file is None:
+      dataset = features_dataset
+      padded_shapes = features_padded_shapes
+    else:
+      labels_dataset, labels_padded_shapes = self._build_labels(labels_file)
+      dataset = tf.contrib.data.Dataset.zip((features_dataset, labels_dataset))
+      padded_shapes = (features_padded_shapes, labels_padded_shapes)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       dataset = dataset.filter(lambda features, labels: self._filter_example(

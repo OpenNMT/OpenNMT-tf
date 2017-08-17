@@ -57,22 +57,14 @@ class SequenceToSequence(Model):
 
     return labels
 
-  def _build_dataset(self, mode, features_file, labels_file=None):
-    source_file = features_file
-    target_file = labels_file
+  def _build_features(self, features_file):
+    dataset = self.source_embedder.make_dataset(features_file)
+    return dataset, self.source_embedder.padded_shapes
 
-    source_dataset = self.source_embedder.make_dataset(source_file)
-
-    if target_file is None:
-      dataset = source_dataset
-      padded_shapes = self.source_embedder.padded_shapes
-    else:
-      target_dataset = self.target_embedder.make_dataset(target_file)
-      target_dataset = target_dataset.map(self._shift_target)
-      dataset = tf.contrib.data.Dataset.zip((source_dataset, target_dataset))
-      padded_shapes = (self.source_embedder.padded_shapes, self.target_embedder.padded_shapes)
-
-    return dataset, padded_shapes
+  def _build_labels(self, labels_file):
+    dataset = self.target_embedder.make_dataset(labels_file)
+    dataset = dataset.map(self._shift_target)
+    return dataset, self.target_embedder.padded_shapes
 
   def _build(self, features, labels, params, mode):
     batch_size = tf.shape(self.source_embedder.get_data_field(features, "length"))[0]

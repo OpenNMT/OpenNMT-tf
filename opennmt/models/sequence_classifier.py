@@ -23,24 +23,18 @@ class SequenceClassifier(Model):
   def features_length(self, features):
     return self.embedder.get_data_field(features, "length")
 
-  def _build_dataset(self, mode, features_file, labels_file=None):
-    features_dataset = self.embedder.make_dataset(features_file)
+  def _build_features(self, features_file):
+    dataset = self.embedder.make_dataset(features_file)
+    return dataset, self.embedder.padded_shapes
 
-    if labels_file is None:
-      dataset = features_dataset
-      padded_shapes = self.embedder.padded_shapes
-    else:
-      labels_dataset = tf.contrib.data.TextLineDataset(labels_file)
+  def _build_labels(self, labels_file):
+    labels_vocabulary = tf.contrib.lookup.index_table_from_file(
+      self.labels_vocabulary_file,
+      vocab_size=self.num_labels)
 
-      labels_vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.labels_vocabulary_file,
-        vocab_size=self.num_labels)
-
-      labels_dataset = labels_dataset.map(lambda x: labels_vocabulary.lookup(x))
-
-      dataset = tf.contrib.data.Dataset.zip((features_dataset, labels_dataset))
-      padded_shapes = (self.embedder.padded_shapes, [])
-
+    dataset = tf.contrib.data.TextLineDataset(labels_file)
+    dataset = dataset.map(lambda x: labels_vocabulary.lookup(x))
+    padded_shapes = []
     return dataset, padded_shapes
 
   def _build(self, features, labels, params, mode):
