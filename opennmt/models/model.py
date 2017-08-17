@@ -72,14 +72,12 @@ class Model(object):
   @abc.abstractmethod
   def _build_dataset(self,
                      mode,
-                     batch_size,
                      features_file,
                      labels_file=None):
     """Builds a dataset from features and labels files.
 
     Args:
       mode: A `tf.estimator.ModeKeys` mode.
-      batch_size: The batch size to use.
       features_file: The file of features.
       labels_file: The file of labels.
 
@@ -100,7 +98,6 @@ class Model(object):
     """See `input_fn`."""
     dataset, padded_shapes = self._build_dataset(
       mode,
-      batch_size,
       features_file,
       labels_file=labels_file)
 

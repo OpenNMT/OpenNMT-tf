@@ -57,7 +57,7 @@ class SequenceToSequence(Model):
 
     return labels
 
-  def _build_dataset(self, mode, batch_size, features_file, labels_file=None):
+  def _build_dataset(self, mode, features_file, labels_file=None):
     source_file = features_file
     target_file = labels_file
 

@@ -23,7 +23,7 @@ class SequenceClassifier(Model):
   def features_length(self, features):
     return self.embedder.get_data_field(features, "length")
 
-  def _build_dataset(self, mode, batch_size, features_file, labels_file=None):
+  def _build_dataset(self, mode, features_file, labels_file=None):
     features_dataset = self.embedder.make_dataset(features_file)
 
     if labels_file is None:
