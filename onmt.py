@@ -129,7 +129,7 @@ def main():
       if not isinstance(predictions, list):
         predictions = [ predictions ]
       for prediction in predictions:
-        print(prediction)
+        print(prediction.encode("utf-8"))
 
 if __name__ == "__main__":
   main()
