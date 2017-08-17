@@ -8,16 +8,16 @@ run:
   model_dir: "ckpt"
 
   # (optional) Save a checkpoint every this many steps.
-  save_checkpoints_steps: 1000
+  save_checkpoints_steps: 5000
 
   # (optional) How many checkpoints to keep on disk.
-  keep_checkpoint_max: 3
+  keep_checkpoint_max: 5
 
   # (optional) Save summaries every this many steps.
-  save_summary_steps: 50
+  save_summary_steps: 100
 
   # (optional) Evaluate every this many steps.
-  eval_steps: 5000
+  eval_steps: 10000
 
   # (optional) If true, GPU memory will be allocated dynamically, otherwise
   # all the memory will be mapped by TensorFlow.
