@@ -52,8 +52,8 @@ class Decoder(object):
 
     Args:
       embeddings: The embeddings tensor or a callable that takes word ids.
-      start_tokens: The start tokens with shape [B].
-      end_token: The end token.
+      start_tokens: The start token ids with shape [B].
+      end_token: The end token id.
       vocab_size: The output vocabulary size.
       encoder_states: The encoder states as a (possibly nested tuple of...) tensors.
       maximum_iterations: The maximum number of decoding iterations.
@@ -62,7 +62,7 @@ class Decoder(object):
       memory_sequence_length: (optional) Memory values length.
 
     Returns:
-      A tuple (`decoder_outputs`, `decoder_states`, `decoder_sequence_length`).
+      A tuple (`predicted_ids`, `decoder_states`, `decoder_sequence_length`).
     """
     raise NotImplementedError()
 
@@ -85,11 +85,11 @@ class Decoder(object):
 
     Args:
       embeddings: The embeddings tensor or a callable that takes word ids.
-      start_tokens: The start tokens with shape [B].
-      end_token: The end token.
+      start_tokens: The start token ids with shape [B].
+      end_token: The end token id.
       vocab_size: The output vocabulary size.
       encoder_states: The encoder states as a (possibly nested tuple of...) tensors.
-      beam_width: The width of the beam search.
+      beam_width: The width of the beam.
       length_penalty: The length penalty weight during beam search.
       maximum_iterations: The maximum number of decoding iterations.
       mode: A `tf.estimator.ModeKeys` mode.
@@ -97,6 +97,6 @@ class Decoder(object):
       memory_sequence_length: (optional) Memory values length.
 
     Returns:
-      A tuple (`decoder_outputs`, `decoder_states`, `decoder_sequence_length`).
+      A tuple (`predicted_ids`, `decoder_states`, `decoder_sequence_length`).
     """
     raise NotImplementedError()
