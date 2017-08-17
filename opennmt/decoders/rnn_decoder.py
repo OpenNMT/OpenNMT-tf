@@ -122,7 +122,11 @@ class RNNDecoder(Decoder):
 
     outputs, states, length = tf.contrib.seq2seq.dynamic_decode(
       decoder, maximum_iterations=maximum_iterations)
-    return (outputs.rnn_output, states, length)
+
+    predicted_ids = outputs.sample_id
+    predicted_ids = tf.expand_dims(predicted_ids, 1)
+
+    return (predicted_ids, states, length)
 
   def dynamic_decode_and_search(self,
                                 embeddings,
