@@ -121,8 +121,6 @@ class Model(object):
         maximum_labels_length=maximum_labels_length))
       dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
       dataset = dataset.repeat()
-    elif mode == tf.estimator.ModeKeys.EVAL:
-      dataset = dataset.repeat()
 
     if mode == tf.estimator.ModeKeys.PREDICT or num_buckets <= 1:
       dataset = dataset.padded_batch(
