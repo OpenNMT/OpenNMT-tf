@@ -100,8 +100,8 @@ class ParallelEncoder(Encoder):
     self.states_reducer = states_reducer
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    final_outputs = None
-    final_states = None
+    all_outputs = []
+    all_states = []
 
     # TODO: execute in parallel?
     for i in range(len(self.encoders)):
@@ -110,12 +110,10 @@ class ParallelEncoder(Encoder):
           inputs,
           sequence_length=sequence_length,
           mode=mode)
+        all_outputs.append(outputs)
+        all_states.append(states)
 
-        if final_outputs is None:
-          final_outputs = outputs
-          final_states = states
-        else:
-          final_outputs = self.outputs_reducer.reduce(final_outputs, outputs)
-          final_states = self.states_reducer.reduce(final_states, states)
-
-    return (final_outputs, final_states, sequence_length)
+    return (
+      self.outputs_reducer.reduce_all(all_outputs),
+      self.states_reducer.reduce_all(all_states),
+      sequence_length)
