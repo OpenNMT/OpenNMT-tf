@@ -44,8 +44,8 @@ class Model(object):
                       maximum_features_length=None,
                       maximum_labels_length=None):
     """Defines an example filtering condition."""
-    features_length = self.features_length(features)
-    labels_length = self.labels_length(labels)
+    features_length = self._features_length(features)
+    labels_length = self._labels_length(labels)
 
     cond = []
 
@@ -61,11 +61,11 @@ class Model(object):
 
     return tf.reduce_all(cond)
 
-  def features_length(self, features):
+  def _features_length(self, features):
     """Attributes a length to a feature (if defined)."""
     return None
 
-  def labels_length(self, labels):
+  def _labels_length(self, labels):
     """Attributes a length to a label (if defined)."""
     return None
 
@@ -137,7 +137,7 @@ class Model(object):
         else:
           bucket_width = 10
 
-        bucket_id = self.features_length(features) // bucket_width
+        bucket_id = self._features_length(features) // bucket_width
         bucket_id = tf.minimum(bucket_id, num_buckets)
         return tf.to_int64(bucket_id)
 

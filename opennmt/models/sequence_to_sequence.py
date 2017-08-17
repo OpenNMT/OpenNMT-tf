@@ -27,10 +27,10 @@ class SequenceToSequence(Model):
     self.source_embedder.set_name("source")
     self.target_embedder.set_name("target")
 
-  def features_length(self, features):
+  def _features_length(self, features):
     return self.source_embedder.get_data_field(features, "length")
 
-  def labels_length(self, labels):
+  def _labels_length(self, labels):
     return self.target_embedder.get_data_field(labels, "length")
 
   def _shift_target(self, labels):

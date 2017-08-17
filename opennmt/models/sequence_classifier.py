@@ -20,7 +20,7 @@ class SequenceClassifier(Model):
     self.labels_vocabulary_file = labels_vocabulary_file
     self.num_labels = count_lines(labels_vocabulary_file)
 
-  def features_length(self, features):
+  def _features_length(self, features):
     return self.embedder.get_data_field(features, "length")
 
   def _build_features(self, features_file):

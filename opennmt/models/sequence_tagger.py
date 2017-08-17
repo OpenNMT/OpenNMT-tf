@@ -28,7 +28,7 @@ class SequenceTagger(Model):
       for label in labels_vocabulary:
         self.id_to_label.append(label.strip())
 
-  def features_length(self, features):
+  def _features_length(self, features):
     return self.embedder.get_data_field(features, "length")
 
   def _build_features(self, features_file):
