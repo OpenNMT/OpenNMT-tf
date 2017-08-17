@@ -70,12 +70,13 @@ class SequentialEncoder(Encoder):
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     global_state = ()
 
-    for encoder in self.encoders:
-      inputs, states, sequence_length = encoder.encode(
-        inputs,
-        sequence_length=sequence_length,
-        mode=mode)
-      global_state += states
+    for i in range(len(self.encoders)):
+      with tf.variable_scope("encoder_" + str(i)):
+        inputs, states, sequence_length = self.encoders[i].encode(
+          inputs,
+          sequence_length=sequence_length,
+          mode=mode)
+        global_state += states
 
     return (inputs, global_state, sequence_length)
 
@@ -103,17 +104,18 @@ class ParallelEncoder(Encoder):
     final_states = None
 
     # TODO: execute in parallel?
-    for encoder in self.encoders:
-      outputs, states, sequence_length = encoder.encode(
-        inputs,
-        sequence_length=sequence_length,
-        mode=mode)
+    for i in range(len(self.encoders)):
+      with tf.variable_scope("encoder_" + str(i)):
+        outputs, states, sequence_length = self.encoders[i].encode(
+          inputs,
+          sequence_length=sequence_length,
+          mode=mode)
 
-      if final_outputs:
-        final_outputs = self.output_reducer(final_outputs, outputs)
-        final_states = self.states_reducer(final_states, states)
-      else:
-        final_outputs = outputs
-        final_states = states
+        if final_outputs is None:
+          final_outputs = outputs
+          final_states = states
+        else:
+          final_outputs = self.outputs_reducer.reduce(final_outputs, outputs)
+          final_states = self.states_reducer.reduce(final_states, states)
 
     return (final_outputs, final_states, sequence_length)
