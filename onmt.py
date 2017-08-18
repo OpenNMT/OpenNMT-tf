@@ -28,8 +28,8 @@ def load_config_module(path):
 
 def main():
   parser = argparse.ArgumentParser(description="OpenNMT-tf.")
-  parser.add_argument("--run", required=True,
-                      help="run configuration file")
+  parser.add_argument("--run", required=True, nargs='+',
+                      help="list of run configuration files")
   parser.add_argument("--model", required=True,
                       help="model configuration file")
   parser.add_argument("--task_type", default="worker", choices=["master", "worker", "ps"],
@@ -38,9 +38,18 @@ def main():
                       help="id of the task")
   args = parser.parse_args()
 
-  # Load run configuration.
-  with open(args.run) as config_file:
-    config = yaml.load(config_file.read())
+  # Load and merge run configurations.
+  config = {}
+  for config_path in args.run:
+    with open(config_path) as config_file:
+      subconfig = yaml.load(config_file.read())
+
+      # Add or update section in main configuration.
+      for section in subconfig:
+        if section in config:
+          config[section].update(subconfig[section])
+        else:
+          config[section] = subconfig[section]
 
   # Setup cluster if defined.
   if "hosts" in config:
