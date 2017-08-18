@@ -53,7 +53,7 @@ if args.with_sequence_tokens:
   add_special_token(constants.END_OF_SENTENCE_TOKEN, constants.END_OF_SENTENCE_ID)
 
 # Add each token from the corpus.
-with open(args.data) as data:
+with open(args.data, "rb") as data:
   for line in data:
     line = line.strip().decode("utf-8")
     if not args.delimiter:
@@ -89,7 +89,7 @@ if new_size < len(id_to_token):
   id_to_token = new_id_to_token
 
 # Generate the vocabulary file.
-with open(args.save_vocab, "w") as vocab:
+with open(args.save_vocab, "wb") as vocab:
   for token in id_to_token:
     vocab.write(token.encode("utf-8"))
-    vocab.write("\n")
+    vocab.write(b"\n")

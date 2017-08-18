@@ -138,7 +138,7 @@ def main():
       if not isinstance(predictions, list):
         predictions = [ predictions ]
       for prediction in predictions:
-        print(prediction.encode("utf-8"))
+        print(prediction)
 
 if __name__ == "__main__":
   main()

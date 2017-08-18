@@ -142,7 +142,7 @@ class SequenceToSequence(Model):
     all_preds = []
     for i in range(n_best):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
-      sentence = b' '.join(tokens)
+      sentence = b" ".join(tokens)
       sentence = sentence.decode('utf-8')
       all_preds.append(sentence)
 
