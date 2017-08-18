@@ -3,7 +3,7 @@
 * Other validation metrics
   * BLEU
   * Accuracy
-* Convolutional decoder
+* Convolutional sequence-to-sequence
   * https://arxiv.org/abs/1705.03122
 
 ## To improve
