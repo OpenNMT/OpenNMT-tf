@@ -7,6 +7,41 @@ import time
 import tensorflow as tf
 
 
+def learning_rate_decay_fn(decay_type,
+                           decay_rate,
+                           decay_steps,
+                           staircase=True,
+                           start_decay_steps=0,
+                           minimum_learning_rate=0):
+  """Returns the learning rate decay functions.
+
+  Args:
+    decay_type: The type of decay. A function from `tf.train` as a `String`.
+    decay_rate: The decay rate to apply.
+    decay_steps: The decay steps as described in the decay type function.
+    staircase: If `True`, learning rate is decayed in a staircase fashion.
+    start_decay_steps: Start decay after this many steps.
+    minimum_learning_rate: Do not decay past this learning rate value.
+
+  Returns:
+    A function with signature `lambda learning_rate, global_steps: decayed_learning_rate`.
+  """
+  def decay_fn(learning_rate, global_step):
+    decay_class = getattr(tf.train, decay_type)
+
+    decayed_learning_rate = decay_class(
+      learning_rate,
+      tf.maximum(global_step - start_decay_steps, 0),
+      decay_steps,
+      decay_rate,
+      staircase=staircase)
+    decayed_learning_rate = tf.maximum(decayed_learning_rate, minimum_learning_rate)
+
+    return decayed_learning_rate
+
+  return decay_fn
+
+
 @six.add_metaclass(abc.ABCMeta)
 class Model(object):
 
@@ -29,12 +64,29 @@ class Model(object):
     """Builds the training op given parameters."""
     global_step = tf.train.get_or_create_global_step()
 
+    if "decay_type" in params:
+      decay_fn = learning_rate_decay_fn(
+        params.get("decay_type"),
+        params.get("decay_rate"),
+        params.get("decay_steps"),
+        staircase=params.get("staircase") or True,
+        start_decay_steps=params.get("start_decay_steps") or 0,
+        minimum_learning_rate=params.get("minimum_learning_rate") or 0)
+    else:
+      decay_fn = None
+
     train_op = tf.contrib.layers.optimize_loss(
       loss,
       global_step,
       params["learning_rate"],
       params["optimizer"],
-      clip_gradients=params.get("clip_gradients"))
+      clip_gradients=params.get("clip_gradients"),
+      learning_rate_decay_fn=decay_fn,
+      summaries=[
+        "learning_rate",
+        "loss",
+        "global_gradient_norm",
+      ])
 
     return train_op
 

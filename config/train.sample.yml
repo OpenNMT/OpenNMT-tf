@@ -57,13 +57,32 @@ data:
   # (optional) The number of buckets by sequence length.
   num_buckets: 5
 
-# Dynamic hyperparameters.
+# Dynamic hyperparameters. Values are given for example and are likely not
+# the best configuration for your training.
 params:
   batch_size: 64
 
-  # The optimizer as a string (see https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/layers/python/layers/optimizers.py#L40)
-  optimizer: Adam
-  learning_rate: 0.0002
+  # The optimizer as a string (see https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/layers/python/layers/optimizers.py#L40).
+  optimizer: SGD
+  learning_rate: 1.0
 
   # (optional) Maximum gradients norm.
   clip_gradients: 5.0
+
+  # (optional) The type of learning rate decay (see https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate).
+  decay_type: "exponential_decay"
+
+  # (optional unless decay_type is set) The learning rate decay rate.
+  decay_rate: 0.7
+
+  # (optional unless decay_type is set) Decay every this many steps.
+  decay_steps: 10000
+
+  # (optional) If true, the learning rate is decayed in a staircase fashion (the default).
+  staircase: true
+
+  # # (optional) After how many steps to start the decay.
+  start_decay_steps: 50000
+
+  # (optional) Stop decay when this learning rate value is reached.
+  minimum_learning_rate: 0.0001

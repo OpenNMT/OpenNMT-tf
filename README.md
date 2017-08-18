@@ -50,6 +50,7 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 
 * training and evaluation loss
 * training speed
+* learning rate
 * gradients norm
 * computation graphs
 * word embeddings

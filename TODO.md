@@ -1,6 +1,5 @@
 ## To add
 
-* Learning rate decay
 * Other validation metrics
   * BLEU
   * Accuracy
