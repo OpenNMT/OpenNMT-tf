@@ -82,7 +82,10 @@ class SequentialEncoder(Encoder):
 
 
 class ParallelEncoder(Encoder):
-  """An encoder that encodes an input with several encoders."""
+  """An encoder that encodes inputs with several encoders. If the input
+  is a sequence, each encoder will encode its corresponding input in the
+  sequence. Otherwise, the same input will be encoded by every encoders.
+  """
 
   def __init__(self,
                encoders,
@@ -103,11 +106,19 @@ class ParallelEncoder(Encoder):
     all_outputs = []
     all_states = []
 
+    if tf.contrib.framework.nest.is_sequence(inputs) and len(inputs) != len(self.encoders):
+      raise ValueError("ParallelEncoder expects as many inputs as parallel encoders")
+
     # TODO: execute in parallel?
     for i in range(len(self.encoders)):
       with tf.variable_scope("encoder_" + str(i)):
+        if tf.contrib.framework.nest.is_sequence(inputs):
+          encoder_inputs = inputs[i]
+        else:
+          encoder_inputs = inputs
+
         outputs, states, sequence_length = self.encoders[i].encode(
-          inputs,
+          encoder_inputs,
           sequence_length=sequence_length,
           mode=mode)
         all_outputs.append(outputs)
