@@ -32,7 +32,8 @@ def load_config_module(path):
 def main():
   parser = argparse.ArgumentParser(description="OpenNMT-tf.")
   parser.add_argument("--run", required=True, nargs='+',
-                      help="list of run configuration files")
+                      help="""list of run configuration files
+                           (duplicate entries take the value of the rightmost file)""")
   parser.add_argument("--model", required=True,
                       help="model configuration file")
   parser.add_argument("--task_type", default="worker", choices=["master", "worker", "ps"],

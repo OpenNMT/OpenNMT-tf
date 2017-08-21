@@ -1,3 +1,8 @@
+# Training configuration template.
+#
+# The command line accepts multiple configuration files. You can split
+# this template to make some configurations (e.g. the optimization) reusable.
+
 # Run description.
 run:
   # The type of the run, either "train" or "infer".
