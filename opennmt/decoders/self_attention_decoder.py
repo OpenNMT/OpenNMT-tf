@@ -43,7 +43,6 @@ class SelfAttentionDecoder(Decoder):
              memory=None,
              memory_sequence_length=None,
              return_logits=True):
-    # TODO: implement positional encoding as described in the paper.
     with tf.variable_scope("position_embedding"):
       input_dim = inputs.get_shape().as_list()[-1]
       position_embedding = create_position_embedding(
@@ -128,8 +127,6 @@ class SelfAttentionDecoder(Decoder):
                      mode=tf.estimator.ModeKeys.TRAIN,
                      memory=None,
                      memory_sequence_length=None):
-    # TODO: inherit from tf.contrib.seq2seq.Decoder to rely on dynamic_decode?
-
     batch_size = tf.shape(start_tokens)[0]
     finished = tf.tile([False], [batch_size])
     step = tf.constant(0)

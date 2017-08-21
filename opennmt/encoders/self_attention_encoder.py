@@ -38,7 +38,6 @@ class SelfAttentionEncoder(Encoder):
     self.position_encoding_reducer = SumReducer()
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    # TODO: implement positional encoding as described in the paper.
     with tf.variable_scope("position_embedding"):
       input_dim = inputs.get_shape().as_list()[-1]
       position_embedding = create_position_embedding(
