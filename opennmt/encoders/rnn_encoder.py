@@ -130,3 +130,48 @@ class BidirectionalRNNEncoder(RNNEncoder):
     encoder_states = self.reducer.reduce(encoder_states_tup[0], encoder_states_tup[1])
 
     return (encoder_outputs, encoder_states, sequence_length)
+
+
+class GoogleRNNEncoder(Encoder):
+  """The RNN encoder used in GNMT as described in https://arxiv.org/abs/1609.08144."""
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               dropout=0.3):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer.
+      dropout: The probability to drop units in each layer output.
+    """
+    if num_layers < 2:
+      raise ValueError("GoogleRNNEncoder requires at least 2 layers")
+
+    self.bidirectional = BidirectionalRNNEncoder(
+      1,
+      num_units,
+      reducer=ConcatReducer(),
+      cell_class=tf.contrib.rnn.LSTMCell,
+      dropout=dropout)
+    self.unidirectional = UnidirectionalRNNEncoder(
+      num_layers - 1,
+      num_units,
+      cell_class=tf.contrib.rnn.LSTMCell,
+      dropout=dropout,
+      residual_connections=True)
+
+  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+    encoder_outputs, bi_states, sequence_length = self.bidirectional.encode(
+      inputs,
+      sequence_length=sequence_length,
+      mode=mode)
+    encoder_outputs, uni_states, sequence_length = self.unidirectional.encode(
+      encoder_outputs,
+      sequence_length=sequence_length,
+      mode=mode)
+
+    encoder_states = bi_states + uni_states
+
+    return (encoder_outputs, encoder_states, sequence_length)
