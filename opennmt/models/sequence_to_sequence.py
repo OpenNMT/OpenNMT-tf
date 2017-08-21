@@ -95,6 +95,17 @@ class SequenceToSequence(Model):
           mode=mode,
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length)
+      elif "beam_width" in params and params["beam_width"] == 1:
+        decoder_outputs, _, decoded_length = self.decoder.dynamic_decode(
+          lambda x: self.target_embedder.embed(x, mode, scope=decoder_scope, reuse_next=True),
+          tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
+          constants.END_OF_SENTENCE_ID,
+          self.target_embedder.vocabulary_size,
+          encoder_states,
+          maximum_iterations=params.get("maximum_iterations") or 250,
+          mode=mode,
+          memory=encoder_outputs,
+          memory_sequence_length=encoder_sequence_length)
       else:
         decoder_outputs, _, decoded_length = self.decoder.dynamic_decode_and_search(
           lambda x: self.target_embedder.embed(x, mode, scope=decoder_scope, reuse_next=True),
