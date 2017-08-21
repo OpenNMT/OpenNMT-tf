@@ -22,7 +22,7 @@ parser.add_argument(
   "--size", type=int, default=0,
   help="Maximum vocabulary size. If = 0, do not limit vocabulary.")
 parser.add_argument(
-  "--with_sequence_tokens", type=bool, default=False,
+  "--with_sequence_tokens", type=bool, default=True,
   help="If True, also inject special sequence tokens (start, end).")
 args = parser.parse_args()
 
