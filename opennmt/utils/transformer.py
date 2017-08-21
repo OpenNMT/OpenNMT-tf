@@ -88,10 +88,13 @@ def multi_head_attention(num_heads,
   Returns:
     The concatenated attention context of each head.
   """
-  heads = []
-
   input_dim = keys.get_shape().as_list()[-1]
+
+  if input_dim % num_heads != 0:
+    raise ValueError("Multi head attention requires the input dimension to be a multiple of " + str(num_heads))
+
   head_dim = input_dim / num_heads
+  heads = []
 
   for i in range(num_heads):
     with tf.variable_scope("head_" + str(i)):
