@@ -46,7 +46,7 @@ class SequenceClassifier(Model):
 
       encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
         inputs,
-        sequence_length=self.embedder.get_data_field(features, "length"),
+        sequence_length=self._features_length(features),
         mode=mode)
 
     encoding = tf.reduce_mean(encoder_outputs, axis=1)

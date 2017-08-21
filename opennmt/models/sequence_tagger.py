@@ -55,7 +55,7 @@ class SequenceTagger(Model):
 
       encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
         inputs,
-        sequence_length=self.embedder.get_data_field(features, "length"),
+        sequence_length=self._features_length(features),
         mode=mode)
 
     with tf.variable_scope("generator"):
@@ -68,7 +68,7 @@ class SequenceTagger(Model):
         log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(
           logits,
           tf.cast(labels, tf.int32),
-          self.embedder.get_data_field(features, "length"))
+          self._features_length(features))
         loss = tf.reduce_mean(-log_likelihood)
       else:
         loss = masked_sequence_loss(
