@@ -52,8 +52,36 @@ class Model(object):
     """Creates the model. See `tf.estimator.Estimator`'s `model_fn` argument
     for more details about arguments and the returned value.
     """
+    self._count_words(features, labels)
     with tf.variable_scope(self.name):
       return self._build(features, labels, params, mode)
+
+  def _count_words(self, features, labels):
+    """Stores a word counter operator for sequences of features and labels."""
+    def _add_counter(word_count, name):
+      word_count = tf.cast(word_count, tf.int64)
+      total_word_count = tf.Variable(
+        initial_value=0,
+        name=name + "_init",
+        trainable=False,
+        dtype=tf.int64)
+      total_word_count = tf.assign_add(
+        total_word_count,
+        word_count,
+        name=name)
+
+    features_length = self._features_length(features)
+
+    if labels is not None:
+      labels_length = self._labels_length(labels)
+    else:
+      labels_length = None
+
+    with tf.variable_scope("words_per_sec"):
+      if features_length is not None:
+        _add_counter(tf.reduce_sum(features_length), "features")
+      if labels_length is not None:
+        _add_counter(tf.reduce_sum(labels_length), "labels")
 
   @abc.abstractmethod
   def _build(self, features, labels, params, mode):

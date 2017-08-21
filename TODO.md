@@ -5,7 +5,6 @@
   * Accuracy
 * Convolutional sequence-to-sequence
   * https://arxiv.org/abs/1705.03122
-* Words per second summary
 
 ## To improve
 
