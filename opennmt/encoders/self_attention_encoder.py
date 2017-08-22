@@ -3,8 +3,8 @@
 import tensorflow as tf
 import opennmt.utils.transformer as transformer
 
-from opennmt.encoders.encoder import Encoder, create_position_embedding
-from opennmt.utils.reducer import SumReducer
+from opennmt.encoders.encoder import Encoder
+from opennmt.utils.position import PositionEmbedder
 
 
 class SelfAttentionEncoder(Encoder):
@@ -17,7 +17,8 @@ class SelfAttentionEncoder(Encoder):
                num_heads=8,
                ffn_inner_dim=2048,
                dropout=0.1,
-               keep_layers_output=False):
+               keep_layers_output=False,
+               position_encoder=PositionEmbedder()):
     """Initializes the parameters of the encoder.
 
     Args:
@@ -29,22 +30,18 @@ class SelfAttentionEncoder(Encoder):
       keep_layers_output: If `True`, the memory of the encoder will contain
         the output of each layer. Otherwise, it will only contain the
         last layer output. This is `True` in the Transformer model.
+      position_encoder: The `PositionEncoder` to apply on inputs or `None`.
     """
     self.num_layers = num_layers
     self.num_heads = num_heads
     self.ffn_inner_dim = ffn_inner_dim
     self.dropout = dropout
+    self.position_encoder = position_encoder
     self.keep_layers_output = keep_layers_output
-    self.position_encoding_reducer = SumReducer()
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    with tf.variable_scope("position_embedding"):
-      input_dim = inputs.get_shape().as_list()[-1]
-      position_embedding = create_position_embedding(
-        input_dim,
-        128,
-        sequence_length)
-      inputs = self.position_encoding_reducer.reduce(inputs, position_embedding)
+    if self.position_encoder is not None:
+      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
     inputs = tf.layers.dropout(
       inputs,

@@ -3,9 +3,8 @@
 import tensorflow as tf
 import opennmt.utils.transformer as transformer
 
-from opennmt.encoders.encoder import create_position_embedding
 from opennmt.decoders.decoder import Decoder
-from opennmt.utils.reducer import SumReducer
+from opennmt.utils.position import PositionEmbedder
 from opennmt.utils.beam_search import beam_search
 
 
@@ -18,7 +17,8 @@ class SelfAttentionDecoder(Decoder):
                num_layers,
                num_heads=8,
                ffn_inner_dim=2048,
-               dropout=0.1):
+               dropout=0.1,
+               position_encoder=PositionEmbedder()):
     """Initializes the parameters of the decoder.
 
     Args:
@@ -27,12 +27,13 @@ class SelfAttentionDecoder(Decoder):
       ffn_inner_dim: The number of units of the inner linear transformation
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
+      position_encoder: The `PositionEncoder` to apply on inputs or `None`.
     """
     self.num_layers = num_layers
     self.num_heads = num_heads
     self.ffn_inner_dim = ffn_inner_dim
     self.dropout = dropout
-    self.position_encoding_reducer = SumReducer()
+    self.position_encoder = position_encoder
 
   def decode(self,
              inputs,
@@ -43,13 +44,8 @@ class SelfAttentionDecoder(Decoder):
              memory=None,
              memory_sequence_length=None,
              return_logits=True):
-    with tf.variable_scope("position_embedding"):
-      input_dim = inputs.get_shape().as_list()[-1]
-      position_embedding = create_position_embedding(
-        input_dim,
-        128,
-        sequence_length)
-      inputs = self.position_encoding_reducer.reduce(inputs, position_embedding)
+    if self.position_encoder is not None:
+      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
     inputs = tf.layers.dropout(
       inputs,

@@ -3,6 +3,7 @@
 from opennmt.models.sequence_to_sequence import SequenceToSequence
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
+from opennmt.utils.position import PositionEmbedder
 
 
 class Transformer(SequenceToSequence):
@@ -17,18 +18,21 @@ class Transformer(SequenceToSequence):
                num_heads,
                ffn_inner_dim,
                dropout=0.1,
+               position_encoder=PositionEmbedder(),
                name="transformer"):
     encoder = SelfAttentionEncoder(
       num_layers,
       num_heads=num_heads,
       ffn_inner_dim=ffn_inner_dim,
       dropout=dropout,
-      keep_layers_output=True)
+      keep_layers_output=True,
+      position_encoder=position_encoder)
     decoder = SelfAttentionDecoder(
       num_layers,
       num_heads=num_heads,
       ffn_inner_dim=ffn_inner_dim,
-      dropout=dropout)
+      dropout=dropout,
+      position_encoder=position_encoder)
 
     super(Transformer, self).__init__(
       source_embedder,

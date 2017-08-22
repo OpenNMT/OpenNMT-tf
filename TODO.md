@@ -13,7 +13,6 @@
 ## To improve
 
 * Write modules tests
-* Factorize positional encoding/embedding layer
 * Gather default option values
 * Use in-graph Viterbi decoding
   * https://github.com/tensorflow/tensorflow/pull/12056

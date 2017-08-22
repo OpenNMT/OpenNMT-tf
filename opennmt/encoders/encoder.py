@@ -6,37 +6,6 @@ import six
 from opennmt.utils.reducer import SumReducer, JoinReducer
 
 
-def create_position_embedding(embedding_size,
-                              maximum_position,
-                              sequence_length):
-  """Creates position embeddings.
-
-  Args:
-    embedding_size: The output embedding size.
-    maximum_position: The maximum position to embed.
-    sequence_length: The length of each sequence of shape `[B]`.
-
-  Returns:
-    A `Tensor` of shape `[B, maximum_length, embedding_size]`.
-  """
-  maximum_length = tf.reduce_max(sequence_length)
-  batch_size = tf.shape(sequence_length)[0]
-
-  # Make 0 the position of padding.
-  position = tf.range(maximum_length) + 1
-  position = tf.tile(position, [batch_size])
-  position = tf.reshape(position, [batch_size, -1])
-
-  mask = tf.sequence_mask(sequence_length)
-  mask = tf.cast(mask, tf.int32)
-
-  position = position * mask
-  position = tf.minimum(position, maximum_position)
-
-  embeddings = tf.get_variable("w_embs", shape=[maximum_position + 1, embedding_size])
-  return tf.nn.embedding_lookup(embeddings, position)
-
-
 @six.add_metaclass(abc.ABCMeta)
 class Encoder(object):
   """Abstract class for encoders."""

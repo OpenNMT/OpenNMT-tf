@@ -2,8 +2,8 @@
 
 import tensorflow as tf
 
-from opennmt.encoders.encoder import Encoder, create_position_embedding
-from opennmt.utils.reducer import SumReducer
+from opennmt.encoders.encoder import Encoder
+from opennmt.utils.position import PositionEmbedder
 
 
 class ConvEncoder(Encoder):
@@ -16,9 +16,7 @@ class ConvEncoder(Encoder):
                num_units,
                kernel_size=3,
                dropout=0.3,
-               position_embedding=True,
-               position_embedding_max=128,
-               position_embedding_reducer=SumReducer()):
+               position_encoder=PositionEmbedder()):
     """Initializes the parameters of the encoder.
 
     Args:
@@ -26,29 +24,17 @@ class ConvEncoder(Encoder):
       num_units: The number of output filters.
       kernel_size: The kernel size.
       dropout: The probability to drop units from the inputs.
-      position_embedding: If `True`, add position embedding.
-      position_embedding_max: Maximum position.
-      position_embedding_reducer: A `Reducer` to merge inputs and position
-        embeddings.
+      position_encoder: The `PositionEncoder` to apply on inputs or `None`.
     """
     self.num_layers = num_layers
     self.num_units = num_units
     self.kernel_size = kernel_size
     self.dropout = dropout
-
-    self.position_embedding = position_embedding
-    self.position_embedding_max = position_embedding_max
-    self.position_embedding_reducer = position_embedding_reducer
+    self.position_encoder = position_encoder
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    if self.position_embedding:
-      with tf.variable_scope("position_embedding"):
-        input_dim = inputs.get_shape().as_list()[-1]
-        position_embedding = create_position_embedding(
-          input_dim,
-          self.position_embedding_max,
-          sequence_length)
-        inputs = self.position_embedding_reducer.reduce(inputs, position_embedding)
+    if self.position_encoder is not None:
+      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
     # Apply dropout to inputs.
     inputs = tf.layers.dropout(
