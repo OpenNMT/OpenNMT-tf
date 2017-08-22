@@ -1,5 +1,7 @@
 """Various utility functions to use throughout the project."""
 
+from __future__ import print_function
+
 import tensorflow as tf
 
 from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
@@ -13,12 +15,29 @@ def count_lines(filename):
       pass
     return i + 1
 
+def count_parameters():
+  """Returns the total number of trainable parameters."""
+  total = 0
+  for variable in tf.trainable_variables():
+    shape = variable.get_shape()
+    count = 1
+    for dim in shape:
+      count *= dim.value
+    total += count
+  return total
+
 def get_tensor_by_name(name):
   """Gets a tensor by name in the default graph. Returns `None` if not found."""
   try:
     return tf.get_default_graph().get_tensor_by_name(name)
   except KeyError:
     return None
+
+class LogParametersCountHook(tf.train.SessionRunHook):
+  """Simple hook that logs the number of trainable parameters."""
+
+  def begin(self):
+    print("Number of trainable parameters:", count_parameters())
 
 class WordCounterHook(tf.train.SessionRunHook):
   """Hook that counts tokens per second.

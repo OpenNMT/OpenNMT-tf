@@ -8,7 +8,7 @@ from importlib import import_module
 import tensorflow as tf
 import opennmt as onmt
 
-from opennmt.utils.misc import WordCounterHook
+from opennmt.utils.misc import LogParametersCountHook, WordCounterHook
 
 
 def load_config_module(path):
@@ -166,9 +166,12 @@ def main():
     if args.task_type == "ps":
       experiment.run_std_server()
     elif run_config.is_chief:
-      experiment.extend_train_hooks([WordCounterHook(
-        every_n_steps=config["run"].get("save_summary_steps", 100),
-        output_dir=config["run"]["model_dir"])])
+      experiment.extend_train_hooks([
+        LogParametersCountHook(),
+        WordCounterHook(
+          every_n_steps=config["run"].get("save_summary_steps", 100),
+          output_dir=config["run"]["model_dir"])
+      ])
 
       experiment.train_and_evaluate()
     else:
