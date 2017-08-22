@@ -36,10 +36,14 @@ def main():
                            (duplicate entries take the value of the rightmost file)""")
   parser.add_argument("--model", required=True,
                       help="model configuration file")
-  parser.add_argument("--task_type", default="worker", choices=["master", "worker", "ps"],
-                      help="type of task to run")
-  parser.add_argument("--task_id", type=int, default=0,
-                      help="id of the task")
+  parser.add_argument("--ps_hosts", default="",
+                      help="comma-separated list of hostname:port pairs")
+  parser.add_argument("--worker_hosts", default="",
+                      help="comma-separated list of hostname:port pairs")
+  parser.add_argument("--task_type", default="worker", choices=["worker", "ps"],
+                      help="type of the task to run")
+  parser.add_argument("--task_index", type=int, default=0,
+                      help="id of the task (0 is the master)")
   args = parser.parse_args()
 
   # Load and merge run configurations.
@@ -56,16 +60,29 @@ def main():
           config[section] = subconfig[section]
 
   # Setup cluster if defined.
-  if "hosts" in config:
+  if args.worker_hosts:
+    ps = args.ps_hosts.split(",")
+    workers = args.workers_hosts.split(",")
+    master = [ workers.pop(0) ]
+
     cluster = {
-      "ps": config["hosts"]["ps"],
-      "worker": config["hosts"]["workers"],
-      "master": config["hosts"]["masters"]
+      "ps": ps,
+      "worker": workers,
+      "master": master
     }
+
+    task_type = args.task_type
+    task_index = args.task_index
+
+    if task_type == "worker":
+      if args.task_index == 0:
+        task_type = "master"
+      else:
+        task_index -= 1
 
     os.environ["TF_CONFIG"] = json.dumps({
       "cluster": cluster,
-      "task": {"type": args.task_type, "index": args.task_id},
+      "task": {"type": task_type, "index": task_index},
       "environment": "cloud"
     })
 
