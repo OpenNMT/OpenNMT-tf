@@ -10,7 +10,9 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
 
 ## Requirements
 
-* `tensorflow` (`nightly`)
+* `tensorflow`
+  * `nightly` to use `CharConvEmbedder` or `crf_decoding=true`
+  * `1.3.0` otherwise
 * `pyyaml`
 
 ## Overview

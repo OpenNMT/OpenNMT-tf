@@ -14,10 +14,6 @@
 
 * Write modules tests
 * Gather default option values
-* Use in-graph Viterbi decoding
-  * https://github.com/tensorflow/tensorflow/pull/12056
-* Set TensorFlow target version
-  * Waiting for: https://github.com/tensorflow/tensorflow/commit/865b92da01582081576728504bedf932b367b26c
 
 ## To explore
 

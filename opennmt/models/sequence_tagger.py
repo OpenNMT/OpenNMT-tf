@@ -2,6 +2,9 @@
 
 import tensorflow as tf
 
+# TODO: remove when crf_decode is exposed at the module level.
+from tensorflow.contrib.crf.python.ops.crf import crf_decode
+
 from opennmt.models.model import Model
 from opennmt.utils.misc import count_lines
 from opennmt.utils.losses import masked_sequence_loss
@@ -22,11 +25,6 @@ class SequenceTagger(Model):
     self.labels_vocabulary_file = labels_vocabulary_file
     self.num_labels = count_lines(labels_vocabulary_file)
     self.crf_decoding = crf_decoding
-
-    self.id_to_label = []
-    with open(labels_vocabulary_file) as labels_vocabulary:
-      for label in labels_vocabulary:
-        self.id_to_label.append(label.strip())
 
   def _features_length(self, features):
     return self.embedder.get_data_field(features, "length")
@@ -81,41 +79,32 @@ class SequenceTagger(Model):
         loss=loss,
         train_op=self._build_train_op(loss, params))
     else:
-      predictions = {}
-      predictions["length"] = encoder_sequence_length
-
       if self.crf_decoding:
-        transition_params = tf.get_variable("transitions", shape=[self.num_labels, self.num_labels])
-
-        # predictions must contain tensors with the same batch size
-        # so replicate the transition matrix accordingly.
-        transition_params = tf.convert_to_tensor(transition_params)
-        transition_params = tf.expand_dims(transition_params, axis=0)
-        transition_params = tf.tile(transition_params, [tf.shape(logits)[0], 1, 1])
-
-        predictions["logits"] = logits
-        predictions["transition_params"] = transition_params
+        transition_params = tf.get_variable(
+          "transitions", shape=[self.num_labels, self.num_labels])
+        labels, _ = crf_decode(
+          logits,
+          transition_params,
+          encoder_sequence_length)
+        labels = tf.cast(labels, tf.int64)
       else:
         probs = tf.nn.softmax(logits)
-        predictions["argmax"] = tf.argmax(probs, axis=2)
+        labels = tf.argmax(probs, axis=2)
+
+      labels_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
+        self.labels_vocabulary_file,
+        vocab_size=self.num_labels)
+
+      predictions = {}
+      predictions["length"] = encoder_sequence_length
+      predictions["labels"] = labels_vocab_rev.lookup(labels)
 
       return tf.estimator.EstimatorSpec(
         mode,
         predictions=predictions)
 
   def format_prediction(self, prediction, params=None):
-    if self.crf_decoding:
-      sequence, _ = tf.contrib.crf.viterbi_decode(
-        prediction["logits"],
-        prediction["transition_params"])
-    else:
-      sequence = prediction["argmax"]
-
-    # Convert ids to labels.
-    for i in range(prediction["length"]):
-      sequence[i] = self.id_to_label[sequence[i]]
-
-    labels = sequence[:prediction["length"]]
-    sent = b' '.join(labels)
-    sent = sent.decode('utf-8')
+    labels = prediction["labels"][:prediction["length"]]
+    sent = b" ".join(labels)
+    sent = sent.decode("utf-8")
     return sent
