@@ -59,7 +59,10 @@ params:
   # (optional) Maximum gradients norm.
   clip_gradients: 5.0
 
-  # (optional) The type of learning rate decay (see https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate).
+  # (optional) The type of learning rate decay. See:
+  #  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate
+  #  * opennmt/utils/decay.py
+  # This value may change the semantics of other decay options. See the documentation or the code.
   decay_type: "exponential_decay"
 
   # (optional unless decay_type is set) The learning rate decay rate.

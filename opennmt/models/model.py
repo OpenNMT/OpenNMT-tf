@@ -6,6 +6,8 @@ import time
 
 import tensorflow as tf
 
+from opennmt.utils import decay
+
 
 def learning_rate_decay_fn(decay_type,
                            decay_rate,
@@ -27,9 +29,16 @@ def learning_rate_decay_fn(decay_type,
     A function with signature `lambda learning_rate, global_steps: decayed_learning_rate`.
   """
   def decay_fn(learning_rate, global_step):
-    decay_class = getattr(tf.train, decay_type)
+    decay_op_name = None
 
-    decayed_learning_rate = decay_class(
+    if decay_op_name is None:
+      decay_op_name = getattr(tf.train, decay_type, None)
+    if decay_op_name is None:
+      decay_op_name = getattr(decay, decay_type, None)
+    if decay_op_name is None:
+      raise ValueError("Unknown decay function: " + decay_type)
+
+    decayed_learning_rate = decay_op_name(
       learning_rate,
       tf.maximum(global_step - start_decay_steps, 0),
       decay_steps,
