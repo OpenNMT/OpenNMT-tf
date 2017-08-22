@@ -149,7 +149,7 @@ def main():
       experiment.train_and_evaluate()
     else:
       experiment.train()
-  else:
+  elif config["run"]["type"] == "infer":
     test_input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
       config["params"]["batch_size"],
@@ -164,6 +164,8 @@ def main():
         predictions = [ predictions ]
       for prediction in predictions:
         print(prediction)
+  else:
+    raise ValueError("Unknown run type: " + config["run"]["type"])
 
 if __name__ == "__main__":
   main()
