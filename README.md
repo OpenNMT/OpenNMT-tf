@@ -1,3 +1,5 @@
+*This project is experimental. Feedback and testing are welcome.*
+
 # OpenNMT-tf
 
 OpenNMT-tf is a general purpose sequence modeling tools in TensorFlow for:
