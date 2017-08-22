@@ -29,6 +29,61 @@ def load_config_module(path):
 
   return module
 
+def load_run_config(run_files):
+  """Loads run configuration files.
+
+  Args:
+    run_files: A list of run configuration files.
+
+  Returns:
+    The configuration dictionary.
+  """
+  config = {}
+
+  for config_path in run_files:
+    with open(config_path) as config_file:
+      subconfig = yaml.load(config_file.read())
+
+      # Add or update section in main configuration.
+      for section in subconfig:
+        if section in config:
+          config[section].update(subconfig[section])
+        else:
+          config[section] = subconfig[section]
+
+  return config
+
+def setup_cluster(workers, ps, task_type, task_index):
+  """Sets the cluster configuration.
+
+  Args:
+    workers: A list of worker hosts.
+    ps: A list of parameter server hosts.
+    task_type: The type of the local task.
+    taks_index: The index of the local task.
+  """
+  # The master is the first worker.
+  master = [ workers.pop(0) ]
+
+  if task_type == "worker":
+    if task_index == 0:
+      task_type = "master"
+    else:
+      task_index -= 1
+
+  cluster = {
+    "ps": ps,
+    "worker": workers,
+    "master": master
+  }
+
+  os.environ["TF_CONFIG"] = json.dumps({
+    "cluster": cluster,
+    "task": {"type": task_type, "index": task_index},
+    "environment": "cloud"
+  })
+
+
 def main():
   parser = argparse.ArgumentParser(description="OpenNMT-tf.")
   parser.add_argument("--run", required=True, nargs='+',
@@ -47,44 +102,13 @@ def main():
   args = parser.parse_args()
 
   # Load and merge run configurations.
-  config = {}
-  for config_path in args.run:
-    with open(config_path) as config_file:
-      subconfig = yaml.load(config_file.read())
-
-      # Add or update section in main configuration.
-      for section in subconfig:
-        if section in config:
-          config[section].update(subconfig[section])
-        else:
-          config[section] = subconfig[section]
+  config = load_run_config(args.run)
 
   # Setup cluster if defined.
   if args.worker_hosts:
     ps = args.ps_hosts.split(",")
     workers = args.workers_hosts.split(",")
-    master = [ workers.pop(0) ]
-
-    cluster = {
-      "ps": ps,
-      "worker": workers,
-      "master": master
-    }
-
-    task_type = args.task_type
-    task_index = args.task_index
-
-    if task_type == "worker":
-      if args.task_index == 0:
-        task_type = "master"
-      else:
-        task_index -= 1
-
-    os.environ["TF_CONFIG"] = json.dumps({
-      "cluster": cluster,
-      "task": {"type": task_type, "index": task_index},
-      "environment": "cloud"
-    })
+    setup_cluster(workers, ps, args.task_type, args.task_index)
 
   session_config = tf.ConfigProto()
   session_config.gpu_options.allow_growth = config.get("gpu_allow_growth", False)
