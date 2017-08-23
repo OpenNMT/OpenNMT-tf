@@ -16,6 +16,16 @@ class SequenceToSequence(Model):
                encoder,
                decoder,
                name="seq2seq"):
+    """Initializes a sequence-to-sequence model.
+
+    Args:
+      source_embedder: An `Embedder` to process the source data.
+      target_embedder: An `Embedder` to process the target data.
+        Currently, only the `WordEmbedder` is supported.
+      encoder: An `Encoder` to encode the source.
+      decoder: A `Decoder` to decode the target.
+      name: The name of this model.
+    """
     super(SequenceToSequence, self).__init__(name)
 
     self.encoder = encoder

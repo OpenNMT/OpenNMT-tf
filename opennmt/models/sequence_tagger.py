@@ -18,6 +18,16 @@ class SequenceTagger(Model):
                labels_vocabulary_file,
                crf_decoding=False,
                name="seqtagger"):
+    """Initializes a sequence tagger.
+
+    Args:
+      embedder: An `Embedder` to process the input data.
+      encoder: An `Encoder` to encode the input.
+      labels_vocabulary_file: The labels vocabulary file containing
+        one label per line.
+      crf_decoding: If `True`, add a CRF layer after the encoder.
+      name: The name of this model.
+    """
     super(SequenceTagger, self).__init__(name)
 
     self.encoder = encoder

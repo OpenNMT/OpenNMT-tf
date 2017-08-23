@@ -13,6 +13,15 @@ class SequenceClassifier(Model):
                encoder,
                labels_vocabulary_file,
                name="seqclassifier"):
+    """Initializes a sequence classifier.
+
+    Args:
+      embedder: An `Embedder` to process the input data.
+      encoder: An `Encoder` to encode the input.
+      labels_vocabulary_file: The labels vocabulary file containing
+        one label per line.
+      name: The name of this model.
+    """
     super(SequenceClassifier, self).__init__(name)
 
     self.embedder = embedder

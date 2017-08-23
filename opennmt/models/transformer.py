@@ -20,6 +20,19 @@ class Transformer(SequenceToSequence):
                dropout=0.1,
                position_encoder=PositionEmbedder(),
                name="transformer"):
+    """Initializes a Transformer model.
+
+    Args:
+      source_embedder: An `Embedder` to process the source data.
+      target_embedder: An `Embedder` to process the target data.
+        Currently, only the `WordEmbedder` is supported.
+      num_layers: The shared number of layers.
+      num_heads: The number of heads in each self-attention layers.
+      ffn_inner_dim: The inner dimension of the feed forward layers.
+      dropout: The probability to drop units in each layer output.
+      position_encoder: A `PositionEncoder` to apply on the inputs.
+      name: The name of this model.
+    """
     encoder = SelfAttentionEncoder(
       num_layers,
       num_heads=num_heads,
