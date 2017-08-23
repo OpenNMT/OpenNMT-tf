@@ -24,8 +24,8 @@ def get_default_config():
       "gpu_allow_growth": False
     },
     "data": {
-      "maximum_features_length": 0,
-      "maximum_labels_length": 0,
+      "maximum_features_length": None,
+      "maximum_labels_length": None,
       "buffer_size": 10000,
       "num_buckets": 5
     },

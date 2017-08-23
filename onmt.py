@@ -98,8 +98,8 @@ def main():
       config["data"]["num_buckets"],
       config["data"]["train_features_file"],
       labels_file=config["data"]["train_labels_file"],
-      maximum_features_length=config["data"].get("maximum_features_length"),
-      maximum_labels_length=config["data"].get("maximum_labels_length"))
+      maximum_features_length=config["data"]["maximum_features_length"],
+      maximum_labels_length=config["data"]["maximum_labels_length"])
     eval_input_fn = model.input_fn(
       tf.estimator.ModeKeys.EVAL,
       config["params"]["batch_size"],
