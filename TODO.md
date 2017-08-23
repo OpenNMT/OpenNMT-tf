@@ -1,19 +1,19 @@
 ## To add
 
-* Other validation metrics
+* Other validation metrics compatible with `tf.metrics`
   * BLEU
   * ROUGE
   * Accuracy
   * F-score
 * Convolutional sequence-to-sequence
   * https://arxiv.org/abs/1705.03122
-* Multi source embedder
 * Positional encoding as in https://arxiv.org/abs/1706.03762
 
 ## To improve
 
 * Write modules tests
 * Gather default option values
+* Expose alignment history after decoding
 
 ## To explore
 
