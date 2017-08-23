@@ -11,7 +11,7 @@ def transformer_decay(learning_rate,
                       decay_rate,
                       staircase=False,
                       name=None):
-  """Define the decay function described in https://arxiv.org/abs/1706.03762.
+  """Defines the decay function described in https://arxiv.org/abs/1706.03762.
 
   The semantic of the arguments are changed accordingly.
 
