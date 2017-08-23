@@ -12,26 +12,16 @@ from opennmt.utils.reducer import ConcatReducer
 class Embedder(object):
   """Base class for embedders."""
 
-  def __init__(self, name=None):
-    self.name = name
+  def __init__(self):
     self.resolved = False
     self.padded_shapes = {}
 
-  def set_name(self, name):
-    self.name = name
-
-  def _prefix_key(self, key):
-    """Prefix the data `key` with the embedder's name (if defined)."""
-    if not self.name is None:
-      key = self.name + "_" + key
-    return key
-
   def set_data_field(self, data, key, value, padded_shape=[]):
-    """Sets a prefixed data field.
+    """Sets a data field.
 
     Args:
       data: The data dictionary.
-      key: The key to prefix with the embedder's name.
+      key: The value key.
       value: The value to assign.
       padded_shape: The padded shape of the value as given to
         `tf.contrib.data.Dataset.padded_batch`.
@@ -39,50 +29,23 @@ class Embedder(object):
     Returns:
       The updated data dictionary.
     """
-    key = self._prefix_key(key)
     data[key] = value
     self.padded_shapes[key] = padded_shape
     return data
 
   def remove_data_field(self, data, key):
-    """Remove a prefixed data field.
+    """Remove a data field.
 
     Args:
       data: The data dictionary.
-      key: The key to prefix with the embedder's name.
+      key: The value key.
 
     Returns:
       The updated data dictionary.
     """
-    key = self._prefix_key(key)
     del data[key]
     del self.padded_shapes[key]
     return data
-
-  def get_data_field(self, data, key):
-    """Gets a prefixed data field.
-
-    Args:
-      data: The data dictionary.
-      key: The key to prefix with the embedder's name.
-
-    Returns:
-      The data field.
-    """
-    key = self._prefix_key(key)
-    return data[key]
-
-  def has_data_field(self, data, key):
-    """Checks key existence.
-
-    Args:
-      data: The data dictionary.
-      key: The key to prefix with the embedder's name.
-
-    Returns:
-      `True` if the data dictionary contains the prefixed key.
-    """
-    return self._prefix_key(key) in data
 
   def make_dataset(self, data_file):
     """Creates the dataset required by this embedder.
@@ -128,7 +91,7 @@ class Embedder(object):
     """
     if not isinstance(data, dict):
       data = self.set_data_field({}, "raw", data)
-    elif not self.has_data_field(data, "raw"):
+    elif not "raw" in data:
       raise ValueError("data must contain the raw dataset value")
     return data
 
@@ -193,26 +156,18 @@ class MixedEmbedder(Embedder):
   def __init__(self,
                embedders,
                reducer=ConcatReducer(),
-               dropout=0.0,
-               name=None):
+               dropout=0.0):
     """Initializes a mixed embedder.
 
     Args:
       embedders: A list of `Embedder`.
       reducer: A `Reducer` to merge all embeddings.
       dropout: The probability to drop units in the merged embedding.
-      name: The name of this embedder used to prefix data fields.
     """
     super(MixedEmbedder, self).__init__(name=name)
     self.embedders = embedders
     self.reducer = reducer
     self.dropout = dropout
-    self.set_name(name)
-
-  def set_name(self, name):
-    self.name = name
-    for embedder in self.embedders:
-      embedder.set_name(name)
 
   def _make_dataset(self, data_file):
     return self.embedders[0]._make_dataset(data_file)
@@ -233,15 +188,18 @@ class MixedEmbedder(Embedder):
 
   def _embed_from_data(self, data, mode):
     embs = []
+    index = 0
     for embedder in self.embedders:
-      embs.append(embedder._embed_from_data(data, mode)) # pylint: disable=protected-access
+      with tf.variable_scope("embedder_" + str(index)):
+        embs.append(embedder._embed_from_data(data, mode)) # pylint: disable=protected-access
+      index += 1
     return self.reducer.reduce_all(embs)
 
   def _embed(self, inputs, mode, reuse=None):
     embs = []
     index = 0
     for embedder, elem in zip(self.embedders, inputs):
-      with tf.variable_scope(str(index), reuse=reuse):
+      with tf.variable_scope("embedder_" + str(index), reuse=reuse):
         embs.append(embedder._embed(elem, mode)) # pylint: disable=protected-access
       index += 1
     outputs = self.reducer.reducal_all(embs)

@@ -132,8 +132,8 @@ def _tokens_to_chars(tokens):
 class TextEmbedder(Embedder):
   """An abstract embedder that process text."""
 
-  def __init__(self, name=None):
-    super(TextEmbedder, self).__init__(name=name)
+  def __init__(self):
+    super(TextEmbedder, self).__init__()
 
   def _make_dataset(self, data_file):
     return tf.contrib.data.TextLineDataset(data_file)
@@ -142,8 +142,8 @@ class TextEmbedder(Embedder):
     """Tokenizes raw text."""
     data = super(TextEmbedder, self).process(data)
 
-    if not self.has_data_field(data, "tokens"):
-      text = self.get_data_field(data, "raw")
+    if not "tokens" in data:
+      text = data["raw"]
       tokens = tf.string_split([text]).values
       length = tf.shape(tokens)[0]
 
@@ -169,8 +169,7 @@ class WordEmbedder(TextEmbedder):
                embedding_size=None,
                embedding_file=None,
                trainable=True,
-               dropout=0.0,
-               name=None):
+               dropout=0.0):
     """Initializes the parameters of the word embedder.
 
     Args:
@@ -187,9 +186,8 @@ class WordEmbedder(TextEmbedder):
         Entries will be matched against `vocabulary_file`.
       trainable: If `False`, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
-      name: The name of this embedder used to prefix data fields.
     """
-    super(WordEmbedder, self).__init__(name=name)
+    super(WordEmbedder, self).__init__()
 
     self.vocabulary_file = vocabulary_file
     self.embedding_size = embedding_size
@@ -214,8 +212,8 @@ class WordEmbedder(TextEmbedder):
     """Converts words tokens to ids."""
     data = super(WordEmbedder, self).process(data)
 
-    if not self.has_data_field(data, "ids"):
-      tokens = self.get_data_field(data, "tokens")
+    if not "ids" in data:
+      tokens = data["tokens"]
       ids = self.vocabulary.lookup(tokens)
 
       data = self.set_data_field(data, "ids", ids, padded_shape=[None])
@@ -228,7 +226,7 @@ class WordEmbedder(TextEmbedder):
       _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
   def _embed_from_data(self, data, mode):
-    return self.embed(self.get_data_field(data, "ids"), mode)
+    return self.embed(data["ids"], mode)
 
   def _embed(self, inputs, mode, reuse=None):
     try:
@@ -270,8 +268,7 @@ class CharConvEmbedder(TextEmbedder):
                num_outputs,
                kernel_size=5,
                stride=3,
-               dropout=0.0,
-               name=None):
+               dropout=0.0):
     """Initializes the parameters of the character convolution embedder.
 
     Args:
@@ -281,9 +278,8 @@ class CharConvEmbedder(TextEmbedder):
       kernel_size: Length of the convolution window.
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
-      name: The name of this embedder used to prefix data fields.
     """
-    super(CharConvEmbedder, self).__init__(name=name)
+    super(CharConvEmbedder, self).__init__()
 
     self.vocabulary_file = vocabulary_file
     self.embedding_size = embedding_size
@@ -306,8 +302,8 @@ class CharConvEmbedder(TextEmbedder):
     """Converts words to characters."""
     data = super(CharConvEmbedder, self).process(data)
 
-    if not self.has_data_field(data, "char_ids"):
-      tokens = self.get_data_field(data, "tokens")
+    if not "char_ids" in data:
+      tokens = data["tokens"]
       chars = _tokens_to_chars(tokens)
       ids = self.vocabulary.lookup(chars)
 
@@ -321,7 +317,7 @@ class CharConvEmbedder(TextEmbedder):
       _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
   def _embed_from_data(self, data, mode):
-    return self.embed(self.get_data_field(data, "char_ids"), mode)
+    return self.embed(data["char_ids"], mode)
 
   def _embed(self, inputs, mode, reuse=None):
     embeddings = tf.get_variable(

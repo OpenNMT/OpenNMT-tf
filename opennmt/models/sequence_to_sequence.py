@@ -34,22 +34,13 @@ class SequenceToSequence(Model):
     self.source_embedder = source_embedder
     self.target_embedder = target_embedder
 
-    self.source_embedder.set_name("source")
-    self.target_embedder.set_name("target")
-
-  def _features_length(self, features):
-    return self.source_embedder.get_data_field(features, "length")
-
-  def _labels_length(self, labels):
-    return self.target_embedder.get_data_field(labels, "length")
-
   def _shift_target(self, labels):
     """Generate shifted target sequences with <s> and </s>."""
     bos = tf.cast(tf.constant([constants.START_OF_SENTENCE_ID]), tf.int64)
     eos = tf.cast(tf.constant([constants.END_OF_SENTENCE_ID]), tf.int64)
 
-    ids = self.target_embedder.get_data_field(labels, "ids")
-    length = self.target_embedder.get_data_field(labels, "length")
+    ids = labels["ids"]
+    length = labels["length"]
 
     labels = self.target_embedder.set_data_field(
       labels,
@@ -77,7 +68,7 @@ class SequenceToSequence(Model):
     return dataset, self.target_embedder.padded_shapes
 
   def _build(self, features, labels, params, mode):
-    batch_size = tf.shape(self._features_length(features))[0]
+    batch_size = tf.shape(features["length"])[0]
 
     with tf.variable_scope("encoder"):
       source_inputs = self.source_embedder.embed_from_data(
@@ -87,7 +78,7 @@ class SequenceToSequence(Model):
 
       encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
         source_inputs,
-        sequence_length=self._features_length(features),
+        sequence_length=features["length"],
         mode=mode)
 
     with tf.variable_scope("decoder") as decoder_scope:
@@ -99,7 +90,7 @@ class SequenceToSequence(Model):
 
         decoder_outputs, _, decoded_length = self.decoder.decode(
           target_inputs,
-          self._labels_length(labels),
+          labels["length"],
           self.target_embedder.vocabulary_size,
           encoder_states,
           mode=mode,
@@ -133,8 +124,8 @@ class SequenceToSequence(Model):
     if mode != tf.estimator.ModeKeys.PREDICT:
       loss = masked_sequence_loss(
         decoder_outputs,
-        self.target_embedder.get_data_field(labels, "ids_out"),
-        self._labels_length(labels))
+        labels["ids_out"],
+        labels["length"])
 
       return tf.estimator.EstimatorSpec(
         mode,

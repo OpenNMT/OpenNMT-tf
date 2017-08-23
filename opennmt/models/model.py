@@ -79,12 +79,8 @@ class Model(object):
         word_count,
         name=name)
 
-    features_length = self._features_length(features)
-
-    if labels is not None:
-      labels_length = self._labels_length(labels)
-    else:
-      labels_length = None
+    features_length = features.get("length")
+    labels_length = labels.get("length") if labels is not None else None
 
     with tf.variable_scope("words_per_sec"):
       if features_length is not None:
@@ -133,8 +129,8 @@ class Model(object):
                       maximum_features_length=None,
                       maximum_labels_length=None):
     """Defines an example filtering condition."""
-    features_length = self._features_length(features)
-    labels_length = self._labels_length(labels)
+    features_length = features.get("length")
+    labels_length = labels.get("length")
 
     cond = []
 
@@ -149,14 +145,6 @@ class Model(object):
         cond.append(tf.less_equal(labels_length, maximum_labels_length))
 
     return tf.reduce_all(cond)
-
-  def _features_length(self, features):
-    """Attributes a length to a feature (if defined)."""
-    return None
-
-  def _labels_length(self, labels):
-    """Attributes a length to a label (if defined)."""
-    return None
 
   @abc.abstractmethod
   def _build_features(self, features_file):
@@ -224,7 +212,7 @@ class Model(object):
         else:
           bucket_width = 10
 
-        bucket_id = self._features_length(features) // bucket_width
+        bucket_id = features["length"] // bucket_width
         bucket_id = tf.minimum(bucket_id, num_buckets)
         return tf.to_int64(bucket_id)
 

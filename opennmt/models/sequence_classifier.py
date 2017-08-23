@@ -29,9 +29,6 @@ class SequenceClassifier(Model):
     self.labels_vocabulary_file = labels_vocabulary_file
     self.num_labels = count_lines(labels_vocabulary_file)
 
-  def _features_length(self, features):
-    return self.embedder.get_data_field(features, "length")
-
   def _build_features(self, features_file):
     dataset = self.embedder.make_dataset(features_file)
     return dataset, self.embedder.padded_shapes
@@ -55,7 +52,7 @@ class SequenceClassifier(Model):
 
       encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
         inputs,
-        sequence_length=self._features_length(features),
+        sequence_length=features["length"],
         mode=mode)
 
     encoding = tf.reduce_mean(encoder_outputs, axis=1)
