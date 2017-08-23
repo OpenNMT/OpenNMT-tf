@@ -2,7 +2,7 @@
 
 # OpenNMT-tf
 
-OpenNMT-tf is a general purpose sequence modeling tools in TensorFlow for:
+OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow for:
 
 * sequence to sequence mapping
 * sequence tagging
