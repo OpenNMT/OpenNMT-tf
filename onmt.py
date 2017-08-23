@@ -1,57 +1,13 @@
 import argparse
 import json
 import os
-import yaml
-
-from importlib import import_module
 
 import tensorflow as tf
 import opennmt as onmt
 
 from opennmt.utils.misc import LogParametersCountHook, WordCounterHook
+from opennmt.config import get_default_config, load_config_module, load_run_config
 
-
-def load_config_module(path):
-  """Loads a configuration file.
-
-  Args:
-    path: The relative path to the configuration file.
-
-  Returns:
-    A Python module.
-  """
-  module, _ = path.rsplit(".", 1)
-  module = module.replace("/", ".")
-  module = import_module(module)
-
-  if not hasattr(module, "model"):
-    raise ImportError("No model defined in " + path)
-
-  return module
-
-def load_run_config(run_files):
-  """Loads run configuration files.
-
-  Args:
-    run_files: A list of run configuration files.
-
-  Returns:
-    The configuration dictionary.
-  """
-  config = {}
-
-  for config_path in run_files:
-    with open(config_path) as config_file:
-      subconfig = yaml.load(config_file.read())
-
-      # Add or update section in main configuration.
-      for section in subconfig:
-        if section in config:
-          config[section].update(subconfig[section])
-        else:
-          config[section] = subconfig[section]
-
-  return config
 
 def setup_cluster(workers, ps, task_type, task_index):
   """Sets the cluster configuration.
@@ -102,7 +58,7 @@ def main():
   args = parser.parse_args()
 
   # Load and merge run configurations.
-  config = load_run_config(args.run)
+  config = load_run_config(args.run, config=get_default_config())
 
   # Setup cluster if defined.
   if args.worker_hosts:
@@ -111,23 +67,19 @@ def main():
     setup_cluster(workers, ps, args.task_type, args.task_index)
 
   session_config = tf.ConfigProto()
-  session_config.gpu_options.allow_growth = config.get("gpu_allow_growth", False)
+  session_config.gpu_options.allow_growth = config["run"]["gpu_allow_growth"]
 
   run_config = tf.contrib.learn.RunConfig(
-    save_summary_steps=config["run"].get("save_summary_steps", 100),
+    save_summary_steps=config["run"]["save_summary_steps"],
     save_checkpoints_secs=None,
-    save_checkpoints_steps=config["run"].get("save_checkpoints_steps", 1000),
-    keep_checkpoint_max=config["run"].get("keep_checkpoint_max", 5),
-    log_step_count_steps=config["run"].get("save_summary_steps", 100),
+    save_checkpoints_steps=config["run"]["save_checkpoints_steps"],
+    keep_checkpoint_max=config["run"]["keep_checkpoint_max"],
+    log_step_count_steps=config["run"]["save_summary_steps"],
     model_dir=config["run"]["model_dir"],
     session_config=session_config)
 
-  params = config.get("params", {})
+  params = config["params"]
   params["log_dir"] = config["run"]["model_dir"]
-
-  eval_every = config["run"].get("eval_steps")
-  buffer_size = config["data"].get("buffer_size", 10000)
-  num_buckets = config["data"].get("num_buckets", 5)
 
   # Load model configuration.
   model_config = load_config_module(args.model)
@@ -142,8 +94,8 @@ def main():
     train_input_fn = model.input_fn(
       tf.estimator.ModeKeys.TRAIN,
       config["params"]["batch_size"],
-      buffer_size,
-      num_buckets,
+      config["data"]["buffer_size"],
+      config["data"]["num_buckets"],
       config["data"]["train_features_file"],
       labels_file=config["data"]["train_labels_file"],
       maximum_features_length=config["data"].get("maximum_features_length"),
@@ -151,8 +103,8 @@ def main():
     eval_input_fn = model.input_fn(
       tf.estimator.ModeKeys.EVAL,
       config["params"]["batch_size"],
-      buffer_size,
-      num_buckets,
+      config["data"]["buffer_size"],
+      config["data"]["num_buckets"],
       config["data"]["eval_features_file"],
       labels_file=config["data"]["eval_labels_file"])
 
@@ -161,7 +113,7 @@ def main():
       train_input_fn=train_input_fn,
       eval_input_fn=eval_input_fn,
       eval_steps=None,
-      min_eval_frequency=eval_every)
+      min_eval_frequency=config["run"]["eval_steps"])
 
     if args.task_type == "ps":
       experiment.run_std_server()
@@ -169,7 +121,7 @@ def main():
       experiment.extend_train_hooks([
         LogParametersCountHook(),
         WordCounterHook(
-          every_n_steps=config["run"].get("save_summary_steps", 100),
+          every_n_steps=config["run"]["save_summary_steps"],
           output_dir=config["run"]["model_dir"])
       ])
 
@@ -180,8 +132,8 @@ def main():
     test_input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
       config["params"]["batch_size"],
-      buffer_size,
-      num_buckets,
+      config["data"]["buffer_size"],
+      config["data"]["num_buckets"],
       config["data"]["features_file"],
       labels_file=config["data"].get("labels_file"))
 

@@ -1,3 +1,10 @@
+# Inference configuration template.
+#
+# The command line accepts multiple configuration files. You can split
+# this template to make some configuration parts reusable.
+#
+# See default values for optional fields in opennmt/config.py.
+
 run:
   type: infer
 
@@ -20,4 +27,4 @@ params:
   maximum_iterations: 250
 
   # (optional) How many hypotheses to predict.
-  n_best: 5
+  n_best: 1

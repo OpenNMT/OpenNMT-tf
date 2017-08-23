@@ -97,14 +97,14 @@ class Model(object):
     """Builds the training op given parameters."""
     global_step = tf.train.get_or_create_global_step()
 
-    if "decay_type" in params:
+    if params["decay_type"] is not None:
       decay_fn = learning_rate_decay_fn(
-        params.get("decay_type"),
-        params.get("decay_rate"),
-        params.get("decay_steps"),
-        staircase=params.get("staircase") or True,
-        start_decay_steps=params.get("start_decay_steps") or 0,
-        minimum_learning_rate=params.get("minimum_learning_rate") or 0)
+        params["decay_type"],
+        params["decay_rate"],
+        params["decay_steps"],
+        staircase=params["staircase"],
+        start_decay_steps=params["start_decay_steps"],
+        minimum_learning_rate=params["minimum_learning_rate"])
     else:
       decay_fn = None
 
@@ -113,7 +113,7 @@ class Model(object):
       global_step,
       params["learning_rate"],
       params["optimizer"],
-      clip_gradients=params.get("clip_gradients"),
+      clip_gradients=params["clip_gradients"],
       learning_rate_decay_fn=decay_fn,
       summaries=[
         "learning_rate",

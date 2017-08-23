@@ -103,7 +103,7 @@ class SequenceToSequence(Model):
           constants.END_OF_SENTENCE_ID,
           self.target_embedder.vocabulary_size,
           encoder_states,
-          maximum_iterations=params.get("maximum_iterations") or 250,
+          maximum_iterations=params["maximum_iterations"],
           mode=mode,
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length)
@@ -114,9 +114,9 @@ class SequenceToSequence(Model):
           constants.END_OF_SENTENCE_ID,
           self.target_embedder.vocabulary_size,
           encoder_states,
-          beam_width=params.get("beam_width") or 5,
-          length_penalty=params.get("length_penalty") or 0.0,
-          maximum_iterations=params.get("maximum_iterations") or 250,
+          beam_width=params["beam_width"],
+          length_penalty=params["length_penalty"],
+          maximum_iterations=params["maximum_iterations"],
           mode=mode,
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length)
