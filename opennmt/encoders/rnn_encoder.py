@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from opennmt.utils.cell import build_cell
 from opennmt.encoders.encoder import Encoder
-from opennmt.utils.reducer import SumReducer, ConcatReducer
+from opennmt.utils.reducer import SumReducer, ConcatReducer, JoinReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -175,3 +175,68 @@ class GoogleRNNEncoder(Encoder):
     encoder_states = bi_states + uni_states
 
     return (encoder_outputs, encoder_states, sequence_length)
+
+
+class PyramidalRNNEncoder(Encoder):
+  """An encoder that reduces the time dimension after each bidirectional layer."""
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               reduction_factor=2,
+               cell_class=tf.contrib.rnn.LSTMCell,
+               dropout=0.3):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer.
+      reduction_factor: The time reduction factor.
+      cell_class: The inner cell class.
+      dropout: The probability to drop units in each layer output.
+    """
+    self.reduction_factor = reduction_factor
+    self.state_reducer = JoinReducer()
+    self.layers = []
+
+    for l in range(num_layers):
+      self.layers.append(BidirectionalRNNEncoder(
+        1,
+        num_units,
+        reducer=ConcatReducer(),
+        cell_class=cell_class,
+        dropout=dropout))
+
+  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+    encoder_state = []
+
+    for l in range(len(self.layers)):
+      input_depth = inputs.get_shape().as_list()[-1]
+
+      if l == 0:
+        # For the first input, make the number of timesteps a multiple of the time reduction.
+        padding = self.reduction_factor - tf.shape(inputs)[1] % self.reduction_factor
+        inputs = tf.pad(
+          inputs,
+          [[0, 0], [0, padding], [0, 0]])
+        inputs.set_shape((None, None, input_depth))
+      else:
+        # In other cases, reduce the time dimension.
+        inputs = tf.reshape(
+          inputs,
+          [tf.shape(inputs)[0], -1, input_depth * self.reduction_factor])
+        if sequence_length is not None:
+          sequence_length = tf.div(sequence_length, self.reduction_factor)
+
+      with tf.variable_scope("layer_" + str(l)):
+        outputs, state, sequence_length = self.layers[l].encode(
+          inputs,
+          sequence_length=sequence_length,
+          mode=mode)
+
+      encoder_state.append(state)
+      inputs = outputs
+
+    encoder_state = self.state_reducer.reduce_all(encoder_state)
+
+    return (outputs, encoder_state, sequence_length)
