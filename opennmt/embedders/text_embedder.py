@@ -18,7 +18,19 @@ from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
 
 
-def _visualize(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
+def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
+  """Register embeddings for visualization in TensorBoard.
+
+  This function registers `embedding_var` in the `projector_config.pbtxt`
+  file and generates metadata from `vocabulary_file` to attach a label
+  to each word ID.
+
+  Args:
+    log_dir: The active log directory for this training.
+    embedding_var: The embedding variable to visualize.
+    vocabulary_file: The associated vocabulary file.
+    num_oov_buckets: The number of additional unknown tokens.
+  """
   # Copy vocabulary file to log_dir.
   if not os.path.isdir(log_dir):
     os.makedirs(log_dir)
@@ -60,7 +72,25 @@ def _visualize(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
 
   projector.visualize_embeddings(summary_writer, config)
 
-def _load_pretrained_embeddings(embedding_file, vocabulary_file):
+def load_pretrained_embeddings(embedding_file, vocabulary_file):
+  """Returns pretrained embeddings relative to the vocabulary.
+
+  This function will iterate on each embedding in `embedding_file`
+  and assign the pretrained vector to the associated word in
+  `vocabulary_file` if found. Otherwise, the embedding is ignored.
+
+  Word alignment are case insensitive meaning the pretrained word
+  embedding for "the" will be assigned to "the", "The", "THE", or
+  any other case variants included in `vocabulary_file`.
+
+  Args:
+    embedding_file: Path the embedding file. See the `WordEmbedder`
+      constructor for details about the format.
+    vocabulary_file: The vocabulary file containing one word per line.
+
+  Returns:
+    A Numpy array of shape `[vocabulary_size, embedding_size]`.
+  """
   # Map words to ids from the vocabulary.
   word_to_id = collections.defaultdict(list)
   with open(vocabulary_file) as vocabulary:
@@ -89,9 +119,16 @@ def _load_pretrained_embeddings(embedding_file, vocabulary_file):
 
   return pretrained
 
-def _tokens_to_chars(tokens):
+def tokens_to_chars(tokens):
   """Splits a list of tokens into unicode characters.
+
   This is an in-graph transformation.
+
+  Args:
+    tokens: A sequence of tokens.
+
+  Returns:
+    A `Tensor` of shape `[sequence_length, max_word_length]`.
   """
 
   def split_chars(token, max_length, delimiter=" "):
@@ -224,7 +261,7 @@ class WordEmbedder(TextEmbedder):
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       embeddings = tf.get_variable("w_embs")
-      _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
+      visualize_embeddings(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
   def _embed_from_data(self, data, mode):
     return self.embed(data["ids"], mode)
@@ -235,7 +272,7 @@ class WordEmbedder(TextEmbedder):
     except ValueError:
       # Variable does not exist yet.
       if self.embedding_file:
-        pretrained = _load_pretrained_embeddings(self.embedding_file, self.vocabulary_file)
+        pretrained = load_pretrained_embeddings(self.embedding_file, self.vocabulary_file)
         self.embedding_size = pretrained.shape[-1]
 
         shape = None
@@ -305,7 +342,7 @@ class CharConvEmbedder(TextEmbedder):
 
     if not "char_ids" in data:
       tokens = data["tokens"]
-      chars = _tokens_to_chars(tokens)
+      chars = tokens_to_chars(tokens)
       ids = self.vocabulary.lookup(chars)
 
       data = self.set_data_field(data, "char_ids", ids, padded_shape=[None, None])
