@@ -80,7 +80,7 @@ class Model(object):
         name=name)
 
     features_length = features.get("length")
-    labels_length = labels.get("length") if labels is not None else None
+    labels_length = labels.get("length") if labels is not None and isinstance(labels, dict) else None
 
     with tf.variable_scope("words_per_sec"):
       if features_length is not None:
@@ -130,7 +130,7 @@ class Model(object):
                       maximum_labels_length=None):
     """Defines an example filtering condition."""
     features_length = features.get("length")
-    labels_length = labels.get("length")
+    labels_length = labels.get("length") if isinstance(labels, dict) else None
 
     cond = []
 
