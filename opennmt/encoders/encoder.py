@@ -28,26 +28,30 @@ class Encoder(object):
 class SequentialEncoder(Encoder):
   """An encoder that executes multiple encoders sequentially."""
 
-  def __init__(self, encoders):
+  def __init__(self, encoders, states_reducer=JoinReducer()):
     """Initializes the parameters of the encoder.
 
     Args:
       encoders: A list of `Encoder`.
+      states_reducer: A `Reducer` to merge all states.
     """
     self.encoders = encoders
+    self.states_reducer = states_reducer
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    global_state = ()
+    encoder_state = []
 
     for i in range(len(self.encoders)):
       with tf.variable_scope("encoder_" + str(i)):
-        inputs, states, sequence_length = self.encoders[i].encode(
+        inputs, state, sequence_length = self.encoders[i].encode(
           inputs,
           sequence_length=sequence_length,
           mode=mode)
-        global_state += states
+        encoder_state.append(state)
 
-    return (inputs, global_state, sequence_length)
+    encoder_state = self.states_reducer.reduce_all(encoder_state)
+
+    return (inputs, encoder_state, sequence_length)
 
 
 class ParallelEncoder(Encoder):
