@@ -24,9 +24,9 @@ def build_cell(num_layers,
   """
   cells = []
 
-  for i in range(num_layers):
-    cell = cell_class(num_units=num_units)
-    if residual_connections and i > 0:
+  for l in range(num_layers):
+    cell = cell_class(num_units)
+    if residual_connections and l > 0:
       cell = tf.contrib.rnn.ResidualWrapper(cell)
     if mode == tf.estimator.ModeKeys.TRAIN and dropout > 0.0:
       cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=1.0 - dropout)
