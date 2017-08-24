@@ -164,7 +164,7 @@ class MixedEmbedder(Embedder):
       reducer: A `Reducer` to merge all embeddings.
       dropout: The probability to drop units in the merged embedding.
     """
-    super(MixedEmbedder, self).__init__(name=name)
+    super(MixedEmbedder, self).__init__()
     self.embedders = embedders
     self.reducer = reducer
     self.dropout = dropout
