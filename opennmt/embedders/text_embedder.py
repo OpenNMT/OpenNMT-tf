@@ -107,7 +107,8 @@ def _tokens_to_chars(tokens):
   lengths = tf.map_fn(
     lambda x: tf.py_func(string_len, [x], [tf.int64]),
     tokens,
-    dtype=[tf.int64])
+    dtype=[tf.int64],
+    back_prop=False)
 
   max_length = tf.reduce_max(lengths)
 
