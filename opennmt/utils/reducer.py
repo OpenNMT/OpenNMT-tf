@@ -47,10 +47,13 @@ class MultiplyReducer(Reducer):
 
 
 class ConcatReducer(Reducer):
-  """A reducer that concatenates the inputs alognside the last axis."""
+  """A reducer that concatenates the inputs."""
+
+  def __init__(self, axis=-1):
+    self.axis = axis
 
   def reduce_all(self, inputs):
-    return tf.concat(inputs, -1)
+    return tf.concat(inputs, self.axis)
 
 
 class JoinReducer(Reducer):
