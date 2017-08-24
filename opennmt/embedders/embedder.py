@@ -34,7 +34,7 @@ class Embedder(object):
     return data
 
   def remove_data_field(self, data, key):
-    """Remove a data field.
+    """Removes a data field.
 
     Args:
       data: The data dictionary.
@@ -96,7 +96,11 @@ class Embedder(object):
     return data
 
   def visualize(self, log_dir):
-    """Optionally visualize embeddings."""
+    """Visualizes embeddings.
+
+    Args:
+      log_dir: The active log directory.
+    """
     pass
 
   def embed_from_data(self, data, mode, log_dir=None):

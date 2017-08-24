@@ -93,7 +93,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      reducer: A `StatesReducer` instance to merge bidirectional states and outputs.
+      reducer: A `Reducer` instance to merge bidirectional states and outputs.
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.

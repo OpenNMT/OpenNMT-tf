@@ -56,7 +56,8 @@ class DenseBridge(Bridge):
     """Initializes the bridge.
 
     Args:
-      activation: Activation function (callable). Set it to None to maintain a linear activation.
+      activation: Activation function (a callable).
+        Set it to `None` to maintain a linear activation.
     """
     self.activation = activation
 

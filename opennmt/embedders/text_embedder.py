@@ -26,7 +26,7 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
   to each word ID.
 
   Args:
-    log_dir: The active log directory for this training.
+    log_dir: The active log directory.
     embedding_var: The embedding variable to visualize.
     vocabulary_file: The associated vocabulary file.
     num_oov_buckets: The number of additional unknown tokens.

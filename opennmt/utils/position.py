@@ -25,7 +25,7 @@ class PositionEncoder(object):
     Args:
       inputs: The inputs to apply position encoding to.
       sequence_length: The length of each sequence of shape `[B]`.
-        If `None`, sequences are assumed to have of the same length.
+        If `None`, sequences are assumed to have the same length.
 
     Returns:
       A `Tensor` of shape `[B, T, D]` where `D` depends on the `reducer`.
@@ -62,8 +62,9 @@ class PositionEmbedder(PositionEncoder):
     """Initializes the position encoder.
 
     Args:
-      maximum_position: The maximum position to embed.
-      reducer: The reducer to merge inputs and position encodings.
+      maximum_position: The maximum position to embed. Positions greater
+        than this value will be set to `maximum_position`.
+      reducer: A `Reducer` to merge inputs and position encodings.
     """
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position
