@@ -13,8 +13,9 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
 ## Requirements
 
 * `tensorflow`
-  * `nightly` to use `CharConvEmbedder` or `crf_decoding=True`
-  * `1.3.0` otherwise
+  * >= [`4da840dd`](https://github.com/tensorflow/tensorflow/commit/4da840dd946da3d253ee88e1757ba8a0c0f130f0) to use `crf_decoding=True`
+  * >= [`865b92da`](https://github.com/tensorflow/tensorflow/commit/865b92da01582081576728504bedf932b367b26c) to use `CharConvEmbedder`
+  * >= `1.3.0` otherwise
 * `pyyaml`
 
 ## Overview
