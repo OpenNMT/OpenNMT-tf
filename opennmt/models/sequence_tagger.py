@@ -2,9 +2,6 @@
 
 import tensorflow as tf
 
-# TODO: remove when crf_decode is exposed at the module level.
-from tensorflow.contrib.crf.python.ops.crf import crf_decode
-
 from opennmt.models.model import Model
 from opennmt.utils.misc import count_lines
 from opennmt.utils.losses import masked_sequence_loss
@@ -89,7 +86,7 @@ class SequenceTagger(Model):
       if self.crf_decoding:
         transition_params = tf.get_variable(
           "transitions", shape=[self.num_labels, self.num_labels])
-        labels, _ = crf_decode(
+        labels, _ = tf.contrib.crf.crf_decode(
           logits,
           transition_params,
           encoder_sequence_length)
