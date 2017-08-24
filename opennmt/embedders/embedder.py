@@ -183,8 +183,11 @@ class MixedEmbedder(Embedder):
     return data
 
   def visualize(self, log_dir):
+    index = 0
     for embedder in self.embedders:
-      embedder.visualize(log_dir)
+      with tf.variable_scope("embedder_" + str(index)):
+        embedder.visualize(log_dir)
+      index += 1
 
   def _embed_from_data(self, data, mode):
     embs = []
