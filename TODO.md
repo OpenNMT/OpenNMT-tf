@@ -12,7 +12,6 @@
 ## To improve
 
 * Write modules tests
-* Gather default option values
 * Expose alignment history after decoding
 
 ## To explore
