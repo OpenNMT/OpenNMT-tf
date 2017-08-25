@@ -37,6 +37,11 @@ data:
   eval_features_file: "data/en-test.txt"
   eval_labels_file: "data/fr-test.txt"
 
+  # Models may require additional resource files (e.g. vocabularies).
+  resources:
+    source_words_vocabulary: "data/en-dict.txt"
+    target_words_vocabulary: "data/fr-dict.txt"
+
   # (optional) The maximum length of feature sequences during training (if it applies).
   maximum_features_length: 70
 

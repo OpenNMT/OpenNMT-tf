@@ -96,6 +96,7 @@ def main():
       config["params"]["batch_size"],
       config["data"]["buffer_size"],
       config["data"]["num_buckets"],
+      config["data"]["resources"],
       config["data"]["train_features_file"],
       labels_file=config["data"]["train_labels_file"],
       maximum_features_length=config["data"]["maximum_features_length"],
@@ -105,6 +106,7 @@ def main():
       config["params"]["batch_size"],
       config["data"]["buffer_size"],
       config["data"]["num_buckets"],
+      config["data"]["resources"],
       config["data"]["eval_features_file"],
       labels_file=config["data"]["eval_labels_file"])
 
@@ -134,6 +136,7 @@ def main():
       config["params"]["batch_size"],
       config["data"]["buffer_size"],
       config["data"]["num_buckets"],
+      config["data"]["resources"],
       config["data"]["features_file"],
       labels_file=config["data"].get("labels_file"))
 

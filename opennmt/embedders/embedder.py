@@ -47,16 +47,18 @@ class Embedder(object):
     del self.padded_shapes[key]
     return data
 
-  def make_dataset(self, data_file):
+  def make_dataset(self, data_file, resources):
     """Creates the dataset required by this embedder.
 
     Args:
       data_file: The data file.
+      resources: A dictionary containing additional resources set
+        by the user.
 
     Returns:
       A `tf.contrib.data.Dataset`.
     """
-    self._initialize()
+    self._initialize(resources)
     dataset = self._make_dataset(data_file)
     dataset = dataset.map(self.process)
     return dataset
@@ -65,12 +67,16 @@ class Embedder(object):
   def _make_dataset(self, data_file):
     raise NotImplementedError()
 
-  def _initialize(self):
+  def _initialize(self, resources):
     """Initializes the embedder within the current graph.
 
     For example, one can create lookup tables in this method
     for their initializer to be added to the current graph
     `TABLE_INITIALIZERS` collection.
+
+    Args:
+      resources: A dictionary containing additional resources set
+        by the user.
     """
     pass
 

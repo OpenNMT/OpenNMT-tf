@@ -9,12 +9,12 @@ def model():
   return onmt.models.SequenceTagger(
     embedder=onmt.embedders.MixedEmbedder([
       onmt.embedders.WordEmbedder(
-        vocabulary_file="data/en-dict.txt",
+        vocabulary_file_key="words_vocabulary",
         embedding_size=None,
-        embedding_file="data/glove.6B.100d.txt",
+        embedding_file_key="words_embedding",
         trainable=True),
       onmt.embedders.CharConvEmbedder(
-        vocabulary_file="data/en-char-dict.txt",
+        vocabulary_file_key="chars_vocabulary",
         embedding_size=30,
         num_outputs=30,
         kernel_size=3,
@@ -27,5 +27,5 @@ def model():
       cell_class=tf.contrib.rnn.LSTMCell,
       dropout=0.5,
       residual_connections=False),
-    labels_vocabulary_file="data/wsj/tags.txt",
+    labels_vocabulary_file_key="tags_vocabulary",
     crf_decoding=True)

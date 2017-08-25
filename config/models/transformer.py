@@ -6,10 +6,10 @@ import opennmt as onmt
 def model():
   return onmt.models.Transformer(
     source_embedder=onmt.embedders.WordEmbedder(
-      vocabulary_file="data/en-dict.txt",
+      vocabulary_file_key="source_words_vocabulary",
       embedding_size=512),
     target_embedder=onmt.embedders.WordEmbedder(
-      vocabulary_file="data/fr-dict.txt",
+      vocabulary_file_key="target_words_vocabulary",
       embedding_size=512),
     num_layers=4,
     num_heads=8,

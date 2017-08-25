@@ -14,7 +14,6 @@
 * Write modules tests
 * Gather default option values
 * Expose alignment history after decoding
-* Move vocabulary paths out of the model description
 
 ## To explore
 

@@ -58,12 +58,12 @@ class SequenceToSequence(Model):
 
     return labels
 
-  def _build_features(self, features_file):
-    dataset = self.source_embedder.make_dataset(features_file)
+  def _build_features(self, features_file, resources):
+    dataset = self.source_embedder.make_dataset(features_file, resources)
     return dataset, self.source_embedder.padded_shapes
 
-  def _build_labels(self, labels_file):
-    dataset = self.target_embedder.make_dataset(labels_file)
+  def _build_labels(self, labels_file, resources):
+    dataset = self.target_embedder.make_dataset(labels_file, resources)
     dataset = dataset.map(self._shift_target)
     return dataset, self.target_embedder.padded_shapes
 

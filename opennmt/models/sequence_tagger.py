@@ -12,7 +12,7 @@ class SequenceTagger(Model):
   def __init__(self,
                embedder,
                encoder,
-               labels_vocabulary_file,
+               labels_vocabulary_file_key,
                crf_decoding=False,
                name="seqtagger"):
     """Initializes a sequence tagger.
@@ -20,8 +20,8 @@ class SequenceTagger(Model):
     Args:
       embedder: An `Embedder` to process the input data.
       encoder: An `Encoder` to encode the input.
-      labels_vocabulary_file: The labels vocabulary file containing
-        one label per line.
+      labels_vocabulary_file_key: The run configuration key of the labels
+        vocabulary file containing one label per line.
       crf_decoding: If `True`, add a CRF layer after the encoder.
       name: The name of this model.
     """
@@ -29,15 +29,17 @@ class SequenceTagger(Model):
 
     self.encoder = encoder
     self.embedder = embedder
-    self.labels_vocabulary_file = labels_vocabulary_file
-    self.num_labels = count_lines(labels_vocabulary_file)
+    self.labels_vocabulary_file_key = labels_vocabulary_file_key
     self.crf_decoding = crf_decoding
 
-  def _build_features(self, features_file):
-    dataset = self.embedder.make_dataset(features_file)
+  def _build_features(self, features_file, resources):
+    dataset = self.embedder.make_dataset(features_file, resources)
     return dataset, self.embedder.padded_shapes
 
-  def _build_labels(self, labels_file):
+  def _build_labels(self, labels_file, resources):
+    self.labels_vocabulary_file = resources[self.labels_vocabulary_file_key]
+    self.num_labels = count_lines(self.labels_vocabulary_file)
+
     labels_vocabulary = tf.contrib.lookup.index_table_from_file(
       self.labels_vocabulary_file,
       vocab_size=self.num_labels)

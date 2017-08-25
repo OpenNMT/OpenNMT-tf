@@ -14,6 +14,10 @@ run:
 data:
   features_file: "data/en-test.txt"
 
+  resources:
+    source_words_vocabulary: "data/en-dict.txt"
+    target_words_vocabulary: "data/fr-dict.txt"
+
 params:
   batch_size: 1
 

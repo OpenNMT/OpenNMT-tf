@@ -203,18 +203,20 @@ class WordEmbedder(TextEmbedder):
   """Simple word embedder."""
 
   def __init__(self,
-               vocabulary_file,
+               vocabulary_file_key,
                embedding_size=None,
-               embedding_file=None,
+               embedding_file_key=None,
                trainable=True,
                dropout=0.0):
     """Initializes the parameters of the word embedder.
 
     Args:
-      vocabulary_file: The vocabulary file containing one word per line.
+      vocabulary_file_key: The run configuration key of the vocabulary file
+        containing one word per line.
       embedding_size: The size of the resulting embedding.
         If `None`, an embedding file must be provided.
-      embedding_file: The embedding file with the format:
+      embedding_file_key: The run configuration key of the embedding file
+        with the format:
         ```
         word1 val1 val2 ... valM
         word2 val1 val2 ... valM
@@ -227,20 +229,21 @@ class WordEmbedder(TextEmbedder):
     """
     super(WordEmbedder, self).__init__()
 
-    self.vocabulary_file = vocabulary_file
+    self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
-    self.embedding_file = embedding_file
+    self.embedding_file_key = embedding_file_key
     self.trainable = trainable
     self.dropout = dropout
+    self.num_oov_buckets = 1
 
     if embedding_size is None and embedding_file is None:
       raise ValueError("Must either provide embedding_size or embedding_file")
 
-    self.num_oov_buckets = 1
-    self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = None
+  def _initialize(self, resources):
+    self.vocabulary_file = resources[self.vocabulary_file_key]
+    self.embedding_file = resources[self.embedding_file_key] if self.embedding_file_key else None
 
-  def _initialize(self):
+    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
       self.vocabulary_file,
       vocab_size=self.vocabulary_size - self.num_oov_buckets,
@@ -301,7 +304,7 @@ class CharConvEmbedder(TextEmbedder):
   """An embedder that applies a convolution on characters embeddings."""
 
   def __init__(self,
-               vocabulary_file,
+               vocabulary_file_key,
                embedding_size,
                num_outputs,
                kernel_size=5,
@@ -310,7 +313,8 @@ class CharConvEmbedder(TextEmbedder):
     """Initializes the parameters of the character convolution embedder.
 
     Args:
-      vocabulary_file: The vocabulary file containing one character per line.
+      vocabulary_file_key: The run configuration key of the vocabulary file
+        containing one character per line.
       embedding_size: The size of the character embedding.
       num_outputs: The dimension of the convolution output space.
       kernel_size: Length of the convolution window.
@@ -319,18 +323,17 @@ class CharConvEmbedder(TextEmbedder):
     """
     super(CharConvEmbedder, self).__init__()
 
-    self.vocabulary_file = vocabulary_file
+    self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
     self.num_outputs = num_outputs
     self.kernel_size = kernel_size
     self.stride = stride
     self.dropout = dropout
-
     self.num_oov_buckets = 1
-    self.vocabulary_size = count_lines(vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = None
 
-  def _initialize(self):
+  def _initialize(self, resources):
+    self.vocabulary_file = resources[self.vocabulary_file_key]
+    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
       self.vocabulary_file,
       vocab_size=self.vocabulary_size - self.num_oov_buckets,
