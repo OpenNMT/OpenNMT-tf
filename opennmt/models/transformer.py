@@ -12,8 +12,8 @@ class Transformer(SequenceToSequence):
   """
 
   def __init__(self,
-               source_embedder,
-               target_embedder,
+               source_inputter,
+               target_inputter,
                num_layers,
                num_heads,
                ffn_inner_dim,
@@ -23,8 +23,8 @@ class Transformer(SequenceToSequence):
     """Initializes a Transformer model.
 
     Args:
-      source_embedder: An `Embedder` to process the source data.
-      target_embedder: An `Embedder` to process the target data.
+      source_inputter: An `Inputter` to process the source data.
+      target_inputter: An `Inputter` to process the target data.
         Currently, only the `WordEmbedder` is supported.
       num_layers: The shared number of layers.
       num_heads: The number of heads in each self-attention layers.
@@ -48,8 +48,8 @@ class Transformer(SequenceToSequence):
       position_encoder=position_encoder)
 
     super(Transformer, self).__init__(
-      source_embedder,
-      target_embedder,
+      source_inputter,
+      target_inputter,
       encoder,
       decoder,
       name=name)

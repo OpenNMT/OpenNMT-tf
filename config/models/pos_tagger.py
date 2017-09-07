@@ -7,13 +7,13 @@ import opennmt as onmt
 
 def model():
   return onmt.models.SequenceTagger(
-    embedder=onmt.embedders.MixedEmbedder([
-      onmt.embedders.WordEmbedder(
+    inputter=onmt.inputters.MixedInputter([
+      onmt.inputters.WordEmbedder(
         vocabulary_file_key="words_vocabulary",
         embedding_size=None,
         embedding_file_key="words_embedding",
         trainable=True),
-      onmt.embedders.CharConvEmbedder(
+      onmt.inputters.CharConvEmbedder(
         vocabulary_file_key="chars_vocabulary",
         embedding_size=30,
         num_outputs=30,

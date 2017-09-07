@@ -1,6 +1,6 @@
 """OpenNMT module."""
 
 from opennmt import decoders
-from opennmt import embedders
 from opennmt import encoders
+from opennmt import inputters
 from opennmt import models

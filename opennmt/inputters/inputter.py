@@ -1,4 +1,4 @@
-"""Define generic embedders."""
+"""Define generic inputters."""
 
 import abc
 import six
@@ -9,8 +9,8 @@ from opennmt.utils.reducer import ConcatReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Embedder(object):
-  """Base class for embedders."""
+class Inputter(object):
+  """Base class for inputters."""
 
   def __init__(self):
     self.resolved = False
@@ -48,7 +48,7 @@ class Embedder(object):
     return data
 
   def make_dataset(self, data_file, resources):
-    """Creates the dataset required by this embedder.
+    """Creates the dataset required by this inputter.
 
     Args:
       data_file: The data file.
@@ -68,7 +68,7 @@ class Embedder(object):
     raise NotImplementedError()
 
   def _initialize(self, resources):
-    """Initializes the embedder within the current graph.
+    """Initializes the inputter within the current graph.
 
     For example, one can create lookup tables in this method
     for their initializer to be added to the current graph
@@ -84,7 +84,7 @@ class Embedder(object):
     """Transforms input from the dataset.
 
     Subclasses should extend this function to transform the raw value read
-    from the dataset to an input they can consume. See also `embed_from_data`.
+    from the dataset to an input they can consume. See also `transform_data`.
 
     This base implementation makes sure the data is a dictionary so subclasses
     can populate it.
@@ -102,118 +102,117 @@ class Embedder(object):
     return data
 
   def visualize(self, log_dir):
-    """Visualizes embeddings.
+    """Visualizes the transformation, usually embeddings.
 
     Args:
       log_dir: The active log directory.
     """
     pass
 
-  def embed_from_data(self, data, mode, log_dir=None):
-    """Embeds inputs from the processed data.
+  def transform_data(self, data, mode, log_dir=None):
+    """Transform the processed data to an input.
 
-    This is usually a simple forward of a `data` field to `embed`.
+    This is usually a simple forward of a `data` field to `transform`.
     See also `process`.
 
     Args:
       data: A dictionary of data fields.
       mode: A `tf.estimator.ModeKeys` mode.
-      log_dir: The log directory. If set, embeddings visualization
-        will be setup.
+      log_dir: The log directory. If set, visualization will be setup.
 
     Returns:
-      The embedding.
+      The transformed input.
     """
-    embed = self._embed_from_data(data, mode)
+    inputs = self._transform_data(data, mode)
     if log_dir:
       self.visualize(log_dir)
-    return embed
+    return inputs
 
-  def embed(self, inputs, mode, scope=None, reuse_next=None):
-    """Embeds inputs.
+  def transform(self, inputs, mode, scope=None, reuse_next=None):
+    """Transform inputs.
 
     Args:
-      inputs: A possible nested structure of `Tensor` depending on the embedder.
+      inputs: A possible nested structure of `Tensor` depending on the inputter.
       mode: A `tf.estimator.ModeKeys` mode.
       scope: (optional) The variable scope to use.
       reuse: (optional) If `True`, reuse variables in this scope after the first call.
 
     Returns:
-      The embedding.
+      The transformed input.
     """
     if not scope is None:
       reuse = reuse_next and self.resolved
       with tf.variable_scope(scope, reuse=reuse):
-        outputs = self._embed(inputs, mode, reuse=reuse)
+        outputs = self._transform(inputs, mode, reuse=reuse)
     else:
-      outputs = self._embed(inputs, mode)
+      outputs = self._transform(inputs, mode)
     self.resolved = True
     return outputs
 
   @abc.abstractmethod
-  def _embed_from_data(self, data, mode):
+  def _transform_data(self, data, mode):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _embed(self, inputs, mode, reuse=None):
-    """Implementation of `embed`."""
+  def _transform(self, inputs, mode, reuse=None):
+    """Implementation of `transform`."""
     raise NotImplementedError()
 
 
-class MixedEmbedder(Embedder):
-  """An embedder that mixes several embedders."""
+class MixedInputter(Inputter):
+  """An inputter that mixes several inputters."""
 
   def __init__(self,
-               embedders,
+               inputters,
                reducer=ConcatReducer(),
                dropout=0.0):
-    """Initializes a mixed embedder.
+    """Initializes a mixed inputter.
 
     Args:
-      embedders: A list of `Embedder`.
-      reducer: A `Reducer` to merge all embeddings.
-      dropout: The probability to drop units in the merged embedding.
+      inputters: A list of `Inputter`.
+      reducer: A `Reducer` to merge all inputs.
+      dropout: The probability to drop units in the merged inputs.
     """
-    super(MixedEmbedder, self).__init__()
-    self.embedders = embedders
+    super(MixedInputter, self).__init__()
+    self.inputters = inputters
     self.reducer = reducer
     self.dropout = dropout
 
   def _make_dataset(self, data_file):
-    return self.embedders[0]._make_dataset(data_file)
+    return self.inputters[0]._make_dataset(data_file)
 
   def _initialize(self):
-    for embedder in self.embedders:
-      embedder._initialize()
+    for inputter in self.inputters:
+      inputter._initialize()
 
   def process(self, data):
-    for embedder in self.embedders:
-      data = embedder.process(data)
-      self.padded_shapes.update(embedder.padded_shapes)
+    for inputter in self.inputters:
+      data = inputter.process(data)
+      self.padded_shapes.update(inputter.padded_shapes)
     return data
 
   def visualize(self, log_dir):
     index = 0
-    for embedder in self.embedders:
-      with tf.variable_scope("embedder_" + str(index)):
-        embedder.visualize(log_dir)
+    for inputter in self.inputters:
+      with tf.variable_scope("inputter_" + str(index)):
+        inputter.visualize(log_dir)
       index += 1
 
-  def _embed_from_data(self, data, mode):
+  def _transform_data(self, data, mode):
     embs = []
     index = 0
-    for embedder in self.embedders:
-      with tf.variable_scope("embedder_" + str(index)):
-        embs.append(embedder._embed_from_data(data, mode)) # pylint: disable=protected-access
+    for inputter in self.inputters:
+      with tf.variable_scope("inputter_" + str(index)):
+        embs.append(inputter._transform_data(data, mode)) # pylint: disable=protected-access
       index += 1
     return self.reducer.reduce_all(embs)
 
-  def _embed(self, inputs, mode, reuse=None):
+  def _transform(self, inputs, mode, reuse=None):
     embs = []
     index = 0
-    for embedder, elem in zip(self.embedders, inputs):
-      with tf.variable_scope("embedder_" + str(index), reuse=reuse):
-        embs.append(embedder._embed(elem, mode)) # pylint: disable=protected-access
+    for inputter, elem in zip(self.inputters, inputs):
+      with tf.variable_scope("inputter_" + str(index), reuse=reuse):
+        embs.append(inputter._transform(elem, mode)) # pylint: disable=protected-access
       index += 1
     outputs = self.reducer.reducal_all(embs)
     outputs = tf.layers.dropout(

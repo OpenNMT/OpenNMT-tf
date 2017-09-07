@@ -13,7 +13,7 @@ from tensorflow.contrib.tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
-from opennmt.embedders.embedder import Embedder
+from opennmt.inputters.inputter import Inputter
 from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
 
@@ -167,18 +167,18 @@ def tokens_to_chars(tokens):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class TextEmbedder(Embedder):
-  """An abstract embedder that process text."""
+class TextInputter(Inputter):
+  """An abstract inputter that process text."""
 
   def __init__(self):
-    super(TextEmbedder, self).__init__()
+    super(TextInputter, self).__init__()
 
   def _make_dataset(self, data_file):
     return tf.contrib.data.TextLineDataset(data_file)
 
   def process(self, data):
     """Tokenizes raw text."""
-    data = super(TextEmbedder, self).process(data)
+    data = super(TextInputter, self).process(data)
 
     if not "tokens" in data:
       text = data["raw"]
@@ -191,15 +191,15 @@ class TextEmbedder(Embedder):
     return data
 
   @abc.abstractmethod
-  def _embed_from_data(self, data, mode):
+  def _transform_data(self, data, mode):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _embed(self, inputs, mode, reuse=None):
+  def _transform(self, inputs, mode, reuse=None):
     raise NotImplementedError()
 
 
-class WordEmbedder(TextEmbedder):
+class WordEmbedder(TextInputter):
   """Simple word embedder."""
 
   def __init__(self,
@@ -266,10 +266,10 @@ class WordEmbedder(TextEmbedder):
       embeddings = tf.get_variable("w_embs")
       visualize_embeddings(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
-  def _embed_from_data(self, data, mode):
-    return self.embed(data["ids"], mode)
+  def _transform_data(self, data, mode):
+    return self.transform(data["ids"], mode)
 
-  def _embed(self, inputs, mode, reuse=None):
+  def _transform(self, inputs, mode, reuse=None):
     try:
       embeddings = tf.get_variable("w_embs", trainable=self.trainable)
     except ValueError:
@@ -300,8 +300,8 @@ class WordEmbedder(TextEmbedder):
     return outputs
 
 
-class CharConvEmbedder(TextEmbedder):
-  """An embedder that applies a convolution on characters embeddings."""
+class CharConvEmbedder(TextInputter):
+  """An inputter that applies a convolution on characters embeddings."""
 
   def __init__(self,
                vocabulary_file_key,
@@ -357,10 +357,10 @@ class CharConvEmbedder(TextEmbedder):
       embeddings = tf.get_variable("w_char_embs")
       _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
-  def _embed_from_data(self, data, mode):
-    return self.embed(data["char_ids"], mode)
+  def _transform_data(self, data, mode):
+    return self.transform(data["char_ids"], mode)
 
-  def _embed(self, inputs, mode, reuse=None):
+  def _transform(self, inputs, mode, reuse=None):
     embeddings = tf.get_variable(
       "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
 

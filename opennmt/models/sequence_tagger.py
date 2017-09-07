@@ -10,7 +10,7 @@ from opennmt.utils.losses import masked_sequence_loss
 class SequenceTagger(Model):
 
   def __init__(self,
-               embedder,
+               inputter,
                encoder,
                labels_vocabulary_file_key,
                crf_decoding=False,
@@ -18,7 +18,7 @@ class SequenceTagger(Model):
     """Initializes a sequence tagger.
 
     Args:
-      embedder: An `Embedder` to process the input data.
+      inputter: An `Inputter` to process the input data.
       encoder: An `Encoder` to encode the input.
       labels_vocabulary_file_key: The run configuration key of the labels
         vocabulary file containing one label per line.
@@ -28,13 +28,13 @@ class SequenceTagger(Model):
     super(SequenceTagger, self).__init__(name)
 
     self.encoder = encoder
-    self.embedder = embedder
+    self.inputter = inputter
     self.labels_vocabulary_file_key = labels_vocabulary_file_key
     self.crf_decoding = crf_decoding
 
   def _build_features(self, features_file, resources):
-    dataset = self.embedder.make_dataset(features_file, resources)
-    return dataset, self.embedder.padded_shapes
+    dataset = self.inputter.make_dataset(features_file, resources)
+    return dataset, self.inputter.padded_shapes
 
   def _build_labels(self, labels_file, resources):
     self.labels_vocabulary_file = resources[self.labels_vocabulary_file_key]
@@ -52,7 +52,7 @@ class SequenceTagger(Model):
 
   def _build(self, features, labels, params, mode):
     with tf.variable_scope("encoder"):
-      inputs = self.embedder.embed_from_data(
+      inputs = self.inputter.transform_data(
         features,
         mode,
         log_dir=params.get("log_dir"))
