@@ -84,8 +84,14 @@ def load_pretrained_embeddings(embedding_file, vocabulary_file):
   any other case variants included in `vocabulary_file`.
 
   Args:
-    embedding_file: Path the embedding file. See the `WordEmbedder`
-      constructor for details about the format.
+    embedding_file: Path the embedding file with the format:
+      ```
+      word1 val1 val2 ... valM
+      word2 val1 val2 ... valM
+      ...
+      wordN val1 val2 ... valM
+      ```
+      Entries will be matched against `vocabulary_file`.
     vocabulary_file: The vocabulary file containing one word per line.
 
   Returns:
@@ -168,7 +174,7 @@ def tokens_to_chars(tokens):
 
 @six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
-  """An abstract inputter that process text."""
+  """An abstract inputter that processes text."""
 
   def __init__(self):
     super(TextInputter, self).__init__()
@@ -215,15 +221,9 @@ class WordEmbedder(TextInputter):
         containing one word per line.
       embedding_size: The size of the resulting embedding.
         If `None`, an embedding file must be provided.
-      embedding_file_key: The run configuration key of the embedding file
-        with the format:
-        ```
-        word1 val1 val2 ... valM
-        word2 val1 val2 ... valM
-        ...
-        wordN val1 val2 ... valM
-        ```
-        Entries will be matched against `vocabulary_file`.
+      embedding_file_key: The run configuration key of the embedding file.
+        See the `load_pretrained_embeddings` function for details about the
+        format and behavior.
       trainable: If `False`, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
     """
