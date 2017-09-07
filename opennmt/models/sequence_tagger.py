@@ -18,8 +18,8 @@ class SequenceTagger(Model):
     """Initializes a sequence tagger.
 
     Args:
-      inputter: An `Inputter` to process the input data.
-      encoder: An `Encoder` to encode the input.
+      inputter: A `onmt.inputters.Inputter` to process the input data.
+      encoder: A `onmt.encoders.Encoder` to encode the input.
       labels_vocabulary_file_key: The run configuration key of the labels
         vocabulary file containing one label per line.
       crf_decoding: If `True`, add a CRF layer after the encoder.

@@ -169,8 +169,8 @@ class MixedInputter(Inputter):
     """Initializes a mixed inputter.
 
     Args:
-      inputters: A list of `Inputter`.
-      reducer: A `Reducer` to merge all inputs.
+      inputters: A list of `onmt.inputters.Inputter`s.
+      reducer: A `onmt.utils.Reducer` to merge all inputs.
       dropout: The probability to drop units in the merged inputs.
     """
     super(MixedInputter, self).__init__()

@@ -12,13 +12,13 @@ run:
 
   # The directory where models and summaries will be saved.
   # It is created if it does not exist.
-  model_dir: "ckpt"
+  model_dir: "enfr"
 
   # (optional) Save a checkpoint every this many steps.
   save_checkpoints_steps: 5000
 
   # (optional) How many checkpoints to keep on disk.
-  keep_checkpoint_max: 5
+  keep_checkpoint_max: 3
 
   # (optional) Save summaries every this many steps.
   save_summary_steps: 100

@@ -32,8 +32,8 @@ class SequentialEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of `Encoder`.
-      states_reducer: A `Reducer` to merge all states.
+      encoders: A list of `onmt.encoders.Encoder`s.
+      states_reducer: A `onmt.utils.Reducer` to merge all states.
     """
     self.encoders = encoders
     self.states_reducer = states_reducer
@@ -67,9 +67,9 @@ class ParallelEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of `Encoder`.
-      outputs_reducer: A `Reducer` to merge all outputs.
-      states_reducer: A `Reducer` to merge all states.
+      encoders: A list of `onmt.encoders.Encoder`s.
+      outputs_reducer: A `onmt.utils.Reducer` to merge all outputs.
+      states_reducer: A `onmt.utils.Reducer` to merge all states.
     """
     self.encoders = encoders
     self.outputs_reducer = outputs_reducer

@@ -16,8 +16,8 @@ class SequenceClassifier(Model):
     """Initializes a sequence classifier.
 
     Args:
-      inputter: An `Inputter` to process the input data.
-      encoder: An `Encoder` to encode the input.
+      inputter: A `onmt.inputters.Inputter` to process the input data.
+      encoder: A `onmt.encoders.Encoder` to encode the input.
       labels_vocabulary_file_key: The run configuration key of the labels
         vocabulary file containing one label per line.
       name: The name of this model.

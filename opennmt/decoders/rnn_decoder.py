@@ -23,7 +23,7 @@ class RNNDecoder(Decoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A `Bridge` to pass the encoder states to the decoder.
+      bridge: A `onmt.utils.Bridge` to pass the encoder states to the decoder.
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
@@ -198,8 +198,9 @@ class AttentionalRNNDecoder(RNNDecoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A `Bridge` to pass the encoder states to the decoder.
-      attention_mechanism_class: A class inheriting from `AttentionMechanism`.
+      bridge: A `onmt.utils.Bridge` to pass the encoder states to the decoder.
+      attention_mechanism_class: A class inheriting from
+        `tf.contrib.seq2seq.AttentionMechanism`.
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.

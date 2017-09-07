@@ -128,7 +128,7 @@ def tokens_to_chars(tokens):
     tokens: A sequence of tokens.
 
   Returns:
-    A `Tensor` of shape `[sequence_length, max_word_length]`.
+    A `tf.Tensor` of shape `[sequence_length, max_word_length]`.
   """
 
   def split_chars(token, max_length, delimiter=" "):

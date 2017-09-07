@@ -28,7 +28,7 @@ class PositionEncoder(object):
         If `None`, sequences are assumed to have the same length.
 
     Returns:
-      A `Tensor` of shape `[B, T, D]` where `D` depends on the `reducer`.
+      A `tf.Tensor` of shape `[B, T, D]` where `D` depends on the `reducer`.
     """
     if sequence_length is None:
       batch_size = tf.shape(inputs)[0]
@@ -50,7 +50,7 @@ class PositionEncoder(object):
       sequence_length: The length of each sequence of shape `[B]`.
 
     Returns:
-      A `Tensor` of shape `[B, T, input_dim]`.
+      A `tf.Tensor` of shape `[B, T, input_dim]`.
     """
     raise NotImplementedError()
 
@@ -64,7 +64,7 @@ class PositionEmbedder(PositionEncoder):
     Args:
       maximum_position: The maximum position to embed. Positions greater
         than this value will be set to `maximum_position`.
-      reducer: A `Reducer` to merge inputs and position encodings.
+      reducer: A `onmt.utils.Reducer` to merge inputs and position encodings.
     """
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position

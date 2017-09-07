@@ -19,11 +19,11 @@ class SequenceToSequence(Model):
     """Initializes a sequence-to-sequence model.
 
     Args:
-      source_inputter: An `Inputter` to process the source data.
-      target_inputter: An `Inputter` to process the target data.
-        Currently, only the `WordEmbedder` is supported.
-      encoder: An `Encoder` to encode the source.
-      decoder: A `Decoder` to decode the target.
+      source_inputter: A `onmt.inputters.Inputter` to process the source data.
+      target_inputter: A `onmt.inputters.Inputter` to process the target data.
+        Currently, only the `onmt.inputters.WordEmbedder` is supported.
+      encoder: A `onmt.encoders.Encoder` to encode the source.
+      decoder: A `onmt.decoders.Decoder` to decode the target.
       name: The name of this model.
     """
     super(SequenceToSequence, self).__init__(name)
