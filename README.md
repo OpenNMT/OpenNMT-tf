@@ -76,9 +76,3 @@ CUDA_VISIBLE_DEVICES=0 python onmt.py [...] --ps_hosts localhost:2222 --worker_h
 will start the worker 1 on the current machine and first GPU.
 
 Also see [`tensorflow/ecosystem`](https://github.com/tensorflow/ecosystem) to integrate distributed training with open-source frameworks like Docker or Kubernetes.
-
-## Tools
-
-### Word vocabulary generation
-
-See `python build_vocab.py -h` to generate vocabularies as needed by your model.
