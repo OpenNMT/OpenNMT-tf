@@ -47,18 +47,18 @@ class Inputter(object):
     del self.padded_shapes[key]
     return data
 
-  def make_dataset(self, data_file, resources):
+  def make_dataset(self, data_file, metadata):
     """Creates the dataset required by this inputter.
 
     Args:
       data_file: The data file.
-      resources: A dictionary containing additional resources set
+      metadata: A dictionary containing additional metadata set
         by the user.
 
     Returns:
       A `tf.contrib.data.Dataset`.
     """
-    self._initialize(resources)
+    self._initialize(metadata)
     dataset = self._make_dataset(data_file)
     dataset = dataset.map(self.process)
     return dataset
@@ -67,7 +67,7 @@ class Inputter(object):
   def _make_dataset(self, data_file):
     raise NotImplementedError()
 
-  def _initialize(self, resources):
+  def _initialize(self, metadata):
     """Initializes the inputter within the current graph.
 
     For example, one can create lookup tables in this method
@@ -75,7 +75,7 @@ class Inputter(object):
     `TABLE_INITIALIZERS` collection.
 
     Args:
-      resources: A dictionary containing additional resources set
+      metadata: A dictionary containing additional metadata set
         by the user.
     """
     pass

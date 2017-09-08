@@ -28,12 +28,12 @@ class SequenceClassifier(Model):
     self.encoder = encoder
     self.labels_vocabulary_file_key = labels_vocabulary_file_key
 
-  def _build_features(self, features_file, resources):
-    dataset = self.inputter.make_dataset(features_file, resources)
+  def _build_features(self, features_file, metadata):
+    dataset = self.inputter.make_dataset(features_file, metadata)
     return dataset, self.inputter.padded_shapes
 
-  def _build_labels(self, labels_file, resources):
-    self.labels_vocabulary_file = resources[self.labels_vocabulary_file_key]
+  def _build_labels(self, labels_file, metadata):
+    self.labels_vocabulary_file = metadata[self.labels_vocabulary_file_key]
     self.num_labels = count_lines(self.labels_vocabulary_file)
 
     labels_vocabulary = tf.contrib.lookup.index_table_from_file(

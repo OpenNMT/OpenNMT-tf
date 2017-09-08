@@ -147,12 +147,12 @@ class Model(object):
     return tf.reduce_all(cond)
 
   @abc.abstractmethod
-  def _build_features(self, features_file, resources):
+  def _build_features(self, features_file, metadata):
     """Builds a dataset from features file.
 
     Args:
       features_file: The file of features.
-      resources: A dictionary containing additional resources set
+      metadata: A dictionary containing additional metadata set
         by the user.
 
     Returns:
@@ -161,12 +161,12 @@ class Model(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _build_labels(self, labels_file, resources):
+  def _build_labels(self, labels_file, metadata):
     """Builds a dataset from labels file.
 
     Args:
       labels_file: The file of labels.
-      resources: A dictionary containing additional resources set
+      metadata: A dictionary containing additional metadata set
         by the user.
 
     Returns:
@@ -179,7 +179,7 @@ class Model(object):
                      batch_size,
                      buffer_size,
                      num_buckets,
-                     resources,
+                     metadata,
                      features_file,
                      labels_file=None,
                      maximum_features_length=None,
@@ -187,7 +187,7 @@ class Model(object):
     """See `input_fn`."""
     features_dataset, features_padded_shapes = self._build_features(
       features_file,
-      resources)
+      metadata)
 
     if labels_file is None:
       dataset = features_dataset
@@ -195,7 +195,7 @@ class Model(object):
     else:
       labels_dataset, labels_padded_shapes = self._build_labels(
         labels_file,
-        resources)
+        metadata)
       dataset = tf.contrib.data.Dataset.zip((features_dataset, labels_dataset))
       padded_shapes = (features_padded_shapes, labels_padded_shapes)
 
@@ -247,7 +247,7 @@ class Model(object):
                batch_size,
                buffer_size,
                num_buckets,
-               resources,
+               metadata,
                features_file,
                labels_file=None,
                maximum_features_length=None,
@@ -261,7 +261,7 @@ class Model(object):
       batch_size: The batch size to use.
       buffer_size: The prefetch buffer size (used e.g. for shuffling).
       num_buckets: The number of buckets to store examples of similar sizes.
-      resources: A dictionary containing additional resources set
+      metadata: A dictionary containing additional metadata set
         by the user.
       features_file: The file containing input features.
       labels_file: The file containing output labels.
@@ -281,7 +281,7 @@ class Model(object):
       batch_size,
       buffer_size,
       num_buckets,
-      resources,
+      metadata,
       features_file,
       labels_file=labels_file,
       maximum_features_length=maximum_features_length,

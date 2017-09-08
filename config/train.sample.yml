@@ -38,7 +38,7 @@ data:
   eval_labels_file: "data/fr-test.txt"
 
   # Models may require additional resource files (e.g. vocabularies).
-  resources:
+  meta:
     source_words_vocabulary: "data/en-dict.txt"
     target_words_vocabulary: "data/fr-dict.txt"
 
