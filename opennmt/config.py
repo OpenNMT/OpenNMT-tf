@@ -31,6 +31,7 @@ def get_default_config():
       "num_buckets": 5
     },
     "params": {
+      "scheduled_sampling_probability": 0,
       "clip_gradients": None,
       "decay_type": None,
       "staircase": True,

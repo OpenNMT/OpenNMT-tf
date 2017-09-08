@@ -14,6 +14,8 @@ class Decoder(object):
              sequence_length,
              vocab_size,
              encoder_states=None,
+             scheduled_sampling_probability=0.0,
+             embeddings=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
@@ -26,6 +28,10 @@ class Decoder(object):
       sequence_length: The length of each input with shape [B].
       vocab_size: The output vocabulary size.
       encoder_states: The encoder states as a (possibly nested tuple of...) tensors.
+      scheduled_sampling_probability: The probability of sampling categorically from
+        the output ids instead of reading directly from the inputs.
+      embeddings: The embeddings tensor or a callable that takes word ids.
+        Must be set when `scheduled_sampling_probability` > 0.
       mode: A `tf.estimator.ModeKeys` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.

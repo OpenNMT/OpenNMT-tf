@@ -40,10 +40,15 @@ class SelfAttentionDecoder(Decoder):
              sequence_length,
              vocab_size,
              encoder_states=None,
+             scheduled_sampling_probability=0.0,
+             embeddings=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None,
              return_logits=True):
+    if scheduled_sampling_probability > 0:
+      raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
+
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 

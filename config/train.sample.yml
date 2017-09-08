@@ -59,6 +59,10 @@ data:
 params:
   batch_size: 64
 
+  # (optional) Probability to sample of sampling categorically from the output ids
+  # instead of reading directly from the inputs.
+  scheduled_sampling_probability: 0.1
+
   # The optimizer as a string (see https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/layers/python/layers/optimizers.py#L40).
   optimizer: SGD
   learning_rate: 1.0

@@ -82,6 +82,12 @@ class SequenceToSequence(Model):
         mode=mode)
 
     with tf.variable_scope("decoder") as decoder_scope:
+      embedding_fn = lambda x: self.target_inputter.transform(
+        x,
+        mode,
+        scope=decoder_scope,
+        reuse_next=True)
+
       if mode != tf.estimator.ModeKeys.PREDICT:
         target_inputs = self.target_inputter.transform_data(
           labels,
@@ -92,13 +98,15 @@ class SequenceToSequence(Model):
           target_inputs,
           labels["length"],
           self.target_inputter.vocabulary_size,
-          encoder_states,
+          encoder_states=encoder_states,
+          scheduled_sampling_probability=params["scheduled_sampling_probability"],
+          embeddings=embedding_fn,
           mode=mode,
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length)
       elif "beam_width" in params and params["beam_width"] == 1:
         decoder_outputs, _, decoded_length = self.decoder.dynamic_decode(
-          lambda x: self.target_inputter.transform(x, mode, scope=decoder_scope, reuse_next=True),
+          embedding_fn,
           tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
           constants.END_OF_SENTENCE_ID,
           self.target_inputter.vocabulary_size,
@@ -109,7 +117,7 @@ class SequenceToSequence(Model):
           memory_sequence_length=encoder_sequence_length)
       else:
         decoder_outputs, _, decoded_length = self.decoder.dynamic_decode_and_search(
-          lambda x: self.target_inputter.transform(x, mode, scope=decoder_scope, reuse_next=True),
+          embedding_fn,
           tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
           constants.END_OF_SENTENCE_ID,
           self.target_inputter.vocabulary_size,
