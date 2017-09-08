@@ -239,7 +239,7 @@ class WordEmbedder(TextInputter):
     if embedding_size is None and embedding_file is None:
       raise ValueError("Must either provide embedding_size or embedding_file")
 
-  def _initialize(self, metadata):
+  def initialize(self, metadata):
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.embedding_file = metadata[self.embedding_file_key] if self.embedding_file_key else None
 
@@ -331,7 +331,7 @@ class CharConvEmbedder(TextInputter):
     self.dropout = dropout
     self.num_oov_buckets = 1
 
-  def _initialize(self, metadata):
+  def initialize(self, metadata):
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(

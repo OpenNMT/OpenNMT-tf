@@ -58,14 +58,18 @@ class SequenceToSequence(Model):
 
     return labels
 
-  def _build_features(self, features_file, metadata):
+  def _build_features(self, features_file, metadata={}):
     dataset = self.source_inputter.make_dataset(features_file, metadata)
     return dataset, self.source_inputter.padded_shapes
 
-  def _build_labels(self, labels_file, metadata):
-    dataset = self.target_inputter.make_dataset(labels_file, metadata)
-    dataset = dataset.map(self._shift_target)
-    return dataset, self.target_inputter.padded_shapes
+  def _build_labels(self, labels_file=None, metadata={}):
+    if labels_file is None:
+      self.target_inputter.initialize(metadata)
+      return None, None
+    else:
+      dataset = self.target_inputter.make_dataset(labels_file, metadata)
+      dataset = dataset.map(self._shift_target)
+      return dataset, self.target_inputter.padded_shapes
 
   def _build(self, features, labels, params, mode):
     batch_size = tf.shape(features["length"])[0]

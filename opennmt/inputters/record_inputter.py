@@ -26,7 +26,7 @@ class SequenceRecordInputter(Inputter):
     super(SequenceRecordInputter, self).__init__()
     self.input_depth_key = input_depth_key
 
-  def _initialize(self, metadata):
+  def initialize(self, metadata):
     self.input_depth = metadata[self.input_depth_key]
 
   def _make_dataset(self, data_file):

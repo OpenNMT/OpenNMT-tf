@@ -147,7 +147,7 @@ class Model(object):
     return tf.reduce_all(cond)
 
   @abc.abstractmethod
-  def _build_features(self, features_file, metadata):
+  def _build_features(self, features_file, metadata={}):
     """Builds a dataset from features file.
 
     Args:
@@ -161,7 +161,7 @@ class Model(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _build_labels(self, labels_file, metadata):
+  def _build_labels(self, labels_file=None, metadata={}):
     """Builds a dataset from labels file.
 
     Args:
@@ -187,15 +187,15 @@ class Model(object):
     """See `input_fn`."""
     features_dataset, features_padded_shapes = self._build_features(
       features_file,
-      metadata)
+      metadata=metadata)
+    labels_dataset, labels_padded_shapes = self._build_labels(
+      labels_file=labels_file,
+      metadata=metadata)
 
-    if labels_file is None:
+    if labels_dataset is None:
       dataset = features_dataset
       padded_shapes = features_padded_shapes
     else:
-      labels_dataset, labels_padded_shapes = self._build_labels(
-        labels_file,
-        metadata)
       dataset = tf.contrib.data.Dataset.zip((features_dataset, labels_dataset))
       padded_shapes = (features_padded_shapes, labels_padded_shapes)
 

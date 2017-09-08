@@ -58,7 +58,7 @@ class Inputter(object):
     Returns:
       A `tf.contrib.data.Dataset`.
     """
-    self._initialize(metadata)
+    self.initialize(metadata)
     dataset = self._make_dataset(data_file)
     dataset = dataset.map(self.process)
     return dataset
@@ -67,7 +67,7 @@ class Inputter(object):
   def _make_dataset(self, data_file):
     raise NotImplementedError()
 
-  def _initialize(self, metadata):
+  def initialize(self, metadata):
     """Initializes the inputter within the current graph.
 
     For example, one can create lookup tables in this method
@@ -181,9 +181,9 @@ class MixedInputter(Inputter):
   def _make_dataset(self, data_file):
     return self.inputters[0]._make_dataset(data_file)
 
-  def _initialize(self):
+  def initialize(self, metadata):
     for inputter in self.inputters:
-      inputter._initialize()
+      inputter.initialize(metadata)
 
   def process(self, data):
     for inputter in self.inputters:
