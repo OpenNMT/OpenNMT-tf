@@ -9,12 +9,12 @@ run:
   type: infer
 
   # The last checkpoint from this directory will be loaded.
-  model_dir: "ckpt"
+  model_dir: "enfr"
 
 data:
   features_file: "data/en-test.txt"
 
-  resources:
+  meta:
     source_words_vocabulary: "data/en-dict.txt"
     target_words_vocabulary: "data/fr-dict.txt"
 
