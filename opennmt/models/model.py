@@ -316,14 +316,11 @@ class Model(object):
     """
     return lambda: self._serving_input_fn_impl(metadata)
 
-  def format_prediction(self, prediction, params=None):
-    """Formats the model prediction.
+  def print_prediction(self, prediction, params=None):
+    """Prints the model prediction.
 
     Args:
       prediction: The evaluated prediction returned by `__call__`.
       params: (optional) Dictionary of formatting parameters.
-
-    Returns:
-      The final prediction.
     """
-    return prediction
+    print(prediction)

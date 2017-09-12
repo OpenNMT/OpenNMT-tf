@@ -119,8 +119,8 @@ class SequenceTagger(Model):
         predictions=predictions,
         export_outputs=export_outputs)
 
-  def format_prediction(self, prediction, params=None):
+  def print_prediction(self, prediction, params=None):
     labels = prediction["labels"][:prediction["length"]]
     sent = b" ".join(labels)
     sent = sent.decode("utf-8")
-    return sent
+    print(sent)

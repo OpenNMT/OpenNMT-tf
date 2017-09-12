@@ -164,18 +164,15 @@ class SequenceToSequence(Model):
         predictions=predictions,
         export_outputs=export_outputs)
 
-  def format_prediction(self, prediction, params=None):
+  def print_prediction(self, prediction, params=None):
     n_best = params and params.get("n_best")
     n_best = n_best or 1
 
     if n_best > len(prediction["tokens"]):
       raise ValueError("n_best cannot be greater than beam_width")
 
-    all_preds = []
     for i in range(n_best):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
       sentence = b" ".join(tokens)
       sentence = sentence.decode('utf-8')
-      all_preds.append(sentence)
-
-    return all_preds
+      print(sentence)

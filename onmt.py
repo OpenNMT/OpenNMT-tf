@@ -142,12 +142,8 @@ def main():
       config["data"]["features_file"],
       labels_file=config["data"].get("labels_file"))
 
-    for predictions in estimator.predict(input_fn=test_input_fn):
-      predictions = model.format_prediction(predictions, params=params)
-      if not isinstance(predictions, list):
-        predictions = [ predictions ]
-      for prediction in predictions:
-        print(prediction)
+    for prediction in estimator.predict(input_fn=test_input_fn):
+      model.print_prediction(prediction, params=params)
   elif config["run"]["type"] == "export":
     estimator.export_savedmodel(
       os.path.join(config["run"]["model_dir"], "manual_export"),
