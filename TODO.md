@@ -16,9 +16,6 @@
 
 ## To explore
 
-* Model deployement and serving
-  * Inference from the C++ API
-  * [TensorFlow Serving](https://www.tensorflow.org/serving/)
 * Integration with Docker or Kubernetes for distributed training
   * https://github.com/tensorflow/ecosystem
 

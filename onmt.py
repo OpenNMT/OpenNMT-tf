@@ -115,7 +115,9 @@ def main():
       train_input_fn=train_input_fn,
       eval_input_fn=eval_input_fn,
       eval_steps=None,
-      min_eval_frequency=config["run"]["eval_steps"])
+      min_eval_frequency=config["run"]["eval_steps"],
+      export_strategies=tf.contrib.learn.make_export_strategy(
+        model.serving_input_fn(config["data"]["meta"])))
 
     if args.task_type == "ps":
       experiment.run_std_server()
@@ -146,6 +148,10 @@ def main():
         predictions = [ predictions ]
       for prediction in predictions:
         print(prediction)
+  elif config["run"]["type"] == "export":
+    estimator.export_savedmodel(
+      os.path.join(config["run"]["model_dir"], "manual_export"),
+      model.serving_input_fn(config["data"]["meta"]))
   else:
     raise ValueError("Unknown run type: " + config["run"]["type"])
 

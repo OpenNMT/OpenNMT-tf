@@ -58,18 +58,21 @@ class SequenceToSequence(Model):
 
     return labels
 
-  def _build_features(self, features_file, metadata={}):
-    dataset = self.source_inputter.make_dataset(features_file, metadata)
+  def _initialize(self, metadata):
+    self.source_inputter.initialize(metadata)
+    self.target_inputter.initialize(metadata)
+
+  def _get_serving_input_receiver(self):
+    return self.source_inputter.get_serving_input_receiver()
+
+  def _build_features(self, features_file):
+    dataset = self.source_inputter.make_dataset(features_file)
     return dataset, self.source_inputter.padded_shapes
 
-  def _build_labels(self, labels_file=None, metadata={}):
-    if labels_file is None:
-      self.target_inputter.initialize(metadata)
-      return None, None
-    else:
-      dataset = self.target_inputter.make_dataset(labels_file, metadata)
-      dataset = dataset.map(self._shift_target)
-      return dataset, self.target_inputter.padded_shapes
+  def _build_labels(self, labels_file):
+    dataset = self.target_inputter.make_dataset(labels_file)
+    dataset = dataset.map(self._shift_target)
+    return dataset, self.target_inputter.padded_shapes
 
   def _build(self, features, labels, params, mode):
     batch_size = tf.shape(features["length"])[0]
@@ -152,9 +155,14 @@ class SequenceToSequence(Model):
       predictions["tokens"] = target_vocab_rev.lookup(tf.cast(decoder_outputs, tf.int64))
       predictions["length"] = decoded_length
 
+      export_outputs = {
+        "predictions": tf.estimator.export.PredictOutput(predictions)
+      }
+
       return tf.estimator.EstimatorSpec(
         mode,
-        predictions=predictions)
+        predictions=predictions,
+        export_outputs=export_outputs)
 
   def format_prediction(self, prediction, params=None):
     n_best = params and params.get("n_best")

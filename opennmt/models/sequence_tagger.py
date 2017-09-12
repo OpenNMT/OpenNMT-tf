@@ -32,26 +32,28 @@ class SequenceTagger(Model):
     self.labels_vocabulary_file_key = labels_vocabulary_file_key
     self.crf_decoding = crf_decoding
 
-  def _build_features(self, features_file, metadata={}):
-    dataset = self.inputter.make_dataset(features_file, metadata)
-    return dataset, self.inputter.padded_shapes
-
-  def _build_labels(self, labels_file=None, metadata={}):
+  def _initialize(self, metadata):
+    self.inputter.initialize(metadata)
     self.labels_vocabulary_file = metadata[self.labels_vocabulary_file_key]
     self.num_labels = count_lines(self.labels_vocabulary_file)
 
-    if labels_file is not None:
-      labels_vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.labels_vocabulary_file,
-        vocab_size=self.num_labels)
+  def _get_serving_input_receiver(self):
+    return self.inputter.get_serving_input_receiver()
 
-      dataset = tf.contrib.data.TextLineDataset(labels_file)
-      dataset = dataset.map(lambda x: tf.string_split([x]).values)
-      dataset = dataset.map(labels_vocabulary.lookup)
-      padded_shapes = [None]
-      return dataset, padded_shapes
-    else:
-      return None, None
+  def _build_features(self, features_file):
+    dataset = self.inputter.make_dataset(features_file)
+    return dataset, self.inputter.padded_shapes
+
+  def _build_labels(self, labels_file):
+    labels_vocabulary = tf.contrib.lookup.index_table_from_file(
+      self.labels_vocabulary_file,
+      vocab_size=self.num_labels)
+
+    dataset = tf.contrib.data.TextLineDataset(labels_file)
+    dataset = dataset.map(lambda x: tf.string_split([x]).values)
+    dataset = dataset.map(labels_vocabulary.lookup)
+    padded_shapes = [None]
+    return dataset, padded_shapes
 
   def _build(self, features, labels, params, mode):
     with tf.variable_scope("encoder"):
@@ -108,9 +110,14 @@ class SequenceTagger(Model):
       predictions["length"] = encoder_sequence_length
       predictions["labels"] = labels_vocab_rev.lookup(labels)
 
+      export_outputs = {
+        "predictions": tf.estimator.export.PredictOutput(predictions)
+      }
+
       return tf.estimator.EstimatorSpec(
         mode,
-        predictions=predictions)
+        predictions=predictions,
+        export_outputs=export_outputs)
 
   def format_prediction(self, prediction, params=None):
     labels = prediction["labels"][:prediction["length"]]

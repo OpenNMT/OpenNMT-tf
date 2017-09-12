@@ -47,24 +47,30 @@ class Inputter(object):
     del self.padded_shapes[key]
     return data
 
-  def make_dataset(self, data_file, metadata):
+  def make_dataset(self, data_file):
     """Creates the dataset required by this inputter.
 
     Args:
       data_file: The data file.
-      metadata: A dictionary containing additional metadata set
-        by the user.
 
     Returns:
       A `tf.contrib.data.Dataset`.
     """
-    self.initialize(metadata)
     dataset = self._make_dataset(data_file)
     dataset = dataset.map(self.process)
     return dataset
 
   @abc.abstractmethod
   def _make_dataset(self, data_file):
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def get_serving_input_receiver(self):
+    """Returns a serving input receiver for this inputter.
+
+    Returns:
+      A `tf.estimator.export.ServingInputReceiver`.
+    """
     raise NotImplementedError()
 
   def initialize(self, metadata):

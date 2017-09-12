@@ -1,0 +1,27 @@
+# Manuel model export configuration template.
+#
+# The command line accepts multiple configuration files. You can split
+# this template to make some configuration parts reusable.
+#
+# See default values for optional fields in opennmt/config.py.
+
+run:
+  type: export
+
+  # The last checkpoint from this directory will be exported.
+  model_dir: "enfr"
+
+data:
+  meta:
+    source_words_vocabulary: "data/en-dict.txt"
+    target_words_vocabulary: "data/fr-dict.txt"
+
+params:
+  # (optional) Width of the beam search.
+  beam_width: 5
+
+  # (optional) Length penaly weight to apply on hypotheses.
+  length_penalty: 0.2
+
+  # (optional) Maximum decoding iterations before stopping.
+  maximum_iterations: 250

@@ -146,14 +146,30 @@ class Model(object):
 
     return tf.reduce_all(cond)
 
+  def _initialize(self, metadata):
+    """Runs model specific initialization (e.g. vocabularies loading).
+
+    Args:
+      metadata: A dictionary containing additional metadata set
+        by the user.
+    """
+    pass
+
   @abc.abstractmethod
-  def _build_features(self, features_file, metadata={}):
+  def _get_serving_input_receiver(self):
+    """Returns an input receiver for serving this model.
+
+    Returns:
+      A `tf.estimator.export.ServingInputReceiver`.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def _build_features(self, features_file):
     """Builds a dataset from features file.
 
     Args:
       features_file: The file of features.
-      metadata: A dictionary containing additional metadata set
-        by the user.
 
     Returns:
       (`tf.contrib.data.Dataset`, `padded_shapes`)
@@ -161,13 +177,11 @@ class Model(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _build_labels(self, labels_file=None, metadata={}):
+  def _build_labels(self, labels_file):
     """Builds a dataset from labels file.
 
     Args:
       labels_file: The file of labels.
-      metadata: A dictionary containing additional metadata set
-        by the user.
 
     Returns:
       (`tf.contrib.data.Dataset`, `padded_shapes`)
@@ -185,17 +199,15 @@ class Model(object):
                      maximum_features_length=None,
                      maximum_labels_length=None):
     """See `input_fn`."""
-    features_dataset, features_padded_shapes = self._build_features(
-      features_file,
-      metadata=metadata)
-    labels_dataset, labels_padded_shapes = self._build_labels(
-      labels_file=labels_file,
-      metadata=metadata)
+    self._initialize(metadata)
 
-    if labels_dataset is None:
+    features_dataset, features_padded_shapes = self._build_features(features_file)
+
+    if labels_file is None:
       dataset = features_dataset
       padded_shapes = features_padded_shapes
     else:
+      labels_dataset, labels_padded_shapes = self._build_labels(labels_file)
       dataset = tf.contrib.data.Dataset.zip((features_dataset, labels_dataset))
       padded_shapes = (features_padded_shapes, labels_padded_shapes)
 
@@ -286,6 +298,23 @@ class Model(object):
       labels_file=labels_file,
       maximum_features_length=maximum_features_length,
       maximum_labels_length=maximum_labels_length)
+
+  def _serving_input_fn_impl(self, metadata):
+    """See `serving_input_fn`."""
+    self._initialize(metadata)
+    return self._get_serving_input_receiver()
+
+  def serving_input_fn(self, metadata):
+    """Returns the serving input function.
+
+    Args:
+      metadata: A dictionary containing additional metadata set
+        by the user.
+
+    Returns:
+      A callable that returns a `tf.estimator.export.ServingInputReceiver`.
+    """
+    return lambda: self._serving_input_fn_impl(metadata)
 
   def format_prediction(self, prediction, params=None):
     """Formats the model prediction.
