@@ -50,6 +50,34 @@ def learning_rate_decay_fn(decay_type,
 
   return decay_fn
 
+def register_word_counters(self, features, labels):
+  """Stores word counter operators for sequences (if any) of `features`
+  and `labels`.
+
+  See also `onmt.utils.misc.WordCounterHook` that fetches these counters
+  to log their value in TensorBoard.
+  """
+  def _add_counter(word_count, name):
+    word_count = tf.cast(word_count, tf.int64)
+    total_word_count = tf.Variable(
+      initial_value=0,
+      name=name + "_init",
+      trainable=False,
+      dtype=tf.int64)
+    total_word_count = tf.assign_add(
+      total_word_count,
+      word_count,
+      name=name)
+
+  features_length = features.get("length")
+  labels_length = labels.get("length") if labels is not None and isinstance(labels, dict) else None
+
+  with tf.variable_scope("words_per_sec"):
+    if features_length is not None:
+      _add_counter(tf.reduce_sum(features_length), "features")
+    if labels_length is not None:
+      _add_counter(tf.reduce_sum(labels_length), "labels")
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Model(object):
@@ -61,32 +89,9 @@ class Model(object):
     """Creates the model. See `tf.estimator.Estimator`'s `model_fn` argument
     for more details about arguments and the returned value.
     """
-    self._count_words(features, labels)
+    register_word_counters(features, labels)
     with tf.variable_scope(self.name):
       return self._build(features, labels, params, mode)
-
-  def _count_words(self, features, labels):
-    """Stores a word counter operator for sequences of features and labels."""
-    def _add_counter(word_count, name):
-      word_count = tf.cast(word_count, tf.int64)
-      total_word_count = tf.Variable(
-        initial_value=0,
-        name=name + "_init",
-        trainable=False,
-        dtype=tf.int64)
-      total_word_count = tf.assign_add(
-        total_word_count,
-        word_count,
-        name=name)
-
-    features_length = features.get("length")
-    labels_length = labels.get("length") if labels is not None and isinstance(labels, dict) else None
-
-    with tf.variable_scope("words_per_sec"):
-      if features_length is not None:
-        _add_counter(tf.reduce_sum(features_length), "features")
-      if labels_length is not None:
-        _add_counter(tf.reduce_sum(labels_length), "labels")
 
   @abc.abstractmethod
   def _build(self, features, labels, params, mode):
