@@ -111,7 +111,7 @@ class SequenceToSequence(Model):
           mode=mode,
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length)
-      elif "beam_width" in params and params["beam_width"] == 1:
+      elif params["beam_width"] <= 1:
         decoder_outputs, _, decoded_length = self.decoder.dynamic_decode(
           embedding_fn,
           tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
