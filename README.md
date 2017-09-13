@@ -39,7 +39,15 @@ Models are defined from the code to allow a high level of modeling freedom and e
 
 ### Run configuration
 
-Runs are described in separate YAML files. They define how to train or infer a particular model.
+Runs are described in separate YAML files. They define how to train, infer or export a model.
+
+The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
+
+```
+python onmt.py [...] --run config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
+```
+
+If a configuration key is duplicated, the value defined in the rightmost configuration file has priority. Additionally, fields marked as optional have a default value defined in `opennmt/config.py`.
 
 *See example configurations in `config/`.*
 

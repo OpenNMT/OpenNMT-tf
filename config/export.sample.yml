@@ -1,9 +1,4 @@
 # Manuel model export configuration template.
-#
-# The command line accepts multiple configuration files. You can split
-# this template to make some configuration parts reusable.
-#
-# See default values for optional fields in opennmt/config.py.
 
 run:
   type: export
