@@ -39,7 +39,7 @@ class SelfAttentionDecoder(Decoder):
              inputs,
              sequence_length,
              vocab_size,
-             encoder_states=None,
+             encoder_state=None,
              scheduled_sampling_probability=0.0,
              embeddings=None,
              mode=tf.estimator.ModeKeys.TRAIN,
@@ -123,7 +123,7 @@ class SelfAttentionDecoder(Decoder):
                      start_tokens,
                      end_token,
                      vocab_size,
-                     encoder_states=None,
+                     encoder_state=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.TRAIN,
                      memory=None,
@@ -145,7 +145,7 @@ class SelfAttentionDecoder(Decoder):
         embeddings(inputs),
         inputs_lengths,
         vocab_size,
-        encoder_states=encoder_states,
+        encoder_state=encoder_state,
         mode=mode,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
@@ -199,16 +199,16 @@ class SelfAttentionDecoder(Decoder):
                                 start_tokens,
                                 end_token,
                                 vocab_size,
-                                encoder_states=None,
+                                encoder_state=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
                                 mode=tf.estimator.ModeKeys.TRAIN,
                                 memory=None,
                                 memory_sequence_length=None):
-    if not encoder_states is None:
-      encoder_states = tf.contrib.seq2seq.tile_batch(
-        encoder_states, multiplier=beam_width)
+    if not encoder_state is None:
+      encoder_state = tf.contrib.seq2seq.tile_batch(
+        encoder_state, multiplier=beam_width)
     if not memory is None:
       memory = tf.contrib.seq2seq.tile_batch(
         memory, multiplier=beam_width)
@@ -224,7 +224,7 @@ class SelfAttentionDecoder(Decoder):
         embeddings(symbols),
         sequence_length,
         vocab_size,
-        encoder_states=encoder_states,
+        encoder_state=encoder_state,
         mode=mode,
         memory=memory,
         memory_sequence_length=memory_sequence_length,

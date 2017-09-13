@@ -69,13 +69,13 @@ class UnidirectionalRNNEncoder(RNNEncoder):
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     cell = self._build_cell(mode)
 
-    encoder_outputs, encoder_states = tf.nn.dynamic_rnn(
+    encoder_outputs, encoder_state = tf.nn.dynamic_rnn(
       cell,
       inputs,
       sequence_length=sequence_length,
       dtype=tf.float32)
 
-    return (encoder_outputs, encoder_states, sequence_length)
+    return (encoder_outputs, encoder_state, sequence_length)
 
 
 class BidirectionalRNNEncoder(RNNEncoder):
@@ -93,7 +93,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      reducer: A `onmt.utils.Reducer` instance to merge bidirectional states and outputs.
+      reducer: A `onmt.utils.Reducer` instance to merge bidirectional state and outputs.
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
@@ -118,18 +118,18 @@ class BidirectionalRNNEncoder(RNNEncoder):
     with tf.variable_scope("bw"):
       cell_bw = self._build_cell(mode)
 
-    encoder_outputs_tup, encoder_states_tup = tf.nn.bidirectional_dynamic_rnn(
+    encoder_outputs_tup, encoder_state_tup = tf.nn.bidirectional_dynamic_rnn(
       cell_fw,
       cell_bw,
       inputs,
       sequence_length=sequence_length,
       dtype=tf.float32)
 
-    # Merge bidirectional outputs and states.
+    # Merge bidirectional outputs and state.
     encoder_outputs = self.reducer.reduce(encoder_outputs_tup[0], encoder_outputs_tup[1])
-    encoder_states = self.reducer.reduce(encoder_states_tup[0], encoder_states_tup[1])
+    encoder_state = self.reducer.reduce(encoder_state_tup[0], encoder_state_tup[1])
 
-    return (encoder_outputs, encoder_states, sequence_length)
+    return (encoder_outputs, encoder_state, sequence_length)
 
 
 class GoogleRNNEncoder(Encoder):
@@ -163,18 +163,18 @@ class GoogleRNNEncoder(Encoder):
       residual_connections=True)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    encoder_outputs, bi_states, sequence_length = self.bidirectional.encode(
+    encoder_outputs, bidirectional_state, sequence_length = self.bidirectional.encode(
       inputs,
       sequence_length=sequence_length,
       mode=mode)
-    encoder_outputs, uni_states, sequence_length = self.unidirectional.encode(
+    encoder_outputs, unidirectional_state, sequence_length = self.unidirectional.encode(
       encoder_outputs,
       sequence_length=sequence_length,
       mode=mode)
 
-    encoder_states = bi_states + uni_states
+    encoder_state = bidirectional_state + unidirectional_state
 
-    return (encoder_outputs, encoder_states, sequence_length)
+    return (encoder_outputs, encoder_state, sequence_length)
 
 
 class PyramidalRNNEncoder(Encoder):

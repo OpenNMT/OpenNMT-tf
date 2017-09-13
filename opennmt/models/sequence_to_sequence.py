@@ -83,7 +83,7 @@ class SequenceToSequence(Model):
         mode,
         log_dir=params.get("log_dir"))
 
-      encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
+      encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
         source_inputs,
         sequence_length=features["length"],
         mode=mode)
@@ -105,7 +105,7 @@ class SequenceToSequence(Model):
           target_inputs,
           labels["length"],
           self.target_inputter.vocabulary_size,
-          encoder_states=encoder_states,
+          encoder_state=encoder_state,
           scheduled_sampling_probability=params["scheduled_sampling_probability"],
           embeddings=embedding_fn,
           mode=mode,
@@ -117,7 +117,7 @@ class SequenceToSequence(Model):
           tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
           constants.END_OF_SENTENCE_ID,
           self.target_inputter.vocabulary_size,
-          encoder_states,
+          encoder_state=encoder_state,
           maximum_iterations=params["maximum_iterations"],
           mode=mode,
           memory=encoder_outputs,
@@ -128,7 +128,7 @@ class SequenceToSequence(Model):
           tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
           constants.END_OF_SENTENCE_ID,
           self.target_inputter.vocabulary_size,
-          encoder_states,
+          encoder_state=encoder_state,
           beam_width=params["beam_width"],
           length_penalty=params["length_penalty"],
           maximum_iterations=params["maximum_iterations"],

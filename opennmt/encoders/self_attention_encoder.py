@@ -49,7 +49,7 @@ class SelfAttentionEncoder(Encoder):
       training=mode == tf.estimator.ModeKeys.TRAIN)
 
     outputs = []
-    states = ()
+    state = ()
 
     for l in range(self.num_layers):
       with tf.variable_scope("layer_" + str(l)):
@@ -77,9 +77,9 @@ class SelfAttentionEncoder(Encoder):
             dropout=self.dropout)
 
         inputs = transformed
-        states += (tf.reduce_mean(inputs, axis=1),)
+        state += (tf.reduce_mean(inputs, axis=1),)
 
         if self.keep_layers_output:
           outputs.append(inputs)
 
-    return (inputs if not outputs else outputs, states, sequence_length)
+    return (inputs if not outputs else outputs, state, sequence_length)

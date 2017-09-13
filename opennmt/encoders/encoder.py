@@ -20,7 +20,7 @@ class Encoder(object):
       mode: A `tf.estimator.ModeKeys` mode.
 
     Returns:
-      A tuple (`encoder_outputs`, `encoder_states`, `encoder_sequence_length`).
+      A tuple (`encoder_outputs`, `encoder_state`, `encoder_sequence_length`).
     """
     raise NotImplementedError()
 
@@ -90,12 +90,12 @@ class ParallelEncoder(Encoder):
         else:
           encoder_inputs = inputs
 
-        outputs, states, sequence_length = self.encoders[i].encode(
+        outputs, state, sequence_length = self.encoders[i].encode(
           encoder_inputs,
           sequence_length=sequence_length,
           mode=mode)
         all_outputs.append(outputs)
-        all_states.append(states)
+        all_states.append(state)
 
     return (
       self.outputs_reducer.reduce_all(all_outputs),

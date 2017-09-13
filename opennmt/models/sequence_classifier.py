@@ -57,7 +57,7 @@ class SequenceClassifier(Model):
         mode,
         log_dir=params.get("log_dir"))
 
-      encoder_outputs, encoder_states, encoder_sequence_length = self.encoder.encode(
+      encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
         inputs,
         sequence_length=features["length"],
         mode=mode)

@@ -9,5 +9,5 @@ class MeanEncoder(Encoder):
   """A simple encoder that takes the mean of its inputs."""
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    states = tf.reduce_mean(inputs, axis=1)
-    return (inputs, states, sequence_length)
+    state = tf.reduce_mean(inputs, axis=1)
+    return (inputs, state, sequence_length)

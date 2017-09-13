@@ -23,7 +23,7 @@ class RNNDecoder(Decoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A `onmt.utils.Bridge` to pass the encoder states to the decoder.
+      bridge: A `onmt.utils.Bridge` to pass the encoder state to the decoder.
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
@@ -38,7 +38,7 @@ class RNNDecoder(Decoder):
   def _build_cell(self,
                   mode,
                   batch_size,
-                  encoder_states=None,
+                  encoder_state=None,
                   memory=None,
                   memory_sequence_length=None):
     cell = build_cell(
@@ -51,8 +51,8 @@ class RNNDecoder(Decoder):
 
     initial_state = cell.zero_state(batch_size, tf.float32)
 
-    if not encoder_states is None:
-      initial_state = self.bridge(encoder_states, initial_state)
+    if not encoder_state is None:
+      initial_state = self.bridge(encoder_state, initial_state)
 
     return cell, initial_state
 
@@ -63,7 +63,7 @@ class RNNDecoder(Decoder):
              inputs,
              sequence_length,
              vocab_size,
-             encoder_states=None,
+             encoder_state=None,
              scheduled_sampling_probability=0.0,
              embeddings=None,
              mode=tf.estimator.ModeKeys.TRAIN,
@@ -86,7 +86,7 @@ class RNNDecoder(Decoder):
     cell, initial_state = self._build_cell(
       mode,
       batch_size,
-      encoder_states=encoder_states,
+      encoder_state=encoder_state,
       memory=memory,
       memory_sequence_length=memory_sequence_length)
 
@@ -98,15 +98,15 @@ class RNNDecoder(Decoder):
       initial_state,
       output_layer=output_layer)
 
-    outputs, states, length = tf.contrib.seq2seq.dynamic_decode(decoder)
-    return (outputs.rnn_output, states, length)
+    outputs, state, length = tf.contrib.seq2seq.dynamic_decode(decoder)
+    return (outputs.rnn_output, state, length)
 
   def dynamic_decode(self,
                      embeddings,
                      start_tokens,
                      end_token,
                      vocab_size,
-                     encoder_states=None,
+                     encoder_state=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
@@ -121,7 +121,7 @@ class RNNDecoder(Decoder):
     cell, initial_state = self._build_cell(
       mode,
       batch_size,
-      encoder_states=encoder_states,
+      encoder_state=encoder_state,
       memory=memory,
       memory_sequence_length=memory_sequence_length)
 
@@ -133,20 +133,20 @@ class RNNDecoder(Decoder):
       initial_state,
       output_layer=output_layer)
 
-    outputs, states, length = tf.contrib.seq2seq.dynamic_decode(
+    outputs, state, length = tf.contrib.seq2seq.dynamic_decode(
       decoder, maximum_iterations=maximum_iterations)
 
     predicted_ids = outputs.sample_id
     predicted_ids = tf.expand_dims(predicted_ids, 1)
 
-    return (predicted_ids, states, length)
+    return (predicted_ids, state, length)
 
   def dynamic_decode_and_search(self,
                                 embeddings,
                                 start_tokens,
                                 end_token,
                                 vocab_size,
-                                encoder_states=None,
+                                encoder_state=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
@@ -156,9 +156,9 @@ class RNNDecoder(Decoder):
     batch_size = tf.shape(start_tokens)[0]
 
     # Replicate batch `beam_width` times.
-    if not encoder_states is None:
-      encoder_states = tf.contrib.seq2seq.tile_batch(
-        encoder_states, multiplier=beam_width)
+    if not encoder_state is None:
+      encoder_state = tf.contrib.seq2seq.tile_batch(
+        encoder_state, multiplier=beam_width)
     if not memory is None:
       memory = tf.contrib.seq2seq.tile_batch(
         memory, multiplier=beam_width)
@@ -169,7 +169,7 @@ class RNNDecoder(Decoder):
     cell, initial_state = self._build_cell(
       mode,
       batch_size * beam_width,
-      encoder_states=encoder_states,
+      encoder_state=encoder_state,
       memory=memory,
       memory_sequence_length=memory_sequence_length)
 
@@ -185,11 +185,11 @@ class RNNDecoder(Decoder):
       output_layer=output_layer,
       length_penalty_weight=length_penalty)
 
-    outputs, states, length = tf.contrib.seq2seq.dynamic_decode(
+    outputs, state, length = tf.contrib.seq2seq.dynamic_decode(
       decoder, maximum_iterations=maximum_iterations)
     predicted_ids = tf.transpose(outputs.predicted_ids, perm=[0, 2, 1])
 
-    return (predicted_ids, states, length)
+    return (predicted_ids, state, length)
 
 
 class AttentionalRNNDecoder(RNNDecoder):
@@ -211,7 +211,7 @@ class AttentionalRNNDecoder(RNNDecoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A `onmt.utils.Bridge` to pass the encoder states to the decoder.
+      bridge: A `onmt.utils.Bridge` to pass the encoder state to the decoder.
       attention_mechanism_class: A class inheriting from
         `tf.contrib.seq2seq.AttentionMechanism`.
       cell_class: The inner cell class.
@@ -229,7 +229,7 @@ class AttentionalRNNDecoder(RNNDecoder):
   def _build_cell(self,
                   mode,
                   batch_size,
-                  encoder_states=None,
+                  encoder_state=None,
                   memory=None,
                   memory_sequence_length=None):
     attention_mechanism = self.attention_mechanism_class(
@@ -241,10 +241,10 @@ class AttentionalRNNDecoder(RNNDecoder):
       self,
       mode,
       batch_size,
-      encoder_states=encoder_states)
+      encoder_state=encoder_state)
 
-    if not encoder_states is None:
-      initial_cell_state = self.bridge(encoder_states, initial_cell_state)
+    if not encoder_state is None:
+      initial_cell_state = self.bridge(encoder_state, initial_cell_state)
 
     cell = tf.contrib.seq2seq.AttentionWrapper(
       cell,
