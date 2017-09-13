@@ -8,14 +8,14 @@ from opennmt.utils.reducer import SumReducer, JoinReducer
 
 @six.add_metaclass(abc.ABCMeta)
 class Encoder(object):
-  """Abstract class for encoders."""
+  """Base class for encoders."""
 
   @abc.abstractmethod
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     """Encodes an input sequence.
 
     Args:
-      inputs: The input to encode of shape [B, T, ...].
+      inputs: The inputs to encode of shape [B, T, ...].
       sequence_length: The length of each input with shape [B].
       mode: A `tf.estimator.ModeKeys` mode.
 

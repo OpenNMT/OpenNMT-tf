@@ -128,7 +128,22 @@ class Model(object):
                       labels,
                       maximum_features_length=None,
                       maximum_labels_length=None):
-    """Defines an example filtering condition."""
+    """Defines an example filtering condition.
+
+    Args:
+      features: A dict of `tf.Tensor`s possibly containing the `length`
+        field.
+      labels: A `tf.Tensor` or dict of `tf.Tensor`s  possibly containing
+        the `length` field.
+      maximum_features_length: The maximum length of the features
+        sequence (if it applies).
+      maximum_labels_length: The maximum length of the labels sequence
+        (if it applies).
+
+    Returns:
+      A `tf.Tensor` of type `tf.bool` with a logical value of `False`
+      if the example does not meet the requirements.
+    """
     features_length = features.get("length")
     labels_length = labels.get("length") if isinstance(labels, dict) else None
 

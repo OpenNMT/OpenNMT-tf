@@ -87,13 +87,16 @@ class Inputter(object):
     pass
 
   def process(self, data):
-    """Transforms input from the dataset.
+    """Prepares raw data.
 
-    Subclasses should extend this function to transform the raw value read
-    from the dataset to an input they can consume. See also `transform_data`.
+    Subclasses should extend this function to prepare the raw value read
+    from the dataset to something they can transform (e.g. processing a
+    line of text to a sequence of ids).
 
     This base implementation makes sure the data is a dictionary so subclasses
     can populate it.
+
+    See also `transform_data`.
 
     Args:
       data: The raw data or a dictionary containing the `raw` key.
@@ -116,9 +119,10 @@ class Inputter(object):
     pass
 
   def transform_data(self, data, mode, log_dir=None):
-    """Transform the processed data to an input.
+    """Transforms the processed data to an input.
 
     This is usually a simple forward of a `data` field to `transform`.
+
     See also `process`.
 
     Args:
@@ -135,7 +139,7 @@ class Inputter(object):
     return inputs
 
   def transform(self, inputs, mode, scope=None, reuse_next=None):
-    """Transform inputs.
+    """Transforms inputs.
 
     Args:
       inputs: A possible nested structure of `Tensor` depending on the inputter.
@@ -157,6 +161,7 @@ class Inputter(object):
 
   @abc.abstractmethod
   def _transform_data(self, data, mode):
+    """Implementation of `transform_data`."""
     raise NotImplementedError()
 
   @abc.abstractmethod

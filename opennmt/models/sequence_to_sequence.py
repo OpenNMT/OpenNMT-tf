@@ -35,7 +35,21 @@ class SequenceToSequence(Model):
     self.target_inputter = target_inputter
 
   def _shift_target(self, labels):
-    """Generate shifted target sequences with <s> and </s>."""
+    """Prepares shifted target sequences.
+
+    Given a target sequence `a b c`, the decoder input should be
+    `<s> a b c` and the output should be `a b c </s>` for the dynamic
+    decoding to start on `<s>` and stop on `</s>`.
+
+    Args:
+      labels: A dict of `tf.Tensor`s containing `ids` and `length`.
+
+    Returns:
+      The updated `labels` dictionary with `ids` the sequence prefixed
+      with the start token id and `ids_out` the sequence suffixed with
+      the end token id. Additionally, the `length` is increased by 1
+      to reflect the added token on both sequences.
+    """
     bos = tf.cast(tf.constant([constants.START_OF_SENTENCE_ID]), tf.int64)
     eos = tf.cast(tf.constant([constants.END_OF_SENTENCE_ID]), tf.int64)
 

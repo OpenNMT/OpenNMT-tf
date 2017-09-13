@@ -6,7 +6,7 @@ import six
 
 @six.add_metaclass(abc.ABCMeta)
 class Decoder(object):
-  """Abstract class for decoders."""
+  """Base class for decoders."""
 
   @abc.abstractmethod
   def decode(self,

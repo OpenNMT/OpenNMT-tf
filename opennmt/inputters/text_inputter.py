@@ -19,7 +19,7 @@ from opennmt.constants import PADDING_TOKEN
 
 
 def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
-  """Register embeddings for visualization in TensorBoard.
+  """Registers an embedding variable for visualization in TensorBoard.
 
   This function registers `embedding_var` in the `projector_config.pbtxt`
   file and generates metadata from `vocabulary_file` to attach a label

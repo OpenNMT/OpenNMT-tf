@@ -10,7 +10,7 @@ from opennmt.utils.reducer import SumReducer
 
 @six.add_metaclass(abc.ABCMeta)
 class PositionEncoder(object):
-  """Abstract class for position encoders."""
+  """Base class for position encoders."""
 
   def __init__(self, reducer=SumReducer()):
     self.reducer = reducer

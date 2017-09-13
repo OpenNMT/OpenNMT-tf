@@ -24,7 +24,7 @@ class Bridge(object):
 
   @abc.abstractmethod
   def _build(self, encoder_state, decoder_zero_state):
-    raise NotImplementedError("Abstract method")
+    raise NotImplementedError()
 
 
 class CopyBridge(Bridge):
