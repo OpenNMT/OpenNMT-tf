@@ -225,7 +225,7 @@ class MixedInputter(Inputter):
       with tf.variable_scope("inputter_" + str(index), reuse=reuse):
         embs.append(inputter._transform(elem, mode)) # pylint: disable=protected-access
       index += 1
-    outputs = self.reducer.reducal_all(embs)
+    outputs = self.reducer.reduce_all(embs)
     outputs = tf.layers.dropout(
       outputs,
       rate=self.dropout,

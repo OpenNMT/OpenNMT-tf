@@ -50,7 +50,7 @@ def learning_rate_decay_fn(decay_type,
 
   return decay_fn
 
-def register_word_counters(self, features, labels):
+def register_word_counters(features, labels):
   """Stores word counter operators for sequences (if any) of `features`
   and `labels`.
 

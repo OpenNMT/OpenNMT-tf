@@ -247,8 +247,8 @@ class WordEmbedder(TextInputter):
     self.dropout = dropout
     self.num_oov_buckets = 1
 
-    if embedding_size is None and embedding_file is None:
-      raise ValueError("Must either provide embedding_size or embedding_file")
+    if embedding_size is None and embedding_file_key is None:
+      raise ValueError("Must either provide embedding_size or embedding_file_key")
 
   def initialize(self, metadata):
     self.vocabulary_file = metadata[self.vocabulary_file_key]
@@ -366,7 +366,7 @@ class CharConvEmbedder(TextInputter):
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       embeddings = tf.get_variable("w_char_embs")
-      _visualize(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
+      visualize_embeddings(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
 
   def _transform_data(self, data, mode):
     return self.transform(data["char_ids"], mode)
