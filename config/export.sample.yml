@@ -1,4 +1,4 @@
-# Manuel model export configuration template.
+# Manual model export configuration template.
 
 run:
   type: export
