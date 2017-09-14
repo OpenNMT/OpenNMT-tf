@@ -214,8 +214,14 @@ class PyramidalRNNEncoder(Encoder):
       input_depth = inputs.get_shape().as_list()[-1]
 
       if l == 0:
-        # For the first input, make the number of timesteps a multiple of the time reduction.
-        padding = self.reduction_factor - tf.shape(inputs)[1] % self.reduction_factor
+        # For the first input, make the number of timesteps a multiple of the total reduction factor.
+        total_reduction_factor = pow(self.reduction_factor, len(self.layers) - 1)
+
+        current_length = tf.shape(inputs)[1]
+        factor = tf.divide(tf.cast(current_length, tf.float32), total_reduction_factor)
+        new_length = tf.cast(tf.ceil(factor), tf.int32) * total_reduction_factor
+        padding = new_length - current_length
+
         inputs = tf.pad(
           inputs,
           [[0, 0], [0, padding], [0, 0]])
