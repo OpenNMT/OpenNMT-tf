@@ -36,7 +36,7 @@ def scaled_dot_attention(queries,
       mask = tf.map_fn(
         lambda x: tf.sequence_mask(
           tf.minimum(tf.range(tf.shape(values)[1]) + 1, x),
-          tf.shape(values)[1],
+          maxlen=tf.shape(values)[1],
           dtype=tf.float32),
         values_length,
         dtype=tf.float32)
@@ -44,7 +44,7 @@ def scaled_dot_attention(queries,
       # Otherwise, simply prevent attention on out-of-range positions.
       mask = tf.sequence_mask(
         values_length,
-        tf.shape(values)[1],
+        maxlen=tf.shape(values)[1],
         dtype=tf.float32)
       mask = tf.expand_dims(mask, axis=1)
 
