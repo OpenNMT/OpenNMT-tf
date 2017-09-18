@@ -118,7 +118,7 @@ class SelfAttentionDecoder(Decoder):
         outputs,
         vocab_size)
 
-    return (outputs, None, None)
+    return (outputs, None, sequence_length)
 
   def dynamic_decode(self,
                      embeddings,
