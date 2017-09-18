@@ -4,6 +4,21 @@ import abc
 import six
 
 
+def get_embedding_fn(embedding):
+  """Returns the embedding function.
+
+  Args:
+    embeddings: The embeddings tensor or a callable that takes word ids.
+
+  Returns:
+    A callable that takes word ids.
+  """
+  if callable(embedding):
+    return embedding
+  else:
+    return lambda ids: tf.nn.embedding_lookup(embedding, ids)
+
+
 @six.add_metaclass(abc.ABCMeta)
 class Decoder(object):
   """Base class for decoders."""

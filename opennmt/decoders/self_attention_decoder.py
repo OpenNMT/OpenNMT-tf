@@ -3,7 +3,7 @@
 import tensorflow as tf
 import opennmt.utils.transformer as transformer
 
-from opennmt.decoders.decoder import Decoder
+from opennmt.decoders.decoder import Decoder, get_embedding_fn
 from opennmt.utils.position import PositionEmbedder
 from opennmt.utils.beam_search import beam_search
 
@@ -136,6 +136,8 @@ class SelfAttentionDecoder(Decoder):
     inputs = tf.expand_dims(start_tokens, 1)
     lengths = tf.zeros([batch_size], dtype=tf.int32)
 
+    embedding_fn = get_embedding_fn(embeddings)
+
     def condition(step, finished, inputs, lengths):
       return tf.logical_not(tf.reduce_all(finished))
 
@@ -144,7 +146,7 @@ class SelfAttentionDecoder(Decoder):
 
       # Decode inputs.
       outputs, _, _ = self.decode(
-        embeddings(inputs),
+        embedding_fn(inputs),
         inputs_lengths,
         vocab_size,
         encoder_state=encoder_state,
@@ -218,12 +220,14 @@ class SelfAttentionDecoder(Decoder):
       memory_sequence_length = tf.contrib.seq2seq.tile_batch(
         memory_sequence_length, multiplier=beam_width)
 
+    embedding_fn = get_embedding_fn(embeddings)
+
     def symbols_to_logits_fn(symbols):
       batch_size = tf.shape(symbols)[0]
       step = tf.shape(symbols)[1]
       sequence_length = tf.fill([batch_size], step)
       outputs, _, _ = self.decode(
-        embeddings(symbols),
+        embedding_fn(symbols),
         sequence_length,
         vocab_size,
         encoder_state=encoder_state,
