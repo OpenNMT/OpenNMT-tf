@@ -14,7 +14,7 @@ class RNNDecoder(Decoder):
   def __init__(self,
                num_layers,
                num_units,
-               bridge,
+               bridge=None,
                cell_class=tf.contrib.rnn.LSTMCell,
                dropout=0.3,
                residual_connections=False):
@@ -35,6 +35,14 @@ class RNNDecoder(Decoder):
     self.dropout = dropout
     self.residual_connections = residual_connections
 
+  def _init_state(self, zero_state, encoder_state=None):
+    if encoder_state is None:
+      return zero_state
+    elif self.bridge is None:
+      raise ValueError("A bridge must be configured when passing encoder state")
+    else:
+      return self.bridge(encoder_state, zero_state)
+
   def _build_cell(self,
                   mode,
                   batch_size,
@@ -50,9 +58,7 @@ class RNNDecoder(Decoder):
       cell_class=self.cell_class)
 
     initial_state = cell.zero_state(batch_size, tf.float32)
-
-    if not encoder_state is None:
-      initial_state = self.bridge(encoder_state, initial_state)
+    initial_state = self._init_state(initial_state, encoder_state=encoder_state)
 
     return cell, initial_state
 
@@ -201,7 +207,7 @@ class AttentionalRNNDecoder(RNNDecoder):
   def __init__(self,
                num_layers,
                num_units,
-               bridge,
+               bridge=None,
                attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
                cell_class=tf.contrib.rnn.LSTMCell,
                dropout=0.3,
@@ -220,7 +226,7 @@ class AttentionalRNNDecoder(RNNDecoder):
     """
     super(AttentionalRNNDecoder, self).__init__(num_layers,
                                                 num_units,
-                                                bridge,
+                                                bridge=bridge,
                                                 cell_class=cell_class,
                                                 dropout=dropout,
                                                 residual_connections=residual_connections)
@@ -242,9 +248,7 @@ class AttentionalRNNDecoder(RNNDecoder):
       mode,
       batch_size,
       encoder_state=encoder_state)
-
-    if not encoder_state is None:
-      initial_cell_state = self.bridge(encoder_state, initial_cell_state)
+    initial_cell_state = self._init_state(initial_cell_state, encoder_state=encoder_state)
 
     cell = tf.contrib.seq2seq.AttentionWrapper(
       cell,
