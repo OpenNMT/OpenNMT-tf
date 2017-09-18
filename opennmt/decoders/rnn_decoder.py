@@ -143,9 +143,10 @@ class RNNDecoder(Decoder):
       decoder, maximum_iterations=maximum_iterations)
 
     predicted_ids = outputs.sample_id
-    predicted_ids = tf.expand_dims(predicted_ids, 1)
-
     log_probs = logits_to_cum_log_probs(outputs.rnn_output, length)
+
+    # Make shape consistent with beam search.
+    predicted_ids = tf.expand_dims(predicted_ids, 1)
     log_probs = tf.expand_dims(log_probs, 1)
 
     return (predicted_ids, state, length, log_probs)
