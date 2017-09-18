@@ -181,7 +181,7 @@ class SelfAttentionDecoder(Decoder):
 
       return step, next_finished, next_inputs, next_lengths, log_probs
 
-    res = tf.while_loop(
+    step, _, outputs, lengths, log_probs = tf.while_loop(
       condition,
       body,
       loop_vars=(step, finished, inputs, lengths, log_probs),
@@ -194,10 +194,7 @@ class SelfAttentionDecoder(Decoder):
       ),
       parallel_iterations=32)
 
-    step = res[0]
-    lengths = res[3]
-    log_probs = res[4]
-    outputs = tf.slice(res[2], [0, 1], [-1, -1]) # Ignore <s>.
+    outputs = tf.slice(outputs, [0, 1], [-1, -1]) # Ignore <s>.
 
     # Make shape consistent with beam search.
     outputs = tf.expand_dims(outputs, 1)
