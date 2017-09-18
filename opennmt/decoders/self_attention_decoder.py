@@ -76,7 +76,9 @@ class SelfAttentionDecoder(Decoder):
             dropout=self.dropout)
 
         with tf.variable_scope("multi_head"):
-          if tf.contrib.framework.nest.is_sequence(memory):
+          if memory is None:
+            values = encoded
+          elif tf.contrib.framework.nest.is_sequence(memory):
             if l >= len(memory):
               raise ValueError("""If the encoder memory is a sequence,
                                it must contain one memory per decoder layer""")
