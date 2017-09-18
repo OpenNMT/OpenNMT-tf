@@ -126,7 +126,7 @@ class SequenceToSequence(Model):
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length)
       elif params["beam_width"] <= 1:
-        decoder_outputs, _, decoded_length = self.decoder.dynamic_decode(
+        decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode(
           embedding_fn,
           tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
           constants.END_OF_SENTENCE_ID,
@@ -137,7 +137,7 @@ class SequenceToSequence(Model):
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length)
       else:
-        decoder_outputs, _, decoded_length = self.decoder.dynamic_decode_and_search(
+        decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode_and_search(
           embedding_fn,
           tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
           constants.END_OF_SENTENCE_ID,
@@ -168,6 +168,7 @@ class SequenceToSequence(Model):
       predictions = {}
       predictions["tokens"] = target_vocab_rev.lookup(tf.cast(decoder_outputs, tf.int64))
       predictions["length"] = decoded_length
+      predictions["log_probs"] = log_probs
 
       export_outputs = {
         "predictions": tf.estimator.export.PredictOutput(predictions)

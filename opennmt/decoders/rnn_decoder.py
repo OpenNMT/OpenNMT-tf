@@ -4,7 +4,7 @@ import tensorflow as tf
 
 from tensorflow.python.layers.core import Dense
 
-from opennmt.decoders.decoder import Decoder
+from opennmt.decoders.decoder import Decoder, logits_to_cum_log_probs
 from opennmt.utils.cell import build_cell
 
 
@@ -145,7 +145,10 @@ class RNNDecoder(Decoder):
     predicted_ids = outputs.sample_id
     predicted_ids = tf.expand_dims(predicted_ids, 1)
 
-    return (predicted_ids, state, length)
+    log_probs = logits_to_cum_log_probs(outputs.rnn_output, length)
+    log_probs = tf.expand_dims(log_probs, 1)
+
+    return (predicted_ids, state, length, log_probs)
 
   def dynamic_decode_and_search(self,
                                 embeddings,
@@ -191,11 +194,14 @@ class RNNDecoder(Decoder):
       output_layer=output_layer,
       length_penalty_weight=length_penalty)
 
-    outputs, state, length = tf.contrib.seq2seq.dynamic_decode(
+    outputs, beam_state, length = tf.contrib.seq2seq.dynamic_decode(
       decoder, maximum_iterations=maximum_iterations)
-    predicted_ids = tf.transpose(outputs.predicted_ids, perm=[0, 2, 1])
 
-    return (predicted_ids, state, length)
+    predicted_ids = tf.transpose(outputs.predicted_ids, perm=[0, 2, 1])
+    log_probs = beam_state.log_probs
+    state = beam_state.cell_state
+
+    return (predicted_ids, state, length, log_probs)
 
 
 class AttentionalRNNDecoder(RNNDecoder):

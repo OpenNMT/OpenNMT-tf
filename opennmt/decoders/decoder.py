@@ -4,6 +4,26 @@ import abc
 import six
 
 
+def logits_to_cum_log_probs(logits, sequence_length):
+  """Returns the cumulated log probabilities of sequences.
+
+  Args:
+    logits: The sequence of logits of shape [B, T, ...].
+    sequence_length: The length of each sequence of shape [B].
+
+  Returns:
+    The cumulated log probability of each sequence.
+  """
+  mask = tf.sequence_mask(sequence_length, dtype=tf.float32)
+  mask = tf.expand_dims(mask, -1)
+
+  log_probs = tf.nn.log_softmax(logits)
+  log_probs = log_probs * mask
+  log_probs = tf.reduce_max(log_probs, axis=-1)
+  log_probs = tf.reduce_sum(log_probs, axis=1)
+
+  return log_probs
+
 def get_embedding_fn(embedding):
   """Returns the embedding function.
 
@@ -83,7 +103,7 @@ class Decoder(object):
       memory_sequence_length: (optional) Memory values length.
 
     Returns:
-      A tuple (`predicted_ids`, `decoder_state`, `decoder_sequence_length`).
+      A tuple (`predicted_ids`, `state`, `sequence_length`, `log_probs`).
     """
     raise NotImplementedError()
 
@@ -118,6 +138,6 @@ class Decoder(object):
       memory_sequence_length: (optional) Memory values length.
 
     Returns:
-      A tuple (`predicted_ids`, `decoder_state`, `decoder_sequence_length`).
+      A tuple (`predicted_ids`, `state`, `sequence_length`, `log_probs`).
     """
     raise NotImplementedError()

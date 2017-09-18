@@ -135,13 +135,14 @@ class SelfAttentionDecoder(Decoder):
     step = tf.constant(0)
     inputs = tf.expand_dims(start_tokens, 1)
     lengths = tf.zeros([batch_size], dtype=tf.int32)
+    log_probs = tf.zeros([batch_size])
 
     embedding_fn = get_embedding_fn(embeddings)
 
-    def condition(step, finished, inputs, lengths):
+    def condition(step, finished, inputs, lengths, log_probs):
       return tf.logical_not(tf.reduce_all(finished))
 
-    def body(step, finished, inputs, lengths):
+    def body(step, finished, inputs, lengths, log_probs):
       inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, tf.int32))
 
       # Decode inputs.
@@ -160,8 +161,13 @@ class SelfAttentionDecoder(Decoder):
       logits = tf.layers.dense(
         last_output,
         vocab_size)
-      probs = tf.nn.softmax(logits)
+      probs = tf.nn.log_softmax(logits)
       sample_ids = tf.argmax(probs, axis=-1)
+
+      # Accumulate log probabilities.
+      sample_probs = tf.reduce_max(probs, axis=-1)
+      masked_probs = tf.squeeze(sample_probs, -1) * (1.0 - tf.cast(finished, tf.float32))
+      log_probs = tf.add(log_probs, masked_probs)
 
       next_inputs = tf.concat([inputs, tf.cast(sample_ids, tf.int32)], -1)
       next_lengths = inputs_lengths
@@ -173,29 +179,32 @@ class SelfAttentionDecoder(Decoder):
       if maximum_iterations is not None:
         next_finished = tf.logical_or(next_finished, step >= maximum_iterations)
 
-      return step, next_finished, next_inputs, next_lengths
+      return step, next_finished, next_inputs, next_lengths, log_probs
 
     res = tf.while_loop(
       condition,
       body,
-      loop_vars=(step, finished, inputs, lengths),
+      loop_vars=(step, finished, inputs, lengths, log_probs),
       shape_invariants=(
         tf.TensorShape([]),
         finished.get_shape(),
         tf.TensorShape([None, None]),
-        lengths.get_shape()
+        lengths.get_shape(),
+        log_probs.get_shape()
       ),
       parallel_iterations=32)
 
     step = res[0]
     lengths = res[3]
+    log_probs = res[4]
     outputs = tf.slice(res[2], [0, 1], [-1, -1]) # Ignore <s>.
 
     # Make shape consistent with beam search.
     outputs = tf.expand_dims(outputs, 1)
     lengths = tf.expand_dims(lengths, 1)
+    log_probs = tf.expand_dims(log_probs, 1)
 
-    return (outputs, None, lengths)
+    return (outputs, None, lengths, log_probs)
 
 
   def dynamic_decode_and_search(self,
@@ -243,7 +252,7 @@ class SelfAttentionDecoder(Decoder):
         vocab_size)
       return logits
 
-    outputs, _ = beam_search(
+    outputs, log_probs = beam_search(
       symbols_to_logits_fn,
       start_tokens,
       beam_width,
@@ -257,4 +266,4 @@ class SelfAttentionDecoder(Decoder):
     lengths = tf.cast(lengths, tf.int32)
     lengths = tf.reduce_sum(lengths, axis=-1)
 
-    return (outputs, None, lengths)
+    return (outputs, None, lengths, log_probs)
