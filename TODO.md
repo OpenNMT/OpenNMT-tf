@@ -14,16 +14,13 @@
 * Documentation generation from docstrings
 * Im2Text
   * https://github.com/OpenNMT/Im2Text
+* `setup.py`
+* Pylint configuration
 
 ## To improve
 
 * Write modules tests
 * Expose alignment history after decoding
-
-## To explore
-
-* Integration with Docker or Kubernetes for distributed training
-  * https://github.com/tensorflow/ecosystem
 
 Also:
 
