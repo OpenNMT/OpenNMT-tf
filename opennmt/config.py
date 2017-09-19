@@ -20,6 +20,7 @@ def get_default_config():
       "save_checkpoints_steps": 1000,
       "keep_checkpoint_max": 5,
       "save_summary_steps": 100,
+      "train_steps": None,
       "eval_steps": None,
       "gpu_allow_growth": False
     },

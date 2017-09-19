@@ -114,6 +114,7 @@ def main():
       estimator=estimator,
       train_input_fn=train_input_fn,
       eval_input_fn=eval_input_fn,
+      train_steps=config["run"]["train_steps"],
       eval_steps=None,
       min_eval_frequency=config["run"]["eval_steps"],
       export_strategies=tf.contrib.learn.make_export_strategy(
