@@ -5,12 +5,12 @@ import tensorflow as tf
 
 # All functions must have the same signature.
 
-def transformer_decay(learning_rate,
-                      global_step,
-                      decay_steps,
-                      decay_rate,
-                      staircase=False,
-                      name=None):
+def noam_decay(learning_rate,
+               global_step,
+               decay_steps,
+               decay_rate,
+               staircase=False,
+               name=None):
   """Defines the decay function described in https://arxiv.org/abs/1706.03762.
 
   The semantic of the arguments are changed accordingly.
