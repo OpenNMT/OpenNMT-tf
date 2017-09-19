@@ -8,6 +8,46 @@ from opennmt.models.model import Model
 from opennmt.utils.losses import masked_sequence_loss
 
 
+def shift_target_sequence(inputter, data):
+  """Prepares shifted target sequences.
+
+  Given a target sequence `a b c`, the decoder input should be
+  `<s> a b c` and the output should be `a b c </s>` for the dynamic
+  decoding to start on `<s>` and stop on `</s>`.
+
+  Args:
+    inputter: The `onmt.inputters.Inputter` that processed `data`.
+    data: A dict of `tf.Tensor`s containing `ids` and `length` keys.
+
+  Returns:
+    The updated `data` dictionary with `ids` the sequence prefixed
+    with the start token id and `ids_out` the sequence suffixed with
+    the end token id. Additionally, the `length` is increased by 1
+    to reflect the added token on both sequences.
+  """
+  bos = tf.cast(tf.constant([constants.START_OF_SENTENCE_ID]), tf.int64)
+  eos = tf.cast(tf.constant([constants.END_OF_SENTENCE_ID]), tf.int64)
+
+  ids = data["ids"]
+  length = data["length"]
+
+  data = inputter.set_data_field(
+    data,
+    "ids_out",
+    tf.concat([ids, eos], axis=0),
+    padded_shape=[None])
+  data = inputter.set_data_field(
+    data,
+    "ids",
+    tf.concat([bos, ids], axis=0),
+    padded_shape=[None])
+
+  # Increment length accordingly.
+  inputter.set_data_field(data, "length", length + 1)
+
+  return data
+
+
 class SequenceToSequence(Model):
 
   def __init__(self,
@@ -33,44 +73,7 @@ class SequenceToSequence(Model):
 
     self.source_inputter = source_inputter
     self.target_inputter = target_inputter
-
-  def _shift_target(self, labels):
-    """Prepares shifted target sequences.
-
-    Given a target sequence `a b c`, the decoder input should be
-    `<s> a b c` and the output should be `a b c </s>` for the dynamic
-    decoding to start on `<s>` and stop on `</s>`.
-
-    Args:
-      labels: A dict of `tf.Tensor`s containing `ids` and `length`.
-
-    Returns:
-      The updated `labels` dictionary with `ids` the sequence prefixed
-      with the start token id and `ids_out` the sequence suffixed with
-      the end token id. Additionally, the `length` is increased by 1
-      to reflect the added token on both sequences.
-    """
-    bos = tf.cast(tf.constant([constants.START_OF_SENTENCE_ID]), tf.int64)
-    eos = tf.cast(tf.constant([constants.END_OF_SENTENCE_ID]), tf.int64)
-
-    ids = labels["ids"]
-    length = labels["length"]
-
-    labels = self.target_inputter.set_data_field(
-      labels,
-      "ids_out",
-      tf.concat([ids, eos], axis=0),
-      padded_shape=[None])
-    labels = self.target_inputter.set_data_field(
-      labels,
-      "ids",
-      tf.concat([bos, ids], axis=0),
-      padded_shape=[None])
-
-    # Increment length accordingly.
-    self.target_inputter.set_data_field(labels, "length", length + 1)
-
-    return labels
+    self.target_inputter.add_process_hooks([shift_target_sequence])
 
   def _initialize(self, metadata):
     self.source_inputter.initialize(metadata)
@@ -79,14 +82,17 @@ class SequenceToSequence(Model):
   def _get_serving_input_receiver(self):
     return self.source_inputter.get_serving_input_receiver()
 
-  def _build_features(self, features_file):
+  def _get_features_builder(self, features_file):
     dataset = self.source_inputter.make_dataset(features_file)
-    return dataset, self.source_inputter.padded_shapes
+    process_fn = self.source_inputter.process
+    padded_shapes_fn = lambda: self.source_inputter.padded_shapes
+    return dataset, process_fn, padded_shapes_fn
 
-  def _build_labels(self, labels_file):
+  def _get_labels_builder(self, labels_file):
     dataset = self.target_inputter.make_dataset(labels_file)
-    dataset = dataset.map(self._shift_target)
-    return dataset, self.target_inputter.padded_shapes
+    process_fn = self.target_inputter.process
+    padded_shapes_fn = lambda: self.target_inputter.padded_shapes
+    return dataset, process_fn, padded_shapes_fn
 
   def _build(self, features, labels, params, mode):
     batch_size = tf.shape(features["length"])[0]

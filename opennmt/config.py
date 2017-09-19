@@ -29,6 +29,7 @@ def get_default_config():
       "maximum_features_length": None,
       "maximum_labels_length": None,
       "buffer_size": 10000,
+      "num_threads": 4,
       "num_buckets": 5
     },
     "params": {

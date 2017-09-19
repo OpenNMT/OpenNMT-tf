@@ -29,7 +29,7 @@ class SequenceRecordInputter(Inputter):
   def initialize(self, metadata):
     self.input_depth = metadata[self.input_depth_key]
 
-  def _make_dataset(self, data_file):
+  def make_dataset(self, data_file):
     return tf.contrib.data.TFRecordDataset(data_file)
 
   def get_serving_input_receiver(self):
@@ -46,8 +46,8 @@ class SequenceRecordInputter(Inputter):
     receiver_tensors = {"sequences": placeholder}
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
-  def process(self, data):
-    data = super(SequenceRecordInputter, self).process(data)
+  def _process(self, data):
+    data = super(SequenceRecordInputter, self)._process(data)
 
     if not "tensor" in data:
       features = tf.parse_single_example(data["raw"], features={

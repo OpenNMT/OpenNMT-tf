@@ -15,6 +15,18 @@ class Inputter(object):
   def __init__(self):
     self.resolved = False
     self.padded_shapes = {}
+    self.process_hooks = []
+
+  def add_process_hooks(self, hooks):
+    """Adds processing hooks.
+
+    Processing hooks are additional and model specific data processing
+    functions applied after calling this inputter `process` function.
+
+    Args:
+      hooks: A list of callables with the signature `(inputter, data) -> data`.
+    """
+    self.process_hooks.extend(hooks)
 
   def set_data_field(self, data, key, value, padded_shape=[]):
     """Sets a data field.
@@ -47,6 +59,7 @@ class Inputter(object):
     del self.padded_shapes[key]
     return data
 
+  @abc.abstractmethod
   def make_dataset(self, data_file):
     """Creates the dataset required by this inputter.
 
@@ -56,12 +69,6 @@ class Inputter(object):
     Returns:
       A `tf.contrib.data.Dataset`.
     """
-    dataset = self._make_dataset(data_file)
-    dataset = dataset.map(self.process)
-    return dataset
-
-  @abc.abstractmethod
-  def _make_dataset(self, data_file):
     raise NotImplementedError()
 
   @abc.abstractmethod
@@ -89,6 +96,22 @@ class Inputter(object):
   def process(self, data):
     """Prepares raw data.
 
+    See also `transform_data`.
+
+    Args:
+      data: The raw data.
+
+    Returns:
+      A dictionary of `tf.Tensor`s.
+    """
+    data = self._process(data)
+    for hook in self.process_hooks:
+      data = hook(self, data)
+    return data
+
+  def _process(self, data):
+    """Prepares raw data (implementation).
+
     Subclasses should extend this function to prepare the raw value read
     from the dataset to something they can transform (e.g. processing a
     line of text to a sequence of ids).
@@ -96,13 +119,11 @@ class Inputter(object):
     This base implementation makes sure the data is a dictionary so subclasses
     can populate it.
 
-    See also `transform_data`.
-
     Args:
       data: The raw data or a dictionary containing the `raw` key.
 
     Returns:
-      A dictionary.
+      A dictionary of `tf.Tensor`s.
     """
     if not isinstance(data, dict):
       data = self.set_data_field({}, "raw", data)

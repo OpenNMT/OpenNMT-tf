@@ -36,19 +36,21 @@ class SequenceClassifier(Model):
   def _get_serving_input_receiver(self):
     return self.inputter.get_serving_input_receiver()
 
-  def _build_features(self, features_file):
+  def _get_features_builder(self, features_file):
     dataset = self.inputter.make_dataset(features_file)
-    return dataset, self.inputter.padded_shapes
+    process_fn = self.inputter.process
+    padded_shapes_fn = lambda: self.inputter.padded_shapes
+    return dataset, process_fn, padded_shapes_fn
 
-  def _build_labels(self, labels_file):
+  def _get_labels_builder(self, labels_file):
     labels_vocabulary = tf.contrib.lookup.index_table_from_file(
       self.labels_vocabulary_file,
       vocab_size=self.num_labels)
 
     dataset = tf.contrib.data.TextLineDataset(labels_file)
-    dataset = dataset.map(lambda x: labels_vocabulary.lookup(x))
-    padded_shapes = []
-    return dataset, padded_shapes
+    process_fn = lambda x: labels_vocabulary.lookup(x)
+    padded_shapes_fn = lambda: []
+    return dataset, process_fn, padded_shapes_fn
 
   def _build(self, features, labels, params, mode):
     with tf.variable_scope("encoder"):

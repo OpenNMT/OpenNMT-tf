@@ -179,7 +179,7 @@ class TextInputter(Inputter):
   def __init__(self):
     super(TextInputter, self).__init__()
 
-  def _make_dataset(self, data_file):
+  def make_dataset(self, data_file):
     return tf.contrib.data.TextLineDataset(data_file)
 
   def get_serving_input_receiver(self):
@@ -193,9 +193,9 @@ class TextInputter(Inputter):
     receiver_tensors = {"sequences": placeholder}
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
-  def process(self, data):
+  def _process(self, data):
     """Tokenizes raw text."""
-    data = super(TextInputter, self).process(data)
+    data = super(TextInputter, self)._process(data)
 
     if not "tokens" in data:
       text = data["raw"]
@@ -260,9 +260,9 @@ class WordEmbedder(TextInputter):
       vocab_size=self.vocabulary_size - self.num_oov_buckets,
       num_oov_buckets=self.num_oov_buckets)
 
-  def process(self, data):
+  def _process(self, data):
     """Converts words tokens to ids."""
-    data = super(WordEmbedder, self).process(data)
+    data = super(WordEmbedder, self)._process(data)
 
     if not "ids" in data:
       tokens = data["tokens"]
@@ -350,9 +350,9 @@ class CharConvEmbedder(TextInputter):
       vocab_size=self.vocabulary_size - self.num_oov_buckets,
       num_oov_buckets=self.num_oov_buckets)
 
-  def process(self, data):
+  def _process(self, data):
     """Converts words to characters."""
-    data = super(CharConvEmbedder, self).process(data)
+    data = super(CharConvEmbedder, self)._process(data)
 
     if not "char_ids" in data:
       tokens = data["tokens"]

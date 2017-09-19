@@ -185,26 +185,26 @@ class Model(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _build_features(self, features_file):
-    """Builds a dataset from features file.
+  def _get_features_builder(self, features_file):
+    """Returns the recipe to build features.
 
     Args:
       features_file: The file of features.
 
     Returns:
-      (`tf.contrib.data.Dataset`, `padded_shapes`)
+      A tuple (`tf.contrib.data.Dataset`, `process_fn`, `padded_shapes_fn`)
     """
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _build_labels(self, labels_file):
-    """Builds a dataset from labels file.
+  def _get_labels_builder(self, labels_file):
+    """Returns the recipe to build labels.
 
     Args:
       labels_file: The file of labels.
 
     Returns:
-      (`tf.contrib.data.Dataset`, `padded_shapes`)
+      A tuple (`tf.contrib.data.Dataset`, `process_fn`, `padded_shapes_fn`)
     """
     raise NotImplementedError()
 
@@ -212,6 +212,7 @@ class Model(object):
                      mode,
                      batch_size,
                      buffer_size,
+                     num_threads,
                      num_buckets,
                      metadata,
                      features_file,
@@ -221,15 +222,26 @@ class Model(object):
     """See `input_fn`."""
     self._initialize(metadata)
 
-    features_dataset, features_padded_shapes = self._build_features(features_file)
+    feat_dataset, feat_process_fn, feat_padded_shapes_fn = self._get_features_builder(features_file)
 
     if labels_file is None:
-      dataset = features_dataset
-      padded_shapes = features_padded_shapes
+      dataset = feat_dataset
+      process_fn = feat_process_fn
+      padded_shapes_fn = feat_padded_shapes_fn
     else:
-      labels_dataset, labels_padded_shapes = self._build_labels(labels_file)
-      dataset = tf.contrib.data.Dataset.zip((features_dataset, labels_dataset))
-      padded_shapes = (features_padded_shapes, labels_padded_shapes)
+      labels_dataset, labels_process_fn, labels_padded_shapes_fn = self._get_labels_builder(labels_file)
+
+      dataset = tf.contrib.data.Dataset.zip((feat_dataset, labels_dataset))
+      process_fn = lambda features, labels: (
+        feat_process_fn(features), labels_process_fn(labels))
+      padded_shapes_fn = lambda: (
+        feat_padded_shapes_fn(), labels_padded_shapes_fn())
+
+    dataset = dataset.map(
+      process_fn,
+      num_threads=num_threads,
+      output_buffer_size=buffer_size)
+    padded_shapes = padded_shapes_fn()
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       dataset = dataset.filter(lambda features, labels: self._filter_example(
@@ -278,6 +290,7 @@ class Model(object):
                mode,
                batch_size,
                buffer_size,
+               num_threads,
                num_buckets,
                metadata,
                features_file,
@@ -292,6 +305,8 @@ class Model(object):
       mode: A `tf.estimator.ModeKeys` mode.
       batch_size: The batch size to use.
       buffer_size: The prefetch buffer size (used e.g. for shuffling).
+      num_threads: The number of threads to use for processing elements
+        in parallel.
       num_buckets: The number of buckets to store examples of similar sizes.
       metadata: A dictionary containing additional metadata set
         by the user.
@@ -312,6 +327,7 @@ class Model(object):
       mode,
       batch_size,
       buffer_size,
+      num_threads,
       num_buckets,
       metadata,
       features_file,
