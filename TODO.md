@@ -21,6 +21,7 @@
 
 * Write modules tests
 * Expose alignment history after decoding
+  * https://github.com/tensorflow/tensorflow/issues/13154
 
 Also:
 
