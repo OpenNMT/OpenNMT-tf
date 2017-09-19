@@ -86,7 +86,7 @@ params:
   # (optional) If true, the learning rate is decayed in a staircase fashion (the default).
   staircase: true
 
-  # # (optional) After how many steps to start the decay.
+  # (optional) After how many steps to start the decay.
   start_decay_steps: 50000
 
   # (optional) Stop decay when this learning rate value is reached.
