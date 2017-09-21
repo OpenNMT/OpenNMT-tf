@@ -3,7 +3,6 @@ import json
 import os
 
 import tensorflow as tf
-import opennmt as onmt
 
 from opennmt.utils.misc import LogParametersCountHook, WordCounterHook
 from opennmt.config import get_default_config, load_config_module, load_run_config
@@ -19,7 +18,7 @@ def setup_cluster(workers, ps, task_type, task_index):
     taks_index: The index of the local task.
   """
   # The master is the first worker.
-  master = [ workers.pop(0) ]
+  master = [workers.pop(0)]
 
   if task_type == "worker":
     if task_index == 0:
