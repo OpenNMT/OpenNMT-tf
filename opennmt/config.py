@@ -1,8 +1,8 @@
 """Defines functions related to configuration files."""
 
-import yaml
-
 from importlib import import_module
+
+import yaml
 
 
 def get_default_config():

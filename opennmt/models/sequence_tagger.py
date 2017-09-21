@@ -1,5 +1,7 @@
 """Sequence tagger."""
 
+from __future__ import print_function
+
 import tensorflow as tf
 
 from opennmt.models.model import Model
@@ -63,7 +65,7 @@ class SequenceTagger(Model):
         mode,
         log_dir=params.get("log_dir"))
 
-      encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
+      encoder_outputs, _, encoder_sequence_length = self.encoder.encode(
         inputs,
         sequence_length=features["length"],
         mode=mode)

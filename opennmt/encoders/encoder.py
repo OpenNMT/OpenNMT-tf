@@ -1,7 +1,7 @@
-import tensorflow as tf
-
 import abc
 import six
+
+import tensorflow as tf
 
 from opennmt.utils.reducer import SumReducer, JoinReducer
 

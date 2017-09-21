@@ -49,7 +49,7 @@ class SequenceRecordInputter(Inputter):
   def _process(self, data):
     data = super(SequenceRecordInputter, self)._process(data)
 
-    if not "tensor" in data:
+    if "tensor" not in data:
       features = tf.parse_single_example(data["raw"], features={
         "shape": tf.VarLenFeature(tf.int64),
         "values": tf.VarLenFeature(tf.float32)

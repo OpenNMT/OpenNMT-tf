@@ -216,13 +216,13 @@ class SelfAttentionDecoder(Decoder):
                                 mode=tf.estimator.ModeKeys.TRAIN,
                                 memory=None,
                                 memory_sequence_length=None):
-    if not encoder_state is None:
+    if encoder_state is not None:
       encoder_state = tf.contrib.seq2seq.tile_batch(
         encoder_state, multiplier=beam_width)
-    if not memory is None:
+    if memory is not None:
       memory = tf.contrib.seq2seq.tile_batch(
         memory, multiplier=beam_width)
-    if not memory_sequence_length is None:
+    if memory_sequence_length is not None:
       memory_sequence_length = tf.contrib.seq2seq.tile_batch(
         memory_sequence_length, multiplier=beam_width)
 

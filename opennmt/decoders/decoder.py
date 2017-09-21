@@ -1,7 +1,7 @@
-import tensorflow as tf
-
 import abc
 import six
+
+import tensorflow as tf
 
 
 def logits_to_cum_log_probs(logits, sequence_length):

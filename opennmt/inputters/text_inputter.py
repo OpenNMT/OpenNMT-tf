@@ -197,7 +197,7 @@ class TextInputter(Inputter):
     """Tokenizes raw text."""
     data = super(TextInputter, self)._process(data)
 
-    if not "tokens" in data:
+    if "tokens" not in data:
       text = data["raw"]
       tokens = tf.string_split([text]).values
       length = tf.shape(tokens)[0]
@@ -264,7 +264,7 @@ class WordEmbedder(TextInputter):
     """Converts words tokens to ids."""
     data = super(WordEmbedder, self)._process(data)
 
-    if not "ids" in data:
+    if "ids" not in data:
       tokens = data["tokens"]
       ids = self.vocabulary.lookup(tokens)
 
@@ -354,7 +354,7 @@ class CharConvEmbedder(TextInputter):
     """Converts words to characters."""
     data = super(CharConvEmbedder, self)._process(data)
 
-    if not "char_ids" in data:
+    if "char_ids" not in data:
       tokens = data["tokens"]
       chars = tokens_to_chars(tokens)
       ids = self.vocabulary.lookup(chars)

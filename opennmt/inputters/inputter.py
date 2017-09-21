@@ -127,7 +127,7 @@ class Inputter(object):
     """
     if not isinstance(data, dict):
       data = self.set_data_field({}, "raw", data)
-    elif not "raw" in data:
+    elif "raw" not in data:
       raise ValueError("data must contain the raw dataset value")
     return data
 
@@ -171,7 +171,7 @@ class Inputter(object):
     Returns:
       The transformed input.
     """
-    if not scope is None:
+    if scope is not None:
       reuse = reuse_next and self.resolved
       with tf.variable_scope(scope, reuse=reuse):
         outputs = self._transform(inputs, mode, reuse=reuse)
@@ -210,8 +210,11 @@ class MixedInputter(Inputter):
     self.reducer = reducer
     self.dropout = dropout
 
-  def _make_dataset(self, data_file):
-    return self.inputters[0]._make_dataset(data_file)
+  def make_dataset(self, data_file):
+    return self.inputters[0].make_dataset(data_file)
+
+  def get_serving_input_receiver(self):
+    return self.inputters[0].get_serving_input_receiver(data_file)
 
   def initialize(self, metadata):
     for inputter in self.inputters:

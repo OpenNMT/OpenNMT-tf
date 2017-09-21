@@ -166,13 +166,13 @@ class RNNDecoder(Decoder):
     batch_size = tf.shape(start_tokens)[0]
 
     # Replicate batch `beam_width` times.
-    if not encoder_state is None:
+    if encoder_state is not None:
       encoder_state = tf.contrib.seq2seq.tile_batch(
         encoder_state, multiplier=beam_width)
-    if not memory is None:
+    if memory is not None:
       memory = tf.contrib.seq2seq.tile_batch(
         memory, multiplier=beam_width)
-    if not memory_sequence_length is None:
+    if memory_sequence_length is not None:
       memory_sequence_length = tf.contrib.seq2seq.tile_batch(
         memory_sequence_length, multiplier=beam_width)
 

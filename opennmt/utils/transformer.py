@@ -29,7 +29,7 @@ def scaled_dot_attention(queries,
   dot = tf.matmul(queries, keys, transpose_b=True)
   dot = tf.div(dot, tf.sqrt(tf.cast(tf.shape(keys)[-1], tf.float32)))
 
-  if not values_length is None:
+  if values_length is not None:
     # Give no weight to illegal connections.
     if mask_future:
       # When masking the future, a position can only attend to previous timesteps.

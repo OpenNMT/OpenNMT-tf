@@ -48,7 +48,7 @@ class SequenceClassifier(Model):
       vocab_size=self.num_labels)
 
     dataset = tf.contrib.data.TextLineDataset(labels_file)
-    process_fn = lambda x: labels_vocabulary.lookup(x)
+    process_fn = labels_vocabulary.lookup
     padded_shapes_fn = lambda: []
     return dataset, process_fn, padded_shapes_fn
 
@@ -59,7 +59,7 @@ class SequenceClassifier(Model):
         mode,
         log_dir=params.get("log_dir"))
 
-      encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
+      encoder_outputs, _, _ = self.encoder.encode(
         inputs,
         sequence_length=features["length"],
         mode=mode)

@@ -1,8 +1,10 @@
 """Base class for models."""
 
+from __future__ import print_function
+
+import time
 import abc
 import six
-import time
 
 import tensorflow as tf
 
