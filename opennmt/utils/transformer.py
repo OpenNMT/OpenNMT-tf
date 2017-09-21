@@ -34,18 +34,18 @@ def scaled_dot_attention(queries,
     if mask_future:
       # When masking the future, a position can only attend to previous timesteps.
       mask = tf.map_fn(
-        lambda x: tf.sequence_mask(
-          tf.minimum(tf.range(tf.shape(values)[1]) + 1, x),
-          maxlen=tf.shape(values)[1],
-          dtype=tf.float32),
-        values_length,
-        dtype=tf.float32)
+          lambda x: tf.sequence_mask(
+              tf.minimum(tf.range(tf.shape(values)[1]) + 1, x),
+              maxlen=tf.shape(values)[1],
+              dtype=tf.float32),
+          values_length,
+          dtype=tf.float32)
     else:
       # Otherwise, simply prevent attention on out-of-range positions.
       mask = tf.sequence_mask(
-        values_length,
-        maxlen=tf.shape(values)[1],
-        dtype=tf.float32)
+          values_length,
+          maxlen=tf.shape(values)[1],
+          dtype=tf.float32)
       mask = tf.expand_dims(mask, axis=1)
 
     dot = dot * mask + ((1.0 - mask) * tf.float32.min)
@@ -54,9 +54,9 @@ def scaled_dot_attention(queries,
   attn = tf.nn.softmax(dot)
 
   attn = tf.layers.dropout(
-    attn,
-    rate=dropout,
-    training=mode == tf.estimator.ModeKeys.TRAIN)
+      attn,
+      rate=dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
 
   # Compute attention context.
   context = tf.matmul(attn, values)
@@ -100,35 +100,35 @@ def multi_head_attention(num_heads,
     with tf.variable_scope("head_" + str(i)):
       # Project queries, keys and values to different and smaller subspaces.
       queries_proj = tf.layers.dense(
-        queries,
-        head_dim,
-        use_bias=False)
+          queries,
+          head_dim,
+          use_bias=False)
       keys_proj = tf.layers.dense(
-        keys,
-        head_dim,
-        use_bias=False)
+          keys,
+          head_dim,
+          use_bias=False)
       values_proj = tf.layers.dense(
-        values,
-        head_dim,
-        use_bias=False)
+          values,
+          head_dim,
+          use_bias=False)
 
       head_i = scaled_dot_attention(
-        queries_proj,
-        keys_proj,
-        values_proj,
-        mode,
-        values_length=values_length,
-        mask_future=mask_future,
-        dropout=dropout)
+          queries_proj,
+          keys_proj,
+          values_proj,
+          mode,
+          values_length=values_length,
+          mask_future=mask_future,
+          dropout=dropout)
 
       heads.append(head_i)
 
   # Concatenate all heads output.
   combined = tf.concat(heads, axis=2)
   outputs = tf.layers.dense(
-    combined,
-    input_dim,
-    use_bias=False)
+      combined,
+      input_dim,
+      use_bias=False)
 
   return outputs
 
@@ -147,12 +147,12 @@ def feed_forward(x, inner_dim):
   input_dim = x.get_shape().as_list()[-1]
 
   inner = tf.layers.dense(
-    inputs=x,
-    units=inner_dim,
-    activation=tf.nn.relu)
+      inputs=x,
+      units=inner_dim,
+      activation=tf.nn.relu)
   outer = tf.layers.dense(
-    inputs=inner,
-    units=input_dim)
+      inputs=inner,
+      units=input_dim)
 
   return outer
 
@@ -172,9 +172,9 @@ def add_and_norm(inputs,
     The residual and normalized output.
   """
   outputs = tf.layers.dropout(
-    outputs,
-    rate=dropout,
-    training=mode == tf.estimator.ModeKeys.TRAIN)
+      outputs,
+      rate=dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
   outputs += inputs
   outputs = tf.contrib.layers.layer_norm(outputs)
   return outputs

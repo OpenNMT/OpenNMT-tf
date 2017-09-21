@@ -34,22 +34,22 @@ class Transformer(SequenceToSequence):
       name: The name of this model.
     """
     encoder = SelfAttentionEncoder(
-      num_layers,
-      num_heads=num_heads,
-      ffn_inner_dim=ffn_inner_dim,
-      dropout=dropout,
-      keep_layers_output=True,
-      position_encoder=position_encoder)
+        num_layers,
+        num_heads=num_heads,
+        ffn_inner_dim=ffn_inner_dim,
+        dropout=dropout,
+        keep_layers_output=True,
+        position_encoder=position_encoder)
     decoder = SelfAttentionDecoder(
-      num_layers,
-      num_heads=num_heads,
-      ffn_inner_dim=ffn_inner_dim,
-      dropout=dropout,
-      position_encoder=position_encoder)
+        num_layers,
+        num_heads=num_heads,
+        ffn_inner_dim=ffn_inner_dim,
+        dropout=dropout,
+        position_encoder=position_encoder)
 
     super(Transformer, self).__init__(
-      source_inputter,
-      target_inputter,
-      encoder,
-      decoder,
-      name=name)
+        source_inputter,
+        target_inputter,
+        encoder,
+        decoder,
+        name=name)

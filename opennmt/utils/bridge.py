@@ -33,8 +33,8 @@ class CopyBridge(Bridge):
   def _build(self, encoder_state, decoder_zero_state):
     # Encoder and decoder states must have the same structure.
     tf.contrib.framework.nest.assert_same_structure(
-      encoder_state,
-      decoder_zero_state)
+        encoder_state,
+        decoder_zero_state)
 
     return encoder_state
 
@@ -78,9 +78,9 @@ class DenseBridge(Bridge):
 
     # Apply linear transformation.
     transformed = tf.layers.dense(
-      encoder_state_concat,
-      decoder_total_size,
-      activation=self.activation)
+        encoder_state_concat,
+        decoder_total_size,
+        activation=self.activation)
 
     # Split resulting tensor to match the decoder state size.
     splitted = tf.split(transformed, decoder_state_size, axis=1)

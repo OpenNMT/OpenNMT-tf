@@ -85,5 +85,6 @@ class PositionEmbedder(PositionEncoder):
     position = tf.minimum(position, self.maximum_position)
 
     embeddings = tf.get_variable(
-      "w_embs", shape=[self.maximum_position + 1, input_dim])
+        "w_embs", shape=[self.maximum_position + 1, input_dim])
+
     return tf.nn.embedding_lookup(embeddings, position)

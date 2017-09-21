@@ -16,34 +16,34 @@ def get_default_config():
     on the YAML configuration file.
   """
   return {
-    "run": {
-      "save_checkpoints_steps": 1000,
-      "keep_checkpoint_max": 5,
-      "save_summary_steps": 100,
-      "train_steps": None,
-      "eval_steps": None,
-      "gpu_allow_growth": False
-    },
-    "data": {
-      "meta": {},
-      "maximum_features_length": None,
-      "maximum_labels_length": None,
-      "buffer_size": 10000,
-      "num_threads": 4,
-      "num_buckets": 5
-    },
-    "params": {
-      "scheduled_sampling_probability": 0,
-      "clip_gradients": None,
-      "decay_type": None,
-      "staircase": True,
-      "start_decay_steps": 0,
-      "minimum_learning_rate": 0,
-      "beam_width": 5,
-      "length_penalty": 0.2,
-      "maximum_iterations": 250,
-      "n_best": 1
-    }
+      "run": {
+          "save_checkpoints_steps": 1000,
+          "keep_checkpoint_max": 5,
+          "save_summary_steps": 100,
+          "train_steps": None,
+          "eval_steps": None,
+          "gpu_allow_growth": False
+      },
+      "data": {
+          "meta": {},
+          "maximum_features_length": None,
+          "maximum_labels_length": None,
+          "buffer_size": 10000,
+          "num_threads": 4,
+          "num_buckets": 5
+      },
+      "params": {
+          "scheduled_sampling_probability": 0,
+          "clip_gradients": None,
+          "decay_type": None,
+          "staircase": True,
+          "start_decay_steps": 0,
+          "minimum_learning_rate": 0,
+          "beam_width": 5,
+          "length_penalty": 0.2,
+          "maximum_iterations": 250,
+          "n_best": 1
+      }
   }
 
 def load_config_module(path):

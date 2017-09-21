@@ -148,26 +148,26 @@ def tokens_to_chars(tokens):
 
   # Get the length of each token.
   lengths = tf.map_fn(
-    lambda x: tf.py_func(string_len, [x], [tf.int64]),
-    tokens,
-    dtype=[tf.int64],
-    back_prop=False)
+      lambda x: tf.py_func(string_len, [x], [tf.int64]),
+      tokens,
+      dtype=[tf.int64],
+      back_prop=False)
 
   max_length = tf.reduce_max(lengths)
 
   # Add a delimiter between each unicode character.
   spaced_chars = tf.map_fn(
-    lambda x: tf.py_func(split_chars, [x, max_length], [tf.string]),
-    tokens,
-    dtype=[tf.string],
-    back_prop=False)
+      lambda x: tf.py_func(split_chars, [x, max_length], [tf.string]),
+      tokens,
+      dtype=[tf.string],
+      back_prop=False)
 
   # Split on this delimiter
   chars = tf.map_fn(
-    lambda x: tf.string_split(x, delimiter=" ").values,
-    spaced_chars,
-    dtype=tf.string,
-    back_prop=False)
+      lambda x: tf.string_split(x, delimiter=" ").values,
+      spaced_chars,
+      dtype=tf.string,
+      back_prop=False)
 
   return chars
 
@@ -256,9 +256,9 @@ class WordEmbedder(TextInputter):
 
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
-      self.vocabulary_file,
-      vocab_size=self.vocabulary_size - self.num_oov_buckets,
-      num_oov_buckets=self.num_oov_buckets)
+        self.vocabulary_file,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets,
+        num_oov_buckets=self.num_oov_buckets)
 
   def _process(self, data):
     """Converts words tokens to ids."""
@@ -296,17 +296,17 @@ class WordEmbedder(TextInputter):
         initializer = None
 
       embeddings = tf.get_variable(
-        "w_embs",
-        shape=shape,
-        initializer=initializer,
-        trainable=self.trainable)
+          "w_embs",
+          shape=shape,
+          initializer=initializer,
+          trainable=self.trainable)
 
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
 
     outputs = tf.layers.dropout(
-      outputs,
-      rate=self.dropout,
-      training=mode == tf.estimator.ModeKeys.TRAIN)
+        outputs,
+        rate=self.dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
 
     return outputs
 
@@ -346,9 +346,9 @@ class CharConvEmbedder(TextInputter):
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
-      self.vocabulary_file,
-      vocab_size=self.vocabulary_size - self.num_oov_buckets,
-      num_oov_buckets=self.num_oov_buckets)
+        self.vocabulary_file,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets,
+        num_oov_buckets=self.num_oov_buckets)
 
   def _process(self, data):
     """Converts words to characters."""
@@ -373,31 +373,31 @@ class CharConvEmbedder(TextInputter):
 
   def _transform(self, inputs, mode, reuse=None):
     embeddings = tf.get_variable(
-      "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
+        "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
 
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
     outputs = tf.layers.dropout(
-      outputs,
-      rate=self.dropout,
-      training=mode == tf.estimator.ModeKeys.TRAIN)
+        outputs,
+        rate=self.dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
 
     # Merge batch and sequence timesteps dimensions.
     outputs = tf.reshape(
-      outputs,
-      [-1, tf.shape(inputs)[-1], self.embedding_size])
+        outputs,
+        [-1, tf.shape(inputs)[-1], self.embedding_size])
 
     outputs = tf.layers.conv1d(
-      outputs,
-      self.num_outputs,
-      self.kernel_size,
-      strides=self.stride)
+        outputs,
+        self.num_outputs,
+        self.kernel_size,
+        strides=self.stride)
 
     # Max pooling over depth.
     outputs = tf.reduce_max(outputs, axis=1)
 
     # Split batch and sequence timesteps dimensions.
     outputs = tf.reshape(
-      outputs,
-      [-1, tf.shape(inputs)[1], self.num_outputs])
+        outputs,
+        [-1, tf.shape(inputs)[1], self.num_outputs])
 
     return outputs

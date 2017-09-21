@@ -70,8 +70,8 @@ def write_record(vector, writer):
   values = vector.flatten().tolist()
 
   example = tf.train.Example(features=tf.train.Features(feature={
-    "shape": tf.train.Feature(int64_list=tf.train.Int64List(value=shape)),
-    "values": tf.train.Feature(float_list=tf.train.FloatList(value=values))
+      "shape": tf.train.Feature(int64_list=tf.train.Int64List(value=shape)),
+      "values": tf.train.Feature(float_list=tf.train.FloatList(value=values))
   }))
 
   writer.write(example.SerializeToString())

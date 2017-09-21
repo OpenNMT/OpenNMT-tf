@@ -53,27 +53,27 @@ class SelfAttentionDecoder(Decoder):
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
     inputs = tf.layers.dropout(
-      inputs,
-      rate=self.dropout,
-      training=mode == tf.estimator.ModeKeys.TRAIN)
+        inputs,
+        rate=self.dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
 
     for l in range(self.num_layers):
       with tf.variable_scope("layer_" + str(l)):
         with tf.variable_scope("masked_multi_head"):
           encoded = transformer.multi_head_attention(
-            self.num_heads,
-            inputs,
-            inputs,
-            inputs,
-            mode,
-            values_length=sequence_length,
-            mask_future=True,
-            dropout=self.dropout)
+              self.num_heads,
+              inputs,
+              inputs,
+              inputs,
+              mode,
+              values_length=sequence_length,
+              mask_future=True,
+              dropout=self.dropout)
           encoded = transformer.add_and_norm(
-            inputs,
-            encoded,
-            mode,
-            dropout=self.dropout)
+              inputs,
+              encoded,
+              mode,
+              dropout=self.dropout)
 
         with tf.variable_scope("multi_head"):
           if memory is None:
@@ -88,26 +88,26 @@ class SelfAttentionDecoder(Decoder):
           keys = values
 
           context = transformer.multi_head_attention(
-            self.num_heads,
-            encoded,
-            keys,
-            values,
-            mode,
-            values_length=memory_sequence_length,
-            dropout=self.dropout)
+              self.num_heads,
+              encoded,
+              keys,
+              values,
+              mode,
+              values_length=memory_sequence_length,
+              dropout=self.dropout)
           context = transformer.add_and_norm(
-            encoded,
-            context,
-            mode,
-            dropout=self.dropout)
+              encoded,
+              context,
+              mode,
+              dropout=self.dropout)
 
         with tf.variable_scope("ffn"):
           transformed = transformer.feed_forward(context, self.ffn_inner_dim)
           transformed = transformer.add_and_norm(
-            context,
-            transformed,
-            mode,
-            dropout=self.dropout)
+              context,
+              transformed,
+              mode,
+              dropout=self.dropout)
 
         inputs = transformed
 
@@ -115,8 +115,8 @@ class SelfAttentionDecoder(Decoder):
 
     if return_logits:
       outputs = tf.layers.dense(
-        outputs,
-        vocab_size)
+          outputs,
+          vocab_size)
 
     return (outputs, None, sequence_length)
 
@@ -147,20 +147,20 @@ class SelfAttentionDecoder(Decoder):
 
       # Decode inputs.
       outputs, _, _ = self.decode(
-        embedding_fn(inputs),
-        inputs_lengths,
-        vocab_size,
-        encoder_state=encoder_state,
-        mode=mode,
-        memory=memory,
-        memory_sequence_length=memory_sequence_length,
-        return_logits=False)
+          embedding_fn(inputs),
+          inputs_lengths,
+          vocab_size,
+          encoder_state=encoder_state,
+          mode=mode,
+          memory=memory,
+          memory_sequence_length=memory_sequence_length,
+          return_logits=False)
 
       # Only sample the last timestep.
       last_output = tf.slice(outputs, [0, step, 0], [-1, 1, -1])
       logits = tf.layers.dense(
-        last_output,
-        vocab_size)
+          last_output,
+          vocab_size)
       probs = tf.nn.log_softmax(logits)
       sample_ids = tf.argmax(probs, axis=-1)
 
@@ -172,8 +172,8 @@ class SelfAttentionDecoder(Decoder):
       next_inputs = tf.concat([inputs, tf.cast(sample_ids, tf.int32)], -1)
       next_lengths = inputs_lengths
       next_finished = tf.logical_or(
-        finished,
-        tf.equal(tf.squeeze(sample_ids, axis=[1]), end_token))
+          finished,
+          tf.equal(tf.squeeze(sample_ids, axis=[1]), end_token))
       step = step + 1
 
       if maximum_iterations is not None:
@@ -182,17 +182,17 @@ class SelfAttentionDecoder(Decoder):
       return step, next_finished, next_inputs, next_lengths, log_probs
 
     step, _, outputs, lengths, log_probs = tf.while_loop(
-      condition,
-      body,
-      loop_vars=(step, finished, inputs, lengths, log_probs),
-      shape_invariants=(
-        tf.TensorShape([]),
-        finished.get_shape(),
-        tf.TensorShape([None, None]),
-        lengths.get_shape(),
-        log_probs.get_shape()
-      ),
-      parallel_iterations=32)
+        condition,
+        body,
+        loop_vars=(step, finished, inputs, lengths, log_probs),
+        shape_invariants=(
+            tf.TensorShape([]),
+            finished.get_shape(),
+            tf.TensorShape([None, None]),
+            lengths.get_shape(),
+            log_probs.get_shape()
+        ),
+        parallel_iterations=32)
 
     outputs = tf.slice(outputs, [0, 1], [-1, -1]) # Ignore <s>.
 
@@ -218,13 +218,13 @@ class SelfAttentionDecoder(Decoder):
                                 memory_sequence_length=None):
     if encoder_state is not None:
       encoder_state = tf.contrib.seq2seq.tile_batch(
-        encoder_state, multiplier=beam_width)
+          encoder_state, multiplier=beam_width)
     if memory is not None:
       memory = tf.contrib.seq2seq.tile_batch(
-        memory, multiplier=beam_width)
+          memory, multiplier=beam_width)
     if memory_sequence_length is not None:
       memory_sequence_length = tf.contrib.seq2seq.tile_batch(
-        memory_sequence_length, multiplier=beam_width)
+          memory_sequence_length, multiplier=beam_width)
 
     embedding_fn = get_embedding_fn(embeddings)
 
@@ -233,30 +233,30 @@ class SelfAttentionDecoder(Decoder):
       step = tf.shape(symbols)[1]
       sequence_length = tf.fill([batch_size], step)
       outputs, _, _ = self.decode(
-        embedding_fn(symbols),
-        sequence_length,
-        vocab_size,
-        encoder_state=encoder_state,
-        mode=mode,
-        memory=memory,
-        memory_sequence_length=memory_sequence_length,
-        return_logits=False)
+          embedding_fn(symbols),
+          sequence_length,
+          vocab_size,
+          encoder_state=encoder_state,
+          mode=mode,
+          memory=memory,
+          memory_sequence_length=memory_sequence_length,
+          return_logits=False)
 
       # Only sample the last timestep.
       last_output = tf.slice(outputs, [0, step - 1, 0], [-1, 1, -1])
       logits = tf.layers.dense(
-        last_output,
-        vocab_size)
+          last_output,
+          vocab_size)
       return logits
 
     outputs, log_probs = beam_search(
-      symbols_to_logits_fn,
-      start_tokens,
-      beam_width,
-      maximum_iterations,
-      vocab_size,
-      length_penalty,
-      eos_id=end_token)
+        symbols_to_logits_fn,
+        start_tokens,
+        beam_width,
+        maximum_iterations,
+        vocab_size,
+        length_penalty,
+        eos_id=end_token)
     outputs = tf.slice(outputs, [0, 0, 1], [-1, -1, -1]) # Ignore <s>.
 
     lengths = tf.not_equal(outputs, 0)

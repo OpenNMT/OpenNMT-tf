@@ -38,9 +38,9 @@ class ConvEncoder(Encoder):
 
     # Apply dropout to inputs.
     inputs = tf.layers.dropout(
-      inputs,
-      rate=self.dropout,
-      training=mode == tf.estimator.ModeKeys.TRAIN)
+        inputs,
+        rate=self.dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
 
     with tf.variable_scope("cnn_a"):
       cnn_a = self._cnn_stack(inputs)
@@ -57,11 +57,11 @@ class ConvEncoder(Encoder):
 
     for l in range(self.num_layers):
       outputs = tf.contrib.layers.conv2d(
-        inputs=next_input,
-        num_outputs=self.num_units,
-        kernel_size=self.kernel_size,
-        padding="SAME",
-        activation_fn=None)
+          inputs=next_input,
+          num_outputs=self.num_units,
+          kernel_size=self.kernel_size,
+          padding="SAME",
+          activation_fn=None)
 
       # Add residual connections past the first layer.
       if l > 0:

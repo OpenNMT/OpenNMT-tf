@@ -41,11 +41,11 @@ def learning_rate_decay_fn(decay_type,
       raise ValueError("Unknown decay function: " + decay_type)
 
     decayed_learning_rate = decay_op_name(
-      learning_rate,
-      tf.maximum(global_step - start_decay_steps, 0),
-      decay_steps,
-      decay_rate,
-      staircase=staircase)
+        learning_rate,
+        tf.maximum(global_step - start_decay_steps, 0),
+        decay_steps,
+        decay_rate,
+        staircase=staircase)
     decayed_learning_rate = tf.maximum(decayed_learning_rate, minimum_learning_rate)
 
     return decayed_learning_rate
@@ -62,14 +62,14 @@ def register_word_counters(features, labels):
   def _add_counter(word_count, name):
     word_count = tf.cast(word_count, tf.int64)
     total_word_count = tf.Variable(
-      initial_value=0,
-      name=name + "_init",
-      trainable=False,
-      dtype=tf.int64)
+        initial_value=0,
+        name=name + "_init",
+        trainable=False,
+        dtype=tf.int64)
     total_word_count = tf.assign_add(
-      total_word_count,
-      word_count,
-      name=name)
+        total_word_count,
+        word_count,
+        name=name)
 
   features_length = features.get("length")
   labels_length = labels.get("length") if labels is not None and isinstance(labels, dict) else None
@@ -106,27 +106,27 @@ class Model(object):
 
     if params["decay_type"] is not None:
       decay_fn = learning_rate_decay_fn(
-        params["decay_type"],
-        params["decay_rate"],
-        params["decay_steps"],
-        staircase=params["staircase"],
-        start_decay_steps=params["start_decay_steps"],
-        minimum_learning_rate=params["minimum_learning_rate"])
+          params["decay_type"],
+          params["decay_rate"],
+          params["decay_steps"],
+          staircase=params["staircase"],
+          start_decay_steps=params["start_decay_steps"],
+          minimum_learning_rate=params["minimum_learning_rate"])
     else:
       decay_fn = None
 
     train_op = tf.contrib.layers.optimize_loss(
-      loss,
-      global_step,
-      params["learning_rate"],
-      params["optimizer"],
-      clip_gradients=params["clip_gradients"],
-      learning_rate_decay_fn=decay_fn,
-      summaries=[
-        "learning_rate",
-        "loss",
-        "global_gradient_norm",
-      ])
+        loss,
+        global_step,
+        params["learning_rate"],
+        params["optimizer"],
+        clip_gradients=params["clip_gradients"],
+        learning_rate_decay_fn=decay_fn,
+        summaries=[
+            "learning_rate",
+            "loss",
+            "global_gradient_norm",
+        ])
 
     return train_op
 
@@ -235,29 +235,29 @@ class Model(object):
 
       dataset = tf.contrib.data.Dataset.zip((feat_dataset, labels_dataset))
       process_fn = lambda features, labels: (
-        feat_process_fn(features), labels_process_fn(labels))
+          feat_process_fn(features), labels_process_fn(labels))
       padded_shapes_fn = lambda: (
-        feat_padded_shapes_fn(), labels_padded_shapes_fn())
+          feat_padded_shapes_fn(), labels_padded_shapes_fn())
 
     dataset = dataset.map(
-      process_fn,
-      num_threads=num_threads,
-      output_buffer_size=buffer_size)
+        process_fn,
+        num_threads=num_threads,
+        output_buffer_size=buffer_size)
     padded_shapes = padded_shapes_fn()
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       dataset = dataset.filter(lambda features, labels: self._filter_example(
-        features,
-        labels,
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length))
+          features,
+          labels,
+          maximum_features_length=maximum_features_length,
+          maximum_labels_length=maximum_labels_length))
       dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
       dataset = dataset.repeat()
 
     if mode == tf.estimator.ModeKeys.PREDICT or num_buckets <= 1:
       dataset = dataset.padded_batch(
-        batch_size,
-        padded_shapes=padded_shapes)
+          batch_size,
+          padded_shapes=padded_shapes)
     else:
       # For training and evaluation, use bucketing.
 
@@ -273,13 +273,13 @@ class Model(object):
 
       def reduce_func(key, dataset):
         return dataset.padded_batch(
-          batch_size,
-          padded_shapes=padded_shapes)
+            batch_size,
+            padded_shapes=padded_shapes)
 
       dataset = dataset.group_by_window(
-        key_func=key_func,
-        reduce_func=reduce_func,
-        window_size=batch_size)
+          key_func=key_func,
+          reduce_func=reduce_func,
+          window_size=batch_size)
 
     iterator = dataset.make_initializable_iterator()
 
@@ -326,16 +326,16 @@ class Model(object):
       raise ValueError("Labels file is required for training and evaluation")
 
     return lambda: self._input_fn_impl(
-      mode,
-      batch_size,
-      buffer_size,
-      num_threads,
-      num_buckets,
-      metadata,
-      features_file,
-      labels_file=labels_file,
-      maximum_features_length=maximum_features_length,
-      maximum_labels_length=maximum_labels_length)
+        mode,
+        batch_size,
+        buffer_size,
+        num_threads,
+        num_buckets,
+        metadata,
+        features_file,
+        labels_file=labels_file,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length)
 
   def _serving_input_fn_impl(self, metadata):
     """See `serving_input_fn`."""

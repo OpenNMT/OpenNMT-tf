@@ -251,7 +251,7 @@ class MixedInputter(Inputter):
       index += 1
     outputs = self.reducer.reduce_all(embs)
     outputs = tf.layers.dropout(
-      outputs,
-      rate=self.dropout,
-      training=mode == tf.estimator.ModeKeys.TRAIN)
+        outputs,
+        rate=self.dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
     return outputs

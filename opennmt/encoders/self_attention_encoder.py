@@ -44,9 +44,9 @@ class SelfAttentionEncoder(Encoder):
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
     inputs = tf.layers.dropout(
-      inputs,
-      rate=self.dropout,
-      training=mode == tf.estimator.ModeKeys.TRAIN)
+        inputs,
+        rate=self.dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
 
     outputs = []
     state = ()
@@ -55,26 +55,26 @@ class SelfAttentionEncoder(Encoder):
       with tf.variable_scope("layer_" + str(l)):
         with tf.variable_scope("multi_head"):
           context = transformer.multi_head_attention(
-            self.num_heads,
-            inputs,
-            inputs,
-            inputs,
-            mode,
-            values_length=sequence_length,
-            dropout=self.dropout)
+              self.num_heads,
+              inputs,
+              inputs,
+              inputs,
+              mode,
+              values_length=sequence_length,
+              dropout=self.dropout)
           context = transformer.add_and_norm(
-            inputs,
-            context,
-            mode,
-            dropout=self.dropout)
+              inputs,
+              context,
+              mode,
+              dropout=self.dropout)
 
         with tf.variable_scope("ffn"):
           transformed = transformer.feed_forward(context, self.ffn_inner_dim)
           transformed = transformer.add_and_norm(
-            context,
-            transformed,
-            mode,
-            dropout=self.dropout)
+              context,
+              transformed,
+              mode,
+              dropout=self.dropout)
 
         inputs = transformed
         state += (tf.reduce_mean(inputs, axis=1),)

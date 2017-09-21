@@ -50,12 +50,12 @@ class RNNDecoder(Decoder):
                   memory=None,
                   memory_sequence_length=None):
     cell = build_cell(
-      self.num_layers,
-      self.num_units,
-      mode,
-      dropout=self.dropout,
-      residual_connections=self.residual_connections,
-      cell_class=self.cell_class)
+        self.num_layers,
+        self.num_units,
+        mode,
+        dropout=self.dropout,
+        residual_connections=self.residual_connections,
+        cell_class=self.cell_class)
 
     initial_state = cell.zero_state(batch_size, tf.float32)
     initial_state = self._init_state(initial_state, encoder_state=encoder_state)
@@ -82,27 +82,27 @@ class RNNDecoder(Decoder):
         raise ValueError("embeddings argument must be set when using scheduled sampling")
 
       helper = tf.contrib.seq2seq.ScheduledEmbeddingTrainingHelper(
-        inputs,
-        sequence_length,
-        embeddings,
-        scheduled_sampling_probability)
+          inputs,
+          sequence_length,
+          embeddings,
+          scheduled_sampling_probability)
     else:
       helper = tf.contrib.seq2seq.TrainingHelper(inputs, sequence_length)
 
     cell, initial_state = self._build_cell(
-      mode,
-      batch_size,
-      encoder_state=encoder_state,
-      memory=memory,
-      memory_sequence_length=memory_sequence_length)
+        mode,
+        batch_size,
+        encoder_state=encoder_state,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
 
     output_layer = self._build_output_layer(vocab_size)
 
     decoder = tf.contrib.seq2seq.BasicDecoder(
-      cell,
-      helper,
-      initial_state,
-      output_layer=output_layer)
+        cell,
+        helper,
+        initial_state,
+        output_layer=output_layer)
 
     outputs, state, length = tf.contrib.seq2seq.dynamic_decode(decoder)
     return (outputs.rnn_output, state, length)
@@ -120,27 +120,27 @@ class RNNDecoder(Decoder):
     batch_size = tf.shape(start_tokens)[0]
 
     helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(
-      embeddings,
-      start_tokens,
-      end_token)
+        embeddings,
+        start_tokens,
+        end_token)
 
     cell, initial_state = self._build_cell(
-      mode,
-      batch_size,
-      encoder_state=encoder_state,
-      memory=memory,
-      memory_sequence_length=memory_sequence_length)
+        mode,
+        batch_size,
+        encoder_state=encoder_state,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
 
     output_layer = self._build_output_layer(vocab_size)
 
     decoder = tf.contrib.seq2seq.BasicDecoder(
-      cell,
-      helper,
-      initial_state,
-      output_layer=output_layer)
+        cell,
+        helper,
+        initial_state,
+        output_layer=output_layer)
 
     outputs, state, length = tf.contrib.seq2seq.dynamic_decode(
-      decoder, maximum_iterations=maximum_iterations)
+        decoder, maximum_iterations=maximum_iterations)
 
     predicted_ids = outputs.sample_id
     log_probs = logits_to_cum_log_probs(outputs.rnn_output, length)
@@ -168,35 +168,35 @@ class RNNDecoder(Decoder):
     # Replicate batch `beam_width` times.
     if encoder_state is not None:
       encoder_state = tf.contrib.seq2seq.tile_batch(
-        encoder_state, multiplier=beam_width)
+          encoder_state, multiplier=beam_width)
     if memory is not None:
       memory = tf.contrib.seq2seq.tile_batch(
-        memory, multiplier=beam_width)
+          memory, multiplier=beam_width)
     if memory_sequence_length is not None:
       memory_sequence_length = tf.contrib.seq2seq.tile_batch(
-        memory_sequence_length, multiplier=beam_width)
+          memory_sequence_length, multiplier=beam_width)
 
     cell, initial_state = self._build_cell(
-      mode,
-      batch_size * beam_width,
-      encoder_state=encoder_state,
-      memory=memory,
-      memory_sequence_length=memory_sequence_length)
+        mode,
+        batch_size * beam_width,
+        encoder_state=encoder_state,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
 
     output_layer = self._build_output_layer(vocab_size)
 
     decoder = tf.contrib.seq2seq.BeamSearchDecoder(
-      cell,
-      embeddings,
-      start_tokens,
-      end_token,
-      initial_state,
-      beam_width,
-      output_layer=output_layer,
-      length_penalty_weight=length_penalty)
+        cell,
+        embeddings,
+        start_tokens,
+        end_token,
+        initial_state,
+        beam_width,
+        output_layer=output_layer,
+        length_penalty_weight=length_penalty)
 
     outputs, beam_state, length = tf.contrib.seq2seq.dynamic_decode(
-      decoder, maximum_iterations=maximum_iterations)
+        decoder, maximum_iterations=maximum_iterations)
 
     predicted_ids = tf.transpose(outputs.predicted_ids, perm=[0, 2, 1])
     log_probs = beam_state.log_probs
@@ -246,25 +246,25 @@ class AttentionalRNNDecoder(RNNDecoder):
                   memory=None,
                   memory_sequence_length=None):
     attention_mechanism = self.attention_mechanism_class(
-      self.num_units,
-      memory,
-      memory_sequence_length=memory_sequence_length)
+        self.num_units,
+        memory,
+        memory_sequence_length=memory_sequence_length)
 
     cell, initial_cell_state = RNNDecoder._build_cell(
-      self,
-      mode,
-      batch_size,
-      encoder_state=encoder_state)
+        self,
+        mode,
+        batch_size,
+        encoder_state=encoder_state)
     initial_cell_state = self._init_state(initial_cell_state, encoder_state=encoder_state)
 
     cell = tf.contrib.seq2seq.AttentionWrapper(
-      cell,
-      attention_mechanism,
-      initial_cell_state=initial_cell_state)
+        cell,
+        attention_mechanism,
+        initial_cell_state=initial_cell_state)
 
     if mode == tf.estimator.ModeKeys.TRAIN and self.dropout > 0.0:
       cell = tf.contrib.rnn.DropoutWrapper(
-        cell, output_keep_prob=1.0 - self.dropout)
+          cell, output_keep_prob=1.0 - self.dropout)
 
     initial_state = cell.zero_state(batch_size, dtype=tf.float32)
 

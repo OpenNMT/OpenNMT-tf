@@ -44,9 +44,9 @@ class SequentialEncoder(Encoder):
     for i in range(len(self.encoders)):
       with tf.variable_scope("encoder_" + str(i)):
         inputs, state, sequence_length = self.encoders[i].encode(
-          inputs,
-          sequence_length=sequence_length,
-          mode=mode)
+            inputs,
+            sequence_length=sequence_length,
+            mode=mode)
         encoder_state.append(state)
 
     encoder_state = self.states_reducer.reduce_all(encoder_state)
@@ -91,13 +91,13 @@ class ParallelEncoder(Encoder):
           encoder_inputs = inputs
 
         outputs, state, sequence_length = self.encoders[i].encode(
-          encoder_inputs,
-          sequence_length=sequence_length,
-          mode=mode)
+            encoder_inputs,
+            sequence_length=sequence_length,
+            mode=mode)
         all_outputs.append(outputs)
         all_states.append(state)
 
     return (
-      self.outputs_reducer.reduce_all(all_outputs),
-      self.states_reducer.reduce_all(all_states),
-      sequence_length)
+        self.outputs_reducer.reduce_all(all_outputs),
+        self.states_reducer.reduce_all(all_states),
+        sequence_length)

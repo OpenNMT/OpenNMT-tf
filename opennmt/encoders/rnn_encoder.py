@@ -29,12 +29,12 @@ class RNNEncoder(Encoder):
 
   def _build_cell(self, mode):
     return build_cell(
-      self.num_layers,
-      self.num_units,
-      mode,
-      dropout=self.dropout,
-      residual_connections=self.residual_connections,
-      cell_class=self.cell_class)
+        self.num_layers,
+        self.num_units,
+        mode,
+        dropout=self.dropout,
+        residual_connections=self.residual_connections,
+        cell_class=self.cell_class)
 
   @abc.abstractmethod
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
@@ -60,20 +60,20 @@ class UnidirectionalRNNEncoder(RNNEncoder):
       residual_connections: If `True`, each layer input will be added to its output.
     """
     super(UnidirectionalRNNEncoder, self).__init__(
-      num_layers,
-      num_units,
-      cell_class=cell_class,
-      dropout=dropout,
-      residual_connections=residual_connections)
+        num_layers,
+        num_units,
+        cell_class=cell_class,
+        dropout=dropout,
+        residual_connections=residual_connections)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     cell = self._build_cell(mode)
 
     encoder_outputs, encoder_state = tf.nn.dynamic_rnn(
-      cell,
-      inputs,
-      sequence_length=sequence_length,
-      dtype=tf.float32)
+        cell,
+        inputs,
+        sequence_length=sequence_length,
+        dtype=tf.float32)
 
     return (encoder_outputs, encoder_state, sequence_length)
 
@@ -106,11 +106,11 @@ class BidirectionalRNNEncoder(RNNEncoder):
     self.reducer = reducer
 
     super(BidirectionalRNNEncoder, self).__init__(
-      num_layers,
-      num_units,
-      cell_class=cell_class,
-      dropout=dropout,
-      residual_connections=residual_connections)
+        num_layers,
+        num_units,
+        cell_class=cell_class,
+        dropout=dropout,
+        residual_connections=residual_connections)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     with tf.variable_scope("fw"):
@@ -119,11 +119,11 @@ class BidirectionalRNNEncoder(RNNEncoder):
       cell_bw = self._build_cell(mode)
 
     encoder_outputs_tup, encoder_state_tup = tf.nn.bidirectional_dynamic_rnn(
-      cell_fw,
-      cell_bw,
-      inputs,
-      sequence_length=sequence_length,
-      dtype=tf.float32)
+        cell_fw,
+        cell_bw,
+        inputs,
+        sequence_length=sequence_length,
+        dtype=tf.float32)
 
     # Merge bidirectional outputs and state.
     encoder_outputs = self.reducer.reduce(encoder_outputs_tup[0], encoder_outputs_tup[1])
@@ -150,27 +150,27 @@ class GoogleRNNEncoder(Encoder):
       raise ValueError("GoogleRNNEncoder requires at least 2 layers")
 
     self.bidirectional = BidirectionalRNNEncoder(
-      1,
-      num_units,
-      reducer=ConcatReducer(),
-      cell_class=tf.contrib.rnn.LSTMCell,
-      dropout=dropout)
+        1,
+        num_units,
+        reducer=ConcatReducer(),
+        cell_class=tf.contrib.rnn.LSTMCell,
+        dropout=dropout)
     self.unidirectional = UnidirectionalRNNEncoder(
-      num_layers - 1,
-      num_units,
-      cell_class=tf.contrib.rnn.LSTMCell,
-      dropout=dropout,
-      residual_connections=True)
+        num_layers - 1,
+        num_units,
+        cell_class=tf.contrib.rnn.LSTMCell,
+        dropout=dropout,
+        residual_connections=True)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     encoder_outputs, bidirectional_state, sequence_length = self.bidirectional.encode(
-      inputs,
-      sequence_length=sequence_length,
-      mode=mode)
+        inputs,
+        sequence_length=sequence_length,
+        mode=mode)
     encoder_outputs, unidirectional_state, sequence_length = self.unidirectional.encode(
-      encoder_outputs,
-      sequence_length=sequence_length,
-      mode=mode)
+        encoder_outputs,
+        sequence_length=sequence_length,
+        mode=mode)
 
     encoder_state = bidirectional_state + unidirectional_state
 
@@ -201,11 +201,11 @@ class PyramidalRNNEncoder(Encoder):
 
     for l in range(num_layers):
       self.layers.append(BidirectionalRNNEncoder(
-        1,
-        num_units,
-        reducer=ConcatReducer(),
-        cell_class=cell_class,
-        dropout=dropout))
+          1,
+          num_units,
+          reducer=ConcatReducer(),
+          cell_class=cell_class,
+          dropout=dropout))
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     encoder_state = []
@@ -223,22 +223,22 @@ class PyramidalRNNEncoder(Encoder):
         padding = new_length - current_length
 
         inputs = tf.pad(
-          inputs,
-          [[0, 0], [0, padding], [0, 0]])
+            inputs,
+            [[0, 0], [0, padding], [0, 0]])
         inputs.set_shape((None, None, input_depth))
       else:
         # In other cases, reduce the time dimension.
         inputs = tf.reshape(
-          inputs,
-          [tf.shape(inputs)[0], -1, input_depth * self.reduction_factor])
+            inputs,
+            [tf.shape(inputs)[0], -1, input_depth * self.reduction_factor])
         if sequence_length is not None:
           sequence_length = tf.div(sequence_length, self.reduction_factor)
 
       with tf.variable_scope("layer_" + str(l)):
         outputs, state, sequence_length = self.layers[l].encode(
-          inputs,
-          sequence_length=sequence_length,
-          mode=mode)
+            inputs,
+            sequence_length=sequence_length,
+            mode=mode)
 
       encoder_state.append(state)
       inputs = outputs

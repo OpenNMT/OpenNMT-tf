@@ -34,15 +34,15 @@ def shift_target_sequence(inputter, data):
   length = data["length"]
 
   data = inputter.set_data_field(
-    data,
-    "ids_out",
-    tf.concat([ids, eos], axis=0),
-    padded_shape=[None])
+      data,
+      "ids_out",
+      tf.concat([ids, eos], axis=0),
+      padded_shape=[None])
   data = inputter.set_data_field(
-    data,
-    "ids",
-    tf.concat([bos, ids], axis=0),
-    padded_shape=[None])
+      data,
+      "ids",
+      tf.concat([bos, ids], axis=0),
+      padded_shape=[None])
 
   # Increment length accordingly.
   inputter.set_data_field(data, "length", length + 1)
@@ -101,91 +101,91 @@ class SequenceToSequence(Model):
 
     with tf.variable_scope("encoder"):
       source_inputs = self.source_inputter.transform_data(
-        features,
-        mode,
-        log_dir=params.get("log_dir"))
-
-      encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
-        source_inputs,
-        sequence_length=features["length"],
-        mode=mode)
-
-    with tf.variable_scope("decoder") as decoder_scope:
-      embedding_fn = lambda x: self.target_inputter.transform(
-        x,
-        mode,
-        scope=decoder_scope,
-        reuse_next=True)
-
-      if mode != tf.estimator.ModeKeys.PREDICT:
-        target_inputs = self.target_inputter.transform_data(
-          labels,
+          features,
           mode,
           log_dir=params.get("log_dir"))
 
+      encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
+          source_inputs,
+          sequence_length=features["length"],
+          mode=mode)
+
+    with tf.variable_scope("decoder") as decoder_scope:
+      embedding_fn = lambda x: self.target_inputter.transform(
+          x,
+          mode,
+          scope=decoder_scope,
+          reuse_next=True)
+
+      if mode != tf.estimator.ModeKeys.PREDICT:
+        target_inputs = self.target_inputter.transform_data(
+            labels,
+            mode,
+            log_dir=params.get("log_dir"))
+
         decoder_outputs, _, decoded_length = self.decoder.decode(
-          target_inputs,
-          labels["length"],
-          self.target_inputter.vocabulary_size,
-          encoder_state=encoder_state,
-          scheduled_sampling_probability=params["scheduled_sampling_probability"],
-          embeddings=embedding_fn,
-          mode=mode,
-          memory=encoder_outputs,
-          memory_sequence_length=encoder_sequence_length)
+            target_inputs,
+            labels["length"],
+            self.target_inputter.vocabulary_size,
+            encoder_state=encoder_state,
+            scheduled_sampling_probability=params["scheduled_sampling_probability"],
+            embeddings=embedding_fn,
+            mode=mode,
+            memory=encoder_outputs,
+            memory_sequence_length=encoder_sequence_length)
       elif params["beam_width"] <= 1:
         decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode(
-          embedding_fn,
-          tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
-          constants.END_OF_SENTENCE_ID,
-          self.target_inputter.vocabulary_size,
-          encoder_state=encoder_state,
-          maximum_iterations=params["maximum_iterations"],
-          mode=mode,
-          memory=encoder_outputs,
-          memory_sequence_length=encoder_sequence_length)
+            embedding_fn,
+            tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
+            constants.END_OF_SENTENCE_ID,
+            self.target_inputter.vocabulary_size,
+            encoder_state=encoder_state,
+            maximum_iterations=params["maximum_iterations"],
+            mode=mode,
+            memory=encoder_outputs,
+            memory_sequence_length=encoder_sequence_length)
       else:
         decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode_and_search(
-          embedding_fn,
-          tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
-          constants.END_OF_SENTENCE_ID,
-          self.target_inputter.vocabulary_size,
-          encoder_state=encoder_state,
-          beam_width=params["beam_width"],
-          length_penalty=params["length_penalty"],
-          maximum_iterations=params["maximum_iterations"],
-          mode=mode,
-          memory=encoder_outputs,
-          memory_sequence_length=encoder_sequence_length)
+            embedding_fn,
+            tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
+            constants.END_OF_SENTENCE_ID,
+            self.target_inputter.vocabulary_size,
+            encoder_state=encoder_state,
+            beam_width=params["beam_width"],
+            length_penalty=params["length_penalty"],
+            maximum_iterations=params["maximum_iterations"],
+            mode=mode,
+            memory=encoder_outputs,
+            memory_sequence_length=encoder_sequence_length)
 
     if mode != tf.estimator.ModeKeys.PREDICT:
       loss = masked_sequence_loss(
-        decoder_outputs,
-        labels["ids_out"],
-        labels["length"])
+          decoder_outputs,
+          labels["ids_out"],
+          labels["length"])
 
       return tf.estimator.EstimatorSpec(
-        mode,
-        loss=loss,
-        train_op=self._build_train_op(loss, params))
+          mode,
+          loss=loss,
+          train_op=self._build_train_op(loss, params))
     else:
       target_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
-        self.target_inputter.vocabulary_file,
-        vocab_size=self.target_inputter.vocabulary_size - self.target_inputter.num_oov_buckets,
-        default_value=constants.UNKNOWN_TOKEN)
+          self.target_inputter.vocabulary_file,
+          vocab_size=self.target_inputter.vocabulary_size - self.target_inputter.num_oov_buckets,
+          default_value=constants.UNKNOWN_TOKEN)
       predictions = {}
       predictions["tokens"] = target_vocab_rev.lookup(tf.cast(decoder_outputs, tf.int64))
       predictions["length"] = decoded_length
       predictions["log_probs"] = log_probs
 
       export_outputs = {
-        "predictions": tf.estimator.export.PredictOutput(predictions)
+          "predictions": tf.estimator.export.PredictOutput(predictions)
       }
 
       return tf.estimator.EstimatorSpec(
-        mode,
-        predictions=predictions,
-        export_outputs=export_outputs)
+          mode,
+          predictions=predictions,
+          export_outputs=export_outputs)
 
   def print_prediction(self, prediction, params=None):
     n_best = params and params.get("n_best")

@@ -35,8 +35,8 @@ class SequenceRecordInputter(Inputter):
   def get_serving_input_receiver(self):
     placeholder = tf.placeholder(tf.float32, shape=(None, self.input_depth))
     features = {
-      "tensor": placeholder,
-      "length": tf.shape(placeholder)[0]
+        "tensor": placeholder,
+        "length": tf.shape(placeholder)[0]
     }
 
     # TODO: support batch input during preprocessing.
@@ -51,8 +51,8 @@ class SequenceRecordInputter(Inputter):
 
     if "tensor" not in data:
       features = tf.parse_single_example(data["raw"], features={
-        "shape": tf.VarLenFeature(tf.int64),
-        "values": tf.VarLenFeature(tf.float32)
+          "shape": tf.VarLenFeature(tf.int64),
+          "values": tf.VarLenFeature(tf.float32)
       })
 
       values = features["values"].values

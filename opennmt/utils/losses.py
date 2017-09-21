@@ -17,6 +17,6 @@ def masked_sequence_loss(logits, labels, sequence_length):
   weights = tf.sequence_mask(sequence_length, dtype=tf.float32)
 
   return tf.contrib.seq2seq.sequence_loss(
-    logits,
-    labels,
-    weights)
+      logits,
+      labels,
+      weights)
