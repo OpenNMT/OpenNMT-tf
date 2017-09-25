@@ -114,7 +114,7 @@ class WordCounterHook(tf.train.SessionRunHook):
       tf.logging.info("%s: %g", tag, value)
 
     if self._timer.should_trigger_for_step(global_step):
-      elapsed_time, elapsed_steps = self._timer.update_last_triggered_step(
+      elapsed_time, _ = self._timer.update_last_triggered_step(
           global_step)
       if elapsed_time is not None:
         if "features" in results:

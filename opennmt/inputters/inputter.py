@@ -29,7 +29,7 @@ class Inputter(object):
     """
     self.process_hooks.extend(hooks)
 
-  def set_data_field(self, data, key, value, padded_shape=[]):
+  def set_data_field(self, data, key, value, padded_shape=None):
     """Sets a data field.
 
     Args:
@@ -42,6 +42,8 @@ class Inputter(object):
     Returns:
       The updated data dictionary.
     """
+    if padded_shape is None:
+      padded_shape = []
     data[key] = value
     self.padded_shapes[key] = padded_shape
     return data
@@ -60,7 +62,7 @@ class Inputter(object):
     del self.padded_shapes[key]
     return data
 
-  def get_length(self, data):
+  def get_length(self, unused_data):
     """Returns the length of the input data, if defined."""
     return None
 

@@ -64,7 +64,7 @@ def load_config_module(path):
 
   return module
 
-def load_run_config(run_files, config={}):
+def load_run_config(run_files, config=None):
   """Loads run configuration files.
 
   Args:
@@ -74,6 +74,9 @@ def load_run_config(run_files, config={}):
   Returns:
     The configuration dictionary.
   """
+  if config is None:
+    config = {}
+
   for config_path in run_files:
     with open(config_path) as config_file:
       subconfig = yaml.load(config_file.read())

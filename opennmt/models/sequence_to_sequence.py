@@ -51,6 +51,7 @@ def shift_target_sequence(inputter, data):
 
 
 class SequenceToSequence(Model):
+  """A sequence to sequence model."""
 
   def __init__(self,
                source_inputter,
@@ -204,5 +205,4 @@ class SequenceToSequence(Model):
     for i in range(n_best):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
       sentence = b" ".join(tokens)
-      sentence = sentence.decode('utf-8')
-      print(sentence)
+      print(sentence.decode("utf-8"))

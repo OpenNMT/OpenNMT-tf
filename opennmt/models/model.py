@@ -55,6 +55,7 @@ def learning_rate_decay_fn(decay_type,
 
 @six.add_metaclass(abc.ABCMeta)
 class Model(object):
+  """Base class for models."""
 
   def __init__(self, name):
     self.name = name
@@ -116,7 +117,7 @@ class Model(object):
           name=name + "_init",
           trainable=False,
           dtype=tf.int64)
-      total_word_count = tf.assign_add(
+      tf.assign_add(
           total_word_count,
           word_count,
           name=name)
@@ -253,7 +254,8 @@ class Model(object):
       process_fn = feat_process_fn
       padded_shapes_fn = feat_padded_shapes_fn
     else:
-      labels_dataset, labels_process_fn, labels_padded_shapes_fn = self._get_labels_builder(labels_file)
+      labels_dataset, labels_process_fn, labels_padded_shapes_fn = (
+          self._get_labels_builder(labels_file))
 
       dataset = tf.contrib.data.Dataset.zip((feat_dataset, labels_dataset))
       process_fn = lambda features, labels: (
@@ -283,7 +285,7 @@ class Model(object):
     else:
       # For training and evaluation, use bucketing.
 
-      def key_func(features, labels):
+      def key_func(features, unused_labels):
         if maximum_features_length:
           bucket_width = (maximum_features_length + num_buckets - 1) // num_buckets
         else:
@@ -293,7 +295,7 @@ class Model(object):
         bucket_id = tf.minimum(bucket_id, num_buckets)
         return tf.to_int64(bucket_id)
 
-      def reduce_func(key, dataset):
+      def reduce_func(unused_key, dataset):
         return dataset.padded_batch(
             batch_size,
             padded_shapes=padded_shapes)

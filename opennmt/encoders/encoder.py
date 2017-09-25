@@ -1,3 +1,5 @@
+"""Base class for encoders and generic multi encoders."""
+
 import abc
 import six
 
@@ -49,9 +51,10 @@ class SequentialEncoder(Encoder):
             mode=mode)
         encoder_state.append(state)
 
-    encoder_state = self.states_reducer.reduce_all(encoder_state)
-
-    return (inputs, encoder_state, sequence_length)
+    return (
+        inputs,
+        self.states_reducer.reduce_all(encoder_state),
+        sequence_length)
 
 
 class ParallelEncoder(Encoder):

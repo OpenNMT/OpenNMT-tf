@@ -1,3 +1,5 @@
+"""Base class and functions for dynamic decoders."""
+
 import abc
 import six
 

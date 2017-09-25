@@ -199,7 +199,7 @@ class PyramidalRNNEncoder(Encoder):
     self.state_reducer = JoinReducer()
     self.layers = []
 
-    for l in range(num_layers):
+    for _ in range(num_layers):
       self.layers.append(BidirectionalRNNEncoder(
           1,
           num_units,
@@ -214,7 +214,8 @@ class PyramidalRNNEncoder(Encoder):
       input_depth = inputs.get_shape().as_list()[-1]
 
       if l == 0:
-        # For the first input, make the number of timesteps a multiple of the total reduction factor.
+        # For the first input, make the number of timesteps a multiple of the
+        # total reduction factor.
         total_reduction_factor = pow(self.reduction_factor, len(self.layers) - 1)
 
         current_length = tf.shape(inputs)[1]
@@ -243,6 +244,7 @@ class PyramidalRNNEncoder(Encoder):
       encoder_state.append(state)
       inputs = outputs
 
-    encoder_state = self.state_reducer.reduce_all(encoder_state)
-
-    return (outputs, encoder_state, sequence_length)
+    return (
+        outputs,
+        self.state_reducer.reduce_all(encoder_state),
+        sequence_length)

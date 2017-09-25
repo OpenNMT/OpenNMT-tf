@@ -10,6 +10,7 @@ from opennmt.utils.losses import masked_sequence_loss
 
 
 class SequenceTagger(Model):
+  """A sequence tagger."""
 
   def __init__(self,
                inputter,
@@ -133,5 +134,4 @@ class SequenceTagger(Model):
   def print_prediction(self, prediction, params=None):
     labels = prediction["labels"][:prediction["length"]]
     sent = b" ".join(labels)
-    sent = sent.decode("utf-8")
-    print(sent)
+    print(sent.decode("utf-8"))

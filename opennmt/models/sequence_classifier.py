@@ -7,6 +7,7 @@ from opennmt.utils.misc import count_lines
 
 
 class SequenceClassifier(Model):
+  """A sequence classifier."""
 
   def __init__(self,
                inputter,

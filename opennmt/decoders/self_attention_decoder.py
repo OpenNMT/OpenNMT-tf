@@ -139,7 +139,7 @@ class SelfAttentionDecoder(Decoder):
 
     embedding_fn = get_embedding_fn(embeddings)
 
-    def condition(step, finished, inputs, lengths, log_probs):
+    def condition(unused_step, finished, unused_inputs, unused_lengths, unused_log_probs):
       return tf.logical_not(tf.reduce_all(finished))
 
     def body(step, finished, inputs, lengths, log_probs):
