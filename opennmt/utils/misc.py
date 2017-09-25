@@ -33,6 +33,18 @@ def get_tensor_by_name(name):
   except KeyError:
     return None
 
+def extract_prefixed_keys(dictionary, prefix):
+  """Returns a dictionary with all keys from `dictionary` that are prefixed
+  with `prefix`.
+  """
+  sub_dict = {}
+  for key, value in dictionary.items():
+    if key.startswith(prefix):
+      original_key = key[len(prefix):]
+      sub_dict[original_key] = value
+  return sub_dict
+
+
 class LogParametersCountHook(tf.train.SessionRunHook):
   """Simple hook that logs the number of trainable parameters."""
 

@@ -42,6 +42,12 @@ class SequenceTagger(Model):
   def _get_serving_input_receiver(self):
     return self.inputter.get_serving_input_receiver()
 
+  def _get_features_length(self, features):
+    return self.inputter.get_length(features)
+
+  def _get_labels_length(self, labels):
+    return None
+
   def _get_features_builder(self, features_file):
     dataset = self.inputter.make_dataset(features_file)
     process_fn = self.inputter.process
@@ -59,6 +65,8 @@ class SequenceTagger(Model):
     return dataset, process_fn, padded_shapes_fn
 
   def _build(self, features, labels, params, mode):
+    length = self._get_features_length(features)
+
     with tf.variable_scope("encoder"):
       inputs = self.inputter.transform_data(
           features,
@@ -67,7 +75,7 @@ class SequenceTagger(Model):
 
       encoder_outputs, _, encoder_sequence_length = self.encoder.encode(
           inputs,
-          sequence_length=features["length"],
+          sequence_length=length,
           mode=mode)
 
     with tf.variable_scope("generator"):
@@ -80,13 +88,13 @@ class SequenceTagger(Model):
         log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(
             logits,
             tf.cast(labels, tf.int32),
-            features["length"])
+            length)
         loss = tf.reduce_mean(-log_likelihood)
       else:
         loss = masked_sequence_loss(
             logits,
             labels,
-            features["length"])
+            length)
 
       return tf.estimator.EstimatorSpec(
           mode,

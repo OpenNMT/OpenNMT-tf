@@ -36,6 +36,12 @@ class SequenceClassifier(Model):
   def _get_serving_input_receiver(self):
     return self.inputter.get_serving_input_receiver()
 
+  def _get_features_length(self, features):
+    return self.inputter.get_length(features)
+
+  def _get_labels_length(self, labels):
+    return None
+
   def _get_features_builder(self, features_file):
     dataset = self.inputter.make_dataset(features_file)
     process_fn = self.inputter.process
@@ -61,7 +67,7 @@ class SequenceClassifier(Model):
 
       encoder_outputs, _, _ = self.encoder.encode(
           inputs,
-          sequence_length=features["length"],
+          sequence_length=self._get_features_length(features),
           mode=mode)
 
     encoding = tf.reduce_mean(encoder_outputs, axis=1)

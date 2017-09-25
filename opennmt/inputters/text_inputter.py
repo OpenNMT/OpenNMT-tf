@@ -179,19 +179,17 @@ class TextInputter(Inputter):
   def __init__(self):
     super(TextInputter, self).__init__()
 
+  def get_length(self, data):
+    return data["length"]
+
   def make_dataset(self, data_file):
     return tf.contrib.data.TextLineDataset(data_file)
 
-  def get_serving_input_receiver(self):
+  def _get_serving_input(self):
     placeholder = tf.placeholder(tf.string, shape=())
     features = self.process(placeholder)
-
-    # TODO: support batch input during preprocessing.
-    for key, value in features.items():
-      features[key] = tf.expand_dims(value, 0)
-
-    receiver_tensors = {"sequences": placeholder}
-    return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
+    receiver_tensors = {"input": placeholder}
+    return receiver_tensors, features
 
   def _process(self, data):
     """Tokenizes raw text."""

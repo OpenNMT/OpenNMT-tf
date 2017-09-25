@@ -29,22 +29,20 @@ class SequenceRecordInputter(Inputter):
   def initialize(self, metadata):
     self.input_depth = metadata[self.input_depth_key]
 
+  def get_length(self, data):
+    return data["length"]
+
   def make_dataset(self, data_file):
     return tf.contrib.data.TFRecordDataset(data_file)
 
-  def get_serving_input_receiver(self):
+  def _get_serving_input(self):
     placeholder = tf.placeholder(tf.float32, shape=(None, self.input_depth))
     features = {
         "tensor": placeholder,
         "length": tf.shape(placeholder)[0]
     }
-
-    # TODO: support batch input during preprocessing.
-    for key, value in features.items():
-      features[key] = tf.expand_dims(value, 0)
-
-    receiver_tensors = {"sequences": placeholder}
-    return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
+    receiver_tensors = {"input": placeholder}
+    return receiver_tensors, features
 
   def _process(self, data):
     data = super(SequenceRecordInputter, self)._process(data)

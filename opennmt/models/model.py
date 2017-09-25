@@ -52,34 +52,6 @@ def learning_rate_decay_fn(decay_type,
 
   return decay_fn
 
-def register_word_counters(features, labels):
-  """Stores word counter operators for sequences (if any) of `features`
-  and `labels`.
-
-  See also `onmt.utils.misc.WordCounterHook` that fetches these counters
-  to log their value in TensorBoard.
-  """
-  def _add_counter(word_count, name):
-    word_count = tf.cast(word_count, tf.int64)
-    total_word_count = tf.Variable(
-        initial_value=0,
-        name=name + "_init",
-        trainable=False,
-        dtype=tf.int64)
-    total_word_count = tf.assign_add(
-        total_word_count,
-        word_count,
-        name=name)
-
-  features_length = features.get("length")
-  labels_length = labels.get("length") if labels is not None and isinstance(labels, dict) else None
-
-  with tf.variable_scope("words_per_sec"):
-    if features_length is not None:
-      _add_counter(tf.reduce_sum(features_length), "features")
-    if labels_length is not None:
-      _add_counter(tf.reduce_sum(labels_length), "labels")
-
 
 @six.add_metaclass(abc.ABCMeta)
 class Model(object):
@@ -91,7 +63,7 @@ class Model(object):
     """Creates the model. See `tf.estimator.Estimator`'s `model_fn` argument
     for more details about arguments and the returned value.
     """
-    register_word_counters(features, labels)
+    self._register_word_counters(features, labels)
     with tf.variable_scope(self.name):
       return self._build(features, labels, params, mode)
 
@@ -130,6 +102,34 @@ class Model(object):
 
     return train_op
 
+  def _register_word_counters(self, features, labels):
+    """Stores word counter operators for sequences (if any) of `features`
+    and `labels`.
+
+    See also `onmt.utils.misc.WordCounterHook` that fetches these counters
+    to log their value in TensorBoard.
+    """
+    def _add_counter(word_count, name):
+      word_count = tf.cast(word_count, tf.int64)
+      total_word_count = tf.Variable(
+          initial_value=0,
+          name=name + "_init",
+          trainable=False,
+          dtype=tf.int64)
+      total_word_count = tf.assign_add(
+          total_word_count,
+          word_count,
+          name=name)
+
+    features_length = self._get_features_length(features)
+    labels_length = self._get_labels_length(labels)
+
+    with tf.variable_scope("words_per_sec"):
+      if features_length is not None:
+        _add_counter(tf.reduce_sum(features_length), "features")
+      if labels_length is not None:
+        _add_counter(tf.reduce_sum(labels_length), "labels")
+
   def _filter_example(self,
                       features,
                       labels,
@@ -138,10 +138,8 @@ class Model(object):
     """Defines an example filtering condition.
 
     Args:
-      features: A dict of `tf.Tensor`s possibly containing the `length`
-        field.
-      labels: A `tf.Tensor` or dict of `tf.Tensor`s  possibly containing
-        the `length` field.
+      features: A dict of `tf.Tensor`s.
+      labels: A `tf.Tensor` or dict of `tf.Tensor`s.
       maximum_features_length: The maximum length of the features
         sequence (if it applies).
       maximum_labels_length: The maximum length of the labels sequence
@@ -151,8 +149,8 @@ class Model(object):
       A `tf.Tensor` of type `tf.bool` with a logical value of `False`
       if the example does not meet the requirements.
     """
-    features_length = features.get("length")
-    labels_length = labels.get("length") if isinstance(labels, dict) else None
+    features_length = self._get_features_length(features)
+    labels_length = self._get_labels_length(labels)
 
     cond = []
 
@@ -183,6 +181,30 @@ class Model(object):
 
     Returns:
       A `tf.estimator.export.ServingInputReceiver`.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def _get_features_length(self, features):
+    """Returns the features length.
+
+    Args:
+      features: A dict of `tf.Tensor`s
+
+    Returns:
+      The length as a `tf.Tensor`, or `None` if length is undefined.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def _get_labels_length(self, labels):
+    """Returns the labels length.
+
+    Args:
+      labels: A dict of `tf.Tensor`s
+
+    Returns:
+      The length as a `tf.Tensor`, or `None` if length is undefined.
     """
     raise NotImplementedError()
 
@@ -267,7 +289,7 @@ class Model(object):
         else:
           bucket_width = 10
 
-        bucket_id = features["length"] // bucket_width
+        bucket_id = self._get_features_length(features) // bucket_width
         bucket_id = tf.minimum(bucket_id, num_buckets)
         return tf.to_int64(bucket_id)
 

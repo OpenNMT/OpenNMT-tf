@@ -84,6 +84,12 @@ class SequenceToSequence(Model):
   def _get_serving_input_receiver(self):
     return self.source_inputter.get_serving_input_receiver()
 
+  def _get_features_length(self, features):
+    return self.source_inputter.get_length(features)
+
+  def _get_labels_length(self, labels):
+    return self.target_inputter.get_length(labels)
+
   def _get_features_builder(self, features_file):
     dataset = self.source_inputter.make_dataset(features_file)
     process_fn = self.source_inputter.process
@@ -97,7 +103,8 @@ class SequenceToSequence(Model):
     return dataset, process_fn, padded_shapes_fn
 
   def _build(self, features, labels, params, mode):
-    batch_size = tf.shape(features["length"])[0]
+    features_length = self._get_features_length(features)
+    batch_size = tf.shape(features_length)[0]
 
     with tf.variable_scope("encoder"):
       source_inputs = self.source_inputter.transform_data(
@@ -107,7 +114,7 @@ class SequenceToSequence(Model):
 
       encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
           source_inputs,
-          sequence_length=features["length"],
+          sequence_length=features_length,
           mode=mode)
 
     with tf.variable_scope("decoder") as decoder_scope:
@@ -125,7 +132,7 @@ class SequenceToSequence(Model):
 
         decoder_outputs, _, decoded_length = self.decoder.decode(
             target_inputs,
-            labels["length"],
+            self._get_labels_length(labels),
             self.target_inputter.vocabulary_size,
             encoder_state=encoder_state,
             scheduled_sampling_probability=params["scheduled_sampling_probability"],
@@ -162,7 +169,7 @@ class SequenceToSequence(Model):
       loss = masked_sequence_loss(
           decoder_outputs,
           labels["ids_out"],
-          labels["length"])
+          self._get_labels_length(labels))
 
       return tf.estimator.EstimatorSpec(
           mode,
