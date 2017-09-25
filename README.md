@@ -33,7 +33,14 @@ python onmt.py --model config/models/my_model.py --run config/my_run.yml
 
 ### Model configuration
 
-Models are defined from the code to allow a high level of modeling freedom and ensuring that the library exposes consistent interfaces. The user should provide a `opennmt.models.Model` instance using available or user-defined modules.
+Models are defined from the code to allow a high level of modeling freedom. The user should provide a `opennmt.models.Model` instance using available or user-defined modules.
+
+Some modules are defined to contain other modules and can be used to design complex architectures:
+
+* `opennmt.encoders.ParallelEncoder`
+* `opennmt.encoders.SequentialEncoder`
+* `opennmt.inputters.MixedInputter`
+* `opennmt.inputters.ParallelInputter`
 
 *See the template file `config/models/template.py` and examples in `config/models/`.*
 
