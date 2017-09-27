@@ -13,7 +13,6 @@
 * Documentation generation from docstrings
 * Im2Text
   * https://github.com/OpenNMT/Im2Text
-* Pylint configuration
 
 ## To improve
 
