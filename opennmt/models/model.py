@@ -20,7 +20,8 @@ def learning_rate_decay_fn(decay_type,
   """Returns the learning rate decay functions.
 
   Args:
-    decay_type: The type of decay. A function from `tf.train` as a `String`.
+    decay_type: The type of decay. A function from `tf.train` or `opennmt.utils.decay`
+      as a `String`.
     decay_rate: The decay rate to apply.
     decay_steps: The decay steps as described in the decay type function.
     staircase: If `True`, learning rate is decayed in a staircase fashion.
