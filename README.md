@@ -18,16 +18,6 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
   * >= `1.3.0` otherwise
 * `pyyaml`
 
-## Installation
-
-We suggest using `virtualenv` inside the OpenNMT-tf directory:
-
-```
-virtualenv . && source bin/activate
-pip install tensorflow-gpu==1.3.0
-pip install .
-```
-
 ## Overview
 
 An OpenNMT-tf run consists of two elements:
