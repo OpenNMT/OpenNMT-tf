@@ -143,6 +143,9 @@ class Inputter(object):
 
     Returns:
       A dictionary of `tf.Tensor`s.
+
+    Raises:
+      ValueError: if `data` is a dictionary but does not contain the `raw` key.
     """
     if not isinstance(data, dict):
       data = self.set_data_field({}, "raw", data)

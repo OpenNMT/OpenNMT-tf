@@ -262,6 +262,9 @@ class WordEmbedder(TextInputter):
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional callable to tokenize the input text. If `None`,
         the text is tokenized on spaces. See also `tokenize`.
+
+    Raises:
+      ValueError: if neither `embedding_size` nor `embedding_file_key` are set.
     """
     super(WordEmbedder, self).__init__(tokenizer=tokenizer)
 

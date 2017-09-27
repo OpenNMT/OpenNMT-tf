@@ -30,6 +30,9 @@ def learning_rate_decay_fn(decay_type,
 
   Returns:
     A function with signature `lambda learning_rate, global_steps: decayed_learning_rate`.
+
+  Raises:
+    ValueError: if `decay_type` can not be resolved.
   """
   def decay_fn(learning_rate, global_step):
     decay_op_name = None
@@ -346,6 +349,9 @@ class Model(object):
 
     Returns:
       A callable that returns the next element.
+
+    Raises:
+      ValueError: if `labels_file` is not set when in training or evaluation mode.
     """
     if mode != tf.estimator.ModeKeys.PREDICT and labels_file is None:
       raise ValueError("Labels file is required for training and evaluation")

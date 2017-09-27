@@ -97,6 +97,9 @@ class BidirectionalRNNEncoder(RNNEncoder):
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
+
+    Raises:
+      ValueError: if when using `ConcatReducer` and `num_units` is not divisible by 2.
     """
     if isinstance(reducer, ConcatReducer):
       if num_units % 2 != 0:
@@ -145,6 +148,9 @@ class GoogleRNNEncoder(Encoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       dropout: The probability to drop units in each layer output.
+
+    Raises:
+      ValueError: if `num_layers` < 2.
     """
     if num_layers < 2:
       raise ValueError("GoogleRNNEncoder requires at least 2 layers")
