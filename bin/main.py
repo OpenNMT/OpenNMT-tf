@@ -1,8 +1,12 @@
 import argparse
 import json
 import os
+import sys
 
 import tensorflow as tf
+
+# Add parent directory to the PYTHONPATH.
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from opennmt.utils.misc import LogParametersCountHook, WordCounterHook
 from opennmt.config import get_default_config, load_config_module, load_run_config

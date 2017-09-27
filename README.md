@@ -18,6 +18,16 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
   * >= `1.3.0` otherwise
 * `pyyaml`
 
+## Installation
+
+We suggest using `virtualenv` inside the OpenNMT-tf directory:
+
+```
+virtualenv . && source bin/activate
+pip install tensorflow-gpu==1.3.0
+pip install .
+```
+
 ## Overview
 
 An OpenNMT-tf run consists of two elements:
@@ -28,7 +38,7 @@ An OpenNMT-tf run consists of two elements:
 e.g.:
 
 ```
-python onmt.py --model config/models/my_model.py --run config/my_run.yml
+onmt --model config/models/my_model.py --run config/my_run.yml
 ```
 
 ### Model configuration
@@ -51,7 +61,7 @@ Runs are described in separate YAML files. They define how to train, infer or ex
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
 
 ```
-python onmt.py [...] --run config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
+onmt [...] --run config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
 ```
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority. Additionally, fields marked as optional have a default value defined in `opennmt/config.py`.
@@ -85,7 +95,7 @@ OpenNMT-tf provides asynchronous distributed training (see the [TensorFlow docum
 Then a training instance should be started on each host with a selected task, e.g.:
 
 ```
-CUDA_VISIBLE_DEVICES=0 python onmt.py [...] --ps_hosts localhost:2222 --worker_hosts localhost:2223,localhost:2224 --task_type worker --task_index 1
+CUDA_VISIBLE_DEVICES=0 onmt [...] --ps_hosts localhost:2222 --worker_hosts localhost:2223,localhost:2224 --task_type worker --task_index 1
 ```
 
 will start the worker 1 on the current machine and first GPU.
