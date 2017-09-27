@@ -231,12 +231,13 @@ class AttentionalRNNDecoder(RNNDecoder):
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
     """
-    super(AttentionalRNNDecoder, self).__init__(num_layers,
-                                                num_units,
-                                                bridge=bridge,
-                                                cell_class=cell_class,
-                                                dropout=dropout,
-                                                residual_connections=residual_connections)
+    super(AttentionalRNNDecoder, self).__init__(
+        num_layers,
+        num_units,
+        bridge=bridge,
+        cell_class=cell_class,
+        dropout=dropout,
+        residual_connections=residual_connections)
     self.attention_mechanism_class = attention_mechanism_class
 
   def _build_cell(self,
