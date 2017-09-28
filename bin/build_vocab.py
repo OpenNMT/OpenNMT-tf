@@ -36,20 +36,20 @@ def main():
   frequency = []
 
   def add_token(token):
-    if not token in token_to_id:
-      id = len(id_to_token)
-      token_to_id[token] = id
+    if token not in token_to_id:
+      index = len(id_to_token)
+      token_to_id[token] = index
       id_to_token.append(token)
       frequency.append(1)
     else:
       frequency[token_to_id[token]] += 1
 
-  def add_special_token(token, id):
-    token_to_id[token] = id
-    id_to_token.insert(id, token)
+  def add_special_token(token, index):
+    token_to_id[token] = index
+    id_to_token.insert(index, token)
 
     # Set a very high frequency to avoid special tokens to be pruned.
-    frequency.insert(id, float("inf"))
+    frequency.insert(index, float("inf"))
 
   add_special_token(constants.PADDING_TOKEN, constants.PADDING_ID)
 
@@ -74,8 +74,8 @@ def main():
 
   # Discard words that do not meet frequency requirements.
   for i in range(new_size - 1, 0, -1):
-    id = sorted_ids[i]
-    if frequency[id] < args.min_frequency:
+    index = sorted_ids[i]
+    if frequency[index] < args.min_frequency:
       new_size -= 1
     else:
       break
@@ -88,8 +88,8 @@ def main():
   if new_size < len(id_to_token):
     new_id_to_token = []
     for i in range(new_size):
-      id = sorted_ids[i]
-      token = id_to_token[id]
+      index = sorted_ids[i]
+      token = id_to_token[index]
       new_id_to_token.append(token)
     id_to_token = new_id_to_token
 

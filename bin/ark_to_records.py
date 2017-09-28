@@ -21,6 +21,8 @@ KEY token1 token2 ... tokenN
 ```
 """
 
+from __future__ import print_function
+
 import argparse
 import numpy as np
 import tensorflow as tf
@@ -45,7 +47,6 @@ def consume_next_vector(ark_file):
       fields.pop()
 
     if fields:
-      values = fields
       vector.append(fields)
 
     if end:
