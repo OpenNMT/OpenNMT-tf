@@ -100,18 +100,9 @@ def multi_head_attention(num_heads,
   for i in range(num_heads):
     with tf.variable_scope("head_" + str(i)):
       # Project queries, keys and values to different and smaller subspaces.
-      queries_proj = tf.layers.dense(
-          queries,
-          head_dim,
-          use_bias=False)
-      keys_proj = tf.layers.dense(
-          keys,
-          head_dim,
-          use_bias=False)
-      values_proj = tf.layers.dense(
-          values,
-          head_dim,
-          use_bias=False)
+      queries_proj = tf.layers.conv1d(queries, head_dim, 1)
+      keys_proj = tf.layers.conv1d(keys, head_dim, 1)
+      values_proj = tf.layers.conv1d(values, head_dim, 1)
 
       head_i = scaled_dot_attention(
           queries_proj,
@@ -126,10 +117,7 @@ def multi_head_attention(num_heads,
 
   # Concatenate all heads output.
   combined = tf.concat(heads, axis=2)
-  outputs = tf.layers.dense(
-      combined,
-      input_dim,
-      use_bias=False)
+  outputs = tf.layers.conv1d(combined, input_dim, 1)
 
   return outputs
 
@@ -147,13 +135,8 @@ def feed_forward(x, inner_dim):
   """
   input_dim = x.get_shape().as_list()[-1]
 
-  inner = tf.layers.dense(
-      inputs=x,
-      units=inner_dim,
-      activation=tf.nn.relu)
-  outer = tf.layers.dense(
-      inputs=inner,
-      units=input_dim)
+  inner = tf.layers.conv1d(x, inner_dim, 1, activation=tf.nn.relu)
+  outer = tf.layers.conv1d(inner, input_dim, 1)
 
   return outer
 
