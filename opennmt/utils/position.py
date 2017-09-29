@@ -8,6 +8,33 @@ import tensorflow as tf
 from opennmt.utils.reducer import SumReducer
 
 
+def make_positions(sequence_length):
+  """Builds a sequence of positions.
+
+  The first position is 1 as the 0 index is reserved to padding positions.
+
+  Args:
+    sequence_length: The length of each sequence as a `tf.Tensor` of shape `[B]`.
+
+  Returns:
+    The sequence of positions as a `tf.Tensor` of shape `[B, T]`.
+  """
+  maximum_length = tf.reduce_max(sequence_length)
+  batch_size = tf.shape(sequence_length)[0]
+
+  # Make 0 the position of padding.
+  position = tf.range(maximum_length) + 1
+  position = tf.tile(position, [batch_size])
+  position = tf.reshape(position, [batch_size, -1])
+
+  mask = tf.sequence_mask(sequence_length)
+  mask = tf.cast(mask, tf.int32)
+
+  position = position * mask
+
+  return position
+
+
 @six.add_metaclass(abc.ABCMeta)
 class PositionEncoder(object):
   """Base class for position encoders."""
@@ -70,18 +97,7 @@ class PositionEmbedder(PositionEncoder):
     self.maximum_position = maximum_position
 
   def _encode(self, input_dim, sequence_length):
-    maximum_length = tf.reduce_max(sequence_length)
-    batch_size = tf.shape(sequence_length)[0]
-
-    # Make 0 the position of padding.
-    position = tf.range(maximum_length) + 1
-    position = tf.tile(position, [batch_size])
-    position = tf.reshape(position, [batch_size, -1])
-
-    mask = tf.sequence_mask(sequence_length)
-    mask = tf.cast(mask, tf.int32)
-
-    position = position * mask
+    position = make_positions(sequence_length)
     position = tf.minimum(position, self.maximum_position)
 
     embeddings = tf.get_variable(

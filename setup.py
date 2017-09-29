@@ -4,13 +4,16 @@ setup(
     name="OpenNMT-tf",
     version="0.1",
     install_requires=[
-        "pyyaml",
-        "tensorboard"
+        "pyyaml"
     ],
     extras_require={
         "TensorFlow": ["tensorflow==1.3.0"],
         "TensorFlow (with CUDA support)": ["tensorflow-gpu==1.3.0"]
     },
+    tests_require=[
+        "nose2"
+    ],
+    test_suite="nose2.collector.collector",
     packages=find_packages(),
     entry_points={
         "console_scripts": [

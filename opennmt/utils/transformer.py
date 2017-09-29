@@ -23,7 +23,7 @@ def scaled_dot_attention(queries,
     dropout: The probability to drop units from the inputs.
 
   Returns:
-    The attention context.
+    A tuple `(context vector, attention vector)`.
   """
   # Scaled dot-product between queries and keys.
   dot = tf.matmul(queries, keys, transpose_b=True)
@@ -52,7 +52,6 @@ def scaled_dot_attention(queries,
 
   # Compute attention weights.
   attn = tf.nn.softmax(dot)
-
   attn = tf.layers.dropout(
       attn,
       rate=dropout,
@@ -61,7 +60,7 @@ def scaled_dot_attention(queries,
   # Compute attention context.
   context = tf.matmul(attn, values)
 
-  return context
+  return context, attn
 
 
 def multi_head_attention(num_heads,
@@ -104,7 +103,7 @@ def multi_head_attention(num_heads,
       keys_proj = tf.layers.conv1d(keys, head_dim, 1)
       values_proj = tf.layers.conv1d(values, head_dim, 1)
 
-      head_i = scaled_dot_attention(
+      head_i, _ = scaled_dot_attention(
           queries_proj,
           keys_proj,
           values_proj,
