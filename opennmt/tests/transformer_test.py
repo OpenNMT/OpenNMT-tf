@@ -13,11 +13,11 @@ class TransformerTest(tf.test.TestCase):
     depth = 20
 
     queries = tf.placeholder_with_default(
-      np.random.randn(batch_size, max(queries_length), depth).astype(np.float32),
-      shape=(None, None, depth))
+        np.random.randn(batch_size, max(queries_length), depth).astype(np.float32),
+        shape=(None, None, depth))
     values = tf.placeholder_with_default(
-      np.random.randn(batch_size, max(values_length), depth).astype(np.float32),
-      shape=(None, None, depth))
+        np.random.randn(batch_size, max(values_length), depth).astype(np.float32),
+        shape=(None, None, depth))
     keys = values
 
     context, attn = transformer.scaled_dot_attention(
@@ -36,7 +36,7 @@ class TransformerTest(tf.test.TestCase):
         length = values_length[i]
         padding_length = max(values_length) - length
         if padding_length > 0:
-          self.assertEqual(0.0, np.sum(attn[i,:,length:max(values_length)]))
+          self.assertEqual(0.0, np.sum(attn[i, :, length:max(values_length)]))
 
   def testMaskedScaledDotAttention(self):
     batch_size = 3
@@ -44,8 +44,8 @@ class TransformerTest(tf.test.TestCase):
     depth = 20
 
     queries = tf.placeholder_with_default(
-      np.random.randn(batch_size, max(queries_length), depth).astype(np.float32),
-      shape=(None, None, depth))
+        np.random.randn(batch_size, max(queries_length), depth).astype(np.float32),
+        shape=(None, None, depth))
 
     context, attn = transformer.scaled_dot_attention(
         queries,
