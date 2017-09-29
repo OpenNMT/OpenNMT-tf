@@ -25,18 +25,28 @@ class Tokenizer(object):
     else:
       return self._tokenize_string(text)
 
+  def initialize(self, metadata):
+    """Initializes the tokenizer (e.g. load BPE models).
+
+    Any external assets should be registered in the standard assets collection:
+
+    ```
+    tf.add_to_collection(ops.GraphKeys.ASSET_FILEPATHS, filename)
+    ```
+
+    Args:
+      metadata: A dictionary containing additional metadata set
+        by the user.
+    """
+    pass
+
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
 
     When not overriden, this default implementation calls  `_tokenize_string`
     by using a `tf.py_func` operation.
 
-    This method should be thread-safe and any external assets should be registered
-    in the standard assets collection:
-
-    ```
-    tf.add_to_collection(ops.GraphKeys.ASSET_FILEPATHS, filename)
-    ```
+    This method should be thread-safe.
 
     Args:
       text: A 1-D string `tf.Tensor`.
@@ -57,12 +67,7 @@ class Tokenizer(object):
   def _tokenize_string(self, text):
     """Tokenizes a Python unicode string.
 
-    This method should be thread-safe and any external assets should be registered
-    in the standard assets collection:
-
-    ```
-    tf.add_to_collection(ops.GraphKeys.ASSET_FILEPATHS, filename)
-    ```
+    This method should be thread-safe.
 
     Args:
       text: A Python unicode string.

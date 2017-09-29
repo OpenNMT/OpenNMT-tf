@@ -187,6 +187,9 @@ class TextInputter(Inputter):
   def make_dataset(self, data_file):
     return tf.contrib.data.TextLineDataset(data_file)
 
+  def initialize(self, metadata):
+    self.tokenizer.initialize(metadata)
+
   def _get_serving_input(self):
     placeholder = tf.placeholder(tf.string, shape=())
     features = self.process(placeholder)
@@ -256,6 +259,7 @@ class WordEmbedder(TextInputter):
       raise ValueError("Must either provide embedding_size or embedding_file_key")
 
   def initialize(self, metadata):
+    super(WordEmbedder, self).initialize(metadata)
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.embedding_file = metadata[self.embedding_file_key] if self.embedding_file_key else None
 
@@ -350,6 +354,7 @@ class CharConvEmbedder(TextInputter):
     self.num_oov_buckets = 1
 
   def initialize(self, metadata):
+    super(CharConvEmbedder, self).initialize(metadata)
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
