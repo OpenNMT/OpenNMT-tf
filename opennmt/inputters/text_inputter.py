@@ -13,6 +13,7 @@ from tensorflow.contrib.tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
+from opennmt.tokenizers.tokenizer import SpaceTokenizer
 from opennmt.inputters.inputter import Inputter
 from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
@@ -172,32 +173,11 @@ def tokens_to_chars(tokens):
   return chars
 
 
-def tokenize(tokenizer, text, delimiter=" "):
-  """Tokenizes text.
-
-  This is an in-graph transformation.
-
-  Args:
-    tokenizer: A callable with the signature `(unicode string) -> list of unicode strings`.
-    text: A `tf.Tensor` containing the text to tokenize.
-    delimiter: The delimiter used to delimit tokens. Note that this character is
-      reserved and should not be part of any tokens.
-
-  Returns:
-    A `tf.Tensor` containing the tokenized text using `delimiter` as separator.
-  """
-  def wrapper(text):
-    unicode_text = text.decode("utf-8")
-    unicode_tokens = tokenizer(unicode_text)
-    return delimiter.join(unicode_tokens).encode("utf-8")
-  return tf.py_func(wrapper, [text], tf.string)
-
-
 @six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self, tokenizer=None):
+  def __init__(self, tokenizer=SpaceTokenizer()):
     super(TextInputter, self).__init__()
     self.tokenizer = tokenizer
 
@@ -219,9 +199,7 @@ class TextInputter(Inputter):
 
     if "tokens" not in data:
       text = data["raw"]
-      if self.tokenizer is not None:
-        text = tokenize(self.tokenizer, text)
-      tokens = tf.string_split([text]).values
+      tokens = self.tokenizer(text)
       length = tf.shape(tokens)[0]
 
       data = self.set_data_field(data, "tokens", tokens, padded_shape=[None])
@@ -247,7 +225,7 @@ class WordEmbedder(TextInputter):
                embedding_file_key=None,
                trainable=True,
                dropout=0.0,
-               tokenizer=None):
+               tokenizer=SpaceTokenizer()):
     """Initializes the parameters of the word embedder.
 
     Args:
@@ -260,8 +238,7 @@ class WordEmbedder(TextInputter):
         format and behavior.
       trainable: If `False`, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional callable to tokenize the input text. If `None`,
-        the text is tokenized on spaces. See also `tokenize`.
+      tokenizer: An optional callable to tokenize the input text.
 
     Raises:
       ValueError: if neither `embedding_size` nor `embedding_file_key` are set.
@@ -349,7 +326,7 @@ class CharConvEmbedder(TextInputter):
                kernel_size=5,
                stride=3,
                dropout=0.0,
-               tokenizer=None):
+               tokenizer=SpaceTokenizer()):
     """Initializes the parameters of the character convolution embedder.
 
     Args:
@@ -360,8 +337,7 @@ class CharConvEmbedder(TextInputter):
       kernel_size: Length of the convolution window.
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional callable to tokenize the input text. If `None`,
-        the text is tokenized on spaces. See also `tokenize`.
+      tokenizer: An optional callable to tokenize the input text.
     """
     super(CharConvEmbedder, self).__init__(tokenizer=tokenizer)
 

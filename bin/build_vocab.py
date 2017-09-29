@@ -8,6 +8,8 @@ import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from opennmt import constants
+from opennmt import tokenizers
+
 
 def main():
   parser = argparse.ArgumentParser(description="Generate vocabulary file")
@@ -18,8 +20,8 @@ def main():
       "--save_vocab", required=True,
       help="Output vocabulary file.")
   parser.add_argument(
-      "--delimiter", default=" ",
-      help="Delimiter to split tokens. If empty, split each character.")
+      "--tokenizer", default="SpaceTokenizer",
+      help="Tokenizer class name.")
   parser.add_argument(
       "--min_frequency", type=int, default=1,
       help="Minimum word frequency.")
@@ -57,14 +59,13 @@ def main():
     add_special_token(constants.START_OF_SENTENCE_TOKEN, constants.START_OF_SENTENCE_ID)
     add_special_token(constants.END_OF_SENTENCE_TOKEN, constants.END_OF_SENTENCE_ID)
 
+  tokenizer = getattr(tokenizers, args.tokenizer)()
+
   # Add each token from the corpus.
   with open(args.data, "rb") as data:
     for line in data:
       line = line.strip().decode("utf-8")
-      if not args.delimiter:
-        tokens = list(line)
-      else:
-        tokens = line.split(args.delimiter)
+      tokens = tokenizer(line)
       for token in tokens:
         add_token(token)
 
