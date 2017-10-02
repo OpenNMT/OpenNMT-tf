@@ -31,6 +31,8 @@ e.g.:
 onmt --model config/models/my_model.py --run config/my_run.yml
 ```
 
+When loading an existing checkpoint, the `--model` option is optional.
+
 ### Model configuration
 
 Models are defined from the code to allow a high level of modeling freedom. The user should provide a `opennmt.models.Model` instance using available or user-defined modules.

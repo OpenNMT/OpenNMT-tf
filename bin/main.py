@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import pickle
 import sys
 
 import tensorflow as tf
@@ -42,13 +43,46 @@ def setup_cluster(workers, ps, task_type, task_index):
       "environment": "cloud"
   })
 
+def load_model(model_dir, model_file=None):
+  """Loads the model.
+
+  The model object is pickled in `model_dir` to make the model configuration
+  optional for future runs.
+
+  Args:
+    model_dir: The model directory.
+    model_file: An optional model configuration.
+
+  Returns:
+    A `opennmt.models.Model` object.
+  """
+  serial_model_file = os.path.join(model_dir, "model_description.pkl")
+
+  if model_file:
+    if tf.train.checkpoint_exists(model_dir):
+      tf.logging.warn(
+          "You provided a model configuration but a checkpoint already exists. "
+          "The model configuration must match the one used for the initial training.")
+
+    model_config = load_config_module(model_file)
+    model = model_config.model()
+
+    with open(serial_model_file, "wb") as serial_model:
+      pickle.dump(model, serial_model)
+  elif not os.path.isfile(serial_model_file):
+    raise RuntimeError("A model configuration is required.")
+  else:
+    with open(serial_model_file, "rb") as serial_model:
+      model = pickle.load(serial_model)
+
+  return model
 
 def main():
   parser = argparse.ArgumentParser(description="OpenNMT-tf.")
   parser.add_argument("--run", required=True, nargs='+',
                       help="""list of run configuration files
                            (duplicate entries take the value of the rightmost file)""")
-  parser.add_argument("--model", required=True,
+  parser.add_argument("--model", default="",
                       help="model configuration file")
   parser.add_argument("--ps_hosts", default="",
                       help="comma-separated list of hostname:port pairs")
@@ -84,9 +118,10 @@ def main():
   params = config["params"]
   params["log_dir"] = config["run"]["model_dir"]
 
-  # Load model configuration.
-  model_config = load_config_module(args.model)
-  model = model_config.model()
+  if not os.path.isdir(config["run"]["model_dir"]):
+    os.makedirs(config["run"]["model_dir"])
+
+  model = load_model(config["run"]["model_dir"], model_file=args.model)
 
   estimator = tf.estimator.Estimator(
       model_fn=model,

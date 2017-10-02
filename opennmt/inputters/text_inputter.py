@@ -33,9 +33,6 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
     num_oov_buckets: The number of additional unknown tokens.
   """
   # Copy vocabulary file to log_dir.
-  if not os.path.isdir(log_dir):
-    os.makedirs(log_dir)
-
   basename = os.path.basename(vocabulary_file)
   destination = os.path.join(log_dir, basename)
   shutil.copy(vocabulary_file, destination)
