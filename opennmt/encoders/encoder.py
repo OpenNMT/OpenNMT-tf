@@ -85,7 +85,6 @@ class ParallelEncoder(Encoder):
     if tf.contrib.framework.nest.is_sequence(inputs) and len(inputs) != len(self.encoders):
       raise ValueError("ParallelEncoder expects as many inputs as parallel encoders")
 
-    # TODO: execute in parallel?
     for i in range(len(self.encoders)):
       with tf.variable_scope("encoder_" + str(i)):
         if tf.contrib.framework.nest.is_sequence(inputs):
