@@ -58,7 +58,7 @@ class SelfAttentionDecoder(Decoder):
         training=mode == tf.estimator.ModeKeys.TRAIN)
 
     for l in range(self.num_layers):
-      with tf.variable_scope("layer_" + str(l)):
+      with tf.variable_scope("layer_{}".format(l)):
         with tf.variable_scope("masked_multi_head"):
           encoded = transformer.multi_head_attention(
               self.num_heads,

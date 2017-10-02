@@ -52,7 +52,7 @@ class SelfAttentionEncoder(Encoder):
     state = ()
 
     for l in range(self.num_layers):
-      with tf.variable_scope("layer_" + str(l)):
+      with tf.variable_scope("layer_{}".format(l)):
         with tf.variable_scope("multi_head"):
           context = transformer.multi_head_attention(
               self.num_heads,

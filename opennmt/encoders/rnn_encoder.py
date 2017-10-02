@@ -241,7 +241,7 @@ class PyramidalRNNEncoder(Encoder):
         if sequence_length is not None:
           sequence_length = tf.div(sequence_length, self.reduction_factor)
 
-      with tf.variable_scope("layer_" + str(l)):
+      with tf.variable_scope("layer_{}".format(l)):
         outputs, state, sequence_length = self.layers[l].encode(
             inputs,
             sequence_length=sequence_length,

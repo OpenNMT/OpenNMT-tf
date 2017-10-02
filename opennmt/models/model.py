@@ -42,7 +42,7 @@ def learning_rate_decay_fn(decay_type,
     if decay_op_name is None:
       decay_op_name = getattr(decay, decay_type, None)
     if decay_op_name is None:
-      raise ValueError("Unknown decay function: " + decay_type)
+      raise ValueError("Unknown decay function: {}".format(decay_type))
 
     decayed_learning_rate = decay_op_name(
         learning_rate,

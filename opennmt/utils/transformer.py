@@ -90,14 +90,14 @@ def multi_head_attention(num_heads,
   input_dim = keys.get_shape().as_list()[-1]
 
   if input_dim % num_heads != 0:
-    raise ValueError(
-        "Multi head attention requires the input dimension to be a multiple of " + str(num_heads))
+    raise ValueError("Multi head attention requires the input dimension to be a"
+                     " multiple of {}".format(num_heads))
 
   head_dim = input_dim / num_heads
   heads = []
 
   for i in range(num_heads):
-    with tf.variable_scope("head_" + str(i)):
+    with tf.variable_scope("head_{}".format(i)):
       # Project queries, keys and values to different and smaller subspaces.
       queries_proj = tf.layers.conv1d(queries, head_dim, 1)
       keys_proj = tf.layers.conv1d(keys, head_dim, 1)

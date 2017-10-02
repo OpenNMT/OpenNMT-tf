@@ -60,7 +60,7 @@ def load_config_module(path):
   module = import_module(module)
 
   if not hasattr(module, "model"):
-    raise ImportError("No model defined in " + path)
+    raise ImportError("No model defined in {}".format(path))
 
   return module
 

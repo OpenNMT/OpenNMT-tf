@@ -191,7 +191,7 @@ def main():
         os.path.join(config["run"]["model_dir"], "manual_export"),
         model.serving_input_fn(config["data"]["meta"]))
   else:
-    raise ValueError("Unknown run type: " + config["run"]["type"])
+    raise ValueError("Unknown run type: {}".format(config["run"]["type"]))
 
 if __name__ == "__main__":
   main()
