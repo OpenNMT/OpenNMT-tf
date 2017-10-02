@@ -60,14 +60,14 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
   exists = False
   for meta in config.embeddings:
     if meta.tensor_name == embedding_var.name:
-      meta.metadata_path = destination
+      meta.metadata_path = basename
       exists = True
       break
 
   if not exists:
     embedding = config.embeddings.add()
     embedding.tensor_name = embedding_var.name
-    embedding.metadata_path = destination
+    embedding.metadata_path = basename
 
   summary_writer = tf.summary.FileWriter(log_dir)
 
