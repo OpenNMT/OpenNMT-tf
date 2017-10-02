@@ -36,13 +36,12 @@ class SequenceRecordInputter(Inputter):
     return tf.contrib.data.TFRecordDataset(data_file)
 
   def _get_serving_input(self):
-    placeholder = tf.placeholder(tf.float32, shape=(None, self.input_depth))
-    features = {
-        "tensor": placeholder,
-        "length": tf.shape(placeholder)[0]
+    receiver_tensors = {
+        "tensor": tf.placeholder(tf.string, shape=(None, None, self.input_depth)),
+        "length": tf.placeholder(tf.string, shape=(None))
     }
-    receiver_tensors = {"input": placeholder}
-    return receiver_tensors, features
+
+    return receiver_tensors, receiver_tensors.copy()
 
   def _process(self, data):
     data = super(SequenceRecordInputter, self)._process(data)

@@ -85,9 +85,6 @@ class Inputter(object):
       A `tf.estimator.export.ServingInputReceiver`.
     """
     receiver_tensors, features = self._get_serving_input()
-    # TODO: support batch input during preprocessing.
-    for key, value in features.items():
-      features[key] = tf.expand_dims(value, 0)
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
   def _get_serving_input(self):
@@ -330,11 +327,10 @@ class MixedInputter(MultiInputter):
   def _get_serving_input(self):
     all_receiver_tensors = {}
     all_features = {}
-    for i in range(len(self.inputters)):
-      receiver_tensors, features = self.inputters[i]._get_serving_input()  # pylint: disable=protected-access
+    for inputter in self.inputters:
+      receiver_tensors, features = inputter._get_serving_input()  # pylint: disable=protected-access
+      all_receiver_tensors.update(receiver_tensors)
       all_features.update(features)
-      if i == 0:
-        all_receiver_tensors = receiver_tensors
     return all_receiver_tensors, all_features
 
   def _process(self, data):

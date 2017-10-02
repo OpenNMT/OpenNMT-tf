@@ -187,12 +187,6 @@ class TextInputter(Inputter):
   def initialize(self, metadata):
     self.tokenizer.initialize(metadata)
 
-  def _get_serving_input(self):
-    placeholder = tf.placeholder(tf.string, shape=())
-    features = self.process(placeholder)
-    receiver_tensors = {"input": placeholder}
-    return receiver_tensors, features
-
   def _process(self, data):
     """Tokenizes raw text."""
     data = super(TextInputter, self)._process(data)
@@ -206,6 +200,10 @@ class TextInputter(Inputter):
       data = self.set_data_field(data, "length", length, padded_shape=[])
 
     return data
+
+  @abc.abstractmethod
+  def _get_serving_input(self):
+    raise NotImplementedError()
 
   @abc.abstractmethod
   def _transform_data(self, data, mode):
@@ -265,6 +263,17 @@ class WordEmbedder(TextInputter):
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         num_oov_buckets=self.num_oov_buckets)
+
+  def _get_serving_input(self):
+    receiver_tensors = {
+        "tokens": tf.placeholder(tf.string, shape=(None, None)),
+        "length": tf.placeholder(tf.string, shape=(None))
+    }
+
+    features = receiver_tensors.copy()
+    features["ids"] = self.vocabulary.lookup(features["tokens"])
+
+    return receiver_tensors, features
 
   def _process(self, data):
     """Converts words tokens to ids."""
@@ -358,6 +367,17 @@ class CharConvEmbedder(TextInputter):
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         num_oov_buckets=self.num_oov_buckets)
+
+  def _get_serving_input(self):
+    receiver_tensors = {
+        "chars": tf.placeholder(tf.string, shape=(None, None, None)),
+        "length": tf.placeholder(tf.string, shape=(None))
+    }
+
+    features = receiver_tensors.copy()
+    features["char_ids"] = self.vocabulary.lookup(features["chars"])
+
+    return receiver_tensors, features
 
   def _process(self, data):
     """Converts words to characters."""
