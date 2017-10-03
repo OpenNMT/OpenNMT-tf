@@ -28,7 +28,7 @@ An OpenNMT-tf run consists of two elements:
 e.g.:
 
 ```
-onmt --model config/models/my_model.py --run config/my_run.yml
+python -m bin.main --model config/models/my_model.py --run config/my_run.yml
 ```
 
 When loading an existing checkpoint, the `--model` option is optional.
@@ -53,7 +53,7 @@ Runs are described in separate YAML files. They define how to train, infer or ex
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
 
 ```
-onmt [...] --run config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
+python -m bin.main [...] --run config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
 ```
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority. Additionally, fields marked as optional have a default value defined in `opennmt/config.py`.
@@ -87,7 +87,7 @@ OpenNMT-tf provides asynchronous distributed training (see the [TensorFlow docum
 Then a training instance should be started on each host with a selected task, e.g.:
 
 ```
-CUDA_VISIBLE_DEVICES=0 onmt [...] --ps_hosts localhost:2222 --worker_hosts localhost:2223,localhost:2224 --task_type worker --task_index 1
+CUDA_VISIBLE_DEVICES=0 python -m bin.main [...] --ps_hosts localhost:2222 --worker_hosts localhost:2223,localhost:2224 --task_type worker --task_index 1
 ```
 
 will start the worker 1 on the current machine and first GPU.

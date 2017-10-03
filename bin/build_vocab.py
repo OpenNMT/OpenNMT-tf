@@ -4,9 +4,6 @@ import argparse
 import os
 import sys
 
-# Add parent directory to the PYTHONPATH.
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
 from opennmt import constants
 from opennmt import tokenizers
 
