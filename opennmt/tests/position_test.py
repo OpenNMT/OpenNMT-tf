@@ -10,8 +10,8 @@ class PositionTest(tf.test.TestCase):
     positions = position.make_positions(sequence_length)
     with self.test_session() as sess:
       positions = sess.run(positions)
-      self.assertAllEqual(positions, [[1, 2, 3, 4, 0, 0], [1, 2, 3, 4, 5, 6]])
+      self.assertAllEqual([[1, 2, 3, 4, 0, 0], [1, 2, 3, 4, 5, 6]], positions)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   tf.test.main()

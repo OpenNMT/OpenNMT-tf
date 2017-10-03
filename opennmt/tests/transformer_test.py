@@ -29,8 +29,8 @@ class TransformerTest(tf.test.TestCase):
 
     with self.test_session() as sess:
       context, attn = sess.run([context, attn])
-      self.assertTupleEqual(context.shape, (batch_size, max(queries_length), depth))
-      self.assertTupleEqual(attn.shape, (batch_size, max(queries_length), max(values_length)))
+      self.assertTupleEqual((batch_size, max(queries_length), depth), context.shape)
+      self.assertTupleEqual((batch_size, max(queries_length), max(values_length)), attn.shape)
 
       for i in range(batch_size):
         length = values_length[i]
@@ -62,6 +62,5 @@ class TransformerTest(tf.test.TestCase):
         self.assertEqual(0.0, np.sum(attn[i][illegal_connections]))
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
   tf.test.main()
