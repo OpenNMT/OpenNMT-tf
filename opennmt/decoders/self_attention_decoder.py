@@ -44,8 +44,7 @@ class SelfAttentionDecoder(Decoder):
              embeddings=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
-             memory_sequence_length=None,
-             return_logits=True):
+             memory_sequence_length=None):
     if scheduled_sampling_probability > 0:
       raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
 
@@ -113,10 +112,8 @@ class SelfAttentionDecoder(Decoder):
 
     outputs = inputs
 
-    if return_logits:
-      outputs = tf.layers.dense(
-          outputs,
-          vocab_size)
+    if mode != tf.estimator.ModeKeys.PREDICT:
+      outputs = tf.layers.dense(outputs, vocab_size)
 
     return (outputs, None, sequence_length)
 
@@ -153,8 +150,7 @@ class SelfAttentionDecoder(Decoder):
           encoder_state=encoder_state,
           mode=mode,
           memory=memory,
-          memory_sequence_length=memory_sequence_length,
-          return_logits=False)
+          memory_sequence_length=memory_sequence_length)
 
       # Only sample the last timestep.
       last_output = tf.slice(outputs, [0, step, 0], [-1, 1, -1])
@@ -239,8 +235,7 @@ class SelfAttentionDecoder(Decoder):
           encoder_state=encoder_state,
           mode=mode,
           memory=memory,
-          memory_sequence_length=memory_sequence_length,
-          return_logits=False)
+          memory_sequence_length=memory_sequence_length)
 
       # Only sample the last timestep.
       last_output = tf.slice(outputs, [0, step - 1, 0], [-1, 1, -1])
