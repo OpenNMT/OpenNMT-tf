@@ -49,7 +49,7 @@ class LogParametersCountHook(tf.train.SessionRunHook):
   """Simple hook that logs the number of trainable parameters."""
 
   def begin(self):
-    print("Number of trainable parameters:", count_parameters())
+    tf.logging.info("Number of trainable parameters: %d", count_parameters())
 
 class WordCounterHook(tf.train.SessionRunHook):
   """Hook that counts tokens per second.

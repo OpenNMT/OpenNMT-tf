@@ -72,6 +72,7 @@ def load_model(model_dir, model_file=None):
   elif not os.path.isfile(serial_model_file):
     raise RuntimeError("A model configuration is required.")
   else:
+    tf.logging.info("Loading serialized model description from %s", serial_model_file)
     with open(serial_model_file, "rb") as serial_model:
       model = pickle.load(serial_model)
 
@@ -92,7 +93,12 @@ def main():
                       help="type of the task to run")
   parser.add_argument("--task_index", type=int, default=0,
                       help="id of the task (0 is the master)")
+  parser.add_argument("--log_level", default="INFO",
+                      choices=["DEBUG", "ERROR", "FATAL", "INFO", "WARN"],
+                      help="logs verbosity")
   args = parser.parse_args()
+
+  tf.logging.set_verbosity(getattr(tf.logging, args.log_level))
 
   # Load and merge run configurations.
   config = load_run_config(args.run, config=get_default_config())
@@ -119,6 +125,7 @@ def main():
   params["log_dir"] = config["run"]["model_dir"]
 
   if not os.path.isdir(config["run"]["model_dir"]):
+    tf.logging.info("Creating model directory %s", config["run"]["model_dir"])
     os.makedirs(config["run"]["model_dir"])
 
   model = load_model(config["run"]["model_dir"], model_file=args.model)
