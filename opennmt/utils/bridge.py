@@ -6,6 +6,28 @@ import six
 import tensorflow as tf
 
 
+def assert_state_is_compatible(expected_state, state):
+  """Asserts that states are compatible.
+
+  Args:
+    expected_state: The reference state.
+    state: The state that must be compatible with `expected_state`.
+
+  Raises:
+    ValueError: if the states are incompatible.
+  """
+  # Check structure compatibility.
+  tf.contrib.framework.nest.assert_same_structure(expected_state, state)
+
+  # Check shape compatibility.
+  expected_state_flat = tf.contrib.framework.nest.flatten(expected_state)
+  state_flat = tf.contrib.framework.nest.flatten(state)
+
+  for x, y in zip(expected_state_flat, state_flat):
+    if tf.contrib.framework.is_tensor(x):
+      tf.contrib.framework.with_same_shape(x, y)
+
+
 @six.add_metaclass(abc.ABCMeta)
 class Bridge(object):
   """Base class for bridges."""
@@ -31,11 +53,7 @@ class CopyBridge(Bridge):
   """A bridge that passes the encoder state as is."""
 
   def _build(self, encoder_state, decoder_zero_state):
-    # Encoder and decoder states must have the same structure.
-    tf.contrib.framework.nest.assert_same_structure(
-        encoder_state,
-        decoder_zero_state)
-
+    assert_state_is_compatible(decoder_zero_state, encoder_state)
     return encoder_state
 
 
