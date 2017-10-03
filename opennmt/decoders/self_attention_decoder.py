@@ -124,7 +124,7 @@ class SelfAttentionDecoder(Decoder):
                      vocab_size,
                      encoder_state=None,
                      maximum_iterations=250,
-                     mode=tf.estimator.ModeKeys.TRAIN,
+                     mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
                      memory_sequence_length=None):
     batch_size = tf.shape(start_tokens)[0]
@@ -209,7 +209,7 @@ class SelfAttentionDecoder(Decoder):
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
-                                mode=tf.estimator.ModeKeys.TRAIN,
+                                mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None):
     if encoder_state is not None:

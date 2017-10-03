@@ -86,7 +86,7 @@ class Decoder(object):
                      vocab_size,
                      encoder_state=None,
                      maximum_iterations=250,
-                     mode=tf.estimator.ModeKeys.TRAIN,
+                     mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
                      memory_sequence_length=None):
     """Decodes dynamically from `start_tokens` with greedy search.
@@ -119,7 +119,7 @@ class Decoder(object):
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
-                                mode=tf.estimator.ModeKeys.TRAIN,
+                                mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None):
     """Decodes dynamically from `start_tokens` with beam search.
