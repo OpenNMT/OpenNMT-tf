@@ -267,7 +267,7 @@ class WordEmbedder(TextInputter):
   def _get_serving_input(self):
     receiver_tensors = {
         "tokens": tf.placeholder(tf.string, shape=(None, None)),
-        "length": tf.placeholder(tf.string, shape=(None))
+        "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
     features = receiver_tensors.copy()
@@ -371,7 +371,7 @@ class CharConvEmbedder(TextInputter):
   def _get_serving_input(self):
     receiver_tensors = {
         "chars": tf.placeholder(tf.string, shape=(None, None, None)),
-        "length": tf.placeholder(tf.string, shape=(None))
+        "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
     features = receiver_tensors.copy()
