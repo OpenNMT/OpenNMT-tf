@@ -68,7 +68,8 @@ class Model(object):
     """Creates the model. See `tf.estimator.Estimator`'s `model_fn` argument
     for more details about arguments and the returned value.
     """
-    self._register_word_counters(features, labels)
+    if mode == tf.estimator.ModeKeys.TRAIN:
+      self._register_word_counters(features, labels)
     with tf.variable_scope(self.name):
       return self._build(features, labels, params, mode, config)
 
