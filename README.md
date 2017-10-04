@@ -96,6 +96,10 @@ Also see [`tensorflow/ecosystem`](https://github.com/tensorflow/ecosystem) to in
 
 ## Model serving
 
-OpenNMT-tf can export models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. The model is automatically exported at the end of the training or manually with the `export` run type.
+OpenNMT-tf can export models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/) (see `examples/serving/nmt_client.py`).
 
-The expected inputs depend on the model. See the `_get_serving_input` methods of the inputters modules of your model to define the data that need to be fed. For example, because the Python function used in `tf.py_func` is not serialized in the graph, in-graph tokenization is not supported and text inputs are expected to be tokenized.
+A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. The model is automatically exported at the end of the training or manually with the `export` run type.
+
+The expected inputs depend on the model. See the `_get_serving_input` methods of the inputters modules of your model to define the data that need to be fed.
+
+Note: because the Python function used in `tf.py_func` is not serialized in the graph, in-graph tokenization is not supported and text inputs are expected to be tokenized.
