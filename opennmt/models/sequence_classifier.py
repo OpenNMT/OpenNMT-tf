@@ -59,12 +59,12 @@ class SequenceClassifier(Model):
     padded_shapes_fn = lambda: []
     return dataset, process_fn, padded_shapes_fn
 
-  def _build(self, features, labels, params, mode):
+  def _build(self, features, labels, params, mode, config):
     with tf.variable_scope("encoder"):
       inputs = self.inputter.transform_data(
           features,
           mode,
-          log_dir=params.get("log_dir"))
+          log_dir=config.model_dir)
 
       encoder_outputs, _, _ = self.encoder.encode(
           inputs,

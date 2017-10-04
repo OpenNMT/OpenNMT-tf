@@ -97,14 +97,18 @@ def main():
 
   tf.logging.set_verbosity(getattr(tf.logging, args.log_level))
 
-  # Load and merge run configurations.
-  config = load_run_config(args.run, config=get_default_config())
-
   # Setup cluster if defined.
   if args.worker_hosts:
     ps = args.ps_hosts.split(",")
     workers = args.workers_hosts.split(",")
     setup_cluster(workers, ps, args.task_type, args.task_index)
+
+  # Load and merge run configurations.
+  config = load_run_config(args.run, config=get_default_config())
+
+  if not os.path.isdir(config["run"]["model_dir"]):
+    tf.logging.info("Creating model directory %s", config["run"]["model_dir"])
+    os.makedirs(config["run"]["model_dir"])
 
   session_config = tf.ConfigProto()
   session_config.gpu_options.allow_growth = config["run"]["gpu_allow_growth"]
@@ -118,19 +122,12 @@ def main():
       model_dir=config["run"]["model_dir"],
       session_config=session_config)
 
-  params = config["params"]
-  params["log_dir"] = config["run"]["model_dir"]
-
-  if not os.path.isdir(config["run"]["model_dir"]):
-    tf.logging.info("Creating model directory %s", config["run"]["model_dir"])
-    os.makedirs(config["run"]["model_dir"])
-
   model = load_model(config["run"]["model_dir"], model_file=args.model)
 
   estimator = tf.estimator.Estimator(
       model_fn=model,
       config=run_config,
-      params=params)
+      params=config["params"])
 
   if config["run"]["type"] == "train":
     train_input_fn = model.input_fn(
@@ -189,7 +186,7 @@ def main():
         labels_file=config["data"].get("labels_file"))
 
     for prediction in estimator.predict(input_fn=test_input_fn):
-      model.print_prediction(prediction, params=params)
+      model.print_prediction(prediction, params=config["params"])
   elif config["run"]["type"] == "export":
     estimator.export_savedmodel(
         os.path.join(config["run"]["model_dir"], "manual_export"),

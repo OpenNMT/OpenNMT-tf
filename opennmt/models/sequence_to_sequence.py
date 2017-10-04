@@ -103,7 +103,7 @@ class SequenceToSequence(Model):
     padded_shapes_fn = lambda: self.target_inputter.padded_shapes
     return dataset, process_fn, padded_shapes_fn
 
-  def _build(self, features, labels, params, mode):
+  def _build(self, features, labels, params, mode, config):
     features_length = self._get_features_length(features)
     batch_size = tf.shape(features_length)[0]
 
@@ -111,7 +111,7 @@ class SequenceToSequence(Model):
       source_inputs = self.source_inputter.transform_data(
           features,
           mode,
-          log_dir=params.get("log_dir"))
+          log_dir=config.model_dir)
 
       encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
           source_inputs,
@@ -129,7 +129,7 @@ class SequenceToSequence(Model):
         target_inputs = self.target_inputter.transform_data(
             labels,
             mode,
-            log_dir=params.get("log_dir"))
+            log_dir=config.model_dir)
 
         decoder_outputs, _, decoded_length = self.decoder.decode(
             target_inputs,

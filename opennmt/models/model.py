@@ -64,16 +64,16 @@ class Model(object):
   def __init__(self, name):
     self.name = name
 
-  def __call__(self, features, labels, params, mode):
+  def __call__(self, features, labels, params, mode, config):
     """Creates the model. See `tf.estimator.Estimator`'s `model_fn` argument
     for more details about arguments and the returned value.
     """
     self._register_word_counters(features, labels)
     with tf.variable_scope(self.name):
-      return self._build(features, labels, params, mode)
+      return self._build(features, labels, params, mode, config)
 
   @abc.abstractmethod
-  def _build(self, features, labels, params, mode):
+  def _build(self, features, labels, params, mode, config):
     """Creates the model. Subclasses should override this function."""
     raise NotImplementedError()
 
