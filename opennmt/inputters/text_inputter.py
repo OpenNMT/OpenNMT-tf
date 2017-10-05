@@ -236,7 +236,8 @@ class WordEmbedder(TextInputter):
         format and behavior.
       trainable: If `False`, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional callable to tokenize the input text.
+      tokenizer: An optional `opennmt.tokenizers.Tokenizer` to tokenize the
+        input text.
 
     Raises:
       ValueError: if neither `embedding_size` nor `embedding_file_key` are set.
@@ -347,7 +348,8 @@ class CharConvEmbedder(TextInputter):
       kernel_size: Length of the convolution window.
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional callable to tokenize the input text.
+      tokenizer: An optional `opennmt.tokenizers.Tokenizer` to tokenize the
+        input text.
     """
     super(CharConvEmbedder, self).__init__(tokenizer=tokenizer)
 
