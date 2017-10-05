@@ -16,7 +16,7 @@
 
 ## To improve
 
-* Write modules tests
+* Write more tests
 * Expose alignment history after decoding
   * https://github.com/tensorflow/tensorflow/issues/13154
 * More frequent model export
