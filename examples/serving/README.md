@@ -7,7 +7,7 @@ This example implements a simple client that sends a batch translation request t
 * [TensorFlow Serving](https://www.tensorflow.org/serving) (`1.3.0`)
 * an exported translation model
 
-Note: for this example to work, the model should be a `SequenceToSequence` model with `WordEmbedder` as the source inputter.
+**Note:** for this example to work, the model should be a `SequenceToSequence` model with `WordEmbedder` as the source inputter.
 
 ### Usage
 
@@ -18,17 +18,21 @@ tensorflow_model_server --port=9000 --model_name=enfr --model_base_path=$HOME/Op
 ```
 
 * `enfr` is the model name that the client will request
-* `$HOME/OpenNMT-tf/models/enfr` is a directory containing multiple versions of exported models (e.g. `v1` and `v2`)
+* `$HOME/OpenNMT-tf/models/enfr` is a directory containing multiple exported versions of the same model
 
 2\. Run the client:
 
 ```
-$ python examples/serving/nmt_client.py --host=localhost --port=9000 --model_name=enfr
+python examples/serving/nmt_client.py --host=localhost --port=9000 --model_name=enfr
+```
+
+The output of this command should look like this:
+
+```
 Input:
 	Hello world !
 	My name is John .
 	I live on the West coast .
-Sending request...
 Output:
 	Bonjour le monde !
 	Mon nom est John .

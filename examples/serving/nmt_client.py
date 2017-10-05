@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import argparse
-import threading
 
 import tensorflow as tf
 
@@ -57,33 +56,18 @@ def parse_translation_result(result):
     best.append(best_hypotheses[0:best_length - 1]) # Ignore </s>.
   return best
 
-def done_callback(result_future, condition):
-  """Request result callback."""
-  exception = result_future.exception()
-  if exception:
-    print(exception)
-  else:
-    batch_tokens = parse_translation_result(result_future.result())
-    print("Output:")
-    print_batch(batch_tokens)
-
-  # Notify the waiting thread that we finished.
-  with condition:
-    condition.notify()
-
-def send_translation_request(model_name, batch_tokens, stub, condition, timeout=5.0):
-  """Sends a translation request.
+def translate_batch(stub, model_name, batch_tokens, timeout=5.0):
+  """Translates a batch.
 
   Args:
-    model_name: The model to request.
-    batch_tokens: A list of list of strings.
     stub: The prediction service stub.
-    condition: The condition variable to notify.
+    model_name: The model to request.
+    batch_tokens: The batch to translate as a list of list of strings.
     timeout: Timeout after this many seconds.
-  """
-  print("Input:")
-  print_batch(batch_tokens)
 
+  Returns:
+    The translation as a list of list of strings.
+  """
   batch_tokens, lengths = pad_batch(batch_tokens)
   batch_size = len(batch_tokens)
   max_length = len(batch_tokens[0])
@@ -97,10 +81,8 @@ def send_translation_request(model_name, batch_tokens, stub, condition, timeout=
   request.inputs["length"].CopyFrom(
       tf.make_tensor_proto(lengths, shape=(batch_size,)))
 
-  print("Sending request...")
   result_future = stub.Predict.future(request, timeout)
-  result_future.add_done_callback(lambda x: done_callback(x, condition))
-
+  return parse_translation_result(result_future.result())
 
 def main():
   parser = argparse.ArgumentParser(description="Translation client example")
@@ -117,19 +99,23 @@ def main():
   channel = implementations.insecure_channel(args.host, args.port)
   stub = prediction_service_pb2.beta_create_PredictionService_stub(channel)
 
-  condition = threading.Condition()
-
   # Prepare a simple batch request with 3 sentences.
   batch_tokens = [
       ["Hello", "world", "!"],
       ["My", "name", "is", "John", "."],
       ["I", "live", "on", "the", "West", "coast", "."]]
 
-  send_translation_request(args.model_name, batch_tokens, stub, condition, timeout=args.timeout)
+  print("Input:")
+  print_batch(batch_tokens)
 
-  # Wait for all request to end.
-  with condition:
-    condition.wait()
+  output_batch_tokens = translate_batch(
+      stub,
+      args.model_name,
+      batch_tokens,
+      timeout=args.timeout)
+
+  print("Output:")
+  print_batch(output_batch_tokens)
 
 if __name__ == "__main__":
   main()
