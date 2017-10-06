@@ -26,8 +26,8 @@ def main():
       "--size", type=int, default=0,
       help="Maximum vocabulary size. If = 0, do not limit vocabulary.")
   parser.add_argument(
-      "--with_sequence_tokens", type=bool, default=True,
-      help="If True, also inject special sequence tokens (start, end).")
+      "--without_sequence_tokens", default=False, action="store_true",
+      help="If set, do not add special sequence tokens (start, end) in the vocabulary.")
   args = parser.parse_args()
 
   token_to_id = {}
@@ -52,7 +52,7 @@ def main():
 
   add_special_token(constants.PADDING_TOKEN, constants.PADDING_ID)
 
-  if args.with_sequence_tokens:
+  if not args.without_sequence_tokens:
     add_special_token(constants.START_OF_SENTENCE_TOKEN, constants.START_OF_SENTENCE_ID)
     add_special_token(constants.END_OF_SENTENCE_TOKEN, constants.END_OF_SENTENCE_ID)
 
