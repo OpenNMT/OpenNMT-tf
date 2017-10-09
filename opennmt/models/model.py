@@ -123,10 +123,11 @@ class Model(object):
           name=name + "_init",
           trainable=False,
           dtype=tf.int64)
-      tf.assign_add(
+      total_word_count = tf.assign_add(
           total_word_count,
           word_count,
           name=name)
+      tf.add_to_collection("counters", total_word_count)
 
     features_length = self._get_features_length(features)
     labels_length = self._get_labels_length(labels)
