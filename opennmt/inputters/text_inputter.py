@@ -227,11 +227,11 @@ class WordEmbedder(TextInputter):
     """Initializes the parameters of the word embedder.
 
     Args:
-      vocabulary_file_key: The run configuration key of the vocabulary file
+      vocabulary_file_key: The data configuration key of the vocabulary file
         containing one word per line.
       embedding_size: The size of the resulting embedding.
         If `None`, an embedding file must be provided.
-      embedding_file_key: The run configuration key of the embedding file.
+      embedding_file_key: The data configuration key of the embedding file.
         See the `load_pretrained_embeddings` function for details about the
         format and behavior.
       trainable: If `False`, do not optimize embeddings.
@@ -341,7 +341,7 @@ class CharConvEmbedder(TextInputter):
     """Initializes the parameters of the character convolution embedder.
 
     Args:
-      vocabulary_file_key: The run configuration key of the vocabulary file
+      vocabulary_file_key: The meta configuration key of the vocabulary file
         containing one character per line.
       embedding_size: The size of the character embedding.
       num_outputs: The dimension of the convolution output space.

@@ -81,15 +81,16 @@ class Model(object):
   def _build_train_op(self, loss, params):
     """Builds the training op given parameters."""
     global_step = tf.train.get_or_create_global_step()
+    decay_type = params.get("decay_type")
 
-    if params["decay_type"] is not None:
+    if decay_type is not None:
       decay_fn = learning_rate_decay_fn(
-          params["decay_type"],
+          decay_type,
           params["decay_rate"],
           params["decay_steps"],
-          staircase=params["staircase"],
-          start_decay_steps=params["start_decay_steps"],
-          minimum_learning_rate=params["minimum_learning_rate"])
+          staircase=params.get("staircase", True),
+          start_decay_steps=params.get("start_decay_steps", 0),
+          minimum_learning_rate=params.get("minimum_learning_rate", 0))
     else:
       decay_fn = None
 
@@ -98,7 +99,7 @@ class Model(object):
         global_step,
         params["learning_rate"],
         params["optimizer"],
-        clip_gradients=params["clip_gradients"],
+        clip_gradients=params.get("clip_gradients"),
         learning_rate_decay_fn=decay_fn,
         summaries=[
             "learning_rate",
@@ -243,10 +244,10 @@ class Model(object):
                      batch_size,
                      buffer_size,
                      num_threads,
-                     num_buckets,
                      metadata,
                      features_file,
                      labels_file=None,
+                     num_buckets=None,
                      maximum_features_length=None,
                      maximum_labels_length=None):
     """See `input_fn`."""
@@ -283,7 +284,7 @@ class Model(object):
       dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
       dataset = dataset.repeat()
 
-    if mode == tf.estimator.ModeKeys.PREDICT or num_buckets <= 1:
+    if mode == tf.estimator.ModeKeys.PREDICT or num_buckets is None or num_buckets <= 1:
       dataset = dataset.padded_batch(
           batch_size,
           padded_shapes=padded_shapes)
@@ -322,10 +323,10 @@ class Model(object):
                batch_size,
                buffer_size,
                num_threads,
-               num_buckets,
                metadata,
                features_file,
                labels_file=None,
+               num_buckets=None,
                maximum_features_length=None,
                maximum_labels_length=None):
     """Returns an input function.
@@ -338,11 +339,11 @@ class Model(object):
       buffer_size: The prefetch buffer size (used e.g. for shuffling).
       num_threads: The number of threads to use for processing elements
         in parallel.
-      num_buckets: The number of buckets to store examples of similar sizes.
       metadata: A dictionary containing additional metadata set
         by the user.
       features_file: The file containing input features.
       labels_file: The file containing output labels.
+      num_buckets: The number of buckets to store examples of similar sizes.
       maximum_features_length: The maximum length of feature sequences
         during training (if it applies).
       maximum_labels_length: The maximum length of label sequences
@@ -362,10 +363,10 @@ class Model(object):
         batch_size,
         buffer_size,
         num_threads,
-        num_buckets,
         metadata,
         features_file,
         labels_file=labels_file,
+        num_buckets=num_buckets,
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length)
 

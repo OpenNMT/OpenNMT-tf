@@ -20,15 +20,16 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
 
 ## Overview
 
-An OpenNMT-tf run consists of two elements:
+A minimal OpenNMT-tf run consists of 3 elements:
 
 * a Python file describing the **model**
-* a YAML file describing the **run**
+* a YAML file describing the **parameters**
+* a **run** type
 
 e.g.:
 
 ```
-python -m bin.main --model config/models/my_model.py --run config/my_run.yml
+python -m bin.main <run_type> --model <model_file.py> --config <config_file.yml>
 ```
 
 When loading an existing checkpoint, the `--model` option is optional.
@@ -46,19 +47,19 @@ Some modules are defined to contain other modules and can be used to design comp
 
 *See the template file `config/models/template.py` and examples in `config/models/`.*
 
-### Run configuration
+### Parameters configuration
 
-Runs are described in separate YAML files. They define how to train, infer or export a model.
+Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference.
 
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
 
 ```
-python -m bin.main [...] --run config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
+python -m bin.main [...] --config config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
 ```
 
-If a configuration key is duplicated, the value defined in the rightmost configuration file has priority. Additionally, fields marked as optional have a default value defined in `opennmt/config.py`.
+If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
 
-*See example configurations in `config/`.*
+*See the example configuration `config/config.sample.yml` to learn about available options.*
 
 ## Monitoring
 
@@ -87,7 +88,7 @@ OpenNMT-tf provides asynchronous distributed training (see the [TensorFlow docum
 Then a training instance should be started on each host with a selected task, e.g.:
 
 ```
-CUDA_VISIBLE_DEVICES=0 python -m bin.main [...] --ps_hosts localhost:2222 --worker_hosts localhost:2223,localhost:2224 --task_type worker --task_index 1
+CUDA_VISIBLE_DEVICES=0 python -m bin.main train [...] --ps_hosts localhost:2222 --worker_hosts localhost:2223,localhost:2224 --task_type worker --task_index 1
 ```
 
 will start the worker 1 on the current machine and first GPU.

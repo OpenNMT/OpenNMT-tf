@@ -20,7 +20,7 @@ class SequenceRecordInputter(Inputter):
     """Initializes the parameters of the record inputter.
 
     Args:
-      input_depth_key: The run configuration key of the input depth value
+      input_depth_key: The data configuration key of the input depth value
         which has to be known statically.
     """
     super(SequenceRecordInputter, self).__init__()

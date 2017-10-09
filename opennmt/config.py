@@ -5,48 +5,7 @@ from importlib import import_module
 import yaml
 
 
-def get_default_config():
-  """Returns a default run configuration.
-
-  Required options are not set but expected to be provided by
-  the user.
-
-  Returns:
-    A dictionary with the same structure as calling `yaml.load`
-    on the YAML configuration file.
-  """
-  return {
-      "run": {
-          "save_checkpoints_steps": 1000,
-          "keep_checkpoint_max": 5,
-          "save_summary_steps": 100,
-          "train_steps": None,
-          "eval_steps": None,
-          "gpu_allow_growth": False
-      },
-      "data": {
-          "meta": {},
-          "maximum_features_length": None,
-          "maximum_labels_length": None,
-          "buffer_size": 10000,
-          "num_threads": 4,
-          "num_buckets": 5
-      },
-      "params": {
-          "scheduled_sampling_probability": 0,
-          "clip_gradients": None,
-          "decay_type": None,
-          "staircase": True,
-          "start_decay_steps": 0,
-          "minimum_learning_rate": 0,
-          "beam_width": 5,
-          "length_penalty": 0.2,
-          "maximum_iterations": 250,
-          "n_best": 1
-      }
-  }
-
-def load_config_module(path):
+def load_model_module(path):
   """Loads a model configuration file.
 
   Args:
@@ -64,11 +23,11 @@ def load_config_module(path):
 
   return module
 
-def load_run_config(run_files, config=None):
-  """Loads run configuration files.
+def load_config(config_paths, config=None):
+  """Loads configuration files.
 
   Args:
-    run_files: A list of run configuration files.
+    config_paths: A list of configuration files.
     config: A (possibly non empty) config dictionary to fill.
 
   Returns:
@@ -77,7 +36,7 @@ def load_run_config(run_files, config=None):
   if config is None:
     config = {}
 
-  for config_path in run_files:
+  for config_path in config_paths:
     with open(config_path) as config_file:
       subconfig = yaml.load(config_file.read())
 

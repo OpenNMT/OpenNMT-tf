@@ -119,6 +119,7 @@ class SequenceToSequence(Model):
           mode=mode)
 
     with tf.variable_scope("decoder") as decoder_scope:
+      vocab_size = self.target_inputter.vocabulary_size
       embedding_fn = lambda x: self.target_inputter.transform(
           x,
           mode,
@@ -131,40 +132,48 @@ class SequenceToSequence(Model):
             mode,
             log_dir=config.model_dir)
 
+        scheduled_sampling_probability = params.get("scheduled_sampling_probability", 0)
         decoder_outputs, _, decoded_length = self.decoder.decode(
             target_inputs,
             self._get_labels_length(labels),
-            self.target_inputter.vocabulary_size,
+            vocab_size,
             encoder_state=encoder_state,
-            scheduled_sampling_probability=params["scheduled_sampling_probability"],
+            scheduled_sampling_probability=scheduled_sampling_probability,
             embeddings=embedding_fn,
             mode=mode,
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length)
-      elif params["beam_width"] <= 1:
-        decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode(
-            embedding_fn,
-            tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
-            constants.END_OF_SENTENCE_ID,
-            self.target_inputter.vocabulary_size,
-            encoder_state=encoder_state,
-            maximum_iterations=params["maximum_iterations"],
-            mode=mode,
-            memory=encoder_outputs,
-            memory_sequence_length=encoder_sequence_length)
       else:
-        decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode_and_search(
-            embedding_fn,
-            tf.fill([batch_size], constants.START_OF_SENTENCE_ID),
-            constants.END_OF_SENTENCE_ID,
-            self.target_inputter.vocabulary_size,
-            encoder_state=encoder_state,
-            beam_width=params["beam_width"],
-            length_penalty=params["length_penalty"],
-            maximum_iterations=params["maximum_iterations"],
-            mode=mode,
-            memory=encoder_outputs,
-            memory_sequence_length=encoder_sequence_length)
+        beam_width = params.get("beam_width", 1)
+        maximum_iterations = params.get("maximum_iterations", 250)
+        start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
+        end_token = constants.END_OF_SENTENCE_ID
+
+        if beam_width <= 1:
+          decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode(
+              embedding_fn,
+              start_tokens,
+              end_token,
+              vocab_size,
+              encoder_state=encoder_state,
+              maximum_iterations=maximum_iterations,
+              mode=mode,
+              memory=encoder_outputs,
+              memory_sequence_length=encoder_sequence_length)
+        else:
+          length_penalty = params.get("length_penalty", 0)
+          decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode_and_search(
+              embedding_fn,
+              start_tokens,
+              end_token,
+              vocab_size,
+              encoder_state=encoder_state,
+              beam_width=beam_width,
+              length_penalty=length_penalty,
+              maximum_iterations=maximum_iterations,
+              mode=mode,
+              memory=encoder_outputs,
+              memory_sequence_length=encoder_sequence_length)
 
     if mode != tf.estimator.ModeKeys.PREDICT:
       loss = masked_sequence_loss(

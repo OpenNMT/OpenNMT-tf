@@ -23,7 +23,7 @@ class SequenceTagger(Model):
     Args:
       inputter: A `onmt.inputters.Inputter` to process the input data.
       encoder: A `onmt.encoders.Encoder` to encode the input.
-      labels_vocabulary_file_key: The run configuration key of the labels
+      labels_vocabulary_file_key: The data configuration key of the labels
         vocabulary file containing one label per line.
       crf_decoding: If `True`, add a CRF layer after the encoder.
       name: The name of this model.
