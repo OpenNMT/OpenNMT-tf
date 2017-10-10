@@ -114,7 +114,7 @@ Models are automatically exported at the end of the training or manually with th
 
 When using an exported model, you should prepare the inputs as expected by the model. See the `_get_serving_input` methods of the inputters modules of your model to define the data that need to be fed. Some examples are also available in the `examples/` directory:
 
-*`examples/serving` to serve a model with TensorFlow Serving
-*`examples/cpp` to run inference with the TensorFlow C++ API
+* `examples/serving` to serve a model with TensorFlow Serving
+* `examples/cpp` to run inference with the TensorFlow C++ API
 
 **Note:** because the Python function used in `tf.py_func` is not serialized in the graph, model exports do not support in-graph tokenization and text inputs are expected to be tokenized.
