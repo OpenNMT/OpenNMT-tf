@@ -71,19 +71,22 @@ class CountersHook(tf.train.SessionRunHook):
           tf.logging.info("%s: %g", name, value)
 
 
-class SaveValidationPredictionHook(tf.train.SessionRunHook):
-  """Hook that saves the validation predictions."""
+class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
+  """Hook that saves the evaluation predictions."""
 
-  def __init__(self, model, output_file):
+  def __init__(self, model, output_file, post_evaluation_fn=None):
     """Initializes this hook.
 
     Args:
-      model: The model for which to save the validation predictions.
+      model: The model for which to save the evaluation predictions.
       output_file: The output filename which will be suffixed by the current
         training step.
+      post_evaluation_fn: (optional) A callable that takes as argument the file
+        with the saved predictions.
     """
     self._model = model
     self._output_file = output_file
+    self._post_evaluation_fn = post_evaluation_fn
 
   def begin(self):
     self._predictions = misc.get_dict_from_collection("predictions")
@@ -91,7 +94,7 @@ class SaveValidationPredictionHook(tf.train.SessionRunHook):
       raise RuntimeError("The model did not define any predictions.")
     self._global_step = tf.train.get_global_step()
     if self._global_step is None:
-      raise RuntimeError("Global step should be created to use SaveValidationPredictionHook.")
+      raise RuntimeError("Global step should be created to use SaveEvaluationPredictionHook.")
 
   def before_run(self, run_context):  # pylint: disable=unused-argument
     return tf.train.SessionRunArgs([self._predictions, self._global_step])
@@ -102,3 +105,5 @@ class SaveValidationPredictionHook(tf.train.SessionRunHook):
     with open(output_path, "a") as output_file:
       for prediction in misc.extract_batches(predictions):
         self._model.print_prediction(prediction, stream=output_file)
+    if self._post_evaluation_fn is not None:
+      self._post_evaluation_fn(output_path)
