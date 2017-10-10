@@ -147,7 +147,7 @@ def main():
     batch_size = config["train"]["batch_size"]
     buffer_size = config["train"].get("buffer_size", batch_size * 1000)
     num_threads = config["train"].get("num_threads", multiprocessing.cpu_count())
-    num_buckets = config["train"].get("num_buckets")
+    num_buckets = config["train"].get("num_buckets", 5)
     maximum_features_length = config["train"].get("maximum_features_length", 0)
     maximum_labels_length = config["train"].get("maximum_labels_length", 0)
 
