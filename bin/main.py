@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import multiprocessing
 import os
 import pickle
 
@@ -144,8 +145,8 @@ def main():
         params=config["params"])
 
     batch_size = config["train"]["batch_size"]
-    buffer_size = config["train"].get("buffer_size", 10000)
-    num_threads = config["train"].get("num_threads", 4)
+    buffer_size = config["train"].get("buffer_size", batch_size * 1000)
+    num_threads = config["train"].get("num_threads", multiprocessing.cpu_count())
     num_buckets = config["train"].get("num_buckets")
     maximum_features_length = config["train"].get("maximum_features_length", 0)
     maximum_labels_length = config["train"].get("maximum_labels_length", 0)
@@ -213,8 +214,8 @@ def main():
         params=config["params"])
 
     batch_size = config["infer"]["batch_size"]
-    buffer_size = config["infer"].get("buffer_size", 100)
-    num_threads = config["infer"].get("num_threads", 4)
+    buffer_size = config["infer"].get("buffer_size", batch_size * 10)
+    num_threads = config["infer"].get("num_threads", multiprocessing.cpu_count())
 
     test_input_fn = model.input_fn(
         tf.estimator.ModeKeys.PREDICT,

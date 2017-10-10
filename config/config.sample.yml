@@ -64,17 +64,17 @@ train:
   maximum_labels_length: 70
   # (optional) The number of buckets by sequence length to improve training efficiency (default: 5).
   num_buckets: 5
-  # (optional) The number of threads to use for processing data in parallel (default: 4).
+  # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_threads: 4
-  # (optional) The data pre-fetch buffer size, e.g. for shuffling examples (default: 10000).
+  # (optional) The data pre-fetch buffer size, e.g. for shuffling examples (default: batch_size * 1000).
   buffer_size: 10000
 
 infer:
   batch_size: 10
 
-  # (optional) The number of threads to use for processing data in parallel (default: 4).
+  # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_threads: 4
-  # (optional) The data pre-fetch buffer size when processing data in parallel (default: 100).
+  # (optional) The data pre-fetch buffer size when processing data in parallel (default: batch_size * 10).
   buffer_size: 100
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1
