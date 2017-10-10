@@ -26,6 +26,10 @@ def noam_decay(learning_rate,
   Returns:
     The learning rate for the step `global_step`.
   """
+  _ = learning_rate
+  _ = staircase
+  _ = name
+
   global_step = tf.cast(global_step, tf.float32)
   decay_rate = tf.cast(decay_rate, tf.float32)
   decay_steps = tf.cast(decay_steps, tf.float32)

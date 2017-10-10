@@ -28,7 +28,7 @@ EOS_ID = 1
 INF = 1. * 1e7
 
 
-def log_prob_from_logits(logits):
+def _log_prob_from_logits(logits):
   return logits - tf.reduce_logsumexp(logits, axis=2, keep_dims=True)
 
 
@@ -242,7 +242,7 @@ def beam_search(symbols_to_logits_fn,
     logits = tf.reshape(flat_logits, (batch_size, beam_size, -1))
 
     # Convert logits to normalized log probs
-    candidate_log_probs = log_prob_from_logits(logits)
+    candidate_log_probs = _log_prob_from_logits(logits)
 
     # Multiply the probabilites by the current probabilites of the beam.
     # (batch_size, beam_size, vocab_size) + (batch_size, beam_size, 1)

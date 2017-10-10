@@ -131,7 +131,7 @@ class SequenceToSequence(Model):
             labels,
             mode,
             log_dir=config.model_dir)
-        logits, _, decoded_length = self.decoder.decode(
+        logits, _, _ = self.decoder.decode(
             target_inputs,
             self._get_labels_length(labels),
             target_vocab_size,

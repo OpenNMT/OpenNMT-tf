@@ -35,7 +35,7 @@ def learning_rate_decay_fn(decay_type,
   Raises:
     ValueError: if `decay_type` can not be resolved.
   """
-  def decay_fn(learning_rate, global_step):
+  def _decay_fn(learning_rate, global_step):
     decay_op_name = None
 
     if decay_op_name is None:
@@ -55,7 +55,7 @@ def learning_rate_decay_fn(decay_type,
 
     return decayed_learning_rate
 
-  return decay_fn
+  return _decay_fn
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -165,13 +165,13 @@ class Model(object):
     """
     def _add_counter(word_count, name):
       word_count = tf.cast(word_count, tf.int64)
-      total_word_count = tf.Variable(
+      total_word_count_init = tf.Variable(
           initial_value=0,
           name=name + "_init",
           trainable=False,
           dtype=tf.int64)
       total_word_count = tf.assign_add(
-          total_word_count,
+          total_word_count_init,
           word_count,
           name=name)
       tf.add_to_collection("counters", total_word_count)
@@ -339,7 +339,7 @@ class Model(object):
     else:
       # For training and evaluation, use bucketing.
 
-      def key_func(features, unused_labels):
+      def _key_func(features, unused_labels):
         if maximum_features_length:
           bucket_width = (maximum_features_length + num_buckets - 1) // num_buckets
         else:
@@ -349,14 +349,14 @@ class Model(object):
         bucket_id = tf.minimum(bucket_id, num_buckets)
         return tf.to_int64(bucket_id)
 
-      def reduce_func(unused_key, dataset):
+      def _reduce_func(unused_key, dataset):
         return dataset.padded_batch(
             batch_size,
             padded_shapes=padded_shapes)
 
       dataset = dataset.group_by_window(
-          key_func=key_func,
-          reduce_func=reduce_func,
+          key_func=_key_func,
+          reduce_func=_reduce_func,
           window_size=batch_size)
 
     iterator = dataset.make_initializable_iterator()
@@ -443,4 +443,5 @@ class Model(object):
       params: (optional) Dictionary of formatting parameters.
       stream: (optional) The stream to print to.
     """
+    _ = params
     print(prediction, file=stream)

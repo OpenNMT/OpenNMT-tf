@@ -136,10 +136,10 @@ class SelfAttentionDecoder(Decoder):
 
     embedding_fn = get_embedding_fn(embeddings)
 
-    def condition(unused_step, finished, unused_inputs, unused_lengths, unused_log_probs):
+    def _condition(unused_step, finished, unused_inputs, unused_lengths, unused_log_probs):
       return tf.logical_not(tf.reduce_all(finished))
 
-    def body(step, finished, inputs, lengths, log_probs):
+    def _body(step, finished, inputs, lengths, log_probs):
       inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, tf.int32))
 
       # Decode inputs.
@@ -178,8 +178,8 @@ class SelfAttentionDecoder(Decoder):
       return step, next_finished, next_inputs, next_lengths, log_probs
 
     step, _, outputs, lengths, log_probs = tf.while_loop(
-        condition,
-        body,
+        _condition,
+        _body,
         loop_vars=(step, finished, inputs, lengths, log_probs),
         shape_invariants=(
             tf.TensorShape([]),
@@ -224,7 +224,7 @@ class SelfAttentionDecoder(Decoder):
 
     embedding_fn = get_embedding_fn(embeddings)
 
-    def symbols_to_logits_fn(symbols):
+    def _symbols_to_logits_fn(symbols):
       batch_size = tf.shape(symbols)[0]
       step = tf.shape(symbols)[1]
       sequence_length = tf.fill([batch_size], step)
@@ -245,7 +245,7 @@ class SelfAttentionDecoder(Decoder):
       return logits
 
     outputs, log_probs = beam_search(
-        symbols_to_logits_fn,
+        _symbols_to_logits_fn,
         start_tokens,
         beam_width,
         maximum_iterations,

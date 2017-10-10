@@ -1,8 +1,6 @@
 """Standalone script to generate word vocabularies from monolingual corpus."""
 
 import argparse
-import os
-import sys
 
 from opennmt import constants
 from opennmt import tokenizers
@@ -34,7 +32,7 @@ def main():
   id_to_token = []
   frequency = []
 
-  def add_token(token):
+  def _add_token(token):
     if token not in token_to_id:
       index = len(id_to_token)
       token_to_id[token] = index
@@ -43,18 +41,18 @@ def main():
     else:
       frequency[token_to_id[token]] += 1
 
-  def add_special_token(token, index):
+  def _add_special_token(token, index):
     token_to_id[token] = index
     id_to_token.insert(index, token)
 
     # Set a very high frequency to avoid special tokens to be pruned.
     frequency.insert(index, float("inf"))
 
-  add_special_token(constants.PADDING_TOKEN, constants.PADDING_ID)
+  _add_special_token(constants.PADDING_TOKEN, constants.PADDING_ID)
 
   if not args.without_sequence_tokens:
-    add_special_token(constants.START_OF_SENTENCE_TOKEN, constants.START_OF_SENTENCE_ID)
-    add_special_token(constants.END_OF_SENTENCE_TOKEN, constants.END_OF_SENTENCE_ID)
+    _add_special_token(constants.START_OF_SENTENCE_TOKEN, constants.START_OF_SENTENCE_ID)
+    _add_special_token(constants.END_OF_SENTENCE_TOKEN, constants.END_OF_SENTENCE_ID)
 
   tokenizer = getattr(tokenizers, args.tokenizer)()
 
@@ -64,7 +62,7 @@ def main():
       line = line.strip().decode("utf-8")
       tokens = tokenizer(line)
       for token in tokens:
-        add_token(token)
+        _add_token(token)
 
   # Sort by frequency.
   sorted_ids = sorted(range(len(frequency)), key=lambda k: frequency[k], reverse=True)

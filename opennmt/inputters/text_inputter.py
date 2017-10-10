@@ -135,18 +135,18 @@ def tokens_to_chars(tokens):
     A `tf.Tensor` of shape `[sequence_length, max_word_length]`.
   """
 
-  def split_chars(token, max_length, delimiter=" "):
+  def _split_chars(token, max_length, delimiter=" "):
     chars = list(token.decode("utf-8"))
     while len(chars) < max_length:
       chars.append(PADDING_TOKEN)
     return delimiter.join(chars).encode("utf-8")
 
-  def string_len(token):
+  def _string_len(token):
     return len(token.decode("utf-8"))
 
   # Get the length of each token.
   lengths = tf.map_fn(
-      lambda x: tf.py_func(string_len, [x], [tf.int64]),
+      lambda x: tf.py_func(_string_len, [x], [tf.int64]),
       tokens,
       dtype=[tf.int64],
       back_prop=False)
@@ -155,7 +155,7 @@ def tokens_to_chars(tokens):
 
   # Add a delimiter between each unicode character.
   spaced_chars = tf.map_fn(
-      lambda x: tf.py_func(split_chars, [x, max_length], [tf.string]),
+      lambda x: tf.py_func(_split_chars, [x, max_length], [tf.string]),
       tokens,
       dtype=[tf.string],
       back_prop=False)

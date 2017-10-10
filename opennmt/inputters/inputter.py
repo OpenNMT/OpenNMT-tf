@@ -246,25 +246,17 @@ class MultiInputter(Inputter):
 class ParallelInputter(MultiInputter):
   """An multi inputter that process parallel data."""
 
-  def __init__(self, inputters):
-    """Initializes a parallel inputter.
-
-    Args:
-      inputters: A list of `onmt.inputters.Inputter`s.
-    """
-    super(ParallelInputter, self).__init__(inputters)
-
   def get_length(self, data):
     # Let the first inputter defines the input data length.
     sub_data = extract_prefixed_keys(data, "inputter_0_")
     return self.inputters[0].get_length(sub_data)
 
-  def make_dataset(self, data_files):
-    if not isinstance(data_files, list) or len(data_files) != len(self.inputters):
+  def make_dataset(self, data_file):
+    if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
       raise ValueError("The number of data files must be the same as the number of inputters")
     datasets = [
-        inputter.make_dataset(data_file)
-        for inputter, data_file in zip(self.inputters, data_files)]
+        inputter.make_dataset(data)
+        for inputter, data in zip(self.inputters, data_file)]
     return tf.contrib.data.Dataset.zip(tuple(datasets))
 
   def _get_serving_input(self):
@@ -278,11 +270,11 @@ class ParallelInputter(MultiInputter):
         all_features["inputter_{}_{}".format(i, key)] = value
     return all_receiver_tensors, all_features
 
-  def _process(self, parallel_data):
+  def _process(self, data):
     processed_data = {}
     for i in range(len(self.inputters)):
-      data = self.inputters[i].process(parallel_data[i])
-      for key, value in data.items():
+      sub_data = self.inputters[i].process(data[i])
+      for key, value in sub_data.items():
         prefixed_key = "inputter_{}_{}".format(i, key)
         processed_data = self.set_data_field(
             processed_data,

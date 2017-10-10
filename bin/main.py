@@ -1,8 +1,9 @@
+"""Main script."""
+
 import argparse
 import json
 import os
 import pickle
-import sys
 
 import tensorflow as tf
 
@@ -10,12 +11,12 @@ from opennmt.utils import hooks
 from opennmt.config import load_model_module, load_config
 
 
-def setup_cluster(workers, ps, task_type, task_index):
+def setup_cluster(workers, parameter_servers, task_type, task_index):
   """Sets the cluster configuration.
 
   Args:
     workers: A list of worker hosts.
-    ps: A list of parameter server hosts.
+    parameter_servers: A list of parameter server hosts.
     task_type: The type of the local task.
     taks_index: The index of the local task.
   """
@@ -29,7 +30,7 @@ def setup_cluster(workers, ps, task_type, task_index):
       task_index -= 1
 
   cluster = {
-      "ps": ps,
+      "ps": parameter_servers,
       "worker": workers,
       "master": master
   }

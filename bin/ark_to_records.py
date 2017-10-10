@@ -29,6 +29,14 @@ import tensorflow as tf
 
 
 def consume_next_vector(ark_file):
+  """Consumes the next vector.
+
+  Args:
+    ark_file: The ARK data file.
+
+  Returns:
+    The next vector as a 2D Numpy array.
+  """
   idx = None
   vector = []
 
@@ -55,6 +63,7 @@ def consume_next_vector(ark_file):
   return idx, np.asarray(vector, dtype=np.float32)
 
 def consume_next_text(text_file):
+  """Consumes the next text line from `text_file`."""
   idx = None
   text = text_file.readline()
 
@@ -67,6 +76,7 @@ def consume_next_text(text_file):
   return idx, text
 
 def write_record(vector, writer):
+  """Serializes `vector` as TFRecord."""
   shape = list(vector.shape)
   values = vector.flatten().tolist()
 
@@ -78,10 +88,12 @@ def write_record(vector, writer):
   writer.write(example.SerializeToString())
 
 def write_text(text, writer):
+  """Serializes a line of text."""
   writer.write(text)
   writer.write("\n")
 
 def ark_to_records(ark_filename, text_filename, out_prefix):
+  """Converts ARK and text datasets to aligned TFRecords and text datasets."""
   record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
   text_writer = open(out_prefix + ".txt", "w")
 
@@ -89,11 +101,11 @@ def ark_to_records(ark_filename, text_filename, out_prefix):
   text_buffer = {}
   count = 0
 
-  def write_example(vector, text):
+  def _write_example(vector, text):
     write_record(vector, record_writer)
     write_text(text, text_writer)
 
-  def search_aligned():
+  def _search_aligned():
     for idx in ark_buffer:
       if idx in text_buffer:
         vector = ark_buffer[idx]
@@ -117,7 +129,7 @@ def ark_to_records(ark_filename, text_filename, out_prefix):
 
       if ark_idx == text_idx:
         # If the indices match, write the example.
-        write_example(vector, text)
+        _write_example(vector, text)
         count += 1
       else:
         # Otherwise store the entries.
@@ -127,18 +139,18 @@ def ark_to_records(ark_filename, text_filename, out_prefix):
           text_buffer[text_idx] = text
 
         # Look if we can now find aligned entries.
-        vector, text = search_aligned()
+        vector, text = _search_aligned()
 
         if vector is not None:
-          write_example(vector, text)
+          _write_example(vector, text)
           count += 1
 
   # Search alignments in stored entries.
   while True:
-    vector, text = search_aligned()
+    vector, text = _search_aligned()
     if vector is None:
       break
-    write_example(vector, text)
+    _write_example(vector, text)
     count += 1
 
   record_writer.close()

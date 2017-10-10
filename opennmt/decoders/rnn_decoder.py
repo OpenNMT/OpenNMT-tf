@@ -49,6 +49,9 @@ class RNNDecoder(Decoder):
                   encoder_state=None,
                   memory=None,
                   memory_sequence_length=None):
+    _ = memory
+    _ = memory_sequence_length
+
     cell = build_cell(
         self.num_layers,
         self.num_units,
@@ -75,6 +78,9 @@ class RNNDecoder(Decoder):
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
+    _ = memory
+    _ = memory_sequence_length
+
     batch_size = tf.shape(inputs)[0]
 
     if scheduled_sampling_probability > 0:

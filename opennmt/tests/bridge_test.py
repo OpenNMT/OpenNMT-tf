@@ -27,13 +27,13 @@ class BridgeTest(tf.test.TestCase):
     encoder_state = _build_state(3, 20, 6)
     decoder_state = _build_state(4, 20, 6)
     with self.assertRaises(ValueError):
-      state = bridge.CopyBridge()(encoder_state, decoder_state)
+      _ = bridge.CopyBridge()(encoder_state, decoder_state)
 
   def testCopyBridgeSizeMismatch(self):
     encoder_state = _build_state(3, 20, 6)
     decoder_state = _build_state(3, 30, 6)
     with self.assertRaises(ValueError):
-      state = bridge.CopyBridge()(encoder_state, decoder_state)
+      _ = bridge.CopyBridge()(encoder_state, decoder_state)
 
   def testDenseBridge(self):
     encoder_state = _build_state(3, 20, 6)
