@@ -84,54 +84,44 @@ class SequenceTagger(Model):
           encoder_outputs,
           self.num_labels)
 
-    if mode != tf.estimator.ModeKeys.PREDICT:
-      if self.crf_decoding:
-        log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(
-            logits,
-            tf.cast(labels, tf.int32),
-            length)
-        loss = tf.reduce_mean(-log_likelihood)
-      else:
-        loss = masked_sequence_loss(
-            logits,
-            labels,
-            length)
-
-      return tf.estimator.EstimatorSpec(
-          mode,
-          loss=loss,
-          train_op=self._build_train_op(loss, params))
-    else:
+    if mode != tf.estimator.ModeKeys.TRAIN:
       if self.crf_decoding:
         transition_params = tf.get_variable(
             "transitions", shape=[self.num_labels, self.num_labels])
-        labels, _ = tf.contrib.crf.crf_decode(
+        tags_id, _ = tf.contrib.crf.crf_decode(
             logits,
             transition_params,
             encoder_sequence_length)
-        labels = tf.cast(labels, tf.int64)
+        tags_id = tf.cast(tags_id, tf.int64)
       else:
-        probs = tf.nn.softmax(logits)
-        labels = tf.argmax(probs, axis=2)
+        tags_prob = tf.nn.softmax(logits)
+        tags_id = tf.argmax(tags_prob, axis=2)
 
       labels_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
           self.labels_vocabulary_file,
           vocab_size=self.num_labels)
 
-      predictions = {}
-      predictions["length"] = encoder_sequence_length
-      predictions["labels"] = labels_vocab_rev.lookup(labels)
-
-      export_outputs = {
-          "predictions": tf.estimator.export.PredictOutput(predictions)
+      predictions = {
+          "length": encoder_sequence_length,
+          "labels": labels_vocab_rev.lookup(tags_id)
       }
+    else:
+      predictions = None
 
-      return tf.estimator.EstimatorSpec(
-          mode,
-          predictions=predictions,
-          export_outputs=export_outputs)
+    return logits, predictions
 
-  def print_prediction(self, prediction, params=None):
+  def _compute_loss(self, features, labels, outputs):
+    length = self._get_features_length(features)
+    if self.crf_decoding:
+      log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
+          outputs,
+          tf.cast(labels, tf.int32),
+          length)
+      return tf.reduce_mean(-log_likelihood)
+    else:
+      return masked_sequence_loss(logits, labels, length)
+
+  def print_prediction(self, prediction, params=None, stream=None):
     labels = prediction["labels"][:prediction["length"]]
     sent = b" ".join(labels)
-    print(sent.decode("utf-8"))
+    print(sent.decode("utf-8"), file=stream)

@@ -1,0 +1,104 @@
+"""Custom hooks."""
+
+from __future__ import print_function
+
+import tensorflow as tf
+
+from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
+from opennmt.utils import misc
+
+
+class LogParametersCountHook(tf.train.SessionRunHook):
+  """Simple hook that logs the number of trainable parameters."""
+
+  def begin(self):
+    tf.logging.info("Number of trainable parameters: %d", misc.count_parameters())
+
+
+class CountersHook(tf.train.SessionRunHook):
+  """Hook that summarizes counters.
+
+  Implementation is mostly copied from StepCounterHook.
+  """
+
+  def __init__(self,
+               every_n_steps=100,
+               every_n_secs=None,
+               output_dir=None,
+               summary_writer=None):
+    if (every_n_steps is None) == (every_n_secs is None):
+      raise ValueError("exactly one of every_n_steps and every_n_secs should be provided.")
+    self._timer = tf.train.SecondOrStepTimer(
+        every_steps=every_n_steps,
+        every_secs=every_n_secs)
+
+    self._summary_writer = summary_writer
+    self._output_dir = output_dir
+
+  def begin(self):
+    self._counters = tf.get_collection("counters")
+    if not self._counters:
+      return
+
+    if self._summary_writer is None and self._output_dir:
+      self._summary_writer = SummaryWriterCache.get(self._output_dir)
+
+    self._last_count = [0 for _ in self._counters]
+    self._global_step = tf.train.get_global_step()
+    if self._global_step is None:
+      raise RuntimeError("Global step should be created to use WordCounterHook.")
+
+  def before_run(self, run_context):  # pylint: disable=unused-argument
+    if not self._counters:
+      return None
+    return tf.train.SessionRunArgs([self._counters, self._global_step])
+
+  def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
+    if not self._counters:
+      return
+
+    counters, step = run_values.results
+    if self._timer.should_trigger_for_step(step):
+      elapsed_time, _ = self._timer.update_last_triggered_step(step)
+      if elapsed_time is not None:
+        for i in range(len(self._counters)):
+          name = self._counters[i].name
+          value = (counters[i] - self._last_count[i]) / elapsed_time
+          self._last_count[i] = counters[i]
+          if self._summary_writer is not None:
+            summary = tf.Summary(value=[tf.Summary.Value(tag=name, simple_value=value)])
+            self._summary_writer.add_summary(summary, global_step)
+          tf.logging.info("%s: %g", name, value)
+
+
+class SaveValidationPredictionHook(tf.train.SessionRunHook):
+  """Hook that saves the validation predictions."""
+
+  def __init__(self, model, output_file):
+    """Initializes this hook.
+
+    Args:
+      model: The model for which to save the validation predictions.
+      output_file: The output filename which will be suffixed by the current
+        training step.
+    """
+    self._model = model
+    self._output_file = output_file
+
+  def begin(self):
+    self._predictions = misc.get_dict_from_collection("predictions")
+    if not self._predictions:
+      raise RuntimeError("The model did not define any predictions.")
+    self._global_step = tf.train.get_global_step()
+    if self._global_step is None:
+      raise RuntimeError("Global step should be created to use SaveValidationPredictionHook.")
+
+  def before_run(self, run_context):  # pylint: disable=unused-argument
+    return tf.train.SessionRunArgs([self._predictions, self._global_step])
+
+  def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
+    predictions, step = run_values.results
+    output_path = "{}.{}".format(self._output_file, step)
+    with open(output_path, "a") as output_file:
+      for prediction in misc.extract_batches(predictions):
+        self._model.print_prediction(prediction, stream=output_file)

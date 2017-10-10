@@ -78,31 +78,19 @@ class SequenceClassifier(Model):
           encoding,
           self.num_labels)
 
-    if mode != tf.estimator.ModeKeys.PREDICT:
-      loss = tf.losses.sparse_softmax_cross_entropy(
-          labels,
-          logits)
-
-      return tf.estimator.EstimatorSpec(
-          mode,
-          loss=loss,
-          train_op=self._build_train_op(loss, params))
-    else:
+    if mode != tf.estimator.ModeKeys.TRAIN:
       labels_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
           self.labels_vocabulary_file,
           vocab_size=self.num_labels)
-
-      probs = tf.nn.softmax(logits)
-      predictions = tf.argmax(probs, axis=1)
-      predictions = labels_vocab_rev.lookup(predictions)
-
-      export_outputs = {
-          "predictions": tf.estimator.export.PredictOutput({
-              "tags": predictions
-          })
+      tags_prob = tf.nn.softmax(logits)
+      tags_id = tf.argmax(tags_prob, axis=1)
+      predictions = {
+          "tags": labels_vocab_rev.lookup(tags_id)
       }
+    else:
+      predictions = None
 
-      return tf.estimator.EstimatorSpec(
-          mode,
-          predictions=predictions,
-          export_outputs=export_outputs)
+    return logits, predictions
+
+  def _compute_loss(self, features, labels, outputs):
+    return tf.losses.sparse_softmax_cross_entropy(labels, outputs)

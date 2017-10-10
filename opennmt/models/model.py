@@ -9,6 +9,7 @@ import six
 import tensorflow as tf
 
 from opennmt.utils import decay
+from opennmt.utils.misc import add_dict_to_collection
 
 
 def learning_rate_decay_fn(decay_type,
@@ -70,12 +71,58 @@ class Model(object):
     """
     if mode == tf.estimator.ModeKeys.TRAIN:
       self._register_word_counters(features, labels)
+
     with tf.variable_scope(self.name):
-      return self._build(features, labels, params, mode, config)
+      outputs, predictions = self._build(features, labels, params, mode, config)
+
+      if predictions is not None:
+        # Register predictions in a collection so that hooks can easily fetch them.
+        add_dict_to_collection(predictions, "predictions")
+
+      if mode != tf.estimator.ModeKeys.PREDICT:
+        loss = self._compute_loss(features, labels, outputs)
+        train_op = self._build_train_op(loss, params)
+
+        return tf.estimator.EstimatorSpec(
+            mode,
+            loss=loss,
+            train_op=train_op)
+      else:
+        export_outputs = {
+            "predictions": tf.estimator.export.PredictOutput(predictions)
+        }
+
+        return tf.estimator.EstimatorSpec(
+            mode,
+            predictions=predictions,
+            export_outputs=export_outputs)
 
   @abc.abstractmethod
   def _build(self, features, labels, params, mode, config):
-    """Creates the model. Subclasses should override this function."""
+    """Creates the graph.
+
+    See `tf.estimator.Estimator`'s `model_fn` for arguments description.
+
+    Returns:
+      outputs: The model outputs (usually unscaled probabilities). Optional if
+        `mode` is `tf.estimator.ModeKeys.PREDICT`.
+      predictions: The model predictions. Optional if `mode` is
+        `tf.estimator.ModeKeys.TRAIN`.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def _compute_loss(self, features, labels, outputs):
+    """Computes the loss.
+
+    Args:
+      features: The dict of features `tf.Tensor`s.
+      labels: The dict of labels `tf.Tensor`s.
+      output: The model outputs (usually unscaled probabilities).
+
+    Returns:
+      The loss.
+    """
     raise NotImplementedError()
 
   def _build_train_op(self, loss, params):
@@ -388,11 +435,12 @@ class Model(object):
     """
     return lambda: self._serving_input_fn_impl(metadata)
 
-  def print_prediction(self, prediction, params=None):
+  def print_prediction(self, prediction, params=None, stream=None):
     """Prints the model prediction.
 
     Args:
-      prediction: The evaluated prediction returned by `__call__`.
+      prediction: The evaluated prediction.
       params: (optional) Dictionary of formatting parameters.
+      stream: (optional) The stream to print to.
     """
-    print(prediction)
+    print(prediction, file=stream)

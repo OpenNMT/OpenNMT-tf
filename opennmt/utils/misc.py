@@ -1,10 +1,6 @@
 """Various utility functions to use throughout the project."""
 
-from __future__ import print_function
-
 import tensorflow as tf
-
-from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
 
 
 def count_lines(filename):
@@ -37,67 +33,62 @@ def extract_prefixed_keys(dictionary, prefix):
       sub_dict[original_key] = value
   return sub_dict
 
+def extract_batches(tensors):
+  """Returns a generator to iterate on each batch of a Numpy array or dict of
+  Numpy arrays."""
+  if not isinstance(tensors, dict):
+    for tensor in tensors:
+      yield tensor
+  else:
+    batch_size = None
+    for _, value in tensors.items():
+      batch_size = batch_size or value.shape[0]
+    for b in range(batch_size):
+      yield {
+          key: value[b] for key, value in tensors.items()
+      }
 
-class LogParametersCountHook(tf.train.SessionRunHook):
-  """Simple hook that logs the number of trainable parameters."""
 
-  def begin(self):
-    tf.logging.info("Number of trainable parameters: %d", count_parameters())
+# The next 2 functions come with the following license and copyright:
 
-class CountersHook(tf.train.SessionRunHook):
-  """Hook that summarizes counters.
+# Copyright 2017 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-  Implementation is mostly copied from StepCounterHook.
+def add_dict_to_collection(dict_, collection_name):
+  """Adds a dictionary to a graph collection.
+
+  Args:
+    dict_: A dictionary of string keys to tensor values
+    collection_name: The name of the collection to add the dictionary to
   """
+  key_collection = collection_name + "_keys"
+  value_collection = collection_name + "_values"
+  for key, value in dict_.items():
+    tf.add_to_collection(key_collection, key)
+    tf.add_to_collection(value_collection, value)
 
-  def __init__(self,
-               every_n_steps=100,
-               every_n_secs=None,
-               output_dir=None,
-               summary_writer=None):
-    if (every_n_steps is None) == (every_n_secs is None):
-      raise ValueError("exactly one of every_n_steps and every_n_secs should be provided.")
-    self._timer = tf.train.SecondOrStepTimer(
-        every_steps=every_n_steps,
-        every_secs=every_n_secs)
+def get_dict_from_collection(collection_name):
+  """Gets a dictionary from a graph collection.
 
-    self._summary_writer = summary_writer
-    self._output_dir = output_dir
+  Args:
+    collection_name: A collection name to read a dictionary from
 
-  def begin(self):
-    self._counters = tf.get_collection("counters")
-    if not self._counters:
-      return
-
-    if self._summary_writer is None and self._output_dir:
-      self._summary_writer = SummaryWriterCache.get(self._output_dir)
-
-    self._last_count = [0 for _ in self._counters]
-    self._global_step_tensor = tf.train.get_global_step()
-    if self._global_step_tensor is None:
-      raise RuntimeError("Global step should be created to use WordCounterHook.")
-
-  def before_run(self, run_context):  # pylint: disable=unused-argument
-    if not self._counters:
-      return None
-    fetches = list(self._counters) + [self._global_step_tensor]
-    return tf.train.SessionRunArgs(fetches)
-
-  def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
-    if not self._counters:
-      return
-
-    results = run_values.results
-    global_step = results.pop()
-
-    if self._timer.should_trigger_for_step(global_step):
-      elapsed_time, _ = self._timer.update_last_triggered_step(global_step)
-      if elapsed_time is not None:
-        for i in range(len(self._counters)):
-          name = self._counters[i].name
-          value = (results[i] - self._last_count[i]) / elapsed_time
-          self._last_count[i] = results[i]
-          if self._summary_writer is not None:
-            summary = tf.Summary(value=[tf.Summary.Value(tag=name, simple_value=value)])
-            self._summary_writer.add_summary(summary, global_step)
-          tf.logging.info("%s: %g", name, value)
+  Returns:
+    A dictionary with string keys and tensor values
+  """
+  key_collection = collection_name + "_keys"
+  value_collection = collection_name + "_values"
+  keys = tf.get_collection(key_collection)
+  values = tf.get_collection(value_collection)
+  return dict(zip(keys, values))

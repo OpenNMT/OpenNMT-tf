@@ -6,7 +6,7 @@ import sys
 
 import tensorflow as tf
 
-from opennmt.utils.misc import LogParametersCountHook, CountersHook
+from opennmt.utils import hooks
 from opennmt.config import load_model_module, load_config
 
 
@@ -184,8 +184,8 @@ def main():
       experiment.run_std_server()
     elif run_config.is_chief:
       experiment.extend_train_hooks([
-          LogParametersCountHook(),
-          CountersHook(
+          hooks.LogParametersCountHook(),
+          hooks.CountersHook(
               every_n_steps=run_config.save_summary_steps,
               output_dir=config["model_dir"])
       ])

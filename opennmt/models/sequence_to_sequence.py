@@ -112,49 +112,51 @@ class SequenceToSequence(Model):
           features,
           mode,
           log_dir=config.model_dir)
-
       encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
           source_inputs,
           sequence_length=features_length,
           mode=mode)
 
-    with tf.variable_scope("decoder") as decoder_scope:
-      vocab_size = self.target_inputter.vocabulary_size
-      embedding_fn = lambda x: self.target_inputter.transform(
-          x,
-          mode,
-          scope=decoder_scope,
-          reuse_next=True)
+    target_vocab_size = self.target_inputter.vocabulary_size
+    target_embedding_fn = lambda scope: lambda x: self.target_inputter.transform(
+        x,
+        mode,
+        scope=scope,
+        reuse_next=True)
 
-      if mode != tf.estimator.ModeKeys.PREDICT:
+    with tf.variable_scope("decoder") as decoder_scope:
+      if labels is not None:
+        scheduled_sampling_probability = params.get("scheduled_sampling_probability", 0)
         target_inputs = self.target_inputter.transform_data(
             labels,
             mode,
             log_dir=config.model_dir)
-
-        scheduled_sampling_probability = params.get("scheduled_sampling_probability", 0)
-        decoder_outputs, _, decoded_length = self.decoder.decode(
+        logits, _, decoded_length = self.decoder.decode(
             target_inputs,
             self._get_labels_length(labels),
-            vocab_size,
+            target_vocab_size,
             encoder_state=encoder_state,
             scheduled_sampling_probability=scheduled_sampling_probability,
-            embeddings=embedding_fn,
+            embeddings=target_embedding_fn(decoder_scope),
             mode=mode,
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length)
       else:
+        logits = None
+
+    if mode != tf.estimator.ModeKeys.TRAIN:
+      with tf.variable_scope(decoder_scope, reuse=labels is not None):
         beam_width = params.get("beam_width", 1)
         maximum_iterations = params.get("maximum_iterations", 250)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
         end_token = constants.END_OF_SENTENCE_ID
 
         if beam_width <= 1:
-          decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode(
-              embedding_fn,
+          sampled_ids, _, sampled_length, log_probs = self.decoder.dynamic_decode(
+              target_embedding_fn(decoder_scope),
               start_tokens,
               end_token,
-              vocab_size,
+              target_vocab_size,
               encoder_state=encoder_state,
               maximum_iterations=maximum_iterations,
               mode=mode,
@@ -162,11 +164,11 @@ class SequenceToSequence(Model):
               memory_sequence_length=encoder_sequence_length)
         else:
           length_penalty = params.get("length_penalty", 0)
-          decoder_outputs, _, decoded_length, log_probs = self.decoder.dynamic_decode_and_search(
-              embedding_fn,
+          sampled_ids, _, sampled_length, log_probs = self.decoder.dynamic_decode_and_search(
+              target_embedding_fn(decoder_scope),
               start_tokens,
               end_token,
-              vocab_size,
+              target_vocab_size,
               encoder_state=encoder_state,
               beam_width=beam_width,
               length_penalty=length_penalty,
@@ -175,36 +177,28 @@ class SequenceToSequence(Model):
               memory=encoder_outputs,
               memory_sequence_length=encoder_sequence_length)
 
-    if mode != tf.estimator.ModeKeys.PREDICT:
-      loss = masked_sequence_loss(
-          decoder_outputs,
-          labels["ids_out"],
-          self._get_labels_length(labels))
-
-      return tf.estimator.EstimatorSpec(
-          mode,
-          loss=loss,
-          train_op=self._build_train_op(loss, params))
-    else:
       target_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
           self.target_inputter.vocabulary_file,
-          vocab_size=self.target_inputter.vocabulary_size - self.target_inputter.num_oov_buckets,
+          vocab_size=target_vocab_size - self.target_inputter.num_oov_buckets,
           default_value=constants.UNKNOWN_TOKEN)
-      predictions = {}
-      predictions["tokens"] = target_vocab_rev.lookup(tf.cast(decoder_outputs, tf.int64))
-      predictions["length"] = decoded_length
-      predictions["log_probs"] = log_probs
 
-      export_outputs = {
-          "predictions": tf.estimator.export.PredictOutput(predictions)
+      predictions = {
+          "tokens": target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64)),
+          "length": sampled_length,
+          "log_probs": log_probs
       }
+    else:
+      predictions = None
 
-      return tf.estimator.EstimatorSpec(
-          mode,
-          predictions=predictions,
-          export_outputs=export_outputs)
+    return logits, predictions
 
-  def print_prediction(self, prediction, params=None):
+  def _compute_loss(self, features, labels, outputs):
+    return masked_sequence_loss(
+        outputs,
+        labels["ids_out"],
+        self._get_labels_length(labels))
+
+  def print_prediction(self, prediction, params=None, stream=None):
     n_best = params and params.get("n_best")
     n_best = n_best or 1
 
@@ -214,4 +208,4 @@ class SequenceToSequence(Model):
     for i in range(n_best):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
       sentence = b" ".join(tokens)
-      print(sentence.decode("utf-8"))
+      print(sentence.decode("utf-8"), file=stream)
