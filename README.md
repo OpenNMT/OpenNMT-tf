@@ -97,10 +97,24 @@ Also see [`tensorflow/ecosystem`](https://github.com/tensorflow/ecosystem) to in
 
 ## Model serving
 
-OpenNMT-tf can export models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/) (see `examples/serving/nmt_client.py`).
+OpenNMT-tf can export models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:
 
-A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. The model is automatically exported at the end of the training or manually with the `export` run type.
+```
+models/enfr/1507109306/
+├── assets
+│   ├── en.dict
+│   └── fr.dict
+├── saved_model.pb
+└── variables
+    ├── variables.data-00000-of-00001
+    └── variables.index
+```
 
-The expected inputs depend on the model. See the `_get_serving_input` methods of the inputters modules of your model to define the data that need to be fed.
+Models are automatically exported at the end of the training or manually with the `export` run type.
 
-Note: because the Python function used in `tf.py_func` is not serialized in the graph, in-graph tokenization is not supported and text inputs are expected to be tokenized.
+When using an exported model, you should prepare the inputs as expected by the model. See the `_get_serving_input` methods of the inputters modules of your model to define the data that need to be fed. Some examples are also available in the `examples/` directory:
+
+*`examples/serving` to serve a model with TensorFlow Serving
+*`examples/cpp` to run inference with the TensorFlow C++ API
+
+**Note:** because the Python function used in `tf.py_func` is not serialized in the graph, model exports do not support in-graph tokenization and text inputs are expected to be tokenized.
