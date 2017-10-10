@@ -1,12 +1,11 @@
-# The directory where models and summaries will be saved.
-# It is created if it does not exist.
+# The directory where models and summaries will be saved. It is created if it does not exist.
 model_dir: "ende"
 
 data:
   train_features_file: "data/ende/src-train.txt"
   train_labels_file: "data/ende/tgt-train.txt"
-  eval_features_file: "data/ende/src-val.txt.26"
-  eval_labels_file: "data/ende/tgt-val.txt.26"
+  eval_features_file: "data/ende/src-val.txt"
+  eval_labels_file: "data/ende/tgt-val.txt"
 
   # (optional) Models may require additional resource files (e.g. vocabularies).
   source_words_vocabulary: "data/ende/src-vocab.txt"
@@ -42,7 +41,7 @@ params:
   # (optional) Length penaly weight to apply on hypotheses (default: 0).
   length_penalty: 0.2
   # (optional) Maximum decoding iterations before stopping (default: 250).
-  maximum_iterations: 10
+  maximum_iterations: 200
 
 train:
   batch_size: 64
