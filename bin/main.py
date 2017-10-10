@@ -171,12 +171,21 @@ def main():
         labels_file=config["data"]["eval_labels_file"],
         num_buckets=num_buckets)
 
+    eval_hooks = []
+    if config["train"].get("save_eval_predictions", False):
+      save_path = os.path.join(config["model_dir"], "eval")
+      if not os.path.isdir(save_path):
+        os.makedirs(save_path)
+      eval_hooks.append(hooks.SaveEvaluationPredictionHook(
+          model, os.path.join(save_path, "predictions.txt")))
+
     experiment = tf.contrib.learn.Experiment(
         estimator=estimator,
         train_input_fn=train_input_fn,
         eval_input_fn=eval_input_fn,
         train_steps=config["train"].get("train_steps"),
         eval_steps=None,
+        eval_hooks=eval_hooks,
         min_eval_frequency=config["train"].get("eval_steps"),
         export_strategies=tf.contrib.learn.make_export_strategy(
             model.serving_input_fn(config["data"])))

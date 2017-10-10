@@ -56,6 +56,8 @@ train:
   train_steps: 1000000
   # (optional) Evaluate every this many steps.
   eval_steps: 5
+  # (optional) Save evaluation predictions in model_dir/eval/.
+  save_eval_predictions: true
   # (optional) The maximum length of feature sequences during training (default: None).
   maximum_features_length: 70
   # (optional) The maximum length of label sequences during training (default: None).
