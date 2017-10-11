@@ -119,7 +119,7 @@ class SequenceTagger(Model):
           length)
       return tf.reduce_mean(-log_likelihood)
     else:
-      return masked_sequence_loss(logits, labels, length)
+      return masked_sequence_loss(outputs, labels, length)
 
   def print_prediction(self, prediction, params=None, stream=None):
     labels = prediction["labels"][:prediction["length"]]

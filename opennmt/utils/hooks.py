@@ -67,7 +67,7 @@ class CountersHook(tf.train.SessionRunHook):
           self._last_count[i] = counters[i]
           if self._summary_writer is not None:
             summary = tf.Summary(value=[tf.Summary.Value(tag=name, simple_value=value)])
-            self._summary_writer.add_summary(summary, global_step)
+            self._summary_writer.add_summary(summary, step)
           tf.logging.info("%s: %g", name, value)
 
 
