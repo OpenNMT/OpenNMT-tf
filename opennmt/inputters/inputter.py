@@ -246,6 +246,17 @@ class MultiInputter(Inputter):
 class ParallelInputter(MultiInputter):
   """An multi inputter that process parallel data."""
 
+  def __init__(self, inputters, reducer=None):
+    """Initializes a parellel inputter.
+
+    Args:
+      inputters: A list of `onmt.inputters.Inputter`s.
+      reducer: An optional `onmt.utils.Reducer` to merge all inputs.
+    """
+    super(ParallelInputter, self).__init__(inputters)
+    self.inputters = inputters
+    self.reducer = reducer
+
   def get_length(self, data):
     # Let the first inputter defines the input data length.
     sub_data = extract_prefixed_keys(data, "inputter_0_")
@@ -289,6 +300,14 @@ class ParallelInputter(MultiInputter):
       with tf.variable_scope("inputter_{}".format(i)):
         sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
         transformed.append(self.inputters[i]._transform_data(sub_data, mode))  # pylint: disable=protected-access
+    if self.reducer is not None:
+      transformed = self.reducer.reduce_all(transformed)
+    return transformed
+
+  def _transform(self, inputs, mode, reuse=None):
+    transformed = super(ParallelInputter, self)._transform(inputs, mode, reuse=None)  # pylint: disable=protected-access
+    if self.reducer is not None:
+      transformed = self.reducer.reduce_all(transformed)
     return transformed
 
 
