@@ -336,7 +336,7 @@ class MixedInputter(MultiInputter):
     for i in range(len(self.inputters)):
       with tf.variable_scope("inputter_{}".format(i)):
         transformed.append(self.inputters[i]._transform_data(data, mode))  # pylint: disable=protected-access
-    return transformed
+    return self.reducer.reduce_all(transformed)
 
   def _transform(self, inputs, mode, reuse=None):
     transformed = super(MixedInputter, self)._transform(inputs, mode, reuse=None)
