@@ -101,9 +101,12 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
 
   def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
     predictions, step = run_values.results
-    output_path = "{}.{}".format(self._output_file, step)
-    with open(output_path, "a") as output_file:
+    self._output_path = "{}.{}".format(self._output_file, step)
+    with open(self._output_path, "a") as output_file:
       for prediction in misc.extract_batches(predictions):
         self._model.print_prediction(prediction, stream=output_file)
+
+  def end(self, session):
+    tf.logging.info("Evaluation predictions saved to %s", self._output_path)
     if self._post_evaluation_fn is not None:
-      self._post_evaluation_fn(output_path)
+      self._post_evaluation_fn(self._output_path)
