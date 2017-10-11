@@ -3,8 +3,6 @@
 * Other validation metrics compatible with `tf.metrics`
   * BLEU
   * ROUGE
-  * Accuracy
-  * F-score
 * Convolutional sequence-to-sequence
   * https://arxiv.org/abs/1705.03122
 * Positional encoding with sinusoid

@@ -83,10 +83,16 @@ class Model(object):
         loss = self._compute_loss(features, labels, outputs)
         train_op = self._build_train_op(loss, params)
 
+        if mode == tf.estimator.ModeKeys.EVAL:
+          eval_metric_ops = self._compute_metrics(features, labels, predictions)
+        else:
+          eval_metric_ops = None
+
         return tf.estimator.EstimatorSpec(
             mode,
             loss=loss,
-            train_op=train_op)
+            train_op=train_op,
+            eval_metric_ops=eval_metric_ops)
       else:
         export_outputs = {
             "predictions": tf.estimator.export.PredictOutput(predictions)
@@ -104,10 +110,10 @@ class Model(object):
     See `tf.estimator.Estimator`'s `model_fn` for arguments description.
 
     Returns:
-      outputs: The model outputs (usually unscaled probabilities). Optional if
-        `mode` is `tf.estimator.ModeKeys.PREDICT`.
-      predictions: The model predictions. Optional if `mode` is
-        `tf.estimator.ModeKeys.TRAIN`.
+      outputs: The model outputs (usually unscaled probabilities).
+        Optional if `mode` is `tf.estimator.ModeKeys.PREDICT`.
+      predictions: The model predictions.
+        Optional if `mode` is `tf.estimator.ModeKeys.TRAIN`.
     """
     raise NotImplementedError()
 
@@ -124,6 +130,19 @@ class Model(object):
       The loss.
     """
     raise NotImplementedError()
+
+  def _compute_metrics(self, features, labels, predictions):  # pylint: disable=unused-argument
+    """Computes additional metrics on the predictions.
+
+    Args:
+      features: The dict of features `tf.Tensor`s.
+      labels: The dict of labels `tf.Tensor`s.
+      predictions: The model predictions.
+
+    Returns:
+      A dict of metric results (tuple `(metric_tensor, update_op)`) keyed by name.
+    """
+    return None
 
   def _build_train_op(self, loss, params):
     """Builds the training op given parameters."""

@@ -1,5 +1,7 @@
 """Sequence classifier."""
 
+from __future__ import print_function
+
 import tensorflow as tf
 
 from opennmt.models.model import Model
@@ -55,8 +57,14 @@ class SequenceClassifier(Model):
         vocab_size=self.num_labels)
 
     dataset = tf.contrib.data.TextLineDataset(labels_file)
-    process_fn = labels_vocabulary.lookup
-    padded_shapes_fn = lambda: []
+    process_fn = lambda x: {
+        "classes": x,
+        "classes_id": labels_vocabulary.lookup(x)
+    }
+    padded_shapes_fn = lambda: {
+        "classes": [],
+        "classes_id": []
+    }
     return dataset, process_fn, padded_shapes_fn
 
   def _build(self, features, labels, params, mode, config):
@@ -82,10 +90,10 @@ class SequenceClassifier(Model):
       labels_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
           self.labels_vocabulary_file,
           vocab_size=self.num_labels)
-      tags_prob = tf.nn.softmax(logits)
-      tags_id = tf.argmax(tags_prob, axis=1)
+      classes_prob = tf.nn.softmax(logits)
+      classes_id = tf.argmax(classes_prob, axis=1)
       predictions = {
-          "tags": labels_vocab_rev.lookup(tags_id)
+          "classes": labels_vocab_rev.lookup(classes_id)
       }
     else:
       predictions = None
@@ -93,4 +101,12 @@ class SequenceClassifier(Model):
     return logits, predictions
 
   def _compute_loss(self, features, labels, outputs):
-    return tf.losses.sparse_softmax_cross_entropy(labels, outputs)
+    return tf.losses.sparse_softmax_cross_entropy(labels["classes_id"], outputs)
+
+  def _compute_metrics(self, features, labels, predictions):
+    return {
+        "accuracy": tf.metrics.accuracy(labels["classes"], predictions["classes"])
+    }
+
+  def print_prediction(self, prediction, params=None, stream=None):
+    print(prediction["classes"], file=stream)

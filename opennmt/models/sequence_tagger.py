@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import tensorflow as tf
+import numpy as np
 
 from opennmt.models.model import Model
 from opennmt.utils.misc import count_lines
@@ -16,6 +17,7 @@ class SequenceTagger(Model):
                inputter,
                encoder,
                labels_vocabulary_file_key,
+               tagging_scheme=None,
                crf_decoding=False,
                name="seqtagger"):
     """Initializes a sequence tagger.
@@ -25,6 +27,9 @@ class SequenceTagger(Model):
       encoder: A `onmt.encoders.Encoder` to encode the input.
       labels_vocabulary_file_key: The data configuration key of the labels
         vocabulary file containing one label per line.
+      tagging_scheme: The tagging scheme used. For supported schemes (currently
+        only BIOES), additional evaluation metrics could be computed such as
+        precision, recall, etc.
       crf_decoding: If `True`, add a CRF layer after the encoder.
       name: The name of this model.
     """
@@ -34,6 +39,11 @@ class SequenceTagger(Model):
     self.inputter = inputter
     self.labels_vocabulary_file_key = labels_vocabulary_file_key
     self.crf_decoding = crf_decoding
+
+    if tagging_scheme:
+      self.tagging_scheme = tagging_scheme.lower()
+    else:
+      self.tagging_scheme = None
 
   def _initialize(self, metadata):
     self.inputter.initialize(metadata)
@@ -61,8 +71,14 @@ class SequenceTagger(Model):
         vocab_size=self.num_labels)
 
     dataset = tf.contrib.data.TextLineDataset(labels_file)
-    process_fn = lambda x: labels_vocabulary.lookup(tf.string_split([x]).values)
-    padded_shapes_fn = lambda: [None]
+    process_fn = lambda x: {
+        "tags": tf.string_split([x]).values,
+        "tags_id": labels_vocabulary.lookup(tf.string_split([x]).values)
+    }
+    padded_shapes_fn = lambda: {
+        "tags": [None],
+        "tags_id": [None]
+    }
     return dataset, process_fn, padded_shapes_fn
 
   def _build(self, features, labels, params, mode, config):
@@ -103,7 +119,7 @@ class SequenceTagger(Model):
 
       predictions = {
           "length": encoder_sequence_length,
-          "labels": labels_vocab_rev.lookup(tags_id)
+          "tags": labels_vocab_rev.lookup(tags_id)
       }
     else:
       predictions = None
@@ -115,13 +131,123 @@ class SequenceTagger(Model):
     if self.crf_decoding:
       log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
           outputs,
-          tf.cast(labels, tf.int32),
+          tf.cast(labels["tags_id"], tf.int32),
           length)
       return tf.reduce_mean(-log_likelihood)
     else:
-      return masked_sequence_loss(outputs, labels, length)
+      return masked_sequence_loss(outputs, labels["tags_id"], length)
+
+  def _compute_metrics(self, features, labels, predictions):
+    length = self._get_features_length(features)
+    weights = tf.sequence_mask(length, dtype=tf.float32)
+
+    eval_metric_ops = {}
+    eval_metric_ops["accuracy"] = tf.metrics.accuracy(
+        labels["tags"], predictions["tags"], weights=weights)
+
+    if self.tagging_scheme in ("bioes",):
+      flag_fn = None
+      if self.tagging_scheme == "bioes":
+        flag_fn = flag_bioes_tags
+
+      gold_flags, predicted_flags = tf.py_func(
+          flag_fn,
+          [labels["tags"], predictions["tags"], length],
+          [tf.bool, tf.bool],
+          stateful=False)
+
+      precision_metric = tf.metrics.precision(gold_flags, predicted_flags)
+      recall_metric = tf.metrics.recall(gold_flags, predicted_flags)
+
+      precision = precision_metric[0]
+      recall = recall_metric[0]
+      f1 = (2 * precision * recall) / (recall + precision)
+
+      eval_metric_ops["precision"] = precision_metric
+      eval_metric_ops["recall"] = recall_metric
+      eval_metric_ops["f1"] = (f1, tf.no_op())
+
+    return eval_metric_ops
+
 
   def print_prediction(self, prediction, params=None, stream=None):
-    labels = prediction["labels"][:prediction["length"]]
-    sent = b" ".join(labels)
+    tags = prediction["tags"][:prediction["length"]]
+    sent = b" ".join(tags)
     print(sent.decode("utf-8"), file=stream)
+
+
+def flag_bioes_tags(gold, predicted, length):
+  """Flags chunk matches for the BIOES tagging scheme.
+
+  This function will produce the gold flags and the predicted flags. For each aligned
+  gold flag `g` and predicted flag `p`:
+
+  * when `g == p == True`, the chunk has been correctly identified (true positive).
+  * when `g == False and p == True`, the chunk has been incorrectly identified (false positive).
+  * when `g == True and p == False`, the chunk has been missed (false negative).
+  * when `g == p == False`, the chunk has been correctly ignored (true negative).
+
+  Args:
+    gold: The gold tags as a Numpy 2D string array.
+    predicted: The predicted tags as a Numpy 2D string array.
+    length: The length of each sequence as Numpy array.
+
+  Returns:
+    A tuple `(gold_flags, predicted_flags)`.
+  """
+  gold_flags = []
+  predicted_flags = []
+
+  def _add_true_positive():
+    gold_flags.append(True)
+    predicted_flags.append(True)
+  def _add_false_positive():
+    gold_flags.append(False)
+    predicted_flags.append(True)
+  def _add_true_negative():
+    gold_flags.append(False)
+    predicted_flags.append(False)
+  def _add_false_negative():
+    gold_flags.append(True)
+    predicted_flags.append(False)
+
+  def _skip_chunk(labels, index):
+    if not labels[index].startswith(b"S"):
+      while not labels[index].startswith(b"E"):
+        index += 1
+    return index
+
+  for b in range(gold.shape[0]):
+    index = 0
+    in_chunk = False
+
+    while index < length[b]:
+      gold_tag = gold[b][index]
+      pred_tag = predicted[b][index]
+
+      if in_chunk:
+        if pred_tag != gold_tag:
+          _add_false_negative()
+          index = _skip_chunk(gold[b], index)
+          in_chunk = False
+        elif gold_tag.startswith(b"E"):
+          _add_true_positive()
+          in_chunk = False
+      else:
+        if pred_tag == gold_tag:
+          if gold_tag == b"O":
+            _add_true_negative()
+          elif gold_tag.startswith(b"S"):
+            _add_true_positive()
+          else:
+            in_chunk = True
+        else:
+          if gold_tag == b"O":
+            _add_false_positive()
+          else:
+            _add_false_negative()
+            index = _skip_chunk(gold[b], index)
+
+      index += 1
+
+  return np.array(gold_flags), np.array(predicted_flags)
