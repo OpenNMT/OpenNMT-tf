@@ -47,7 +47,7 @@ train:
   batch_size: 64
 
   # (optional) Save a checkpoint every this many steps.
-  save_checkpoints_steps: 2
+  save_checkpoints_steps: 5000
   # (optional) How many checkpoints to keep on disk.
   keep_checkpoint_max: 3
   # (optional) Save summaries every this many steps.
@@ -55,9 +55,9 @@ train:
   # (optional) Train for this many steps. If not set, train forever.
   train_steps: 1000000
   # (optional) Evaluate every this many steps.
-  eval_steps: 5
+  eval_steps: 10000
   # (optional) Save evaluation predictions in model_dir/eval/.
-  save_eval_predictions: true
+  save_eval_predictions: false
   # (optional) The maximum length of feature sequences during training (default: None).
   maximum_features_length: 70
   # (optional) The maximum length of label sequences during training (default: None).
