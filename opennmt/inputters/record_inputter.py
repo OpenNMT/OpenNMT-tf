@@ -33,7 +33,7 @@ class SequenceRecordInputter(Inputter):
     return data["length"]
 
   def make_dataset(self, data_file):
-    return tf.contrib.data.TFRecordDataset(data_file)
+    return tf.data.TFRecordDataset(data_file)
 
   def _get_serving_input(self):
     receiver_tensors = {

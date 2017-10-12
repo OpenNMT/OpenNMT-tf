@@ -146,7 +146,8 @@ def main():
 
     batch_size = config["train"]["batch_size"]
     buffer_size = config["train"].get("buffer_size", batch_size * 1000)
-    num_threads = config["train"].get("num_threads", multiprocessing.cpu_count())
+    num_parallel_process_calls = config["train"].get(
+        "num_parallel_process_calls", multiprocessing.cpu_count())
     num_buckets = config["train"].get("num_buckets", 5)
     maximum_features_length = config["train"].get("maximum_features_length", 0)
     maximum_labels_length = config["train"].get("maximum_labels_length", 0)
@@ -155,7 +156,7 @@ def main():
         tf.estimator.ModeKeys.TRAIN,
         batch_size,
         buffer_size,
-        num_threads,
+        num_parallel_process_calls,
         config["data"],
         config["data"]["train_features_file"],
         labels_file=config["data"]["train_labels_file"],
@@ -166,7 +167,7 @@ def main():
         tf.estimator.ModeKeys.EVAL,
         batch_size,
         buffer_size,
-        num_threads,
+        num_parallel_process_calls,
         config["data"],
         config["data"]["eval_features_file"],
         labels_file=config["data"]["eval_labels_file"],
@@ -215,13 +216,14 @@ def main():
 
     batch_size = config["infer"]["batch_size"]
     buffer_size = config["infer"].get("buffer_size", batch_size * 10)
-    num_threads = config["infer"].get("num_threads", multiprocessing.cpu_count())
+    num_parallel_process_calls = config["infer"].get(
+        "num_parallel_process_calls", multiprocessing.cpu_count())
 
     test_input_fn = model.input_fn(
         tf.estimator.ModeKeys.PREDICT,
         batch_size,
         buffer_size,
-        num_threads,
+        num_parallel_process_calls,
         config["data"],
         args.features_file)
 

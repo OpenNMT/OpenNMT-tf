@@ -182,7 +182,7 @@ class TextInputter(Inputter):
     return data["length"]
 
   def make_dataset(self, data_file):
-    return tf.contrib.data.TextLineDataset(data_file)
+    return tf.data.TextLineDataset(data_file)
 
   def initialize(self, metadata):
     self.tokenizer.initialize(metadata)

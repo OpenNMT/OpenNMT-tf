@@ -37,7 +37,7 @@ class Inputter(object):
       key: The value key.
       value: The value to assign.
       padded_shape: The padded shape of the value as given to
-        `tf.contrib.data.Dataset.padded_batch`.
+        `tf.data.Dataset.padded_batch`.
 
     Returns:
       The updated data dictionary.
@@ -74,7 +74,7 @@ class Inputter(object):
       data_file: The data file.
 
     Returns:
-      A `tf.contrib.data.Dataset`.
+      A `tf.data.Dataset`.
     """
     raise NotImplementedError()
 
@@ -268,7 +268,7 @@ class ParallelInputter(MultiInputter):
     datasets = [
         inputter.make_dataset(data)
         for inputter, data in zip(self.inputters, data_file)]
-    return tf.contrib.data.Dataset.zip(tuple(datasets))
+    return tf.data.Dataset.zip(tuple(datasets))
 
   def _get_serving_input(self):
     all_receiver_tensors = {}

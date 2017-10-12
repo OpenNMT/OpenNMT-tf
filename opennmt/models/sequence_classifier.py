@@ -56,7 +56,7 @@ class SequenceClassifier(Model):
         self.labels_vocabulary_file,
         vocab_size=self.num_labels)
 
-    dataset = tf.contrib.data.TextLineDataset(labels_file)
+    dataset = tf.data.TextLineDataset(labels_file)
     process_fn = lambda x: {
         "classes": x,
         "classes_id": labels_vocabulary.lookup(x)

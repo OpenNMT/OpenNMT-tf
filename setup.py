@@ -7,8 +7,8 @@ setup(
         "pyyaml"
     ],
     extras_require={
-        "TensorFlow": ["tensorflow==1.3.0"],
-        "TensorFlow (with CUDA support)": ["tensorflow-gpu==1.3.0"]
+        "TensorFlow": ["tensorflow==1.4.0"],
+        "TensorFlow (with CUDA support)": ["tensorflow-gpu==1.4.0"]
     },
     tests_require=[
         "nose2"

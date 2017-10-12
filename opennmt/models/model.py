@@ -290,7 +290,7 @@ class Model(object):
       features_file: The file of features.
 
     Returns:
-      A tuple (`tf.contrib.data.Dataset`, `process_fn`, `padded_shapes_fn`)
+      A tuple (`tf.data.Dataset`, `process_fn`, `padded_shapes_fn`)
     """
     raise NotImplementedError()
 
@@ -302,7 +302,7 @@ class Model(object):
       labels_file: The file of labels.
 
     Returns:
-      A tuple (`tf.contrib.data.Dataset`, `process_fn`, `padded_shapes_fn`)
+      A tuple (`tf.data.Dataset`, `process_fn`, `padded_shapes_fn`)
     """
     raise NotImplementedError()
 
@@ -310,7 +310,7 @@ class Model(object):
                      mode,
                      batch_size,
                      buffer_size,
-                     num_threads,
+                     num_parallel_process_calls,
                      metadata,
                      features_file,
                      labels_file=None,
@@ -330,7 +330,7 @@ class Model(object):
       labels_dataset, labels_process_fn, labels_padded_shapes_fn = (
           self._get_labels_builder(labels_file))
 
-      dataset = tf.contrib.data.Dataset.zip((feat_dataset, labels_dataset))
+      dataset = tf.data.Dataset.zip((feat_dataset, labels_dataset))
       process_fn = lambda features, labels: (
           feat_process_fn(features), labels_process_fn(labels))
       padded_shapes_fn = lambda: (
@@ -338,8 +338,7 @@ class Model(object):
 
     dataset = dataset.map(
         process_fn,
-        num_threads=num_threads,
-        output_buffer_size=buffer_size)
+        num_parallel_calls=num_parallel_process_calls).prefetch(buffer_size)
     padded_shapes = padded_shapes_fn()
 
     if mode == tf.estimator.ModeKeys.TRAIN:
@@ -373,10 +372,10 @@ class Model(object):
             batch_size,
             padded_shapes=padded_shapes)
 
-      dataset = dataset.group_by_window(
+      dataset = dataset.apply(tf.contrib.data.group_by_window(
           key_func=_key_func,
           reduce_func=_reduce_func,
-          window_size=batch_size)
+          window_size=batch_size))
 
     iterator = dataset.make_initializable_iterator()
 
@@ -389,7 +388,7 @@ class Model(object):
                mode,
                batch_size,
                buffer_size,
-               num_threads,
+               num_parallel_process_calls,
                metadata,
                features_file,
                labels_file=None,
@@ -404,8 +403,7 @@ class Model(object):
       mode: A `tf.estimator.ModeKeys` mode.
       batch_size: The batch size to use.
       buffer_size: The prefetch buffer size (used e.g. for shuffling).
-      num_threads: The number of threads to use for processing elements
-        in parallel.
+      num_parallel_process_calls: The number of elements processed in parallel.
       metadata: A dictionary containing additional metadata set
         by the user.
       features_file: The file containing input features.
@@ -429,7 +427,7 @@ class Model(object):
         mode,
         batch_size,
         buffer_size,
-        num_threads,
+        num_parallel_process_calls,
         metadata,
         features_file,
         labels_file=labels_file,
