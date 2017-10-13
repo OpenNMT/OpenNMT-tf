@@ -5,6 +5,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 import opennmt.constants as constants
+import opennmt.inputters as inputters
 
 from opennmt.models.model import Model
 from opennmt.utils.losses import masked_sequence_loss
@@ -68,8 +69,14 @@ class SequenceToSequence(Model):
       encoder: A `onmt.encoders.Encoder` to encode the source.
       decoder: A `onmt.decoders.Decoder` to decode the target.
       name: The name of this model.
+
+    Raises:
+      TypeError: if `target_inputter` is not a `onmt.inputters.WordEmbedder`.
     """
     super(SequenceToSequence, self).__init__(name)
+
+    if not isinstance(target_inputter, inputters.WordEmbedder):
+      raise TypeError("Target inputter must be a WordEmbedder")
 
     self.encoder = encoder
     self.decoder = decoder
