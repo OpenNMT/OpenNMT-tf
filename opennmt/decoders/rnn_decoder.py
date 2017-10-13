@@ -2,8 +2,6 @@
 
 import tensorflow as tf
 
-from tensorflow.python.layers.core import Dense
-
 from opennmt.decoders.decoder import Decoder, logits_to_cum_log_probs
 from opennmt.utils.cell import build_cell
 
@@ -66,7 +64,7 @@ class RNNDecoder(Decoder):
     return cell, initial_state
 
   def _build_output_layer(self, vocab_size):
-    return Dense(vocab_size, use_bias=True)
+    return tf.layers.Dense(vocab_size, use_bias=True)
 
   def decode(self,
              inputs,
