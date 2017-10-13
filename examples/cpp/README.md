@@ -18,24 +18,40 @@ This example shows how to translate a batch of sentences using C++.
 ```
 git clone https://github.com/tensorflow/tensorflow.git ~/tensorflow
 cd ~/tensorflow
-git checkout r1.3
+git checkout r1.4
 ```
 
 3\. Add a custom compilation target at the end of `tensorflow/BUILD`:
 
 
 ```
-cc_binary(
+tf_cc_shared_object(
     name = "libtensorflow_opennmt.so",
-    linkshared = 1,
+    linkopts = select({
+        "//tensorflow:darwin": [
+            "-Wl,-exported_symbols_list",  # This line must be directly followed by the exported_symbols.lds file
+            "//tensorflow:tf_exported_symbols.lds",
+        ],
+        "//tensorflow:windows": [],
+        "//tensorflow:windows_msvc": [],
+        "//conditions:default": [
+            "-z defs",
+            "-s",
+            "-Wl,--version-script",  #  This line must be directly followed by the version_script.lds file
+            "//tensorflow:tf_version_script.lds",
+        ],
+    }),
     deps = [
+        "//tensorflow:tf_exported_symbols.lds",
+        "//tensorflow:tf_version_script.lds",
         "//tensorflow/c:c_api",
+        "//tensorflow/c/eager:c_api",
         "//tensorflow/cc:cc_ops",
         "//tensorflow/cc:client_session",
         "//tensorflow/cc:scope",
         "//tensorflow/core:tensorflow",
-        "//tensorflow/contrib:contrib_kernels",
-        "//tensorflow/contrib:contrib_ops_op_lib",
+        "//tensorflow/contrib/seq2seq:beam_search_ops_kernels",
+        "//tensorflow/contrib/seq2seq:beam_search_ops_op_lib",
     ],
 )
 ```
@@ -44,7 +60,7 @@ cc_binary(
 
 ```
 ./configure
-bazel build //tensorflow:libtensorflow_opennmt.so
+bazel build --config=opt //tensorflow:libtensorflow_opennmt.so
 ```
 
 **Note:** this compilation approach is presented for the sole purpose of this example. It may not be the recommended approach to work with the TensorFlow C++ API.
@@ -52,8 +68,8 @@ bazel build //tensorflow:libtensorflow_opennmt.so
 ### Usage
 
 ```
-make
 export LD_LIBRARY_PATH=$HOME/tensorflow/bazel-bin/tensorflow
+make
 ./main --export_dir=$HOME/OpenNMT-tf/models/enfr/1507109306/
 ```
 
