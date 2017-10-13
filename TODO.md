@@ -17,8 +17,6 @@
 * Write more tests
 * Expose alignment history after decoding
   * https://github.com/tensorflow/tensorflow/issues/13154
-* More frequent model export
-  * https://github.com/tensorflow/tensorflow/commit/9e6ee10fa85053cf4c237970a58f4ca2fe2c497e
 
 Also:
 

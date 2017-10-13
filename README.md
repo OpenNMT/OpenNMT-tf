@@ -77,37 +77,38 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 
 ## Distributed training
 
-OpenNMT-tf provides asynchronous distributed training (see the [TensorFlow documentation](https://www.tensorflow.org/deploy/distributed) for a general description of distributed training). The user should provide on the command line:
+OpenNMT-tf provides asynchronous distributed training. The user should set on the command line:
 
-* a list of **workers** hosts that run a training loop; the first worker is the master and also manages checkpoints, summaries, and evaluation
+* a **chief worker** host that runs a training loop and manages checkpoints, summaries, etc.
+* a list of **worker** hosts that run a training loop
 * a list of **parameter server** hosts that synchronize the parameters
 
 Then a training instance should be started on each host with a selected task, e.g.:
 
 ```
-CUDA_VISIBLE_DEVICES=0 python -m bin.main train [...] --ps_hosts localhost:2222 --worker_hosts localhost:2223,localhost:2224 --task_type worker --task_index 1
+CUDA_VISIBLE_DEVICES=0 python -m bin.main train [...] --ps_hosts localhost:2222 --chief_host localhost:2223 --worker_hosts localhost:2224,localhost:2225 --task_type worker --task_index 1
 ```
 
 will start the worker 1 on the current machine and first GPU.
 
-Also see [`tensorflow/ecosystem`](https://github.com/tensorflow/ecosystem) to integrate distributed training with open-source frameworks like Docker or Kubernetes.
+For more details, see the documentation of [`tf.estimator.train_and_evaluate`](https://www.tensorflow.org/versions/r1.4/api_docs/python/tf/estimator/train_and_evaluate). Also see [tensorflow/ecosystem](https://github.com/tensorflow/ecosystem) to integrate distributed training with open-source frameworks like Docker or Kubernetes.
 
 ## Model serving
 
-OpenNMT-tf can export models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:
+OpenNMT-tf periodically exports models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:
 
 ```
-models/enfr/1507109306/
+ende/export/latest/1507109306/
 ├── assets
 │   ├── en.dict
-│   └── fr.dict
+│   └── de.dict
 ├── saved_model.pb
 └── variables
     ├── variables.data-00000-of-00001
     └── variables.index
 ```
 
-Models are automatically exported at the end of the training or manually with the `export` run type.
+Models are automatically exported during the training or manually with the `export` run type.
 
 When using an exported model, you should prepare the inputs as expected by the model. See the `_get_serving_input` methods of the inputters modules of your model to define the data that need to be fed. Some examples are also available in the `examples/` directory:
 
