@@ -210,7 +210,7 @@ class TextInputter(Inputter):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _transform(self, inputs, mode, reuse=None):
+  def transform(self, inputs, mode):
     raise NotImplementedError()
 
 
@@ -296,7 +296,7 @@ class WordEmbedder(TextInputter):
   def _transform_data(self, data, mode):
     return self.transform(data["ids"], mode)
 
-  def _transform(self, inputs, mode, reuse=None):
+  def transform(self, inputs, mode):
     try:
       embeddings = tf.get_variable("w_embs", trainable=self.trainable)
     except ValueError:
@@ -402,7 +402,7 @@ class CharConvEmbedder(TextInputter):
   def _transform_data(self, data, mode):
     return self.transform(data["char_ids"], mode)
 
-  def _transform(self, inputs, mode, reuse=None):
+  def transform(self, inputs, mode):
     embeddings = tf.get_variable(
         "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
 

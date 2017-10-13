@@ -14,7 +14,6 @@ class Inputter(object):
   """Base class for inputters."""
 
   def __init__(self):
-    self.resolved = False
     self.padded_shapes = {}
     self.process_hooks = []
 
@@ -178,35 +177,22 @@ class Inputter(object):
       self.visualize(log_dir)
     return inputs
 
-  def transform(self, inputs, mode, scope=None, reuse_next=None):
-    """Transforms inputs.
-
-    Args:
-      inputs: A possible nested structure of `Tensor` depending on the inputter.
-      mode: A `tf.estimator.ModeKeys` mode.
-      scope: (optional) The variable scope to use.
-      reuse: (optional) If `True`, reuse variables in this scope after the first call.
-
-    Returns:
-      The transformed input.
-    """
-    if scope is not None:
-      reuse = reuse_next and self.resolved
-      with tf.variable_scope(scope, reuse=reuse):
-        outputs = self._transform(inputs, mode, reuse=reuse)
-    else:
-      outputs = self._transform(inputs, mode)
-    self.resolved = True
-    return outputs
-
   @abc.abstractmethod
   def _transform_data(self, data, mode):
     """Implementation of `transform_data`."""
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _transform(self, inputs, mode, reuse=None):
-    """Implementation of `transform`."""
+  def transform(self, inputs, mode):
+    """Transforms inputs.
+
+    Args:
+      inputs: A possible nested structure of `Tensor` depending on the inputter.
+      mode: A `tf.estimator.ModeKeys` mode.
+
+    Returns:
+      The transformed input.
+    """
     raise NotImplementedError()
 
 
@@ -235,11 +221,11 @@ class MultiInputter(Inputter):
   def _get_serving_input(self):
     raise NotImplementedError()
 
-  def _transform(self, inputs, mode, reuse=None):
+  def transform(self, inputs, mode):
     transformed = []
     for i in range(len(self.inputters)):
-      with tf.variable_scope("inputter_{}".format(i), reuse=reuse):
-        transformed.append(self.inputters[i]._transform(inputs[i], mode))  # pylint: disable=protected-access
+      with tf.variable_scope("inputter_{}".format(i)):
+        transformed.append(self.inputters[i].transform(inputs[i], mode))
     return transformed
 
 
@@ -304,8 +290,8 @@ class ParallelInputter(MultiInputter):
       transformed = self.reducer.reduce_all(transformed)
     return transformed
 
-  def _transform(self, inputs, mode, reuse=None):
-    transformed = super(ParallelInputter, self)._transform(inputs, mode, reuse=None)  # pylint: disable=protected-access
+  def transform(self, inputs, mode):
+    transformed = super(ParallelInputter, self).transform(inputs, mode)
     if self.reducer is not None:
       transformed = self.reducer.reduce_all(transformed)
     return transformed
@@ -357,8 +343,8 @@ class MixedInputter(MultiInputter):
         transformed.append(self.inputters[i]._transform_data(data, mode))  # pylint: disable=protected-access
     return self.reducer.reduce_all(transformed)
 
-  def _transform(self, inputs, mode, reuse=None):
-    transformed = super(MixedInputter, self)._transform(inputs, mode, reuse=None)
+  def transform(self, inputs, mode):
+    transformed = super(MixedInputter, self).transform(inputs, mode)
     outputs = self.reducer.reduce_all(transformed)
     outputs = tf.layers.dropout(
         outputs,

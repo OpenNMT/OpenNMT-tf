@@ -66,5 +66,5 @@ class SequenceRecordInputter(Inputter):
   def _transform_data(self, data, mode):
     return self.transform(data["tensor"], mode)
 
-  def _transform(self, inputs, mode, reuse=None):
+  def transform(self, inputs, mode):
     return inputs

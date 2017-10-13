@@ -103,6 +103,16 @@ class SequenceToSequence(Model):
     padded_shapes_fn = lambda: self.target_inputter.padded_shapes
     return dataset, process_fn, padded_shapes_fn
 
+  def _scoped_target_embedding_fn(self, mode, scope):
+    def _target_embedding_fn(ids):
+      try:
+        with tf.variable_scope(scope):
+          return self.target_inputter.transform(ids, mode)
+      except ValueError:
+        with tf.variable_scope(scope, reuse=True):
+          return self.target_inputter.transform(ids, mode)
+    return _target_embedding_fn
+
   def _build(self, features, labels, params, mode, config):
     features_length = self._get_features_length(features)
     batch_size = tf.shape(features_length)[0]
@@ -118,11 +128,6 @@ class SequenceToSequence(Model):
           mode=mode)
 
     target_vocab_size = self.target_inputter.vocabulary_size
-    target_embedding_fn = lambda scope: lambda x: self.target_inputter.transform(
-        x,
-        mode,
-        scope=scope,
-        reuse_next=True)
 
     with tf.variable_scope("decoder") as decoder_scope:
       if labels is not None:
@@ -137,7 +142,7 @@ class SequenceToSequence(Model):
             target_vocab_size,
             encoder_state=encoder_state,
             scheduled_sampling_probability=scheduled_sampling_probability,
-            embeddings=target_embedding_fn(decoder_scope),
+            embeddings=self._scoped_target_embedding_fn(mode, decoder_scope),
             mode=mode,
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length)
@@ -145,7 +150,7 @@ class SequenceToSequence(Model):
         logits = None
 
     if mode != tf.estimator.ModeKeys.TRAIN:
-      with tf.variable_scope(decoder_scope, reuse=labels is not None):
+      with tf.variable_scope(decoder_scope, reuse=labels is not None) as decoder_scope:
         beam_width = params.get("beam_width", 1)
         maximum_iterations = params.get("maximum_iterations", 250)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
@@ -153,7 +158,7 @@ class SequenceToSequence(Model):
 
         if beam_width <= 1:
           sampled_ids, _, sampled_length, log_probs = self.decoder.dynamic_decode(
-              target_embedding_fn(decoder_scope),
+              self._scoped_target_embedding_fn(mode, decoder_scope),
               start_tokens,
               end_token,
               target_vocab_size,
@@ -165,7 +170,7 @@ class SequenceToSequence(Model):
         else:
           length_penalty = params.get("length_penalty", 0)
           sampled_ids, _, sampled_length, log_probs = self.decoder.dynamic_decode_and_search(
-              target_embedding_fn(decoder_scope),
+              self._scoped_target_embedding_fn(mode, decoder_scope),
               start_tokens,
               end_token,
               target_vocab_size,
