@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <tensorflow/cc/saved_model/loader.h>
+#include <tensorflow/cc/saved_model/signature_constants.h>
 #include <tensorflow/cc/saved_model/tag_constants.h>
 #include <tensorflow/core/lib/io/path.h>
 #include <tensorflow/core/platform/init_main.h>
@@ -101,7 +102,8 @@ bool TranslateBatch(
 
   // Resolve name of inputs to fed and outputs to fetch.
   const auto signature_def_map = bundle.meta_graph_def.signature_def();
-  const auto signature_def = signature_def_map.at("predictions");
+  const auto signature_def = signature_def_map.at(
+      tensorflow::kDefaultServingSignatureDefKey);
   const tensorflow::string tokens_input_name =
       signature_def.inputs().at("tokens").name();
   const tensorflow::string length_input_name =

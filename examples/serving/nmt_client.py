@@ -74,7 +74,6 @@ def translate_batch(stub, model_name, batch_tokens, timeout=5.0):
 
   request = predict_pb2.PredictRequest()
   request.model_spec.name = model_name
-  request.model_spec.signature_name = "predictions"
 
   request.inputs["tokens"].CopyFrom(
       tf.make_tensor_proto(batch_tokens, shape=(batch_size, max_length)))
