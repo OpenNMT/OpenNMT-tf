@@ -77,8 +77,7 @@ class Model(object):
 
       if predictions is not None:
         # Register predictions in a collection so that hooks can easily fetch them.
-        add_dict_to_collection(
-            predictions, tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY)
+        add_dict_to_collection(predictions, "predictions")
 
       if mode != tf.estimator.ModeKeys.PREDICT:
         loss = self._compute_loss(features, labels, outputs)
@@ -95,9 +94,9 @@ class Model(object):
             train_op=train_op,
             eval_metric_ops=eval_metric_ops)
       else:
-        export_outputs = {
-            "predictions": tf.estimator.export.PredictOutput(predictions)
-        }
+        export_outputs = {}
+        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = \
+            tf.estimator.export.PredictOutput(predictions)
 
         return tf.estimator.EstimatorSpec(
             mode,
