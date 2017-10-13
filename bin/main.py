@@ -105,7 +105,7 @@ def train(estimator, model, config):
 
   tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
-def infer(features_file, estimator, model, config):
+def infer(features_file, estimator, model, config, checkpoint_path=None):
   """Runs inference and prints predictions on the standard output.
 
   Args:
@@ -113,6 +113,8 @@ def infer(features_file, estimator, model, config):
     estimator: A `tf.estimator.Estimator`.
     model: A `opennmt.models.Model`.
     config: The configuration.
+    checkpoint_path: Path of a specific checkpoint to predict. If `None`, the
+      latest is used.
   """
   if "infer" not in config:
     config["infer"] = {}
@@ -126,16 +128,17 @@ def infer(features_file, estimator, model, config):
       config["data"],
       features_file)
 
-  for prediction in estimator.predict(input_fn=input_fn):
+  for prediction in estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path):
     model.print_prediction(prediction, params=config["infer"])
 
-def export(estimator, model, config):
+def export(estimator, model, config, checkpoint_path=None):
   """Exports a model.
 
   Args:
     estimator: A `tf.estimator.Estimator`.
     model: A `opennmt.models.Model`.
     config: The configuration.
+    checkpoint_path: The checkpoint path to export. If `None`, the latest is used.
   """
   export_dir = os.path.join(estimator.model_dir, "export")
   if not os.path.isdir(export_dir):
@@ -143,7 +146,8 @@ def export(estimator, model, config):
 
   estimator.export_savedmodel(
       os.path.join(export_dir, "manual"),
-      model.serving_input_fn(config["data"]))
+      model.serving_input_fn(config["data"]),
+      checkpoint_path=checkpoint_path)
 
 
 def main():
@@ -156,6 +160,8 @@ def main():
                       help="model configuration file")
   parser.add_argument("--features_file", default="",
                       help="run inference on this file")
+  parser.add_argument("--checkpoint_path", default=None,
+                      help="checkpoint to use for inference or export (latest by default)")
   parser.add_argument("--chief_host", default="",
                       help="hostname:port of the chief worker")
   parser.add_argument("--worker_hosts", default="",
@@ -228,9 +234,9 @@ def main():
   elif args.run == "infer":
     if not args.features_file:
       parser.error("--features_file is required for inference.")
-    infer(args.features_file, estimator, model, config)
+    infer(args.features_file, estimator, model, config, checkpoint_path=args.checkpoint_path)
   elif args.run == "export":
-    export(estimator, model, config)
+    export(estimator, model, config, checkpoint_path=args.checkpoint_path)
 
 
 if __name__ == "__main__":
