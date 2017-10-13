@@ -43,7 +43,7 @@ class CountersHook(tf.train.SessionRunHook):
     if self._summary_writer is None and self._output_dir:
       self._summary_writer = SummaryWriterCache.get(self._output_dir)
 
-    self._last_count = [0 for _ in self._counters]
+    self._last_count = [None for _ in self._counters]
     self._global_step = tf.train.get_global_step()
     if self._global_step is None:
       raise RuntimeError("Global step should be created to use WordCounterHook.")
@@ -62,13 +62,14 @@ class CountersHook(tf.train.SessionRunHook):
       elapsed_time, _ = self._timer.update_last_triggered_step(step)
       if elapsed_time is not None:
         for i in range(len(self._counters)):
-          name = self._counters[i].name
-          value = (counters[i] - self._last_count[i]) / elapsed_time
+          if self._last_count[i] is not None:
+            name = self._counters[i].name
+            value = (counters[i] - self._last_count[i]) / elapsed_time
+            if self._summary_writer is not None:
+              summary = tf.Summary(value=[tf.Summary.Value(tag=name, simple_value=value)])
+              self._summary_writer.add_summary(summary, step)
+            tf.logging.info("%s: %g", name, value)
           self._last_count[i] = counters[i]
-          if self._summary_writer is not None:
-            summary = tf.Summary(value=[tf.Summary.Value(tag=name, simple_value=value)])
-            self._summary_writer.add_summary(summary, step)
-          tf.logging.info("%s: %g", name, value)
 
 
 class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
