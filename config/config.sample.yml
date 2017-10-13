@@ -11,6 +11,7 @@ data:
   source_words_vocabulary: "data/ende/src-vocab.txt"
   target_words_vocabulary: "data/ende/tgt-vocab.txt"
 
+# Model and optimization parameters.
 params:
   # The optimizer as a string (see https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/layers/python/layers/optimizers.py#L40).
   optimizer: SGD
@@ -43,6 +44,7 @@ params:
   # (optional) Maximum decoding iterations before stopping (default: 250).
   maximum_iterations: 200
 
+# Training options.
 train:
   batch_size: 64
 
@@ -54,8 +56,8 @@ train:
   save_summary_steps: 100
   # (optional) Train for this many steps. If not set, train forever.
   train_steps: 1000000
-  # (optional) Evaluate every this many steps.
-  eval_steps: 10000
+  # (optional) Evaluate every this many seconds (default: 3600).
+  eval_delay: 7200
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) The maximum length of feature sequences during training (default: None).
@@ -65,15 +67,16 @@ train:
   # (optional) The number of buckets by sequence length to improve training efficiency (default: 5).
   num_buckets: 5
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
-  num_threads: 4
+  num_parallel_process_calls: 4
   # (optional) The data pre-fetch buffer size, e.g. for shuffling examples (default: batch_size * 1000).
   buffer_size: 10000
 
+# (optional) Inference options.
 infer:
+  # (optional) The batch size to use (default: 1).
   batch_size: 10
-
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
-  num_threads: 4
+  num_parallel_process_calls: 4
   # (optional) The data pre-fetch buffer size when processing data in parallel (default: batch_size * 10).
   buffer_size: 100
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
