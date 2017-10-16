@@ -151,33 +151,35 @@ def export(estimator, model, config, checkpoint_path=None):
 
 
 def main():
-  parser = argparse.ArgumentParser(description="OpenNMT-tf.")
+  parser = argparse.ArgumentParser()
   parser.add_argument("run", choices=["train", "infer", "export"],
-                      help="run type")
+                      help="Run type.")
   parser.add_argument("--config", required=True, nargs="+",
-                      help="""list of configuration files""")
+                      help="List of configuration files.")
   parser.add_argument("--model", default="",
-                      help="model configuration file")
+                      help="Model configuration file.")
   parser.add_argument("--features_file", default="",
-                      help="run inference on this file")
+                      help="Run inference on this file.")
   parser.add_argument("--checkpoint_path", default=None,
-                      help="checkpoint to use for inference or export (latest by default)")
+                      help="Checkpoint to use for inference or export (latest by default).")
   parser.add_argument("--chief_host", default="",
-                      help="hostname:port of the chief worker")
+                      help="hostname:port of the chief worker (for distributed training).")
   parser.add_argument("--worker_hosts", default="",
-                      help="comma-separated list of hostname:port of workers")
+                      help=("Comma-separated list of hostname:port of workers"
+                            "(for distributed training)."))
   parser.add_argument("--ps_hosts", default="",
-                      help="comma-separated list of hostname:port of parameter servers")
+                      help=("Comma-separated list of hostname:port of parameter servers"
+                            "(for distributed training)."))
   parser.add_argument("--task_type", default="chief",
                       choices=["chief", "worker", "ps", "evaluator"],
-                      help="type of the task to run")
+                      help="Type of the task to run (for distributed training).")
   parser.add_argument("--task_index", type=int, default=0,
-                      help="id of the task")
+                      help="ID of the task (for distributed training).")
   parser.add_argument("--log_level", default="INFO",
                       choices=["DEBUG", "ERROR", "FATAL", "INFO", "WARN"],
-                      help="logs verbosity")
+                      help="Logs verbosity.")
   parser.add_argument("--gpu_allow_growth", type=bool, default=False,
-                      help="allocate gpu memory dynamically")
+                      help="Allocate GPU memory dynamically.")
   args = parser.parse_args()
 
   tf.logging.set_verbosity(getattr(tf.logging, args.log_level))

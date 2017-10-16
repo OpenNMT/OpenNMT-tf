@@ -9,7 +9,7 @@ from opennmt import tokenizers
 
 
 def main():
-  parser = argparse.ArgumentParser(description="Tokenizer script")
+  parser = argparse.ArgumentParser()
   parser.add_argument(
       "--tokenizer", default="SpaceTokenizer",
       help="Tokenizer class name.")

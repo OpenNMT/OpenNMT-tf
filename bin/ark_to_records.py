@@ -160,13 +160,13 @@ def ark_to_records(ark_filename, text_filename, out_prefix):
 
 
 def main():
-  parser = argparse.ArgumentParser(description="ARK to TFRecords converter.")
+  parser = argparse.ArgumentParser()
   parser.add_argument("--ark", required=True,
-                      help="ARK data file")
+                      help="ARK data file.")
   parser.add_argument("--txt", required=True,
-                      help="indexed text data file")
+                      help="Indexed text data file.")
   parser.add_argument("--out", required=True,
-                      help="output files prefix")
+                      help="Output files prefix (will be suffixed by .records and .txt).")
   args = parser.parse_args()
   ark_to_records(args.ark, args.txt, args.out)
 

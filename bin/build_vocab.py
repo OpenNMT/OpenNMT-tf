@@ -7,7 +7,7 @@ from opennmt import tokenizers
 
 
 def main():
-  parser = argparse.ArgumentParser(description="Generate vocabulary file")
+  parser = argparse.ArgumentParser()
   parser.add_argument(
       "data",
       help="Source text file.")
