@@ -42,9 +42,6 @@ class SequenceClassifier(Model):
   def _get_features_length(self, features):
     return self.inputter.get_length(features)
 
-  def _get_labels_length(self, labels):
-    return None
-
   def _get_features_builder(self, features_file):
     dataset = self.inputter.make_dataset(features_file)
     process_fn = self.inputter.process

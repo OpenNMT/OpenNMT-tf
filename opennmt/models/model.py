@@ -258,8 +258,7 @@ class Model(object):
     """
     raise NotImplementedError()
 
-  @abc.abstractmethod
-  def _get_features_length(self, features):
+  def _get_features_length(self, features):  # pylint: disable=unused-argument
     """Returns the features length.
 
     Args:
@@ -268,10 +267,9 @@ class Model(object):
     Returns:
       The length as a `tf.Tensor`, or `None` if length is undefined.
     """
-    raise NotImplementedError()
+    return None
 
-  @abc.abstractmethod
-  def _get_labels_length(self, labels):
+  def _get_labels_length(self, labels):  # pylint: disable=unused-argument
     """Returns the labels length.
 
     Args:
@@ -280,7 +278,7 @@ class Model(object):
     Returns:
       The length as a `tf.Tensor`, or `None` if length is undefined.
     """
-    raise NotImplementedError()
+    return None
 
   @abc.abstractmethod
   def _get_features_builder(self, features_file):
@@ -356,14 +354,24 @@ class Model(object):
           padded_shapes=padded_shapes)
     else:
       # For training and evaluation, use bucketing.
+      def _key_func(features, labels):
+        length = None
 
-      def _key_func(features, unused_labels):
-        if maximum_features_length:
-          bucket_width = (maximum_features_length + num_buckets - 1) // num_buckets
+        if length is None:
+          length = self._get_features_length(features)
+          maximum_length = maximum_features_length
+        if length is None:
+          length = self._get_labels_length(labels)
+          maximum_length = maximum_labels_length
+        if length is None:
+          return tf.constant(0, dtype=tf.int64)
+
+        if maximum_length is not None:
+          bucket_width = (maximum_length + num_buckets - 1) // num_buckets
         else:
           bucket_width = 10
 
-        bucket_id = self._get_features_length(features) // bucket_width
+        bucket_id = length // bucket_width
         bucket_id = tf.minimum(bucket_id, num_buckets)
         return tf.to_int64(bucket_id)
 
@@ -373,8 +381,8 @@ class Model(object):
             padded_shapes=padded_shapes)
 
       dataset = dataset.apply(tf.contrib.data.group_by_window(
-          key_func=_key_func,
-          reduce_func=_reduce_func,
+          _key_func,
+          _reduce_func,
           window_size=batch_size))
 
     iterator = dataset.make_initializable_iterator()
