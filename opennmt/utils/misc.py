@@ -1,5 +1,7 @@
 """Various utility functions to use throughout the project."""
 
+import inspect
+
 import tensorflow as tf
 
 
@@ -10,6 +12,14 @@ def count_lines(filename):
     for i, _ in enumerate(f):
       pass
     return i + 1
+
+def get_classnames_in_module(module):
+  """Returns a list of classnames exposed by a module."""
+  names = []
+  for symbol in dir(module):
+    if inspect.isclass(getattr(module, symbol)):
+      names.append(symbol)
+  return names
 
 def count_parameters():
   """Returns the total number of trainable parameters."""

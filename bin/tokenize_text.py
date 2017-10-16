@@ -6,12 +6,13 @@ import argparse
 import sys
 
 from opennmt import tokenizers
+from opennmt.utils.misc import get_classnames_in_module
 
 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument(
-      "--tokenizer", default="SpaceTokenizer",
+      "--tokenizer", default="SpaceTokenizer", choices=get_classnames_in_module(tokenizers),
       help="Tokenizer class name.")
   parser.add_argument(
       "--delimiter", default=" ",

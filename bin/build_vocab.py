@@ -4,6 +4,7 @@ import argparse
 
 from opennmt import constants
 from opennmt import tokenizers
+from opennmt.utils.misc import get_classnames_in_module
 
 
 def main():
@@ -15,7 +16,7 @@ def main():
       "--save_vocab", required=True,
       help="Output vocabulary file.")
   parser.add_argument(
-      "--tokenizer", default="SpaceTokenizer",
+      "--tokenizer", default="SpaceTokenizer", choices=get_classnames_in_module(tokenizers),
       help="Tokenizer class name.")
   parser.add_argument(
       "--min_frequency", type=int, default=1,
