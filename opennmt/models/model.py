@@ -77,7 +77,7 @@ class Model(object):
 
       if predictions is not None:
         # Register predictions in a collection so that hooks can easily fetch them.
-        add_dict_to_collection(predictions, "predictions")
+        add_dict_to_collection("predictions", predictions)
 
       if mode != tf.estimator.ModeKeys.PREDICT:
         loss = self._compute_loss(features, labels, outputs)

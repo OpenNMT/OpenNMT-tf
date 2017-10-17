@@ -75,12 +75,12 @@ def extract_batches(tensors):
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def add_dict_to_collection(dict_, collection_name):
+def add_dict_to_collection(collection_name, dict_):
   """Adds a dictionary to a graph collection.
 
   Args:
-    dict_: A dictionary of string keys to tensor values
     collection_name: The name of the collection to add the dictionary to
+    dict_: A dictionary of string keys to tensor values
   """
   key_collection = collection_name + "_keys"
   value_collection = collection_name + "_values"
