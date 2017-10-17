@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="OpenNMT-tf",
     version="0.1",
+    license="MIT",
     install_requires=[
         "pyyaml"
     ],
