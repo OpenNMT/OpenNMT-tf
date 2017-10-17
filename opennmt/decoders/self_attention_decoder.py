@@ -39,9 +39,9 @@ class SelfAttentionDecoder(Decoder):
              inputs,
              sequence_length,
              vocab_size,
-             encoder_state=None,
+             initial_state=None,
              scheduled_sampling_probability=0.0,
-             embeddings=None,
+             embedding=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
@@ -118,11 +118,11 @@ class SelfAttentionDecoder(Decoder):
     return (outputs, None, sequence_length)
 
   def dynamic_decode(self,
-                     embeddings,
+                     embedding,
                      start_tokens,
                      end_token,
                      vocab_size,
-                     encoder_state=None,
+                     initial_state=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
@@ -134,7 +134,7 @@ class SelfAttentionDecoder(Decoder):
     lengths = tf.zeros([batch_size], dtype=tf.int32)
     log_probs = tf.zeros([batch_size])
 
-    embedding_fn = get_embedding_fn(embeddings)
+    embedding_fn = get_embedding_fn(embedding)
 
     def _condition(unused_step, finished, unused_inputs, unused_lengths, unused_log_probs):
       return tf.logical_not(tf.reduce_all(finished))
@@ -147,7 +147,7 @@ class SelfAttentionDecoder(Decoder):
           embedding_fn(inputs),
           inputs_lengths,
           vocab_size,
-          encoder_state=encoder_state,
+          initial_state=initial_state,
           mode=mode,
           memory=memory,
           memory_sequence_length=memory_sequence_length)
@@ -201,20 +201,20 @@ class SelfAttentionDecoder(Decoder):
 
 
   def dynamic_decode_and_search(self,
-                                embeddings,
+                                embedding,
                                 start_tokens,
                                 end_token,
                                 vocab_size,
-                                encoder_state=None,
+                                initial_state=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None):
-    if encoder_state is not None:
-      encoder_state = tf.contrib.seq2seq.tile_batch(
-          encoder_state, multiplier=beam_width)
+    if initial_state is not None:
+      initial_state = tf.contrib.seq2seq.tile_batch(
+          initial_state, multiplier=beam_width)
     if memory is not None:
       memory = tf.contrib.seq2seq.tile_batch(
           memory, multiplier=beam_width)
@@ -222,7 +222,7 @@ class SelfAttentionDecoder(Decoder):
       memory_sequence_length = tf.contrib.seq2seq.tile_batch(
           memory_sequence_length, multiplier=beam_width)
 
-    embedding_fn = get_embedding_fn(embeddings)
+    embedding_fn = get_embedding_fn(embedding)
 
     def _symbols_to_logits_fn(symbols):
       batch_size = tf.shape(symbols)[0]
@@ -232,7 +232,7 @@ class SelfAttentionDecoder(Decoder):
           embedding_fn(symbols),
           sequence_length,
           vocab_size,
-          encoder_state=encoder_state,
+          initial_state=initial_state,
           mode=mode,
           memory=memory,
           memory_sequence_length=memory_sequence_length)

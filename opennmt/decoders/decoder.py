@@ -30,7 +30,7 @@ def get_embedding_fn(embedding):
   """Returns the embedding function.
 
   Args:
-    embeddings: The embeddings tensor or a callable that takes word ids.
+    embedding: The embedding tensor or a callable that takes word ids.
 
   Returns:
     A callable that takes word ids.
@@ -50,9 +50,9 @@ class Decoder(object):
              inputs,
              sequence_length,
              vocab_size,
-             encoder_state=None,
+             initial_state=None,
              scheduled_sampling_probability=0.0,
-             embeddings=None,
+             embedding=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
@@ -64,10 +64,10 @@ class Decoder(object):
       inputs: The input to decode of shape [B, T, ...].
       sequence_length: The length of each input with shape [B].
       vocab_size: The output vocabulary size.
-      encoder_state: The encoder state as a (possibly nested tuple of...) tensors.
+      initial_state: The initial state as a (possibly nested tuple of...) tensors.
       scheduled_sampling_probability: The probability of sampling categorically from
         the output ids instead of reading directly from the inputs.
-      embeddings: The embeddings tensor or a callable that takes word ids.
+      embedding: The embedding tensor or a callable that takes word ids.
         Must be set when `scheduled_sampling_probability` > 0.
       mode: A `tf.estimator.ModeKeys` mode.
       memory: (optional) Memory values to query.
@@ -80,11 +80,11 @@ class Decoder(object):
 
   @abc.abstractmethod
   def dynamic_decode(self,
-                     embeddings,
+                     embedding,
                      start_tokens,
                      end_token,
                      vocab_size,
-                     encoder_state=None,
+                     initial_state=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
@@ -94,11 +94,11 @@ class Decoder(object):
     Usually used for inference.
 
     Args:
-      embeddings: The embeddings tensor or a callable that takes word ids.
+      embedding: The embedding tensor or a callable that takes word ids.
       start_tokens: The start token ids with shape [B].
       end_token: The end token id.
       vocab_size: The output vocabulary size.
-      encoder_state: The encoder state as a (possibly nested tuple of...) tensors.
+      initial_state: The initial state as a (possibly nested tuple of...) tensors.
       maximum_iterations: The maximum number of decoding iterations.
       mode: A `tf.estimator.ModeKeys` mode.
       memory: (optional) Memory values to query.
@@ -111,11 +111,11 @@ class Decoder(object):
 
   @abc.abstractmethod
   def dynamic_decode_and_search(self,
-                                embeddings,
+                                embedding,
                                 start_tokens,
                                 end_token,
                                 vocab_size,
-                                encoder_state=None,
+                                initial_state=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
@@ -127,11 +127,11 @@ class Decoder(object):
     Usually used for inference.
 
     Args:
-      embeddings: The embeddings tensor or a callable that takes word ids.
+      embedding: The embedding tensor or a callable that takes word ids.
       start_tokens: The start token ids with shape [B].
       end_token: The end token id.
       vocab_size: The output vocabulary size.
-      encoder_state: The encoder state as a (possibly nested tuple of...) tensors.
+      initial_state: The initial state as a (possibly nested tuple of...) tensors.
       beam_width: The width of the beam.
       length_penalty: The length penalty weight during beam search.
       maximum_iterations: The maximum number of decoding iterations.

@@ -33,18 +33,18 @@ class RNNDecoder(Decoder):
     self.dropout = dropout
     self.residual_connections = residual_connections
 
-  def _init_state(self, zero_state, encoder_state=None):
-    if encoder_state is None:
+  def _init_state(self, zero_state, initial_state=None):
+    if initial_state is None:
       return zero_state
     elif self.bridge is None:
       raise ValueError("A bridge must be configured when passing encoder state")
     else:
-      return self.bridge(encoder_state, zero_state)
+      return self.bridge(initial_state, zero_state)
 
   def _build_cell(self,
                   mode,
                   batch_size,
-                  encoder_state=None,
+                  initial_state=None,
                   memory=None,
                   memory_sequence_length=None):
     _ = memory
@@ -58,8 +58,8 @@ class RNNDecoder(Decoder):
         residual_connections=self.residual_connections,
         cell_class=self.cell_class)
 
-    initial_state = cell.zero_state(batch_size, tf.float32)
-    initial_state = self._init_state(initial_state, encoder_state=encoder_state)
+    initial_state = self._init_state(
+        cell.zero_state(batch_size, tf.float32), initial_state=initial_state)
 
     return cell, initial_state
 
@@ -70,9 +70,9 @@ class RNNDecoder(Decoder):
              inputs,
              sequence_length,
              vocab_size,
-             encoder_state=None,
+             initial_state=None,
              scheduled_sampling_probability=0.0,
-             embeddings=None,
+             embedding=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
@@ -82,13 +82,13 @@ class RNNDecoder(Decoder):
     batch_size = tf.shape(inputs)[0]
 
     if scheduled_sampling_probability > 0:
-      if embeddings is None:
-        raise ValueError("embeddings argument must be set when using scheduled sampling")
+      if embedding is None:
+        raise ValueError("embedding argument must be set when using scheduled sampling")
 
       helper = tf.contrib.seq2seq.ScheduledEmbeddingTrainingHelper(
           inputs,
           sequence_length,
-          embeddings,
+          embedding,
           scheduled_sampling_probability)
     else:
       helper = tf.contrib.seq2seq.TrainingHelper(inputs, sequence_length)
@@ -96,7 +96,7 @@ class RNNDecoder(Decoder):
     cell, initial_state = self._build_cell(
         mode,
         batch_size,
-        encoder_state=encoder_state,
+        initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length)
 
@@ -112,11 +112,11 @@ class RNNDecoder(Decoder):
     return (outputs.rnn_output, state, length)
 
   def dynamic_decode(self,
-                     embeddings,
+                     embedding,
                      start_tokens,
                      end_token,
                      vocab_size,
-                     encoder_state=None,
+                     initial_state=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
@@ -124,14 +124,14 @@ class RNNDecoder(Decoder):
     batch_size = tf.shape(start_tokens)[0]
 
     helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(
-        embeddings,
+        embedding,
         start_tokens,
         end_token)
 
     cell, initial_state = self._build_cell(
         mode,
         batch_size,
-        encoder_state=encoder_state,
+        initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length)
 
@@ -156,11 +156,11 @@ class RNNDecoder(Decoder):
     return (predicted_ids, state, length, log_probs)
 
   def dynamic_decode_and_search(self,
-                                embeddings,
+                                embedding,
                                 start_tokens,
                                 end_token,
                                 vocab_size,
-                                encoder_state=None,
+                                initial_state=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
@@ -170,9 +170,9 @@ class RNNDecoder(Decoder):
     batch_size = tf.shape(start_tokens)[0]
 
     # Replicate batch `beam_width` times.
-    if encoder_state is not None:
-      encoder_state = tf.contrib.seq2seq.tile_batch(
-          encoder_state, multiplier=beam_width)
+    if initial_state is not None:
+      initial_state = tf.contrib.seq2seq.tile_batch(
+          initial_state, multiplier=beam_width)
     if memory is not None:
       memory = tf.contrib.seq2seq.tile_batch(
           memory, multiplier=beam_width)
@@ -183,7 +183,7 @@ class RNNDecoder(Decoder):
     cell, initial_state = self._build_cell(
         mode,
         batch_size * beam_width,
-        encoder_state=encoder_state,
+        initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length)
 
@@ -191,7 +191,7 @@ class RNNDecoder(Decoder):
 
     decoder = tf.contrib.seq2seq.BeamSearchDecoder(
         cell,
-        embeddings,
+        embedding,
         start_tokens,
         end_token,
         initial_state,
@@ -247,7 +247,7 @@ class AttentionalRNNDecoder(RNNDecoder):
   def _build_cell(self,
                   mode,
                   batch_size,
-                  encoder_state=None,
+                  initial_state=None,
                   memory=None,
                   memory_sequence_length=None):
     attention_mechanism = self.attention_mechanism_class(
@@ -259,8 +259,8 @@ class AttentionalRNNDecoder(RNNDecoder):
         self,
         mode,
         batch_size,
-        encoder_state=encoder_state)
-    initial_cell_state = self._init_state(initial_cell_state, encoder_state=encoder_state)
+        initial_state=initial_state)
+    initial_cell_state = self._init_state(initial_cell_state, initial_state=initial_state)
 
     cell = tf.contrib.seq2seq.AttentionWrapper(
         cell,
