@@ -9,6 +9,7 @@ import opennmt.inputters as inputters
 
 from opennmt.models.model import Model
 from opennmt.utils.losses import masked_sequence_loss
+from opennmt.decoders.decoder import get_sampling_probability
 
 
 def shift_target_sequence(inputter, data):
@@ -138,7 +139,12 @@ class SequenceToSequence(Model):
 
     with tf.variable_scope("decoder") as decoder_scope:
       if labels is not None:
-        scheduled_sampling_probability = params.get("scheduled_sampling_probability", 0)
+        sampling_probability = get_sampling_probability(
+            tf.train.get_or_create_global_step(),
+            read_probability=params.get("scheduled_sampling_read_probability"),
+            schedule_type=params.get("scheduled_sampling_type"),
+            k=params.get("scheduled_sampling_k"))
+
         target_inputs = self.target_inputter.transform_data(
             labels,
             mode,
@@ -148,7 +154,7 @@ class SequenceToSequence(Model):
             self._get_labels_length(labels),
             target_vocab_size,
             initial_state=encoder_state,
-            scheduled_sampling_probability=scheduled_sampling_probability,
+            sampling_probability=sampling_probability,
             embedding=self._scoped_target_embedding_fn(mode, decoder_scope),
             mode=mode,
             memory=encoder_outputs,

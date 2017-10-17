@@ -34,9 +34,14 @@ params:
   start_decay_steps: 50000
   # (optional) Stop decay when this learning rate value is reached (default: 0).
   minimum_learning_rate: 0.0001
-  # (optional) Probability to sample of sampling categorically from the output ids
-  # instead of reading directly from the inputs (default: 0).
-  scheduled_sampling_probability: 0.1
+  # (optional) Type of scheduled sampling (can be "constant", "linear", "exponential",
+  # or "inverse_sigmoid", default: "constant").
+  scheduled_sampling_type: "constant"
+  # (optional) Probability to read directly from the inputs instead of sampling categorically
+  # from the output ids (default: 1).
+  scheduled_sampling_read_probability: 1
+  # (optional unless scheduled_sampling_type is set) The constant k of the schedule.
+  scheduled_sampling_k: 0
   # (optional) Width of the beam search (default: 1).
   beam_width: 5
   # (optional) Length penaly weight to apply on hypotheses (default: 0).

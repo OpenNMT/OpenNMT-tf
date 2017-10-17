@@ -71,7 +71,7 @@ class RNNDecoder(Decoder):
              sequence_length,
              vocab_size,
              initial_state=None,
-             scheduled_sampling_probability=0.0,
+             sampling_probability=None,
              embedding=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
@@ -81,15 +81,18 @@ class RNNDecoder(Decoder):
 
     batch_size = tf.shape(inputs)[0]
 
-    if scheduled_sampling_probability > 0:
+    if (sampling_probability is not None
+        and (tf.contrib.framework.is_tensor(sampling_probability)
+             or sampling_probability > 0.0)):
       if embedding is None:
         raise ValueError("embedding argument must be set when using scheduled sampling")
 
+      tf.summary.scalar("sampling_probability", sampling_probability)
       helper = tf.contrib.seq2seq.ScheduledEmbeddingTrainingHelper(
           inputs,
           sequence_length,
           embedding,
-          scheduled_sampling_probability)
+          sampling_probability)
     else:
       helper = tf.contrib.seq2seq.TrainingHelper(inputs, sequence_length)
 
