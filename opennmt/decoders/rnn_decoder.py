@@ -260,7 +260,6 @@ class AttentionalRNNDecoder(RNNDecoder):
         mode,
         batch_size,
         initial_state=initial_state)
-    initial_cell_state = self._init_state(initial_cell_state, initial_state=initial_state)
 
     cell = tf.contrib.seq2seq.AttentionWrapper(
         cell,
