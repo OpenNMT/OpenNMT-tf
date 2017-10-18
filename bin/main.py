@@ -45,10 +45,12 @@ def load_model(model_dir, model_file=None):
   serial_model_file = os.path.join(model_dir, "model_description.pkl")
 
   if model_file:
-    if tf.train.checkpoint_exists(model_dir):
+    if tf.train.latest_checkpoint(model_dir) is not None:
       tf.logging.warn(
           "You provided a model configuration but a checkpoint already exists. "
-          "The model configuration must match the one used for the initial training.")
+          "The model configuration must define the same model as the one used for "
+          "the initial training. However, you can change non structural values like "
+          "dropout.")
 
     model_config = load_model_module(model_file)
     model = model_config.model()
