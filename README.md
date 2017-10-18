@@ -56,7 +56,32 @@ python -m bin.main [...] --config config/data/wmt_ende.yml config/run/default_tr
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
 
-*See the example configuration `config/config.sample.yml` to learn about available options.*
+*See the example configuration `config/sample.yml` to learn about available options.*
+
+## Quickstart
+
+Here is a minimal workflow to get you started in using OpenNMT-tf. This example uses a toy English-German dataset for machine translation.
+
+1\. Build the word vocabularies:
+
+```
+python -m bin.build_vocab --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
+python -m bin.build_vocab --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
+```
+
+2\. Train with preset parameters:
+
+```
+python -m bin.main train --model config/models/nmt_medium.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
+```
+
+4\. Translate a test file with the latest checkpoint:
+
+```
+python -m bin.main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --features_file data/toy-ende/src-test.txt
+```
+
+**Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html).
 
 ## Monitoring
 
@@ -98,10 +123,10 @@ For more details, see the documentation of [`tf.estimator.train_and_evaluate`](h
 OpenNMT-tf periodically exports models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:
 
 ```
-ende/export/latest/1507109306/
+toy-ende/export/latest/1507109306/
 ├── assets
-│   ├── en.dict
-│   └── de.dict
+│   ├── src-vocab.txt
+│   └── tgt-vocab.txt
 ├── saved_model.pb
 └── variables
     ├── variables.data-00000-of-00001

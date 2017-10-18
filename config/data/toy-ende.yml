@@ -1,0 +1,9 @@
+model_dir: toy-ende
+
+data:
+  train_features_file: data/toy-ende/src-train.txt
+  train_labels_file: data/toy-ende/tgt-train.txt
+  eval_features_file: data/toy-ende/src-val.txt
+  eval_labels_file: data/toy-ende/tgt-val.txt
+  source_words_vocabulary: data/toy-ende/src-vocab.txt
+  target_words_vocabulary: data/toy-ende/tgt-vocab.txt

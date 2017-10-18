@@ -1,0 +1,23 @@
+# Default OpenNMT parameters.
+
+params:
+  optimizer: SGD
+  learning_rate: 1.0
+  clip_gradients: 5.0
+  decay_type: "exponential_decay"
+  decay_rate: 0.7
+  decay_steps: 100000
+  start_decay_steps: 500000
+  beam_width: 5
+  maximum_iterations: 250
+
+train:
+  batch_size: 64
+  save_checkpoints_steps: 5000
+  train_steps: 1000000
+  eval_delay: 18000 # Every 5 hours.
+  maximum_features_length: 50
+  maximum_labels_length: 50
+
+infer:
+  batch_size: 30
