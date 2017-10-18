@@ -237,17 +237,18 @@ def main():
       model_dir=config["model_dir"],
       session_config=session_config)
 
-  if "save_summary_steps" in config["train"]:
-    run_config = run_config.replace(
-        save_summary_steps=config["train"]["save_summary_steps"],
-        log_step_count_steps=config["train"]["save_summary_steps"])
-  if "save_checkpoints_steps" in config["train"]:
-    run_config = run_config.replace(
-        save_checkpoints_secs=None,
-        save_checkpoints_steps=config["train"]["save_checkpoints_steps"])
-  if "keep_checkpoint_max" in config["train"]:
-    run_config = run_config.replace(
-        keep_checkpoint_max=config["train"]["keep_checkpoint_max"])
+  if "train" in config:
+    if "save_summary_steps" in config["train"]:
+      run_config = run_config.replace(
+          save_summary_steps=config["train"]["save_summary_steps"],
+          log_step_count_steps=config["train"]["save_summary_steps"])
+    if "save_checkpoints_steps" in config["train"]:
+      run_config = run_config.replace(
+          save_checkpoints_secs=None,
+          save_checkpoints_steps=config["train"]["save_checkpoints_steps"])
+    if "keep_checkpoint_max" in config["train"]:
+      run_config = run_config.replace(
+          keep_checkpoint_max=config["train"]["keep_checkpoint_max"])
 
   model = load_model(config["model_dir"], model_file=args.model)
 
