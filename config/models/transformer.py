@@ -1,4 +1,4 @@
-"""Implements a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+"""Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
 
 import tensorflow as tf
 import opennmt as onmt

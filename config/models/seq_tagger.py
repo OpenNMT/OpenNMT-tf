@@ -1,6 +1,4 @@
-"""Defines a "Bi-directional LSTM-CNNs-CRF" as described in
-https://arxiv.org/pdf/1603.01354.pdf.
-"""
+"""Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354."""
 
 import tensorflow as tf
 import opennmt as onmt
@@ -23,7 +21,8 @@ def model():
           dropout=0.5),
       encoder=onmt.encoders.BidirectionalRNNEncoder(
           num_layers=1,
-          num_units=200,
+          num_units=400,
+          reducer=onmt.utils.ConcatReducer(),
           cell_class=tf.contrib.rnn.LSTMCell,
           dropout=0.5,
           residual_connections=False),

@@ -42,7 +42,7 @@ Some modules are defined to contain other modules and can be used to design comp
 * `opennmt.inputters.MixedInputter`
 * `opennmt.inputters.ParallelInputter`
 
-*See the template file `config/models/template.py` and examples in `config/models/`.*
+*See the template file `config/models/template.py` and predefined models in `config/models/`. Contributions to add more model configurations are welcome.*
 
 ### Parameters configuration
 
