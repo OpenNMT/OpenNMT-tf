@@ -12,6 +12,23 @@ from opennmt.utils import hooks
 from opennmt.config import load_model_module, load_config
 
 
+def _prefix_path(prefix, path):
+  """Prefix path(s).
+
+  Args:
+    prefix: The prefix to apply.
+    data: A path or a dict of paths.
+
+  Returns:
+    The updated path or dict of paths.
+  """
+  if isinstance(path, dict):
+    for key, value in path.items():
+      path[key] = os.path.join(prefix, value)
+  else:
+    path = os.path.join(prefix, path)
+  return path
+
 def load_model(model_dir, model_file=None):
   """Loads the model.
 
@@ -158,6 +175,10 @@ def main():
                       help="List of configuration files.")
   parser.add_argument("--model", default="",
                       help="Model configuration file.")
+  parser.add_argument("--run_dir", default="",
+                      help="If set, model_dir will be created relative to this location.")
+  parser.add_argument("--data_dir", default="",
+                      help="If set, data files are expected to be relative to this location.")
   parser.add_argument("--features_file", default="",
                       help="Run inference on this file.")
   parser.add_argument("--checkpoint_path", default=None,
@@ -201,6 +222,8 @@ def main():
   # Load and merge run configurations.
   config = load_config(args.config)
 
+  if args.run_dir:
+    config["model_dir"] = _prefix_path(args.run_dir, config["model_dir"])
   if not os.path.isdir(config["model_dir"]):
     tf.logging.info("Creating model directory %s", config["model_dir"])
     os.makedirs(config["model_dir"])
@@ -232,6 +255,8 @@ def main():
       params=config["params"])
 
   if args.run == "train":
+    if args.data_dir:
+      config["data"] = _prefix_path(args.data_dir, config["data"])
     train(estimator, model, config)
   elif args.run == "infer":
     if not args.features_file:
