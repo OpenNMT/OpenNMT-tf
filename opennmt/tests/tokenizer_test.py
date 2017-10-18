@@ -30,6 +30,7 @@ class TokenizerTest(tf.test.TestCase):
         [u"Hello", u"world", u"!"])
 
   def testCharacterTokenizer(self):
+    self._testTokenizer(CharacterTokenizer(), u"a b", [u"a", u" ", u"b"])
     self._testTokenizer(
         CharacterTokenizer(),
         u"你好，世界！",

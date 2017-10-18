@@ -57,10 +57,10 @@ class Tokenizer(object):
     def _unicode_wrapper(text):
       unicode_text = text.decode("utf-8")
       unicode_tokens = self._tokenize_string(unicode_text)
-      return " ".join(unicode_tokens).encode("utf-8")
+      return "\0".join(unicode_tokens).encode("utf-8")
 
     text = tf.py_func(_unicode_wrapper, [text], tf.string)
-    tokens = tf.string_split([text]).values
+    tokens = tf.string_split([text], delimiter="\0").values
     return tokens
 
   @abc.abstractmethod
