@@ -70,16 +70,19 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
 
   projector.visualize_embeddings(summary_writer, config)
 
-def load_pretrained_embeddings(embedding_file, vocabulary_file):
+def load_pretrained_embeddings(embedding_file,
+                               vocabulary_file,
+                               case_insensitive_embeddings=True):
   """Returns pretrained embeddings relative to the vocabulary.
 
-  This function will iterate on each embedding in `embedding_file`
-  and assign the pretrained vector to the associated word in
-  `vocabulary_file` if found. Otherwise, the embedding is ignored.
+  This function will iterate on each embedding in `embedding_file` and assign
+  the pretrained vector to the associated word in `vocabulary_file` if found.
+  Otherwise, the embedding is ignored.
 
-  Word alignment are case insensitive meaning the pretrained word
-  embedding for "the" will be assigned to "the", "The", "THE", or
-  any other case variants included in `vocabulary_file`.
+  If `case_insensitive_embeddings` is `True`, word embeddings are assumed to be
+  trained on lowercase data. In that case, word alignments are case insensitive
+  meaning the pretrained word embedding for "the" will be assigned to "the",
+  "The", "THE", or any other case variants included in `vocabulary_file`.
 
   Args:
     embedding_file: Path the embedding file with the format:
@@ -91,6 +94,8 @@ def load_pretrained_embeddings(embedding_file, vocabulary_file):
       ```
       Entries will be matched against `vocabulary_file`.
     vocabulary_file: The vocabulary file containing one word per line.
+    case_insensitive_embeddings: `True` if embeddings are trained on lowercase
+      data.
 
   Returns:
     A Numpy array of shape `[vocabulary_size, embedding_size]`.
@@ -100,7 +105,9 @@ def load_pretrained_embeddings(embedding_file, vocabulary_file):
   with open(vocabulary_file) as vocabulary:
     count = 0
     for word in vocabulary:
-      word = word.strip().lower()
+      word = word.strip()
+      if case_insensitive_embeddings:
+        word = word.lower()
       word_to_id[word].append(count)
       count += 1
 
@@ -221,6 +228,7 @@ class WordEmbedder(TextInputter):
                vocabulary_file_key,
                embedding_size=None,
                embedding_file_key=None,
+               case_insensitive_embeddings=True,
                trainable=True,
                dropout=0.0,
                tokenizer=SpaceTokenizer()):
@@ -234,6 +242,9 @@ class WordEmbedder(TextInputter):
       embedding_file_key: The data configuration key of the embedding file.
         See the `load_pretrained_embeddings` function for details about the
         format and behavior.
+      case_insensitive_embeddings: `True` if embeddings are trained on lowercase
+        data. See the `load_pretrained_embeddings` function for details about
+        the behavior of this flag.
       trainable: If `False`, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional `opennmt.tokenizers.Tokenizer` to tokenize the
@@ -247,6 +258,7 @@ class WordEmbedder(TextInputter):
     self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
     self.embedding_file_key = embedding_file_key
+    self.case_insensitive_embeddings = case_insensitive_embeddings
     self.trainable = trainable
     self.dropout = dropout
     self.num_oov_buckets = 1
@@ -302,7 +314,10 @@ class WordEmbedder(TextInputter):
     except ValueError:
       # Variable does not exist yet.
       if self.embedding_file:
-        pretrained = load_pretrained_embeddings(self.embedding_file, self.vocabulary_file)
+        pretrained = load_pretrained_embeddings(
+            self.embedding_file,
+            self.vocabulary_file,
+            case_insensitive_embeddings=self.case_insensitive_embeddings)
         self.embedding_size = pretrained.shape[-1]
 
         shape = None
