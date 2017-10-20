@@ -232,21 +232,12 @@ class MultiInputter(Inputter):
 class ParallelInputter(MultiInputter):
   """An multi inputter that process parallel data."""
 
-  def __init__(self, inputters, reducer=None):
-    """Initializes a parellel inputter.
-
-    Args:
-      inputters: A list of `onmt.inputters.Inputter`s.
-      reducer: An optional `onmt.utils.Reducer` to merge all inputs.
-    """
-    super(ParallelInputter, self).__init__(inputters)
-    self.inputters = inputters
-    self.reducer = reducer
-
   def get_length(self, data):
-    # Let the first inputter defines the input data length.
-    sub_data = extract_prefixed_keys(data, "inputter_0_")
-    return self.inputters[0].get_length(sub_data)
+    lengths = []
+    for i in range(len(self.inputters)):
+      sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
+      lengths.append(self.inputters[i].get_length(sub_data))
+    return lengths
 
   def make_dataset(self, data_file):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
@@ -286,14 +277,10 @@ class ParallelInputter(MultiInputter):
       with tf.variable_scope("inputter_{}".format(i)):
         sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
         transformed.append(self.inputters[i]._transform_data(sub_data, mode))  # pylint: disable=protected-access
-    if self.reducer is not None:
-      transformed = self.reducer.reduce_all(transformed)
     return transformed
 
   def transform(self, inputs, mode):
     transformed = super(ParallelInputter, self).transform(inputs, mode)
-    if self.reducer is not None:
-      transformed = self.reducer.reduce_all(transformed)
     return transformed
 
 
@@ -341,11 +328,11 @@ class MixedInputter(MultiInputter):
     for i in range(len(self.inputters)):
       with tf.variable_scope("inputter_{}".format(i)):
         transformed.append(self.inputters[i]._transform_data(data, mode))  # pylint: disable=protected-access
-    return self.reducer.reduce_all(transformed)
+    return self.reducer.reduce(transformed)
 
   def transform(self, inputs, mode):
     transformed = super(MixedInputter, self).transform(inputs, mode)
-    outputs = self.reducer.reduce_all(transformed)
+    outputs = self.reducer.reduce(transformed)
     outputs = tf.layers.dropout(
         outputs,
         rate=self.dropout,

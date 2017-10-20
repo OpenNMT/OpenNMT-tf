@@ -5,7 +5,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils.reducer import SumReducer, JoinReducer
+from opennmt.utils.reducer import ConcatReducer, JoinReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -53,7 +53,7 @@ class SequentialEncoder(Encoder):
 
     return (
         inputs,
-        self.states_reducer.reduce_all(encoder_state),
+        self.states_reducer.reduce(encoder_state),
         sequence_length)
 
 
@@ -65,7 +65,7 @@ class ParallelEncoder(Encoder):
 
   def __init__(self,
                encoders,
-               outputs_reducer=SumReducer(),
+               outputs_reducer=ConcatReducer(axis=1),
                states_reducer=JoinReducer()):
     """Initializes the parameters of the encoder.
 
@@ -81,6 +81,7 @@ class ParallelEncoder(Encoder):
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     all_outputs = []
     all_states = []
+    all_sequence_lengths = []
 
     if tf.contrib.framework.nest.is_sequence(inputs) and len(inputs) != len(self.encoders):
       raise ValueError("ParallelEncoder expects as many inputs as parallel encoders")
@@ -89,17 +90,21 @@ class ParallelEncoder(Encoder):
       with tf.variable_scope("encoder_{}".format(i)):
         if tf.contrib.framework.nest.is_sequence(inputs):
           encoder_inputs = inputs[i]
+          length = sequence_length[i]
         else:
           encoder_inputs = inputs
+          length = sequence_length
 
-        outputs, state, sequence_length = self.encoders[i].encode(
+        outputs, state, length = self.encoders[i].encode(
             encoder_inputs,
-            sequence_length=sequence_length,
+            sequence_length=length,
             mode=mode)
+
         all_outputs.append(outputs)
         all_states.append(state)
+        all_sequence_lengths.append(length)
 
-    return (
-        self.outputs_reducer.reduce_all(all_outputs),
-        self.states_reducer.reduce_all(all_states),
-        sequence_length)
+    outputs, sequence_length = self.outputs_reducer.reduce_sequence(
+        all_outputs, all_sequence_lengths)
+
+    return (outputs, self.states_reducer.reduce(all_states), sequence_length)

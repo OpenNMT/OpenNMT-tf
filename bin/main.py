@@ -181,7 +181,7 @@ def main():
                       help="If set, model_dir will be created relative to this location.")
   parser.add_argument("--data_dir", default="",
                       help="If set, data files are expected to be relative to this location.")
-  parser.add_argument("--features_file", default="",
+  parser.add_argument("--features_file", default=[], nargs="+",
                       help="Run inference on this file.")
   parser.add_argument("--checkpoint_path", default=None,
                       help="Checkpoint to use for inference or export (latest by default).")
@@ -264,6 +264,8 @@ def main():
   elif args.run == "infer":
     if not args.features_file:
       parser.error("--features_file is required for inference.")
+    elif len(args.features_file) == 1:
+      args.features_file = args.features_file[0]
     infer(args.features_file, estimator, model, config, checkpoint_path=args.checkpoint_path)
   elif args.run == "export":
     export(estimator, model, config, checkpoint_path=args.checkpoint_path)

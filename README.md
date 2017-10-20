@@ -42,6 +42,8 @@ Some modules are defined to contain other modules and can be used to design comp
 * `opennmt.inputters.MixedInputter`
 * `opennmt.inputters.ParallelInputter`
 
+For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).
+
 *See the template file `config/models/template.py` and predefined models in `config/models/`. Contributions to add more model configurations are welcome.*
 
 ### Parameters configuration

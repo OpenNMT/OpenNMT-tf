@@ -129,8 +129,8 @@ class BidirectionalRNNEncoder(RNNEncoder):
         dtype=tf.float32)
 
     # Merge bidirectional outputs and state.
-    encoder_outputs = self.reducer.reduce(encoder_outputs_tup[0], encoder_outputs_tup[1])
-    encoder_state = self.reducer.reduce(encoder_state_tup[0], encoder_state_tup[1])
+    encoder_outputs = self.reducer.zip_and_reduce(encoder_outputs_tup[0], encoder_outputs_tup[1])
+    encoder_state = self.reducer.zip_and_reduce(encoder_state_tup[0], encoder_state_tup[1])
 
     return (encoder_outputs, encoder_state, sequence_length)
 
@@ -252,5 +252,5 @@ class PyramidalRNNEncoder(Encoder):
 
     return (
         outputs,
-        self.state_reducer.reduce_all(encoder_state),
+        self.state_reducer.reduce(encoder_state),
         sequence_length)

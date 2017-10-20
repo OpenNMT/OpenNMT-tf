@@ -123,7 +123,6 @@ class SequenceToSequence(Model):
 
   def _build(self, features, labels, params, mode, config):
     features_length = self._get_features_length(features)
-    batch_size = tf.shape(features_length)[0]
 
     with tf.variable_scope("encoder"):
       source_inputs = self.source_inputter.transform_data(
@@ -164,6 +163,7 @@ class SequenceToSequence(Model):
 
     if mode != tf.estimator.ModeKeys.TRAIN:
       with tf.variable_scope(decoder_scope, reuse=labels is not None) as decoder_scope:
+        batch_size = tf.shape(encoder_sequence_length)[0]
         beam_width = params.get("beam_width", 1)
         maximum_iterations = params.get("maximum_iterations", 250)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)

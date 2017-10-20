@@ -9,7 +9,7 @@ import six
 import tensorflow as tf
 
 from opennmt.utils import decay
-from opennmt.utils.misc import add_dict_to_collection
+from opennmt.utils.misc import add_dict_to_collection, item_or_tuple
 
 
 def learning_rate_decay_fn(decay_type,
@@ -212,31 +212,41 @@ class Model(object):
     """Defines an example filtering condition.
 
     Args:
-      features: A dict of `tf.Tensor`s.
-      labels: A `tf.Tensor` or dict of `tf.Tensor`s.
-      maximum_features_length: The maximum length of the features
-        sequence (if it applies).
-      maximum_labels_length: The maximum length of the labels sequence
-        (if it applies).
+      features: The features `tf.Tensor`s.
+      labels: The labels `tf.Tensor`(s).
+      maximum_features_length: The maximum length or list of maximum lengths of
+        the features sequence(s). `None` to not constrain the length.
+      maximum_labels_length: The maximum length of the labels sequence.
+        `None` to not constrain the length.
 
     Returns:
       A `tf.Tensor` of type `tf.bool` with a logical value of `False`
       if the example does not meet the requirements.
     """
+    cond = []
+
+    def _constrain_length(length, maximum_length):
+      # Work with lists of lengths which correspond to the general multi source case.
+      if not isinstance(length, list):
+        length = [length]
+      if not isinstance(maximum_length, list):
+        maximum_length = [maximum_length]
+
+      # Unset maximum lengths are set to None (i.e. no constraint).
+      maximum_length += [None] * (len(length) - len(maximum_length))
+
+      for l, maxlen in zip(length, maximum_length):
+        cond.append(tf.greater(l, 0))
+        if maxlen is not None:
+          cond.append(tf.less_equal(l, maxlen))
+
     features_length = self._get_features_length(features)
     labels_length = self._get_labels_length(labels)
 
-    cond = []
-
     if features_length is not None:
-      cond.append(tf.greater(features_length, 0))
-      if maximum_features_length is not None:
-        cond.append(tf.less_equal(features_length, maximum_features_length))
-
+      _constrain_length(features_length, maximum_features_length)
     if labels_length is not None:
-      cond.append(tf.greater(labels_length, 0))
-      if maximum_labels_length is not None:
-        cond.append(tf.less_equal(labels_length, maximum_labels_length))
+      _constrain_length(labels_length, maximum_labels_length)
 
     return tf.reduce_all(cond)
 
@@ -265,7 +275,8 @@ class Model(object):
       features: A dict of `tf.Tensor`s
 
     Returns:
-      The length as a `tf.Tensor`, or `None` if length is undefined.
+      The length as a `tf.Tensor` or list of `tf.Tensor`s, or `None` if length
+      is undefined.
     """
     return None
 
@@ -322,7 +333,8 @@ class Model(object):
 
     if labels_file is None:
       dataset = feat_dataset
-      process_fn = feat_process_fn
+      # Parallel inputs must be catched in a single tuple and not considered as multiple arguments.
+      process_fn = lambda *arg: feat_process_fn(item_or_tuple(arg))
       padded_shapes_fn = feat_padded_shapes_fn
     else:
       labels_dataset, labels_process_fn, labels_padded_shapes_fn = (
@@ -360,6 +372,10 @@ class Model(object):
         if length is None:
           length = self._get_features_length(features)
           maximum_length = maximum_features_length
+          # For multi inputs, apply bucketing on the target side or none at all.
+          if isinstance(length, list):
+            length = None
+            maximum_length = None
         if length is None:
           length = self._get_labels_length(labels)
           maximum_length = maximum_labels_length
@@ -417,10 +433,10 @@ class Model(object):
       features_file: The file containing input features.
       labels_file: The file containing output labels.
       num_buckets: The number of buckets to store examples of similar sizes.
-      maximum_features_length: The maximum length of feature sequences
-        during training (if it applies).
-      maximum_labels_length: The maximum length of label sequences
-        during training (if it applies).
+      maximum_features_length: The maximum length or list of maximum lengths of
+        the features sequence(s). `None` to not constrain the length.
+      maximum_labels_length: The maximum length of the labels sequence.
+        `None` to not constrain the length.
 
     Returns:
       A callable that returns the next element.
