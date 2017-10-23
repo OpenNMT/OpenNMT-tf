@@ -213,9 +213,9 @@ class MultiInputter(Inputter):
       inputter.initialize(metadata)
 
   def visualize(self, log_dir):
-    for i in range(len(self.inputters)):
+    for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
-        self.inputters[i].visualize(log_dir)
+        inputter.visualize(log_dir)
 
   @abc.abstractmethod
   def _get_serving_input(self):
@@ -223,9 +223,9 @@ class MultiInputter(Inputter):
 
   def transform(self, inputs, mode):
     transformed = []
-    for i in range(len(self.inputters)):
+    for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
-        transformed.append(self.inputters[i].transform(inputs[i], mode))
+        transformed.append(inputter.transform(inputs[i], mode))
     return transformed
 
 
@@ -234,9 +234,9 @@ class ParallelInputter(MultiInputter):
 
   def get_length(self, data):
     lengths = []
-    for i in range(len(self.inputters)):
+    for i, inputter in enumerate(self.inputters):
       sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
-      lengths.append(self.inputters[i].get_length(sub_data))
+      lengths.append(inputter.get_length(sub_data))
     return lengths
 
   def make_dataset(self, data_file):
@@ -250,8 +250,8 @@ class ParallelInputter(MultiInputter):
   def _get_serving_input(self):
     all_receiver_tensors = {}
     all_features = {}
-    for i in range(len(self.inputters)):
-      receiver_tensors, features = self.inputters[i]._get_serving_input()  # pylint: disable=protected-access
+    for i, inputter in enumerate(self.inputters):
+      receiver_tensors, features = inputter._get_serving_input()  # pylint: disable=protected-access
       for key, value in receiver_tensors.items():
         all_receiver_tensors["{}_{}".format(key, i)] = value
       for key, value in features.items():
@@ -260,23 +260,23 @@ class ParallelInputter(MultiInputter):
 
   def _process(self, data):
     processed_data = {}
-    for i in range(len(self.inputters)):
-      sub_data = self.inputters[i].process(data[i])
+    for i, inputter in enumerate(self.inputters):
+      sub_data = inputter.process(data[i])
       for key, value in sub_data.items():
         prefixed_key = "inputter_{}_{}".format(i, key)
         processed_data = self.set_data_field(
             processed_data,
             prefixed_key,
             value,
-            padded_shape=self.inputters[i].padded_shapes[key])
+            padded_shape=inputter.padded_shapes[key])
     return processed_data
 
   def _transform_data(self, data, mode):
     transformed = []
-    for i in range(len(self.inputters)):
+    for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
         sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
-        transformed.append(self.inputters[i]._transform_data(sub_data, mode))  # pylint: disable=protected-access
+        transformed.append(inputter._transform_data(sub_data, mode))  # pylint: disable=protected-access
     return transformed
 
   def transform(self, inputs, mode):
@@ -325,9 +325,9 @@ class MixedInputter(MultiInputter):
 
   def _transform_data(self, data, mode):
     transformed = []
-    for i in range(len(self.inputters)):
+    for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
-        transformed.append(self.inputters[i]._transform_data(data, mode))  # pylint: disable=protected-access
+        transformed.append(inputter._transform_data(data, mode))  # pylint: disable=protected-access
     return self.reducer.reduce(transformed)
 
   def transform(self, inputs, mode):

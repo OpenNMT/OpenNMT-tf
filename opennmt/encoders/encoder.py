@@ -43,9 +43,9 @@ class SequentialEncoder(Encoder):
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     encoder_state = []
 
-    for i in range(len(self.encoders)):
+    for i, encoder in enumerate(self.encoders):
       with tf.variable_scope("encoder_{}".format(i)):
-        inputs, state, sequence_length = self.encoders[i].encode(
+        inputs, state, sequence_length = encoder.encode(
             inputs,
             sequence_length=sequence_length,
             mode=mode)
@@ -86,7 +86,7 @@ class ParallelEncoder(Encoder):
     if tf.contrib.framework.nest.is_sequence(inputs) and len(inputs) != len(self.encoders):
       raise ValueError("ParallelEncoder expects as many inputs as parallel encoders")
 
-    for i in range(len(self.encoders)):
+    for i, encoder in enumerate(self.encoders):
       with tf.variable_scope("encoder_{}".format(i)):
         if tf.contrib.framework.nest.is_sequence(inputs):
           encoder_inputs = inputs[i]
@@ -95,7 +95,7 @@ class ParallelEncoder(Encoder):
           encoder_inputs = inputs
           length = sequence_length
 
-        outputs, state, length = self.encoders[i].encode(
+        outputs, state, length = encoder.encode(
             encoder_inputs,
             sequence_length=length,
             mode=mode)

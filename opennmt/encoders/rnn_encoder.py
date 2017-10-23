@@ -216,10 +216,10 @@ class PyramidalRNNEncoder(Encoder):
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     encoder_state = []
 
-    for l in range(len(self.layers)):
+    for layer_index, layer in enumerate(self.layers):
       input_depth = inputs.get_shape().as_list()[-1]
 
-      if l == 0:
+      if layer_index == 0:
         # For the first input, make the number of timesteps a multiple of the
         # total reduction factor.
         total_reduction_factor = pow(self.reduction_factor, len(self.layers) - 1)
@@ -241,8 +241,8 @@ class PyramidalRNNEncoder(Encoder):
         if sequence_length is not None:
           sequence_length = tf.div(sequence_length, self.reduction_factor)
 
-      with tf.variable_scope("layer_{}".format(l)):
-        outputs, state, sequence_length = self.layers[l].encode(
+      with tf.variable_scope("layer_{}".format(layer_index)):
+        outputs, state, sequence_length = layer.encode(
             inputs,
             sequence_length=sequence_length,
             mode=mode)
