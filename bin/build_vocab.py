@@ -4,13 +4,15 @@ import argparse
 
 from opennmt import constants
 from opennmt import tokenizers
+from opennmt import utils
+
 from opennmt.utils.misc import get_classnames_in_module
 
 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument(
-      "data",
+      "data", nargs="+",
       help="Source text file.")
   parser.add_argument(
       "--save_vocab", required=True,
@@ -29,72 +31,19 @@ def main():
       help="If set, do not add special sequence tokens (start, end) in the vocabulary.")
   args = parser.parse_args()
 
-  token_to_id = {}
-  id_to_token = []
-  frequency = []
-
-  def _add_token(token):
-    if token not in token_to_id:
-      index = len(id_to_token)
-      token_to_id[token] = index
-      id_to_token.append(token)
-      frequency.append(1)
-    else:
-      frequency[token_to_id[token]] += 1
-
-  def _add_special_token(token, index):
-    token_to_id[token] = index
-    id_to_token.insert(index, token)
-
-    # Set a very high frequency to avoid special tokens to be pruned.
-    frequency.insert(index, float("inf"))
-
-  _add_special_token(constants.PADDING_TOKEN, constants.PADDING_ID)
-
-  if not args.without_sequence_tokens:
-    _add_special_token(constants.START_OF_SENTENCE_TOKEN, constants.START_OF_SENTENCE_ID)
-    _add_special_token(constants.END_OF_SENTENCE_TOKEN, constants.END_OF_SENTENCE_ID)
-
   tokenizer = getattr(tokenizers, args.tokenizer)()
 
-  # Add each token from the corpus.
-  with open(args.data, "rb") as data:
-    for line in data:
-      line = line.strip().decode("utf-8")
-      tokens = tokenizer(line)
-      for token in tokens:
-        _add_token(token)
+  special_tokens = [constants.PADDING_TOKEN]
+  if not args.without_sequence_tokens:
+    special_tokens.append(constants.START_OF_SENTENCE_TOKEN)
+    special_tokens.append(constants.END_OF_SENTENCE_TOKEN)
 
-  # Sort by frequency.
-  sorted_ids = sorted(range(len(frequency)), key=lambda k: frequency[k], reverse=True)
-  new_size = len(sorted_ids)
+  vocab = utils.Vocab(special_tokens=special_tokens)
+  for data_file in args.data:
+    vocab.add_from_text(data_file, tokenizer=tokenizer)
+  vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)
+  vocab.serialize(args.save_vocab)
 
-  # Discard words that do not meet frequency requirements.
-  for i in range(new_size - 1, 0, -1):
-    index = sorted_ids[i]
-    if frequency[index] < args.min_frequency:
-      new_size -= 1
-    else:
-      break
-
-  # Limit absolute size.
-  if args.size > 0:
-    new_size = min(new_size, args.size)
-
-  # Prune if needed.
-  if new_size < len(id_to_token):
-    new_id_to_token = []
-    for i in range(new_size):
-      index = sorted_ids[i]
-      token = id_to_token[index]
-      new_id_to_token.append(token)
-    id_to_token = new_id_to_token
-
-  # Generate the vocabulary file.
-  with open(args.save_vocab, "wb") as vocab:
-    for token in id_to_token:
-      vocab.write(token.encode("utf-8"))
-      vocab.write(b"\n")
 
 if __name__ == "__main__":
   main()

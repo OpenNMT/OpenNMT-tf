@@ -10,3 +10,5 @@ from opennmt.utils.bridge import ZeroBridge
 from opennmt.utils.bridge import DenseBridge
 
 from opennmt.utils.position import PositionEmbedder
+
+from opennmt.utils.vocab import Vocab
