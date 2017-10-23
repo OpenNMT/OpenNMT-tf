@@ -29,7 +29,7 @@ e.g.:
 python -m bin.main <run_type> --model <model_file.py> --config <config_file.yml>
 ```
 
-When loading an existing checkpoint, the `--model` option is optional.
+When loading an existing checkpoint, the `--model` option is optional. See the help flag `python -m bin.main -h` to discover additional command line options.
 
 ### Model configuration
 
@@ -58,7 +58,7 @@ python -m bin.main [...] --config config/data/wmt_ende.yml config/run/default_tr
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
 
-*See the example configuration `config/sample.yml` to learn about available options.*
+*See the example configuration `config/sample.yml` to learn about available parameters.*
 
 ## Quickstart
 
@@ -83,7 +83,7 @@ python -m bin.main train --model config/models/nmt_medium.py --config config/ope
 python -m bin.main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --features_file data/toy-ende/src-test.txt
 ```
 
-**Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html).
+**Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
 
 ## Monitoring
 
@@ -101,10 +101,11 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 * gradients norm
 * computation graphs
 * word embeddings
+* decoder sampling probability
 
 ## Distributed training
 
-OpenNMT-tf provides asynchronous distributed training. The user should set on the command line:
+OpenNMT-tf supports asynchronous distributed training. The user should set on the command line:
 
 * a **chief worker** host that runs a training loop and manages checkpoints, summaries, etc.
 * a list of **worker** hosts that run a training loop
@@ -137,7 +138,13 @@ toy-ende/export/latest/1507109306/
 
 Models are automatically exported during the training or manually with the `export` run type.
 
-When using an exported model, you should prepare the inputs as expected by the model. See the `_get_serving_input` methods of the inputters modules of your model to define the data that need to be fed. Some examples are also available in the `examples/` directory:
+When using an exported model, you need to know the input and output nodes of your model. You can use the [`saved_model_cli`](https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel) script provided by TensorFlow for inspection, e.g.:
+
+```
+saved_model_cli show --dir toy-ende/export/latest/1507109306/ --tag_set serve --signature_def serving_default
+```
+
+Some examples using exported models are available in the `examples/` directory:
 
 * `examples/serving` to serve a model with TensorFlow Serving
 * `examples/cpp` to run inference with the TensorFlow C++ API
