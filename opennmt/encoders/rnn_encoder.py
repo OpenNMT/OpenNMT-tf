@@ -116,10 +116,8 @@ class BidirectionalRNNEncoder(RNNEncoder):
         residual_connections=residual_connections)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    with tf.variable_scope("fw"):
-      cell_fw = self._build_cell(mode)
-    with tf.variable_scope("bw"):
-      cell_bw = self._build_cell(mode)
+    cell_fw = self._build_cell(mode)
+    cell_bw = self._build_cell(mode)
 
     encoder_outputs_tup, encoder_state_tup = tf.nn.bidirectional_dynamic_rnn(
         cell_fw,
