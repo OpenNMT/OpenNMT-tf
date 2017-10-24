@@ -65,11 +65,11 @@ class PositionEncoder(object):
     input_dim = inputs.get_shape().as_list()[-1]
 
     with tf.variable_scope("position_encoding"):
-      position_encoding = self._encode(input_dim, sequence_length)
+      position_encoding = self.encode(input_dim, sequence_length)
       return self.reducer.reduce([inputs, position_encoding])
 
   @abc.abstractmethod
-  def _encode(self, input_dim, sequence_length):
+  def encode(self, input_dim, sequence_length):
     """Creates position encodings.
 
     Args:
@@ -96,7 +96,7 @@ class PositionEmbedder(PositionEncoder):
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position
 
-  def _encode(self, input_dim, sequence_length):
+  def encode(self, input_dim, sequence_length):
     position = make_positions(sequence_length)
     position = tf.minimum(position, self.maximum_position)
 
