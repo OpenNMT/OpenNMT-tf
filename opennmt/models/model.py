@@ -57,6 +57,29 @@ def learning_rate_decay_fn(decay_type,
 
   return _decay_fn
 
+def get_optimizer_class(classname):
+  """Returns the optimizer class.
+
+  Args:
+    classname: The name of the optimizer class in `tf.train` or `tf.contrib.opt`.
+
+  Returns:
+    A class inheriting from `tf.train.Optimizer`.
+
+  Raises:
+    ValueError: if `classname` can not be resolved.
+  """
+  optimizer_class = None
+
+  if optimizer_class is None:
+    optimizer_class = getattr(tf.train, classname, None)
+  if optimizer_class is None:
+    optimizer_class = getattr(tf.contrib.opt, classname, None)
+  if optimizer_class is None:
+    raise ValueError("Unknown optimizer class: {}".format(classname))
+
+  return optimizer_class
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Model(object):
@@ -164,7 +187,7 @@ class Model(object):
         loss,
         global_step,
         params["learning_rate"],
-        params["optimizer"],
+        get_optimizer_class(params["optimizer"]),
         clip_gradients=params.get("clip_gradients"),
         learning_rate_decay_fn=decay_fn,
         summaries=[
