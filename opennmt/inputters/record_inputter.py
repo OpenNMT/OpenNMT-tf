@@ -37,7 +37,7 @@ class SequenceRecordInputter(Inputter):
 
   def _get_serving_input(self):
     receiver_tensors = {
-        "tensor": tf.placeholder(tf.string, shape=(None, None, self.input_depth)),
+        "tensor": tf.placeholder(tf.float32, shape=(None, None, self.input_depth)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
