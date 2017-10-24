@@ -66,7 +66,7 @@ class PositionEncoder(object):
 
     with tf.variable_scope("position_encoding"):
       position_encoding = self._encode(input_dim, sequence_length)
-      return self.reducer.reduce(inputs, position_encoding)
+      return self.reducer.reduce([inputs, position_encoding])
 
   @abc.abstractmethod
   def _encode(self, input_dim, sequence_length):
