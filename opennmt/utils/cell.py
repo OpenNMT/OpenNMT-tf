@@ -8,7 +8,9 @@ def build_cell(num_layers,
                mode,
                dropout=0.0,
                residual_connections=False,
-               cell_class=tf.contrib.rnn.LSTMCell):
+               cell_class=tf.contrib.rnn.LSTMCell,
+               attention_layers=None,
+               attention_mechanisms=None):
   """Convenience function to build a multi-layer RNN cell.
 
   Args:
@@ -18,14 +20,31 @@ def build_cell(num_layers,
     dropout: The probability to drop units in each layer output.
     residual_connections: If `True`, each layer input will be added to its output.
     cell_class: The inner cell class.
+    attention_layers: A list of integers, the layers after which to add attention.
+    attention_mechanisms: A list of `tf.contrib.seq2seq.AttentionMechanism`s with
+      the same length as `attention_layers`.
 
   Returns:
     A `tf.contrib.rnn.RNNCell`.
+
+  Raises:
+    ValueError: if `attention_layers` and `attention_mechanisms` do not have the
+      same length.
   """
   cells = []
 
+  attention_mechanisms = attention_mechanisms or []
+  attention_layers = attention_layers or []
+
+  if len(attention_mechanisms) != len(attention_layers):
+    raise ValueError("There must be the same number of attention mechanisms "
+                     "as the number of attention layers")
+
   for l in range(num_layers):
     cell = cell_class(num_units)
+    if l in attention_layers:
+      cell = tf.contrib.seq2seq.AttentionWrapper(
+          cell, attention_mechanisms[attention_layers.index(l)])
     if mode == tf.estimator.ModeKeys.TRAIN and dropout > 0.0:
       cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=1.0 - dropout)
     if residual_connections and l > 0:

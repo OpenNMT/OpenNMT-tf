@@ -7,7 +7,6 @@
   * https://arxiv.org/abs/1705.03122
 * Positional encoding with sinusoid
   * https://arxiv.org/abs/1706.03762
-* Multi-attention in the `AttentionalRNNDecoder`
 * Documentation generation from docstrings
 * Im2Text
   * https://github.com/OpenNMT/Im2Text

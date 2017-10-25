@@ -276,3 +276,75 @@ class AttentionalRNNDecoder(RNNDecoder):
     initial_state = cell.zero_state(batch_size, dtype=tf.float32)
 
     return cell, initial_state
+
+
+class MultiAttentionalRNNDecoder(RNNDecoder):
+  """A `RNNDecoder` with multi-attention.
+
+  This decoder can attend the encoder outputs after multiple RNN layers using
+  one or multiple attention mechanisms. Additionally, the cell state of this
+  decoder is not initialized from the encoder state (i.e. a ZeroBridge is
+  imposed).
+  """
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               attention_layers=None,
+               attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
+               cell_class=tf.contrib.rnn.LSTMCell,
+               dropout=0.3,
+               residual_connections=False):
+    """Initializes the decoder parameters.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer.
+      attention_layers: A list of integers, the layers after which to add
+        attention. If `None`, attention will only be added after the last layer.
+      attention_mechanism_class: A class or list of classes inheriting from
+        `tf.contrib.seq2seq.AttentionMechanism`.
+      cell_class: The inner cell class.
+      dropout: The probability to drop units in each layer output.
+      residual_connections: If `True`, each layer input will be added to its output.
+    """
+    super(MultiAttentionalRNNDecoder, self).__init__(
+        num_layers,
+        num_units,
+        cell_class=cell_class,
+        dropout=dropout,
+        residual_connections=residual_connections)
+
+    attention_layers = attention_layers or [-1]
+    attention_layers = [l % num_layers for l in attention_layers]
+
+    if not isinstance(attention_mechanism_class, list):
+      attention_mechanism_class = [attention_mechanism_class for _ in attention_layers]
+
+    self.attention_mechanism_class = attention_mechanism_class
+    self.attention_layers = attention_layers
+
+  def _build_cell(self,
+                  mode,
+                  batch_size,
+                  initial_state=None,
+                  memory=None,
+                  memory_sequence_length=None):
+    attention_mechanisms = [
+        attention_mechanism(
+            self.num_units, memory, memory_sequence_length=memory_sequence_length)
+        for attention_mechanism in self.attention_mechanism_class]
+
+    cell = build_cell(
+        self.num_layers,
+        self.num_units,
+        mode,
+        dropout=self.dropout,
+        residual_connections=self.residual_connections,
+        cell_class=self.cell_class,
+        attention_layers=self.attention_layers,
+        attention_mechanisms=attention_mechanisms)
+
+    initial_state = cell.zero_state(batch_size, dtype=tf.float32)
+
+    return cell, initial_state
