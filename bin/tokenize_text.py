@@ -10,7 +10,7 @@ from opennmt.utils.misc import get_classnames_in_module
 
 
 def main():
-  parser = argparse.ArgumentParser()
+  parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
       "--tokenizer", default="SpaceTokenizer", choices=get_classnames_in_module(tokenizers),
       help="Tokenizer class name.")

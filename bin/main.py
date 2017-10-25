@@ -170,7 +170,7 @@ def export(estimator, model, config, checkpoint_path=None):
 
 
 def main():
-  parser = argparse.ArgumentParser()
+  parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument("run", choices=["train", "infer", "export"],
                       help="Run type.")
   parser.add_argument("--config", required=True, nargs="+",
@@ -188,10 +188,10 @@ def main():
   parser.add_argument("--chief_host", default="",
                       help="hostname:port of the chief worker (for distributed training).")
   parser.add_argument("--worker_hosts", default="",
-                      help=("Comma-separated list of hostname:port of workers"
+                      help=("Comma-separated list of hostname:port of workers "
                             "(for distributed training)."))
   parser.add_argument("--ps_hosts", default="",
-                      help=("Comma-separated list of hostname:port of parameter servers"
+                      help=("Comma-separated list of hostname:port of parameter servers "
                             "(for distributed training)."))
   parser.add_argument("--task_type", default="chief",
                       choices=["chief", "worker", "ps", "evaluator"],

@@ -10,7 +10,7 @@ from opennmt.utils.misc import get_classnames_in_module
 
 
 def main():
-  parser = argparse.ArgumentParser()
+  parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
       "data", nargs="+",
       help="Source text file.")
