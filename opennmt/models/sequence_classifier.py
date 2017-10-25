@@ -97,7 +97,7 @@ class SequenceClassifier(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs):
+  def _compute_loss(self, features, labels, outputs, mode):
     return tf.losses.sparse_softmax_cross_entropy(labels["classes_id"], outputs)
 
   def _compute_metrics(self, features, labels, predictions):

@@ -103,7 +103,7 @@ class Model(object):
         add_dict_to_collection("predictions", predictions)
 
       if mode != tf.estimator.ModeKeys.PREDICT:
-        loss = self._compute_loss(features, labels, outputs)
+        loss = self._compute_loss(features, labels, outputs, mode)
         train_op = self._build_train_op(loss, params)
 
         if mode == tf.estimator.ModeKeys.EVAL:
@@ -141,13 +141,14 @@ class Model(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _compute_loss(self, features, labels, outputs):
+  def _compute_loss(self, features, labels, outputs, mode):
     """Computes the loss.
 
     Args:
       features: The dict of features `tf.Tensor`s.
       labels: The dict of labels `tf.Tensor`s.
       output: The model outputs (usually unscaled probabilities).
+      mode: A `tf.estimator.ModeKeys` mode.
 
     Returns:
       The loss.

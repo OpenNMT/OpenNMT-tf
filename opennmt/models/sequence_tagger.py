@@ -123,13 +123,14 @@ class SequenceTagger(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs):
+  def _compute_loss(self, features, labels, outputs, mode):
     length = self._get_features_length(features)
     if self.crf_decoding:
-      log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
-          outputs,
-          tf.cast(labels["tags_id"], tf.int32),
-          length)
+      with tf.variable_scope(tf.get_variable_scope(), reuse=mode != tf.estimator.ModeKeys.TRAIN):
+        log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
+            outputs,
+            tf.cast(labels["tags_id"], tf.int32),
+            length)
       return tf.reduce_mean(-log_likelihood)
     else:
       return masked_sequence_loss(outputs, labels["tags_id"], length)

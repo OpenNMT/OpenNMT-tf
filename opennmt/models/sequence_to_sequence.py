@@ -210,7 +210,7 @@ class SequenceToSequence(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs):
+  def _compute_loss(self, features, labels, outputs, mode):
     return masked_sequence_loss(
         outputs,
         labels["ids_out"],
