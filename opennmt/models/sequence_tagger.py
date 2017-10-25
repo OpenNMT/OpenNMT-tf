@@ -167,14 +167,13 @@ class SequenceTagger(Model):
 
     return eval_metric_ops
 
-
   def print_prediction(self, prediction, params=None, stream=None):
     tags = prediction["tags"][:prediction["length"]]
     sent = b" ".join(tags)
     print(sent.decode("utf-8"), file=stream)
 
 
-def flag_bioes_tags(gold, predicted, length):
+def flag_bioes_tags(gold, predicted, sequence_length=None):
   """Flags chunk matches for the BIOES tagging scheme.
 
   This function will produce the gold flags and the predicted flags. For each aligned
@@ -188,7 +187,7 @@ def flag_bioes_tags(gold, predicted, length):
   Args:
     gold: The gold tags as a Numpy 2D string array.
     predicted: The predicted tags as a Numpy 2D string array.
-    length: The length of each sequence as Numpy array.
+    sequence_length: The length of each sequence as Numpy array.
 
   Returns:
     A tuple `(gold_flags, predicted_flags)`.
@@ -209,43 +208,43 @@ def flag_bioes_tags(gold, predicted, length):
     gold_flags.append(True)
     predicted_flags.append(False)
 
-  def _skip_chunk(labels, index):
-    if not labels[index].startswith(b"S"):
-      while not labels[index].startswith(b"E"):
+  def _match(ref, hyp, index, length):
+    if ref[index].startswith(b"B"):
+      match = True
+      while index < length and not ref[index].startswith(b"E"):
+        if ref[index] != hyp[index]:
+          match = False
         index += 1
-    return index
+      match = match and index < length and ref[index] == hyp[index]
+      return match, index
+    else:
+      return ref[index] == hyp[index], index
 
   for b in range(gold.shape[0]):
+    length = sequence_length[b] if sequence_length is not None else gold.shape[1]
+
+    # First pass to detect true positives and true/false negatives.
     index = 0
-    in_chunk = False
-
-    while index < length[b]:
+    while index < length:
       gold_tag = gold[b][index]
-      pred_tag = predicted[b][index]
-
-      if in_chunk:
-        if pred_tag != gold_tag:
-          _add_false_negative()
-          index = _skip_chunk(gold[b], index)
-          in_chunk = False
-        elif gold_tag.startswith(b"E"):
-          _add_true_positive()
-          in_chunk = False
-      else:
-        if pred_tag == gold_tag:
-          if gold_tag == b"O":
-            _add_true_negative()
-          elif gold_tag.startswith(b"S"):
-            _add_true_positive()
-          else:
-            in_chunk = True
+      match, index = _match(gold[b], predicted[b], index, length)
+      if match:
+        if gold_tag == b"O":
+          _add_true_negative()
         else:
-          if gold_tag == b"O":
-            _add_false_positive()
-          else:
-            _add_false_negative()
-            index = _skip_chunk(gold[b], index)
+          _add_true_positive()
+      else:
+        if gold_tag != b"O":
+          _add_false_negative()
+      index += 1
 
+    # Second pass to detect false postives.
+    index = 0
+    while index < length:
+      pred_tag = predicted[b][index]
+      match, index = _match(predicted[b], gold[b], index, length)
+      if not match and pred_tag != b"O":
+        _add_false_positive()
       index += 1
 
   return np.array(gold_flags), np.array(predicted_flags)
