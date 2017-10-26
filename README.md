@@ -12,7 +12,7 @@ It focuses on modularity and extensibility using standard TensorFlow modules and
 
 ## Requirements
 
-* `tensorflow` (`1.4.0rc0`)
+* `tensorflow` (`1.4`)
 * `pyyaml`
 
 ## Overview
