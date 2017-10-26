@@ -346,7 +346,12 @@ class MixedInputter(MultiInputter):
     for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
         transformed.append(inputter._transform_data(data, mode))  # pylint: disable=protected-access
-    return self.reducer.reduce(transformed)
+    outputs = self.reducer.reduce(transformed)
+    outputs = tf.layers.dropout(
+        outputs,
+        rate=self.dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
+    return outputs
 
   def transform(self, inputs, mode):
     transformed = super(MixedInputter, self).transform(inputs, mode)
