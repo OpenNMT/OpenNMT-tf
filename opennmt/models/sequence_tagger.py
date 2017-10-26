@@ -23,14 +23,15 @@ class SequenceTagger(Model):
     """Initializes a sequence tagger.
 
     Args:
-      inputter: A `onmt.inputters.Inputter` to process the input data.
-      encoder: A `onmt.encoders.Encoder` to encode the input.
+      inputter: A :class:`opennmt.inputters.inputter.Inputter` to process the
+        input data.
+      encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
       labels_vocabulary_file_key: The data configuration key of the labels
         vocabulary file containing one label per line.
       tagging_scheme: The tagging scheme used. For supported schemes (currently
         only BIOES), additional evaluation metrics could be computed such as
         precision, recall, etc.
-      crf_decoding: If `True`, add a CRF layer after the encoder.
+      crf_decoding: If ``True``, add a CRF layer after the encoder.
       name: The name of this model.
     """
     super(SequenceTagger, self).__init__(name)
@@ -177,12 +178,12 @@ def flag_bioes_tags(gold, predicted, sequence_length=None):
   """Flags chunk matches for the BIOES tagging scheme.
 
   This function will produce the gold flags and the predicted flags. For each aligned
-  gold flag `g` and predicted flag `p`:
+  gold flag ``g`` and predicted flag ``p``:
 
-  * when `g == p == True`, the chunk has been correctly identified (true positive).
-  * when `g == False and p == True`, the chunk has been incorrectly identified (false positive).
-  * when `g == True and p == False`, the chunk has been missed (false negative).
-  * when `g == p == False`, the chunk has been correctly ignored (true negative).
+  * when ``g == p == True``, the chunk has been correctly identified (true positive).
+  * when ``g == False and p == True``, the chunk has been incorrectly identified (false positive).
+  * when ``g == True and p == False``, the chunk has been missed (false negative).
+  * when ``g == p == False``, the chunk has been correctly ignored (true negative).
 
   Args:
     gold: The gold tags as a Numpy 2D string array.
@@ -190,7 +191,7 @@ def flag_bioes_tags(gold, predicted, sequence_length=None):
     sequence_length: The length of each sequence as Numpy array.
 
   Returns:
-    A tuple `(gold_flags, predicted_flags)`.
+    A tuple ``(gold_flags, predicted_flags)``.
   """
   gold_flags = []
   predicted_flags = []

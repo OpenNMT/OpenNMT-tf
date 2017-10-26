@@ -6,7 +6,7 @@ import tensorflow as tf
 
 
 def item_or_tuple(x):
-  """Returns `t` as a tuple or its single element."""
+  """Returns :obj:`x` as a tuple or its single element."""
   x = tuple(x)
   if len(x) == 1:
     return x[0]
@@ -14,7 +14,7 @@ def item_or_tuple(x):
     return x
 
 def count_lines(filename):
-  """Returns the number of lines of the file `filename`."""
+  """Returns the number of lines of the file :obj:`filename`."""
   with open(filename) as f:
     i = 0
     for i, _ in enumerate(f):
@@ -41,8 +41,8 @@ def count_parameters():
   return total
 
 def extract_prefixed_keys(dictionary, prefix):
-  """Returns a dictionary with all keys from `dictionary` that are prefixed
-  with `prefix`.
+  """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
+  with :obj:`prefix`.
   """
   sub_dict = {}
   for key, value in dictionary.items():

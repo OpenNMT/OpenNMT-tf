@@ -21,19 +21,20 @@ def learning_rate_decay_fn(decay_type,
   """Returns the learning rate decay functions.
 
   Args:
-    decay_type: The type of decay. A function from `tf.train` or `opennmt.utils.decay`
-      as a `String`.
+    decay_type: The type of decay. A function from ``tf.train`` or
+     :mod:`opennmt.utils.decay` as a string.
     decay_rate: The decay rate to apply.
     decay_steps: The decay steps as described in the decay type function.
-    staircase: If `True`, learning rate is decayed in a staircase fashion.
+    staircase: If ``True``, learning rate is decayed in a staircase fashion.
     start_decay_steps: Start decay after this many steps.
     minimum_learning_rate: Do not decay past this learning rate value.
 
   Returns:
-    A function with signature `lambda learning_rate, global_steps: decayed_learning_rate`.
+    A function with signature
+    ``(learning_rate, global_step) -> decayed_learning_rate``.
 
   Raises:
-    ValueError: if `decay_type` can not be resolved.
+    ValueError: if :obj:`decay_type` can not be resolved.
   """
   def _decay_fn(learning_rate, global_step):
     decay_op_name = None
@@ -61,13 +62,14 @@ def get_optimizer_class(classname):
   """Returns the optimizer class.
 
   Args:
-    classname: The name of the optimizer class in `tf.train` or `tf.contrib.opt`.
+    classname: The name of the optimizer class in ``tf.train`` or
+      ``tf.contrib.opt`` as a string.
 
   Returns:
-    A class inheriting from `tf.train.Optimizer`.
+    A class inheriting from ``tf.train.Optimizer``.
 
   Raises:
-    ValueError: if `classname` can not be resolved.
+    ValueError: if :obj:`classname` can not be resolved.
   """
   optimizer_class = None
 
@@ -89,8 +91,11 @@ class Model(object):
     self.name = name
 
   def __call__(self, features, labels, params, mode, config):
-    """Creates the model. See `tf.estimator.Estimator`'s `model_fn` argument
-    for more details about arguments and the returned value.
+    """Creates the model.
+
+    See Also:
+      ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
+      arguments and the returned value.
     """
     if mode == tf.estimator.ModeKeys.TRAIN:
       self._register_word_counters(features, labels)
@@ -130,13 +135,11 @@ class Model(object):
   def _build(self, features, labels, params, mode, config):
     """Creates the graph.
 
-    See `tf.estimator.Estimator`'s `model_fn` for arguments description.
-
     Returns:
       outputs: The model outputs (usually unscaled probabilities).
-        Optional if `mode` is `tf.estimator.ModeKeys.PREDICT`.
+        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.PREDICT``.
       predictions: The model predictions.
-        Optional if `mode` is `tf.estimator.ModeKeys.TRAIN`.
+        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.TRAIN``.
     """
     raise NotImplementedError()
 
@@ -145,10 +148,10 @@ class Model(object):
     """Computes the loss.
 
     Args:
-      features: The dict of features `tf.Tensor`s.
-      labels: The dict of labels `tf.Tensor`s.
+      features: The dict of features ``tf.Tensor``.
+      labels: The dict of labels ``tf.Tensor``.
       output: The model outputs (usually unscaled probabilities).
-      mode: A `tf.estimator.ModeKeys` mode.
+      mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
       The loss.
@@ -159,12 +162,13 @@ class Model(object):
     """Computes additional metrics on the predictions.
 
     Args:
-      features: The dict of features `tf.Tensor`s.
-      labels: The dict of labels `tf.Tensor`s.
+      features: The dict of features ``tf.Tensor``.
+      labels: The dict of labels ``tf.Tensor``.
       predictions: The model predictions.
 
     Returns:
-      A dict of metric results (tuple `(metric_tensor, update_op)`) keyed by name.
+      A dict of metric results (tuple ``(metric_tensor, update_op)``) keyed by
+      name.
     """
     return None
 
@@ -200,11 +204,12 @@ class Model(object):
     return train_op
 
   def _register_word_counters(self, features, labels):
-    """Stores word counter operators for sequences (if any) of `features`
-    and `labels`.
+    """Stores word counter operators for sequences (if any) of :obj:`features`
+    and :obj:`labels`.
 
-    See also `onmt.utils.misc.WordCounterHook` that fetches these counters
-    to log their value in TensorBoard.
+    See Also:
+      :meth:`opennmt.utils.misc.WordCounterHook` that fetches these counters
+      to log their value in TensorBoard.
     """
     def _add_counter(word_count, name):
       word_count = tf.cast(word_count, tf.int64)
@@ -236,15 +241,15 @@ class Model(object):
     """Defines an example filtering condition.
 
     Args:
-      features: The features `tf.Tensor`s.
-      labels: The labels `tf.Tensor`(s).
+      features: The features ``tf.Tensor``.
+      labels: The labels ``tf.Tensor``.
       maximum_features_length: The maximum length or list of maximum lengths of
-        the features sequence(s). `None` to not constrain the length.
+        the features sequence(s). ``None`` to not constrain the length.
       maximum_labels_length: The maximum length of the labels sequence.
-        `None` to not constrain the length.
+        ``None`` to not constrain the length.
 
     Returns:
-      A `tf.Tensor` of type `tf.bool` with a logical value of `False`
+      A ``tf.Tensor`` of type ``tf.bool`` with a logical value of ``False``
       if the example does not meet the requirements.
     """
     cond = []
@@ -288,7 +293,7 @@ class Model(object):
     """Returns an input receiver for serving this model.
 
     Returns:
-      A `tf.estimator.export.ServingInputReceiver`.
+      A ``tf.estimator.export.ServingInputReceiver``.
     """
     raise NotImplementedError()
 
@@ -296,11 +301,11 @@ class Model(object):
     """Returns the features length.
 
     Args:
-      features: A dict of `tf.Tensor`s
+      features: A dict of ``tf.Tensor``.
 
     Returns:
-      The length as a `tf.Tensor` or list of `tf.Tensor`s, or `None` if length
-      is undefined.
+      The length as a ``tf.Tensor`` or list of ``tf.Tensor``, or ``None`` if
+      length is undefined.
     """
     return None
 
@@ -308,10 +313,10 @@ class Model(object):
     """Returns the labels length.
 
     Args:
-      labels: A dict of `tf.Tensor`s
+      labels: A dict of ``tf.Tensor``.
 
     Returns:
-      The length as a `tf.Tensor`, or `None` if length is undefined.
+      The length as a ``tf.Tensor``  or ``None`` if length is undefined.
     """
     return None
 
@@ -323,7 +328,7 @@ class Model(object):
       features_file: The file of features.
 
     Returns:
-      A tuple (`tf.data.Dataset`, `process_fn`, `padded_shapes_fn`)
+      A tuple ``(tf.data.Dataset, process_fn, padded_shapes_fn)``.
     """
     raise NotImplementedError()
 
@@ -335,7 +340,7 @@ class Model(object):
       labels_file: The file of labels.
 
     Returns:
-      A tuple (`tf.data.Dataset`, `process_fn`, `padded_shapes_fn`)
+      A tuple ``(tf.data.Dataset, process_fn, padded_shapes_fn)``.
     """
     raise NotImplementedError()
 
@@ -350,7 +355,7 @@ class Model(object):
                      num_buckets=None,
                      maximum_features_length=None,
                      maximum_labels_length=None):
-    """See `input_fn`."""
+    """See ``input_fn``."""
     self._initialize(metadata)
 
     feat_dataset, feat_process_fn, feat_padded_shapes_fn = self._get_features_builder(features_file)
@@ -445,10 +450,8 @@ class Model(object):
                maximum_labels_length=None):
     """Returns an input function.
 
-    See also `tf.estimator.Estimator`.
-
     Args:
-      mode: A `tf.estimator.ModeKeys` mode.
+      mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size to use.
       buffer_size: The prefetch buffer size (used e.g. for shuffling).
       num_parallel_process_calls: The number of elements processed in parallel.
@@ -458,15 +461,19 @@ class Model(object):
       labels_file: The file containing output labels.
       num_buckets: The number of buckets to store examples of similar sizes.
       maximum_features_length: The maximum length or list of maximum lengths of
-        the features sequence(s). `None` to not constrain the length.
+        the features sequence(s). ``None`` to not constrain the length.
       maximum_labels_length: The maximum length of the labels sequence.
-        `None` to not constrain the length.
+        ``None`` to not constrain the length.
 
     Returns:
       A callable that returns the next element.
 
     Raises:
-      ValueError: if `labels_file` is not set when in training or evaluation mode.
+      ValueError: if :obj:`labels_file` is not set when in training or
+        evaluation mode.
+
+    See Also:
+      ``tf.estimator.Estimator``.
     """
     if mode != tf.estimator.ModeKeys.PREDICT and labels_file is None:
       raise ValueError("Labels file is required for training and evaluation")
@@ -484,7 +491,7 @@ class Model(object):
         maximum_labels_length=maximum_labels_length)
 
   def _serving_input_fn_impl(self, metadata):
-    """See `serving_input_fn`."""
+    """See ``serving_input_fn``."""
     self._initialize(metadata)
     return self._get_serving_input_receiver()
 
@@ -496,7 +503,7 @@ class Model(object):
         by the user.
 
     Returns:
-      A callable that returns a `tf.estimator.export.ServingInputReceiver`.
+      A callable that returns a ``tf.estimator.export.ServingInputReceiver``.
     """
     return lambda: self._serving_input_fn_impl(metadata)
 

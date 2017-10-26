@@ -14,10 +14,11 @@ def make_positions(sequence_length):
   The first position is 1 as the 0 index is reserved to padding positions.
 
   Args:
-    sequence_length: The length of each sequence as a `tf.Tensor` of shape `[B]`.
+    sequence_length: The length of each sequence as a ``tf.Tensor`` of shape
+      :math:`[B]`.
 
   Returns:
-    The sequence of positions as a `tf.Tensor` of shape `[B, T]`.
+    The sequence of positions as a ``tf.Tensor`` of shape :math:`[B, T]`.
   """
   maximum_length = tf.reduce_max(sequence_length)
   batch_size = tf.shape(sequence_length)[0]
@@ -51,11 +52,12 @@ class PositionEncoder(object):
 
     Args:
       inputs: The inputs to apply position encoding to.
-      sequence_length: The length of each sequence of shape `[B]`.
-        If `None`, sequences are assumed to have the same length.
+      sequence_length: The length of each sequence of shape :math:`[B]`.
+        If ``None``, sequences are assumed to have the same length.
 
     Returns:
-      A `tf.Tensor` of shape `[B, T, D]` where `D` depends on the `reducer`.
+      A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the
+      :attr:`reducer`.
     """
     if sequence_length is None:
       batch_size = tf.shape(inputs)[0]
@@ -74,10 +76,10 @@ class PositionEncoder(object):
 
     Args:
       input_dim: The input dimension.
-      sequence_length: The length of each sequence of shape `[B]`.
+      sequence_length: The length of each sequence of shape :math:`[B]`.
 
     Returns:
-      A `tf.Tensor` of shape `[B, T, input_dim]`.
+      A ``tf.Tensor`` of shape :math:`[B, T, D]`.
     """
     raise NotImplementedError()
 
@@ -90,8 +92,9 @@ class PositionEmbedder(PositionEncoder):
 
     Args:
       maximum_position: The maximum position to embed. Positions greater
-        than this value will be set to `maximum_position`.
-      reducer: A `onmt.utils.Reducer` to merge inputs and position encodings.
+        than this value will be set to :obj:`maximum_position`.
+      reducer: A :class:`opennmt.utils.reducer.Reducer` to merge inputs and
+        position encodings.
     """
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position

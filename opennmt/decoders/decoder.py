@@ -10,8 +10,8 @@ def logits_to_cum_log_probs(logits, sequence_length):
   """Returns the cumulated log probabilities of sequences.
 
   Args:
-    logits: The sequence of logits of shape [B, T, ...].
-    sequence_length: The length of each sequence of shape [B].
+    logits: The sequence of logits of shape :math:`[B, T, ...]`.
+    sequence_length: The length of each sequence of shape :math:`[B]`.
 
   Returns:
     The cumulated log probability of each sequence.
@@ -44,7 +44,8 @@ def get_sampling_probability(global_step,
                              read_probability=None,
                              schedule_type=None,
                              k=None):
-  """Returns the sampling probability as described in https://arxiv.org/abs/1506.03099.
+  """Returns the sampling probability as described in
+  https://arxiv.org/abs/1506.03099.
 
   Args:
     global_step: The training step.
@@ -53,13 +54,14 @@ def get_sampling_probability(global_step,
     k: The convergence constant.
 
   Returns:
-    The probability to sample from the output ids as a 0D `tf.Tensor` or `None`
-    if scheduled sampling is not configured.
+    The probability to sample from the output ids as a 0D ``tf.Tensor`` or
+    ``None`` if scheduled sampling is not configured.
 
   Raises:
-    ValueError: if `schedule_type` is set but not `k` or if `schedule_type` is
-      `linear` but an initial `read_probability` is not set.
-    TypeError: if `schedule_type` is invalid.
+    ValueError: if :obj:`schedule_type` is set but not :obj:`k` or if
+     :obj:`schedule_type` is ``linear`` but an initial :obj:`read_probability`
+     is not set.
+    TypeError: if :obj:`schedule_type` is invalid.
   """
   if read_probability is None and schedule_type is None:
     return None
@@ -106,20 +108,20 @@ class Decoder(object):
     Usually used for training and evaluation where target sequences are known.
 
     Args:
-      inputs: The input to decode of shape [B, T, ...].
-      sequence_length: The length of each input with shape [B].
+      inputs: The input to decode of shape :math:`[B, T, ...]`.
+      sequence_length: The length of each input with shape :math:`[B]`.
       vocab_size: The output vocabulary size.
       initial_state: The initial state as a (possibly nested tuple of...) tensors.
       sampling_probability: The probability of sampling categorically from
         the output ids instead of reading directly from the inputs.
       embedding: The embedding tensor or a callable that takes word ids.
-        Must be set when `sampling_probability` is set.
-      mode: A `tf.estimator.ModeKeys` mode.
+        Must be set when :obj:`sampling_probability` is set.
+      mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
 
     Returns:
-      A tuple (`decoder_outputs`, `decoder_state`, `decoder_sequence_length`).
+      A tuple ``(outputs, state, sequence_length)``.
     """
     raise NotImplementedError()
 
@@ -134,23 +136,23 @@ class Decoder(object):
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
                      memory_sequence_length=None):
-    """Decodes dynamically from `start_tokens` with greedy search.
+    """Decodes dynamically from :obj:`start_tokens` with greedy search.
 
     Usually used for inference.
 
     Args:
       embedding: The embedding tensor or a callable that takes word ids.
-      start_tokens: The start token ids with shape [B].
+      start_tokens: The start token ids with shape :math:`[B]`.
       end_token: The end token id.
       vocab_size: The output vocabulary size.
       initial_state: The initial state as a (possibly nested tuple of...) tensors.
       maximum_iterations: The maximum number of decoding iterations.
-      mode: A `tf.estimator.ModeKeys` mode.
+      mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
 
     Returns:
-      A tuple (`predicted_ids`, `state`, `sequence_length`, `log_probs`).
+      A tuple ``(predicted_ids, state, sequence_length, log_probs)``.
     """
     raise NotImplementedError()
 
@@ -167,24 +169,24 @@ class Decoder(object):
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None):
-    """Decodes dynamically from `start_tokens` with beam search.
+    """Decodes dynamically from :obj:`start_tokens` with beam search.
 
     Usually used for inference.
 
     Args:
       embedding: The embedding tensor or a callable that takes word ids.
-      start_tokens: The start token ids with shape [B].
+      start_tokens: The start token ids with shape :math:`[B]`.
       end_token: The end token id.
       vocab_size: The output vocabulary size.
       initial_state: The initial state as a (possibly nested tuple of...) tensors.
       beam_width: The width of the beam.
       length_penalty: The length penalty weight during beam search.
       maximum_iterations: The maximum number of decoding iterations.
-      mode: A `tf.estimator.ModeKeys` mode.
+      mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
 
     Returns:
-      A tuple (`predicted_ids`, `state`, `sequence_length`, `log_probs`).
+      A tuple ``(predicted_ids, state, sequence_length, log_probs)``.
     """
     raise NotImplementedError()

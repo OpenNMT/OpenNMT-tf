@@ -10,10 +10,10 @@ class SequenceRecordInputter(Inputter):
 
   Each record contains the following fields:
 
-   * `shape`: the shape of the tensor as a `int64` list.
-   * `values`: the flattened tensor values as a `float32` list.
+   * ``shape``: the shape of the tensor as a ``int64`` list.
+   * ``values``: the flattened tensor values as a ``float32`` list.
 
-  Tensors are expected to be of shape `[time, depth]`.
+  Tensors are expected to be of shape ``[time, depth]``.
   """
 
   def __init__(self, input_depth_key):

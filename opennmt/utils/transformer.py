@@ -14,16 +14,17 @@ def scaled_dot_attention(queries,
   in https://arxiv.org/abs/1706.03762.
 
   Args:
-    queries: The sequence of queries. A tensor of shape `[B, T1, ...]`.
-    keys: The sequence use to calculate attention scores. A tensor of shape `[B, T2, ...]`.
-    values: The sequence to attend. A tensor of shape `[B, T2, ...]`.
-    mode: A `tf.estimator.ModeKeys` mode.
+    queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
+    keys: The sequence use to calculate attention scores. A tensor of shape
+      :math:`[B, T_2, ...]`.
+    values: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
+    mode: A ``tf.estimator.ModeKeys`` mode.
     values_length: The length of the values to attend.
     mask_future: Mask attention to future positions.
     dropout: The probability to drop units from the inputs.
 
   Returns:
-    A tuple `(context vector, attention vector)`.
+    A tuple ``(context vector, attention vector)``.
   """
   # Scaled dot-product between queries and keys.
   dot = tf.matmul(queries, keys, transpose_b=True)
@@ -76,10 +77,11 @@ def multi_head_attention(num_heads,
 
   Args:
     num_heads: The number of attention heads.
-    queries: The sequence of queries. A tensor of shape `[B, T1, ...]`.
-    keys: The sequence use to calculate attention scores. A tensor of shape `[B, T2, ...]`.
-    values: The sequence to attend. A tensor of shape `[B, T2, ...]`.
-    mode: A `tf.estimator.ModeKeys` mode.
+    queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
+    keys: The sequence use to calculate attention scores. A tensor of shape
+      :math:`[B, T_2, ...]`.
+    values: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
+    mode: A ``tf.estimator.ModeKeys`` mode.
     values_length: The length of the values to attend.
     mask_future: Mask attention to future positions.
     dropout: The probability to drop units from the inputs.
@@ -123,7 +125,9 @@ def multi_head_attention(num_heads,
 def feed_forward(x, inner_dim):
   """Implements the Transformer's "Feed Forward" layer.
 
-  ffn(x) = max(0, x*W_1 + b_1)*W_2 + b_2
+  .. math::
+
+      ffn(x) = max(0, x*W_1 + b_1)*W_2 + b_2
 
   Args:
     x: The input.
@@ -148,8 +152,8 @@ def add_and_norm(inputs,
   Args:
     inputs: The input of the previous layer.
     outputs: The output of the previous layer.
-    mode: A `tf.estimator.ModeKeys` mode.
-    dropout: The probability to drop units in `outputs`.
+    mode: A ``tf.estimator.ModeKeys`` mode.
+    dropout: The probability to drop units in :obj:`outputs`.
 
   Returns:
     The residual and normalized output.

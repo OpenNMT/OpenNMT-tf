@@ -27,7 +27,8 @@ class SelfAttentionDecoder(Decoder):
       ffn_inner_dim: The number of units of the inner linear transformation
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
-      position_encoder: The `PositionEncoder` to apply on inputs or `None`.
+      position_encoder: A :class:`opennmt.utils.position.PositionEncoder` to
+        apply on inputs or ``None``.
     """
     self.num_layers = num_layers
     self.num_heads = num_heads

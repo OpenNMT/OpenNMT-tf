@@ -19,8 +19,9 @@ class SequenceClassifier(Model):
     """Initializes a sequence classifier.
 
     Args:
-      inputter: A `onmt.inputters.Inputter` to process the input data.
-      encoder: A `onmt.encoders.Encoder` to encode the input.
+      inputter: A :class:`opennmt.inputters.inputter.Inputter` to process the
+        input data.
+      encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
       labels_vocabulary_file_key: The data configuration key of the labels
         vocabulary file containing one label per line.
       name: The name of this model.

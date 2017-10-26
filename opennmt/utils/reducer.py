@@ -14,17 +14,17 @@ def _pad_in_time(x, padding_length):
   return x
 
 def pad_with_identity(x, sequence_length, max_sequence_length, identity_values=0):
-  """Pads a tensor with identity values up to `max_sequence_length`.
+  """Pads a tensor with identity values up to :obj:`max_sequence_length`.
 
   Args:
-    x: A `tf.Tensor` of shape `[batch_size, max(sequence_length), depth]`.
-    sequence_length: The true sequence length of `x`.
+    x: A ``tf.Tensor`` of shape ``[batch_size, max(sequence_length), depth]``.
+    sequence_length: The true sequence length of :obj:`x`.
     max_sequence_length: The sequence length up to which the tensor must contain
-      `identity values`.
+      :obj:`identity values`.
     identity_values: The identity value.
 
   Returns:
-    A `tf.Tensor` of shape `[batch_size, max(max_sequence_length), depth]`.
+    A ``tf.Tensor`` of shape ``[batch_size, max(max_sequence_length), depth]``.
   """
   maxlen = tf.reduce_max(max_sequence_length)
 
@@ -41,17 +41,18 @@ def pad_with_identity(x, sequence_length, max_sequence_length, identity_values=0
   return x
 
 def pad_n_with_identity(inputs, sequence_lengths, identity_values=0):
-  """Pads each input tensors with identity values up to `max(sequence_lengths)`
-  for each batch.
+  """Pads each input tensors with identity values up to
+  ``max(sequence_lengths)`` for each batch.
 
   Args:
-    inputs: A list of `tf.Tensor`s.
+    inputs: A list of ``tf.Tensor``.
     sequence_lengths: A list of sequence length.
     identity_values: The identity value.
 
   Returns:
-    padded: A list of `tf.Tensor`s where each tensor are padded with identity.
-    max_sequence_length: The combined sequence length.
+    A tuple ``(padded, max_sequence_length)`` which are respectively a list of
+    ``tf.Tensor`` where each tensor are padded with identity and the combined
+    sequence length.
   """
   max_sequence_length = tf.reduce_max(sequence_lengths, axis=0)
   padded = [
@@ -63,11 +64,12 @@ def roll_sequence(tensor, offsets):
   """Shifts sequences by an offset.
 
   Args:
-    tensor: A `tf.Tensor` of shape `[batch_size, time, ...]`.
+    tensor: A ``tf.Tensor`` of shape ``[batch_size, time, ...]``.
     offsets : The offset of each sequence.
 
   Returns:
-    A `tf.Tensor` of the same shape as `tensor` with sequences shifted by `offsets`.
+    A ``tf.Tensor`` of the same shape as :obj:`tensor` with sequences shifted
+    by :obj:`offsets`.
   """
   batch_size = tf.shape(tensor)[0]
   time = tf.shape(tensor)[1]
@@ -93,7 +95,7 @@ class Reducer(object):
   """Base class for reducers."""
 
   def zip_and_reduce(self, x, y):
-    """Zips `x` with `y` and reduces all elements."""
+    """Zips :obj:`x` with :obj:`y` and reduces all elements."""
     if tf.contrib.framework.nest.is_sequence(x):
       tf.contrib.framework.nest.assert_same_structure(x, y)
 
@@ -113,10 +115,10 @@ class Reducer(object):
     """Reduces all input elements.
 
     Args:
-      inputs: A list of (possibly nested structure of) `tf.Tensor`s.
+      inputs: A list of (possibly nested structure of) ``tf.Tensor``.
 
     Returns:
-      A (possibly nested structure of) `tf.Tensor`.
+      A (possibly nested structure of) ``tf.Tensor``.
     """
     raise NotImplementedError()
 
@@ -125,12 +127,12 @@ class Reducer(object):
     """Reduces all input sequences.
 
     Args:
-      inputs: A list of (possibly nested structure of) `tf.Tensor`s.
+      inputs: A list of (possibly nested structure of) ``tf.Tensor``.
       sequence_lengths: The length of each input sequence.
 
     Returns:
-      reduced_input: A (possibly nested structure of) `tf.Tensor`.
-      reduced_length: The reduced sequence length.
+      A tuple ``(reduced_input, reduced_length)`` which are a (possibly nested
+      structure of) ``tf.Tensor`` and the reduced sequence length.
     """
     raise NotImplementedError()
 

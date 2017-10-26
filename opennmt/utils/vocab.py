@@ -78,10 +78,10 @@ class Vocab(object):
 
     Args:
       identifier: A string or an index to lookup.
-      default: The value to return if `identifier` is not found.
+      default: The value to return if :obj:`identifier` is not found.
 
     Returns:
-      The value associated with `identifier` or `default`.
+      The value associated with :obj:`identifier` or :obj:`default`.
     """
     value = None
 

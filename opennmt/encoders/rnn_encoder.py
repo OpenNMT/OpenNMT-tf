@@ -55,10 +55,11 @@ class UnidirectionalRNNEncoder(RNNEncoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      cell_class: The inner cell class or a callable taking `num_units` as
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
-      residual_connections: If `True`, each layer input will be added to its output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
     """
     super(UnidirectionalRNNEncoder, self).__init__(
         num_layers,
@@ -94,14 +95,17 @@ class BidirectionalRNNEncoder(RNNEncoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      reducer: A `onmt.utils.Reducer` instance to merge bidirectional state and outputs.
-      cell_class: The inner cell class or a callable taking `num_units` as
+      reducer: A :class:`opennmt.utils.reducer.Reducer` instance to merge
+        bidirectional state and outputs.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
-      residual_connections: If `True`, each layer input will be added to its output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
 
     Raises:
-      ValueError: if when using `ConcatReducer` and `num_units` is not divisible by 2.
+      ValueError: when using :class:`opennmt.utils.reducer.ConcatReducer` and
+        :obj:`num_units` is not divisible by 2.
     """
     if isinstance(reducer, ConcatReducer):
       if num_units % 2 != 0:
@@ -136,7 +140,9 @@ class BidirectionalRNNEncoder(RNNEncoder):
 
 
 class GoogleRNNEncoder(Encoder):
-  """The RNN encoder used in GNMT as described in https://arxiv.org/abs/1609.08144."""
+  """The RNN encoder used in GNMT as described in
+  https://arxiv.org/abs/1609.08144.
+  """
 
   def __init__(self,
                num_layers,
@@ -150,7 +156,7 @@ class GoogleRNNEncoder(Encoder):
       dropout: The probability to drop units in each layer output.
 
     Raises:
-      ValueError: if `num_layers` < 2.
+      ValueError: if :obj:`num_layers` < 2.
     """
     if num_layers < 2:
       raise ValueError("GoogleRNNEncoder requires at least 2 layers")
@@ -198,7 +204,7 @@ class PyramidalRNNEncoder(Encoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       reduction_factor: The time reduction factor.
-      cell_class: The inner cell class or a callable taking `num_units` as
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
     """

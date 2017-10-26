@@ -15,18 +15,19 @@ from opennmt.decoders.decoder import get_sampling_probability
 def shift_target_sequence(inputter, data):
   """Prepares shifted target sequences.
 
-  Given a target sequence `a b c`, the decoder input should be
-  `<s> a b c` and the output should be `a b c </s>` for the dynamic
-  decoding to start on `<s>` and stop on `</s>`.
+  Given a target sequence ``a b c``, the decoder input should be
+  ``<s> a b c`` and the output should be ``a b c </s>`` for the dynamic
+  decoding to start on ``<s>`` and stop on ``</s>``.
 
   Args:
-    inputter: The `onmt.inputters.Inputter` that processed `data`.
-    data: A dict of `tf.Tensor`s containing `ids` and `length` keys.
+    inputter: The :class:`opennmt.inputters.inputter.Inputter` that processed
+      :obj:`data`.
+    data: A dict of ``tf.Tensor`` containing ``ids`` and ``length`` keys.
 
   Returns:
-    The updated `data` dictionary with `ids` the sequence prefixed
-    with the start token id and `ids_out` the sequence suffixed with
-    the end token id. Additionally, the `length` is increased by 1
+    The updated :obj:`data` dictionary with ``ids`` the sequence prefixed
+    with the start token id and ``ids_out`` the sequence suffixed with
+    the end token id. Additionally, the ``length`` is increased by 1
     to reflect the added token on both sequences.
   """
   bos = tf.cast(tf.constant([constants.START_OF_SENTENCE_ID]), tf.int64)
@@ -64,15 +65,18 @@ class SequenceToSequence(Model):
     """Initializes a sequence-to-sequence model.
 
     Args:
-      source_inputter: A `onmt.inputters.Inputter` to process the source data.
-      target_inputter: A `onmt.inputters.Inputter` to process the target data.
-        Currently, only the `onmt.inputters.WordEmbedder` is supported.
-      encoder: A `onmt.encoders.Encoder` to encode the source.
-      decoder: A `onmt.decoders.Decoder` to decode the target.
+      source_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+        the source data.
+      target_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+        the target data. Currently, only the
+        :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.
+      encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the source.
+      decoder: A :class:`opennmt.decoders.decoder.Decoder` to decode the target.
       name: The name of this model.
 
     Raises:
-      TypeError: if `target_inputter` is not a `onmt.inputters.WordEmbedder`.
+      TypeError: if :obj:`target_inputter` is not a
+        :class:`opennmt.inputters.text_inputter.WordEmbedder`.
     """
     super(SequenceToSequence, self).__init__(name)
 

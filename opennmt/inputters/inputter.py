@@ -21,10 +21,12 @@ class Inputter(object):
     """Adds processing hooks.
 
     Processing hooks are additional and model specific data processing
-    functions applied after calling this inputter `process` function.
+    functions applied after calling this inputter
+    :meth:`opennmt.inputters.inputter.Inputter.process` function.
 
     Args:
-      hooks: A list of callables with the signature `(inputter, data) -> data`.
+      hooks: A list of callables with the signature
+        ``(inputter, data) -> data``.
     """
     self.process_hooks.extend(hooks)
 
@@ -36,7 +38,7 @@ class Inputter(object):
       key: The value key.
       value: The value to assign.
       padded_shape: The padded shape of the value as given to
-        `tf.data.Dataset.padded_batch`.
+        ``tf.data.Dataset.padded_batch``.
 
     Returns:
       The updated data dictionary.
@@ -73,7 +75,7 @@ class Inputter(object):
       data_file: The data file.
 
     Returns:
-      A `tf.data.Dataset`.
+      A ``tf.data.Dataset``.
     """
     raise NotImplementedError()
 
@@ -81,7 +83,7 @@ class Inputter(object):
     """Returns a serving input receiver for this inputter.
 
     Returns:
-      A `tf.estimator.export.ServingInputReceiver`.
+      A ``tf.estimator.export.ServingInputReceiver``.
     """
     receiver_tensors, features = self._get_serving_input()
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
@@ -90,8 +92,8 @@ class Inputter(object):
     """Returns the input receiver for serving.
 
     Returns:
-      A tuple `(receiver_tensors, features)` as described in
-      `tf.estimator.export.ServingInputReceiver`.
+      A tuple ``(receiver_tensors, features)`` as described in
+      ``tf.estimator.export.ServingInputReceiver``.
     """
     raise NotImplementedError()
 
@@ -100,7 +102,7 @@ class Inputter(object):
 
     For example, one can create lookup tables in this method
     for their initializer to be added to the current graph
-    `TABLE_INITIALIZERS` collection.
+    ``TABLE_INITIALIZERS`` collection.
 
     Args:
       metadata: A dictionary containing additional metadata set
@@ -111,13 +113,14 @@ class Inputter(object):
   def process(self, data):
     """Prepares raw data.
 
-    See also `transform_data`.
-
     Args:
       data: The raw data.
 
     Returns:
-      A dictionary of `tf.Tensor`s.
+      A dictionary of ``tf.Tensor``.
+
+    See Also:
+      :meth:`opennmt.inputters.inputter.Inputter.transform_data`
     """
     data = self._process(data)
     for hook in self.process_hooks:
@@ -135,13 +138,14 @@ class Inputter(object):
     can populate it.
 
     Args:
-      data: The raw data or a dictionary containing the `raw` key.
+      data: The raw data or a dictionary containing the ``raw`` key.
 
     Returns:
-      A dictionary of `tf.Tensor`s.
+      A dictionary of ``tf.Tensor``.
 
     Raises:
-      ValueError: if `data` is a dictionary but does not contain the `raw` key.
+      ValueError: if :obj:`data` is a dictionary but does not contain the
+        ``raw`` key.
     """
     if not isinstance(data, dict):
       data = self.set_data_field({}, "raw", data)
@@ -160,13 +164,14 @@ class Inputter(object):
   def transform_data(self, data, mode=tf.estimator.ModeKeys.TRAIN, log_dir=None):
     """Transforms the processed data to an input.
 
-    This is usually a simple forward of a `data` field to `transform`.
+    This is usually a simple forward of a :obj:`data` field to
+    :meth:`opennmt.inputters.inputter.Inputter.transform`.
 
     See also `process`.
 
     Args:
       data: A dictionary of data fields.
-      mode: A `tf.estimator.ModeKeys` mode.
+      mode: A ``tf.estimator.ModeKeys`` mode.
       log_dir: The log directory. If set, visualization will be setup.
 
     Returns:
@@ -179,7 +184,7 @@ class Inputter(object):
 
   @abc.abstractmethod
   def _transform_data(self, data, mode):
-    """Implementation of `transform_data`."""
+    """Implementation of ``transform_data``."""
     raise NotImplementedError()
 
   @abc.abstractmethod
@@ -187,8 +192,9 @@ class Inputter(object):
     """Transforms inputs.
 
     Args:
-      inputs: A possible nested structure of `Tensor` depending on the inputter.
-      mode: A `tf.estimator.ModeKeys` mode.
+      inputs: A (possible nested structure of) ``tf.Tensor`` which depends on
+        the inputter.
+      mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
       The transformed input.
@@ -236,9 +242,9 @@ class ParallelInputter(MultiInputter):
     """Initializes a parallel inputter.
 
     Args:
-      inputters: A list of `onmt.inputters.Inputter`s.
-      reducer: A `onmt.utils.Reducer` to merge all inputs. If set, parallel
-        inputs are assumed to have the same length.
+      inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
+      reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all inputs. If
+        set, parallel inputs are assumed to have the same length.
     """
     super(ParallelInputter, self).__init__(inputters)
     self.reducer = reducer
@@ -312,8 +318,8 @@ class MixedInputter(MultiInputter):
     """Initializes a mixed inputter.
 
     Args:
-      inputters: A list of `onmt.inputters.Inputter`s.
-      reducer: A `onmt.utils.Reducer` to merge all inputs.
+      inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
+      reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all inputs.
       dropout: The probability to drop units in the merged inputs.
     """
     super(MixedInputter, self).__init__(inputters)

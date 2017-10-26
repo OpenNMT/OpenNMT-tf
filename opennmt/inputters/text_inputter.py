@@ -22,8 +22,8 @@ from opennmt.constants import PADDING_TOKEN
 def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets=1):
   """Registers an embedding variable for visualization in TensorBoard.
 
-  This function registers `embedding_var` in the `projector_config.pbtxt`
-  file and generates metadata from `vocabulary_file` to attach a label
+  This function registers :obj:`embedding_var` in the ``projector_config.pbtxt``
+  file and generates metadata from :obj:`vocabulary_file` to attach a label
   to each word ID.
 
   Args:
@@ -76,31 +76,35 @@ def load_pretrained_embeddings(embedding_file,
                                case_insensitive_embeddings=True):
   """Returns pretrained embeddings relative to the vocabulary.
 
-  This function will iterate on each embedding in `embedding_file` and assign
-  the pretrained vector to the associated word in `vocabulary_file` if found.
-  Otherwise, the embedding is ignored.
+  The :obj:`embedding_file` must have the following format:
 
-  If `case_insensitive_embeddings` is `True`, word embeddings are assumed to be
-  trained on lowercase data. In that case, word alignments are case insensitive
-  meaning the pretrained word embedding for "the" will be assigned to "the",
-  "The", "THE", or any other case variants included in `vocabulary_file`.
+  .. code-block:: text
 
-  Args:
-    embedding_file: Path the embedding file with the format:
-      ```
       word1 val1 val2 ... valM
       word2 val1 val2 ... valM
       ...
       wordN val1 val2 ... valM
-      ```
-      Entries will be matched against `vocabulary_file`.
+
+  This function will iterate on each embedding in :obj:`embedding_file` and
+  assign the pretrained vector to the associated word in :obj:`vocabulary_file`
+  if found. Otherwise, the embedding is ignored.
+
+  If :obj:`case_insensitive_embeddings` is ``True``, word embeddings are assumed
+  to be trained on lowercase data. In that case, word alignments are case
+  insensitive meaning the pretrained word embedding for "the" will be assigned
+  to "the", "The", "THE", or any other case variants included in
+  :obj:`vocabulary_file`.
+
+  Args:
+    embedding_file: Path the embedding file. Entries will be matched against
+      :obj:`vocabulary_file`.
     vocabulary_file: The vocabulary file containing one word per line.
     num_oov_buckets: The number of additional unknown tokens.
-    case_insensitive_embeddings: `True` if embeddings are trained on lowercase
+    case_insensitive_embeddings: ``True`` if embeddings are trained on lowercase
       data.
 
   Returns:
-    A Numpy array of shape `[vocabulary_size + num_oov_buckets, embedding_size]`.
+    A Numpy array of shape ``[vocabulary_size + num_oov_buckets, embedding_size]``.
   """
   # Map words to ids from the vocabulary.
   word_to_id = collections.defaultdict(list)
@@ -142,7 +146,7 @@ def tokens_to_chars(tokens):
     tokens: A sequence of tokens.
 
   Returns:
-    A `tf.Tensor` of shape `[sequence_length, max_word_length]`.
+    A ``tf.Tensor`` of shape ``[sequence_length, max_word_length]``.
   """
 
   def _split_chars(token, max_length, delimiter=" "):
@@ -241,20 +245,22 @@ class WordEmbedder(TextInputter):
       vocabulary_file_key: The data configuration key of the vocabulary file
         containing one word per line.
       embedding_size: The size of the resulting embedding.
-        If `None`, an embedding file must be provided.
+        If ``None``, an embedding file must be provided.
       embedding_file_key: The data configuration key of the embedding file.
-        See the `load_pretrained_embeddings` function for details about the
-        format and behavior.
-      case_insensitive_embeddings: `True` if embeddings are trained on lowercase
-        data. See the `load_pretrained_embeddings` function for details about
-        the behavior of this flag.
-      trainable: If `False`, do not optimize embeddings.
+      case_insensitive_embeddings: ``True`` if embeddings are trained on
+        lowercase data.
+      trainable: If ``False``, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional `opennmt.tokenizers.Tokenizer` to tokenize the
-        input text.
+      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
+        tokenize the input text.
 
     Raises:
-      ValueError: if neither `embedding_size` nor `embedding_file_key` are set.
+      ValueError: if neither :obj:`embedding_size` nor :obj:`embedding_file_key`
+        are set.
+
+    See Also:
+      The :meth:`opennmt.inputters.text_inputter.load_pretrained_embeddings`
+      function for details about the pretrained embedding format and behavior.
     """
     super(WordEmbedder, self).__init__(tokenizer=tokenizer)
 
@@ -371,8 +377,8 @@ class CharConvEmbedder(TextInputter):
       kernel_size: Length of the convolution window.
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional `opennmt.tokenizers.Tokenizer` to tokenize the
-        input text.
+      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
+        tokenize the input text.
     """
     super(CharConvEmbedder, self).__init__(tokenizer=tokenizer)
 

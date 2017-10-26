@@ -23,14 +23,17 @@ class Transformer(SequenceToSequence):
     """Initializes a Transformer model.
 
     Args:
-      source_inputter: A `onmt.inputters.Inputter` to process the source data.
-      target_inputter: A `onmt.inputters.Inputter` to process the target data.
-        Currently, only the `onmt.inputters.WordEmbedder` is supported.
+      source_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+        the source data.
+      target_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+        the target data. Currently, only the
+        :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.
       num_layers: The shared number of layers.
       num_heads: The number of heads in each self-attention layers.
       ffn_inner_dim: The inner dimension of the feed forward layers.
       dropout: The probability to drop units in each layer output.
-      position_encoder: A `onmt.utils.PositionEncoder` to apply on the inputs.
+      position_encoder: A :class:`opennmt.utils.position.PositionEncoder` to
+        apply on the inputs.
       name: The name of this model.
     """
     encoder = SelfAttentionEncoder(

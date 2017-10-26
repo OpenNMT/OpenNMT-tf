@@ -11,7 +11,7 @@ def assert_state_is_compatible(expected_state, state):
 
   Args:
     expected_state: The reference state.
-    state: The state that must be compatible with `expected_state`.
+    state: The state that must be compatible with :obj:`expected_state`.
 
   Raises:
     ValueError: if the states are incompatible.
@@ -75,7 +75,7 @@ class DenseBridge(Bridge):
 
     Args:
       activation: Activation function (a callable).
-        Set it to `None` to maintain a linear activation.
+        Set it to ``None`` to maintain a linear activation.
     """
     self.activation = activation
 

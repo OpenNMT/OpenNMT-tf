@@ -9,7 +9,7 @@ from opennmt.utils.cell import build_cell
 
 
 class RNNDecoder(Decoder):
-  """A basic RNN-based decoder."""
+  """A basic RNN decoder."""
 
   def __init__(self,
                num_layers,
@@ -23,11 +23,13 @@ class RNNDecoder(Decoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A `onmt.utils.Bridge` to pass the encoder state to the decoder.
-      cell_class: The inner cell class or a callable taking `num_units` as
+      bridge: A :class:`opennmt.utils.bridge.Bridge` to pass the encoder state
+        to the decoder.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
-      residual_connections: If `True`, each layer input will be added to its output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
     """
     self.num_layers = num_layers
     self.num_units = num_units
@@ -231,7 +233,7 @@ def _build_attention_mechanism(attention_mechanism,
 
 
 class AttentionalRNNDecoder(RNNDecoder):
-  """A `RNNDecoder` with attention.
+  """A RNN decoder with attention.
 
   It simple overrides the cell construction to add an attention wrapper.
   """
@@ -249,15 +251,17 @@ class AttentionalRNNDecoder(RNNDecoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A `onmt.utils.Bridge` to pass the encoder state to the decoder.
+      bridge: A :class:`opennmt.utils.bridge.Bridge` to pass the encoder state
+        to the decoder.
       attention_mechanism_class: A class inheriting from
-        `tf.contrib.seq2seq.AttentionMechanism` or a callable that takes
-        `(num_units, memory, memory_sequence_length)` as arguments and returns a
-        `tf.contrib.seq2seq.AttentionMechanism`.
-      cell_class: The inner cell class or a callable taking `num_units` as
+        ``tf.contrib.seq2seq.AttentionMechanism`` or a callable that takes
+        ``(num_units, memory, memory_sequence_length)`` as arguments and returns
+        a ``tf.contrib.seq2seq.AttentionMechanism``.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
-      residual_connections: If `True`, each layer input will be added to its output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
     """
     super(AttentionalRNNDecoder, self).__init__(
         num_layers,
@@ -301,12 +305,12 @@ class AttentionalRNNDecoder(RNNDecoder):
 
 
 class MultiAttentionalRNNDecoder(RNNDecoder):
-  """A `RNNDecoder` with multi-attention.
+  """A RNN decoder with multi-attention.
 
   This decoder can attend the encoder outputs after multiple RNN layers using
   one or multiple attention mechanisms. Additionally, the cell state of this
-  decoder is not initialized from the encoder state (i.e. a ZeroBridge is
-  imposed).
+  decoder is not initialized from the encoder state (i.e. a
+  :class:`opennmt.utils.bridge.ZeroBridge` is imposed).
   """
 
   def __init__(self,
@@ -323,16 +327,18 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       attention_layers: A list of integers, the layers after which to add
-        attention. If `None`, attention will only be added after the last layer.
+        attention. If ``None``, attention will only be added after the last
+        layer.
       attention_mechanism_class: A class or list of classes inheriting from
-        `tf.contrib.seq2seq.AttentionMechanism`. Alternatively, the class can be
-        replaced by a callable that takes
-        `(num_units, memory, memory_sequence_length)` as arguments and returns a
-        `tf.contrib.seq2seq.AttentionMechanism`.
-      cell_class: The inner cell class or a callable taking `num_units` as
+        ``tf.contrib.seq2seq.AttentionMechanism``. Alternatively, the class can
+        be replaced by a callable that takes
+        ``(num_units, memory, memory_sequence_length)`` as arguments and returns
+        a ``tf.contrib.seq2seq.AttentionMechanism``.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
-      residual_connections: If `True`, each layer input will be added to its output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
     """
     super(MultiAttentionalRNNDecoder, self).__init__(
         num_layers,

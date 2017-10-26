@@ -24,7 +24,8 @@ class ConvEncoder(Encoder):
       num_units: The number of output filters.
       kernel_size: The kernel size.
       dropout: The probability to drop units from the inputs.
-      position_encoder: The `PositionEncoder` to apply on inputs or `None`.
+      position_encoder: The :class:`opennmt.utils.position.PositionEncoder` to
+        apply on inputs or ``None``.
     """
     self.num_layers = num_layers
     self.num_units = num_units

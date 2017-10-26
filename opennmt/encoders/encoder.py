@@ -17,12 +17,12 @@ class Encoder(object):
     """Encodes an input sequence.
 
     Args:
-      inputs: The inputs to encode of shape [B, T, ...].
-      sequence_length: The length of each input with shape [B].
-      mode: A `tf.estimator.ModeKeys` mode.
+      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
+      sequence_length: The length of each input with shape :math:`[B]`.
+      mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
-      A tuple (`encoder_outputs`, `encoder_state`, `encoder_sequence_length`).
+      A tuple ``(outputs, state, sequence_length)``.
     """
     raise NotImplementedError()
 
@@ -34,8 +34,9 @@ class SequentialEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of `onmt.encoders.Encoder`s.
-      states_reducer: A `onmt.utils.Reducer` to merge all states.
+      encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
+      states_reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all
+        states.
     """
     self.encoders = encoders
     self.states_reducer = states_reducer
@@ -70,9 +71,11 @@ class ParallelEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of `onmt.encoders.Encoder`s.
-      outputs_reducer: A `onmt.utils.Reducer` to merge all outputs.
-      states_reducer: A `onmt.utils.Reducer` to merge all states.
+      encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
+      outputs_reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all
+        outputs.
+      states_reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all
+        states.
     """
     self.encoders = encoders
     self.outputs_reducer = outputs_reducer

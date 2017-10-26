@@ -24,7 +24,7 @@ def noam_decay(learning_rate,
     name: Ignored.
 
   Returns:
-    The learning rate for the step `global_step`.
+    The learning rate for the step :obj:`global_step`.
   """
   _ = learning_rate
   _ = staircase

@@ -14,11 +14,11 @@ class Tokenizer(object):
     """Tokenizes text.
 
     Args:
-      text: The text to tokenize as a `tf.Tensor` or Python string.
+      text: The text to tokenize as a ``tf.Tensor`` or Python string.
 
     Returns:
-      A 1-D string `tf.Tensor` if `text` is a `tf.Tensor` or a list of Python
-      unicode strings otherwise.
+      A 1-D string ``tf.Tensor`` if :obj:`text` is a ``tf.Tensor`` or a list of
+      Python unicode strings otherwise.
     """
     if tf.contrib.framework.is_tensor(text):
       return self._tokenize_tensor(text)
@@ -31,9 +31,9 @@ class Tokenizer(object):
 
     Any external assets should be registered in the standard assets collection:
 
-    ```
-    tf.add_to_collection(ops.GraphKeys.ASSET_FILEPATHS, filename)
-    ```
+    .. code-block:: python
+
+        tf.add_to_collection(ops.GraphKeys.ASSET_FILEPATHS, filename)
 
     Args:
       metadata: A dictionary containing additional metadata set
@@ -44,14 +44,14 @@ class Tokenizer(object):
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
 
-    When not overriden, this default implementation uses a `tf.py_func`
+    When not overriden, this default implementation uses a ``tf.py_func``
     operation to call the string-based tokenization.
 
     Args:
-      text: A 1-D string `tf.Tensor`.
+      text: A 1-D string ``tf.Tensor``.
 
     Returns:
-      A 1-D string `tf.Tensor`.
+      A 1-D string ``tf.Tensor``.
     """
     text = tf.py_func(
         lambda x: tf.compat.as_bytes("\0".join(self(x))), [text], tf.string)

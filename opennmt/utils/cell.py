@@ -16,21 +16,21 @@ def build_cell(num_layers,
   Args:
     num_layers: The number of layers.
     num_units: The number of units in each layer.
-    mode: A `tf.estimator.ModeKeys` mode.
+    mode: A ``tf.estimator.ModeKeys`` mode.
     dropout: The probability to drop units in each layer output.
-    residual_connections: If `True`, each layer input will be added to its output.
-    cell_class: The inner cell class or a callable taking `num_units` as
+    residual_connections: If ``True``, each layer input will be added to its output.
+    cell_class: The inner cell class or a callable taking :obj:`num_units` as
       argument and returning a cell.
     attention_layers: A list of integers, the layers after which to add attention.
-    attention_mechanisms: A list of `tf.contrib.seq2seq.AttentionMechanism`s with
-      the same length as `attention_layers`.
+    attention_mechanisms: A list of ``tf.contrib.seq2seq.AttentionMechanism``
+      with the same length as :obj:`attention_layers`.
 
   Returns:
-    A `tf.contrib.rnn.RNNCell`.
+    A ``tf.contrib.rnn.RNNCell``.
 
   Raises:
-    ValueError: if `attention_layers` and `attention_mechanisms` do not have the
-      same length.
+    ValueError: if :obj:`attention_layers` and :obj:`attention_mechanisms` do
+      not have the same length.
   """
   cells = []
 

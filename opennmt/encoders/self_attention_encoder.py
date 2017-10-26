@@ -27,10 +27,11 @@ class SelfAttentionEncoder(Encoder):
       ffn_inner_dim: The number of units of the inner linear transformation
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
-      keep_layers_output: If `True`, the memory of the encoder will contain
+      keep_layers_output: If ``True``, the memory of the encoder will contain
         the output of each layer. Otherwise, it will only contain the
-        last layer output. This is `True` in the Transformer model.
-      position_encoder: The `PositionEncoder` to apply on inputs or `None`.
+        last layer output. This is ``True`` in the Transformer model.
+      position_encoder: The :class:`opennmt.utils.position.PositionEncoder` to
+        apply on inputs or ``None``.
     """
     self.num_layers = num_layers
     self.num_heads = num_heads
