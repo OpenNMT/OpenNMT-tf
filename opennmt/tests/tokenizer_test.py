@@ -8,15 +8,16 @@ from opennmt.tokenizers import SpaceTokenizer, CharacterTokenizer
 class TokenizerTest(tf.test.TestCase):
 
   def _testTokenizerOnTensor(self, tokenizer, text, ref_tokens):
-    text = tf.constant(text)
+    ref_tokens = [tf.compat.as_bytes(token) for token in ref_tokens]
+    text = tf.constant(tf.compat.as_bytes(text))
     tokens = tokenizer(text)
     with self.test_session() as sess:
       tokens = sess.run(tokens)
-      tokens = [token.decode("utf-8") for token in tokens]
       self.assertAllEqual(ref_tokens, tokens)
 
   def _testTokenizerOnString(self, tokenizer, text, ref_tokens):
-    tokens = tokenizer(text)
+    ref_tokens = [tf.compat.as_text(token) for token in ref_tokens]
+    tokens = tokenizer(tf.compat.as_text(text))
     self.assertAllEqual(ref_tokens, tokens)
 
   def _testTokenizer(self, tokenizer, text, ref_tokens):
@@ -24,17 +25,11 @@ class TokenizerTest(tf.test.TestCase):
     self._testTokenizerOnString(tokenizer, text, ref_tokens)
 
   def testSpaceTokenizer(self):
-    self._testTokenizer(
-        SpaceTokenizer(),
-        u"Hello world !",
-        [u"Hello", u"world", u"!"])
+    self._testTokenizer(SpaceTokenizer(), "Hello world !", ["Hello", "world", "!"])
 
   def testCharacterTokenizer(self):
-    self._testTokenizer(CharacterTokenizer(), u"a b", [u"a", u" ", u"b"])
-    self._testTokenizer(
-        CharacterTokenizer(),
-        u"你好，世界！",
-        [u"你", u"好", u"，", u"世", u"界", u"！"])
+    self._testTokenizer(CharacterTokenizer(), "a b", ["a", " ", "b"])
+    self._testTokenizer(CharacterTokenizer(), "你好，世界！", ["你", "好", "，", "世", "界", "！"])
 
 
 if __name__ == "__main__":
