@@ -5,7 +5,15 @@ import tensorflow as tf
 from opennmt.utils import Vocab
 
 
+vocab_file = "vocab_test.tmp"
+
+
 class VocabTest(tf.test.TestCase):
+
+  def tearDown(self):
+    if os.path.isfile(vocab_file):
+      os.remove(vocab_file)
+
 
   def testSimpleVocab(self):
     vocab = Vocab()
@@ -63,11 +71,9 @@ class VocabTest(tf.test.TestCase):
     vocab1.add("titi")
     vocab1.add("tata")
 
-    tmp_file = "tmpvocab.txt"
-    vocab1.serialize(tmp_file)
+    vocab1.serialize(vocab_file)
     vocab2 = Vocab()
-    vocab2.add_from_text(tmp_file)
-    os.remove(tmp_file)
+    vocab2.add_from_text(vocab_file)
 
     self.assertEqual(vocab1.size, vocab2.size)
     self.assertEqual(vocab1.lookup("titi"), vocab2.lookup("titi"))
