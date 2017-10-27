@@ -84,7 +84,7 @@ class SequenceTagger(Model):
     with tf.variable_scope("encoder"):
       inputs = self.inputter.transform_data(
           features,
-          mode,
+          mode=mode,
           log_dir=config.model_dir)
 
       encoder_outputs, _, encoder_sequence_length = self.encoder.encode(

@@ -157,7 +157,7 @@ class Inputter(object):
     """
     pass
 
-  def transform_data(self, data, mode, log_dir=None):
+  def transform_data(self, data, mode=tf.estimator.ModeKeys.TRAIN, log_dir=None):
     """Transforms the processed data to an input.
 
     This is usually a simple forward of a `data` field to `transform`.
