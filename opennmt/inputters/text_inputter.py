@@ -19,7 +19,7 @@ from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
 
 
-def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets):
+def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets=1):
   """Registers an embedding variable for visualization in TensorBoard.
 
   This function registers `embedding_var` in the `projector_config.pbtxt`
@@ -72,6 +72,7 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
 
 def load_pretrained_embeddings(embedding_file,
                                vocabulary_file,
+                               num_oov_buckets=1,
                                case_insensitive_embeddings=True):
   """Returns pretrained embeddings relative to the vocabulary.
 
@@ -94,11 +95,12 @@ def load_pretrained_embeddings(embedding_file,
       ```
       Entries will be matched against `vocabulary_file`.
     vocabulary_file: The vocabulary file containing one word per line.
+    num_oov_buckets: The number of additional unknown tokens.
     case_insensitive_embeddings: `True` if embeddings are trained on lowercase
       data.
 
   Returns:
-    A Numpy array of shape `[vocabulary_size, embedding_size]`.
+    A Numpy array of shape `[vocabulary_size + num_oov_buckets, embedding_size]`.
   """
   # Map words to ids from the vocabulary.
   word_to_id = collections.defaultdict(list)
@@ -120,7 +122,8 @@ def load_pretrained_embeddings(embedding_file,
       word = fields[0]
 
       if pretrained is None:
-        pretrained = np.random.normal(size=(count + 1, len(fields) - 1))
+        pretrained = np.random.normal(
+            size=(count + num_oov_buckets, len(fields) - 1))
 
       # Lookup word in the vocabulary.
       if word in word_to_id:
@@ -303,7 +306,11 @@ class WordEmbedder(TextInputter):
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       embeddings = tf.get_variable("w_embs")
-      visualize_embeddings(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
+      visualize_embeddings(
+          log_dir,
+          embeddings,
+          self.vocabulary_file,
+          num_oov_buckets=self.num_oov_buckets)
 
   def _transform_data(self, data, mode):
     return self.transform(data["ids"], mode)
@@ -317,6 +324,7 @@ class WordEmbedder(TextInputter):
         pretrained = load_pretrained_embeddings(
             self.embedding_file,
             self.vocabulary_file,
+            num_oov_buckets=self.num_oov_buckets,
             case_insensitive_embeddings=self.case_insensitive_embeddings)
         self.embedding_size = pretrained.shape[-1]
 
@@ -412,7 +420,11 @@ class CharConvEmbedder(TextInputter):
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       embeddings = tf.get_variable("w_char_embs")
-      visualize_embeddings(log_dir, embeddings, self.vocabulary_file, self.num_oov_buckets)
+      visualize_embeddings(
+          log_dir,
+          embeddings,
+          self.vocabulary_file,
+          num_oov_buckets=self.num_oov_buckets)
 
   def _transform_data(self, data, mode):
     return self.transform(data["char_ids"], mode)
