@@ -46,8 +46,6 @@ class Tokenizer(object):
     When not overriden, this default implementation calls  `_tokenize_string`
     by using a `tf.py_func` operation.
 
-    This method should be thread-safe.
-
     Args:
       text: A 1-D string `tf.Tensor`.
 
