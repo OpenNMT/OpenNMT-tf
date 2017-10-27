@@ -38,7 +38,7 @@ def model():
           num_layers=4,
           num_units=512,
           bridge=onmt.utils.DenseBridge(),
-          attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
+          attention_mechanism=tf.contrib.seq2seq.LuongAttention,
           cell_class=tf.contrib.rnn.LSTMCell,
           dropout=0.3,
           residual_connections=False))

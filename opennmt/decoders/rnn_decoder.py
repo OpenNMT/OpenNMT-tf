@@ -1,5 +1,7 @@
 """Define RNN-based decoders."""
 
+import inspect
+
 import tensorflow as tf
 
 from opennmt.decoders.decoder import Decoder, logits_to_cum_log_probs
@@ -212,6 +214,21 @@ class RNNDecoder(Decoder):
     return (predicted_ids, state, length, log_probs)
 
 
+def _build_attention_mechanism(attention_mechanism,
+                               num_units,
+                               memory,
+                               memory_sequence_length=None):
+  """Builds an attention mechanism from a class or a callable."""
+  if inspect.isclass(attention_mechanism):
+    return attention_mechanism(
+        num_units, memory, memory_sequence_length=memory_sequence_length)
+  elif callable(attention_mechanism):
+    return attention_mechanism(
+        num_units, memory, memory_sequence_length)
+  else:
+    raise ValueError("Unable to build the attention mechanism")
+
+
 class AttentionalRNNDecoder(RNNDecoder):
   """A `RNNDecoder` with attention.
 
@@ -222,7 +239,7 @@ class AttentionalRNNDecoder(RNNDecoder):
                num_layers,
                num_units,
                bridge=None,
-               attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
+               attention_mechanism=tf.contrib.seq2seq.LuongAttention,
                cell_class=tf.contrib.rnn.LSTMCell,
                dropout=0.3,
                residual_connections=False):
@@ -232,7 +249,9 @@ class AttentionalRNNDecoder(RNNDecoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       bridge: A `onmt.utils.Bridge` to pass the encoder state to the decoder.
-      attention_mechanism_class: A class inheriting from
+      attention_mechanism: A class inheriting from
+        `tf.contrib.seq2seq.AttentionMechanism` or a callable that takes
+        `(num_units, memory, memory_sequence_length)` as arguments and returns a
         `tf.contrib.seq2seq.AttentionMechanism`.
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
@@ -245,7 +264,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         cell_class=cell_class,
         dropout=dropout,
         residual_connections=residual_connections)
-    self.attention_mechanism_class = attention_mechanism_class
+    self.attention_mechanism = attention_mechanism
 
   def _build_cell(self,
                   mode,
@@ -253,7 +272,8 @@ class AttentionalRNNDecoder(RNNDecoder):
                   initial_state=None,
                   memory=None,
                   memory_sequence_length=None):
-    attention_mechanism = self.attention_mechanism_class(
+    attention_mechanism = _build_attention_mechanism(
+        self.attention_mechanism,
         self.num_units,
         memory,
         memory_sequence_length=memory_sequence_length)
@@ -291,7 +311,7 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
                num_layers,
                num_units,
                attention_layers=None,
-               attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
+               attention_mechanism=tf.contrib.seq2seq.LuongAttention,
                cell_class=tf.contrib.rnn.LSTMCell,
                dropout=0.3,
                residual_connections=False):
@@ -302,7 +322,10 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
       num_units: The number of units in each layer.
       attention_layers: A list of integers, the layers after which to add
         attention. If `None`, attention will only be added after the last layer.
-      attention_mechanism_class: A class or list of classes inheriting from
+      attention_mechanism: A class or list of classes inheriting from
+        `tf.contrib.seq2seq.AttentionMechanism`. Alternatively, the class can be
+        replaced by a callable that takes
+        `(num_units, memory, memory_sequence_length)` as arguments and returns a
         `tf.contrib.seq2seq.AttentionMechanism`.
       cell_class: The inner cell class.
       dropout: The probability to drop units in each layer output.
@@ -318,10 +341,10 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
     attention_layers = attention_layers or [-1]
     attention_layers = [l % num_layers for l in attention_layers]
 
-    if not isinstance(attention_mechanism_class, list):
-      attention_mechanism_class = [attention_mechanism_class for _ in attention_layers]
+    if not isinstance(attention_mechanism, list):
+      attention_mechanism = [attention_mechanism for _ in attention_layers]
 
-    self.attention_mechanism_class = attention_mechanism_class
+    self.attention_mechanism = attention_mechanism
     self.attention_layers = attention_layers
 
   def _build_cell(self,
@@ -331,9 +354,12 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
                   memory=None,
                   memory_sequence_length=None):
     attention_mechanisms = [
-        attention_mechanism(
-            self.num_units, memory, memory_sequence_length=memory_sequence_length)
-        for attention_mechanism in self.attention_mechanism_class]
+        _build_attention_mechanism(
+            attention_mechanism,
+            self.num_units,
+            memory,
+            memory_sequence_length=memory_sequence_length)
+        for attention_mechanism in self.attention_mechanism]
 
     cell = build_cell(
         self.num_layers,
