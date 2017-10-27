@@ -9,7 +9,7 @@ class TokenizerTest(tf.test.TestCase):
 
   def _testTokenizerOnTensor(self, tokenizer, text, ref_tokens):
     ref_tokens = [tf.compat.as_bytes(token) for token in ref_tokens]
-    text = tf.constant(tf.compat.as_bytes(text))
+    text = tf.constant(text)
     tokens = tokenizer(text)
     with self.test_session() as sess:
       tokens = sess.run(tokens)
@@ -17,7 +17,7 @@ class TokenizerTest(tf.test.TestCase):
 
   def _testTokenizerOnString(self, tokenizer, text, ref_tokens):
     ref_tokens = [tf.compat.as_text(token) for token in ref_tokens]
-    tokens = tokenizer(tf.compat.as_text(text))
+    tokens = tokenizer(text)
     self.assertAllEqual(ref_tokens, tokens)
 
   def _testTokenizer(self, tokenizer, text, ref_tokens):

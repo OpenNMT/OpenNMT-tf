@@ -22,7 +22,7 @@ def main():
   tokenizer = getattr(tokenizers, args.tokenizer)()
 
   for line in sys.stdin:
-    line = line.strip().decode("utf-8")
+    line = line.strip()
     tokens = tokenizer(line)
     merged_tokens = args.delimiter.join(tokens)
     print(merged_tokens)

@@ -18,11 +18,12 @@ class Tokenizer(object):
 
     Returns:
       A 1-D string `tf.Tensor` if `text` is a `tf.Tensor` or a list of Python
-      strings otherwise.
+      unicode strings otherwise.
     """
     if tf.contrib.framework.is_tensor(text):
       return self._tokenize_tensor(text)
     else:
+      text = tf.compat.as_text(text)
       return self._tokenize_string(text)
 
   def initialize(self, metadata):
@@ -43,8 +44,8 @@ class Tokenizer(object):
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
 
-    When not overriden, this default implementation calls  `_tokenize_string`
-    by using a `tf.py_func` operation.
+    When not overriden, this default implementation uses a `tf.py_func`
+    operation to call the string-based tokenization.
 
     Args:
       text: A 1-D string `tf.Tensor`.
@@ -52,12 +53,8 @@ class Tokenizer(object):
     Returns:
       A 1-D string `tf.Tensor`.
     """
-    def _unicode_wrapper(text):
-      unicode_text = text.decode("utf-8")
-      unicode_tokens = self._tokenize_string(unicode_text)
-      return "\0".join(unicode_tokens).encode("utf-8")
-
-    text = tf.py_func(_unicode_wrapper, [text], tf.string)
+    text = tf.py_func(
+        lambda x: tf.compat.as_bytes("\0".join(self(x))), [text], tf.string)
     tokens = tf.string_split([text], delimiter="\0").values
     return tokens
 
