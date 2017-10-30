@@ -2,7 +2,7 @@
 
 # OpenNMT-tf
 
-OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow for:
+OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow with production in mind. While neural machine translation is the main target task, it has been designed to more generally support:
 
 * sequence to sequence mapping
 * sequence tagging
@@ -150,3 +150,7 @@ Some examples using exported models are available in the `examples/` directory:
 * `examples/cpp` to run inference with the TensorFlow C++ API
 
 **Note:** because the Python function used in `tf.py_func` is not serialized in the graph, model exports do not support in-graph tokenization and text inputs are expected to be tokenized.
+
+## Compatibility with {Lua,Py}Torch implementations
+
+OpenNMT-tf has been designed from scratch and compatibility with the {Lua,Py}Torch implementations in terms of usage, design, and features is not a priority. Please submit a feature request for any missing feature or behavior that you found useful in the {Lua,Py}Torch implementations.
