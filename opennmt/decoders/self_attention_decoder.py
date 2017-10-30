@@ -188,7 +188,7 @@ class SelfAttentionDecoder(Decoder):
             lengths.get_shape(),
             log_probs.get_shape()
         ),
-        parallel_iterations=32)
+        parallel_iterations=1)
 
     outputs = tf.slice(outputs, [0, 1], [-1, -1]) # Ignore <s>.
 
