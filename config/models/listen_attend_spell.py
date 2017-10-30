@@ -22,7 +22,7 @@ def model():
           num_layers=3,
           num_units=512,
           attention_layers=[0],
-          attention_mechanism=tf.contrib.seq2seq.LuongMonotonicAttention,
+          attention_mechanism_class=tf.contrib.seq2seq.LuongMonotonicAttention,
           cell_class=tf.contrib.rnn.LSTMCell,
           dropout=0.3,
           residual_connections=False))

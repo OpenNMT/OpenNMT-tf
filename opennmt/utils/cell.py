@@ -19,7 +19,8 @@ def build_cell(num_layers,
     mode: A `tf.estimator.ModeKeys` mode.
     dropout: The probability to drop units in each layer output.
     residual_connections: If `True`, each layer input will be added to its output.
-    cell_class: The inner cell class.
+    cell_class: The inner cell class or a callable taking `num_units` as
+      argument and returning a cell.
     attention_layers: A list of integers, the layers after which to add attention.
     attention_mechanisms: A list of `tf.contrib.seq2seq.AttentionMechanism`s with
       the same length as `attention_layers`.

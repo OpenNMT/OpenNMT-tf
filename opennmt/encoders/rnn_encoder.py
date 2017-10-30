@@ -55,7 +55,8 @@ class UnidirectionalRNNEncoder(RNNEncoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      cell_class: The inner cell class.
+      cell_class: The inner cell class or a callable taking `num_units` as
+        argument and returning a cell.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
     """
@@ -94,7 +95,8 @@ class BidirectionalRNNEncoder(RNNEncoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       reducer: A `onmt.utils.Reducer` instance to merge bidirectional state and outputs.
-      cell_class: The inner cell class.
+      cell_class: The inner cell class or a callable taking `num_units` as
+        argument and returning a cell.
       dropout: The probability to drop units in each layer output.
       residual_connections: If `True`, each layer input will be added to its output.
 
@@ -196,7 +198,8 @@ class PyramidalRNNEncoder(Encoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       reduction_factor: The time reduction factor.
-      cell_class: The inner cell class.
+      cell_class: The inner cell class or a callable taking `num_units` as
+        argument and returning a cell.
       dropout: The probability to drop units in each layer output.
     """
     self.reduction_factor = reduction_factor
