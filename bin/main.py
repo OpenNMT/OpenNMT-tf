@@ -120,7 +120,7 @@ def train(estimator, model, config):
       steps=None,
       hooks=eval_hooks,
       exporters=tf.estimator.LatestExporter("latest", model.serving_input_fn(config["data"])),
-      start_delay_secs=config["train"].get("eval_delay", 3600))
+      throttle_secs=config["train"].get("eval_delay", 3600))
 
   tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
