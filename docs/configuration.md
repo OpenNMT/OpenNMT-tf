@@ -2,7 +2,7 @@
 
 ## Model
 
-Models are defined from the code to allow a high level of modeling freedom. The user should provide a `opennmt.models.Model` instance using [available](opennmt.html) or user-defined modules.
+Models are defined from the code to allow a high level of modeling freedom. The user should provide a `opennmt.models.Model` instance using [available](package/opennmt.html) or user-defined modules.
 
 Some modules are defined to contain other modules and can be used to design complex architectures:
 
