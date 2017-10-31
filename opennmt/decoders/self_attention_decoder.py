@@ -36,19 +36,12 @@ class SelfAttentionDecoder(Decoder):
     self.dropout = dropout
     self.position_encoder = position_encoder
 
-  def decode(self,
-             inputs,
-             sequence_length,
-             vocab_size,
-             initial_state=None,
-             sampling_probability=None,
-             embedding=None,
-             mode=tf.estimator.ModeKeys.TRAIN,
-             memory=None,
-             memory_sequence_length=None):
-    if sampling_probability is not None:
-      raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
-
+  def _self_attention_stack(self,
+                            inputs,
+                            sequence_length,
+                            mode=tf.estimator.ModeKeys.TRAIN,
+                            memory=None,
+                            memory_sequence_length=None):
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
@@ -112,9 +105,28 @@ class SelfAttentionDecoder(Decoder):
         inputs = transformed
 
     outputs = inputs
+    return outputs
 
-    if mode != tf.estimator.ModeKeys.PREDICT:
-      outputs = tf.layers.dense(outputs, vocab_size)
+  def decode(self,
+             inputs,
+             sequence_length,
+             vocab_size,
+             initial_state=None,
+             sampling_probability=None,
+             embedding=None,
+             mode=tf.estimator.ModeKeys.TRAIN,
+             memory=None,
+             memory_sequence_length=None):
+    if sampling_probability is not None:
+      raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
+
+    outputs = self._self_attention_stack(
+        inputs,
+        sequence_length,
+        mode=mode,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
+    outputs = tf.layers.dense(outputs, vocab_size)
 
     return (outputs, None, sequence_length)
 
@@ -144,11 +156,9 @@ class SelfAttentionDecoder(Decoder):
       inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, tf.int32))
 
       # Decode inputs.
-      outputs, _, _ = self.decode(
+      outputs = self._self_attention_stack(
           embedding_fn(inputs),
           inputs_lengths,
-          vocab_size,
-          initial_state=initial_state,
           mode=mode,
           memory=memory,
           memory_sequence_length=memory_sequence_length)
@@ -229,11 +239,9 @@ class SelfAttentionDecoder(Decoder):
       batch_size = tf.shape(symbols)[0]
       step = tf.shape(symbols)[1]
       sequence_length = tf.fill([batch_size], step)
-      outputs, _, _ = self.decode(
+      outputs = self._self_attention_stack(
           embedding_fn(symbols),
           sequence_length,
-          vocab_size,
-          initial_state=initial_state,
           mode=mode,
           memory=memory,
           memory_sequence_length=memory_sequence_length)
