@@ -9,4 +9,4 @@ Overview
    configuration.md
    training.md
    serving.md
-   opennmt
+   package/opennmt
