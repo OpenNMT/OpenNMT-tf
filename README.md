@@ -53,7 +53,7 @@ python -m bin.build_vocab --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende
 python -m bin.main train --model config/models/nmt_medium.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
 ```
 
-4\. Translate a test file with the latest checkpoint:
+3\. Translate a test file with the latest checkpoint:
 
 ```
 python -m bin.main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --features_file data/toy-ende/src-test.txt
