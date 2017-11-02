@@ -1,24 +1,7 @@
 """ARK data file to TFRecords converter.
 
-The scripts takes the ARK data file and the indexed target text
+The scripts takes the ARK data file and optionally the indexed target text
 to write aligned source and target data.
-
-An entry of the ARK file should follow the format:
-
-```
-KEY [
-FEAT1.1 FEAT1.2 FEAT1.3 ... FEAT1.n
-...
-FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
-```
-
-which describes the entry `KEY` with `m` vectors of depth `n`.
-
-The target text should also be indexed:
-
-```
-KEY token1 token2 ... tokenN
-```
 """
 
 from __future__ import print_function
@@ -92,7 +75,7 @@ def write_text(text, writer):
   writer.write(text)
   writer.write("\n")
 
-def ark_to_records(ark_filename, text_filename, out_prefix):
+def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
   """Converts ARK and text datasets to aligned TFRecords and text datasets."""
   record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
   text_writer = open(out_prefix + ".txt", "w")
@@ -158,17 +141,38 @@ def ark_to_records(ark_filename, text_filename, out_prefix):
 
   print("Saved {} aligned records.".format(count))
 
+def ark_to_records(ark_filename, out_prefix):
+  """Converts ARK dataset to TFRecords."""
+  record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
+  count = 0
+
+  with open(ark_filename) as ark_file:
+    while True:
+      ark_idx, vector = consume_next_vector(ark_file)
+      if not ark_idx:
+        break
+      write_record(vector, record_writer)
+      count += 1
+
+  record_writer.close()
+  print("Saved {} records.".format(count))
+
 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--ark", required=True,
-                      help="ARK data file.")
-  parser.add_argument("--txt", required=True,
-                      help="Indexed text data file.")
+                      help="Indexed ARK data file.")
+  parser.add_argument("--txt",
+                      help=("Indexed target text data file "
+                            "(must set it to align source and target files)."))
   parser.add_argument("--out", required=True,
                       help="Output files prefix (will be suffixed by .records and .txt).")
   args = parser.parse_args()
-  ark_to_records(args.ark, args.txt, args.out)
+
+  if args.txt:
+    ark_to_records_aligned(args.ark, args.txt, args.out)
+  else:
+    ark_to_records(args.ark, args.out)
 
 if __name__ == "__main__":
   main()
