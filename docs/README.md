@@ -7,7 +7,6 @@ We currently use [Sphinx](http://www.sphinx-doc.org) to automatically build docu
 ```bash
 pip install sphinx
 pip install sphinx_rtd_theme
-pip install sphinxcontrib-versioning
 pip install recommonmark
 ```
 
@@ -22,10 +21,4 @@ sphinx-apidoc -e -M -o docs/package opennmt opennmt/tests
 
 ```bash
 cd docs/ && make html
-```
-
-## Deploy manually
-
-```bash
-sphinx-versioning push docs gh-pages .
 ```
