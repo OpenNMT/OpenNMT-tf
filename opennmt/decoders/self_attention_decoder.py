@@ -18,6 +18,7 @@ class SelfAttentionDecoder(Decoder):
                num_heads=8,
                ffn_inner_dim=2048,
                dropout=0.1,
+               attention_dropout=0.0,
                position_encoder=PositionEmbedder()):
     """Initializes the parameters of the decoder.
 
@@ -27,6 +28,7 @@ class SelfAttentionDecoder(Decoder):
       ffn_inner_dim: The number of units of the inner linear transformation
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
+      attention_dropout: The probability to drop units from the attention.
       position_encoder: A :class:`opennmt.utils.position.PositionEncoder` to
         apply on inputs or ``None``.
     """
@@ -34,6 +36,7 @@ class SelfAttentionDecoder(Decoder):
     self.num_heads = num_heads
     self.ffn_inner_dim = ffn_inner_dim
     self.dropout = dropout
+    self.attention_dropout = attention_dropout
     self.position_encoder = position_encoder
 
   def _self_attention_stack(self,
@@ -61,7 +64,7 @@ class SelfAttentionDecoder(Decoder):
               mode,
               values_length=sequence_length,
               mask_future=True,
-              dropout=self.dropout)
+              dropout=self.attention_dropout)
           encoded = transformer.add_and_norm(
               inputs,
               encoded,
@@ -87,7 +90,7 @@ class SelfAttentionDecoder(Decoder):
               values,
               mode,
               values_length=memory_sequence_length,
-              dropout=self.dropout)
+              dropout=self.attention_dropout)
           context = transformer.add_and_norm(
               encoded,
               context,

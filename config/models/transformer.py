@@ -14,4 +14,5 @@ def model():
       num_layers=4,
       num_heads=8,
       ffn_inner_dim=2048,
-      dropout=0.1)
+      dropout=0.1,
+      attention_dropout=0.0)

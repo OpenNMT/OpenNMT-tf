@@ -17,6 +17,7 @@ class SelfAttentionEncoder(Encoder):
                num_heads=8,
                ffn_inner_dim=2048,
                dropout=0.1,
+               attention_dropout=0.0,
                keep_layers_output=False,
                position_encoder=PositionEmbedder()):
     """Initializes the parameters of the encoder.
@@ -27,6 +28,7 @@ class SelfAttentionEncoder(Encoder):
       ffn_inner_dim: The number of units of the inner linear transformation
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
+      attention_dropout: The probability to drop units from the attention.
       keep_layers_output: If ``True``, the memory of the encoder will contain
         the output of each layer. Otherwise, it will only contain the
         last layer output. This is ``True`` in the Transformer model.
@@ -37,6 +39,7 @@ class SelfAttentionEncoder(Encoder):
     self.num_heads = num_heads
     self.ffn_inner_dim = ffn_inner_dim
     self.dropout = dropout
+    self.attention_dropout = attention_dropout
     self.position_encoder = position_encoder
     self.keep_layers_output = keep_layers_output
 
@@ -62,7 +65,7 @@ class SelfAttentionEncoder(Encoder):
               inputs,
               mode,
               values_length=sequence_length,
-              dropout=self.dropout)
+              dropout=self.attention_dropout)
           context = transformer.add_and_norm(
               inputs,
               context,

@@ -18,6 +18,7 @@ class Transformer(SequenceToSequence):
                num_heads,
                ffn_inner_dim,
                dropout=0.1,
+               attention_dropout=0.0,
                position_encoder=PositionEmbedder(),
                name="transformer"):
     """Initializes a Transformer model.
@@ -32,6 +33,7 @@ class Transformer(SequenceToSequence):
       num_heads: The number of heads in each self-attention layers.
       ffn_inner_dim: The inner dimension of the feed forward layers.
       dropout: The probability to drop units in each layer output.
+      attention_dropout: The probability to drop units from the attention.
       position_encoder: A :class:`opennmt.utils.position.PositionEncoder` to
         apply on the inputs.
       name: The name of this model.
@@ -41,6 +43,7 @@ class Transformer(SequenceToSequence):
         num_heads=num_heads,
         ffn_inner_dim=ffn_inner_dim,
         dropout=dropout,
+        attention_dropout=attention_dropout,
         keep_layers_output=True,
         position_encoder=position_encoder)
     decoder = SelfAttentionDecoder(
@@ -48,6 +51,7 @@ class Transformer(SequenceToSequence):
         num_heads=num_heads,
         ffn_inner_dim=ffn_inner_dim,
         dropout=dropout,
+        attention_dropout=attention_dropout,
         position_encoder=position_encoder)
 
     super(Transformer, self).__init__(

@@ -9,7 +9,7 @@ def scaled_dot_attention(queries,
                          mode,
                          values_length=None,
                          mask_future=False,
-                         dropout=0.1):
+                         dropout=0.0):
   """Computes the scaled dot-product attention as described
   in https://arxiv.org/abs/1706.03762.
 
@@ -71,7 +71,7 @@ def multi_head_attention(num_heads,
                          mode,
                          values_length=None,
                          mask_future=False,
-                         dropout=0.1):
+                         dropout=0.0):
   """Computes the multi-head attention as described in
   https://arxiv.org/abs/1706.03762.
 
