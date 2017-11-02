@@ -34,8 +34,6 @@ and **should**:
 * pass the [`pylint`](https://www.pylint.org/) code checker (we use the TensorFlow Python coding style with relaxed line length)
 * add new tests
 
-You can use the [`tox`](https://tox.readthedocs.io/en/latest/) utility to validate your branch.
-
 ## Helping others
 
 The project supports many model and training configurations. Sharing experiences (for example on the [forum](http://forum.opennmt.net/)) with existing or new configurations is highly appreciated.

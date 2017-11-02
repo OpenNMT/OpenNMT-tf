@@ -1,5 +1,7 @@
 *This project is experimental. Feedback and testing are welcome.*
 
+[![Build Status](https://api.travis-ci.org/OpenNMT/OpenNMT-tf.svg?branch=master)](https://travis-ci.org/OpenNMT/OpenNMT-tf)
+
 # OpenNMT-tf
 
 OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow with production in mind. While neural machine translation is the main target task, it has been designed to more generally support:
