@@ -33,7 +33,7 @@ python -m bin.main <run_type> --model <model_file.py> --config <config_file.yml>
 
 When loading an existing checkpoint, the `--model` option is optional.
 
-* For more information about configuration files, see the [documentation](docs/configuration.md).
+* For more information about configuration files, see the [documentation](http://opennmt.net/OpenNMT-tf/configuration.html).
 * For more information about command line options, see the help flag `python -m bin.main -h`.
 
 ## Quickstart
