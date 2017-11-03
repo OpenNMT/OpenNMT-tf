@@ -10,7 +10,22 @@ OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow with produc
 * sequence tagging
 * sequence classification
 
-It focuses on modularity and extensibility using standard TensorFlow modules and practices.
+## Key features
+
+OpenNMT-tf focuses on modularity and extensibility using standard TensorFlow modules and practices to support advanced modeling capability:
+
+* **arbitrarily complex encoder architectures**<br/>e.g. mixing RNNs, CNNs, self-attention, etc. in parallel or in sequence.
+* **hybrid encoder-decoder models**<br/>e.g. self-attention encoder and RNN decoder or vice versa.
+* **multi-source training**<br/>e.g. source text and Moses translation as inputs for machine translation.
+* **multiple input format**<br/>text with support of mixed word/character embeddings or real vectors serialized in *TFRecord* files.
+
+and all of the above can be used simultaneously to train novel and complex architectures. See the [predefined models](config/models) to discover how they are defined.
+
+OpenNMT-tf is also compatible with some of the best TensorFlow features:
+
+* asynchronous distributed training
+* monitoring with [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard)
+* inference with [TensorFlow Serving](https://www.tensorflow.org/serving/)
 
 ## Requirements
 
