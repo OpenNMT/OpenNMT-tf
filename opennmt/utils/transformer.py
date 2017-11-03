@@ -163,5 +163,5 @@ def add_and_norm(inputs,
       rate=dropout,
       training=mode == tf.estimator.ModeKeys.TRAIN)
   outputs += inputs
-  outputs = tf.contrib.layers.layer_norm(outputs)
+  outputs = tf.contrib.layers.layer_norm(outputs, begin_norm_axis=-1)
   return outputs
