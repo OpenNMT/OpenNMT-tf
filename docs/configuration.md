@@ -22,7 +22,7 @@ Parameters are described in separate YAML files. They define data files, optimiz
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
 
 ```bash
-python -m bin.main [...] --config config/data/wmt_ende.yml config/run/default_train.yml config/params/adam_with_decay.yml
+python -m bin.main [...] --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml config/data/toy-ende.yml
 ```
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
