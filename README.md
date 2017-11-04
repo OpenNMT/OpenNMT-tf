@@ -65,7 +65,7 @@ python -m bin.build_vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt 
 2\. Train with preset parameters:
 
 ```
-python -m bin.main train --model config/models/nmt_medium.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
+python -m bin.main train --model config/models/nmt_small.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
 ```
 
 3\. Translate a test file with the latest checkpoint:

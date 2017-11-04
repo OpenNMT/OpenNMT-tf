@@ -1,4 +1,4 @@
-"""Defines a medium-sized bidirectional LSTM encoder-decoder model."""
+"""Defines a small unidirectional LSTM encoder-decoder model."""
 
 import tensorflow as tf
 import opennmt as onmt
@@ -11,15 +11,14 @@ def model():
       target_inputter=onmt.inputters.WordEmbedder(
           vocabulary_file_key="target_words_vocabulary",
           embedding_size=512),
-      encoder=onmt.encoders.BidirectionalRNNEncoder(
-          num_layers=4,
+      encoder=onmt.encoders.UnidirectionalRNNEncoder(
+          num_layers=2,
           num_units=512,
-          reducer=onmt.utils.ConcatReducer(),
           cell_class=tf.contrib.rnn.LSTMCell,
           dropout=0.3,
           residual_connections=False),
       decoder=onmt.decoders.AttentionalRNNDecoder(
-          num_layers=4,
+          num_layers=2,
           num_units=512,
           bridge=onmt.utils.CopyBridge(),
           attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
