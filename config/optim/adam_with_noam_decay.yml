@@ -1,0 +1,9 @@
+# Uses the learning rate schedule defined in https://arxiv.org/abs/1706.03762.
+
+params:
+  optimizer: AdamOptimizer
+  learning_rate: 0.0 # The value is ignored.
+  decay_type: noam_decay
+  decay_rate: 512 # Model dimension.
+  decay_steps: 4000 # Warmup steps.
+  start_decay_steps: 0
