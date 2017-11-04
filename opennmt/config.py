@@ -43,7 +43,10 @@ def load_config(config_paths, config=None):
       # Add or update section in main configuration.
       for section in subconfig:
         if section in config:
-          config[section].update(subconfig[section])
+          if isinstance(config[section], dict):
+            config[section].update(subconfig[section])
+          else:
+            config[section] = subconfig[section]
         else:
           config[section] = subconfig[section]
 
