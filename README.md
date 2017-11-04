@@ -58,8 +58,8 @@ Here is a minimal workflow to get you started in using OpenNMT-tf. This example 
 1\. Build the word vocabularies:
 
 ```
-python -m bin.build_vocab --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
-python -m bin.build_vocab --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
+python -m bin.build_vocab --size 50000 --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
+python -m bin.build_vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
 ```
 
 2\. Train with preset parameters:
