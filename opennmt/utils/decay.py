@@ -16,7 +16,7 @@ def noam_decay(learning_rate,
   The semantic of the arguments are changed accordingly.
 
   Args:
-    learning_rate: The current learning rate.
+    learning_rate: The scale constant.
     global_step: The current learning step.
     decay_steps: The warmup steps.
     decay_rate: The model dimension.
@@ -26,14 +26,14 @@ def noam_decay(learning_rate,
   Returns:
     The learning rate for the step :obj:`global_step`.
   """
-  _ = learning_rate
   _ = staircase
   _ = name
 
-  global_step = tf.cast(global_step, tf.float32)
-  decay_rate = tf.cast(decay_rate, tf.float32)
-  decay_steps = tf.cast(decay_steps, tf.float32)
+  scale = tf.cast(learning_rate, tf.float32)
+  step = tf.cast(global_step, tf.float32) + 1
+  hidden_size = tf.cast(decay_rate, tf.float32)
+  warmup_steps = tf.cast(decay_steps, tf.float32)
 
-  return (tf.pow(decay_rate, -0.5)
-          * tf.minimum(tf.pow(global_step, -0.5),
-                       global_step * tf.pow(decay_steps, -1.5)))
+  return (scale
+          * tf.pow(hidden_size, -0.5)
+          * tf.minimum(tf.pow(step, -0.5), step * tf.pow(warmup_steps, -1.5)))

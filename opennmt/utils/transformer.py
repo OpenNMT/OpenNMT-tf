@@ -122,7 +122,7 @@ def multi_head_attention(num_heads,
 
   return outputs
 
-def feed_forward(x, inner_dim):
+def feed_forward(x, inner_dim, mode, dropout=0.0):
   """Implements the Transformer's "Feed Forward" layer.
 
   .. math::
@@ -132,6 +132,8 @@ def feed_forward(x, inner_dim):
   Args:
     x: The input.
     inner_dim: The number of units of the inner linear transformation.
+    mode: A ``tf.estimator.ModeKeys`` mode.
+    dropout: The probability to drop units from the inner transformation.
 
   Returns:
     The transformed input.
@@ -139,15 +141,23 @@ def feed_forward(x, inner_dim):
   input_dim = x.get_shape().as_list()[-1]
 
   inner = tf.layers.conv1d(x, inner_dim, 1, activation=tf.nn.relu)
+  inner = tf.layers.dropout(
+      inner,
+      rate=dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
   outer = tf.layers.conv1d(inner, input_dim, 1)
 
   return outer
 
-def add_and_norm(inputs,
+def norm(inputs):
+  """Layer normalizes :obj:`inputs`."""
+  return tf.contrib.layers.layer_norm(inputs, begin_norm_axis=-1)
+
+def drop_and_add(inputs,
                  outputs,
                  mode,
                  dropout=0.1):
-  """Implements the Transformer's "Add & Norm" layer.
+  """Drops units in the outputs and adds the previous values.
 
   Args:
     inputs: The input of the previous layer.
@@ -163,5 +173,4 @@ def add_and_norm(inputs,
       rate=dropout,
       training=mode == tf.estimator.ModeKeys.TRAIN)
   outputs += inputs
-  outputs = tf.contrib.layers.layer_norm(outputs, begin_norm_axis=-1)
   return outputs

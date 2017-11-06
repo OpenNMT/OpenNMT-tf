@@ -17,8 +17,8 @@ class SelfAttentionEncoder(Encoder):
                num_heads=8,
                ffn_inner_dim=2048,
                dropout=0.1,
-               attention_dropout=0.0,
-               keep_layers_output=False,
+               attention_dropout=0.1,
+               relu_dropout=0.1,
                position_encoder=PositionEmbedder()):
     """Initializes the parameters of the encoder.
 
@@ -29,9 +29,8 @@ class SelfAttentionEncoder(Encoder):
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
       attention_dropout: The probability to drop units from the attention.
-      keep_layers_output: If ``True``, the memory of the encoder will contain
-        the output of each layer. Otherwise, it will only contain the
-        last layer output. This is ``True`` in the Transformer model.
+      relu_dropout: The probability to drop units from the ReLU activation in
+        the feed forward layer.
       position_encoder: The :class:`opennmt.utils.position.PositionEncoder` to
         apply on inputs or ``None``.
     """
@@ -40,8 +39,8 @@ class SelfAttentionEncoder(Encoder):
     self.ffn_inner_dim = ffn_inner_dim
     self.dropout = dropout
     self.attention_dropout = attention_dropout
+    self.relu_dropout = relu_dropout
     self.position_encoder = position_encoder
-    self.keep_layers_output = keep_layers_output
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     if self.position_encoder is not None:
@@ -58,23 +57,28 @@ class SelfAttentionEncoder(Encoder):
     for l in range(self.num_layers):
       with tf.variable_scope("layer_{}".format(l)):
         with tf.variable_scope("multi_head"):
+          inputs_norm = transformer.norm(inputs)
           context = transformer.multi_head_attention(
               self.num_heads,
-              inputs,
-              inputs,
-              inputs,
+              inputs_norm,
+              inputs_norm,
+              inputs_norm,
               mode,
               values_length=sequence_length,
               dropout=self.attention_dropout)
-          context = transformer.add_and_norm(
+          context = transformer.drop_and_add(
               inputs,
               context,
               mode,
               dropout=self.dropout)
 
         with tf.variable_scope("ffn"):
-          transformed = transformer.feed_forward(context, self.ffn_inner_dim)
-          transformed = transformer.add_and_norm(
+          transformed = transformer.feed_forward(
+              transformer.norm(context),
+              self.ffn_inner_dim,
+              mode,
+              dropout=self.relu_dropout)
+          transformed = transformer.drop_and_add(
               context,
               transformed,
               mode,
@@ -83,7 +87,5 @@ class SelfAttentionEncoder(Encoder):
         inputs = transformed
         state += (tf.reduce_mean(inputs, axis=1),)
 
-        if self.keep_layers_output:
-          outputs.append(inputs)
-
-    return (inputs if not outputs else outputs, state, sequence_length)
+    outputs = transformer.norm(inputs)
+    return (outputs, state, sequence_length)
