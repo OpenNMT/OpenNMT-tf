@@ -18,7 +18,8 @@ class SelfAttentionDecoder(Decoder):
                num_heads=8,
                ffn_inner_dim=2048,
                dropout=0.1,
-               attention_dropout=0.0,
+               attention_dropout=0.1,
+               relu_dropout=0.1,
                position_encoder=PositionEmbedder()):
     """Initializes the parameters of the decoder.
 
@@ -29,6 +30,8 @@ class SelfAttentionDecoder(Decoder):
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
       attention_dropout: The probability to drop units from the attention.
+      relu_dropout: The probability to drop units from the ReLU activation in
+        the feed forward layer.
       position_encoder: A :class:`opennmt.utils.position.PositionEncoder` to
         apply on inputs or ``None``.
     """
@@ -37,6 +40,7 @@ class SelfAttentionDecoder(Decoder):
     self.ffn_inner_dim = ffn_inner_dim
     self.dropout = dropout
     self.attention_dropout = attention_dropout
+    self.relu_dropout = relu_dropout
     self.position_encoder = position_encoder
 
   def _self_attention_stack(self,
@@ -56,50 +60,47 @@ class SelfAttentionDecoder(Decoder):
     for l in range(self.num_layers):
       with tf.variable_scope("layer_{}".format(l)):
         with tf.variable_scope("masked_multi_head"):
+          inputs_norm = transformer.norm(inputs)
           encoded = transformer.multi_head_attention(
               self.num_heads,
-              inputs,
-              inputs,
-              inputs,
+              inputs_norm,
+              inputs_norm,
+              inputs_norm,
               mode,
               values_length=sequence_length,
               mask_future=True,
               dropout=self.attention_dropout)
-          encoded = transformer.add_and_norm(
+          encoded = transformer.drop_and_add(
               inputs,
               encoded,
               mode,
               dropout=self.dropout)
 
         with tf.variable_scope("multi_head"):
-          if memory is None:
-            values = encoded
-          elif tf.contrib.framework.nest.is_sequence(memory):
-            if l >= len(memory):
-              raise ValueError("""If the encoder memory is a sequence,
-                               it must contain one memory per decoder layer""")
-            values = memory[l]
-          else:
-            values = memory
+          values = memory if memory is not None else encoded
           keys = values
 
           context = transformer.multi_head_attention(
               self.num_heads,
-              encoded,
+              transformer.norm(encoded),
               keys,
               values,
               mode,
               values_length=memory_sequence_length,
               dropout=self.attention_dropout)
-          context = transformer.add_and_norm(
+          context = transformer.drop_and_add(
               encoded,
               context,
               mode,
               dropout=self.dropout)
 
         with tf.variable_scope("ffn"):
-          transformed = transformer.feed_forward(context, self.ffn_inner_dim)
-          transformed = transformer.add_and_norm(
+          transformed = transformer.feed_forward(
+              transformer.norm(context),
+              self.ffn_inner_dim,
+              mode,
+              dropout=self.relu_dropout)
+          transformed = transformer.drop_and_add(
               context,
               transformed,
               mode,
@@ -107,7 +108,7 @@ class SelfAttentionDecoder(Decoder):
 
         inputs = transformed
 
-    outputs = inputs
+    outputs = transformer.norm(inputs)
     return outputs
 
   def decode(self,
