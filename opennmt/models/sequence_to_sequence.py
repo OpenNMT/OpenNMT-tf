@@ -1,7 +1,5 @@
 """Standard sequence-to-sequence model."""
 
-from __future__ import print_function
-
 import tensorflow as tf
 
 import opennmt.constants as constants
@@ -9,6 +7,7 @@ import opennmt.inputters as inputters
 
 from opennmt.models.model import Model
 from opennmt.utils.losses import masked_sequence_loss
+from opennmt.utils.misc import print_bytes
 from opennmt.decoders.decoder import get_sampling_probability
 
 
@@ -230,4 +229,4 @@ class SequenceToSequence(Model):
     for i in range(n_best):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
       sentence = b" ".join(tokens)
-      print(sentence.decode("utf-8"), file=stream)
+      print_bytes(sentence, stream=stream)

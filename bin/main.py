@@ -4,6 +4,7 @@ import argparse
 import json
 import multiprocessing
 import os
+import sys
 import pickle
 
 import tensorflow as tf
@@ -124,7 +125,12 @@ def train(estimator, model, config):
 
   tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
-def infer(features_file, estimator, model, config, checkpoint_path=None):
+def infer(features_file,
+          estimator,
+          model,
+          config,
+          checkpoint_path=None,
+          predictions_file=None):
   """Runs inference and prints predictions on the standard output.
 
   Args:
@@ -134,6 +140,7 @@ def infer(features_file, estimator, model, config, checkpoint_path=None):
     config: The configuration.
     checkpoint_path: Path of a specific checkpoint to predict. If `None`, the
       latest is used.
+    predictions_file: If set, predictions are saved in this file.
   """
   if "infer" not in config:
     config["infer"] = {}
@@ -147,8 +154,16 @@ def infer(features_file, estimator, model, config, checkpoint_path=None):
       config["data"],
       features_file)
 
+  if predictions_file:
+    stream = open(predictions_file, "w")
+  else:
+    stream = sys.stdout
+
   for prediction in estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path):
-    model.print_prediction(prediction, params=config["infer"])
+    model.print_prediction(prediction, params=config["infer"], stream=stream)
+
+  if predictions_file:
+    stream.close()
 
 def export(estimator, model, config, checkpoint_path=None):
   """Exports a model.
@@ -183,6 +198,9 @@ def main():
                       help="If set, data files are expected to be relative to this location.")
   parser.add_argument("--features_file", default=[], nargs="+",
                       help="Run inference on this file.")
+  parser.add_argument("--predictions_file", default="",
+                      help=("File used to save predictions. If not set, predictions are printed "
+                            "on the standard output."))
   parser.add_argument("--checkpoint_path", default=None,
                       help="Checkpoint to use for inference or export (latest by default).")
   parser.add_argument("--chief_host", default="",
@@ -266,7 +284,13 @@ def main():
       parser.error("--features_file is required for inference.")
     elif len(args.features_file) == 1:
       args.features_file = args.features_file[0]
-    infer(args.features_file, estimator, model, config, checkpoint_path=args.checkpoint_path)
+    infer(
+        args.features_file,
+        estimator,
+        model,
+        config,
+        checkpoint_path=args.checkpoint_path,
+        predictions_file=args.predictions_file)
   elif args.run == "export":
     export(estimator, model, config, checkpoint_path=args.checkpoint_path)
 
