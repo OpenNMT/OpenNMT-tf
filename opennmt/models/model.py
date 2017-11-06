@@ -389,12 +389,10 @@ class Model(object):
       dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
       dataset = dataset.repeat()
 
-    if mode == tf.estimator.ModeKeys.PREDICT or num_buckets is None or num_buckets <= 1:
-      dataset = dataset.padded_batch(
-          batch_size,
-          padded_shapes=padded_shapes)
-    else:
-      # For training and evaluation, use bucketing.
+    num_buckets = num_buckets or 1
+
+    if mode == tf.estimator.ModeKeys.TRAIN and num_buckets > 1:
+      # Bucketize training dataset to improve efficiency.
       def _key_func(features, labels):
         length = None
 
@@ -429,6 +427,10 @@ class Model(object):
           _key_func,
           _reduce_func,
           window_size=batch_size))
+    else:
+      dataset = dataset.padded_batch(
+          batch_size,
+          padded_shapes=padded_shapes)
 
     iterator = dataset.make_initializable_iterator()
 
