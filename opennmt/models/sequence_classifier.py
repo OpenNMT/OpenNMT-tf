@@ -1,11 +1,9 @@
 """Sequence classifier."""
 
-from __future__ import print_function
-
 import tensorflow as tf
 
 from opennmt.models.model import Model
-from opennmt.utils.misc import count_lines
+from opennmt.utils.misc import count_lines, print_bytes
 
 
 class SequenceClassifier(Model):
@@ -107,4 +105,4 @@ class SequenceClassifier(Model):
     }
 
   def print_prediction(self, prediction, params=None, stream=None):
-    print(prediction["classes"], file=stream)
+    print_bytes(prediction["classes"], stream=stream)

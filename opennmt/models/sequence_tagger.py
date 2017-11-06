@@ -1,12 +1,10 @@
 """Sequence tagger."""
 
-from __future__ import print_function
-
 import tensorflow as tf
 import numpy as np
 
 from opennmt.models.model import Model
-from opennmt.utils.misc import count_lines
+from opennmt.utils.misc import count_lines, print_bytes
 from opennmt.utils.losses import masked_sequence_loss
 
 
@@ -171,7 +169,7 @@ class SequenceTagger(Model):
   def print_prediction(self, prediction, params=None, stream=None):
     tags = prediction["tags"][:prediction["length"]]
     sent = b" ".join(tags)
-    print(sent.decode("utf-8"), file=stream)
+    print_bytes(sent, stream=stream)
 
 
 def flag_bioes_tags(gold, predicted, sequence_length=None):
