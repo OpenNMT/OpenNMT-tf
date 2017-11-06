@@ -51,7 +51,6 @@ class SelfAttentionEncoder(Encoder):
         rate=self.dropout,
         training=mode == tf.estimator.ModeKeys.TRAIN)
 
-    outputs = []
     state = ()
 
     for l in range(self.num_layers):
