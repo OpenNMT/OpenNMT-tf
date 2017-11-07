@@ -1,0 +1,5 @@
+max_batch_size { value: 2 }
+batch_timeout_micros { value: 5000000 }
+max_enqueued_batches { value: 1000 }
+num_batch_threads { value: 8 }
+pad_variable_length_inputs: true
