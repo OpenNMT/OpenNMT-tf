@@ -2,7 +2,7 @@
 
 params:
   optimizer: AdamOptimizer
-  learning_rate: 1 # The scale constant.
+  learning_rate: 1.0 # The scale constant.
   decay_type: noam_decay
   decay_rate: 512 # Model dimension.
   decay_steps: 4000 # Warmup steps.
