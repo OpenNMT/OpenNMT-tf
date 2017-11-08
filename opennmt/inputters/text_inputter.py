@@ -146,7 +146,8 @@ def tokens_to_chars(tokens):
     tokens: A sequence of tokens.
 
   Returns:
-    A ``tf.Tensor`` of shape ``[sequence_length, max_word_length]``.
+    The characters as a ``tf.Tensor`` of shape
+    ``[sequence_length, max_word_length]`` and the length of each word.
   """
 
   def _split_chars(token, max_length, delimiter=" "):
@@ -160,9 +161,9 @@ def tokens_to_chars(tokens):
 
   # Get the length of each token.
   lengths = tf.map_fn(
-      lambda x: tf.py_func(_string_len, [x], [tf.int64]),
+      lambda x: tf.py_func(_string_len, [x], tf.int64),
       tokens,
-      dtype=[tf.int64],
+      dtype=tf.int64,
       back_prop=False)
 
   max_length = tf.reduce_max(lengths)
@@ -181,7 +182,7 @@ def tokens_to_chars(tokens):
       dtype=tf.string,
       back_prop=False)
 
-  return chars
+  return chars, lengths
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -416,7 +417,7 @@ class CharConvEmbedder(TextInputter):
 
     if "char_ids" not in data:
       tokens = data["tokens"]
-      chars = tokens_to_chars(tokens)
+      chars, _ = tokens_to_chars(tokens)
       ids = self.vocabulary.lookup(chars)
 
       data = self.set_data_field(data, "char_ids", ids, padded_shape=[None, None])

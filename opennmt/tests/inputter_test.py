@@ -41,20 +41,22 @@ class InputterTest(tf.test.TestCase):
       os.remove(data_file)
 
 
-  def _testTokensToChars(self, tokens, expected_chars):
+  def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
     expected_chars = [[tf.compat.as_bytes(c) for c in w] for w in expected_chars]
-    chars = text_inputter.tokens_to_chars(tf.constant(tokens))
+    chars, lengths = text_inputter.tokens_to_chars(tf.constant(tokens))
     with self.test_session() as sess:
-      chars = sess.run(chars)
+      chars, lengths = sess.run([chars, lengths])
       self.assertAllEqual(expected_chars, chars)
+      self.assertAllEqual(expected_lengths, lengths)
 
   def testTokensToCharsSingle(self):
-    self._testTokensToChars(["Hello"], [["H", "e", "l", "l", "o"]])
+    self._testTokensToChars(["Hello"], [["H", "e", "l", "l", "o"]], [5])
 
   def testTokensToCharsMixed(self):
     self._testTokensToChars(
         ["Just", "a", "测试"],
-        [["J", "u", "s", "t"], ["a", PAD, PAD, PAD], ["测", "试", PAD, PAD]])
+        [["J", "u", "s", "t"], ["a", PAD, PAD, PAD], ["测", "试", PAD, PAD]],
+        [4, 1, 2])
 
   def testPretrainedEmbeddingsLoading(self):
     with open(embedding_file, "w") as embedding:
