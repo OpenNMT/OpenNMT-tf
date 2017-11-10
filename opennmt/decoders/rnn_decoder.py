@@ -159,6 +159,7 @@ class RNNDecoder(Decoder):
 
     # Make shape consistent with beam search.
     predicted_ids = tf.expand_dims(predicted_ids, 1)
+    length = tf.expand_dims(length, 1)
     log_probs = tf.expand_dims(log_probs, 1)
 
     return (predicted_ids, state, length, log_probs)
