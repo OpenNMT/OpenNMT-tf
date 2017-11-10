@@ -96,7 +96,7 @@ class Decoder(object):
   def decode(self,
              inputs,
              sequence_length,
-             vocab_size,
+             vocab_size=None,
              initial_state=None,
              sampling_probability=None,
              embedding=None,

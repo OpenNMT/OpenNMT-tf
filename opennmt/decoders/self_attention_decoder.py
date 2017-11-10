@@ -114,7 +114,7 @@ class SelfAttentionDecoder(Decoder):
   def decode(self,
              inputs,
              sequence_length,
-             vocab_size,
+             vocab_size=None,
              initial_state=None,
              sampling_probability=None,
              embedding=None,
@@ -130,7 +130,9 @@ class SelfAttentionDecoder(Decoder):
         mode=mode,
         memory=memory,
         memory_sequence_length=memory_sequence_length)
-    outputs = tf.layers.dense(outputs, vocab_size)
+
+    if vocab_size is not None:
+      outputs = tf.layers.dense(outputs, vocab_size)
 
     return (outputs, None, sequence_length)
 

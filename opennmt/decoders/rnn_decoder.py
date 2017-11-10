@@ -69,12 +69,14 @@ class RNNDecoder(Decoder):
     return cell, initial_state
 
   def _build_output_layer(self, vocab_size):
+    if vocab_size is None:
+      return None
     return tf.layers.Dense(vocab_size, use_bias=True)
 
   def decode(self,
              inputs,
              sequence_length,
-             vocab_size,
+             vocab_size=None,
              initial_state=None,
              sampling_probability=None,
              embedding=None,
