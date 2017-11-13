@@ -6,7 +6,7 @@ import six
 import tensorflow as tf
 
 
-def _pad_in_time(x, padding_length):
+def pad_in_time(x, padding_length):
   """Helper function to pad a tensor in the time dimension and retain the static depth dimension."""
   depth = x.get_shape().as_list()[-1]
   x = tf.pad(x, [[0, 0], [0, padding_length], [0, 0]])
@@ -35,7 +35,7 @@ def pad_with_identity(x, sequence_length, max_sequence_length, identity_values=0
 
   identity_mask = mask_combined * (1.0 - mask)
 
-  x = _pad_in_time(x, maxlen - tf.shape(x)[1])
+  x = pad_in_time(x, maxlen - tf.shape(x)[1])
   x = x * mask + (identity_mask * identity_values)
 
   return x
@@ -178,7 +178,7 @@ class ConcatReducer(Reducer):
       # Pad all input tensors up to maximum combined length.
       combined_length = tf.add_n(sequence_lengths)
       maxlen = tf.reduce_max(combined_length)
-      padded = [_pad_in_time(x, maxlen - tf.shape(x)[1]) for x in inputs]
+      padded = [pad_in_time(x, maxlen - tf.shape(x)[1]) for x in inputs]
 
       current_length = None
       accumulator = None
