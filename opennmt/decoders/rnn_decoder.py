@@ -71,7 +71,11 @@ class RNNDecoder(Decoder):
   def _build_output_layer(self, vocab_size):
     if vocab_size is None:
       return None
-    return tf.layers.Dense(vocab_size, use_bias=True)
+
+    with tf.variable_scope("projection"):
+      layer = tf.layers.Dense(vocab_size, use_bias=True)
+      layer.build([None, self.num_units])
+      return layer
 
   def decode(self,
              inputs,
@@ -112,14 +116,23 @@ class RNNDecoder(Decoder):
 
     output_layer = self._build_output_layer(vocab_size)
 
+    # With TraningHelper, project all timesteps at once.
+    fused_projection = isinstance(helper, tf.contrib.seq2seq.TrainingHelper)
+
     decoder = tf.contrib.seq2seq.BasicDecoder(
         cell,
         helper,
         initial_state,
-        output_layer=output_layer)
+        output_layer=output_layer if not fused_projection else None)
 
     outputs, state, length = tf.contrib.seq2seq.dynamic_decode(decoder)
-    return (outputs.rnn_output, state, length)
+
+    if fused_projection and output_layer is not None:
+      logits = output_layer(outputs.rnn_output)
+    else:
+      logits = outputs.rnn_output
+
+    return (logits, state, length)
 
   def dynamic_decode(self,
                      embedding,
