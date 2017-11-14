@@ -87,6 +87,29 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([6, 2], embeddings.shape)
     self.assertAllEqual([3, 3], embeddings[2])
 
+  def testPretrainedEmbeddingsWithHeaderLoading(self):
+    with open(embedding_file, "w") as embedding:
+      embedding.write("3 2\n"
+                      "toto 1 1\n"
+                      "titi 2 2\n"
+                      "tata 3 3\n")
+    with open(vocab_file, "w") as vocab:
+      vocab.write("Toto\n"
+                  "tOTO\n"
+                  "tata\n"
+                  "tete\n")
+
+    embeddings = text_inputter.load_pretrained_embeddings(
+        embedding_file,
+        vocab_file,
+        num_oov_buckets=1,
+        with_header=True,
+        case_insensitive_embeddings=True)
+    self.assertAllEqual([5, 2], embeddings.shape)
+    self.assertAllEqual([1, 1], embeddings[0])
+    self.assertAllEqual([1, 1], embeddings[1])
+    self.assertAllEqual([3, 3], embeddings[2])
+
   def testWordEmbedder(self):
     with open(vocab_file, "w") as vocab:
       vocab.write("the\n"

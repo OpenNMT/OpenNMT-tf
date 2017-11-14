@@ -73,6 +73,7 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
 def load_pretrained_embeddings(embedding_file,
                                vocabulary_file,
                                num_oov_buckets=1,
+                               with_header=False,
                                case_insensitive_embeddings=True):
   """Returns pretrained embeddings relative to the vocabulary.
 
@@ -80,6 +81,16 @@ def load_pretrained_embeddings(embedding_file,
 
   .. code-block:: text
 
+      word1 val1 val2 ... valM
+      word2 val1 val2 ... valM
+      ...
+      wordN val1 val2 ... valM
+
+  or if :obj:`with_header` is ``True``:
+
+  .. code-block:: text
+
+      N M
       word1 val1 val2 ... valM
       word2 val1 val2 ... valM
       ...
@@ -100,6 +111,8 @@ def load_pretrained_embeddings(embedding_file,
       :obj:`vocabulary_file`.
     vocabulary_file: The vocabulary file containing one word per line.
     num_oov_buckets: The number of additional unknown tokens.
+    with_header: ``True`` if the embedding file starts with the line
+      ``<vocab_size> <embedding_size>``.
     case_insensitive_embeddings: ``True`` if embeddings are trained on lowercase
       data.
 
@@ -120,6 +133,9 @@ def load_pretrained_embeddings(embedding_file,
   # Fill pretrained embedding matrix.
   with open(embedding_file) as embedding:
     pretrained = None
+
+    if with_header:
+      next(embedding)
 
     for line in embedding:
       fields = line.strip().split()
@@ -236,6 +252,7 @@ class WordEmbedder(TextInputter):
                vocabulary_file_key,
                embedding_size=None,
                embedding_file_key=None,
+               embedding_file_with_header=False,
                case_insensitive_embeddings=True,
                trainable=True,
                dropout=0.0,
@@ -248,6 +265,8 @@ class WordEmbedder(TextInputter):
       embedding_size: The size of the resulting embedding.
         If ``None``, an embedding file must be provided.
       embedding_file_key: The data configuration key of the embedding file.
+      with_header: ``True`` if the embedding file starts with the line
+        ``<vocab_size> <embedding_size>``.
       case_insensitive_embeddings: ``True`` if embeddings are trained on
         lowercase data.
       trainable: If ``False``, do not optimize embeddings.
@@ -268,6 +287,7 @@ class WordEmbedder(TextInputter):
     self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
     self.embedding_file_key = embedding_file_key
+    self.embedding_file_with_header = embedding_file_with_header
     self.case_insensitive_embeddings = case_insensitive_embeddings
     self.trainable = trainable
     self.dropout = dropout
@@ -332,6 +352,7 @@ class WordEmbedder(TextInputter):
             self.embedding_file,
             self.vocabulary_file,
             num_oov_buckets=self.num_oov_buckets,
+            with_header=self.embedding_file_with_header,
             case_insensitive_embeddings=self.case_insensitive_embeddings)
         self.embedding_size = pretrained.shape[-1]
 
