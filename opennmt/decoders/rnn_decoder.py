@@ -4,7 +4,7 @@ import inspect
 
 import tensorflow as tf
 
-from opennmt.decoders.decoder import Decoder, logits_to_cum_log_probs
+from opennmt.decoders.decoder import Decoder, logits_to_cum_log_probs, build_output_layer
 from opennmt.utils.cell import build_cell
 
 
@@ -71,15 +71,6 @@ class RNNDecoder(Decoder):
 
     return cell, initial_state
 
-  def _build_output_layer(self, vocab_size, dtype=None):
-    if vocab_size is None:
-      return None
-
-    with tf.variable_scope("projection"):
-      layer = tf.layers.Dense(vocab_size, use_bias=True, dtype=dtype)
-      layer.build([None, self.num_units])
-      return layer
-
   def decode(self,
              inputs,
              sequence_length,
@@ -87,6 +78,7 @@ class RNNDecoder(Decoder):
              initial_state=None,
              sampling_probability=None,
              embedding=None,
+             output_layer=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
@@ -118,7 +110,8 @@ class RNNDecoder(Decoder):
         memory_sequence_length=memory_sequence_length,
         dtype=inputs.dtype)
 
-    output_layer = self._build_output_layer(vocab_size, dtype=inputs.dtype)
+    if output_layer is None:
+      output_layer = build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
 
     # With TrainingHelper, project all timesteps at once.
     fused_projection = isinstance(helper, tf.contrib.seq2seq.TrainingHelper)
@@ -142,8 +135,9 @@ class RNNDecoder(Decoder):
                      embedding,
                      start_tokens,
                      end_token,
-                     vocab_size,
+                     vocab_size=None,
                      initial_state=None,
+                     output_layer=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
@@ -164,7 +158,8 @@ class RNNDecoder(Decoder):
         memory_sequence_length=memory_sequence_length,
         dtype=dtype)
 
-    output_layer = self._build_output_layer(vocab_size, dtype=dtype or memory.dtype)
+    if output_layer is None:
+      output_layer = build_output_layer(self.num_units, vocab_size, dtype=dtype or memory.dtype)
 
     decoder = tf.contrib.seq2seq.BasicDecoder(
         cell,
@@ -189,8 +184,9 @@ class RNNDecoder(Decoder):
                                 embedding,
                                 start_tokens,
                                 end_token,
-                                vocab_size,
+                                vocab_size=None,
                                 initial_state=None,
+                                output_layer=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
@@ -219,7 +215,8 @@ class RNNDecoder(Decoder):
         memory_sequence_length=memory_sequence_length,
         dtype=dtype)
 
-    output_layer = self._build_output_layer(vocab_size, dtype=dtype or memory.dtype)
+    if output_layer is None:
+      output_layer = build_output_layer(self.num_units, vocab_size, dtype=dtype or memory.dtype)
 
     decoder = tf.contrib.seq2seq.BeamSearchDecoder(
         cell,

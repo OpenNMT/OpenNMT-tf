@@ -3,7 +3,7 @@
 import tensorflow as tf
 import opennmt.layers.transformer as transformer
 
-from opennmt.decoders.decoder import Decoder, get_embedding_fn
+from opennmt.decoders.decoder import Decoder, get_embedding_fn, build_output_layer
 from opennmt.layers.position import SinusoidalPositionEncoder
 from opennmt.utils.beam_search import beam_search
 
@@ -86,8 +86,10 @@ class SelfAttentionDecoder(Decoder):
 
     return cache
 
-  def _symbols_to_logits_fn(self, embedding, vocab_size, mode):
+  def _symbols_to_logits_fn(self, embedding, vocab_size, mode, output_layer=None, dtype=None):
     embedding_fn = get_embedding_fn(embedding)
+    if output_layer is None:
+      output_layer = build_output_layer(self.num_units, vocab_size, dtype=dtype)
 
     def _impl(ids, step, cache):
       inputs = embedding_fn(ids[:, -1:])
@@ -100,7 +102,7 @@ class SelfAttentionDecoder(Decoder):
           memory=cache["memory"],
           memory_sequence_length=None)
       outputs = outputs[:, -1:, :]
-      logits = tf.layers.dense(outputs, vocab_size)
+      logits = output_layer(outputs, vocab_size)
       return logits, cache
 
     return _impl
@@ -193,6 +195,7 @@ class SelfAttentionDecoder(Decoder):
              initial_state=None,
              sampling_probability=None,
              embedding=None,
+             output_layer=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
@@ -210,17 +213,19 @@ class SelfAttentionDecoder(Decoder):
         memory=memory,
         memory_sequence_length=memory_sequence_length)
 
-    if vocab_size is not None:
-      outputs = tf.layers.dense(outputs, vocab_size)
+    if output_layer is None:
+      output_layer = build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
+    logits = output_layer(outputs)
 
-    return (outputs, None, sequence_length)
+    return (logits, None, sequence_length)
 
   def dynamic_decode(self,
                      embedding,
                      start_tokens,
                      end_token,
-                     vocab_size,
+                     vocab_size=None,
                      initial_state=None,
+                     output_layer=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
@@ -234,7 +239,8 @@ class SelfAttentionDecoder(Decoder):
     log_probs = tf.zeros([batch_size])
     cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
 
-    symbols_to_logits_fn = self._symbols_to_logits_fn(embedding, vocab_size, mode)
+    symbols_to_logits_fn = self._symbols_to_logits_fn(
+        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
 
     def _condition(unused_step, finished, unused_inputs,
                    unused_lengths, unused_log_probs, unused_cache):
@@ -293,8 +299,9 @@ class SelfAttentionDecoder(Decoder):
                                 embedding,
                                 start_tokens,
                                 end_token,
-                                vocab_size,
+                                vocab_size=None,
                                 initial_state=None,
+                                output_layer=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
@@ -303,7 +310,8 @@ class SelfAttentionDecoder(Decoder):
                                 memory_sequence_length=None,
                                 dtype=None):
     cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
-    symbols_to_logits_fn = self._symbols_to_logits_fn(embedding, vocab_size, mode)
+    symbols_to_logits_fn = self._symbols_to_logits_fn(
+        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
 
     outputs, log_probs = beam_search(
         symbols_to_logits_fn,
