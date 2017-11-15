@@ -116,7 +116,7 @@ class RNNDecoder(Decoder):
 
     output_layer = self._build_output_layer(vocab_size)
 
-    # With TraningHelper, project all timesteps at once.
+    # With TrainingHelper, project all timesteps at once.
     fused_projection = isinstance(helper, tf.contrib.seq2seq.TrainingHelper)
 
     decoder = tf.contrib.seq2seq.BasicDecoder(
