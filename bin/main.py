@@ -229,7 +229,7 @@ def main():
   if args.chief_host:
     os.environ["TF_CONFIG"] = json.dumps({
         "cluster": {
-            "chief": args.chief_host,
+            "chief": [args.chief_host],
             "worker": args.worker_hosts.split(","),
             "ps": args.ps_hosts.split(",")
         },
