@@ -375,6 +375,9 @@ class Model(object):
       padded_shapes_fn = lambda: (
           feat_padded_shapes_fn(), labels_padded_shapes_fn())
 
+    if mode == tf.estimator.ModeKeys.TRAIN:
+      dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
+
     dataset = dataset.map(
         process_fn,
         num_parallel_calls=num_parallel_process_calls).prefetch(buffer_size)
@@ -386,8 +389,6 @@ class Model(object):
           labels,
           maximum_features_length=maximum_features_length,
           maximum_labels_length=maximum_labels_length))
-      dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
-      dataset = dataset.repeat()
 
     num_buckets = num_buckets or 1
 
@@ -431,6 +432,9 @@ class Model(object):
       dataset = dataset.padded_batch(
           batch_size,
           padded_shapes=padded_shapes)
+
+    if mode == tf.estimator.ModeKeys.TRAIN:
+      dataset = dataset.repeat()
 
     iterator = dataset.make_initializable_iterator()
 
