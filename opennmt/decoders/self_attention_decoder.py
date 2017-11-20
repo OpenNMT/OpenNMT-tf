@@ -56,6 +56,10 @@ class SelfAttentionDecoder(Decoder):
         inputs,
         rate=self.dropout,
         training=mode == tf.estimator.ModeKeys.TRAIN)
+    memory_mask = transformer.build_sequence_mask(
+        memory_sequence_length, num_heads=self.num_heads) if memory is not None else None
+    decoder_mask = transformer.build_future_mask(
+        sequence_length, num_heads=self.num_heads)
 
     for l in range(self.num_layers):
       with tf.variable_scope("layer_{}".format(l)):
@@ -65,10 +69,8 @@ class SelfAttentionDecoder(Decoder):
               self.num_heads,
               inputs_norm,
               inputs_norm,
-              inputs_norm,
               mode,
-              values_length=sequence_length,
-              mask_future=True,
+              mask=decoder_mask,
               dropout=self.attention_dropout)
           encoded = transformer.drop_and_add(
               inputs,
@@ -76,23 +78,20 @@ class SelfAttentionDecoder(Decoder):
               mode,
               dropout=self.dropout)
 
-        with tf.variable_scope("multi_head"):
-          values = memory if memory is not None else encoded
-          keys = values
-
-          context = transformer.multi_head_attention(
-              self.num_heads,
-              transformer.norm(encoded),
-              keys,
-              values,
-              mode,
-              values_length=memory_sequence_length,
-              dropout=self.attention_dropout)
-          context = transformer.drop_and_add(
-              encoded,
-              context,
-              mode,
-              dropout=self.dropout)
+        if memory is not None:
+          with tf.variable_scope("multi_head"):
+            context = transformer.multi_head_attention(
+                self.num_heads,
+                transformer.norm(encoded),
+                memory,
+                mode,
+                mask=memory_mask,
+                dropout=self.attention_dropout)
+            context = transformer.drop_and_add(
+                encoded,
+                context,
+                mode,
+                dropout=self.dropout)
 
         with tf.variable_scope("ffn"):
           transformed = transformer.feed_forward(
