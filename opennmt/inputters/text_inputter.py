@@ -227,7 +227,7 @@ class TextInputter(Inputter):
       tokens = self.tokenizer(text)
       length = tf.shape(tokens)[0]
 
-      data = self.set_data_field(data, "tokens", tokens, padded_shape=[None])
+      data = self.set_data_field(data, "tokens", tokens, padded_shape=[None], volatile=True)
       data = self.set_data_field(data, "length", length, padded_shape=[])
 
     return data
