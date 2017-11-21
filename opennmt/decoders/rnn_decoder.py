@@ -259,6 +259,7 @@ class AttentionalRNNDecoder(RNNDecoder):
                num_units,
                bridge=None,
                attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
+               output_is_attention=True,
                cell_class=tf.contrib.rnn.LSTMCell,
                dropout=0.3,
                residual_connections=False):
@@ -273,6 +274,9 @@ class AttentionalRNNDecoder(RNNDecoder):
         ``tf.contrib.seq2seq.AttentionMechanism`` or a callable that takes
         ``(num_units, memory, memory_sequence_length)`` as arguments and returns
         a ``tf.contrib.seq2seq.AttentionMechanism``.
+      output_is_attention: If ``True``, the final decoder output (before logits)
+        is the output of the attention layer. In all cases, the output of the
+        attention layer is passed to the next step.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
@@ -287,6 +291,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         dropout=dropout,
         residual_connections=residual_connections)
     self.attention_mechanism_class = attention_mechanism_class
+    self.output_is_attention = output_is_attention
 
   def _build_cell(self,
                   mode,
@@ -309,6 +314,7 @@ class AttentionalRNNDecoder(RNNDecoder):
     cell = tf.contrib.seq2seq.AttentionWrapper(
         cell,
         attention_mechanism,
+        output_attention=self.output_is_attention,
         initial_cell_state=initial_cell_state)
 
     if mode == tf.estimator.ModeKeys.TRAIN and self.dropout > 0.0:
