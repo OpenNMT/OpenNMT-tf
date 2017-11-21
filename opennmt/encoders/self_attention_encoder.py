@@ -50,6 +50,7 @@ class SelfAttentionEncoder(Encoder):
         inputs,
         rate=self.dropout,
         training=mode == tf.estimator.ModeKeys.TRAIN)
+    mask = transformer.build_sequence_mask(sequence_length, num_heads=self.num_heads)
 
     state = ()
 
@@ -61,9 +62,8 @@ class SelfAttentionEncoder(Encoder):
               self.num_heads,
               inputs_norm,
               inputs_norm,
-              inputs_norm,
               mode,
-              values_length=sequence_length,
+              mask=mask,
               dropout=self.attention_dropout)
           context = transformer.drop_and_add(
               inputs,

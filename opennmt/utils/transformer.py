@@ -3,12 +3,98 @@
 import tensorflow as tf
 
 
+def tile_sequence_length(sequence_length, num_heads):
+  """Tiles lengths :obj:`num_heads` times.
+
+  Args:
+    sequence_length: The sequence length.
+    num_heads: The number of heads.
+
+  Returns:
+    A ``tf.Tensor`` where each length is replicated :obj:`num_heads` times.
+  """
+  sequence_length = tf.tile(sequence_length, [num_heads])
+  sequence_length = tf.reshape(sequence_length, [num_heads, -1])
+  sequence_length = tf.transpose(sequence_length, perm=[1, 0])
+  sequence_length = tf.reshape(sequence_length, [-1])
+  return sequence_length
+
+def build_sequence_mask(sequence_length, num_heads=None):
+  """Builds the dot product mask.
+
+  Args:
+    sequence_length: The sequence length.
+    num_heads: The number of heads.
+
+  Returns:
+    A broadcastable float ``tf.Tensor`` of shape
+    ``[batch_size, num_heads, 1, max_length]``.
+  """
+  if num_heads is not None:
+    sequence_length = tile_sequence_length(sequence_length, num_heads)
+  mask = tf.sequence_mask(sequence_length, dtype=tf.float32)
+  mask = tf.expand_dims(mask, axis=1)
+  if num_heads is not None:
+    mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
+  return mask
+
+def build_future_mask(sequence_length, num_heads=None):
+  """Builds the dot product mask for future positions.
+
+  Args:
+    sequence_length: The sequence length.
+    num_heads: The number of heads.
+
+  Returns:
+    A float ``tf.Tensor`` of shape
+    ``[batch_size, num_heads, max_length, max_length]``.
+  """
+  if num_heads is not None:
+    sequence_length = tile_sequence_length(sequence_length, num_heads)
+  max_length = tf.reduce_max(sequence_length)
+  mask = tf.map_fn(
+      lambda x: tf.sequence_mask(
+          tf.minimum(tf.range(max_length) + 1, x),
+          maxlen=max_length,
+          dtype=tf.float32),
+      sequence_length,
+      dtype=tf.float32)
+  if num_heads is not None:
+    mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
+  return mask
+
+def split_heads(inputs, num_heads):
+  """Splits a tensor in depth.
+
+  Args:
+    inputs: A ``tf.Tensor`` of shape :math:`[B, T, D]`.
+    num_heads: The number of heads :math:`H`.
+
+  Returns:
+    A ``tf.Tensor`` of shape :math:`[B, H, T, D / H]`.
+  """
+  inputs = tf.reshape(inputs, [tf.shape(inputs)[0], tf.shape(inputs)[1], num_heads, -1])
+  inputs = tf.transpose(inputs, perm=[0, 2, 1, 3])
+  return inputs
+
+def combine_heads(inputs):
+  """Concatenates heads.
+
+  Args:
+    inputs: A ``tf.Tensor`` of shape :math:`[B, H, T, D]`.
+
+  Returns:
+    A ``tf.Tensor`` of shape :math:`[B, T, D * H]`.
+  """
+  inputs = tf.transpose(inputs, perm=[0, 2, 1, 3])
+  inputs = tf.reshape(inputs, [tf.shape(inputs)[0], tf.shape(inputs)[1], -1])
+  return inputs
+
 def scaled_dot_attention(queries,
                          keys,
                          values,
                          mode,
-                         values_length=None,
-                         mask_future=False,
+                         mask=None,
                          dropout=0.0):
   """Computes the scaled dot-product attention as described
   in https://arxiv.org/abs/1706.03762.
@@ -19,8 +105,7 @@ def scaled_dot_attention(queries,
       :math:`[B, T_2, ...]`.
     values: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
     mode: A ``tf.estimator.ModeKeys`` mode.
-    values_length: The length of the values to attend.
-    mask_future: Mask attention to future positions.
+    mask: A float ``tf.Tensor`` applied to the dot product.
     dropout: The probability to drop units from the inputs.
 
   Returns:
@@ -30,25 +115,7 @@ def scaled_dot_attention(queries,
   dot = tf.matmul(queries, keys, transpose_b=True)
   dot = tf.div(dot, tf.sqrt(tf.cast(tf.shape(keys)[-1], tf.float32)))
 
-  if values_length is not None:
-    # Give no weight to illegal connections.
-    if mask_future:
-      # When masking the future, a position can only attend to previous timesteps.
-      mask = tf.map_fn(
-          lambda x: tf.sequence_mask(
-              tf.minimum(tf.range(tf.shape(values)[1]) + 1, x),
-              maxlen=tf.shape(values)[1],
-              dtype=tf.float32),
-          values_length,
-          dtype=tf.float32)
-    else:
-      # Otherwise, simply prevent attention on out-of-range positions.
-      mask = tf.sequence_mask(
-          values_length,
-          maxlen=tf.shape(values)[1],
-          dtype=tf.float32)
-      mask = tf.expand_dims(mask, axis=1)
-
+  if mask is not None:
     dot = dot * mask + ((1.0 - mask) * tf.float32.min)
 
   # Compute attention weights.
@@ -66,11 +133,10 @@ def scaled_dot_attention(queries,
 
 def multi_head_attention(num_heads,
                          queries,
-                         keys,
-                         values,
+                         memory,
                          mode,
-                         values_length=None,
-                         mask_future=False,
+                         mask=None,
+                         cache=None,
                          dropout=0.0):
   """Computes the multi-head attention as described in
   https://arxiv.org/abs/1706.03762.
@@ -78,46 +144,46 @@ def multi_head_attention(num_heads,
   Args:
     num_heads: The number of attention heads.
     queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
-    keys: The sequence use to calculate attention scores. A tensor of shape
-      :math:`[B, T_2, ...]`.
-    values: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
+    memory: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
     mode: A ``tf.estimator.ModeKeys`` mode.
-    values_length: The length of the values to attend.
-    mask_future: Mask attention to future positions.
+    mask: A float ``tf.Tensor`` applied to the dot product.
+    cache: A dictionary containing pre-projected keys and values.
     dropout: The probability to drop units from the inputs.
 
   Returns:
     The concatenated attention context of each head.
   """
-  input_dim = keys.get_shape().as_list()[-1]
+  input_dim = queries.get_shape().as_list()[-1]
 
   if input_dim % num_heads != 0:
     raise ValueError("Multi head attention requires the input dimension to be a"
                      " multiple of {}".format(num_heads))
 
-  head_dim = input_dim / num_heads
-  heads = []
+  queries = tf.layers.conv1d(queries, input_dim, 1)
+  memory = tf.layers.conv1d(memory, input_dim * 2, 1)
+  keys, values = tf.split(memory, [input_dim, input_dim], axis=2)
 
-  for i in range(num_heads):
-    with tf.variable_scope("head_{}".format(i)):
-      # Project queries, keys and values to different and smaller subspaces.
-      queries_proj = tf.layers.conv1d(queries, head_dim, 1)
-      keys_proj = tf.layers.conv1d(keys, head_dim, 1)
-      values_proj = tf.layers.conv1d(values, head_dim, 1)
+  if cache is not None:
+    keys = tf.concat([cache["keys"], keys], axis=1)
+    values = tf.concat([cache["values"], values], axis=1)
+    cache["keys"] = keys
+    cache["values"] = values
 
-      head_i, _ = scaled_dot_attention(
-          queries_proj,
-          keys_proj,
-          values_proj,
-          mode,
-          values_length=values_length,
-          mask_future=mask_future,
-          dropout=dropout)
+  queries = split_heads(queries, num_heads)
+  keys = split_heads(keys, num_heads)
+  values = split_heads(values, num_heads)
 
-      heads.append(head_i)
+  heads, _ = scaled_dot_attention(
+      queries,
+      keys,
+      values,
+      mode,
+      mask=mask,
+      dropout=dropout)
 
   # Concatenate all heads output.
-  combined = tf.concat(heads, axis=2)
+  combined = combine_heads(heads)
+  combined.set_shape((None, None, input_dim))
   outputs = tf.layers.conv1d(combined, input_dim, 1)
 
   return outputs

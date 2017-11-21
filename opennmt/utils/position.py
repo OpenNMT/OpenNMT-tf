@@ -70,6 +70,27 @@ class PositionEncoder(object):
       position_encoding = self.encode(input_dim, sequence_length)
       return self.reducer.reduce([inputs, position_encoding])
 
+  def apply_one(self, inputs, position):
+    """Apply position encoding to one input.
+
+    Args:
+      inputs: The inputs to apply position encoding to.
+      position: The position to encode.
+
+    Returns:
+      A ``tf.Tensor`` of shape :math:`[B, 1, D]` where :math:`D` depends on the
+      :attr:`reducer`.
+    """
+    batch_size = tf.shape(inputs)[0]
+    input_dim = inputs.get_shape().as_list()[-1]
+
+    position = tf.tile([position], [batch_size])
+
+    with tf.variable_scope("position_encoding"):
+      position_encoding = self.encode_one(input_dim, position)
+      position_encoding = tf.expand_dims(position_encoding, 1)
+      return self.reducer.reduce([inputs, position_encoding])
+
   @abc.abstractmethod
   def encode(self, input_dim, sequence_length):
     """Creates position encodings.
@@ -80,6 +101,19 @@ class PositionEncoder(object):
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, T, D]`.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def encode_one(self, input_dim, position):
+    """Encodes a single position.
+
+    Args:
+      input_dim: The input dimension.
+      position: The position to encode.
+
+    Returns:
+      A ``tf.Tensor`` of shape :math:`[B, D]`.
     """
     raise NotImplementedError()
 
@@ -106,4 +140,10 @@ class PositionEmbedder(PositionEncoder):
     embeddings = tf.get_variable(
         "w_embs", shape=[self.maximum_position + 1, input_dim])
 
+    return tf.nn.embedding_lookup(embeddings, position)
+
+  def encode_one(self, input_dim, position):
+    position = tf.minimum(position, self.maximum_position)
+    embeddings = tf.get_variable(
+        "w_embs", shape=[self.maximum_position + 1, input_dim])
     return tf.nn.embedding_lookup(embeddings, position)
