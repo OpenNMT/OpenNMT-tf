@@ -15,6 +15,7 @@ class Inputter(object):
 
   def __init__(self):
     self.padded_shapes = {}
+    self.volatile = set()
     self.process_hooks = []
 
   def add_process_hooks(self, hooks):
@@ -30,7 +31,7 @@ class Inputter(object):
     """
     self.process_hooks.extend(hooks)
 
-  def set_data_field(self, data, key, value, padded_shape=None):
+  def set_data_field(self, data, key, value, padded_shape=None, volatile=False):
     """Sets a data field.
 
     Args:
@@ -39,6 +40,8 @@ class Inputter(object):
       value: The value to assign.
       padded_shape: The padded shape of the value as given to
         ``tf.data.Dataset.padded_batch``.
+      volatile: If ``True``, the key/value pair will be removed once the
+        processing done.
 
     Returns:
       The updated data dictionary.
@@ -47,6 +50,8 @@ class Inputter(object):
       padded_shape = []
     data[key] = value
     self.padded_shapes[key] = padded_shape
+    if volatile:
+      self.volatile.add(key)
     return data
 
   def remove_data_field(self, data, key):
@@ -125,6 +130,9 @@ class Inputter(object):
     data = self._process(data)
     for hook in self.process_hooks:
       data = hook(self, data)
+    for key in self.volatile:
+      data = self.remove_data_field(data, key)
+    self.volatile.clear()
     return data
 
   def _process(self, data):
@@ -148,7 +156,7 @@ class Inputter(object):
         ``raw`` key.
     """
     if not isinstance(data, dict):
-      data = self.set_data_field({}, "raw", data)
+      data = self.set_data_field({}, "raw", data, volatile=True)
     elif "raw" not in data:
       raise ValueError("data must contain the raw dataset value")
     return data
@@ -281,14 +289,15 @@ class ParallelInputter(MultiInputter):
   def _process(self, data):
     processed_data = {}
     for i, inputter in enumerate(self.inputters):
-      sub_data = inputter.process(data[i])
+      sub_data = inputter._process(data[i])  # pylint: disable=protected-access
       for key, value in sub_data.items():
         prefixed_key = "inputter_{}_{}".format(i, key)
         processed_data = self.set_data_field(
             processed_data,
             prefixed_key,
             value,
-            padded_shape=inputter.padded_shapes[key])
+            padded_shape=inputter.padded_shapes[key],
+            volatile=key in inputter.volatile)
     return processed_data
 
   def _transform_data(self, data, mode):
@@ -343,8 +352,9 @@ class MixedInputter(MultiInputter):
 
   def _process(self, data):
     for inputter in self.inputters:
-      data = inputter.process(data)
+      data = inputter._process(data)  # pylint: disable=protected-access
       self.padded_shapes.update(inputter.padded_shapes)
+      self.volatile |= inputter.volatile
     return data
 
   def _transform_data(self, data, mode):
