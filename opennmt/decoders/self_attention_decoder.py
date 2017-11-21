@@ -43,26 +43,74 @@ class SelfAttentionDecoder(Decoder):
     self.relu_dropout = relu_dropout
     self.position_encoder = position_encoder
 
+  def _init_cache(self, memory, memory_sequence_length):
+    cache = {
+        "memory": memory,
+        "memory_sequence_length": memory_sequence_length
+    }
+
+    batch_size = tf.shape(memory)[0]
+    depth = memory.get_shape().as_list()[-1]
+
+    for l in range(self.num_layers):
+      keys = tf.zeros([batch_size, 0, depth])
+      values = tf.zeros([batch_size, 0, depth])
+
+      # Ensure shape invariance for tf.while_loop.
+      keys._shape = tf.TensorShape([None, None, depth])  # pylint: disable=protected-access
+      values._shape = tf.TensorShape([None, None, depth])  # pylint: disable=protected-access
+
+      cache["layer_{}".format(l)] = {
+          "keys": keys,
+          "values": values
+      }
+
+    return cache
+
+  def _symbols_to_logits_fn(self, embedding, vocab_size, mode):
+    embedding_fn = get_embedding_fn(embedding)
+
+    def _impl(ids, step, cache):
+      inputs = embedding_fn(ids[:, -1:])
+      inputs = self.position_encoder.apply_one(inputs, step + 1)
+      outputs = self._self_attention_stack(
+          inputs,
+          mode=mode,
+          cache=cache,
+          memory=cache["memory"],
+          memory_sequence_length=cache["memory_sequence_length"])
+      outputs = outputs[:, -1:, :]
+      logits = tf.layers.dense(outputs, vocab_size)
+      return logits, cache
+
+    return _impl
+
   def _self_attention_stack(self,
                             inputs,
-                            sequence_length,
+                            sequence_length=None,
                             mode=tf.estimator.ModeKeys.TRAIN,
+                            cache=None,
                             memory=None,
                             memory_sequence_length=None):
-    if self.position_encoder is not None:
-      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
-
     inputs = tf.layers.dropout(
         inputs,
         rate=self.dropout,
         training=mode == tf.estimator.ModeKeys.TRAIN)
-    memory_mask = transformer.build_sequence_mask(
-        memory_sequence_length, num_heads=self.num_heads) if memory is not None else None
-    decoder_mask = transformer.build_future_mask(
-        sequence_length, num_heads=self.num_heads)
+
+    decoder_mask = None
+    memory_mask = None
+
+    if sequence_length is not None:
+      decoder_mask = transformer.build_future_mask(
+          sequence_length, num_heads=self.num_heads)
+    if memory_sequence_length is not None:
+      memory_mask = transformer.build_sequence_mask(
+          memory_sequence_length, num_heads=self.num_heads)
 
     for l in range(self.num_layers):
-      with tf.variable_scope("layer_{}".format(l)):
+      layer_name = "layer_{}".format(l)
+      layer_cache = cache[layer_name] if cache is not None else None
+      with tf.variable_scope(layer_name):
         with tf.variable_scope("masked_multi_head"):
           inputs_norm = transformer.norm(inputs)
           encoded = transformer.multi_head_attention(
@@ -71,6 +119,7 @@ class SelfAttentionDecoder(Decoder):
               inputs_norm,
               mode,
               mask=decoder_mask,
+              cache=layer_cache,
               dropout=self.attention_dropout)
           encoded = transformer.drop_and_add(
               inputs,
@@ -123,9 +172,12 @@ class SelfAttentionDecoder(Decoder):
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
 
+    if self.position_encoder is not None:
+      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
+
     outputs = self._self_attention_stack(
         inputs,
-        sequence_length,
+        sequence_length=sequence_length,
         mode=mode,
         memory=memory,
         memory_sequence_length=memory_sequence_length)
@@ -151,28 +203,18 @@ class SelfAttentionDecoder(Decoder):
     inputs = tf.expand_dims(start_tokens, 1)
     lengths = tf.zeros([batch_size], dtype=tf.int32)
     log_probs = tf.zeros([batch_size])
+    cache = self._init_cache(memory, memory_sequence_length)
 
-    embedding_fn = get_embedding_fn(embedding)
+    symbols_to_logits_fn = self._symbols_to_logits_fn(embedding, vocab_size, mode)
 
-    def _condition(unused_step, finished, unused_inputs, unused_lengths, unused_log_probs):
+    def _condition(unused_step, finished, unused_inputs,
+                   unused_lengths, unused_log_probs, unused_cache):
       return tf.logical_not(tf.reduce_all(finished))
 
-    def _body(step, finished, inputs, lengths, log_probs):
+    def _body(step, finished, inputs, lengths, log_probs, cache):
       inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, tf.int32))
 
-      # Decode inputs.
-      outputs = self._self_attention_stack(
-          embedding_fn(inputs),
-          inputs_lengths,
-          mode=mode,
-          memory=memory,
-          memory_sequence_length=memory_sequence_length)
-
-      # Only sample the last timestep.
-      last_output = tf.slice(outputs, [0, step, 0], [-1, 1, -1])
-      logits = tf.layers.dense(
-          last_output,
-          vocab_size)
+      logits, cache = symbols_to_logits_fn(inputs, step, cache)
       probs = tf.nn.log_softmax(logits)
       sample_ids = tf.argmax(probs, axis=-1)
 
@@ -191,18 +233,20 @@ class SelfAttentionDecoder(Decoder):
       if maximum_iterations is not None:
         next_finished = tf.logical_or(next_finished, step >= maximum_iterations)
 
-      return step, next_finished, next_inputs, next_lengths, log_probs
+      return step, next_finished, next_inputs, next_lengths, log_probs, cache
 
-    step, _, outputs, lengths, log_probs = tf.while_loop(
+    step, _, outputs, lengths, log_probs, _ = tf.while_loop(
         _condition,
         _body,
-        loop_vars=(step, finished, inputs, lengths, log_probs),
+        loop_vars=(step, finished, inputs, lengths, log_probs, cache),
         shape_invariants=(
             tf.TensorShape([]),
             finished.get_shape(),
             tf.TensorShape([None, None]),
             lengths.get_shape(),
-            log_probs.get_shape()
+            log_probs.get_shape(),
+            tf.contrib.framework.nest.map_structure(
+                lambda t: tf.TensorShape(t.shape), cache),
         ),
         parallel_iterations=1)
 
@@ -228,43 +272,17 @@ class SelfAttentionDecoder(Decoder):
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None):
-    if initial_state is not None:
-      initial_state = tf.contrib.seq2seq.tile_batch(
-          initial_state, multiplier=beam_width)
-    if memory is not None:
-      memory = tf.contrib.seq2seq.tile_batch(
-          memory, multiplier=beam_width)
-    if memory_sequence_length is not None:
-      memory_sequence_length = tf.contrib.seq2seq.tile_batch(
-          memory_sequence_length, multiplier=beam_width)
-
-    embedding_fn = get_embedding_fn(embedding)
-
-    def _symbols_to_logits_fn(symbols):
-      batch_size = tf.shape(symbols)[0]
-      step = tf.shape(symbols)[1]
-      sequence_length = tf.fill([batch_size], step)
-      outputs = self._self_attention_stack(
-          embedding_fn(symbols),
-          sequence_length,
-          mode=mode,
-          memory=memory,
-          memory_sequence_length=memory_sequence_length)
-
-      # Only sample the last timestep.
-      last_output = tf.slice(outputs, [0, step - 1, 0], [-1, 1, -1])
-      logits = tf.layers.dense(
-          last_output,
-          vocab_size)
-      return logits
+    cache = self._init_cache(memory, memory_sequence_length)
+    symbols_to_logits_fn = self._symbols_to_logits_fn(embedding, vocab_size, mode)
 
     outputs, log_probs = beam_search(
-        _symbols_to_logits_fn,
+        symbols_to_logits_fn,
         start_tokens,
         beam_width,
         maximum_iterations,
         vocab_size,
         length_penalty,
+        states=cache,
         eos_id=end_token)
     outputs = tf.slice(outputs, [0, 0, 1], [-1, -1, -1]) # Ignore <s>.
 

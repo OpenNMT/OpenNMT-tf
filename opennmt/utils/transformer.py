@@ -136,6 +136,7 @@ def multi_head_attention(num_heads,
                          memory,
                          mode,
                          mask=None,
+                         cache=None,
                          dropout=0.0):
   """Computes the multi-head attention as described in
   https://arxiv.org/abs/1706.03762.
@@ -146,6 +147,7 @@ def multi_head_attention(num_heads,
     memory: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
     mode: A ``tf.estimator.ModeKeys`` mode.
     mask: A float ``tf.Tensor`` applied to the dot product.
+    cache: A dictionary containing pre-projected keys and values.
     dropout: The probability to drop units from the inputs.
 
   Returns:
@@ -160,6 +162,12 @@ def multi_head_attention(num_heads,
   queries = tf.layers.conv1d(queries, input_dim, 1)
   memory = tf.layers.conv1d(memory, input_dim * 2, 1)
   keys, values = tf.split(memory, [input_dim, input_dim], axis=2)
+
+  if cache is not None:
+    keys = tf.concat([cache["keys"], keys], axis=1)
+    values = tf.concat([cache["values"], values], axis=1)
+    cache["keys"] = keys
+    cache["values"] = values
 
   queries = split_heads(queries, num_heads)
   keys = split_heads(keys, num_heads)
