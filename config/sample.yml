@@ -47,6 +47,8 @@ params:
   scheduled_sampling_read_probability: 1
   # (optional unless scheduled_sampling_type is set) The constant k of the schedule.
   scheduled_sampling_k: 0
+  # (optional) The label smoothing value.
+  label_smoothing: 0.1
   # (optional) Width of the beam search (default: 1).
   beam_width: 5
   # (optional) Length penaly weight to apply on hypotheses (default: 0).
