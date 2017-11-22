@@ -468,9 +468,11 @@ class CharConvEmbedder(TextInputter):
         training=mode == tf.estimator.ModeKeys.TRAIN)
 
     # Merge batch and sequence timesteps dimensions.
-    outputs = tf.reshape(
-        outputs,
-        [-1, tf.shape(inputs)[-1], self.embedding_size])
+    outputs = tf.reshape(outputs, [-1, tf.shape(inputs)[-1], self.embedding_size])
+
+    # Pad on both sides.
+    outputs = tf.pad(outputs, [[0, 0], [self.kernel_size - 1, self.kernel_size - 1], [0, 0]])
+    outputs.set_shape((None, None, self.embedding_size))
 
     outputs = tf.layers.conv1d(
         outputs,
@@ -482,8 +484,6 @@ class CharConvEmbedder(TextInputter):
     outputs = tf.reduce_max(outputs, axis=1)
 
     # Split batch and sequence timesteps dimensions.
-    outputs = tf.reshape(
-        outputs,
-        [-1, tf.shape(inputs)[1], self.num_outputs])
+    outputs = tf.reshape(outputs, [-1, tf.shape(inputs)[1], self.num_outputs])
 
     return outputs
