@@ -5,7 +5,7 @@ import numpy as np
 
 from opennmt.models.model import Model
 from opennmt.utils.misc import count_lines, print_bytes
-from opennmt.utils.losses import masked_sequence_loss
+from opennmt.utils.losses import cross_entropy_sequence_loss
 
 
 class SequenceTagger(Model):
@@ -122,7 +122,7 @@ class SequenceTagger(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs, mode):
+  def _compute_loss(self, features, labels, outputs, params, mode):
     length = self._get_features_length(features)
     if self.crf_decoding:
       with tf.variable_scope(tf.get_variable_scope(), reuse=mode != tf.estimator.ModeKeys.TRAIN):
@@ -132,7 +132,11 @@ class SequenceTagger(Model):
             length)
       return tf.reduce_mean(-log_likelihood)
     else:
-      return masked_sequence_loss(outputs, labels["tags_id"], length)
+      return cross_entropy_sequence_loss(
+          outputs,
+          labels["tags_id"],
+          length,
+          label_smoothing=params.get("label_smoothing", 0.0))
 
   def _compute_metrics(self, features, labels, predictions):
     length = self._get_features_length(features)

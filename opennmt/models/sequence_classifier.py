@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from opennmt.models.model import Model
 from opennmt.utils.misc import count_lines, print_bytes
+from opennmt.utils.losses import cross_entropy_loss
 
 
 class SequenceClassifier(Model):
@@ -96,8 +97,11 @@ class SequenceClassifier(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs, mode):
-    return tf.losses.sparse_softmax_cross_entropy(labels["classes_id"], outputs)
+  def _compute_loss(self, features, labels, outputs, params, mode):
+    return cross_entropy_loss(
+        outputs,
+        labels["classes_id"],
+        label_smoothing=params.get("label_smoothing", 0.0))
 
   def _compute_metrics(self, features, labels, predictions):
     return {

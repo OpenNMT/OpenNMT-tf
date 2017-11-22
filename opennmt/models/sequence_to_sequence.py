@@ -6,7 +6,7 @@ import opennmt.constants as constants
 import opennmt.inputters as inputters
 
 from opennmt.models.model import Model
-from opennmt.utils.losses import masked_sequence_loss
+from opennmt.utils.losses import cross_entropy_sequence_loss
 from opennmt.utils.misc import print_bytes
 from opennmt.decoders.decoder import get_sampling_probability
 
@@ -213,11 +213,12 @@ class SequenceToSequence(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs, mode):
-    return masked_sequence_loss(
+  def _compute_loss(self, features, labels, outputs, params, mode):
+    return cross_entropy_sequence_loss(
         outputs,
         labels["ids_out"],
-        self._get_labels_length(labels))
+        self._get_labels_length(labels),
+        label_smoothing=params.get("label_smoothing", 0.0))
 
   def print_prediction(self, prediction, params=None, stream=None):
     n_best = params and params.get("n_best")
