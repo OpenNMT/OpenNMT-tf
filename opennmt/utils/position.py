@@ -51,7 +51,7 @@ class PositionEncoder(object):
     """Apply position encoding to inputs.
 
     Args:
-      inputs: The inputs to apply position encoding to.
+      inputs: The inputs of shape :math:`[B, T, D]`.
       sequence_length: The length of each sequence of shape :math:`[B]`.
         If ``None``, sequences are assumed to have the same length.
 
@@ -67,14 +67,16 @@ class PositionEncoder(object):
     input_dim = inputs.get_shape().as_list()[-1]
 
     with tf.variable_scope("position_encoding"):
-      position_encoding = self.encode(input_dim, sequence_length)
+      position_encoding = self.encode_sequence(sequence_length, input_dim)
       return self.reducer.reduce([inputs, position_encoding])
 
   def apply_one(self, inputs, position):
     """Apply position encoding to one input.
 
+    This is usually used during dynamic decoding.
+
     Args:
-      inputs: The inputs to apply position encoding to.
+      inputs: The inputs of shape :math:`[B, 1, D]`.
       position: The position to encode.
 
     Returns:
@@ -87,35 +89,35 @@ class PositionEncoder(object):
     position = tf.tile([position], [batch_size])
 
     with tf.variable_scope("position_encoding"):
-      position_encoding = self.encode_one(input_dim, position)
+      position_encoding = self.encode(position, input_dim)
       position_encoding = tf.expand_dims(position_encoding, 1)
       return self.reducer.reduce([inputs, position_encoding])
 
   @abc.abstractmethod
-  def encode(self, input_dim, sequence_length):
+  def encode(self, positions, depth):
     """Creates position encodings.
 
     Args:
-      input_dim: The input dimension.
+      position: The positions to encode of shape :math:`[B, ...]`.
+      depth: The encoding depth :math:`D`.
+
+    Returns:
+      A ``tf.Tensor`` of shape :math:`[B, ..., D]`.
+    """
+    raise NotImplementedError()
+
+  def encode_sequence(self, sequence_length, depth):
+    """Creates position encodings for sequences.
+
+    Args:
       sequence_length: The length of each sequence of shape :math:`[B]`.
+      depth: The encoding depth :math:`D`.
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, T, D]`.
     """
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def encode_one(self, input_dim, position):
-    """Encodes a single position.
-
-    Args:
-      input_dim: The input dimension.
-      position: The position to encode.
-
-    Returns:
-      A ``tf.Tensor`` of shape :math:`[B, D]`.
-    """
-    raise NotImplementedError()
+    positions = make_positions(sequence_length)
+    return self.encode(positions, depth)
 
 
 class PositionEmbedder(PositionEncoder):
@@ -133,17 +135,8 @@ class PositionEmbedder(PositionEncoder):
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position
 
-  def encode(self, input_dim, sequence_length):
-    position = make_positions(sequence_length)
-    position = tf.minimum(position, self.maximum_position)
-
+  def encode(self, positions, depth):
+    positions = tf.minimum(positions, self.maximum_position)
     embeddings = tf.get_variable(
-        "w_embs", shape=[self.maximum_position + 1, input_dim])
-
-    return tf.nn.embedding_lookup(embeddings, position)
-
-  def encode_one(self, input_dim, position):
-    position = tf.minimum(position, self.maximum_position)
-    embeddings = tf.get_variable(
-        "w_embs", shape=[self.maximum_position + 1, input_dim])
-    return tf.nn.embedding_lookup(embeddings, position)
+        "w_embs", shape=[self.maximum_position + 1, depth])
+    return tf.nn.embedding_lookup(embeddings, positions)
