@@ -1,5 +1,7 @@
 """Define the Google's Transformer model."""
 
+import tensorflow as tf
+
 from opennmt.models.sequence_to_sequence import SequenceToSequence
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
@@ -64,3 +66,6 @@ class Transformer(SequenceToSequence):
         encoder,
         decoder,
         name=name)
+
+  def _initializer(self, params):
+    return tf.variance_scaling_initializer(mode="fan_avg", distribution="uniform")

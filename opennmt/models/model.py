@@ -100,7 +100,7 @@ class Model(object):
     if mode == tf.estimator.ModeKeys.TRAIN:
       self._register_word_counters(features, labels)
 
-    with tf.variable_scope(self.name):
+    with tf.variable_scope(self.name, initializer=self._initializer(params)):
       outputs, predictions = self._build(features, labels, params, mode, config)
 
       if predictions is not None:
@@ -130,6 +130,18 @@ class Model(object):
             mode,
             predictions=predictions,
             export_outputs=export_outputs)
+
+  def _initializer(self, params):
+    """Returns the global initializer for this model.
+
+    Args:
+      params: A dictionary of hyperparameters.
+
+    Returns:
+      The initializer.
+    """
+    _ = params
+    return None
 
   @abc.abstractmethod
   def _build(self, features, labels, params, mode, config):
