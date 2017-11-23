@@ -135,6 +135,7 @@ def multi_head_attention(num_heads,
                          queries,
                          memory,
                          mode,
+                         num_units=None,
                          mask=None,
                          cache=None,
                          dropout=0.0):
@@ -146,6 +147,8 @@ def multi_head_attention(num_heads,
     queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
     memory: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
     mode: A ``tf.estimator.ModeKeys`` mode.
+    num_units: The number of hidden units. If not set, it is set to the input
+      dimension.
     mask: A float ``tf.Tensor`` applied to the dot product.
     cache: A dictionary containing pre-projected keys and values.
     dropout: The probability to drop units from the inputs.
@@ -153,15 +156,15 @@ def multi_head_attention(num_heads,
   Returns:
     The concatenated attention context of each head.
   """
-  input_dim = queries.get_shape().as_list()[-1]
+  num_units = num_units or queries.get_shape().as_list()[-1]
 
-  if input_dim % num_heads != 0:
-    raise ValueError("Multi head attention requires the input dimension to be a"
+  if num_units % num_heads != 0:
+    raise ValueError("Multi head attention requires that num_units is a"
                      " multiple of {}".format(num_heads))
 
-  queries = tf.layers.conv1d(queries, input_dim, 1)
-  memory = tf.layers.conv1d(memory, input_dim * 2, 1)
-  keys, values = tf.split(memory, [input_dim, input_dim], axis=2)
+  queries = tf.layers.conv1d(queries, num_units, 1)
+  memory = tf.layers.conv1d(memory, num_units * 2, 1)
+  keys, values = tf.split(memory, [num_units, num_units], axis=2)
 
   if cache is not None:
     keys = tf.concat([cache["keys"], keys], axis=1)
@@ -183,8 +186,8 @@ def multi_head_attention(num_heads,
 
   # Concatenate all heads output.
   combined = combine_heads(heads)
-  combined.set_shape((None, None, input_dim))
-  outputs = tf.layers.conv1d(combined, input_dim, 1)
+  combined.set_shape((None, None, num_units))
+  outputs = tf.layers.conv1d(combined, num_units, 1)
 
   return outputs
 
@@ -238,5 +241,10 @@ def drop_and_add(inputs,
       outputs,
       rate=dropout,
       training=mode == tf.estimator.ModeKeys.TRAIN)
-  outputs += inputs
+
+  input_dim = inputs.get_shape().as_list()[-1]
+  output_dim = outputs.get_shape().as_list()[-1]
+
+  if input_dim == output_dim:
+    outputs += inputs
   return outputs
