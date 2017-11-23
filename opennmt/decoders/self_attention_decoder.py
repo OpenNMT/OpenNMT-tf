@@ -15,6 +15,7 @@ class SelfAttentionDecoder(Decoder):
 
   def __init__(self,
                num_layers,
+               num_units=512,
                num_heads=8,
                ffn_inner_dim=2048,
                dropout=0.1,
@@ -25,6 +26,7 @@ class SelfAttentionDecoder(Decoder):
 
     Args:
       num_layers: The number of layers.
+      num_units: The number of hidden units.
       num_heads: The number of heads in the multi-head attention.
       ffn_inner_dim: The number of units of the inner linear transformation
         in the feed forward layer.
@@ -36,6 +38,7 @@ class SelfAttentionDecoder(Decoder):
         apply on inputs or ``None``.
     """
     self.num_layers = num_layers
+    self.num_units = num_units
     self.num_heads = num_heads
     self.ffn_inner_dim = ffn_inner_dim
     self.dropout = dropout
@@ -118,6 +121,7 @@ class SelfAttentionDecoder(Decoder):
               inputs_norm,
               inputs_norm,
               mode,
+              num_units=self.num_units,
               mask=decoder_mask,
               cache=layer_cache,
               dropout=self.attention_dropout)
