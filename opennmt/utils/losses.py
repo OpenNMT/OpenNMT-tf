@@ -11,8 +11,8 @@ def _smooth_one_hot_labels(logits, labels, label_smoothing):
       on_value=1.0 - label_smoothing,
       off_value=label_smoothing / tf.to_float(num_classes - 1))
 
-def _softmax_cross_entropy(logits, labels, label_smoothing):
-  if label_smoothing > 0.0:
+def _softmax_cross_entropy(logits, labels, label_smoothing, mode):
+  if mode == tf.estimator.ModeKeys.TRAIN and label_smoothing > 0.0:
     smoothed_labels = _smooth_one_hot_labels(logits, labels, label_smoothing)
     return tf.nn.softmax_cross_entropy_with_logits(
         logits=logits, labels=smoothed_labels)
@@ -23,7 +23,8 @@ def _softmax_cross_entropy(logits, labels, label_smoothing):
 def cross_entropy_sequence_loss(logits,
                                 labels,
                                 sequence_length,
-                                label_smoothing=0.0):
+                                label_smoothing=0.0,
+                                mode=tf.estimator.ModeKeys.TRAIN):
   """Computes the reduced cross entropy loss of sequences.
 
   Args:
@@ -31,26 +32,31 @@ def cross_entropy_sequence_loss(logits,
     labels: The true labels.
     sequence_length: The length of each sequence.
     label_smoothing: The label smoothing value.
+    mode: A ``tf.estimator.ModeKeys`` mode.
 
   Returns:
     The loss.
   """
-  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing)
+  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
   weights = tf.sequence_mask(sequence_length, dtype=tf.float32)
   loss = tf.reduce_sum(cross_entropy * weights) / tf.reduce_sum(weights)
   return loss
 
-def cross_entropy_loss(logits, labels, label_smoothing=0.0):
+def cross_entropy_loss(logits,
+                       labels,
+                       label_smoothing=0.0,
+                       mode=tf.estimator.ModeKeys.TRAIN):
   """Computes the reduced cross entropy loss.
 
   Args:
     logits: The unscaled probabilities.
     labels: The true labels.
     label_smoothing: The label smoothing value.
+    mode: A ``tf.estimator.ModeKeys`` mode.
 
   Returns:
     The loss.
   """
-  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing)
+  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
   loss = tf.reduce_mean(cross_entropy)
   return loss

@@ -136,7 +136,8 @@ class SequenceTagger(Model):
           outputs,
           labels["tags_id"],
           length,
-          label_smoothing=params.get("label_smoothing", 0.0))
+          label_smoothing=params.get("label_smoothing", 0.0),
+          mode=mode)
 
   def _compute_metrics(self, features, labels, predictions):
     length = self._get_features_length(features)

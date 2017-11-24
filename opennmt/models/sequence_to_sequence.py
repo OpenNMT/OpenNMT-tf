@@ -218,7 +218,8 @@ class SequenceToSequence(Model):
         outputs,
         labels["ids_out"],
         self._get_labels_length(labels),
-        label_smoothing=params.get("label_smoothing", 0.0))
+        label_smoothing=params.get("label_smoothing", 0.0),
+        mode=mode)
 
   def print_prediction(self, prediction, params=None, stream=None):
     n_best = params and params.get("n_best")
