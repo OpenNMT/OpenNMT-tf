@@ -14,6 +14,7 @@ class SequenceClassifier(Model):
                inputter,
                encoder,
                labels_vocabulary_file_key,
+               encoding="average",
                name="seqclassifier"):
     """Initializes a sequence classifier.
 
@@ -23,13 +24,22 @@ class SequenceClassifier(Model):
       encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
       labels_vocabulary_file_key: The data configuration key of the labels
         vocabulary file containing one label per line.
+      encoding: "average" or "last" (case insensitive), the encoding vector to
+        extract from the encoder outputs.
       name: The name of this model.
+
+    Raises:
+      ValueError: if :obj:`encoding` is invalid.
     """
     super(SequenceClassifier, self).__init__(name)
 
     self.inputter = inputter
     self.encoder = encoder
     self.labels_vocabulary_file_key = labels_vocabulary_file_key
+    self.encoding = encoding.lower()
+
+    if self.encoding not in ("average", "last"):
+      raise ValueError("Invalid encoding vector: {}".format(self.encoding))
 
   def _initialize(self, metadata):
     self.inputter.initialize(metadata)
@@ -76,7 +86,10 @@ class SequenceClassifier(Model):
           sequence_length=self._get_features_length(features),
           mode=mode)
 
-    encoding = tf.reduce_mean(encoder_outputs, axis=1)
+    if self.encoding == "average":
+      encoding = tf.reduce_mean(encoder_outputs, axis=1)
+    elif self.encoding == "last":
+      encoding = tf.squeeze(encoder_outputs[:, -1:, :], axis=1)
 
     with tf.variable_scope("generator"):
       logits = tf.layers.dense(
