@@ -83,8 +83,11 @@ train:
   num_buckets: 5
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_parallel_process_calls: 4
-  # (optional) The data pre-fetch buffer size, e.g. for shuffling examples (default: batch_size * 1000).
-  buffer_size: 10000
+  # (optional) The data prefetch buffer size (default: batch_size * 1000).
+  prefetch_buffer_size: 10000
+  # (optional) The number of elements from which to sample during shuffling (default: 1000000).
+  # Consider setting this to the number of training examples.
+  sample_buffer_size: 1000000
 
 # (optional) Inference options.
 infer:
@@ -92,7 +95,7 @@ infer:
   batch_size: 10
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_parallel_process_calls: 4
-  # (optional) The data pre-fetch buffer size when processing data in parallel (default: batch_size * 10).
-  buffer_size: 100
+  # (optional) The prefetch buffer size when processing data in parallel (default: batch_size * 10).
+  prefetch_buffer_size: 100
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1
