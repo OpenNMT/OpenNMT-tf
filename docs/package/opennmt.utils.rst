@@ -15,6 +15,7 @@ Submodules
    opennmt.utils.bridge
    opennmt.utils.cell
    opennmt.utils.decay
+   opennmt.utils.evaluator
    opennmt.utils.hooks
    opennmt.utils.losses
    opennmt.utils.misc

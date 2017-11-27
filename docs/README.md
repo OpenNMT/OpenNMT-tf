@@ -14,6 +14,7 @@ pip install recommonmark
 
 ```bash
 # To run only if a Python source file is added, removed, or renamed.
+rm -f docs/package/*
 sphinx-apidoc -e -M -o docs/package opennmt opennmt/tests
 ```
 
