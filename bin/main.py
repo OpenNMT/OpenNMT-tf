@@ -10,6 +10,7 @@ import pickle
 import tensorflow as tf
 
 from opennmt.utils import hooks
+from opennmt.utils.evaluator import external_evaluation_fn
 from opennmt.config import load_model_module, load_config
 
 
@@ -92,7 +93,14 @@ def train(estimator, model, config):
     if not os.path.isdir(save_path):
       os.makedirs(save_path)
     eval_hooks.append(hooks.SaveEvaluationPredictionHook(
-        model, os.path.join(save_path, "predictions.txt")))
+        model,
+        os.path.join(save_path, "predictions.txt"),
+        post_evaluation_fn=external_evaluation_fn(
+            config["train"].get("external_evaluators"),
+            config["data"]["eval_labels_file"],
+            output_dir=estimator.model_dir)))
+  elif config["train"].get("external_evaluators") is not None:
+    tf.logging.warning("External evaluators only work when save_eval_predictions is enabled.")
 
   train_spec = tf.estimator.TrainSpec(
       input_fn=model.input_fn(

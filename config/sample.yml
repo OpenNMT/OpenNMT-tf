@@ -72,6 +72,9 @@ train:
   eval_delay: 7200
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
+  # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
+  # Available evaluators: BLEU
+  external_evaluators: BLEU
   # (optional) The maximum length of feature sequences during training (default: None).
   maximum_features_length: 70
   # (optional) The maximum length of label sequences during training (default: None).
