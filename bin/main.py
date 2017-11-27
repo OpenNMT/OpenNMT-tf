@@ -104,8 +104,8 @@ def train(estimator, model, config):
           config["data"]["train_features_file"],
           labels_file=config["data"]["train_labels_file"],
           num_buckets=config["train"].get("num_buckets", 5),
-          maximum_features_length=config["train"].get("maximum_features_length", 0),
-          maximum_labels_length=config["train"].get("maximum_labels_length", 0)),
+          maximum_features_length=config["train"].get("maximum_features_length"),
+          maximum_labels_length=config["train"].get("maximum_labels_length")),
       max_steps=config["train"].get("train_steps"),
       hooks=train_hooks)
 
