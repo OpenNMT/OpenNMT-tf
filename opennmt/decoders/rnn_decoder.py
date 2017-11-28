@@ -314,6 +314,7 @@ class AttentionalRNNDecoder(RNNDecoder):
     cell = tf.contrib.seq2seq.AttentionWrapper(
         cell,
         attention_mechanism,
+        attention_layer_size=self.num_units,
         output_attention=self.output_is_attention,
         initial_cell_state=initial_cell_state)
 

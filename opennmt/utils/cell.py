@@ -45,7 +45,9 @@ def build_cell(num_layers,
     cell = cell_class(num_units)
     if l in attention_layers:
       cell = tf.contrib.seq2seq.AttentionWrapper(
-          cell, attention_mechanisms[attention_layers.index(l)])
+          cell,
+          attention_mechanisms[attention_layers.index(l)],
+          attention_layer_size=num_units)
     if mode == tf.estimator.ModeKeys.TRAIN and dropout > 0.0:
       cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=1.0 - dropout)
     if residual_connections and l > 0:
