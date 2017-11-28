@@ -68,7 +68,7 @@ train:
   save_summary_steps: 100
   # (optional) Train for this many steps. If not set, train forever.
   train_steps: 1000000
-  # (optional) Evaluate every this many seconds (default: 3600).
+  # (optional) Evaluate every this many seconds (default: 18000).
   eval_delay: 7200
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
