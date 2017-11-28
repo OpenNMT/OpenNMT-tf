@@ -77,7 +77,7 @@ def train(estimator, model, config):
     config: The configuration.
   """
   batch_size = config["train"]["batch_size"]
-  buffer_size = config["train"].get("buffer_size", batch_size * 1000)
+  prefetch_buffer_size = config["train"].get("prefetch_buffer_size", batch_size * 1000)
   num_parallel_process_calls = config["train"].get(
       "num_parallel_process_calls", multiprocessing.cpu_count())
 
@@ -106,12 +106,13 @@ def train(estimator, model, config):
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.TRAIN,
           batch_size,
-          buffer_size,
+          prefetch_buffer_size,
           num_parallel_process_calls,
           config["data"],
           config["data"]["train_features_file"],
           labels_file=config["data"]["train_labels_file"],
           num_buckets=config["train"].get("num_buckets", 5),
+          sample_buffer_size=config["train"].get("sample_buffer_size", 1000000),
           maximum_features_length=config["train"].get("maximum_features_length"),
           maximum_labels_length=config["train"].get("maximum_labels_length")),
       max_steps=config["train"].get("train_steps"),
@@ -121,7 +122,7 @@ def train(estimator, model, config):
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.EVAL,
           batch_size,
-          buffer_size,
+          prefetch_buffer_size,
           num_parallel_process_calls,
           config["data"],
           config["data"]["eval_features_file"],

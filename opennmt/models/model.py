@@ -360,12 +360,13 @@ class Model(object):
   def _input_fn_impl(self,
                      mode,
                      batch_size,
-                     buffer_size,
+                     prefetch_buffer_size,
                      num_parallel_process_calls,
                      metadata,
                      features_file,
                      labels_file=None,
                      num_buckets=None,
+                     sample_buffer_size=None,
                      maximum_features_length=None,
                      maximum_labels_length=None):
     """See ``input_fn``."""
@@ -389,11 +390,11 @@ class Model(object):
           feat_padded_shapes_fn(), labels_padded_shapes_fn())
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      dataset = dataset.shuffle(buffer_size, seed=int(time.time()))
+      dataset = dataset.shuffle(sample_buffer_size, seed=int(time.time()))
 
     dataset = dataset.map(
         process_fn,
-        num_parallel_calls=num_parallel_process_calls).prefetch(buffer_size)
+        num_parallel_calls=num_parallel_process_calls).prefetch(prefetch_buffer_size)
     padded_shapes = padded_shapes_fn()
 
     if mode == tf.estimator.ModeKeys.TRAIN:
@@ -459,12 +460,13 @@ class Model(object):
   def input_fn(self,
                mode,
                batch_size,
-               buffer_size,
+               prefetch_buffer_size,
                num_parallel_process_calls,
                metadata,
                features_file,
                labels_file=None,
                num_buckets=None,
+               sample_buffer_size=None,
                maximum_features_length=None,
                maximum_labels_length=None):
     """Returns an input function.
@@ -472,13 +474,14 @@ class Model(object):
     Args:
       mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size to use.
-      buffer_size: The prefetch buffer size (used e.g. for shuffling).
+      prefetch_buffer_size: The prefetch buffer size.
       num_parallel_process_calls: The number of elements processed in parallel.
       metadata: A dictionary containing additional metadata set
         by the user.
       features_file: The file containing input features.
       labels_file: The file containing output labels.
       num_buckets: The number of buckets to store examples of similar sizes.
+      sample_buffer_size: The number of elements from which to sample.
       maximum_features_length: The maximum length or list of maximum lengths of
         the features sequence(s). ``None`` to not constrain the length.
       maximum_labels_length: The maximum length of the labels sequence.
@@ -500,12 +503,13 @@ class Model(object):
     return lambda: self._input_fn_impl(
         mode,
         batch_size,
-        buffer_size,
+        prefetch_buffer_size,
         num_parallel_process_calls,
         metadata,
         features_file,
         labels_file=labels_file,
         num_buckets=num_buckets,
+        sample_buffer_size=sample_buffer_size,
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length)
 
