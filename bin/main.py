@@ -158,7 +158,7 @@ def infer(features_file,
   input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
       batch_size,
-      config["infer"].get("buffer_size", batch_size * 10),
+      config["infer"].get("prefetch_buffer_size", batch_size * 10),
       config["infer"].get("num_parallel_process_calls", multiprocessing.cpu_count()),
       config["data"],
       features_file)
