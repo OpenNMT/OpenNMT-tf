@@ -140,7 +140,9 @@ class Model(object):
     Returns:
       The initializer.
     """
-    _ = params
+    param_init = params.get("param_init")
+    if param_init is not None:
+      return tf.random_uniform_initializer(minval=-param_init, maxval=param_init)
     return None
 
   @abc.abstractmethod

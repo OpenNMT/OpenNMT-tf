@@ -22,6 +22,8 @@ params:
   optimizer: AdamOptimizer
   learning_rate: 1.0
 
+  # (optional) Global parameter initialization [-param_init, param_init].
+  param_init: 0.1
   # (optional) Maximum gradients norm (default: None).
   clip_gradients: 5.0
   # (optional) The type of learning rate decay (default: None). See:

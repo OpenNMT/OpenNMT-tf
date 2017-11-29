@@ -3,6 +3,7 @@
 params:
   optimizer: GradientDescentOptimizer
   learning_rate: 1.0
+  param_init: 0.1
   clip_gradients: 5.0
   decay_type: exponential_decay
   decay_rate: 0.7
