@@ -26,6 +26,8 @@ params:
   param_init: 0.1
   # (optional) Maximum gradients norm (default: None).
   clip_gradients: 5.0
+  # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
+  average_loss_in_time: false
   # (optional) The type of learning rate decay (default: None). See:
   #  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate
   #  * opennmt/utils/decay.py

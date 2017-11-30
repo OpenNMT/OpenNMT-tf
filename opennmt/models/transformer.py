@@ -73,3 +73,9 @@ class Transformer(SequenceToSequence):
 
   def _initializer(self, params):
     return tf.variance_scaling_initializer(mode="fan_avg", distribution="uniform")
+
+  def _compute_loss(self, features, labels, outputs, params, mode):
+    if "average_loss_in_time" not in params:
+      params["average_loss_in_time"] = True
+    return super(Transformer, self)._compute_loss(
+        features, labels, outputs, params, mode)
