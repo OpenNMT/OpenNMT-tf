@@ -212,7 +212,6 @@ class Model(object):
         learning_rate_decay_fn=decay_fn,
         summaries=[
             "learning_rate",
-            "loss",
             "global_gradient_norm",
         ])
 

@@ -219,6 +219,7 @@ class SequenceToSequence(Model):
         labels["ids_out"],
         self._get_labels_length(labels),
         label_smoothing=params.get("label_smoothing", 0.0),
+        average_in_time=params.get("average_loss_in_time", False),
         mode=mode)
 
   def print_prediction(self, prediction, params=None, stream=None):

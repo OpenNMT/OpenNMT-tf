@@ -24,6 +24,7 @@ def cross_entropy_sequence_loss(logits,
                                 labels,
                                 sequence_length,
                                 label_smoothing=0.0,
+                                average_in_time=False,
                                 mode=tf.estimator.ModeKeys.TRAIN):
   """Computes the reduced cross entropy loss of sequences.
 
@@ -32,6 +33,7 @@ def cross_entropy_sequence_loss(logits,
     labels: The true labels.
     sequence_length: The length of each sequence.
     label_smoothing: The label smoothing value.
+    average_in_time: If ``True``, also average the loss in the time dimension.
     mode: A ``tf.estimator.ModeKeys`` mode.
 
   Returns:
@@ -39,8 +41,16 @@ def cross_entropy_sequence_loss(logits,
   """
   cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
   weights = tf.sequence_mask(sequence_length, dtype=tf.float32)
-  loss = tf.reduce_sum(cross_entropy * weights) / tf.reduce_sum(weights)
-  return loss
+  loss = tf.reduce_sum(cross_entropy * weights)
+  normalized_loss = loss / tf.reduce_sum(weights)
+
+  if average_in_time:
+    return normalized_loss
+  else:
+    # Summarize the normalized loss for better interpretability.
+    tf.summary.scalar("normalized_loss", normalized_loss)
+    batch_size = tf.shape(logits)[0]
+    return loss / tf.to_float(batch_size)
 
 def cross_entropy_loss(logits,
                        labels,
