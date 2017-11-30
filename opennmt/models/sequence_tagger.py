@@ -113,8 +113,12 @@ class SequenceTagger(Model):
           self.labels_vocabulary_file,
           vocab_size=self.num_labels)
 
+      # A tensor can not be both fed and fetched,
+      # so identity a new tensor of "length" for export model to predict
+      output_sequence_length = tf.identity(encoder_sequence_length)
+
       predictions = {
-          "length": encoder_sequence_length,
+          "length": output_sequence_length,
           "tags": labels_vocab_rev.lookup(tags_id)
       }
     else:
