@@ -73,6 +73,7 @@ class InputterTest(tf.test.TestCase):
         embedding_file,
         vocab_file,
         num_oov_buckets=1,
+        with_header=False,
         case_insensitive_embeddings=True)
     self.assertAllEqual([5, 2], embeddings.shape)
     self.assertAllEqual([1, 1], embeddings[0])
@@ -83,6 +84,7 @@ class InputterTest(tf.test.TestCase):
         embedding_file,
         vocab_file,
         num_oov_buckets=2,
+        with_header=False,
         case_insensitive_embeddings=False)
     self.assertAllEqual([6, 2], embeddings.shape)
     self.assertAllEqual([3, 3], embeddings[2])
@@ -103,7 +105,6 @@ class InputterTest(tf.test.TestCase):
         embedding_file,
         vocab_file,
         num_oov_buckets=1,
-        with_header=True,
         case_insensitive_embeddings=True)
     self.assertAllEqual([5, 2], embeddings.shape)
     self.assertAllEqual([1, 1], embeddings[0])
