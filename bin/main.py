@@ -88,7 +88,8 @@ def train(estimator, model, config):
           output_dir=estimator.model_dir)]
 
   eval_hooks = []
-  if config["train"].get("save_eval_predictions", False):
+  if (config["train"].get("save_eval_predictions", False)
+      or config["train"].get("external_evaluators") is not None):
     save_path = os.path.join(estimator.model_dir, "eval")
     if not os.path.isdir(save_path):
       os.makedirs(save_path)
@@ -99,8 +100,6 @@ def train(estimator, model, config):
             config["train"].get("external_evaluators"),
             config["data"]["eval_labels_file"],
             output_dir=estimator.model_dir)))
-  elif config["train"].get("external_evaluators") is not None:
-    tf.logging.warning("External evaluators only work when save_eval_predictions is enabled.")
 
   train_spec = tf.estimator.TrainSpec(
       input_fn=model.input_fn(
