@@ -37,7 +37,7 @@ def item_or_tuple(x):
 
 def count_lines(filename):
   """Returns the number of lines of the file :obj:`filename`."""
-  with open(filename) as f:
+  with open(filename, "rb") as f:
     i = 0
     for i, _ in enumerate(f):
       pass
