@@ -224,7 +224,7 @@ class TextInputter(Inputter):
 
     if "tokens" not in data:
       text = data["raw"]
-      tokens = self.tokenizer(text)
+      tokens = self.tokenizer.tokenize(text)
       length = tf.shape(tokens)[0]
 
       data = self.set_data_field(data, "tokens", tokens, padded_shape=[None], volatile=True)

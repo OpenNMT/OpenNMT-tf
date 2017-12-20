@@ -22,7 +22,7 @@ class Tokenizer(object):
     else:
       self._configuration_file_key = configuration_file_or_key
 
-  def __call__(self, text):
+  def tokenize(self, text):
     """Tokenizes text.
 
     Args:
@@ -31,12 +31,61 @@ class Tokenizer(object):
     Returns:
       A 1-D string ``tf.Tensor`` if :obj:`text` is a ``tf.Tensor`` or a list of
       Python unicode strings otherwise.
+
+    Raises:
+      ValueError: if the rank of :obj:`text` is greater than 0.
     """
     if tf.contrib.framework.is_tensor(text):
-      return self._tokenize_tensor(text)
+      rank = len(text.get_shape().as_list())
+      if rank == 0:
+        return self._tokenize_tensor(text)
+      else:
+        raise ValueError("Unsupported tensor rank for tokenization: {}".format(rank))
     else:
       text = tf.compat.as_text(text)
       return self._tokenize_string(text)
+
+  def detokenize(self, tokens, sequence_length=None):
+    """Detokenizes tokens.
+
+    The Tensor version supports batches of tokens.
+
+    Args:
+      tokens: The tokens as a 1-D or 2-D ``tf.Tensor`` or list of Python
+        strings.
+      sequence_length: The length of each sequence. Required if :obj:`tokens`
+        is a ``tf.Tensor``.
+
+    Returns:
+      A 0-D or 1-D string ``tf.Tensor`` if :obj:`tokens` is a ``tf.Tensor`` or a
+      Python unicode strings otherwise.
+
+    Raises:
+      ValueError: if the rank of :obj:`tokens` is greater than 2.
+      ValueError: if :obj:`tokens` is a 2-D ``tf.Tensor`` and
+        :obj:`sequence_length` is not set.
+    """
+    if tf.contrib.framework.is_tensor(tokens):
+      rank = len(tokens.get_shape().as_list())
+      if rank == 1:
+        return self._detokenize_tensor(tokens)
+      elif rank == 2:
+        if sequence_length is None:
+          raise ValueError("sequence_length is required for Tensor detokenization")
+        batch_size = tf.shape(tokens)[0]
+        array = tf.TensorArray(tf.string, size=batch_size, dynamic_size=False)
+        _, array = tf.while_loop(
+            lambda i, _: i < batch_size,
+            lambda i, a: (
+                i + 1, a.write(i, self._detokenize_tensor(tokens[i, :sequence_length[i]]))),
+            (tf.constant(0), array),
+            back_prop=False)
+        return array.stack()
+      else:
+        raise ValueError("Unsupported tensor rank for detokenization: {}".format(rank))
+    else:
+      tokens = [tf.compat.as_text(token) for token in tokens]
+      return self._detokenize_string(tokens)
 
   def initialize(self, metadata):
     """Initializes the tokenizer (e.g. load BPE models).
@@ -67,9 +116,23 @@ class Tokenizer(object):
       A 1-D string ``tf.Tensor``.
     """
     text = tf.py_func(
-        lambda x: tf.compat.as_bytes("\0".join(self(x))), [text], tf.string)
+        lambda x: tf.compat.as_bytes("\0".join(self.tokenize(x))), [text], tf.string)
     tokens = tf.string_split([text], delimiter="\0").values
     return tokens
+
+  def _detokenize_tensor(self, tokens):
+    """Detokenizes tokens.
+
+    When not overriden, this default implementation uses a ``tf.py_func``
+    operation to call the string-based detokenization.
+
+    Args:
+      tokens: A 1-D ``tf.Tensor``.
+
+    Returns:
+      A 0-D string ``tf.Tensor``.
+    """
+    return tf.py_func(self.detokenize, [tokens], tf.string)
 
   @abc.abstractmethod
   def _tokenize_string(self, text):
@@ -85,19 +148,43 @@ class Tokenizer(object):
     """
     raise NotImplementedError()
 
+  @abc.abstractmethod
+  def _detokenize_string(self, tokens):
+    """Detokenizes tokens.
+
+    Args:
+      tokens: A list of Python unicode strings.
+
+    Returns:
+      A unicode Python string.
+    """
+    raise NotImplementedError()
+
 
 class SpaceTokenizer(Tokenizer):
   """A tokenizer that splits on spaces."""
 
   def _tokenize_tensor(self, text):
-    return tf.string_split([text]).values
+    return tf.string_split([text], delimiter=" ").values
+
+  def _detokenize_tensor(self, tokens):
+    return tf.foldl(lambda a, x: a + " " + x, tokens, back_prop=False)
 
   def _tokenize_string(self, text):
     return text.split()
+
+  def _detokenize_string(self, tokens):
+    return " ".join(tokens)
 
 
 class CharacterTokenizer(Tokenizer):
   """A tokenizer that splits unicode characters."""
 
+  def _detokenize_tensor(self, tokens):
+    return tf.foldl(lambda a, x: a + x, tokens, back_prop=False)
+
   def _tokenize_string(self, text):
     return list(text)
+
+  def _detokenize_string(self, tokens):
+    return "".join(tokens)

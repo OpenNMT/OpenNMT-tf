@@ -44,7 +44,7 @@ class Vocab(object):
       for line in text:
         line = tf.compat.as_text(line.strip())
         if tokenizer:
-          tokens = tokenizer(line)
+          tokens = tokenizer.tokenize(line)
         else:
           tokens = line.split()
         for token in tokens:
