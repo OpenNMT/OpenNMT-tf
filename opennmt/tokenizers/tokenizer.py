@@ -1,7 +1,9 @@
 """Define base tokenizers."""
 
+import os
 import abc
 import six
+import yaml
 
 import tensorflow as tf
 
@@ -9,6 +11,16 @@ import tensorflow as tf
 @six.add_metaclass(abc.ABCMeta)
 class Tokenizer(object):
   """Base class for tokenizers."""
+
+  def __init__(self, configuration_file_or_key=None):
+    self._config = {}
+    if configuration_file_or_key is not None and os.path.isfile(configuration_file_or_key):
+      configuration_file = configuration_file_or_key
+      with open(configuration_file) as conf_file:
+        self._config = yaml.load(conf_file)
+      self._configuration_file_key = None
+    else:
+      self._configuration_file_key = configuration_file_or_key
 
   def __call__(self, text):
     """Tokenizes text.
@@ -39,7 +51,8 @@ class Tokenizer(object):
       metadata: A dictionary containing additional metadata set
         by the user.
     """
-    pass
+    if self._configuration_file_key is not None:
+      self._config = metadata.get(self._configuration_file_key, {})
 
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
