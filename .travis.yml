@@ -2,7 +2,18 @@ language: python
 python:
   - "2.7"
   - "3.5"
-install:
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
+      - cmake
+      - cmake-data
+      - libboost-python-dev
+before_install:
   - pip install tensorflow==1.4.0
   - pip install pyyaml
   - pip install nose2
@@ -14,6 +25,13 @@ install:
             pip install sphinx_rtd_theme
             pip install recommonmark
         fi
+install:
+  - export CXX="g++-4.8" CC="gcc-4.8"
+  - mkdir build && cd build
+  - cmake ..
+  - make
+  - export PYTHONPATH="$PYTHONPATH:$PWD/third_party/OpenNMTTokenizer/bindings/python/"
+  - cd ..
 script:
   - nose2
   - if [ "$TRAVIS_PYTHON_VERSION" == "3.5" ]; then pylint opennmt/ bin/; fi
