@@ -2,12 +2,15 @@
 
 """Define base tokenizers."""
 
+import sys
 import os
 import abc
 import six
 import yaml
 
 import tensorflow as tf
+
+from opennmt.utils.misc import print_bytes
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -23,6 +26,33 @@ class Tokenizer(object):
       self._configuration_file_key = None
     else:
       self._configuration_file_key = configuration_file_or_key
+
+  def tokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
+    """Tokenizes a stream of sentences.
+
+    Args:
+      input_stream: The input stream.
+      output_stream: The output stream.
+      delimiter: The token delimiter to use for text serialization.
+    """
+    for line in input_stream:
+      line = line.strip()
+      tokens = self.tokenize(line)
+      merged_tokens = delimiter.join(tokens)
+      print_bytes(tf.compat.as_bytes(merged_tokens), stream=output_stream)
+
+  def detokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
+    """Detokenizes a stream of sentences.
+
+    Args:
+      input_stream: The input stream.
+      output_stream: The output stream.
+      delimiter: The token delimiter used for text serialization.
+    """
+    for line in input_stream:
+      tokens = line.strip().split(delimiter)
+      string = self.detokenize(tokens)
+      print_bytes(tf.compat.as_bytes(string), stream=output_stream)
 
   def tokenize(self, text):
     """Tokenizes text.
