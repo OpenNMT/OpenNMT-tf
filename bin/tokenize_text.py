@@ -5,8 +5,10 @@ from __future__ import print_function
 import argparse
 import sys
 
-from opennmt import tokenizers
+import tensorflow as tf
 
+from opennmt import tokenizers
+from opennmt.utils.misc import print_bytes
 
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -22,7 +24,7 @@ def main():
     line = line.strip()
     tokens = tokenizer.tokenize(line)
     merged_tokens = args.delimiter.join(tokens)
-    print(merged_tokens)
+    print_bytes(tf.compat.as_bytes(merged_tokens))
 
 if __name__ == "__main__":
   main()

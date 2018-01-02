@@ -5,7 +5,10 @@ from __future__ import print_function
 import argparse
 import sys
 
+import tensorflow as tf
+
 from opennmt import tokenizers
+from opennmt.utils.misc import print_bytes
 
 
 def main():
@@ -21,7 +24,7 @@ def main():
   for line in sys.stdin:
     tokens = line.strip().split(args.delimiter)
     string = tokenizer.detokenize(tokens)
-    print(string)
+    print_bytes(tf.compat.as_bytes(string))
 
 if __name__ == "__main__":
   main()
