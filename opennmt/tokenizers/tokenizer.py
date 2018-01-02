@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Define base tokenizers."""
 
 import os
@@ -180,11 +182,8 @@ class SpaceTokenizer(Tokenizer):
 class CharacterTokenizer(Tokenizer):
   """A tokenizer that splits unicode characters."""
 
-  def _detokenize_tensor(self, tokens):
-    return tf.foldl(lambda a, x: a + x, tokens, back_prop=False)
-
   def _tokenize_string(self, text):
-    return list(text)
+    return list(text.replace(" ", u"▁"))
 
   def _detokenize_string(self, tokens):
-    return "".join(tokens)
+    return "".join(tokens).replace(u"▁", " ")
