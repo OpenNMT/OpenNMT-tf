@@ -2,6 +2,8 @@
 
 import six
 
+import tensorflow as tf
+
 
 class Vocab(object):
   """Vocabulary class."""
@@ -40,7 +42,7 @@ class Vocab(object):
     """
     with open(filename, "rb") as text:
       for line in text:
-        line = line.strip().decode("utf-8")
+        line = tf.compat.as_text(line.strip())
         if tokenizer:
           tokens = tokenizer(line)
         else:
@@ -56,7 +58,7 @@ class Vocab(object):
     """
     with open(path, "wb") as vocab:
       for token in self._id_to_token:
-        vocab.write(token.encode("utf-8"))
+        vocab.write(tf.compat.as_bytes(token))
         vocab.write(b"\n")
 
   def add(self, token):
