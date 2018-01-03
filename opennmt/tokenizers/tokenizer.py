@@ -27,6 +27,22 @@ class Tokenizer(object):
     else:
       self._configuration_file_key = configuration_file_or_key
 
+  def initialize(self, metadata):
+    """Initializes the tokenizer (e.g. load BPE models).
+
+    Any external assets should be registered in the standard assets collection:
+
+    .. code-block:: python
+
+        tf.add_to_collection(tf.GraphKeys.ASSET_FILEPATHS, filename)
+
+    Args:
+      metadata: A dictionary containing additional metadata set
+        by the user.
+    """
+    if self._configuration_file_key is not None:
+      self._config = metadata.get(self._configuration_file_key, {})
+
   def tokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
     """Tokenizes a stream of sentences.
 
@@ -118,22 +134,6 @@ class Tokenizer(object):
     else:
       tokens = [tf.compat.as_text(token) for token in tokens]
       return self._detokenize_string(tokens)
-
-  def initialize(self, metadata):
-    """Initializes the tokenizer (e.g. load BPE models).
-
-    Any external assets should be registered in the standard assets collection:
-
-    .. code-block:: python
-
-        tf.add_to_collection(ops.GraphKeys.ASSET_FILEPATHS, filename)
-
-    Args:
-      metadata: A dictionary containing additional metadata set
-        by the user.
-    """
-    if self._configuration_file_key is not None:
-      self._config = metadata.get(self._configuration_file_key, {})
 
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
