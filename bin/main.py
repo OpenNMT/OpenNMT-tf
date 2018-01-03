@@ -14,22 +14,27 @@ from opennmt.utils.evaluator import external_evaluation_fn
 from opennmt.config import load_model_module, load_config
 
 
-def _prefix_path(prefix, path):
-  """Prefix path(s).
+def _prefix_paths(prefix, paths):
+  """Recursively prefix paths.
 
   Args:
     prefix: The prefix to apply.
-    data: A path or a dict of paths.
+    data: A dict of relative paths.
 
   Returns:
-    The updated path or dict of paths.
+    The updated dict.
   """
-  if isinstance(path, dict):
-    for key, value in path.items():
-      path[key] = os.path.join(prefix, value)
+  if isinstance(paths, dict):
+    for key, path in paths.items():
+      paths[key] = _prefix_paths(prefix, path)
+    return paths
   else:
-    path = os.path.join(prefix, path)
-  return path
+    path = paths
+    new_path = os.path.join(prefix, path)
+    if os.path.isfile(new_path):
+      return new_path
+    else:
+      return path
 
 def load_model(model_dir, model_file=None):
   """Loads the model.
@@ -251,7 +256,7 @@ def main():
   config = load_config(args.config)
 
   if args.run_dir:
-    config["model_dir"] = _prefix_path(args.run_dir, config["model_dir"])
+    config["model_dir"] = os.path.join(args.run_dir, config["model_dir"])
   if not os.path.isdir(config["model_dir"]):
     tf.logging.info("Creating model directory %s", config["model_dir"])
     os.makedirs(config["model_dir"])
@@ -285,7 +290,7 @@ def main():
 
   if args.run == "train":
     if args.data_dir:
-      config["data"] = _prefix_path(args.data_dir, config["data"])
+      config["data"] = _prefix_paths(args.data_dir, config["data"])
     train(estimator, model, config)
   elif args.run == "infer":
     if not args.features_file:
