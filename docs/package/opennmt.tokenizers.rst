@@ -11,5 +11,6 @@ Submodules
 
 .. toctree::
 
+   opennmt.tokenizers.opennmt_tokenizer
    opennmt.tokenizers.tokenizer
 

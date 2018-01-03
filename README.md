@@ -76,6 +76,8 @@ python -m bin.main infer --config config/opennmt-defaults.yml config/data/toy-en
 
 **Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
 
+*For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf).*
+
 ## Compatibility with {Lua,Py}Torch implementations
 
 OpenNMT-tf has been designed from scratch and compatibility with the {Lua,Py}Torch implementations in terms of usage, design, and features is not a priority. Please submit a feature request for any missing feature or behavior that you found useful in the {Lua,Py}Torch implementations.

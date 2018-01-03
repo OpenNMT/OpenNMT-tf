@@ -1,5 +1,7 @@
 """Define the OpenNMT tokenizer."""
 
+import six
+
 import pyonmttok
 
 import tensorflow as tf
@@ -18,7 +20,10 @@ def create_tokenizer(config):
   """
   def _set(kwargs, key):
     if key in config:
-      kwargs[key] = config[key]
+      value = config[key]
+      if isinstance(value, six.string_types):
+        value = tf.compat.as_bytes(value)
+      kwargs[key] = value
 
   kwargs = {}
   _set(kwargs, "bpe_model_path")

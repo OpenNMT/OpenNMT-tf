@@ -18,6 +18,12 @@ class Tokenizer(object):
   """Base class for tokenizers."""
 
   def __init__(self, configuration_file_or_key=None):
+    """Initializes the tokenizer.
+
+    Args:
+      configuration_file_or_key: The YAML configuration file or a the key to
+        the YAML configuration file.
+    """
     self._config = {}
     if configuration_file_or_key is not None and os.path.isfile(configuration_file_or_key):
       configuration_file = configuration_file_or_key

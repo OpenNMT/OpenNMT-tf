@@ -1,0 +1,12 @@
+# This is a sample tokenization configuration with all values set to their default.
+
+mode: conservative
+bpe_model_path: ""
+joiner: ￭
+joiner_annotate: false
+joiner_new: false
+case_feature: false
+segment_case: false
+segment_numbers: false
+segment_alphabet_change: false
+segment_alphabet: []
