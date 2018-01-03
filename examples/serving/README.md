@@ -41,7 +41,7 @@ See the next section to understand why the last translation took more time to ap
 
 In this example, the translation requests are sent separately because batching is handled on the server side. The `batching_parameters.txt` should be carefully tuned to achieve the throughput/latency balance that is suited for your application.
 
-In particular, the provided configuration make the server run a batch translation if:
+In particular, the provided configuration makes the server run a batch translation if:
 
 * the number of queued requests has reached `max_batch_size` (here 2)
 * **or** `batch_timeout_micros` microseconds has passed (here 5,000,000)
