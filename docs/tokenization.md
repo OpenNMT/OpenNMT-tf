@@ -16,7 +16,13 @@ On Ubuntu, these packages can be installed with `apt-get`:
 sudo apt-get install build-essential gcc cmake libboost-python-dev
 ```
 
-1\. Compile the tokenizer plugin:
+1\. Fetch the Tokenizer plugin under OpenNMT-tf repository:
+
+```bash
+git submodule update --init
+```
+
+2\. Compile the tokenizer plugin:
 
 ```bash
 mkdir build && cd build
@@ -24,13 +30,13 @@ cmake .. && make
 cd ..
 ```
 
-2\. Configure your environment for Python to find the newly generated package:
+3\. Configure your environment for Python to find the newly generated package:
 
 ```bash
 export PYTHONPATH="$PYTHONPATH:$HOME/OpenNMT-tf/build/third_party/OpenNMTTokenizer/bindings/python/"
 ```
 
-3\. Test the plugin:
+4\. Test the plugin:
 
 ```bash
 $ echo "Hello world!" | python -m bin.tokenize_text --tokenizer OpenNMTTokenizer
