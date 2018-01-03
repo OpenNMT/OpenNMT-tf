@@ -47,7 +47,9 @@ class Tokenizer(object):
         by the user.
     """
     if self._configuration_file_key is not None:
-      self._config = metadata.get(self._configuration_file_key, {})
+      configuration_file = metadata[self._configuration_file_key]
+      with open(configuration_file) as conf_file:
+        self._config = yaml.load(conf_file)
 
   def tokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
     """Tokenizes a stream of sentences.
