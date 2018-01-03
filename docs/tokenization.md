@@ -86,4 +86,4 @@ data:
 ## Notes
 
 * As of now, tokenizers are not part of the exported graph.
-* Predictions saved during inference or evaluation are detokenized. Consider using the "BLEU-detok" external evaluator that applies a simple word level tokenization before computing the BLEU score.
+* Predictions saved during inference or evaluation are detokenized. Consider using the "BLEU-detok" external evaluator that calls `multi-bleu-detok.perl` instead of `multi-bleu.perl`.

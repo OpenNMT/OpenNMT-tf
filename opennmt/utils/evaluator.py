@@ -4,18 +4,12 @@ import subprocess
 
 import abc
 import re
+import os
 import six
 
 import tensorflow as tf
 
 from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
-from opennmt import tokenizers
-
-
-def _word_level_tokenization(input_filename, output_filename):
-  tokenizer = tokenizers.OpenNMTTokenizer()
-  with open(input_filename, "rb") as input_file, open(output_filename, "wb") as output_file:
-    tokenizer.tokenize_stream(input_stream=input_file, output_stream=output_file)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -68,14 +62,18 @@ class ExternalEvaluator(object):
 class BLEUEvaluator(ExternalEvaluator):
   """Evaluator calling multi-bleu.perl."""
 
+  def _get_bleu_script(self):
+    return "multi-bleu.perl"
+
   def name(self):
     return "BLEU"
 
   def score(self, labels_file, predictions_path):
+    bleu_script = self._get_bleu_script()
     try:
       with open(predictions_path, "r") as predictions_file:
         bleu_out = subprocess.check_output(
-            ["third_party/multi-bleu.perl", labels_file],
+            [os.path.join("third_party", bleu_script), labels_file],
             stdin=predictions_file,
             stderr=subprocess.STDOUT)
         bleu_out = bleu_out.decode("utf-8")
@@ -85,28 +83,18 @@ class BLEUEvaluator(ExternalEvaluator):
       if error.output is not None:
         msg = error.output.strip()
         tf.logging.warning(
-            "multi-bleu.perl script returned non-zero exit code: {}".format(msg))
+            "{} script returned non-zero exit code: {}".format(bleu_script, msg))
       return None
 
 
 class BLEUDetokEvaluator(BLEUEvaluator):
-  """Evaluator applying a simple tokenization before calling multi-bleu.perl."""
+  """Evaluator calling multi-bleu-detok.perl."""
 
-  def __init__(self, labels_file=None, output_dir=None):
-    if not hasattr(tokenizers, "OpenNMTTokenizer"):
-      raise RuntimeError("The BLEU-detok evaluator only works when the OpenNMT tokenizer "
-                         "is available. Please re-check its installation.")
-    super(BLEUDetokEvaluator, self).__init__(labels_file=labels_file, output_dir=output_dir)
+  def _get_bleu_script(self):
+    return "multi-bleu-detok.perl"
 
   def name(self):
     return "BLEU-detok"
-
-  def score(self, labels_file, predictions_path):
-    tok_labels_file = labels_file + ".light_tok"
-    tok_predictions_path = predictions_path + ".light_tok"
-    _word_level_tokenization(labels_file, tok_labels_file)
-    _word_level_tokenization(predictions_path, tok_predictions_path)
-    return super(BLEUDetokEvaluator, self).score(tok_labels_file, tok_predictions_path)
 
 
 def external_evaluation_fn(evaluators_name, labels_file, output_dir=None):
