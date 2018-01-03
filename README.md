@@ -18,6 +18,7 @@ OpenNMT-tf focuses on modularity and extensibility using standard TensorFlow mod
 * **hybrid encoder-decoder models**<br/>e.g. self-attention encoder and RNN decoder or vice versa.
 * **multi-source training**<br/>e.g. source text and Moses translation as inputs for machine translation.
 * **multiple input format**<br/>text with support of mixed word/character embeddings or real vectors serialized in *TFRecord* files.
+* **on-the-fly tokenization**<br/>apply advanced tokenization dynamically during the training and detokenize the predictions during inference or evaluation.
 
 and all of the above can be used simultaneously to train novel and complex architectures. See the [predefined models](config/models) to discover how they are defined.
 
@@ -75,6 +76,8 @@ python -m bin.main infer --config config/opennmt-defaults.yml config/data/toy-en
 ```
 
 **Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
+
+*For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf).*
 
 ## Compatibility with {Lua,Py}Torch implementations
 

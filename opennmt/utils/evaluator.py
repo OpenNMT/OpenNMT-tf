@@ -9,6 +9,13 @@ import six
 import tensorflow as tf
 
 from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
+from opennmt import tokenizers
+
+
+def _word_level_tokenization(input_filename, output_filename):
+  tokenizer = tokenizers.OpenNMTTokenizer()
+  with open(input_filename, "rb") as input_file, open(output_filename, "wb") as output_file:
+    tokenizer.tokenize_stream(input_stream=input_file, output_stream=output_file)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -82,6 +89,26 @@ class BLEUEvaluator(ExternalEvaluator):
       return None
 
 
+class BLEUDetokEvaluator(BLEUEvaluator):
+  """Evaluator applying a simple tokenization before calling multi-bleu.perl."""
+
+  def __init__(self, labels_file=None, output_dir=None):
+    if not hasattr(tokenizers, "OpenNMTTokenizer"):
+      raise RuntimeError("The BLEU-detok evaluator only works when the OpenNMT tokenizer "
+                         "is available. Please re-check its installation.")
+    super(BLEUDetokEvaluator, self).__init__(labels_file=labels_file, output_dir=output_dir)
+
+  def name(self):
+    return "BLEU-detok"
+
+  def score(self, labels_file, predictions_path):
+    tok_labels_file = labels_file + ".light_tok"
+    tok_predictions_path = predictions_path + ".light_tok"
+    _word_level_tokenization(labels_file, tok_labels_file)
+    _word_level_tokenization(predictions_path, tok_predictions_path)
+    return super(BLEUDetokEvaluator, self).score(tok_labels_file, tok_predictions_path)
+
+
 def external_evaluation_fn(evaluators_name, labels_file, output_dir=None):
   """Returns a callable to be used in
   :class:`opennmt.utils.hooks.SaveEvaluationPredictionHook` that calls one or
@@ -110,6 +137,8 @@ def external_evaluation_fn(evaluators_name, labels_file, output_dir=None):
     name = name.lower()
     if name == "bleu":
       evaluator = BLEUEvaluator(labels_file=labels_file, output_dir=output_dir)
+    elif name == "bleu-detok":
+      evaluator = BLEUDetokEvaluator(labels_file=labels_file, output_dir=output_dir)
     else:
       raise ValueError("No evaluator associated with the name: {}".format(name))
     evaluators.append(evaluator)

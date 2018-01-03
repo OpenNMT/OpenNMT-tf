@@ -231,5 +231,5 @@ class SequenceToSequence(Model):
 
     for i in range(n_best):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
-      sentence = b" ".join(tokens)
-      print_bytes(sentence, stream=stream)
+      sentence = self.target_inputter.tokenizer.detokenize(tokens)
+      print_bytes(tf.compat.as_bytes(sentence), stream=stream)

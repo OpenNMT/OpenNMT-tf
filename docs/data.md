@@ -9,7 +9,7 @@ The format of the data files is defined by the `opennmt.inputters.Inputter` used
 All `opennmt.inputters.TextInputter`s expect a text file as input where:
 
 * sentences are separated by a **newline**
-* tokens are separated by a **space** (unless a custom tokenizer is set)
+* tokens are separated by a **space** (unless a custom tokenizer is set, see [Tokenization](tokenization.html))
 
 For example:
 

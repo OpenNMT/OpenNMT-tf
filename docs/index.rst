@@ -7,6 +7,7 @@ Overview
    :maxdepth: 1
 
    data.md
+   tokenization.md
    configuration.md
    training.md
    serving.md

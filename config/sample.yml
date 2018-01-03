@@ -77,7 +77,7 @@ train:
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: BLEU
+  # Available evaluators: BLEU, BLEU-detok
   external_evaluators: BLEU
   # (optional) The maximum length of feature sequences during training (default: None).
   maximum_features_length: 70

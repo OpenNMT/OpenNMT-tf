@@ -6,8 +6,6 @@ from opennmt import constants
 from opennmt import tokenizers
 from opennmt import utils
 
-from opennmt.utils.misc import get_classnames_in_module
-
 
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -18,9 +16,6 @@ def main():
       "--save_vocab", required=True,
       help="Output vocabulary file.")
   parser.add_argument(
-      "--tokenizer", default="SpaceTokenizer", choices=get_classnames_in_module(tokenizers),
-      help="Tokenizer class name.")
-  parser.add_argument(
       "--min_frequency", type=int, default=1,
       help="Minimum word frequency.")
   parser.add_argument(
@@ -29,9 +24,10 @@ def main():
   parser.add_argument(
       "--without_sequence_tokens", default=False, action="store_true",
       help="If set, do not add special sequence tokens (start, end) in the vocabulary.")
+  tokenizers.add_command_line_arguments(parser)
   args = parser.parse_args()
 
-  tokenizer = getattr(tokenizers, args.tokenizer)()
+  tokenizer = tokenizers.build_tokenizer(args)
 
   special_tokens = [constants.PADDING_TOKEN]
   if not args.without_sequence_tokens:
