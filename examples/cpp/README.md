@@ -1,6 +1,6 @@
-## C++ inference
+## Inference with the TensorFlow C++ API
 
-This example shows how to translate a batch of sentences using C++.
+This example shows how to translate a batch of sentences using the TensorFlow C++ API.
 
 ### Requirements
 
@@ -63,7 +63,7 @@ tf_cc_shared_object(
 bazel build --config=opt //tensorflow:libtensorflow_opennmt.so
 ```
 
-**Note:** this compilation approach is presented for the sole purpose of this example. It may not be the recommended approach to work with the TensorFlow C++ API.
+**Note:** this compilation approach is presented for the sole purpose of this example. It may not be the recommended way to work with the TensorFlow C++ API.
 
 ### Usage
 

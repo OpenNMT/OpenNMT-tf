@@ -1,6 +1,6 @@
-## Serving
+## Inference with TensorFlow Serving
 
-This example implements a simple client that sends translation requests to a model server.
+This example implements a simple client that sends translation requests to a model server managed by TensorFlow Serving.
 
 ### Requirements
 
@@ -37,7 +37,7 @@ I live on the West coast . ||| Je vis sur la côte Ouest .
 
 See the next section to understand why the last translation took more time to appear.
 
-### Batching
+### Batching with TensorFlow Serving
 
 In this example, the translation requests are sent separately because batching is handled on the server side. The `batching_parameters.txt` should be carefully tuned to achieve the throughput/latency balance that is suited for your application.
 

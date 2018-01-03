@@ -1,5 +1,3 @@
-*This project is experimental. Feedback and testing are welcome.*
-
 [![Build Status](https://api.travis-ci.org/OpenNMT/OpenNMT-tf.svg?branch=master)](https://travis-ci.org/OpenNMT/OpenNMT-tf) [![Documentation](https://img.shields.io/badge/docs-master-brightgreen.svg)](http://opennmt.net/OpenNMT-tf/) [![Gitter](https://badges.gitter.im/OpenNMT/OpenNMT-tf.svg)](https://gitter.im/OpenNMT/OpenNMT-tf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # OpenNMT-tf
@@ -10,15 +8,18 @@ OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow with produc
 * sequence tagging
 * sequence classification
 
+*The project is still in beta and does not come with stability guarantees.*
+
 ## Key features
 
-OpenNMT-tf focuses on modularity and extensibility using standard TensorFlow modules and practices to support advanced modeling capability:
+OpenNMT-tf focuses on modularity to support advanced modeling and training capabilities:
 
 * **arbitrarily complex encoder architectures**<br/>e.g. mixing RNNs, CNNs, self-attention, etc. in parallel or in sequence.
 * **hybrid encoder-decoder models**<br/>e.g. self-attention encoder and RNN decoder or vice versa.
 * **multi-source training**<br/>e.g. source text and Moses translation as inputs for machine translation.
 * **multiple input format**<br/>text with support of mixed word/character embeddings or real vectors serialized in *TFRecord* files.
 * **on-the-fly tokenization**<br/>apply advanced tokenization dynamically during the training and detokenize the predictions during inference or evaluation.
+* **automatic evaluation**<br/>support for saving evaluation predictions and running external evaluators (e.g. BLEU).
 
 and all of the above can be used simultaneously to train novel and complex architectures. See the [predefined models](config/models) to discover how they are defined.
 
@@ -26,7 +27,7 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 
 * asynchronous distributed training
 * monitoring with [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard)
-* inference with [TensorFlow Serving](https://www.tensorflow.org/serving/)
+* inference with [TensorFlow Serving](https://www.tensorflow.org/serving/) and the TensorFlow C++ API.
 
 ## Requirements
 
@@ -77,7 +78,7 @@ python -m bin.main infer --config config/opennmt-defaults.yml config/data/toy-en
 
 **Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
 
-*For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf).*
+For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf).
 
 ## Compatibility with {Lua,Py}Torch implementations
 
