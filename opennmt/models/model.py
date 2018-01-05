@@ -328,12 +328,7 @@ class Model(object):
     if prefetch_buffer_size:
       dataset = dataset.prefetch(prefetch_buffer_size)
 
-    iterator = dataset.make_initializable_iterator()
-
-    # Add the initializer to a standard collection for it to be initialized.
-    tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
-
-    return iterator.get_next()
+    return dataset
 
   def input_fn(self,
                mode,
@@ -350,7 +345,7 @@ class Model(object):
                prefetch_buffer_size=None,
                maximum_features_length=None,
                maximum_labels_length=None):
-    """Returns an input function.
+    """Returns an input pipeline.
 
     Args:
       mode: A ``tf.estimator.ModeKeys`` mode.
@@ -375,7 +370,7 @@ class Model(object):
         ``None`` to not constrain the length.
 
     Returns:
-      A callable that returns the next element.
+      A ``tf.data.Dataset``.
 
     Raises:
       ValueError: if :obj:`labels_file` is not set when in training or
