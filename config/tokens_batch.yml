@@ -1,0 +1,7 @@
+params:
+  average_loss_in_time: true
+
+train:
+  batch_size: 4096
+  batch_type: tokens
+  bucket_width: 1

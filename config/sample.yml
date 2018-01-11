@@ -64,6 +64,8 @@ params:
 train:
   batch_size: 64
 
+  # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
+  batch_type: examples
   # (optional) Save a checkpoint every this many steps.
   save_checkpoints_steps: 5000
   # (optional) How many checkpoints to keep on disk.
@@ -83,8 +85,8 @@ train:
   maximum_features_length: 70
   # (optional) The maximum length of label sequences during training (default: None).
   maximum_labels_length: 70
-  # (optional) The number of buckets by sequence length to improve training efficiency (default: 5).
-  num_buckets: 5
+  # (optional) The width of the length buckets to select batch candidates from (default: 5).
+  bucket_width: 5
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_parallel_process_calls: 4
   # (optional) The data prefetch buffer size (default: batch_size * 1000).

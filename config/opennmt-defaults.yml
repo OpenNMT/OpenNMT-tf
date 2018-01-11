@@ -14,6 +14,7 @@ params:
 
 train:
   batch_size: 64
+  bucket_width: 1
   save_checkpoints_steps: 5000
   save_summary_steps: 50
   train_steps: 1000000

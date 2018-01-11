@@ -366,7 +366,8 @@ class Model(object):
                      metadata,
                      features_file,
                      labels_file=None,
-                     num_buckets=None,
+                     batch_type="examples",
+                     bucket_width=None,
                      sample_buffer_size=None,
                      maximum_features_length=None,
                      maximum_labels_length=None):
@@ -405,33 +406,21 @@ class Model(object):
           maximum_features_length=maximum_features_length,
           maximum_labels_length=maximum_labels_length))
 
-    num_buckets = num_buckets or 1
-
-    if mode == tf.estimator.ModeKeys.TRAIN and num_buckets > 1:
-      # Bucketize training dataset to improve efficiency.
+    if mode == tf.estimator.ModeKeys.TRAIN and bucket_width is not None:
+      # Form batches with sequences of similar lengths to improve efficiency.
       def _key_func(features, labels):
-        length = None
+        features_length = self._get_features_length(features)
+        labels_length = self._get_labels_length(labels)
 
-        if length is None:
-          length = self._get_features_length(features)
-          maximum_length = maximum_features_length
-          # For multi inputs, apply bucketing on the target side or none at all.
-          if isinstance(length, list):
-            length = None
-            maximum_length = None
-        if length is None:
-          length = self._get_labels_length(labels)
-          maximum_length = maximum_labels_length
-        if length is None:
-          return tf.constant(0, dtype=tf.int64)
+        # For multi inputs, apply bucketing on the target side or none at all.
+        if isinstance(features_length, list):
+          features_length = None
 
-        if maximum_length is not None:
-          bucket_width = (maximum_length + num_buckets - 1) // num_buckets
-        else:
-          bucket_width = 10
-
-        bucket_id = length // bucket_width
-        bucket_id = tf.minimum(bucket_id, num_buckets)
+        bucket_id = tf.constant(0, dtype=tf.int32)
+        if features_length is not None:
+          bucket_id = tf.maximum(bucket_id, features_length // bucket_width)
+        if labels_length is not None:
+          bucket_id = tf.maximum(bucket_id, labels_length // bucket_width)
         return tf.to_int64(bucket_id)
 
       def _reduce_func(unused_key, dataset):
@@ -439,10 +428,23 @@ class Model(object):
             batch_size,
             padded_shapes=padded_shapes)
 
-      dataset = dataset.apply(tf.contrib.data.group_by_window(
-          _key_func,
-          _reduce_func,
-          window_size=batch_size))
+      def _window_size_func(key):
+        if bucket_width > 1:
+          key += 1  # For bucket_width == 1, key 0 is unassigned.
+        size = batch_size // (key * bucket_width)
+        return tf.to_int64(tf.maximum(size, 1))
+
+      if batch_type == "examples":
+        batchify_fn = tf.contrib.data.group_by_window(
+            _key_func, _reduce_func, window_size=batch_size)
+      elif batch_type == "tokens":
+        batchify_fn = tf.contrib.data.group_by_window(
+            _key_func, _reduce_func, window_size_func=_window_size_func)
+      else:
+        raise ValueError(
+            "Invalid batch type: '{}'; should be 'examples' or 'tokens'".format(batch_type))
+
+      dataset = dataset.apply(batchify_fn)
     else:
       dataset = dataset.padded_batch(
           batch_size,
@@ -466,7 +468,8 @@ class Model(object):
                metadata,
                features_file,
                labels_file=None,
-               num_buckets=None,
+               batch_type="examples",
+               bucket_width=None,
                sample_buffer_size=None,
                maximum_features_length=None,
                maximum_labels_length=None):
@@ -481,7 +484,10 @@ class Model(object):
         by the user.
       features_file: The file containing input features.
       labels_file: The file containing output labels.
-      num_buckets: The number of buckets to store examples of similar sizes.
+      batch_type: The training batching stragety to use: can be "examples" or
+        "tokens".
+      bucket_width: The width of the length buckets to select batch candidates
+        from. ``None`` to not constrain batch formation.
       sample_buffer_size: The number of elements from which to sample.
       maximum_features_length: The maximum length or list of maximum lengths of
         the features sequence(s). ``None`` to not constrain the length.
@@ -509,7 +515,8 @@ class Model(object):
         metadata,
         features_file,
         labels_file=labels_file,
-        num_buckets=num_buckets,
+        batch_type=batch_type,
+        bucket_width=bucket_width,
         sample_buffer_size=sample_buffer_size,
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length)
