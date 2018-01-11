@@ -44,11 +44,12 @@ def cross_entropy_sequence_loss(logits,
   loss = tf.reduce_sum(cross_entropy * weights)
   normalized_loss = loss / tf.reduce_sum(weights)
 
+  # Summarize the normalized loss for better interpretability.
+  tf.summary.scalar("normalized_loss", normalized_loss)
+
   if average_in_time:
     return normalized_loss
   else:
-    # Summarize the normalized loss for better interpretability.
-    tf.summary.scalar("normalized_loss", normalized_loss)
     batch_size = tf.shape(logits)[0]
     return loss / tf.to_float(batch_size)
 
