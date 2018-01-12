@@ -5,3 +5,6 @@ train:
   batch_size: 4096
   batch_type: tokens
   bucket_width: 1
+
+eval:
+  batch_size: 64

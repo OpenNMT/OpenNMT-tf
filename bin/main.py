@@ -81,10 +81,8 @@ def train(estimator, model, config):
     model: A `opennmt.models.Model`.
     config: The configuration.
   """
-  batch_size = config["train"]["batch_size"]
-  prefetch_buffer_size = config["train"].get("prefetch_buffer_size", batch_size * 1000)
-  num_parallel_process_calls = config["train"].get(
-      "num_parallel_process_calls", multiprocessing.cpu_count())
+  if "eval" not in config:
+    config["eval"] = {}
 
   train_hooks = [
       hooks.LogParametersCountHook(),
@@ -93,8 +91,8 @@ def train(estimator, model, config):
           output_dir=estimator.model_dir)]
 
   eval_hooks = []
-  if (config["train"].get("save_eval_predictions", False)
-      or config["train"].get("external_evaluators") is not None):
+  if (config["eval"].get("save_eval_predictions", False)
+      or config["eval"].get("external_evaluators") is not None):
     save_path = os.path.join(estimator.model_dir, "eval")
     if not os.path.isdir(save_path):
       os.makedirs(save_path)
@@ -102,20 +100,27 @@ def train(estimator, model, config):
         model,
         os.path.join(save_path, "predictions.txt"),
         post_evaluation_fn=external_evaluation_fn(
-            config["train"].get("external_evaluators"),
+            config["eval"].get("external_evaluators"),
             config["data"]["eval_labels_file"],
             output_dir=estimator.model_dir)))
 
+  train_batch_size = config["train"]["batch_size"]
+  train_batch_type = config["train"].get("batch_type", "examples")
+  train_prefetch_buffer_size = config["train"].get(
+      "prefetch_buffer_size",
+      train_batch_size * (1000 if train_batch_type == "examples" else 50))
+  train_num_parallel_process_calls = config["train"].get(
+      "num_parallel_process_calls", multiprocessing.cpu_count())
   train_spec = tf.estimator.TrainSpec(
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.TRAIN,
-          batch_size,
-          prefetch_buffer_size,
-          num_parallel_process_calls,
+          train_batch_size,
+          train_prefetch_buffer_size,
+          train_num_parallel_process_calls,
           config["data"],
           config["data"]["train_features_file"],
           labels_file=config["data"]["train_labels_file"],
-          batch_type=config["train"].get("batch_type", "examples"),
+          batch_type=train_batch_type,
           bucket_width=config["train"].get("bucket_width", 5),
           sample_buffer_size=config["train"].get("sample_buffer_size", 1000000),
           maximum_features_length=config["train"].get("maximum_features_length"),
@@ -123,19 +128,25 @@ def train(estimator, model, config):
       max_steps=config["train"].get("train_steps"),
       hooks=train_hooks)
 
+  eval_batch_size = config["eval"].get(
+      "batch_size", train_batch_size if train_batch_type == "examples" else 30)
+  eval_prefetch_buffer_size = config["eval"].get(
+      "prefetch_buffer_size", eval_batch_size * 10)
+  eval_num_parallel_process_calls = config["eval"].get(
+      "num_parallel_process_calls", train_num_parallel_process_calls)
   eval_spec = tf.estimator.EvalSpec(
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.EVAL,
-          batch_size,
-          prefetch_buffer_size,
-          num_parallel_process_calls,
+          eval_batch_size,
+          eval_prefetch_buffer_size,
+          eval_num_parallel_process_calls,
           config["data"],
           config["data"]["eval_features_file"],
           labels_file=config["data"]["eval_labels_file"]),
       steps=None,
       hooks=eval_hooks,
       exporters=tf.estimator.LatestExporter("latest", model.serving_input_fn(config["data"])),
-      throttle_secs=config["train"].get("eval_delay", 18000))
+      throttle_secs=config["eval"].get("eval_delay", 18000))
 
   tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
