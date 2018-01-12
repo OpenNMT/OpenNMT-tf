@@ -64,6 +64,8 @@ params:
 train:
   batch_size: 64
 
+  # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
+  batch_type: examples
   # (optional) Save a checkpoint every this many steps.
   save_checkpoints_steps: 5000
   # (optional) How many checkpoints to keep on disk.
@@ -72,19 +74,12 @@ train:
   save_summary_steps: 100
   # (optional) Train for this many steps. If not set, train forever.
   train_steps: 1000000
-  # (optional) Evaluate every this many seconds (default: 18000).
-  eval_delay: 7200
-  # (optional) Save evaluation predictions in model_dir/eval/.
-  save_eval_predictions: false
-  # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: BLEU, BLEU-detok
-  external_evaluators: BLEU
   # (optional) The maximum length of feature sequences during training (default: None).
   maximum_features_length: 70
   # (optional) The maximum length of label sequences during training (default: None).
   maximum_labels_length: 70
-  # (optional) The number of buckets by sequence length to improve training efficiency (default: 5).
-  num_buckets: 5
+  # (optional) The width of the length buckets to select batch candidates from (default: 5).
+  bucket_width: 5
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_parallel_process_calls: 4
   # (optional) The data prefetch buffer size (default: batch_size * 1000).
@@ -92,6 +87,22 @@ train:
   # (optional) The number of elements from which to sample during shuffling (default: 1000000).
   # Consider setting this to the number of training examples.
   sample_buffer_size: 1000000
+
+# (optional) Evaluation options.
+eval:
+  # (optional) The batch size to use (default: train value or 30 if not applicable).
+  batch_size: 30
+  # (optional) The number of threads to use for processing data in parallel (default: train value).
+  num_parallel_process_calls: 4
+  # (optional) The prefetch buffer size when processing data in parallel (default: batch_size * 10).
+  prefetch_buffer_size: 100
+  # (optional) Evaluate every this many seconds (default: 18000).
+  eval_delay: 7200
+  # (optional) Save evaluation predictions in model_dir/eval/.
+  save_eval_predictions: false
+  # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
+  # Available evaluators: BLEU, BLEU-detok
+  external_evaluators: BLEU
 
 # (optional) Inference options.
 infer:
