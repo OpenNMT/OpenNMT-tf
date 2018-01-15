@@ -19,34 +19,36 @@ def tile_sequence_length(sequence_length, num_heads):
   sequence_length = tf.reshape(sequence_length, [-1])
   return sequence_length
 
-def build_sequence_mask(sequence_length, num_heads=None):
+def build_sequence_mask(sequence_length, num_heads=None, dtype=tf.float32):
   """Builds the dot product mask.
 
   Args:
     sequence_length: The sequence length.
     num_heads: The number of heads.
+    dtype: The type of the mask tensor.
 
   Returns:
-    A broadcastable float ``tf.Tensor`` of shape
+    A broadcastable ``tf.Tensor`` of type :obj:`dtype` and shape
     ``[batch_size, num_heads, 1, max_length]``.
   """
   if num_heads is not None:
     sequence_length = tile_sequence_length(sequence_length, num_heads)
-  mask = tf.sequence_mask(sequence_length, dtype=tf.float32)
+  mask = tf.sequence_mask(sequence_length, dtype=dtype)
   mask = tf.expand_dims(mask, axis=1)
   if num_heads is not None:
     mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
   return mask
 
-def build_future_mask(sequence_length, num_heads=None):
+def build_future_mask(sequence_length, num_heads=None, dtype=tf.float32):
   """Builds the dot product mask for future positions.
 
   Args:
     sequence_length: The sequence length.
     num_heads: The number of heads.
+    dtype: The type of the mask tensor.
 
   Returns:
-    A float ``tf.Tensor`` of shape
+    A ``tf.Tensor`` of type :obj:`dtype` and shape
     ``[batch_size, num_heads, max_length, max_length]``.
   """
   if num_heads is not None:
@@ -56,9 +58,9 @@ def build_future_mask(sequence_length, num_heads=None):
       lambda x: tf.sequence_mask(
           tf.minimum(tf.range(max_length) + 1, x),
           maxlen=max_length,
-          dtype=tf.float32),
+          dtype=dtype),
       sequence_length,
-      dtype=tf.float32)
+      dtype=dtype)
   if num_heads is not None:
     mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
   return mask
@@ -105,7 +107,7 @@ def scaled_dot_attention(queries,
       :math:`[B, T_2, ...]`.
     values: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
     mode: A ``tf.estimator.ModeKeys`` mode.
-    mask: A float ``tf.Tensor`` applied to the dot product.
+    mask: A ``tf.Tensor`` applied to the dot product.
     dropout: The probability to drop units from the inputs.
 
   Returns:
@@ -113,10 +115,10 @@ def scaled_dot_attention(queries,
   """
   # Scaled dot-product between queries and keys.
   dot = tf.matmul(queries, keys, transpose_b=True)
-  dot = tf.div(dot, tf.sqrt(tf.cast(tf.shape(keys)[-1], tf.float32)))
+  dot = tf.div(dot, tf.sqrt(tf.cast(tf.shape(keys)[-1], dot.dtype)))
 
   if mask is not None:
-    dot = dot * mask + ((1.0 - mask) * tf.float32.min)
+    dot = dot * mask + ((1.0 - mask) * dot.dtype.min)
 
   # Compute attention weights.
   attn = tf.nn.softmax(dot)
@@ -149,7 +151,7 @@ def multi_head_attention(num_heads,
     mode: A ``tf.estimator.ModeKeys`` mode.
     num_units: The number of hidden units. If not set, it is set to the input
       dimension.
-    mask: A float ``tf.Tensor`` applied to the dot product.
+    mask: A ``tf.Tensor`` applied to the dot product.
     cache: A dictionary containing pre-projected keys and values.
     dropout: The probability to drop units from the inputs.
 

@@ -29,7 +29,7 @@ def make_positions(sequence_length):
   position = tf.reshape(position, [batch_size, -1])
 
   mask = tf.sequence_mask(sequence_length)
-  mask = tf.cast(mask, tf.int32)
+  mask = tf.cast(mask, position.dtype)
 
   position = position * mask
 

@@ -28,9 +28,9 @@ def pad_with_identity(x, sequence_length, max_sequence_length, identity_values=0
   """
   maxlen = tf.reduce_max(max_sequence_length)
 
-  mask = tf.sequence_mask(sequence_length, maxlen=maxlen, dtype=tf.float32)
+  mask = tf.sequence_mask(sequence_length, maxlen=maxlen, dtype=x.dtype)
   mask = tf.expand_dims(mask, axis=-1)
-  mask_combined = tf.sequence_mask(max_sequence_length, dtype=tf.float32)
+  mask_combined = tf.sequence_mask(max_sequence_length, dtype=x.dtype)
   mask_combined = tf.expand_dims(mask_combined, axis=-1)
 
   identity_mask = mask_combined * (1.0 - mask)
@@ -185,7 +185,7 @@ class ConcatReducer(Reducer):
 
       for elem, length in zip(padded, sequence_lengths):
         # Make sure padding are 0 vectors as it is required for the next step.
-        mask = tf.sequence_mask(length, maxlen=maxlen, dtype=tf.float32)
+        mask = tf.sequence_mask(length, maxlen=maxlen, dtype=elem.dtype)
         elem = elem * tf.expand_dims(mask, -1)
 
         if accumulator is None:

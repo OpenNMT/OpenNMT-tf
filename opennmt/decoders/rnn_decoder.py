@@ -322,7 +322,7 @@ class AttentionalRNNDecoder(RNNDecoder):
       cell = tf.contrib.rnn.DropoutWrapper(
           cell, output_keep_prob=1.0 - self.dropout)
 
-    initial_state = cell.zero_state(batch_size, dtype=tf.float32)
+    initial_state = cell.zero_state(batch_size, tf.float32)
 
     return cell, initial_state
 
@@ -403,6 +403,6 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
         attention_layers=self.attention_layers,
         attention_mechanisms=attention_mechanisms)
 
-    initial_state = cell.zero_state(batch_size, dtype=tf.float32)
+    initial_state = cell.zero_state(batch_size, tf.float32)
 
     return cell, initial_state
