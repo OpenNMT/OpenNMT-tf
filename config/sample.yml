@@ -37,6 +37,8 @@ params:
   decay_rate: 0.7
   # (optional unless decay_type is set) Decay every this many steps.
   decay_steps: 10000
+  # (optional) The number of training steps that make 1 decay step (default: 1).
+  decay_step_duration: 1
   # (optional) If true, the learning rate is decayed in a staircase fashion (default: True).
   staircase: true
   # (optional) After how many steps to start the decay (default: 0).
