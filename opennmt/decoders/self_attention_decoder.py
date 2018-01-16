@@ -105,10 +105,10 @@ class SelfAttentionDecoder(Decoder):
 
     if sequence_length is not None:
       decoder_mask = transformer.build_future_mask(
-          sequence_length, num_heads=self.num_heads)
+          sequence_length, num_heads=self.num_heads, dtype=inputs.dtype)
     if memory_sequence_length is not None:
       memory_mask = transformer.build_sequence_mask(
-          memory_sequence_length, num_heads=self.num_heads)
+          memory_sequence_length, num_heads=self.num_heads, dtype=memory.dtype)
 
     for l in range(self.num_layers):
       layer_name = "layer_{}".format(l)
@@ -216,7 +216,7 @@ class SelfAttentionDecoder(Decoder):
       return tf.logical_not(tf.reduce_all(finished))
 
     def _body(step, finished, inputs, lengths, log_probs, cache):
-      inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, tf.int32))
+      inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, lengths.dtype))
 
       logits, cache = symbols_to_logits_fn(inputs, step, cache)
       probs = tf.nn.log_softmax(logits)
@@ -224,10 +224,10 @@ class SelfAttentionDecoder(Decoder):
 
       # Accumulate log probabilities.
       sample_probs = tf.reduce_max(probs, axis=-1)
-      masked_probs = tf.squeeze(sample_probs, -1) * (1.0 - tf.cast(finished, tf.float32))
+      masked_probs = tf.squeeze(sample_probs, -1) * (1.0 - tf.cast(finished, sample_probs.dtype))
       log_probs = tf.add(log_probs, masked_probs)
 
-      next_inputs = tf.concat([inputs, tf.cast(sample_ids, tf.int32)], -1)
+      next_inputs = tf.concat([inputs, tf.cast(sample_ids, inputs.dtype)], -1)
       next_lengths = inputs_lengths
       next_finished = tf.logical_or(
           finished,
