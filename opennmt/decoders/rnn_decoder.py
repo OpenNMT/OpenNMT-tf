@@ -51,9 +51,12 @@ class RNNDecoder(Decoder):
                   batch_size,
                   initial_state=None,
                   memory=None,
-                  memory_sequence_length=None):
-    _ = memory
+                  memory_sequence_length=None,
+                  dtype=None):
     _ = memory_sequence_length
+
+    if memory is None and dtype is None:
+      raise ValueError("dtype argument is required when memory is not set")
 
     cell = build_cell(
         self.num_layers,
@@ -64,16 +67,16 @@ class RNNDecoder(Decoder):
         cell_class=self.cell_class)
 
     initial_state = self._init_state(
-        cell.zero_state(batch_size, tf.float32), initial_state=initial_state)
+        cell.zero_state(batch_size, dtype or memory.dtype), initial_state=initial_state)
 
     return cell, initial_state
 
-  def _build_output_layer(self, vocab_size):
+  def _build_output_layer(self, vocab_size, dtype=None):
     if vocab_size is None:
       return None
 
     with tf.variable_scope("projection"):
-      layer = tf.layers.Dense(vocab_size, use_bias=True)
+      layer = tf.layers.Dense(vocab_size, use_bias=True, dtype=dtype)
       layer.build([None, self.num_units])
       return layer
 
@@ -112,9 +115,10 @@ class RNNDecoder(Decoder):
         batch_size,
         initial_state=initial_state,
         memory=memory,
-        memory_sequence_length=memory_sequence_length)
+        memory_sequence_length=memory_sequence_length,
+        dtype=inputs.dtype)
 
-    output_layer = self._build_output_layer(vocab_size)
+    output_layer = self._build_output_layer(vocab_size, dtype=inputs.dtype)
 
     # With TrainingHelper, project all timesteps at once.
     fused_projection = isinstance(helper, tf.contrib.seq2seq.TrainingHelper)
@@ -143,7 +147,8 @@ class RNNDecoder(Decoder):
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
-                     memory_sequence_length=None):
+                     memory_sequence_length=None,
+                     dtype=None):
     batch_size = tf.shape(start_tokens)[0]
 
     helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(
@@ -156,9 +161,10 @@ class RNNDecoder(Decoder):
         batch_size,
         initial_state=initial_state,
         memory=memory,
-        memory_sequence_length=memory_sequence_length)
+        memory_sequence_length=memory_sequence_length,
+        dtype=dtype)
 
-    output_layer = self._build_output_layer(vocab_size)
+    output_layer = self._build_output_layer(vocab_size, dtype=dtype or memory.dtype)
 
     decoder = tf.contrib.seq2seq.BasicDecoder(
         cell,
@@ -190,7 +196,8 @@ class RNNDecoder(Decoder):
                                 maximum_iterations=250,
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
-                                memory_sequence_length=None):
+                                memory_sequence_length=None,
+                                dtype=None):
     batch_size = tf.shape(start_tokens)[0]
 
     # Replicate batch `beam_width` times.
@@ -209,9 +216,10 @@ class RNNDecoder(Decoder):
         batch_size * beam_width,
         initial_state=initial_state,
         memory=memory,
-        memory_sequence_length=memory_sequence_length)
+        memory_sequence_length=memory_sequence_length,
+        dtype=dtype)
 
-    output_layer = self._build_output_layer(vocab_size)
+    output_layer = self._build_output_layer(vocab_size, dtype=dtype or memory.dtype)
 
     decoder = tf.contrib.seq2seq.BeamSearchDecoder(
         cell,
@@ -298,7 +306,8 @@ class AttentionalRNNDecoder(RNNDecoder):
                   batch_size,
                   initial_state=None,
                   memory=None,
-                  memory_sequence_length=None):
+                  memory_sequence_length=None,
+                  dtype=None):
     attention_mechanism = _build_attention_mechanism(
         self.attention_mechanism_class,
         self.num_units,
@@ -309,7 +318,8 @@ class AttentionalRNNDecoder(RNNDecoder):
         self,
         mode,
         batch_size,
-        initial_state=initial_state)
+        initial_state=initial_state,
+        dtype=memory.dtype)
 
     cell = tf.contrib.seq2seq.AttentionWrapper(
         cell,
@@ -322,7 +332,7 @@ class AttentionalRNNDecoder(RNNDecoder):
       cell = tf.contrib.rnn.DropoutWrapper(
           cell, output_keep_prob=1.0 - self.dropout)
 
-    initial_state = cell.zero_state(batch_size, tf.float32)
+    initial_state = cell.zero_state(batch_size, memory.dtype)
 
     return cell, initial_state
 
@@ -384,7 +394,8 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
                   batch_size,
                   initial_state=None,
                   memory=None,
-                  memory_sequence_length=None):
+                  memory_sequence_length=None,
+                  dtype=None):
     attention_mechanisms = [
         _build_attention_mechanism(
             attention_mechanism,
@@ -403,6 +414,6 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
         attention_layers=self.attention_layers,
         attention_mechanisms=attention_mechanisms)
 
-    initial_state = cell.zero_state(batch_size, tf.float32)
+    initial_state = cell.zero_state(batch_size, memory.dtype)
 
     return cell, initial_state

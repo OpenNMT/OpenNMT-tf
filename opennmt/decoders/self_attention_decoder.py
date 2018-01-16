@@ -224,7 +224,8 @@ class SelfAttentionDecoder(Decoder):
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
-                     memory_sequence_length=None):
+                     memory_sequence_length=None,
+                     dtype=None):
     batch_size = tf.shape(start_tokens)[0]
     finished = tf.tile([False], [batch_size])
     step = tf.constant(0)
@@ -299,7 +300,8 @@ class SelfAttentionDecoder(Decoder):
                                 maximum_iterations=250,
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
-                                memory_sequence_length=None):
+                                memory_sequence_length=None,
+                                dtype=None):
     cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
     symbols_to_logits_fn = self._symbols_to_logits_fn(embedding, vocab_size, mode)
 

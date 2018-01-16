@@ -31,7 +31,7 @@ class SequenceClassifier(Model):
     Raises:
       ValueError: if :obj:`encoding` is invalid.
     """
-    super(SequenceClassifier, self).__init__(name)
+    super(SequenceClassifier, self).__init__(name, dtype=inputter.dtype)
 
     self.inputter = inputter
     self.encoder = encoder

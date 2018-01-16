@@ -73,7 +73,10 @@ class PositionEncoder(object):
 
     with tf.variable_scope("position_encoding"):
       position_encoding = self.encode_sequence(
-          sequence_length, input_dim, maximum_length=timesteps)
+          sequence_length,
+          input_dim,
+          maximum_length=timesteps,
+          dtype=inputs.dtype)
       return self.reducer.reduce([inputs, position_encoding])
 
   def apply_one(self, inputs, position):
@@ -95,24 +98,29 @@ class PositionEncoder(object):
     position = tf.tile([position], [batch_size])
 
     with tf.variable_scope("position_encoding"):
-      position_encoding = self.encode(position, input_dim)
+      position_encoding = self.encode(position, input_dim, dtype=inputs.dtype)
       position_encoding = tf.expand_dims(position_encoding, 1)
       return self.reducer.reduce([inputs, position_encoding])
 
   @abc.abstractmethod
-  def encode(self, positions, depth):
+  def encode(self, positions, depth, dtype=tf.float32):
     """Creates position encodings.
 
     Args:
       position: The positions to encode of shape :math:`[B, ...]`.
       depth: The encoding depth :math:`D`.
+      dtype: The encoding type.
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, ..., D]`.
     """
     raise NotImplementedError()
 
-  def encode_sequence(self, sequence_length, depth, maximum_length=None):
+  def encode_sequence(self,
+                      sequence_length,
+                      depth,
+                      maximum_length=None,
+                      dtype=tf.float32):
     """Creates position encodings for sequences.
 
     Args:
@@ -120,12 +128,13 @@ class PositionEncoder(object):
       depth: The encoding depth :math:`D`.
       maximum_length: Optional size of the returned time dimension. Otherwise
         it is the maximum of :obj:`sequence_length`.
+      dtype: The encoding type.
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, T, D]`.
     """
     positions = make_positions(sequence_length, maximum_length=maximum_length)
-    return self.encode(positions, depth)
+    return self.encode(positions, depth, dtype=dtype)
 
 
 class PositionEmbedder(PositionEncoder):
@@ -143,8 +152,8 @@ class PositionEmbedder(PositionEncoder):
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position
 
-  def encode(self, positions, depth):
+  def encode(self, positions, depth, dtype=tf.float32):
     positions = tf.minimum(positions, self.maximum_position)
     embeddings = tf.get_variable(
-        "w_embs", shape=[self.maximum_position + 1, depth])
+        "w_embs", shape=[self.maximum_position + 1, depth], dtype=dtype)
     return tf.nn.embedding_lookup(embeddings, positions)

@@ -205,8 +205,8 @@ def tokens_to_chars(tokens):
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self, tokenizer=SpaceTokenizer()):
-    super(TextInputter, self).__init__()
+  def __init__(self, tokenizer=SpaceTokenizer(), dtype=tf.float32):
+    super(TextInputter, self).__init__(dtype=dtype)
     self.tokenizer = tokenizer
 
   def get_length(self, data):
@@ -256,7 +256,8 @@ class WordEmbedder(TextInputter):
                case_insensitive_embeddings=True,
                trainable=True,
                dropout=0.0,
-               tokenizer=SpaceTokenizer()):
+               tokenizer=SpaceTokenizer(),
+               dtype=tf.float32):
     """Initializes the parameters of the word embedder.
 
     Args:
@@ -273,6 +274,7 @@ class WordEmbedder(TextInputter):
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
         tokenize the input text.
+      dtype: The embedding type.
 
     Raises:
       ValueError: if neither :obj:`embedding_size` nor :obj:`embedding_file_key`
@@ -282,7 +284,7 @@ class WordEmbedder(TextInputter):
       The :meth:`opennmt.inputters.text_inputter.load_pretrained_embeddings`
       function for details about the pretrained embedding format and behavior.
     """
-    super(WordEmbedder, self).__init__(tokenizer=tokenizer)
+    super(WordEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
 
     self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
@@ -332,7 +334,7 @@ class WordEmbedder(TextInputter):
 
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable("w_embs")
+      embeddings = tf.get_variable("w_embs", dtype=self.dtype)
       visualize_embeddings(
           log_dir,
           embeddings,
@@ -344,7 +346,7 @@ class WordEmbedder(TextInputter):
 
   def transform(self, inputs, mode):
     try:
-      embeddings = tf.get_variable("w_embs", trainable=self.trainable)
+      embeddings = tf.get_variable("w_embs", dtype=self.dtype, trainable=self.trainable)
     except ValueError:
       # Variable does not exist yet.
       if self.embedding_file:
@@ -357,7 +359,7 @@ class WordEmbedder(TextInputter):
         self.embedding_size = pretrained.shape[-1]
 
         shape = None
-        initializer = tf.constant(pretrained.astype(np.float32))
+        initializer = tf.constant(pretrained.astype(self.dtype.as_numpy_dtype()))
       else:
         shape = [self.vocabulary_size, self.embedding_size]
         initializer = None
@@ -365,6 +367,7 @@ class WordEmbedder(TextInputter):
       embeddings = tf.get_variable(
           "w_embs",
           shape=shape,
+          dtype=self.dtype,
           initializer=initializer,
           trainable=self.trainable)
 
@@ -388,7 +391,8 @@ class CharConvEmbedder(TextInputter):
                kernel_size=5,
                stride=3,
                dropout=0.0,
-               tokenizer=SpaceTokenizer()):
+               tokenizer=SpaceTokenizer(),
+               dtype=tf.float32):
     """Initializes the parameters of the character convolution embedder.
 
     Args:
@@ -401,8 +405,9 @@ class CharConvEmbedder(TextInputter):
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
         tokenize the input text.
+      dtype: The embedding type.
     """
-    super(CharConvEmbedder, self).__init__(tokenizer=tokenizer)
+    super(CharConvEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
 
     self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
@@ -447,7 +452,7 @@ class CharConvEmbedder(TextInputter):
 
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable("w_char_embs")
+      embeddings = tf.get_variable("w_char_embs", dtype=self.dtype)
       visualize_embeddings(
           log_dir,
           embeddings,
@@ -459,7 +464,7 @@ class CharConvEmbedder(TextInputter):
 
   def transform(self, inputs, mode):
     embeddings = tf.get_variable(
-        "w_char_embs", shape=[self.vocabulary_size, self.embedding_size])
+        "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
 
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
     outputs = tf.layers.dropout(

@@ -75,9 +75,16 @@ class SequenceToSequence(Model):
 
     Raises:
       TypeError: if :obj:`target_inputter` is not a
-        :class:`opennmt.inputters.text_inputter.WordEmbedder`.
+        :class:`opennmt.inputters.text_inputter.WordEmbedder` or if
+        :obj:`source_inputter` and :obj:`target_inputter` do not have the same
+        ``dtype``.
     """
-    super(SequenceToSequence, self).__init__(name)
+    if source_inputter.dtype != target_inputter.dtype:
+      raise TypeError(
+          "Source and target inputters must have the same dtype, "
+          "saw: {} and {}".format(source_inputter.dtype, target_inputter.dtype))
+
+    super(SequenceToSequence, self).__init__(name, dtype=source_inputter.dtype)
 
     if not isinstance(target_inputter, inputters.WordEmbedder):
       raise TypeError("Target inputter must be a WordEmbedder")
@@ -138,6 +145,7 @@ class SequenceToSequence(Model):
           mode=mode)
 
     target_vocab_size = self.target_inputter.vocabulary_size
+    target_dtype = self.target_inputter.dtype
 
     with tf.variable_scope("decoder") as decoder_scope:
       if labels is not None:
@@ -182,7 +190,8 @@ class SequenceToSequence(Model):
               maximum_iterations=maximum_iterations,
               mode=mode,
               memory=encoder_outputs,
-              memory_sequence_length=encoder_sequence_length)
+              memory_sequence_length=encoder_sequence_length,
+              dtype=target_dtype)
         else:
           length_penalty = params.get("length_penalty", 0)
           sampled_ids, _, sampled_length, log_probs = self.decoder.dynamic_decode_and_search(
@@ -196,7 +205,8 @@ class SequenceToSequence(Model):
               maximum_iterations=maximum_iterations,
               mode=mode,
               memory=encoder_outputs,
-              memory_sequence_length=encoder_sequence_length)
+              memory_sequence_length=encoder_sequence_length,
+              dtype=target_dtype)
 
       target_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
           self.target_inputter.vocabulary_file,

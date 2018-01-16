@@ -13,10 +13,11 @@ from opennmt.utils.misc import extract_prefixed_keys
 class Inputter(object):
   """Base class for inputters."""
 
-  def __init__(self):
+  def __init__(self, dtype=tf.float32):
     self.padded_shapes = {}
     self.volatile = set()
     self.process_hooks = []
+    self.dtype = dtype
 
   def add_process_hooks(self, hooks):
     """Adds processing hooks.
@@ -215,7 +216,13 @@ class MultiInputter(Inputter):
   """An inputter that gathers multiple inputters."""
 
   def __init__(self, inputters):
-    super(MultiInputter, self).__init__()
+    if not isinstance(inputters, list) or not inputters:
+      raise ValueError("inputters must be a non empty list")
+    dtype = inputters[0].dtype
+    for inputter in inputters:
+      if inputter.dtype != dtype:
+        raise TypeError("All inputters must have the same dtype")
+    super(MultiInputter, self).__init__(dtype=dtype)
     self.inputters = inputters
 
   @abc.abstractmethod

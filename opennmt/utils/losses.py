@@ -4,12 +4,14 @@ import tensorflow as tf
 
 
 def _smooth_one_hot_labels(logits, labels, label_smoothing):
+  label_smoothing = tf.constant(label_smoothing, dtype=logits.dtype)
   num_classes = tf.shape(logits)[-1]
   return tf.one_hot(
       tf.cast(labels, tf.int32),
       num_classes,
       on_value=1.0 - label_smoothing,
-      off_value=label_smoothing / tf.to_float(num_classes - 1))
+      off_value=label_smoothing / tf.cast(num_classes - 1, label_smoothing.dtype),
+      dtype=logits.dtype)
 
 def _softmax_cross_entropy(logits, labels, label_smoothing, mode):
   if mode == tf.estimator.ModeKeys.TRAIN and label_smoothing > 0.0:
