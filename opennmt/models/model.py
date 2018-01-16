@@ -15,6 +15,7 @@ from opennmt.utils.misc import add_dict_to_collection, item_or_tuple
 def learning_rate_decay_fn(decay_type,
                            decay_rate,
                            decay_steps,
+                           decay_step_duration=1,
                            staircase=True,
                            start_decay_steps=0,
                            minimum_learning_rate=0):
@@ -25,6 +26,7 @@ def learning_rate_decay_fn(decay_type,
      :mod:`opennmt.utils.decay` as a string.
     decay_rate: The decay rate to apply.
     decay_steps: The decay steps as described in the decay type function.
+    decay_step_duration: The number of training steps that make 1 decay step.
     staircase: If ``True``, learning rate is decayed in a staircase fashion.
     start_decay_steps: Start decay after this many steps.
     minimum_learning_rate: Do not decay past this learning rate value.
@@ -46,9 +48,13 @@ def learning_rate_decay_fn(decay_type,
     if decay_op_name is None:
       raise ValueError("Unknown decay function: {}".format(decay_type))
 
+    # Map the training step to a decay step.
+    step = tf.maximum(global_step - start_decay_steps, 0)
+    step = tf.div(step, decay_step_duration)
+
     decayed_learning_rate = decay_op_name(
         learning_rate,
-        tf.maximum(global_step - start_decay_steps, 0),
+        step,
         decay_steps,
         decay_rate,
         staircase=staircase)
@@ -197,6 +203,7 @@ class Model(object):
           decay_type,
           params["decay_rate"],
           params["decay_steps"],
+          decay_step_duration=params.get("decay_step_duration", 1),
           staircase=params.get("staircase", True),
           start_decay_steps=params.get("start_decay_steps", 0),
           minimum_learning_rate=params.get("minimum_learning_rate", 0))
