@@ -84,18 +84,6 @@ class Inputter(object):
     """
     raise NotImplementedError()
 
-  @abc.abstractmethod
-  def get_dataset_size(self, data_file):
-    """Returns the size of the dataset.
-
-    Args:
-      data_file: The data file.
-
-    Returns:
-      The total size.
-    """
-    raise NotImplementedError()
-
   def get_serving_input_receiver(self):
     """Returns a serving input receiver for this inputter.
 
@@ -233,9 +221,6 @@ class MultiInputter(Inputter):
   @abc.abstractmethod
   def make_dataset(self, data_file):
     raise NotImplementedError()
-
-  def get_dataset_size(self, data_file):
-    return self.inputters[0].get_dataset_size(data_file)
 
   def initialize(self, metadata):
     for inputter in self.inputters:

@@ -215,9 +215,6 @@ class TextInputter(Inputter):
   def make_dataset(self, data_file):
     return tf.data.TextLineDataset(data_file)
 
-  def get_dataset_size(self, data_file):
-    return count_lines(data_file)
-
   def initialize(self, metadata):
     self.tokenizer.initialize(metadata)
 

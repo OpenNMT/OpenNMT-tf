@@ -55,9 +55,6 @@ class SequenceTagger(Model):
   def _get_features_length(self, features):
     return self.inputter.get_length(features)
 
-  def _get_dataset_size(self, features_file):
-    return self.inputter.get_dataset_size(features_file)
-
   def _get_features_builder(self, features_file):
     dataset = self.inputter.make_dataset(features_file)
     process_fn = self.inputter.process
