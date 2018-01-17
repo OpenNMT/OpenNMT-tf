@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 
-import time
 import abc
 import six
 
@@ -342,6 +341,18 @@ class Model(object):
     return None
 
   @abc.abstractmethod
+  def _get_dataset_size(self, features_file):
+    """Returns the size of the dataset.
+
+    Args:
+      features_file: The file of features.
+
+    Returns:
+      The total size.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
   def _get_features_builder(self, features_file):
     """Returns the recipe to build features.
 
@@ -399,7 +410,16 @@ class Model(object):
           feat_padded_shapes_fn(), labels_padded_shapes_fn())
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      dataset = dataset.shuffle(sample_buffer_size, seed=int(time.time()))
+      # When the sample buffer size is smaller than the dataset size, randomly
+      # select a shard of the dataset. This ensures that all parts of the
+      # dataset can be seen when the evaluation frequency is high.
+      dataset_size = self._get_dataset_size(features_file)
+      num_shards = -(-dataset_size // sample_buffer_size)  # Ceil division.
+      if num_shards > 1:
+        shard_index = tf.random_uniform(
+            [], minval=0, maxval=num_shards, dtype=tf.int64)
+        dataset = dataset.shard(num_shards, shard_index)
+      dataset = dataset.shuffle(sample_buffer_size)
 
     dataset = dataset.map(
         process_fn,
