@@ -104,6 +104,16 @@ def train(estimator, model, config):
             config["data"]["eval_labels_file"],
             output_dir=estimator.model_dir)))
 
+  default_sample_buffer_size = 1000000
+  if "sample_buffer_size" not in config["train"]:
+    tf.logging.warn("You did not set sample_buffer_size. By default, the "
+                    "training dataset is shuffled by chunk of %d examples. "
+                    "If your dataset is larger than this value and eval_delay "
+                    "is shorter than the training time of one epoch, a section "
+                    "of the dataset will be discarded. Consider setting "
+                    "sample_buffer_size to the size of your dataset."
+                    % default_sample_buffer_size)
+
   train_batch_size = config["train"]["batch_size"]
   train_batch_type = config["train"].get("batch_type", "examples")
   train_prefetch_buffer_size = config["train"].get(
@@ -122,7 +132,8 @@ def train(estimator, model, config):
           labels_file=config["data"]["train_labels_file"],
           batch_type=train_batch_type,
           bucket_width=config["train"].get("bucket_width", 5),
-          sample_buffer_size=config["train"].get("sample_buffer_size", 1000000),
+          sample_buffer_size=config["train"].get(
+              "sample_buffer_size", default_sample_buffer_size),
           maximum_features_length=config["train"].get("maximum_features_length"),
           maximum_labels_length=config["train"].get("maximum_labels_length")),
       max_steps=config["train"].get("train_steps"),
