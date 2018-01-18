@@ -10,5 +10,6 @@ Overview
    tokenization.md
    configuration.md
    training.md
+   inference.md
    serving.md
    package/opennmt
