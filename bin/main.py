@@ -238,7 +238,8 @@ def main():
                       help=("File used to save predictions. If not set, predictions are printed "
                             "on the standard output."))
   parser.add_argument("--checkpoint_path", default=None,
-                      help="Checkpoint to use for inference or export (latest by default).")
+                      help=("Checkpoint or directory to use for inference or export "
+                            "(when a directory is set, the latest checkpoint is used)."))
   parser.add_argument("--chief_host", default="",
                       help="hostname:port of the chief worker (for distributed training).")
   parser.add_argument("--worker_hosts", default="",
@@ -311,6 +312,10 @@ def main():
       config=run_config,
       params=config["params"])
 
+  checkpoint_path = args.checkpoint_path
+  if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+    checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+
   if args.run == "train":
     if args.data_dir:
       config["data"] = _prefix_paths(args.data_dir, config["data"])
@@ -325,10 +330,10 @@ def main():
         estimator,
         model,
         config,
-        checkpoint_path=args.checkpoint_path,
+        checkpoint_path=checkpoint_path,
         predictions_file=args.predictions_file)
   elif args.run == "export":
-    export(estimator, model, config, checkpoint_path=args.checkpoint_path)
+    export(estimator, model, config, checkpoint_path=checkpoint_path)
 
 
 if __name__ == "__main__":
