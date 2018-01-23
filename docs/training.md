@@ -18,9 +18,19 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 * word embeddings
 * decoder sampling probability
 
-## Distributed
+## Multi-GPU
 
-OpenNMT-tf supports asynchronous distributed training. The user should set on the command line:
+Multiple GPUs can be used to train models with synchronous data parallelism. For example, if your machine has 4 GPUs:
+
+```bash
+python -m bin.main train [...] --num_gpus 4
+```
+
+the model will train 4 batches in parallel (each of size `batch_size`) and reduce the computed losses. Note that evaluation will run on a single device.
+
+## Multi-machine
+
+OpenNMT-tf also supports asynchronous distributed training. The user should set on the command line:
 
 * a **chief worker** host that runs a training loop and manages checkpoints, summaries, etc.
 * a list of **worker** hosts that run a training loop
