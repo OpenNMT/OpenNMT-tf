@@ -26,6 +26,26 @@ class TransformerTest(tf.test.TestCase):
 
     with self.test_session() as sess:
       mask = sess.run(mask)
+      mask = np.reshape(mask, (len(length), num_heads, max(length)))
+      mask = np.transpose(mask, (1, 0, 2))
+      for b in range(len(length)):
+        self.assertAllEqual(expected, mask[b])
+
+  def testBuildSequenceMaskWithMaxLen(self):
+    num_heads = 4
+    length = [5, 3, 6]
+    maximum_length = 7
+    expected = [
+        [1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0],
+        [1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+        [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0]]
+
+    mask = transformer.build_sequence_mask(
+        tf.constant(length), num_heads=num_heads, maximum_length=maximum_length)
+
+    with self.test_session() as sess:
+      mask = sess.run(mask)
+      mask = np.reshape(mask, (len(length), num_heads, maximum_length))
       mask = np.transpose(mask, (1, 0, 2))
       for b in range(len(length)):
         self.assertAllEqual(expected, mask[b])
@@ -55,20 +75,33 @@ class TransformerTest(tf.test.TestCase):
       for b in range(len(length)):
         self.assertAllEqual(expected, mask[b])
 
-  def testBuildSequenceMask(self):
+  def testBuildFutureMaskWithMaxLen(self):
     num_heads = 4
-    length = [5, 3, 7]
+    length = [2, 4, 3]
+    maximum_length = 5
     expected = [
-        [1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0],
-        [1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-        [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]]
+        [[1.0, 0.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 0.0, 0.0, 0.0]],
+        [[1.0, 0.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 1.0, 0.0, 0.0],
+         [1.0, 1.0, 1.0, 1.0, 0.0],
+         [1.0, 1.0, 1.0, 1.0, 0.0]],
+        [[1.0, 0.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 0.0, 0.0, 0.0],
+         [1.0, 1.0, 1.0, 0.0, 0.0],
+         [1.0, 1.0, 1.0, 0.0, 0.0],
+         [1.0, 1.0, 1.0, 0.0, 0.0]]]
 
-    mask = transformer.build_sequence_mask(tf.constant(length), num_heads=num_heads)
+    mask = transformer.build_future_mask(
+        tf.constant(length), num_heads=num_heads, maximum_length=maximum_length)
 
     with self.test_session() as sess:
       mask = sess.run(mask)
-      mask = np.reshape(mask, (len(length), num_heads, max(length)))
-      mask = np.transpose(mask, (1, 0, 2))
+      mask = np.transpose(mask, (1, 0, 2, 3))
       for b in range(len(length)):
         self.assertAllEqual(expected, mask[b])
 

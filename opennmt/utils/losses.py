@@ -39,8 +39,12 @@ def cross_entropy_sequence_loss(logits,
   Returns:
     The loss.
   """
+  batch_size = tf.shape(logits)[0]
+  max_time = tf.shape(logits)[1]
+
   cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
-  weights = tf.sequence_mask(sequence_length, dtype=tf.float32)
+  weights = tf.sequence_mask(
+      sequence_length, maxlen=max_time, dtype=cross_entropy.dtype)
   loss = tf.reduce_sum(cross_entropy * weights)
   normalized_loss = loss / tf.reduce_sum(weights)
 
@@ -50,7 +54,6 @@ def cross_entropy_sequence_loss(logits,
   if average_in_time:
     return normalized_loss
   else:
-    batch_size = tf.shape(logits)[0]
     return loss / tf.to_float(batch_size)
 
 def cross_entropy_loss(logits,
