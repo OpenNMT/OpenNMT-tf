@@ -12,6 +12,13 @@ class PositionTest(tf.test.TestCase):
       positions = sess.run(positions)
       self.assertAllEqual([[1, 2, 3, 4, 0, 0], [1, 2, 3, 4, 5, 6]], positions)
 
+  def testPositionBuilderWithMaxLen(self):
+    sequence_length = tf.constant([4, 6])
+    positions = position.make_positions(sequence_length, maximum_length=7)
+    with self.test_session() as sess:
+      positions = sess.run(positions)
+      self.assertAllEqual([[1, 2, 3, 4, 0, 0, 0], [1, 2, 3, 4, 5, 6, 0]], positions)
+
 
 if __name__ == "__main__":
   tf.test.main()

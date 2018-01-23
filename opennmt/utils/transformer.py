@@ -19,12 +19,17 @@ def tile_sequence_length(sequence_length, num_heads):
   sequence_length = tf.reshape(sequence_length, [-1])
   return sequence_length
 
-def build_sequence_mask(sequence_length, num_heads=None, dtype=tf.float32):
+def build_sequence_mask(sequence_length,
+                        num_heads=None,
+                        maximum_length=None,
+                        dtype=tf.float32):
   """Builds the dot product mask.
 
   Args:
     sequence_length: The sequence length.
     num_heads: The number of heads.
+    maximum_length: Optional size of the returned time dimension. Otherwise
+      it is the maximum of :obj:`sequence_length`.
     dtype: The type of the mask tensor.
 
   Returns:
@@ -33,18 +38,23 @@ def build_sequence_mask(sequence_length, num_heads=None, dtype=tf.float32):
   """
   if num_heads is not None:
     sequence_length = tile_sequence_length(sequence_length, num_heads)
-  mask = tf.sequence_mask(sequence_length, dtype=dtype)
+  mask = tf.sequence_mask(sequence_length, maxlen=maximum_length, dtype=dtype)
   mask = tf.expand_dims(mask, axis=1)
   if num_heads is not None:
     mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
   return mask
 
-def build_future_mask(sequence_length, num_heads=None, dtype=tf.float32):
+def build_future_mask(sequence_length,
+                      num_heads=None,
+                      maximum_length=None,
+                      dtype=tf.float32):
   """Builds the dot product mask for future positions.
 
   Args:
     sequence_length: The sequence length.
     num_heads: The number of heads.
+    maximum_length: Optional size of the returned time dimension. Otherwise
+      it is the maximum of :obj:`sequence_length`.
     dtype: The type of the mask tensor.
 
   Returns:
@@ -53,11 +63,12 @@ def build_future_mask(sequence_length, num_heads=None, dtype=tf.float32):
   """
   if num_heads is not None:
     sequence_length = tile_sequence_length(sequence_length, num_heads)
-  max_length = tf.reduce_max(sequence_length)
+  if maximum_length is None:
+    maximum_length = tf.reduce_max(sequence_length)
   mask = tf.map_fn(
       lambda x: tf.sequence_mask(
-          tf.minimum(tf.range(max_length) + 1, x),
-          maxlen=max_length,
+          tf.minimum(tf.range(maximum_length) + 1, x),
+          maxlen=maximum_length,
           dtype=dtype),
       sequence_length,
       dtype=dtype)
