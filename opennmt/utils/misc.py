@@ -79,6 +79,11 @@ def extract_batches(tensors):
           key: value[b] for key, value in tensors.items()
       }
 
+def scalar_summary(name, tensor, filter_prefix="tower"):
+  """Wrapper around scalar summaries for filtering."""
+  if not tensor.name.startswith(filter_prefix):
+    tf.summary.scalar(name, tensor)
+
 
 # The next 2 functions come with the following license and copyright:
 

@@ -105,10 +105,16 @@ class SelfAttentionDecoder(Decoder):
 
     if sequence_length is not None:
       decoder_mask = transformer.build_future_mask(
-          sequence_length, num_heads=self.num_heads, dtype=inputs.dtype)
+          sequence_length,
+          num_heads=self.num_heads,
+          maximum_length=tf.shape(inputs)[1],
+          dtype=inputs.dtype)
     if memory_sequence_length is not None:
       memory_mask = transformer.build_sequence_mask(
-          memory_sequence_length, num_heads=self.num_heads, dtype=memory.dtype)
+          memory_sequence_length,
+          num_heads=self.num_heads,
+          maximum_length=tf.shape(memory)[1],
+          dtype=memory.dtype)
 
     for l in range(self.num_layers):
       layer_name = "layer_{}".format(l)

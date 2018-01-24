@@ -8,8 +8,11 @@ import six
 
 import tensorflow as tf
 
+from tensorflow.python.client import device_lib
+
 from opennmt.utils import decay
-from opennmt.utils.misc import add_dict_to_collection, item_or_tuple
+from opennmt.utils.misc import add_dict_to_collection, item_or_tuple, scalar_summary
+from opennmt.utils.replicate_model_fn import replicate_model_fn, TowerOptimizer
 
 
 def learning_rate_decay_fn(decay_type,
@@ -88,6 +91,92 @@ def get_optimizer_class(classname):
 
   return optimizer_class
 
+def get_optimizer(global_step, params, replicated_model=False):
+  """Returns an optimizer.
+
+  Args:
+    global_step: The training step.
+    params: A dictionary with the user parameters.
+    replicated_model: ``True`` if the model is replicated accross devices.
+
+  Returns:
+    A ``tf.train.Optimizer`` instance.
+  """
+  learning_rate = float(params["learning_rate"])
+
+  decay_type = params.get("decay_type")
+  if decay_type is not None:
+    decay_fn = learning_rate_decay_fn(
+        decay_type,
+        params["decay_rate"],
+        params["decay_steps"],
+        decay_step_duration=params.get("decay_step_duration", 1),
+        staircase=params.get("staircase", True),
+        start_decay_steps=params.get("start_decay_steps", 0),
+        minimum_learning_rate=params.get("minimum_learning_rate", 0))
+    learning_rate = decay_fn(learning_rate, global_step)
+
+  scalar_summary("learning_rate", learning_rate)
+
+  optimizer_class = get_optimizer_class(params["optimizer"])
+  optimizer = optimizer_class(learning_rate=learning_rate)
+  if replicated_model:
+    optimizer = TowerOptimizer(optimizer)
+
+  return optimizer
+
+def clip_gradients_by_norm(grads_and_vars, clip_gradients):
+  """Clips gradients by global norm."""
+  gradients, variables = zip(*grads_and_vars)
+  clipped_gradients, _ = tf.clip_by_global_norm(gradients, clip_gradients)
+  return list(zip(clipped_gradients, variables))
+
+def get_gradients_global_norm(grads_and_vars):
+  """Returns the gradients global norm."""
+  return tf.global_norm(list(zip(*grads_and_vars))[0])
+
+def optimize_loss(optimizer, loss, global_step=None, clip_gradients=None):
+  """Returns the loss optimization op.
+
+  Args:
+    optimizer: A ``tf.train.Optimizer``.
+    loss: The loss to minimize.
+    global_step: The training step.
+    clip_gradients: The maximum global gradient norm.
+
+  Returns:
+    The training op.
+  """
+  gradients = optimizer.compute_gradients(loss)
+  scalar_summary("global_norm/gradient_norm", get_gradients_global_norm(gradients))
+
+  if clip_gradients is not None:
+    gradients = clip_gradients_by_norm(gradients, clip_gradients)
+    scalar_summary("global_norm/clipped_gradient_norm", get_gradients_global_norm(gradients))
+
+  return optimizer.apply_gradients(gradients, global_step=global_step)
+
+def filter_irregular_batches(multiple):
+  """Transformation that filters out batches based on their size.
+
+  Args:
+    multiple: The divisor of the batch size.
+
+  Returns:
+    A ``tf.data.Dataset`` transformation.
+  """
+  def _apply_fn(dataset):
+    """Transformation function."""
+
+    def _predicate(*x):
+      flat = tf.contrib.framework.nest.flatten(x)
+      batch_size = tf.shape(flat[0])[0]
+      return tf.equal(tf.mod(batch_size, multiple), 0)
+
+    return dataset.filter(_predicate)
+
+  return _apply_fn
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Model(object):
@@ -96,46 +185,87 @@ class Model(object):
   def __init__(self, name):
     self.name = name
 
-  def __call__(self, features, labels, params, mode, config):
-    """Creates the model.
+  def model_fn(self, replicated=False):
+    """Model function.
+
+    Args:
+      replicated: ``True`` if this model is replicated.
+
+    Returns:
+      A model function.
 
     See Also:
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       arguments and the returned value.
     """
-    if mode == tf.estimator.ModeKeys.TRAIN:
-      self._register_word_counters(features, labels)
+    def _model_fn(features, labels, params, mode, config):
+      if mode == tf.estimator.ModeKeys.TRAIN:
+        self._register_word_counters(features, labels)
 
-    with tf.variable_scope(self.name, initializer=self._initializer(params)):
-      outputs, predictions = self._build(features, labels, params, mode, config)
+      with tf.variable_scope(self.name, initializer=self._initializer(params)) as model_scope:
+        outputs, predictions = self._build(features, labels, params, mode, config)
 
       if predictions is not None:
         # Register predictions in a collection so that hooks can easily fetch them.
         add_dict_to_collection("predictions", predictions)
 
       if mode != tf.estimator.ModeKeys.PREDICT:
-        loss = self._compute_loss(features, labels, outputs, params, mode)
-        train_op = self._build_train_op(loss, params)
+        with tf.variable_scope(model_scope):
+          loss = self._compute_loss(features, labels, outputs, params, mode)
 
-        if mode == tf.estimator.ModeKeys.EVAL:
-          eval_metric_ops = self._compute_metrics(features, labels, predictions)
+        if isinstance(loss, tuple):
+          display_loss = loss[1]
+          loss = loss[0]
         else:
-          eval_metric_ops = None
+          display_loss = loss
 
-        return tf.estimator.EstimatorSpec(
-            mode,
-            loss=loss,
-            train_op=train_op,
-            eval_metric_ops=eval_metric_ops)
+        scalar_summary("loss", display_loss)
+
+        if mode == tf.estimator.ModeKeys.TRAIN:
+          global_step = tf.train.get_or_create_global_step()
+          optimizer = get_optimizer(global_step, params, replicated_model=replicated)
+          train_op = optimize_loss(
+              optimizer,
+              loss,
+              global_step=global_step,
+              clip_gradients=params.get("clip_gradients"))
+
+          return tf.estimator.EstimatorSpec(
+              mode, loss=loss, train_op=train_op)
+        else:
+          eval_metric_ops = self._compute_metrics(features, labels, predictions)
+
+          return tf.estimator.EstimatorSpec(
+              mode, loss=loss, eval_metric_ops=eval_metric_ops)
       else:
         export_outputs = {}
-        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = \
-            tf.estimator.export.PredictOutput(predictions)
+        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
+            tf.estimator.export.PredictOutput(predictions))
 
         return tf.estimator.EstimatorSpec(
-            mode,
-            predictions=predictions,
-            export_outputs=export_outputs)
+            mode, predictions=predictions, export_outputs=export_outputs)
+
+    return _model_fn
+
+  def replicated_model_fn(self, num_replicas):
+    """Replicate the model accross devices.
+
+    Args:
+      num_replicas: The number of replicas.
+
+    Returns:
+      A model function.
+
+    Raises:
+      ValueError: if :obj:`num_replicas` is greater than the number of visible
+        devices.
+    """
+    devices = [x.name for x in device_lib.list_local_devices() if x.device_type == "GPU"]
+    if len(devices) < num_replicas:
+      raise ValueError("%d model replicas were requested by only %d devices are visible"
+                       % (num_replicas, len(devices)))
+    devices = devices[:num_replicas]
+    return replicate_model_fn(self.model_fn(replicated=True), devices=devices)
 
   def _initializer(self, params):
     """Returns the global initializer for this model.
@@ -175,7 +305,7 @@ class Model(object):
       mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
-      The loss.
+      The loss or a tuple containing the training loss and the loss to display.
     """
     raise NotImplementedError()
 
@@ -193,37 +323,6 @@ class Model(object):
     """
     return None
 
-  def _build_train_op(self, loss, params):
-    """Builds the training op given parameters."""
-    global_step = tf.train.get_or_create_global_step()
-    decay_type = params.get("decay_type")
-
-    if decay_type is not None:
-      decay_fn = learning_rate_decay_fn(
-          decay_type,
-          params["decay_rate"],
-          params["decay_steps"],
-          decay_step_duration=params.get("decay_step_duration", 1),
-          staircase=params.get("staircase", True),
-          start_decay_steps=params.get("start_decay_steps", 0),
-          minimum_learning_rate=params.get("minimum_learning_rate", 0))
-    else:
-      decay_fn = None
-
-    train_op = tf.contrib.layers.optimize_loss(
-        loss,
-        global_step,
-        params["learning_rate"],
-        get_optimizer_class(params["optimizer"]),
-        clip_gradients=params.get("clip_gradients"),
-        learning_rate_decay_fn=decay_fn,
-        summaries=[
-            "learning_rate",
-            "global_gradient_norm",
-        ])
-
-    return train_op
-
   def _register_word_counters(self, features, labels):
     """Stores word counter operators for sequences (if any) of :obj:`features`
     and :obj:`labels`.
@@ -234,16 +333,21 @@ class Model(object):
     """
     def _add_counter(word_count, name):
       word_count = tf.cast(word_count, tf.int64)
+      counters = tf.get_collection_ref("counters")
+      for i, counter in enumerate(counters):
+        # If the counter is already registered, update it.
+        counter_name = counter.name.split("/")[-1].split(":")[0]
+        if counter_name == name:
+          counters[i] = tf.assign_add(counter, word_count, name=name)
+          return
       total_word_count_init = tf.Variable(
           initial_value=0,
           name=name + "_init",
           trainable=False,
           dtype=tf.int64)
       total_word_count = tf.assign_add(
-          total_word_count_init,
-          word_count,
-          name=name)
-      tf.add_to_collection("counters", total_word_count)
+          total_word_count_init, word_count, name=name)
+      counters.append(total_word_count)
 
     features_length = self._get_features_length(features)
     labels_length = self._get_labels_length(labels)
@@ -374,6 +478,7 @@ class Model(object):
                      features_file,
                      labels_file=None,
                      batch_type="examples",
+                     batch_multiplier=1,
                      bucket_width=None,
                      sample_buffer_size=None,
                      maximum_features_length=None,
@@ -412,6 +517,7 @@ class Model(object):
           labels,
           maximum_features_length=maximum_features_length,
           maximum_labels_length=maximum_labels_length))
+      batch_size = batch_size * batch_multiplier
 
     if mode == tf.estimator.ModeKeys.TRAIN and bucket_width is not None:
       # Form batches with sequences of similar lengths to improve efficiency.
@@ -439,7 +545,10 @@ class Model(object):
         if bucket_width > 1:
           key += 1  # For bucket_width == 1, key 0 is unassigned.
         size = batch_size // (key * bucket_width)
-        return tf.to_int64(tf.maximum(size, 1))
+        if batch_multiplier > 1:
+          # Make the window size a multiple of batch_multiplier.
+          size = size + batch_multiplier - size % batch_multiplier
+        return tf.to_int64(tf.maximum(size, batch_multiplier))
 
       if batch_type == "examples":
         batchify_fn = tf.contrib.data.group_by_window(
@@ -458,6 +567,8 @@ class Model(object):
           padded_shapes=padded_shapes)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
+      if batch_multiplier > 1:
+        dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
       dataset = dataset.repeat()
 
     iterator = dataset.make_initializable_iterator()
@@ -476,6 +587,7 @@ class Model(object):
                features_file,
                labels_file=None,
                batch_type="examples",
+               batch_multiplier=1,
                bucket_width=None,
                sample_buffer_size=None,
                maximum_features_length=None,
@@ -493,6 +605,8 @@ class Model(object):
       labels_file: The file containing output labels.
       batch_type: The training batching stragety to use: can be "examples" or
         "tokens".
+      batch_multiplier: The batch size multiplier to prepare splitting accross
+        model replicas.
       bucket_width: The width of the length buckets to select batch candidates
         from. ``None`` to not constrain batch formation.
       sample_buffer_size: The number of elements from which to sample.
@@ -523,6 +637,7 @@ class Model(object):
         features_file,
         labels_file=labels_file,
         batch_type=batch_type,
+        batch_multiplier=batch_multiplier,
         bucket_width=bucket_width,
         sample_buffer_size=sample_buffer_size,
         maximum_features_length=maximum_features_length,

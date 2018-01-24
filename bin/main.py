@@ -73,13 +73,14 @@ def load_model(model_dir, model_file=None):
 
   return model
 
-def train(estimator, model, config):
+def train(estimator, model, config, num_replicas=1):
   """Runs training.
 
   Args:
     estimator: A `tf.estimator.Estimator`.
     model: A `opennmt.models.Model`.
     config: The configuration.
+    num_replicas: The number of model replicas.
   """
   if "eval" not in config:
     config["eval"] = {}
@@ -131,6 +132,7 @@ def train(estimator, model, config):
           config["data"]["train_features_file"],
           labels_file=config["data"]["train_labels_file"],
           batch_type=train_batch_type,
+          batch_multiplier=num_replicas,
           bucket_width=config["train"].get("bucket_width", 5),
           sample_buffer_size=config["train"].get(
               "sample_buffer_size", default_sample_buffer_size),
@@ -240,6 +242,8 @@ def main():
   parser.add_argument("--checkpoint_path", default=None,
                       help=("Checkpoint or directory to use for inference or export "
                             "(when a directory is set, the latest checkpoint is used)."))
+  parser.add_argument("--num_gpus", type=int, default=1,
+                      help="Number of GPUs to use for synchronous data parallelism.")
   parser.add_argument("--chief_host", default="",
                       help="hostname:port of the chief worker (for distributed training).")
   parser.add_argument("--worker_hosts", default="",
@@ -286,6 +290,7 @@ def main():
     os.makedirs(config["model_dir"])
 
   session_config = tf.ConfigProto()
+  session_config.allow_soft_placement = True
   session_config.gpu_options.allow_growth = args.gpu_allow_growth
 
   run_config = tf.estimator.RunConfig(
@@ -307,8 +312,16 @@ def main():
 
   model = load_model(config["model_dir"], model_file=args.model)
 
+  if args.num_gpus == 1:
+    model_fn = model.model_fn()
+  elif args.run != "train":
+    tf.logging.warn("Multi GPU is only supported for training.")
+    model_fn = model.model_fn()
+  else:
+    model_fn = model.replicated_model_fn(args.num_gpus)
+
   estimator = tf.estimator.Estimator(
-      model,
+      model_fn,
       config=run_config,
       params=config["params"])
 
@@ -319,7 +332,7 @@ def main():
   if args.run == "train":
     if args.data_dir:
       config["data"] = _prefix_paths(args.data_dir, config["data"])
-    train(estimator, model, config)
+    train(estimator, model, config, num_replicas=args.num_gpus)
   elif args.run == "infer":
     if not args.features_file:
       parser.error("--features_file is required for inference.")

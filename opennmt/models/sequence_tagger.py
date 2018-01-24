@@ -146,7 +146,8 @@ class SequenceTagger(Model):
 
   def _compute_metrics(self, features, labels, predictions):
     length = self._get_features_length(features)
-    weights = tf.sequence_mask(length, dtype=tf.float32)
+    weights = tf.sequence_mask(
+        length, maxlen=tf.shape(labels["tags"])[1], dtype=tf.float32)
 
     eval_metric_ops = {}
     eval_metric_ops["accuracy"] = tf.metrics.accuracy(

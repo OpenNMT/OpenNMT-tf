@@ -16,7 +16,8 @@ def logits_to_cum_log_probs(logits, sequence_length):
   Returns:
     The cumulated log probability of each sequence.
   """
-  mask = tf.sequence_mask(sequence_length, dtype=logits.dtype)
+  mask = tf.sequence_mask(
+      sequence_length, maxlen=tf.shape(logits)[1], dtype=logits.dtype)
   mask = tf.expand_dims(mask, -1)
 
   log_probs = tf.nn.log_softmax(logits)
