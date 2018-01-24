@@ -11,7 +11,7 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 
 from opennmt.utils import decay
-from opennmt.utils.misc import add_dict_to_collection, item_or_tuple
+from opennmt.utils.misc import add_dict_to_collection, item_or_tuple, scalar_summary
 from opennmt.utils.replicate_model_fn import replicate_model_fn, TowerOptimizer
 
 
@@ -116,7 +116,7 @@ def get_optimizer(global_step, params, replicated_model=False):
         minimum_learning_rate=params.get("minimum_learning_rate", 0))
     learning_rate = decay_fn(learning_rate, global_step)
 
-  tf.summary.scalar("learning_rate", learning_rate)
+  scalar_summary("learning_rate", learning_rate)
 
   optimizer_class = get_optimizer_class(params["optimizer"])
   optimizer = optimizer_class(learning_rate=learning_rate)
@@ -171,38 +171,47 @@ class Model(object):
       arguments and the returned value.
     """
     def _model_fn(features, labels, params, mode, config):
-      if mode == tf.estimator.ModeKeys.TRAIN and not replicated:
+      if mode == tf.estimator.ModeKeys.TRAIN:
         self._register_word_counters(features, labels)
 
-      with tf.variable_scope(self.name, initializer=self._initializer(params)):
+      with tf.variable_scope(self.name, initializer=self._initializer(params)) as model_scope:
         outputs, predictions = self._build(features, labels, params, mode, config)
 
-        if predictions is not None:
-          # Register predictions in a collection so that hooks can easily fetch them.
-          add_dict_to_collection("predictions", predictions)
+      if predictions is not None:
+        # Register predictions in a collection so that hooks can easily fetch them.
+        add_dict_to_collection("predictions", predictions)
 
-        if mode != tf.estimator.ModeKeys.PREDICT:
+      if mode != tf.estimator.ModeKeys.PREDICT:
+        with tf.variable_scope(model_scope):
           loss = self._compute_loss(features, labels, outputs, params, mode)
 
-          if mode == tf.estimator.ModeKeys.TRAIN:
-            global_step = tf.train.get_or_create_global_step()
-            optimizer = get_optimizer(global_step, params, replicated_model=replicated)
-            train_op = optimizer.minimize(loss, global_step=global_step)
-
-            return tf.estimator.EstimatorSpec(
-                mode, loss=loss, train_op=train_op)
-          else:
-            eval_metric_ops = self._compute_metrics(features, labels, predictions)
-
-            return tf.estimator.EstimatorSpec(
-                mode, loss=loss, eval_metric_ops=eval_metric_ops)
+        if isinstance(loss, tuple):
+          display_loss = loss[1]
+          loss = loss[0]
         else:
-          export_outputs = {}
-          export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
-              tf.estimator.export.PredictOutput(predictions))
+          display_loss = loss
+
+        scalar_summary("loss", display_loss)
+
+        if mode == tf.estimator.ModeKeys.TRAIN:
+          global_step = tf.train.get_or_create_global_step()
+          optimizer = get_optimizer(global_step, params, replicated_model=replicated)
+          train_op = optimizer.minimize(loss, global_step=global_step)
 
           return tf.estimator.EstimatorSpec(
-              mode, predictions=predictions, export_outputs=export_outputs)
+              mode, loss=loss, train_op=train_op)
+        else:
+          eval_metric_ops = self._compute_metrics(features, labels, predictions)
+
+          return tf.estimator.EstimatorSpec(
+              mode, loss=loss, eval_metric_ops=eval_metric_ops)
+      else:
+        export_outputs = {}
+        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
+            tf.estimator.export.PredictOutput(predictions))
+
+        return tf.estimator.EstimatorSpec(
+            mode, predictions=predictions, export_outputs=export_outputs)
 
     return _model_fn
 
@@ -264,7 +273,7 @@ class Model(object):
       mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
-      The loss.
+      The loss or a tuple containing the training loss and the loss to display.
     """
     raise NotImplementedError()
 
@@ -292,16 +301,21 @@ class Model(object):
     """
     def _add_counter(word_count, name):
       word_count = tf.cast(word_count, tf.int64)
+      counters = tf.get_collection_ref("counters")
+      for i, counter in enumerate(counters):
+        # If the counter is already registered, update it.
+        counter_name = counter.name.split("/")[-1].split(":")[0]
+        if counter_name == name:
+          counters[i] = tf.assign_add(counter, word_count, name=name)
+          return
       total_word_count_init = tf.Variable(
           initial_value=0,
           name=name + "_init",
           trainable=False,
           dtype=tf.int64)
       total_word_count = tf.assign_add(
-          total_word_count_init,
-          word_count,
-          name=name)
-      tf.add_to_collection("counters", total_word_count)
+          total_word_count_init, word_count, name=name)
+      counters.append(total_word_count)
 
     features_length = self._get_features_length(features)
     labels_length = self._get_labels_length(labels)
