@@ -104,7 +104,7 @@ def get_optimizer(global_step, params, replicated_model=False):
   """
   learning_rate = float(params["learning_rate"])
 
-  decay_type = params.get("decay_type", None)
+  decay_type = params.get("decay_type")
   if decay_type is not None:
     decay_fn = learning_rate_decay_fn(
         decay_type,
@@ -120,13 +120,41 @@ def get_optimizer(global_step, params, replicated_model=False):
 
   optimizer_class = get_optimizer_class(params["optimizer"])
   optimizer = optimizer_class(learning_rate=learning_rate)
-  clip_gradients = params.get("clip_gradients", 0.0)
-  if clip_gradients > 0.0:
-    optimizer = tf.contrib.estimator.clip_gradients_by_norm(optimizer, clip_gradients)
   if replicated_model:
     optimizer = TowerOptimizer(optimizer)
 
   return optimizer
+
+def clip_gradients_by_norm(grads_and_vars, clip_gradients):
+  """Clips gradients by global norm."""
+  gradients, variables = zip(*grads_and_vars)
+  clipped_gradients, _ = tf.clip_by_global_norm(gradients, clip_gradients)
+  return list(zip(clipped_gradients, variables))
+
+def get_gradients_global_norm(grads_and_vars):
+  """Returns the gradients global norm."""
+  return tf.global_norm(list(zip(*grads_and_vars))[0])
+
+def optimize_loss(optimizer, loss, global_step=None, clip_gradients=None):
+  """Returns the loss optimization op.
+
+  Args:
+    optimizer: A ``tf.train.Optimizer``.
+    loss: The loss to minimize.
+    global_step: The training step.
+    clip_gradients: The maximum global gradient norm.
+
+  Returns:
+    The training op.
+  """
+  gradients = optimizer.compute_gradients(loss)
+  scalar_summary("global_norm/gradient_norm", get_gradients_global_norm(gradients))
+
+  if clip_gradients is not None:
+    gradients = clip_gradients_by_norm(gradients, clip_gradients)
+    scalar_summary("global_norm/clipped_gradient_norm", get_gradients_global_norm(gradients))
+
+  return optimizer.apply_gradients(gradients, global_step=global_step)
 
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
@@ -196,7 +224,11 @@ class Model(object):
         if mode == tf.estimator.ModeKeys.TRAIN:
           global_step = tf.train.get_or_create_global_step()
           optimizer = get_optimizer(global_step, params, replicated_model=replicated)
-          train_op = optimizer.minimize(loss, global_step=global_step)
+          train_op = optimize_loss(
+              optimizer,
+              loss,
+              global_step=global_step,
+              clip_gradients=params.get("clip_gradients"))
 
           return tf.estimator.EstimatorSpec(
               mode, loss=loss, train_op=train_op)
