@@ -106,36 +106,38 @@ class Model(object):
     if mode == tf.estimator.ModeKeys.TRAIN:
       self._register_word_counters(features, labels)
 
-    with tf.variable_scope(self.name, initializer=self._initializer(params)):
+    with tf.variable_scope(self.name, initializer=self._initializer(params)) as model_scope:
       outputs, predictions = self._build(features, labels, params, mode, config)
 
-      if predictions is not None:
-        # Register predictions in a collection so that hooks can easily fetch them.
-        add_dict_to_collection("predictions", predictions)
+    if predictions is not None:
+      # Register predictions in a collection so that hooks can easily fetch them.
+      add_dict_to_collection("predictions", predictions)
 
-      if mode != tf.estimator.ModeKeys.PREDICT:
+    if mode != tf.estimator.ModeKeys.PREDICT:
+      with tf.variable_scope(model_scope):
         loss = self._compute_loss(features, labels, outputs, params, mode)
-        train_op = self._build_train_op(loss, params)
 
-        if mode == tf.estimator.ModeKeys.EVAL:
-          eval_metric_ops = self._compute_metrics(features, labels, predictions)
-        else:
-          eval_metric_ops = None
-
-        return tf.estimator.EstimatorSpec(
-            mode,
-            loss=loss,
-            train_op=train_op,
-            eval_metric_ops=eval_metric_ops)
+      if isinstance(loss, tuple):
+        loss, display_loss = loss
       else:
-        export_outputs = {}
-        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = \
-            tf.estimator.export.PredictOutput(predictions)
+        display_loss = loss
 
+      tf.summary.scalar("loss", display_loss)
+
+      if mode == tf.estimator.ModeKeys.TRAIN:
+        train_op = self._build_train_op(loss, params)
         return tf.estimator.EstimatorSpec(
-            mode,
-            predictions=predictions,
-            export_outputs=export_outputs)
+            mode, loss=loss, train_op=train_op)
+      else:
+        eval_metric_ops = self._compute_metrics(features, labels, predictions)
+        return tf.estimator.EstimatorSpec(
+            mode, loss=loss, eval_metric_ops=eval_metric_ops)
+    else:
+      export_outputs = {}
+      export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = \
+          tf.estimator.export.PredictOutput(predictions)
+      return tf.estimator.EstimatorSpec(
+          mode, predictions=predictions, export_outputs=export_outputs)
 
   def _initializer(self, params):
     """Returns the global initializer for this model.
@@ -175,7 +177,7 @@ class Model(object):
       mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
-      The loss.
+      The loss or a tuple containing the computed loss and the loss to display.
     """
     raise NotImplementedError()
 
@@ -217,6 +219,7 @@ class Model(object):
         get_optimizer_class(params["optimizer"]),
         clip_gradients=params.get("clip_gradients"),
         learning_rate_decay_fn=decay_fn,
+        name="optim",
         summaries=[
             "learning_rate",
             "global_gradient_norm",

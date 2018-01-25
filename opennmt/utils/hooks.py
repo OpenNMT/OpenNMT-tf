@@ -63,7 +63,7 @@ class CountersHook(tf.train.SessionRunHook):
       if elapsed_time is not None:
         for i in range(len(self._counters)):
           if self._last_count[i] is not None:
-            name = self._counters[i].name
+            name = self._counters[i].name.split(":")[0]
             value = (counters[i] - self._last_count[i]) / elapsed_time
             if self._summary_writer is not None:
               summary = tf.Summary(value=[tf.Summary.Value(tag=name, simple_value=value)])
