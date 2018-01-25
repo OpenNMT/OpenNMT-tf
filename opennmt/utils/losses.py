@@ -37,7 +37,7 @@ def cross_entropy_sequence_loss(logits,
     mode: A ``tf.estimator.ModeKeys`` mode.
 
   Returns:
-    The loss.
+    A tuple with the loss and the token level loss.
   """
   batch_size = tf.shape(logits)[0]
   max_time = tf.shape(logits)[1]
@@ -46,15 +46,12 @@ def cross_entropy_sequence_loss(logits,
   weights = tf.sequence_mask(
       sequence_length, maxlen=max_time, dtype=cross_entropy.dtype)
   loss = tf.reduce_sum(cross_entropy * weights)
-  normalized_loss = loss / tf.reduce_sum(weights)
+  loss_per_token = loss / tf.reduce_sum(weights)
 
-  # Summarize the normalized loss for better interpretability.
-  tf.summary.scalar("normalized_loss", normalized_loss)
-
-  if average_in_time:
-    return normalized_loss
+  if average_in_time or mode != tf.estimator.ModeKeys.TRAIN:
+    return loss_per_token, loss_per_token
   else:
-    return loss / tf.to_float(batch_size)
+    return loss / tf.cast(batch_size, loss.dtype), loss_per_token
 
 def cross_entropy_loss(logits,
                        labels,
