@@ -6,6 +6,7 @@ joiner: ￭
 joiner_annotate: false
 joiner_new: false
 case_feature: false
+no_substitution: false
 segment_case: false
 segment_numbers: false
 segment_alphabet_change: false

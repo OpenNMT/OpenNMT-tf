@@ -31,6 +31,7 @@ def create_tokenizer(config):
   _set(kwargs, "joiner_annotate")
   _set(kwargs, "joiner_new")
   _set(kwargs, "case_feature")
+  _set(kwargs, "no_substitution")
   _set(kwargs, "segment_case")
   _set(kwargs, "segment_numbers")
   _set(kwargs, "segment_alphabet_change")
