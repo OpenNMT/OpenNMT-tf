@@ -19,6 +19,7 @@ Submodules
    opennmt.utils.hooks
    opennmt.utils.losses
    opennmt.utils.misc
+   opennmt.utils.optim
    opennmt.utils.position
    opennmt.utils.reducer
    opennmt.utils.transformer
