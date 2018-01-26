@@ -1,7 +1,6 @@
 # WARNING:
 # Do not use this file as is! It only lists and documents available options
-# without caring about their consistency. Prefer using "opennmt-defaults.yml" as a
-# base configuration and specialize it with additional configuration files.
+# without caring about their consistency.
 
 # The directory where models and summaries will be saved. It is created if it does not exist.
 model_dir: toy-ende
