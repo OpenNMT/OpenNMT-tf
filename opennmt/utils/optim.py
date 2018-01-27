@@ -117,4 +117,5 @@ def optimize(loss, params):
       summaries=[
           "learning_rate",
           "global_gradient_norm",
-      ])
+      ],
+      colocate_gradients_with_ops=True)

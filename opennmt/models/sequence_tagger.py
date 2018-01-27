@@ -134,7 +134,9 @@ class SequenceTagger(Model):
             outputs,
             tf.cast(labels["tags_id"], tf.int32),
             length)
-      return tf.reduce_mean(-log_likelihood)
+      loss = tf.reduce_sum(-log_likelihood)
+      loss_normalizer = tf.shape(log_likelihood)[0]
+      return loss, loss_normalizer
     else:
       return cross_entropy_sequence_loss(
           outputs,
