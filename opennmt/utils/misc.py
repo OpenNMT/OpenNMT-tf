@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import sys
+import six
 
 import tensorflow as tf
 
@@ -58,7 +59,7 @@ def extract_prefixed_keys(dictionary, prefix):
   with :obj:`prefix`.
   """
   sub_dict = {}
-  for key, value in dictionary.items():
+  for key, value in six.iteritems(dictionary):
     if key.startswith(prefix):
       original_key = key[len(prefix):]
       sub_dict[original_key] = value
@@ -72,11 +73,11 @@ def extract_batches(tensors):
       yield tensor
   else:
     batch_size = None
-    for _, value in tensors.items():
+    for value in six.itervalues(tensors):
       batch_size = batch_size or value.shape[0]
     for b in range(batch_size):
       yield {
-          key: value[b] for key, value in tensors.items()
+          key: value[b] for key, value in six.iteritems(tensors)
       }
 
 
@@ -105,7 +106,7 @@ def add_dict_to_collection(collection_name, dict_):
   """
   key_collection = collection_name + "_keys"
   value_collection = collection_name + "_values"
-  for key, value in dict_.items():
+  for key, value in six.iteritems(dict_):
     tf.add_to_collection(key_collection, key)
     tf.add_to_collection(value_collection, value)
 

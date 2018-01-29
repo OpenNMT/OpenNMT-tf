@@ -20,6 +20,7 @@
 
 import os
 import argparse
+import six
 
 import tensorflow as tf
 import numpy as np
@@ -61,7 +62,7 @@ def main():
       avg_values[name] += reader.get_tensor(name) / num_checkpoints
 
   tf_vars = []
-  for name, value in avg_values.items():
+  for name, value in six.iteritems(avg_values):
     tf_vars.append(tf.get_variable(name, shape=value.shape))
   placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
   assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, placeholders)]
@@ -76,7 +77,7 @@ def main():
 
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    for p, assign_op, (name, value) in zip(placeholders, assign_ops, avg_values.items()):
+    for p, assign_op, (name, value) in zip(placeholders, assign_ops, six.iteritems(avg_values)):
       sess.run(assign_op, {p: value})
     tf.logging.info("Saving averaged checkpoint to %s-%d" % (out_base_file, latest_step))
     saver.save(sess, out_base_file, global_step=global_step)

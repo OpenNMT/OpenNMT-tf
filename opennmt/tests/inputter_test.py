@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import six
 
 import tensorflow as tf
 
@@ -22,7 +23,7 @@ def _first_element(inputter, data_file, metadata):
   tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
   next_element = iterator.get_next()
   data = inputter.process(next_element)
-  for key, value in data.items():
+  for key, value in six.iteritems(data):
     data[key] = tf.expand_dims(value, 0)
   transformed = inputter.transform_data(data)
   return data, transformed

@@ -280,9 +280,9 @@ class ParallelInputter(MultiInputter):
     all_features = {}
     for i, inputter in enumerate(self.inputters):
       receiver_tensors, features = inputter._get_serving_input()  # pylint: disable=protected-access
-      for key, value in receiver_tensors.items():
+      for key, value in six.iteritems(receiver_tensors):
         all_receiver_tensors["{}_{}".format(key, i)] = value
-      for key, value in features.items():
+      for key, value in six.iteritems(features):
         all_features["inputter_{}_{}".format(i, key)] = value
     return all_receiver_tensors, all_features
 
@@ -290,7 +290,7 @@ class ParallelInputter(MultiInputter):
     processed_data = {}
     for i, inputter in enumerate(self.inputters):
       sub_data = inputter._process(data[i])  # pylint: disable=protected-access
-      for key, value in sub_data.items():
+      for key, value in six.iteritems(sub_data):
         prefixed_key = "inputter_{}_{}".format(i, key)
         processed_data = self.set_data_field(
             processed_data,

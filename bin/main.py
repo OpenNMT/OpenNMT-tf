@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import sys
 import pickle
+import six
 
 import tensorflow as tf
 
@@ -25,7 +26,7 @@ def _prefix_paths(prefix, paths):
     The updated dict.
   """
   if isinstance(paths, dict):
-    for key, path in paths.items():
+    for key, path in six.iteritems(paths):
       paths[key] = _prefix_paths(prefix, path)
     return paths
   else:
