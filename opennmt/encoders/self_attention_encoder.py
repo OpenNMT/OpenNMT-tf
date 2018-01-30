@@ -46,6 +46,7 @@ class SelfAttentionEncoder(Encoder):
     self.position_encoder = position_encoder
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+    inputs *= self.num_units**0.5
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 

@@ -75,6 +75,7 @@ class SelfAttentionDecoder(Decoder):
 
     def _impl(ids, step, cache):
       inputs = embedding_fn(ids[:, -1:])
+      inputs *= self.num_units**0.5
       inputs = self.position_encoder.apply_one(inputs, step + 1)
       outputs = self._self_attention_stack(
           inputs,
@@ -182,6 +183,7 @@ class SelfAttentionDecoder(Decoder):
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
 
+    inputs *= self.num_units**0.5
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
