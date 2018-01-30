@@ -34,7 +34,7 @@ def main():
                       help="The model directory containing the checkpoints.")
   parser.add_argument("--output_dir", required=True,
                       help="The output directory where the averaged checkpoint will be saved.")
-  parser.add_argument("--max_count", default=8,
+  parser.add_argument("--max_count", type=int, default=8,
                       help="The maximal number of checkpoints to average.")
   args = parser.parse_args()
 
