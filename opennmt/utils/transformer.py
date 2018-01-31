@@ -117,14 +117,13 @@ def combine_heads(inputs):
   inputs = tf.reshape(inputs, [tf.shape(inputs)[0], tf.shape(inputs)[1], -1])
   return inputs
 
-def scaled_dot_attention(queries,
-                         keys,
-                         values,
-                         mode,
-                         mask=None,
-                         dropout=0.0):
-  """Computes the scaled dot-product attention as described
-  in https://arxiv.org/abs/1706.03762.
+def dot_product_attention(queries,
+                          keys,
+                          values,
+                          mode,
+                          mask=None,
+                          dropout=0.0):
+  """Computes the dot product attention.
 
   Args:
     queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
@@ -138,9 +137,8 @@ def scaled_dot_attention(queries,
   Returns:
     A tuple ``(context vector, attention vector)``.
   """
-  # Scaled dot-product between queries and keys.
+  # Dot product between queries and keys.
   dot = tf.matmul(queries, keys, transpose_b=True)
-  dot = tf.div(dot, tf.sqrt(tf.cast(tf.shape(keys)[-1], dot.dtype)))
 
   if mask is not None:
     dot = dot * mask + ((1.0 - mask) * dot.dtype.min)
@@ -206,7 +204,9 @@ def multi_head_attention(num_heads,
   keys = split_heads(keys, num_heads)
   values = split_heads(values, num_heads)
 
-  heads, _ = scaled_dot_attention(
+  queries *= (num_units // num_heads)**-0.5
+
+  heads, _ = dot_product_attention(
       queries,
       keys,
       values,
