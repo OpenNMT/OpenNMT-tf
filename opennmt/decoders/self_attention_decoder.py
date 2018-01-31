@@ -122,11 +122,10 @@ class SelfAttentionDecoder(Decoder):
       layer_cache = cache[layer_name] if cache is not None else None
       with tf.variable_scope(layer_name):
         with tf.variable_scope("masked_multi_head"):
-          inputs_norm = transformer.norm(inputs)
           encoded = transformer.multi_head_attention(
               self.num_heads,
-              inputs_norm,
-              inputs_norm,
+              transformer.norm(inputs),
+              None,
               mode,
               num_units=self.num_units,
               mask=decoder_mask,

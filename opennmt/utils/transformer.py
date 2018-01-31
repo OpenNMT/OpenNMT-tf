@@ -76,6 +76,20 @@ def build_future_mask(sequence_length,
     mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
   return mask
 
+def fused_projection(inputs, num_units, num_outputs=1):
+  """Projects the same input into multiple output spaces.
+
+  Args:
+    inputs: The inputs to project.
+    num_units: The number of output units of each space.
+    num_outputs: The number of output spaces.
+
+  Returns:
+    :obj:`num_outputs` ``tf.Tensor`` of depth :obj:`num_units`.
+  """
+  return tf.split(
+      tf.layers.conv1d(inputs, num_units * num_outputs, 1), num_outputs, axis=2)
+
 def split_heads(inputs, num_heads):
   """Splits a tensor in depth.
 
@@ -159,6 +173,7 @@ def multi_head_attention(num_heads,
     num_heads: The number of attention heads.
     queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
     memory: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
+      If ``None``, computes self-attention.
     mode: A ``tf.estimator.ModeKeys`` mode.
     num_units: The number of hidden units. If not set, it is set to the input
       dimension.
@@ -175,9 +190,11 @@ def multi_head_attention(num_heads,
     raise ValueError("Multi head attention requires that num_units is a"
                      " multiple of {}".format(num_heads))
 
-  queries = tf.layers.conv1d(queries, num_units, 1)
-  memory = tf.layers.conv1d(memory, num_units * 2, 1)
-  keys, values = tf.split(memory, [num_units, num_units], axis=2)
+  if memory is None:
+    queries, keys, values = fused_projection(queries, num_units, num_outputs=3)
+  else:
+    queries = tf.layers.conv1d(queries, num_units, 1)
+    keys, values = fused_projection(memory, num_units, num_outputs=2)
 
   if cache is not None:
     keys = tf.concat([cache["keys"], keys], axis=1)
