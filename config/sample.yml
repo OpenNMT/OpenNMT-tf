@@ -83,8 +83,6 @@ train:
   bucket_width: 5
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_parallel_process_calls: 4
-  # (optional) The data prefetch buffer size (default: batch_size * 1000).
-  prefetch_buffer_size: 10000
   # (optional) The number of elements from which to sample during shuffling (default: 1000000).
   # Consider setting this to the number of training examples.
   sample_buffer_size: 1000000
@@ -95,8 +93,6 @@ eval:
   batch_size: 30
   # (optional) The number of threads to use for processing data in parallel (default: train value).
   num_parallel_process_calls: 4
-  # (optional) The prefetch buffer size when processing data in parallel (default: batch_size * 10).
-  prefetch_buffer_size: 100
   # (optional) Evaluate every this many seconds (default: 18000).
   eval_delay: 7200
   # (optional) Save evaluation predictions in model_dir/eval/.
@@ -111,7 +107,5 @@ infer:
   batch_size: 10
   # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
   num_parallel_process_calls: 4
-  # (optional) The prefetch buffer size when processing data in parallel (default: batch_size * 10).
-  prefetch_buffer_size: 100
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1

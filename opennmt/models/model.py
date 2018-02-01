@@ -333,7 +333,6 @@ class Model(object):
   def _input_fn_impl(self,
                      mode,
                      batch_size,
-                     prefetch_buffer_size,
                      num_parallel_process_calls,
                      metadata,
                      features_file,
@@ -369,7 +368,7 @@ class Model(object):
 
     dataset = dataset.map(
         process_fn,
-        num_parallel_calls=num_parallel_process_calls).prefetch(prefetch_buffer_size)
+        num_parallel_calls=num_parallel_process_calls)
     padded_shapes = padded_shapes_fn()
 
     if mode == tf.estimator.ModeKeys.TRAIN:
@@ -432,6 +431,8 @@ class Model(object):
         dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
       dataset = dataset.repeat()
 
+    dataset = dataset.prefetch(1)
+
     iterator = dataset.make_initializable_iterator()
 
     # Add the initializer to a standard collection for it to be initialized.
@@ -442,7 +443,6 @@ class Model(object):
   def input_fn(self,
                mode,
                batch_size,
-               prefetch_buffer_size,
                num_parallel_process_calls,
                metadata,
                features_file,
@@ -458,7 +458,6 @@ class Model(object):
     Args:
       mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size to use.
-      prefetch_buffer_size: The prefetch buffer size.
       num_parallel_process_calls: The number of elements processed in parallel.
       metadata: A dictionary containing additional metadata set
         by the user.
@@ -492,7 +491,6 @@ class Model(object):
     return lambda: self._input_fn_impl(
         mode,
         batch_size,
-        prefetch_buffer_size,
         num_parallel_process_calls,
         metadata,
         features_file,

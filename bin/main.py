@@ -118,16 +118,12 @@ def train(estimator, model, config, num_devices=1):
 
   train_batch_size = config["train"]["batch_size"]
   train_batch_type = config["train"].get("batch_type", "examples")
-  train_prefetch_buffer_size = config["train"].get(
-      "prefetch_buffer_size",
-      train_batch_size * (1000 if train_batch_type == "examples" else 50))
   train_num_parallel_process_calls = config["train"].get(
       "num_parallel_process_calls", multiprocessing.cpu_count())
   train_spec = tf.estimator.TrainSpec(
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.TRAIN,
           train_batch_size,
-          train_prefetch_buffer_size,
           train_num_parallel_process_calls,
           config["data"],
           config["data"]["train_features_file"],
@@ -144,15 +140,12 @@ def train(estimator, model, config, num_devices=1):
 
   eval_batch_size = config["eval"].get(
       "batch_size", train_batch_size if train_batch_type == "examples" else 30)
-  eval_prefetch_buffer_size = config["eval"].get(
-      "prefetch_buffer_size", eval_batch_size * 10)
   eval_num_parallel_process_calls = config["eval"].get(
       "num_parallel_process_calls", train_num_parallel_process_calls)
   eval_spec = tf.estimator.EvalSpec(
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.EVAL,
           eval_batch_size,
-          eval_prefetch_buffer_size,
           eval_num_parallel_process_calls,
           config["data"],
           config["data"]["eval_features_file"],
@@ -188,7 +181,6 @@ def infer(features_file,
   input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
       batch_size,
-      config["infer"].get("prefetch_buffer_size", batch_size * 10),
       config["infer"].get("num_parallel_process_calls", multiprocessing.cpu_count()),
       config["data"],
       features_file)
