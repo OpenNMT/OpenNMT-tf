@@ -65,11 +65,10 @@ class SelfAttentionEncoder(Encoder):
     for l in range(self.num_layers):
       with tf.variable_scope("layer_{}".format(l)):
         with tf.variable_scope("multi_head"):
-          inputs_norm = transformer.norm(inputs)
           context = transformer.multi_head_attention(
               self.num_heads,
-              inputs_norm,
-              inputs_norm,
+              transformer.norm(inputs),
+              None,
               mode,
               num_units=self.num_units,
               mask=mask,

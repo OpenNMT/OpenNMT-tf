@@ -46,26 +46,42 @@ class SelfAttentionDecoder(Decoder):
     self.relu_dropout = relu_dropout
     self.position_encoder = position_encoder
 
-  def _init_cache(self, memory, memory_sequence_length):
+  def _build_memory_mask(self, memory, memory_sequence_length=None):
+    if memory_sequence_length is None:
+      return None
+    else:
+      return transformer.build_sequence_mask(
+          memory_sequence_length,
+          num_heads=self.num_heads,
+          maximum_length=tf.shape(memory)[1],
+          dtype=memory.dtype)
+
+  def _init_cache(self, memory, memory_sequence_length=None):
     cache = {
         "memory": memory,
-        "memory_sequence_length": memory_sequence_length
+        "memory_mask": self._build_memory_mask(
+            memory, memory_sequence_length=memory_sequence_length)
     }
 
     batch_size = tf.shape(memory)[0]
     depth = memory.get_shape().as_list()[-1]
 
+    def _create_placeholder(shape, loop_shape=None):
+      placeholder = tf.zeros(shape)
+      if loop_shape is not None:
+        placeholder._shape = tf.TensorShape(loop_shape)  # pylint: disable=protected-access
+      return placeholder
+
     for l in range(self.num_layers):
-      keys = tf.zeros([batch_size, 0, depth])
-      values = tf.zeros([batch_size, 0, depth])
-
-      # Ensure shape invariance for tf.while_loop.
-      keys._shape = tf.TensorShape([None, None, depth])  # pylint: disable=protected-access
-      values._shape = tf.TensorShape([None, None, depth])  # pylint: disable=protected-access
-
       cache["layer_{}".format(l)] = {
-          "keys": keys,
-          "values": values
+          "self_keys": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
+          "self_values": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
+          "memory_keys": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
+          "memory_values": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
       }
 
     return cache
@@ -82,7 +98,7 @@ class SelfAttentionDecoder(Decoder):
           mode=mode,
           cache=cache,
           memory=cache["memory"],
-          memory_sequence_length=cache["memory_sequence_length"])
+          memory_sequence_length=None)
       outputs = outputs[:, -1:, :]
       logits = tf.layers.dense(outputs, vocab_size)
       return logits, cache
@@ -110,23 +126,22 @@ class SelfAttentionDecoder(Decoder):
           num_heads=self.num_heads,
           maximum_length=tf.shape(inputs)[1],
           dtype=inputs.dtype)
-    if memory_sequence_length is not None:
-      memory_mask = transformer.build_sequence_mask(
-          memory_sequence_length,
-          num_heads=self.num_heads,
-          maximum_length=tf.shape(memory)[1],
-          dtype=memory.dtype)
+    if memory is not None:
+      if cache is not None:
+        memory_mask = cache["memory_mask"]
+      elif memory_sequence_length is not None:
+        memory_mask = self._build_memory_mask(
+            memory, memory_sequence_length=memory_sequence_length)
 
     for l in range(self.num_layers):
       layer_name = "layer_{}".format(l)
       layer_cache = cache[layer_name] if cache is not None else None
       with tf.variable_scope(layer_name):
         with tf.variable_scope("masked_multi_head"):
-          inputs_norm = transformer.norm(inputs)
           encoded = transformer.multi_head_attention(
               self.num_heads,
-              inputs_norm,
-              inputs_norm,
+              transformer.norm(inputs),
+              None,
               mode,
               num_units=self.num_units,
               mask=decoder_mask,
@@ -146,6 +161,7 @@ class SelfAttentionDecoder(Decoder):
                 memory,
                 mode,
                 mask=memory_mask,
+                cache=layer_cache,
                 dropout=self.attention_dropout)
             context = transformer.drop_and_add(
                 encoded,
@@ -215,7 +231,7 @@ class SelfAttentionDecoder(Decoder):
     inputs = tf.expand_dims(start_tokens, 1)
     lengths = tf.zeros([batch_size], dtype=tf.int32)
     log_probs = tf.zeros([batch_size])
-    cache = self._init_cache(memory, memory_sequence_length)
+    cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
 
     symbols_to_logits_fn = self._symbols_to_logits_fn(embedding, vocab_size, mode)
 
@@ -284,7 +300,7 @@ class SelfAttentionDecoder(Decoder):
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None):
-    cache = self._init_cache(memory, memory_sequence_length)
+    cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
     symbols_to_logits_fn = self._symbols_to_logits_fn(embedding, vocab_size, mode)
 
     outputs, log_probs = beam_search(

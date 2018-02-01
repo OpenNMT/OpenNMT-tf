@@ -121,7 +121,7 @@ class TransformerTest(tf.test.TestCase):
     keys = values
 
     mask = transformer.build_sequence_mask(values_length, num_heads=num_heads)
-    context, attn = transformer.scaled_dot_attention(
+    context, attn = transformer.dot_product_attention(
         queries,
         keys,
         values,
@@ -152,7 +152,7 @@ class TransformerTest(tf.test.TestCase):
         shape=(None, num_heads, None, depth))
 
     mask = transformer.build_future_mask(queries_length, num_heads=num_heads)
-    context, attn = transformer.scaled_dot_attention(
+    context, attn = transformer.dot_product_attention(
         queries,
         queries,
         queries,

@@ -76,6 +76,20 @@ def build_future_mask(sequence_length,
     mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
   return mask
 
+def fused_projection(inputs, num_units, num_outputs=1):
+  """Projects the same input into multiple output spaces.
+
+  Args:
+    inputs: The inputs to project.
+    num_units: The number of output units of each space.
+    num_outputs: The number of output spaces.
+
+  Returns:
+    :obj:`num_outputs` ``tf.Tensor`` of depth :obj:`num_units`.
+  """
+  return tf.split(
+      tf.layers.conv1d(inputs, num_units * num_outputs, 1), num_outputs, axis=2)
+
 def split_heads(inputs, num_heads):
   """Splits a tensor in depth.
 
@@ -103,14 +117,13 @@ def combine_heads(inputs):
   inputs = tf.reshape(inputs, [tf.shape(inputs)[0], tf.shape(inputs)[1], -1])
   return inputs
 
-def scaled_dot_attention(queries,
-                         keys,
-                         values,
-                         mode,
-                         mask=None,
-                         dropout=0.0):
-  """Computes the scaled dot-product attention as described
-  in https://arxiv.org/abs/1706.03762.
+def dot_product_attention(queries,
+                          keys,
+                          values,
+                          mode,
+                          mask=None,
+                          dropout=0.0):
+  """Computes the dot product attention.
 
   Args:
     queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
@@ -124,9 +137,8 @@ def scaled_dot_attention(queries,
   Returns:
     A tuple ``(context vector, attention vector)``.
   """
-  # Scaled dot-product between queries and keys.
+  # Dot product between queries and keys.
   dot = tf.matmul(queries, keys, transpose_b=True)
-  dot = tf.div(dot, tf.sqrt(tf.cast(tf.shape(keys)[-1], dot.dtype)))
 
   if mask is not None:
     dot = dot * mask + ((1.0 - mask) * dot.dtype.min)
@@ -159,6 +171,7 @@ def multi_head_attention(num_heads,
     num_heads: The number of attention heads.
     queries: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
     memory: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
+      If ``None``, computes self-attention.
     mode: A ``tf.estimator.ModeKeys`` mode.
     num_units: The number of hidden units. If not set, it is set to the input
       dimension.
@@ -175,21 +188,34 @@ def multi_head_attention(num_heads,
     raise ValueError("Multi head attention requires that num_units is a"
                      " multiple of {}".format(num_heads))
 
-  queries = tf.layers.conv1d(queries, num_units, 1)
-  memory = tf.layers.conv1d(memory, num_units * 2, 1)
-  keys, values = tf.split(memory, [num_units, num_units], axis=2)
+  if memory is None:
+    queries, keys, values = fused_projection(queries, num_units, num_outputs=3)
 
-  if cache is not None:
-    keys = tf.concat([cache["keys"], keys], axis=1)
-    values = tf.concat([cache["values"], values], axis=1)
-    cache["keys"] = keys
-    cache["values"] = values
+    if cache is not None:
+      keys = tf.concat([cache["self_keys"], keys], axis=1)
+      values = tf.concat([cache["self_values"], values], axis=1)
+      cache["self_keys"] = keys
+      cache["self_values"] = values
+  else:
+    queries = tf.layers.conv1d(queries, num_units, 1)
+
+    if cache is not None:
+      keys, values = tf.cond(
+          tf.equal(tf.shape(cache["memory_keys"])[1], 0),
+          true_fn=lambda: fused_projection(memory, num_units, num_outputs=2),
+          false_fn=lambda: [cache["memory_keys"], cache["memory_values"]])
+      cache["memory_keys"] = keys
+      cache["memory_values"] = values
+    else:
+      keys, values = fused_projection(memory, num_units, num_outputs=2)
 
   queries = split_heads(queries, num_heads)
   keys = split_heads(keys, num_heads)
   values = split_heads(values, num_heads)
 
-  heads, _ = scaled_dot_attention(
+  queries *= (num_units // num_heads)**-0.5
+
+  heads, _ = dot_product_attention(
       queries,
       keys,
       values,
