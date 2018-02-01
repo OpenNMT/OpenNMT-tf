@@ -10,6 +10,29 @@ import tensorflow as tf
 
 from opennmt.utils.optim import optimize
 from opennmt.utils.misc import add_dict_to_collection, item_or_tuple
+from opennmt.utils.parallel import GraphDispatcher
+
+
+def filter_irregular_batches(multiple):
+  """Transformation that filters out batches based on their size.
+
+  Args:
+    multiple: The divisor of the batch size.
+
+  Returns:
+    A ``tf.data.Dataset`` transformation.
+  """
+  def _apply_fn(dataset):
+    """Transformation function."""
+
+    def _predicate(*x):
+      flat = tf.contrib.framework.nest.flatten(x)
+      batch_size = tf.shape(flat[0])[0]
+      return tf.equal(tf.mod(batch_size, multiple), 0)
+
+    return dataset.filter(_predicate)
+
+  return _apply_fn
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -19,48 +42,94 @@ class Model(object):
   def __init__(self, name):
     self.name = name
 
-  def __call__(self, features, labels, params, mode, config):
-    """Creates the model.
+  def model_fn(self, num_devices=1):
+    """Returns the model function.
+
+    Args:
+      num_devices: The number of devices used for training.
 
     See Also:
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       arguments and the returned value.
     """
-    if mode == tf.estimator.ModeKeys.TRAIN:
-      self._register_word_counters(features, labels)
+    dispatcher = GraphDispatcher(num_devices)
 
-    with tf.variable_scope(self.name, initializer=self._initializer(params)) as model_scope:
-      outputs, predictions = self._build(features, labels, params, mode, config)
+    def _loss_op(features, labels, params, mode, config):
+      """Single callable to compute the loss."""
+      logits, _ = self._build(features, labels, params, mode, config)
+      return self._compute_loss(features, labels, logits, params, mode)
 
-    if predictions is not None:
-      # Register predictions in a collection so that hooks can easily fetch them.
-      add_dict_to_collection("predictions", predictions)
-
-    if mode != tf.estimator.ModeKeys.PREDICT:
-      with tf.variable_scope(model_scope):
-        loss = self._compute_loss(features, labels, outputs, params, mode)
-
-      if isinstance(loss, tuple):
-        loss, display_loss = loss
+    def _normalize_loss(num, den=None):
+      """Normalizes the loss."""
+      if isinstance(num, list):  # Sharded mode.
+        if den is not None:
+          assert isinstance(den, list)
+          return tf.add_n(num) / tf.add_n(den)
+        else:
+          return tf.reduce_mean(num)
+      elif den is not None:
+        return num / den
       else:
-        display_loss = loss
+        return num
 
-      tf.summary.scalar("loss", display_loss)
+    def _extract_loss(loss):
+      """Extracts and summarizes the loss."""
+      if not isinstance(loss, tuple):
+        actual_loss = _normalize_loss(loss)
+        tboard_loss = actual_loss
+      else:
+        actual_loss = _normalize_loss(loss[0], den=loss[1])
+        tboard_loss = _normalize_loss(loss[0], den=loss[2]) if len(loss) > 2 else actual_loss
+      tf.summary.scalar("loss", tboard_loss)
+      return actual_loss
 
+    def _model_fn(features, labels, params, mode, config):
+      """model_fn implementation."""
       if mode == tf.estimator.ModeKeys.TRAIN:
+        self._register_word_counters(features, labels)
+
+        features_shards = dispatcher.shard(features)
+        labels_shards = dispatcher.shard(labels)
+
+        with tf.variable_scope(self.name, initializer=self._initializer(params)):
+          losses_shards = dispatcher(
+              _loss_op, features_shards, labels_shards, params, mode, config)
+
+        loss = _extract_loss(losses_shards)
         train_op = optimize(loss, params)
         return tf.estimator.EstimatorSpec(
-            mode, loss=loss, train_op=train_op)
-      else:
+            mode,
+            loss=loss,
+            train_op=train_op)
+      elif mode == tf.estimator.ModeKeys.EVAL:
+        with tf.variable_scope(self.name):
+          logits, predictions = self._build(features, labels, params, mode, config)
+          loss = self._compute_loss(features, labels, logits, params, mode)
+
+        loss = _extract_loss(loss)
         eval_metric_ops = self._compute_metrics(features, labels, predictions)
+        if predictions is not None:
+          # Register predictions in a collection so that hooks can easily fetch them.
+          add_dict_to_collection("predictions", predictions)
+
         return tf.estimator.EstimatorSpec(
-            mode, loss=loss, eval_metric_ops=eval_metric_ops)
-    else:
-      export_outputs = {}
-      export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = \
-          tf.estimator.export.PredictOutput(predictions)
-      return tf.estimator.EstimatorSpec(
-          mode, predictions=predictions, export_outputs=export_outputs)
+            mode,
+            loss=loss,
+            eval_metric_ops=eval_metric_ops)
+      elif mode == tf.estimator.ModeKeys.PREDICT:
+        with tf.variable_scope(self.name):
+          _, predictions = self._build(features, labels, params, mode, config)
+
+        export_outputs = {}
+        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
+            tf.estimator.export.PredictOutput(predictions))
+
+        return tf.estimator.EstimatorSpec(
+            mode,
+            predictions=predictions,
+            export_outputs=export_outputs)
+
+    return _model_fn
 
   def _initializer(self, params):
     """Returns the global initializer for this model.
@@ -268,6 +337,7 @@ class Model(object):
                      features_file,
                      labels_file=None,
                      batch_type="examples",
+                     batch_multiplier=1,
                      bucket_width=None,
                      sample_buffer_size=None,
                      maximum_features_length=None,
@@ -306,6 +376,7 @@ class Model(object):
           labels,
           maximum_features_length=maximum_features_length,
           maximum_labels_length=maximum_labels_length))
+      batch_size = batch_size * batch_multiplier
 
     if mode == tf.estimator.ModeKeys.TRAIN and bucket_width is not None:
       # Form batches with sequences of similar lengths to improve efficiency.
@@ -333,7 +404,10 @@ class Model(object):
         if bucket_width > 1:
           key += 1  # For bucket_width == 1, key 0 is unassigned.
         size = batch_size // (key * bucket_width)
-        return tf.to_int64(tf.maximum(size, 1))
+        if batch_multiplier > 1:
+          # Make the window size a multiple of batch_multiplier.
+          size = size + batch_multiplier - size % batch_multiplier
+        return tf.to_int64(tf.maximum(size, batch_multiplier))
 
       if batch_type == "examples":
         batchify_fn = tf.contrib.data.group_by_window(
@@ -352,6 +426,8 @@ class Model(object):
           padded_shapes=padded_shapes)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
+      if batch_multiplier > 1:
+        dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
       dataset = dataset.repeat()
 
     iterator = dataset.make_initializable_iterator()
@@ -370,6 +446,7 @@ class Model(object):
                features_file,
                labels_file=None,
                batch_type="examples",
+               batch_multiplier=1,
                bucket_width=None,
                sample_buffer_size=None,
                maximum_features_length=None,
@@ -387,6 +464,8 @@ class Model(object):
       labels_file: The file containing output labels.
       batch_type: The training batching stragety to use: can be "examples" or
         "tokens".
+      batch_multiplier: The batch size multiplier to prepare splitting accross
+         replicated graph parts.
       bucket_width: The width of the length buckets to select batch candidates
         from. ``None`` to not constrain batch formation.
       sample_buffer_size: The number of elements from which to sample.
@@ -417,6 +496,7 @@ class Model(object):
         features_file,
         labels_file=labels_file,
         batch_type=batch_type,
+        batch_multiplier=batch_multiplier,
         bucket_width=bucket_width,
         sample_buffer_size=sample_buffer_size,
         maximum_features_length=maximum_features_length,

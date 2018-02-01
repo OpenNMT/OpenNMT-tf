@@ -74,13 +74,14 @@ def load_model(model_dir, model_file=None):
 
   return model
 
-def train(estimator, model, config):
+def train(estimator, model, config, num_devices=1):
   """Runs training.
 
   Args:
     estimator: A `tf.estimator.Estimator`.
     model: A `opennmt.models.Model`.
     config: The configuration.
+    num_devices: The number of devices used for training.
   """
   if "eval" not in config:
     config["eval"] = {}
@@ -132,6 +133,7 @@ def train(estimator, model, config):
           config["data"]["train_features_file"],
           labels_file=config["data"]["train_labels_file"],
           batch_type=train_batch_type,
+          batch_multiplier=num_devices,
           bucket_width=config["train"].get("bucket_width", 5),
           sample_buffer_size=config["train"].get(
               "sample_buffer_size", default_sample_buffer_size),
@@ -241,6 +243,8 @@ def main():
   parser.add_argument("--checkpoint_path", default=None,
                       help=("Checkpoint or directory to use for inference or export "
                             "(when a directory is set, the latest checkpoint is used)."))
+  parser.add_argument("--num_gpus", type=int, default=1,
+                      help="Number of GPUs to use for in-graph replication.")
   parser.add_argument("--chief_host", default="",
                       help="hostname:port of the chief worker (for distributed training).")
   parser.add_argument("--worker_hosts", default="",
@@ -286,8 +290,11 @@ def main():
     tf.logging.info("Creating model directory %s", config["model_dir"])
     os.makedirs(config["model_dir"])
 
-  session_config = tf.ConfigProto()
-  session_config.gpu_options.allow_growth = args.gpu_allow_growth
+  session_config = tf.ConfigProto(
+      allow_soft_placement=True,
+      log_device_placement=False,
+      gpu_options=tf.GPUOptions(
+          allow_growth=args.gpu_allow_growth))
 
   run_config = tf.estimator.RunConfig(
       model_dir=config["model_dir"],
@@ -309,7 +316,7 @@ def main():
   model = load_model(config["model_dir"], model_file=args.model)
 
   estimator = tf.estimator.Estimator(
-      model,
+      model.model_fn(num_devices=args.num_gpus),
       config=run_config,
       params=config["params"])
 
@@ -320,7 +327,7 @@ def main():
   if args.run == "train":
     if args.data_dir:
       config["data"] = _prefix_paths(args.data_dir, config["data"])
-    train(estimator, model, config)
+    train(estimator, model, config, num_devices=args.num_gpus)
   elif args.run == "infer":
     if not args.features_file:
       parser.error("--features_file is required for inference.")

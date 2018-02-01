@@ -26,7 +26,7 @@ def cross_entropy_sequence_loss(logits,
                                 label_smoothing=0.0,
                                 average_in_time=False,
                                 mode=tf.estimator.ModeKeys.TRAIN):
-  """Computes the reduced cross entropy loss of sequences.
+  """Computes the cross entropy loss of sequences.
 
   Args:
     logits: The unscaled probabilities.
@@ -37,7 +37,7 @@ def cross_entropy_sequence_loss(logits,
     mode: A ``tf.estimator.ModeKeys`` mode.
 
   Returns:
-    A tuple with the loss and the token level loss.
+    A tuple (cumulated loss, loss normalizer, token-level normalizer).
   """
   batch_size = tf.shape(logits)[0]
   max_time = tf.shape(logits)[1]
@@ -46,18 +46,20 @@ def cross_entropy_sequence_loss(logits,
   weights = tf.sequence_mask(
       sequence_length, maxlen=max_time, dtype=cross_entropy.dtype)
   loss = tf.reduce_sum(cross_entropy * weights)
-  loss_per_token = loss / tf.reduce_sum(weights)
+  loss_token_normalizer = tf.reduce_sum(weights)
 
   if average_in_time or mode != tf.estimator.ModeKeys.TRAIN:
-    return loss_per_token, loss_per_token
+    loss_normalizer = loss_token_normalizer
   else:
-    return loss / tf.cast(batch_size, loss.dtype), loss_per_token
+    loss_normalizer = tf.cast(batch_size, loss.dtype)
+
+  return loss, loss_normalizer, loss_token_normalizer
 
 def cross_entropy_loss(logits,
                        labels,
                        label_smoothing=0.0,
                        mode=tf.estimator.ModeKeys.TRAIN):
-  """Computes the reduced cross entropy loss.
+  """Computes the cross entropy loss.
 
   Args:
     logits: The unscaled probabilities.
@@ -66,8 +68,9 @@ def cross_entropy_loss(logits,
     mode: A ``tf.estimator.ModeKeys`` mode.
 
   Returns:
-    The loss.
+    The cumulated loss and the loss normalizer.
   """
   cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
-  loss = tf.reduce_mean(cross_entropy)
-  return loss
+  loss = tf.reduce_sum(cross_entropy)
+  loss_normalizer = tf.shape(cross_entropy)[0]
+  return loss, loss_normalizer
