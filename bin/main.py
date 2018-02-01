@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import multiprocessing
 import os
 import sys
 import pickle
@@ -119,7 +118,7 @@ def train(estimator, model, config, num_devices=1):
   train_batch_size = config["train"]["batch_size"]
   train_batch_type = config["train"].get("batch_type", "examples")
   train_num_parallel_process_calls = config["train"].get(
-      "num_parallel_process_calls", multiprocessing.cpu_count())
+      "num_parallel_process_calls", 4)
   train_spec = tf.estimator.TrainSpec(
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.TRAIN,
@@ -181,7 +180,7 @@ def infer(features_file,
   input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
       batch_size,
-      config["infer"].get("num_parallel_process_calls", multiprocessing.cpu_count()),
+      config["infer"].get("num_parallel_process_calls", 1),
       config["data"],
       features_file)
 

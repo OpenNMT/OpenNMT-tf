@@ -28,7 +28,6 @@ train:
   train_steps: 1000000
 
   sample_buffer_size: 5000000  # Consider setting this to the training dataset size.
-  num_parallel_process_calls: 4
 
 eval:
   batch_size: 64
@@ -36,4 +35,3 @@ eval:
 
 infer:
   batch_size: 30
-  num_parallel_process_calls: 2

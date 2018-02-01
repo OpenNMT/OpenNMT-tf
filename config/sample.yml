@@ -81,7 +81,7 @@ train:
   maximum_labels_length: 70
   # (optional) The width of the length buckets to select batch candidates from (default: 5).
   bucket_width: 5
-  # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
+  # (optional) The number of threads to use for processing data in parallel (default: 4).
   num_parallel_process_calls: 4
   # (optional) The number of elements from which to sample during shuffling (default: 1000000).
   # Consider setting this to the number of training examples.
@@ -91,7 +91,7 @@ train:
 eval:
   # (optional) The batch size to use (default: train value or 30 if not applicable).
   batch_size: 30
-  # (optional) The number of threads to use for processing data in parallel (default: train value).
+  # (optional) The number of threads to use for processing data in parallel (default: 4).
   num_parallel_process_calls: 4
   # (optional) Evaluate every this many seconds (default: 18000).
   eval_delay: 7200
@@ -105,7 +105,7 @@ eval:
 infer:
   # (optional) The batch size to use (default: 1).
   batch_size: 10
-  # (optional) The number of threads to use for processing data in parallel (default: number of logical cores).
+  # (optional) The number of threads to use for processing data in parallel (default: 1).
   num_parallel_process_calls: 4
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1
