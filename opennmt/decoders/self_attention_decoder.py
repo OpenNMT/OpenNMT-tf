@@ -66,17 +66,22 @@ class SelfAttentionDecoder(Decoder):
     batch_size = tf.shape(memory)[0]
     depth = memory.get_shape().as_list()[-1]
 
+    def _create_placeholder(shape, loop_shape=None):
+      placeholder = tf.zeros(shape)
+      if loop_shape is not None:
+        placeholder._shape = tf.TensorShape(loop_shape)  # pylint: disable=protected-access
+      return placeholder
+
     for l in range(self.num_layers):
-      keys = tf.zeros([batch_size, 0, depth])
-      values = tf.zeros([batch_size, 0, depth])
-
-      # Ensure shape invariance for tf.while_loop.
-      keys._shape = tf.TensorShape([None, None, depth])  # pylint: disable=protected-access
-      values._shape = tf.TensorShape([None, None, depth])  # pylint: disable=protected-access
-
       cache["layer_{}".format(l)] = {
-          "keys": keys,
-          "values": values
+          "self_keys": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
+          "self_values": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
+          "memory_keys": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
+          "memory_values": _create_placeholder(
+              [batch_size, 0, depth], loop_shape=[None, None, depth]),
       }
 
     return cache
@@ -156,6 +161,7 @@ class SelfAttentionDecoder(Decoder):
                 memory,
                 mode,
                 mask=memory_mask,
+                cache=layer_cache,
                 dropout=self.attention_dropout)
             context = transformer.drop_and_add(
                 encoded,

@@ -190,15 +190,24 @@ def multi_head_attention(num_heads,
 
   if memory is None:
     queries, keys, values = fused_projection(queries, num_units, num_outputs=3)
+
+    if cache is not None:
+      keys = tf.concat([cache["self_keys"], keys], axis=1)
+      values = tf.concat([cache["self_values"], values], axis=1)
+      cache["self_keys"] = keys
+      cache["self_values"] = values
   else:
     queries = tf.layers.conv1d(queries, num_units, 1)
-    keys, values = fused_projection(memory, num_units, num_outputs=2)
 
-  if cache is not None:
-    keys = tf.concat([cache["keys"], keys], axis=1)
-    values = tf.concat([cache["values"], values], axis=1)
-    cache["keys"] = keys
-    cache["values"] = values
+    if cache is not None:
+      keys, values = tf.cond(
+          tf.equal(tf.shape(cache["memory_keys"])[1], 0),
+          true_fn=lambda: fused_projection(memory, num_units, num_outputs=2),
+          false_fn=lambda: [cache["memory_keys"], cache["memory_values"]])
+      cache["memory_keys"] = keys
+      cache["memory_values"] = values
+    else:
+      keys, values = fused_projection(memory, num_units, num_outputs=2)
 
   queries = split_heads(queries, num_heads)
   keys = split_heads(keys, num_heads)
