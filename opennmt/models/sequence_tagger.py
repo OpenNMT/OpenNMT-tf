@@ -32,7 +32,7 @@ class SequenceTagger(Model):
       crf_decoding: If ``True``, add a CRF layer after the encoder.
       name: The name of this model.
     """
-    super(SequenceTagger, self).__init__(name)
+    super(SequenceTagger, self).__init__(name, dtype=inputter.dtype)
 
     self.encoder = encoder
     self.inputter = inputter

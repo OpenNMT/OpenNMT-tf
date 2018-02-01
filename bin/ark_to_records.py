@@ -11,7 +11,7 @@ import numpy as np
 import tensorflow as tf
 
 
-def consume_next_vector(ark_file):
+def consume_next_vector(ark_file, dtype):
   """Consumes the next vector.
 
   Args:
@@ -43,7 +43,7 @@ def consume_next_vector(ark_file):
     if end:
       break
 
-  return idx, np.asarray(vector, dtype=np.float32)
+  return idx, np.asarray(vector, dtype=dtype)
 
 def consume_next_text(text_file):
   """Consumes the next text line from `text_file`."""
@@ -75,7 +75,7 @@ def write_text(text, writer):
   writer.write(text)
   writer.write("\n")
 
-def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
+def ark_to_records_aligned(ark_filename, text_filename, out_prefix, dtype=np.float32):
   """Converts ARK and text datasets to aligned TFRecords and text datasets."""
   record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
   text_writer = open(out_prefix + ".txt", "w")
@@ -103,7 +103,7 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
 
   with open(ark_filename) as ark_file, open(text_filename) as text_file:
     while True:
-      ark_idx, vector = consume_next_vector(ark_file)
+      ark_idx, vector = consume_next_vector(ark_file, dtype=dtype)
       text_idx, text = consume_next_text(text_file)
 
       if not ark_idx and not text_idx:
@@ -141,14 +141,14 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
 
   print("Saved {} aligned records.".format(count))
 
-def ark_to_records(ark_filename, out_prefix):
+def ark_to_records(ark_filename, out_prefix, dtype=np.float32):
   """Converts ARK dataset to TFRecords."""
   record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
   count = 0
 
   with open(ark_filename) as ark_file:
     while True:
-      ark_idx, vector = consume_next_vector(ark_file)
+      ark_idx, vector = consume_next_vector(ark_file, dtype=dtype)
       if not ark_idx:
         break
       write_record(vector, record_writer)
@@ -167,12 +167,15 @@ def main():
                             "(must set it to align source and target files)."))
   parser.add_argument("--out", required=True,
                       help="Output files prefix (will be suffixed by .records and .txt).")
+  parser.add_argument("--dtype", default="float32",
+                      help="Vector dtype")
   args = parser.parse_args()
+  dtype = np.dtype(args.dtype)
 
   if args.txt:
-    ark_to_records_aligned(args.ark, args.txt, args.out)
+    ark_to_records_aligned(args.ark, args.txt, args.out, dtype=dtype)
   else:
-    ark_to_records(args.ark, args.out)
+    ark_to_records(args.ark, args.out, dtype=dtype)
 
 if __name__ == "__main__":
   main()

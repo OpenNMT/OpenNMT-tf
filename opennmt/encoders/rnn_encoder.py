@@ -75,7 +75,7 @@ class UnidirectionalRNNEncoder(RNNEncoder):
         cell,
         inputs,
         sequence_length=sequence_length,
-        dtype=tf.float32)
+        dtype=inputs.dtype)
 
     return (encoder_outputs, encoder_state, sequence_length)
 
@@ -130,7 +130,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
         cell_bw,
         inputs,
         sequence_length=sequence_length,
-        dtype=tf.float32)
+        dtype=inputs.dtype)
 
     # Merge bidirectional outputs and state.
     encoder_outputs = self.reducer.zip_and_reduce(encoder_outputs_tup[0], encoder_outputs_tup[1])

@@ -39,8 +39,9 @@ def filter_irregular_batches(multiple):
 class Model(object):
   """Base class for models."""
 
-  def __init__(self, name):
+  def __init__(self, name, dtype=tf.float32):
     self.name = name
+    self.dtype = dtype
 
   def model_fn(self, num_devices=1):
     """Returns the model function.
@@ -142,7 +143,8 @@ class Model(object):
     """
     param_init = params.get("param_init")
     if param_init is not None:
-      return tf.random_uniform_initializer(minval=-param_init, maxval=param_init)
+      return tf.random_uniform_initializer(
+          minval=-param_init, maxval=param_init, dtype=self.dtype)
     return None
 
   @abc.abstractmethod

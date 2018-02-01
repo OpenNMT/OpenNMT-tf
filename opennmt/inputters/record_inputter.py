@@ -11,19 +11,20 @@ class SequenceRecordInputter(Inputter):
   Each record contains the following fields:
 
    * ``shape``: the shape of the tensor as a ``int64`` list.
-   * ``values``: the flattened tensor values as a ``float32`` list.
+   * ``values``: the flattened tensor values as a :obj:`dtype` list.
 
   Tensors are expected to be of shape ``[time, depth]``.
   """
 
-  def __init__(self, input_depth_key):
+  def __init__(self, input_depth_key, dtype=tf.float32):
     """Initializes the parameters of the record inputter.
 
     Args:
       input_depth_key: The data configuration key of the input depth value
         which has to be known statically.
+      dtype: The values type.
     """
-    super(SequenceRecordInputter, self).__init__()
+    super(SequenceRecordInputter, self).__init__(dtype=dtype)
     self.input_depth_key = input_depth_key
 
   def initialize(self, metadata):
@@ -37,7 +38,7 @@ class SequenceRecordInputter(Inputter):
 
   def _get_serving_input(self):
     receiver_tensors = {
-        "tensor": tf.placeholder(tf.float32, shape=(None, None, self.input_depth)),
+        "tensor": tf.placeholder(self.dtype, shape=(None, None, self.input_depth)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
@@ -49,7 +50,7 @@ class SequenceRecordInputter(Inputter):
     if "tensor" not in data:
       features = tf.parse_single_example(data["raw"], features={
           "shape": tf.VarLenFeature(tf.int64),
-          "values": tf.VarLenFeature(tf.float32)
+          "values": tf.VarLenFeature(self.dtype)
       })
 
       values = features["values"].values

@@ -72,4 +72,5 @@ class Transformer(SequenceToSequence):
         name=name)
 
   def _initializer(self, params):
-    return tf.variance_scaling_initializer(mode="fan_avg", distribution="uniform")
+    return tf.variance_scaling_initializer(
+        mode="fan_avg", distribution="uniform", dtype=self.dtype)
