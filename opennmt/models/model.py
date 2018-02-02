@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 
-import time
 import abc
 import six
 
@@ -364,7 +363,7 @@ class Model(object):
           feat_padded_shapes_fn(), labels_padded_shapes_fn())
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      dataset = dataset.shuffle(sample_buffer_size, seed=int(time.time()))
+      dataset = dataset.shuffle(sample_buffer_size)
 
     dataset = dataset.map(
         process_fn,
