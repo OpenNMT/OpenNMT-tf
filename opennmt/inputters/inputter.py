@@ -5,7 +5,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils.reducer import ConcatReducer
+from opennmt.layers.reducer import ConcatReducer
 from opennmt.utils.misc import extract_prefixed_keys
 
 
@@ -258,7 +258,7 @@ class ParallelInputter(MultiInputter):
 
     Args:
       inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
-      reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all inputs. If
+      reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs. If
         set, parallel inputs are assumed to have the same length.
     """
     super(ParallelInputter, self).__init__(inputters)
@@ -335,7 +335,7 @@ class MixedInputter(MultiInputter):
 
     Args:
       inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
-      reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all inputs.
+      reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs.
       dropout: The probability to drop units in the merged inputs.
     """
     super(MixedInputter, self).__init__(inputters)

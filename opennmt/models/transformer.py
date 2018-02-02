@@ -5,7 +5,7 @@ import tensorflow as tf
 from opennmt.models.sequence_to_sequence import SequenceToSequence
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
-from opennmt.utils.position import PositionEmbedder
+from opennmt.layers.position import PositionEmbedder
 
 
 class Transformer(SequenceToSequence):
@@ -41,7 +41,7 @@ class Transformer(SequenceToSequence):
       attention_dropout: The probability to drop units from the attention.
       relu_dropout: The probability to drop units from the ReLU activation in
         the feed forward layer.
-      position_encoder: A :class:`opennmt.utils.position.PositionEncoder` to
+      position_encoder: A :class:`opennmt.layers.position.PositionEncoder` to
         apply on the inputs.
       name: The name of this model.
     """

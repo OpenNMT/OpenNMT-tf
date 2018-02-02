@@ -14,6 +14,7 @@ Subpackages
     opennmt.decoders
     opennmt.encoders
     opennmt.inputters
+    opennmt.layers
     opennmt.models
     opennmt.tokenizers
     opennmt.utils

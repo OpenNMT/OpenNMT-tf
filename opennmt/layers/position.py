@@ -5,7 +5,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils.reducer import SumReducer
+from opennmt.layers.reducer import SumReducer
 
 
 def make_positions(sequence_length, maximum_length=None):
@@ -146,7 +146,7 @@ class PositionEmbedder(PositionEncoder):
     Args:
       maximum_position: The maximum position to embed. Positions greater
         than this value will be set to :obj:`maximum_position`.
-      reducer: A :class:`opennmt.utils.reducer.Reducer` to merge inputs and
+      reducer: A :class:`opennmt.layers.reducer.Reducer` to merge inputs and
         position encodings.
     """
     super(PositionEmbedder, self).__init__(reducer=reducer)

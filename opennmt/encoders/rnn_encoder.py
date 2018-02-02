@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from opennmt.utils.cell import build_cell
 from opennmt.encoders.encoder import Encoder
-from opennmt.utils.reducer import SumReducer, ConcatReducer, JoinReducer
+from opennmt.layers.reducer import SumReducer, ConcatReducer, JoinReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -95,7 +95,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      reducer: A :class:`opennmt.utils.reducer.Reducer` instance to merge
+      reducer: A :class:`opennmt.layers.reducer.Reducer` instance to merge
         bidirectional state and outputs.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
@@ -104,7 +104,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
         output.
 
     Raises:
-      ValueError: when using :class:`opennmt.utils.reducer.ConcatReducer` and
+      ValueError: when using :class:`opennmt.layers.reducer.ConcatReducer` and
         :obj:`num_units` is not divisible by 2.
     """
     if isinstance(reducer, ConcatReducer):

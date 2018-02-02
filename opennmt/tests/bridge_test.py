@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from opennmt.utils import bridge
+from opennmt.layers import bridge
 
 
 def _build_state(num_layers, num_units, batch_size):

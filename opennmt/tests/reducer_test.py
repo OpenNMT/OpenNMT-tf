@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from opennmt.utils import reducer
+from opennmt.layers import reducer
 
 
 class ReducerTest(tf.test.TestCase):

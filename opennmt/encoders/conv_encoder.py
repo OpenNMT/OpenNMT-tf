@@ -3,7 +3,7 @@
 import tensorflow as tf
 
 from opennmt.encoders.encoder import Encoder
-from opennmt.utils.position import PositionEmbedder
+from opennmt.layers.position import PositionEmbedder
 
 
 class ConvEncoder(Encoder):
@@ -24,7 +24,7 @@ class ConvEncoder(Encoder):
       num_units: The number of output filters.
       kernel_size: The kernel size.
       dropout: The probability to drop units from the inputs.
-      position_encoder: The :class:`opennmt.utils.position.PositionEncoder` to
+      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
         apply on inputs or ``None``.
     """
     self.num_layers = num_layers

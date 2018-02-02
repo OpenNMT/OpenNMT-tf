@@ -22,7 +22,7 @@ def model():
       encoder=onmt.encoders.BidirectionalRNNEncoder(
           num_layers=1,
           num_units=400,
-          reducer=onmt.utils.ConcatReducer(),
+          reducer=onmt.layers.ConcatReducer(),
           cell_class=tf.contrib.rnn.LSTMCell,
           dropout=0.5,
           residual_connections=False),

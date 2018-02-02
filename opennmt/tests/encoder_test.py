@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt import encoders
-from opennmt.utils import reducer
+from opennmt.layers import reducer
 
 
 def _build_dummy_sequences(sequence_length):

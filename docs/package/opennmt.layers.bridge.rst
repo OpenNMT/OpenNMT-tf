@@ -1,7 +1,7 @@
-opennmt\.utils\.reducer module
+opennmt\.layers\.bridge module
 ==============================
 
-.. automodule:: opennmt.utils.reducer
+.. automodule:: opennmt.layers.bridge
     :members:
     :undoc-members:
     :show-inheritance:

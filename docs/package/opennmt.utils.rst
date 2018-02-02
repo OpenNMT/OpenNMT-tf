@@ -12,7 +12,6 @@ Submodules
 .. toctree::
 
    opennmt.utils.beam_search
-   opennmt.utils.bridge
    opennmt.utils.cell
    opennmt.utils.data
    opennmt.utils.decay
@@ -22,8 +21,5 @@ Submodules
    opennmt.utils.misc
    opennmt.utils.optim
    opennmt.utils.parallel
-   opennmt.utils.position
-   opennmt.utils.reducer
-   opennmt.utils.transformer
    opennmt.utils.vocab
 

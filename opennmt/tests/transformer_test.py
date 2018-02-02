@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-from opennmt.utils import transformer
+from opennmt.layers import transformer
 
 
 class TransformerTest(tf.test.TestCase):

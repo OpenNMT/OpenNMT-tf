@@ -1,4 +1,4 @@
-"""Define functions related to the Google's Transformer model."""
+"""Define layers related to the Google's Transformer model."""
 
 import tensorflow as tf
 

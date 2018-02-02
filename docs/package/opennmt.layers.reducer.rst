@@ -1,7 +1,7 @@
-opennmt\.utils\.position module
+opennmt\.layers\.reducer module
 ===============================
 
-.. automodule:: opennmt.utils.position
+.. automodule:: opennmt.layers.reducer
     :members:
     :undoc-members:
     :show-inheritance:

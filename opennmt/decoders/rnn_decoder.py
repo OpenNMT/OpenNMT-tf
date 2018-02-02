@@ -23,7 +23,7 @@ class RNNDecoder(Decoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A :class:`opennmt.utils.bridge.Bridge` to pass the encoder state
+      bridge: A :class:`opennmt.layers.bridge.Bridge` to pass the encoder state
         to the decoder.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
@@ -276,7 +276,7 @@ class AttentionalRNNDecoder(RNNDecoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A :class:`opennmt.utils.bridge.Bridge` to pass the encoder state
+      bridge: A :class:`opennmt.layers.bridge.Bridge` to pass the encoder state
         to the decoder.
       attention_mechanism_class: A class inheriting from
         ``tf.contrib.seq2seq.AttentionMechanism`` or a callable that takes
@@ -343,7 +343,7 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
   This decoder can attend the encoder outputs after multiple RNN layers using
   one or multiple attention mechanisms. Additionally, the cell state of this
   decoder is not initialized from the encoder state (i.e. a
-  :class:`opennmt.utils.bridge.ZeroBridge` is imposed).
+  :class:`opennmt.layers.bridge.ZeroBridge` is imposed).
   """
 
   def __init__(self,

@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from opennmt.utils import position
+from opennmt.layers import position
 
 
 class PositionTest(tf.test.TestCase):

@@ -1,10 +1,10 @@
 """Define the self-attention encoder."""
 
 import tensorflow as tf
-import opennmt.utils.transformer as transformer
+import opennmt.layers.transformer as transformer
 
 from opennmt.encoders.encoder import Encoder
-from opennmt.utils.position import PositionEmbedder
+from opennmt.layers.position import PositionEmbedder
 
 
 class SelfAttentionEncoder(Encoder):
@@ -33,7 +33,7 @@ class SelfAttentionEncoder(Encoder):
       attention_dropout: The probability to drop units from the attention.
       relu_dropout: The probability to drop units from the ReLU activation in
         the feed forward layer.
-      position_encoder: The :class:`opennmt.utils.position.PositionEncoder` to
+      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
         apply on inputs or ``None``.
     """
     self.num_layers = num_layers

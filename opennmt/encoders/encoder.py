@@ -5,7 +5,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils.reducer import ConcatReducer, JoinReducer
+from opennmt.layers.reducer import ConcatReducer, JoinReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -35,7 +35,7 @@ class SequentialEncoder(Encoder):
 
     Args:
       encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
-      states_reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all
+      states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
         states.
     """
     self.encoders = encoders
@@ -72,9 +72,9 @@ class ParallelEncoder(Encoder):
 
     Args:
       encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
-      outputs_reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all
+      outputs_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
         outputs.
-      states_reducer: A :class:`opennmt.utils.reducer.Reducer` to merge all
+      states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
         states.
     """
     self.encoders = encoders

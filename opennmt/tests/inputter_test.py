@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from opennmt.constants import PADDING_TOKEN as PAD
 from opennmt.inputters import inputter, text_inputter
-from opennmt.utils import reducer
+from opennmt.layers import reducer
 
 
 embedding_file = "inputter_test_embedding.tmp"
