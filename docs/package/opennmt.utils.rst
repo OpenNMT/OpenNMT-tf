@@ -14,6 +14,7 @@ Submodules
    opennmt.utils.beam_search
    opennmt.utils.bridge
    opennmt.utils.cell
+   opennmt.utils.data
    opennmt.utils.decay
    opennmt.utils.evaluator
    opennmt.utils.hooks

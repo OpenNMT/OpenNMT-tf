@@ -7,31 +7,10 @@ import six
 
 import tensorflow as tf
 
+from opennmt.utils import data
 from opennmt.utils.optim import optimize
 from opennmt.utils.misc import add_dict_to_collection, item_or_tuple
 from opennmt.utils.parallel import GraphDispatcher
-
-
-def filter_irregular_batches(multiple):
-  """Transformation that filters out batches based on their size.
-
-  Args:
-    multiple: The divisor of the batch size.
-
-  Returns:
-    A ``tf.data.Dataset`` transformation.
-  """
-  def _apply_fn(dataset):
-    """Transformation function."""
-
-    def _predicate(*x):
-      flat = tf.contrib.framework.nest.flatten(x)
-      batch_size = tf.shape(flat[0])[0]
-      return tf.equal(tf.mod(batch_size, multiple), 0)
-
-    return dataset.filter(_predicate)
-
-  return _apply_fn
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -218,52 +197,6 @@ class Model(object):
       if labels_length is not None:
         _add_counter(tf.reduce_sum(labels_length), "labels")
 
-  def _filter_example(self,
-                      features,
-                      labels,
-                      maximum_features_length=None,
-                      maximum_labels_length=None):
-    """Defines an example filtering condition.
-
-    Args:
-      features: The features ``tf.Tensor``.
-      labels: The labels ``tf.Tensor``.
-      maximum_features_length: The maximum length or list of maximum lengths of
-        the features sequence(s). ``None`` to not constrain the length.
-      maximum_labels_length: The maximum length of the labels sequence.
-        ``None`` to not constrain the length.
-
-    Returns:
-      A ``tf.Tensor`` of type ``tf.bool`` with a logical value of ``False``
-      if the example does not meet the requirements.
-    """
-    cond = []
-
-    def _constrain_length(length, maximum_length):
-      # Work with lists of lengths which correspond to the general multi source case.
-      if not isinstance(length, list):
-        length = [length]
-      if not isinstance(maximum_length, list):
-        maximum_length = [maximum_length]
-
-      # Unset maximum lengths are set to None (i.e. no constraint).
-      maximum_length += [None] * (len(length) - len(maximum_length))
-
-      for l, maxlen in zip(length, maximum_length):
-        cond.append(tf.greater(l, 0))
-        if maxlen is not None:
-          cond.append(tf.less_equal(l, maxlen))
-
-    features_length = self._get_features_length(features)
-    labels_length = self._get_labels_length(labels)
-
-    if features_length is not None:
-      _constrain_length(features_length, maximum_features_length)
-    if labels_length is not None:
-      _constrain_length(labels_length, maximum_labels_length)
-
-    return tf.reduce_all(cond)
-
   def _initialize(self, metadata):
     """Runs model specific initialization (e.g. vocabularies loading).
 
@@ -364,71 +297,31 @@ class Model(object):
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       dataset = dataset.shuffle(sample_buffer_size)
-
-    dataset = dataset.map(
-        process_fn,
-        num_parallel_calls=num_parallel_process_calls)
-    padded_shapes = padded_shapes_fn()
-
-    if mode == tf.estimator.ModeKeys.TRAIN:
-      dataset = dataset.filter(lambda features, labels: self._filter_example(
-          features,
-          labels,
+      dataset = dataset.map(
+          process_fn,
+          num_parallel_calls=num_parallel_process_calls)
+      dataset = dataset.apply(data.filter_examples_by_length(
           maximum_features_length=maximum_features_length,
-          maximum_labels_length=maximum_labels_length))
-      batch_size = batch_size * batch_multiplier
-
-    if mode == tf.estimator.ModeKeys.TRAIN and bucket_width is not None:
-      # Form batches with sequences of similar lengths to improve efficiency.
-      def _key_func(features, labels):
-        features_length = self._get_features_length(features)
-        labels_length = self._get_labels_length(labels)
-
-        # For multi inputs, apply bucketing on the target side or none at all.
-        if isinstance(features_length, list):
-          features_length = None
-
-        bucket_id = tf.constant(0, dtype=tf.int32)
-        if features_length is not None:
-          bucket_id = tf.maximum(bucket_id, features_length // bucket_width)
-        if labels_length is not None:
-          bucket_id = tf.maximum(bucket_id, labels_length // bucket_width)
-        return tf.to_int64(bucket_id)
-
-      def _reduce_func(unused_key, dataset):
-        return dataset.padded_batch(
-            batch_size,
-            padded_shapes=padded_shapes)
-
-      def _window_size_func(key):
-        if bucket_width > 1:
-          key += 1  # For bucket_width == 1, key 0 is unassigned.
-        size = batch_size // (key * bucket_width)
-        if batch_multiplier > 1:
-          # Make the window size a multiple of batch_multiplier.
-          size = size + batch_multiplier - size % batch_multiplier
-        return tf.to_int64(tf.maximum(size, batch_multiplier))
-
-      if batch_type == "examples":
-        batchify_fn = tf.contrib.data.group_by_window(
-            _key_func, _reduce_func, window_size=batch_size)
-      elif batch_type == "tokens":
-        batchify_fn = tf.contrib.data.group_by_window(
-            _key_func, _reduce_func, window_size_func=_window_size_func)
-      else:
-        raise ValueError(
-            "Invalid batch type: '{}'; should be 'examples' or 'tokens'".format(batch_type))
-
-      dataset = dataset.apply(batchify_fn)
+          maximum_labels_length=maximum_labels_length,
+          features_length_fn=self._get_features_length,
+          labels_length_fn=self._get_labels_length))
+      dataset = dataset.apply(data.batch_train_dataset(
+          batch_size,
+          batch_type=batch_type,
+          batch_multiplier=batch_multiplier,
+          bucket_width=bucket_width,
+          padded_shapes=padded_shapes_fn(),
+          features_length_fn=self._get_features_length,
+          labels_length_fn=self._get_labels_length))
+      dataset = dataset.apply(data.filter_irregular_batches(batch_multiplier))
+      dataset = dataset.repeat()
     else:
+      dataset = dataset.map(
+          process_fn,
+          num_parallel_calls=num_parallel_process_calls)
       dataset = dataset.padded_batch(
           batch_size,
-          padded_shapes=padded_shapes)
-
-    if mode == tf.estimator.ModeKeys.TRAIN:
-      if batch_multiplier > 1:
-        dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
-      dataset = dataset.repeat()
+          padded_shapes=padded_shapes_fn())
 
     dataset = dataset.prefetch(1)
 
