@@ -2,10 +2,12 @@
 
 params:
   optimizer: LazyAdamOptimizer
-  learning_rate: 1.0  # The scale constant.
+  learning_rate: 2.0  # The scale constant.
   decay_type: noam_decay
   decay_rate: 512  # Model dimension.
-  decay_steps: 2000  # Warmup steps.
+  decay_steps: 4000  # Warmup steps.
+
+  # Divide this value by the total number of GPUs used.
   decay_step_duration: 8  # 1 decay step is 8 training steps.
 
   average_loss_in_time: true
@@ -19,8 +21,8 @@ train:
   batch_type: tokens
   bucket_width: 1
 
-  maximum_features_length: 60
-  maximum_labels_length: 60
+  maximum_features_length: 70
+  maximum_labels_length: 70
 
   save_checkpoints_steps: 5000
   keep_checkpoint_max: 8
@@ -34,4 +36,4 @@ eval:
   eval_delay: 18000  # Every 5 hours.
 
 infer:
-  batch_size: 30
+  batch_size: 32
