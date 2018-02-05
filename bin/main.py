@@ -117,8 +117,6 @@ def train(estimator, model, config, num_devices=1):
 
   train_batch_size = config["train"]["batch_size"]
   train_batch_type = config["train"].get("batch_type", "examples")
-  train_num_parallel_process_calls = config["train"].get(
-      "num_parallel_process_calls", 4)
   train_spec = tf.estimator.TrainSpec(
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.TRAIN,
@@ -130,6 +128,7 @@ def train(estimator, model, config, num_devices=1):
           batch_type=train_batch_type,
           batch_multiplier=num_devices,
           bucket_width=config["train"].get("bucket_width", 5),
+          num_threads=config["train"].get("num_threads"),
           sample_buffer_size=config["train"].get(
               "sample_buffer_size", default_sample_buffer_size),
           maximum_features_length=config["train"].get("maximum_features_length"),
@@ -139,15 +138,13 @@ def train(estimator, model, config, num_devices=1):
 
   eval_batch_size = config["eval"].get(
       "batch_size", train_batch_size if train_batch_type == "examples" else 30)
-  eval_num_parallel_process_calls = config["eval"].get(
-      "num_parallel_process_calls", train_num_parallel_process_calls)
   eval_spec = tf.estimator.EvalSpec(
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.EVAL,
           eval_batch_size,
-          eval_num_parallel_process_calls,
           config["data"],
           config["data"]["eval_features_file"],
+          num_threads=config["eval"].get("num_threads"),
           labels_file=config["data"]["eval_labels_file"]),
       steps=None,
       hooks=eval_hooks,
@@ -180,9 +177,9 @@ def infer(features_file,
   input_fn = model.input_fn(
       tf.estimator.ModeKeys.PREDICT,
       batch_size,
-      config["infer"].get("num_parallel_process_calls", 1),
       config["data"],
-      features_file)
+      features_file,
+      num_threads=config["infer"].get("num_threads"))
 
   if predictions_file:
     stream = open(predictions_file, "w")

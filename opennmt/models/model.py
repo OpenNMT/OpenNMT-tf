@@ -265,13 +265,13 @@ class Model(object):
   def _input_fn_impl(self,
                      mode,
                      batch_size,
-                     num_parallel_process_calls,
                      metadata,
                      features_file,
                      labels_file=None,
                      batch_type="examples",
                      batch_multiplier=1,
                      bucket_width=None,
+                     num_threads=None,
                      sample_buffer_size=None,
                      maximum_features_length=None,
                      maximum_labels_length=None):
@@ -299,7 +299,7 @@ class Model(object):
       dataset = dataset.shuffle(sample_buffer_size)
       dataset = dataset.map(
           process_fn,
-          num_parallel_calls=num_parallel_process_calls)
+          num_parallel_calls=num_threads or 4)
       dataset = dataset.apply(data.filter_examples_by_length(
           maximum_features_length=maximum_features_length,
           maximum_labels_length=maximum_labels_length,
@@ -318,7 +318,7 @@ class Model(object):
     else:
       dataset = dataset.map(
           process_fn,
-          num_parallel_calls=num_parallel_process_calls)
+          num_parallel_calls=num_threads or 1)
       dataset = dataset.padded_batch(
           batch_size,
           padded_shapes=padded_shapes_fn())
@@ -335,13 +335,13 @@ class Model(object):
   def input_fn(self,
                mode,
                batch_size,
-               num_parallel_process_calls,
                metadata,
                features_file,
                labels_file=None,
                batch_type="examples",
                batch_multiplier=1,
                bucket_width=None,
+               num_threads=None,
                sample_buffer_size=None,
                maximum_features_length=None,
                maximum_labels_length=None):
@@ -350,7 +350,6 @@ class Model(object):
     Args:
       mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size to use.
-      num_parallel_process_calls: The number of elements processed in parallel.
       metadata: A dictionary containing additional metadata set
         by the user.
       features_file: The file containing input features.
@@ -361,6 +360,7 @@ class Model(object):
          replicated graph parts.
       bucket_width: The width of the length buckets to select batch candidates
         from. ``None`` to not constrain batch formation.
+      num_threads: The number of elements processed in parallel.
       sample_buffer_size: The number of elements from which to sample.
       maximum_features_length: The maximum length or list of maximum lengths of
         the features sequence(s). ``None`` to not constrain the length.
@@ -383,13 +383,13 @@ class Model(object):
     return lambda: self._input_fn_impl(
         mode,
         batch_size,
-        num_parallel_process_calls,
         metadata,
         features_file,
         labels_file=labels_file,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
         bucket_width=bucket_width,
+        num_threads=num_threads,
         sample_buffer_size=sample_buffer_size,
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length)
