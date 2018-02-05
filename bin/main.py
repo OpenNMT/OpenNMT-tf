@@ -121,7 +121,6 @@ def train(estimator, model, config, num_devices=1):
       input_fn=model.input_fn(
           tf.estimator.ModeKeys.TRAIN,
           train_batch_size,
-          train_num_parallel_process_calls,
           config["data"],
           config["data"]["train_features_file"],
           labels_file=config["data"]["train_labels_file"],
