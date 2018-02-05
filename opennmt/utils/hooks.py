@@ -15,6 +15,33 @@ class LogParametersCountHook(tf.train.SessionRunHook):
     tf.logging.info("Number of trainable parameters: %d", misc.count_parameters())
 
 
+_DEFAULT_COUNTERS_COLLECTION = "counters"
+
+
+def add_counter(name, tensor):
+  """Registers a new counter.
+
+  Args:
+    name: The name of this counter.
+    tensor: The integer ``tf.Tensor`` to count.
+
+  See Also:
+    :meth:`opennmt.utils.misc.WordCounterHook` that fetches these counters
+    to log their value in TensorBoard.
+  """
+  count = tf.cast(tensor, tf.int64)
+  total_count_init = tf.Variable(
+      initial_value=0,
+      name=name + "_init",
+      trainable=False,
+      dtype=count.dtype)
+  total_count = tf.assign_add(
+      total_count_init,
+      count,
+      name=name)
+  tf.add_to_collection(_DEFAULT_COUNTERS_COLLECTION, total_count)
+
+
 class CountersHook(tf.train.SessionRunHook):
   """Hook that summarizes counters.
 
@@ -36,7 +63,7 @@ class CountersHook(tf.train.SessionRunHook):
     self._output_dir = output_dir
 
   def begin(self):
-    self._counters = tf.get_collection("counters")
+    self._counters = tf.get_collection(_DEFAULT_COUNTERS_COLLECTION)
     if not self._counters:
       return
 

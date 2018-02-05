@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from opennmt.utils import data
 from opennmt.utils.optim import optimize
+from opennmt.utils.hooks import add_counter
 from opennmt.utils.misc import add_dict_to_collection, item_or_tuple
 from opennmt.utils.parallel import GraphDispatcher
 
@@ -168,34 +169,17 @@ class Model(object):
     return None
 
   def _register_word_counters(self, features, labels):
-    """Stores word counter operators for sequences (if any) of :obj:`features`
-    and :obj:`labels`.
-
-    See Also:
-      :meth:`opennmt.utils.misc.WordCounterHook` that fetches these counters
-      to log their value in TensorBoard.
+    """Creates word counters for sequences (if any) of :obj:`features` and
+    :obj:`labels`.
     """
-    def _add_counter(word_count, name):
-      word_count = tf.cast(word_count, tf.int64)
-      total_word_count_init = tf.Variable(
-          initial_value=0,
-          name=name + "_init",
-          trainable=False,
-          dtype=tf.int64)
-      total_word_count = tf.assign_add(
-          total_word_count_init,
-          word_count,
-          name=name)
-      tf.add_to_collection("counters", total_word_count)
-
     features_length = self._get_features_length(features)
     labels_length = self._get_labels_length(labels)
 
     with tf.variable_scope("words_per_sec"):
       if features_length is not None:
-        _add_counter(tf.reduce_sum(features_length), "features")
+        add_counter("features", tf.reduce_sum(features_length))
       if labels_length is not None:
-        _add_counter(tf.reduce_sum(labels_length), "labels")
+        add_counter("labels", tf.reduce_sum(labels_length))
 
   def _initialize(self, metadata):
     """Runs model specific initialization (e.g. vocabularies loading).
