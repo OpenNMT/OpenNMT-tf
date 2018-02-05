@@ -4,7 +4,7 @@ import tensorflow as tf
 import opennmt.layers.transformer as transformer
 
 from opennmt.decoders.decoder import Decoder, get_embedding_fn
-from opennmt.layers.position import PositionEmbedder
+from opennmt.layers.position import SinusoidalPositionEncoder
 from opennmt.utils.beam_search import beam_search
 
 
@@ -21,7 +21,7 @@ class SelfAttentionDecoder(Decoder):
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
-               position_encoder=PositionEmbedder()):
+               position_encoder=SinusoidalPositionEncoder()):
     """Initializes the parameters of the decoder.
 
     Args:

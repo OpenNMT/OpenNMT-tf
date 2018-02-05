@@ -4,7 +4,7 @@ import tensorflow as tf
 import opennmt.layers.transformer as transformer
 
 from opennmt.encoders.encoder import Encoder
-from opennmt.layers.position import PositionEmbedder
+from opennmt.layers.position import SinusoidalPositionEncoder
 
 
 class SelfAttentionEncoder(Encoder):
@@ -20,7 +20,7 @@ class SelfAttentionEncoder(Encoder):
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
-               position_encoder=PositionEmbedder()):
+               position_encoder=SinusoidalPositionEncoder()):
     """Initializes the parameters of the encoder.
 
     Args:

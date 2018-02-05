@@ -10,3 +10,4 @@ from opennmt.layers.bridge import ZeroBridge
 from opennmt.layers.bridge import DenseBridge
 
 from opennmt.layers.position import PositionEmbedder
+from opennmt.layers.position import SinusoidalPositionEncoder
