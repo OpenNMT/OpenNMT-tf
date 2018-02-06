@@ -1,5 +1,6 @@
 """Define position encoder classes."""
 
+import math
 import abc
 import six
 
@@ -96,10 +97,10 @@ class PositionEncoder(object):
     input_dim = inputs.get_shape().as_list()[-1]
 
     position = tf.tile([position], [batch_size])
+    position = tf.expand_dims(position, 1)
 
     with tf.variable_scope("position_encoding"):
       position_encoding = self.encode(position, input_dim, dtype=inputs.dtype)
-      position_encoding = tf.expand_dims(position_encoding, 1)
       return self.reducer.reduce([inputs, position_encoding])
 
   @abc.abstractmethod
@@ -157,3 +158,20 @@ class PositionEmbedder(PositionEncoder):
     embeddings = tf.get_variable(
         "w_embs", shape=[self.maximum_position + 1, depth], dtype=dtype)
     return tf.nn.embedding_lookup(embeddings, positions)
+
+
+class SinusoidalPositionEncoder(PositionEncoder):
+  """Encodes positions with sine waves as described in
+  https://arxiv.org/abs/1706.03762.
+  """
+
+  def encode(self, positions, depth, dtype=tf.float32):
+    batch_size = tf.shape(positions)[0]
+    positions = tf.cast(positions, dtype)
+
+    log_timescale_increment = math.log(10000) / (depth / 2 - 1)
+    inv_timescales = tf.exp(tf.range(depth / 2, dtype=dtype) * -log_timescale_increment)
+    inv_timescales = tf.reshape(tf.tile(inv_timescales, [batch_size]), [batch_size, -1])
+    scaled_time = tf.expand_dims(positions, -1) * tf.expand_dims(inv_timescales, 1)
+
+    return tf.concat([tf.sin(scaled_time), tf.cos(scaled_time)], axis=2)

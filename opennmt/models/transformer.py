@@ -5,7 +5,7 @@ import tensorflow as tf
 from opennmt.models.sequence_to_sequence import SequenceToSequence
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
-from opennmt.layers.position import PositionEmbedder
+from opennmt.layers.position import SinusoidalPositionEncoder
 
 
 class Transformer(SequenceToSequence):
@@ -23,7 +23,7 @@ class Transformer(SequenceToSequence):
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
-               position_encoder=PositionEmbedder(),
+               position_encoder=SinusoidalPositionEncoder(),
                name="transformer"):
     """Initializes a Transformer model.
 
