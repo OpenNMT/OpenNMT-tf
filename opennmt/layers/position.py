@@ -1,8 +1,8 @@
 """Define position encoder classes."""
 
+import math
 import abc
 import six
-import math
 
 import tensorflow as tf
 
