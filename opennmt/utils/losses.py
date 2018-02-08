@@ -74,5 +74,5 @@ def cross_entropy_loss(logits,
   """
   cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
   loss = tf.reduce_sum(cross_entropy)
-  loss_normalizer = tf.shape(cross_entropy)[0]
+  loss_normalizer = tf.cast(tf.shape(cross_entropy)[0], loss.dtype)
   return loss, loss_normalizer
