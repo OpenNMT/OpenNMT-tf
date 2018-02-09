@@ -4,9 +4,11 @@ import argparse
 import json
 import os
 import sys
+import random
 import pickle
 import six
 
+import numpy as np
 import tensorflow as tf
 
 from opennmt.utils import hooks
@@ -248,6 +250,8 @@ def main():
   parser.add_argument("--log_level", default="INFO",
                       choices=["DEBUG", "ERROR", "FATAL", "INFO", "WARN"],
                       help="Logs verbosity.")
+  parser.add_argument("--seed", type=int, default=None,
+                      help="Random seed.")
   parser.add_argument("--gpu_allow_growth", type=bool, default=False,
                       help="Allocate GPU memory dynamically.")
   args = parser.parse_args()
@@ -285,7 +289,11 @@ def main():
 
   run_config = tf.estimator.RunConfig(
       model_dir=config["model_dir"],
-      session_config=session_config)
+      session_config=session_config,
+      tf_random_seed=args.seed)
+
+  np.random.seed(args.seed)
+  random.seed(args.seed)
 
   if "train" in config:
     if "save_summary_steps" in config["train"]:
