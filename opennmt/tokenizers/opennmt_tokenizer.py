@@ -2,9 +2,9 @@
 
 import six
 
-import pyonmttok
-
 import tensorflow as tf
+
+import pyonmttok
 
 from opennmt.tokenizers.tokenizer import Tokenizer
 

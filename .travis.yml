@@ -19,8 +19,7 @@ before_install:
   - pip install nose2
   - |
         if [ "$TRAVIS_PYTHON_VERSION" == "3.5" ]; then
-            pip install astroid==1.5.3
-            pip install pylint==1.7.4
+            pip install pylint==1.8.2
             pip install sphinxcontrib-versioning
             pip install sphinx_rtd_theme
             pip install recommonmark
