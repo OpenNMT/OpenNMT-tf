@@ -108,6 +108,8 @@ class Model(object):
             mode,
             predictions=predictions,
             export_outputs=export_outputs)
+      else:
+        raise RuntimeError("Invalid mode")
 
     return _model_fn
 

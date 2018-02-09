@@ -229,8 +229,7 @@ def flag_bioes_tags(gold, predicted, sequence_length=None):
         index += 1
       match = match and index < length and ref[index] == hyp[index]
       return match, index
-    else:
-      return ref[index] == hyp[index], index
+    return ref[index] == hyp[index], index
 
   for b in range(gold.shape[0]):
     length = sequence_length[b] if sequence_length is not None else gold.shape[1]
