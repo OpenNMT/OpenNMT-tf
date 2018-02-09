@@ -26,4 +26,5 @@ Submodules
 
    opennmt.config
    opennmt.constants
+   opennmt.runner
 
