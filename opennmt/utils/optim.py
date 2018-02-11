@@ -109,11 +109,14 @@ def optimize(loss, params):
   learning_rate = float(params["learning_rate"])
   clip_gradients = float(params["clip_gradients"]) if "clip_gradients" in params else None
 
+  optimizer_class = get_optimizer_class(params["optimizer"])
+  optimizer_params = params.get("optimizer_params", {})
+
   return tf.contrib.layers.optimize_loss(
       loss,
       global_step,
       learning_rate,
-      get_optimizer_class(params["optimizer"]),
+      lambda lr: optimizer_class(lr, **optimizer_params),
       clip_gradients=clip_gradients,
       learning_rate_decay_fn=decay_fn,
       name="optim",
