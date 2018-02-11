@@ -19,6 +19,10 @@ data:
 params:
   # The optimizer class name in tf.train or tf.contrib.opt.
   optimizer: AdamOptimizer
+  # (optional) Additional optimizer parameters as defined in their documentation.
+  optimizer_params:
+    beta1: 0.8
+    beta2: 0.998
   learning_rate: 1.0
 
   # (optional) Global parameter initialization [-param_init, param_init].
