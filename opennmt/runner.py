@@ -93,6 +93,7 @@ class Runner(object):
             batch_type=self._config["train"].get("batch_type", "examples"),
             batch_multiplier=self._num_devices,
             bucket_width=self._config["train"].get("bucket_width", 5),
+            single_pass=self._config["train"].get("single_pass", False),
             num_threads=self._config["train"].get("num_threads"),
             sample_buffer_size=self._config["train"].get(
                 "sample_buffer_size", default_sample_buffer_size),
