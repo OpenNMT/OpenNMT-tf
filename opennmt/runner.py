@@ -147,6 +147,14 @@ class Runner(object):
     self._estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
 
+  def evaluate(self, checkpoint_path=None):
+    """Runs training loop."""
+    if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    eval_spec = self._build_eval_spec()
+    self._estimator.evaluate(
+        eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
+
   def infer(self, features_file, predictions_file=None, checkpoint_path=None):
     """Runs inference.
 
