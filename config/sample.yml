@@ -6,8 +6,11 @@
 model_dir: toy-ende
 
 data:
+  # (required for train_and_eval and train run types).
   train_features_file: data/toy-ende/src-train.txt
   train_labels_file: data/toy-ende/tgt-train.txt
+
+  # (required for train_end_eval and eval run types).
   eval_features_file: data/toy-ende/src-val.txt
   eval_labels_file: data/toy-ende/tgt-val.txt
 
@@ -93,7 +96,7 @@ train:
 
 # (optional) Evaluation options.
 eval:
-  # (optional) The batch size to use (default: train value or 30 if not applicable).
+  # (optional) The batch size to use (default: 32).
   batch_size: 30
   # (optional) The number of threads to use for processing data in parallel (default: 1).
   num_threads: 1

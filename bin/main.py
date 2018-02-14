@@ -35,7 +35,7 @@ def _prefix_paths(prefix, paths):
 
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument("run", choices=["train", "infer", "export"],
+  parser.add_argument("run", choices=["train_and_eval", "train", "eval", "infer", "export"],
                       help="Run type.")
   parser.add_argument("--config", required=True, nargs="+",
                       help="List of configuration files.")
@@ -112,8 +112,12 @@ def main():
       num_devices=args.num_gpus,
       gpu_allow_growth=args.gpu_allow_growth)
 
-  if args.run == "train":
+  if args.run == "train_and_eval":
+    runner.train_and_evaluate()
+  elif args.run == "train":
     runner.train()
+  elif args.run == "eval":
+    runner.evaluate(checkpoint_path=args.checkpoint_path)
   elif args.run == "infer":
     if not args.features_file:
       parser.error("--features_file is required for inference.")
