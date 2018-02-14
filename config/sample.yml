@@ -82,6 +82,8 @@ train:
   save_summary_steps: 100
   # (optional) Train for this many steps. If not set, train forever.
   train_steps: 1000000
+  # (optional) If true, makes a single pass over the training data (default: false).
+  single_pass: false
   # (optional) The maximum length of feature sequences during training (default: None).
   maximum_features_length: 70
   # (optional) The maximum length of label sequences during training (default: None).

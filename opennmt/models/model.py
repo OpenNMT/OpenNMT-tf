@@ -257,6 +257,7 @@ class Model(object):
                      batch_type="examples",
                      batch_multiplier=1,
                      bucket_width=None,
+                     single_pass=False,
                      num_threads=None,
                      sample_buffer_size=None,
                      maximum_features_length=None,
@@ -300,7 +301,8 @@ class Model(object):
           features_length_fn=self._get_features_length,
           labels_length_fn=self._get_labels_length))
       dataset = dataset.apply(data.filter_irregular_batches(batch_multiplier))
-      dataset = dataset.repeat()
+      if not single_pass:
+        dataset = dataset.repeat()
     else:
       dataset = dataset.map(
           process_fn,
@@ -327,6 +329,7 @@ class Model(object):
                batch_type="examples",
                batch_multiplier=1,
                bucket_width=None,
+               single_pass=False,
                num_threads=None,
                sample_buffer_size=None,
                maximum_features_length=None,
@@ -346,6 +349,7 @@ class Model(object):
          replicated graph parts.
       bucket_width: The width of the length buckets to select batch candidates
         from. ``None`` to not constrain batch formation.
+      single_pass: If ``True``, makes a single pass over the training data.
       num_threads: The number of elements processed in parallel.
       sample_buffer_size: The number of elements from which to sample.
       maximum_features_length: The maximum length or list of maximum lengths of
@@ -375,6 +379,7 @@ class Model(object):
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
         bucket_width=bucket_width,
+        single_pass=single_pass,
         num_threads=num_threads,
         sample_buffer_size=sample_buffer_size,
         maximum_features_length=maximum_features_length,
