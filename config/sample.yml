@@ -93,7 +93,7 @@ train:
 
 # (optional) Evaluation options.
 eval:
-  # (optional) The batch size to use (default: train value or 30 if not applicable).
+  # (optional) The batch size to use (default: 32).
   batch_size: 30
   # (optional) The number of threads to use for processing data in parallel (default: 1).
   num_threads: 1
