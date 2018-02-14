@@ -66,8 +66,8 @@ class Runner(object):
         config=run_config,
         params=self._config["params"])
 
-  def train(self):
-    """Runs training."""
+  def train_and_evaluate(self):
+    """Runs training and evaluation loop."""
     if "eval" not in self._config:
       self._config["eval"] = {}
 
