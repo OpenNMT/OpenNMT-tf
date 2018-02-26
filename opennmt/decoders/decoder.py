@@ -41,6 +41,28 @@ def get_embedding_fn(embedding):
   else:
     return lambda ids: tf.nn.embedding_lookup(embedding, ids)
 
+def build_output_layer(num_units, vocab_size, dtype=None):
+  """Builds the output projection layer.
+
+  Args:
+    num_units: The layer input depth.
+    vocab_size: The layer output depth.
+    dtype: The layer dtype.
+
+  Returns:
+    A ``tf.layers.Dense`` instance.
+
+  Raises:
+    ValueError: if :obj:`vocab_size` is ``None``.
+  """
+  if vocab_size is None:
+    raise ValueError("vocab_size must be set to build the output layer")
+
+  with tf.variable_scope("projection"):
+    layer = tf.layers.Dense(vocab_size, use_bias=True, dtype=dtype)
+    layer.build([None, num_units])
+    return layer
+
 def get_sampling_probability(global_step,
                              read_probability=None,
                              schedule_type=None,
@@ -101,6 +123,7 @@ class Decoder(object):
              initial_state=None,
              sampling_probability=None,
              embedding=None,
+             output_layer=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
              memory_sequence_length=None):
@@ -111,12 +134,15 @@ class Decoder(object):
     Args:
       inputs: The input to decode of shape :math:`[B, T, ...]`.
       sequence_length: The length of each input with shape :math:`[B]`.
-      vocab_size: The output vocabulary size.
+      vocab_size: The output vocabulary size. Must be set if :obj:`output_layer`
+        is not set.
       initial_state: The initial state as a (possibly nested tuple of...) tensors.
       sampling_probability: The probability of sampling categorically from
         the output ids instead of reading directly from the inputs.
       embedding: The embedding tensor or a callable that takes word ids.
         Must be set when :obj:`sampling_probability` is set.
+      output_layer: Optional layer to apply to the output prior sampling.
+        Must be set if :obj:`vocab_size` is not set.
       mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
@@ -131,8 +157,9 @@ class Decoder(object):
                      embedding,
                      start_tokens,
                      end_token,
-                     vocab_size,
+                     vocab_size=None,
                      initial_state=None,
+                     output_layer=None,
                      maximum_iterations=250,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
@@ -146,8 +173,11 @@ class Decoder(object):
       embedding: The embedding tensor or a callable that takes word ids.
       start_tokens: The start token ids with shape :math:`[B]`.
       end_token: The end token id.
-      vocab_size: The output vocabulary size.
+      vocab_size: The output vocabulary size. Must be set if :obj:`output_layer`
+        is not set.
       initial_state: The initial state as a (possibly nested tuple of...) tensors.
+      output_layer: Optional layer to apply to the output prior sampling.
+        Must be set if :obj:`vocab_size` is not set.
       maximum_iterations: The maximum number of decoding iterations.
       mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
@@ -164,8 +194,9 @@ class Decoder(object):
                                 embedding,
                                 start_tokens,
                                 end_token,
-                                vocab_size,
+                                vocab_size=None,
                                 initial_state=None,
+                                output_layer=None,
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
@@ -181,8 +212,11 @@ class Decoder(object):
       embedding: The embedding tensor or a callable that takes word ids.
       start_tokens: The start token ids with shape :math:`[B]`.
       end_token: The end token id.
-      vocab_size: The output vocabulary size.
+      vocab_size: The output vocabulary size. Must be set if :obj:`output_layer`
+        is not set.
       initial_state: The initial state as a (possibly nested tuple of...) tensors.
+      output_layer: Optional layer to apply to the output prior sampling.
+        Must be set if :obj:`vocab_size` is not set.
       beam_width: The width of the beam.
       length_penalty: The length penalty weight during beam search.
       maximum_iterations: The maximum number of decoding iterations.
