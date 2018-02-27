@@ -1,4 +1,3 @@
-[![Build Status](https://api.travis-ci.org/OpenNMT/OpenNMT-tf.svg?branch=master)](https://travis-ci.org/OpenNMT/OpenNMT-tf) [![Documentation](https://img.shields.io/badge/docs-master-blue.svg)](http://opennmt.net/OpenNMT-tf/) [![Gitter](https://badges.gitter.im/OpenNMT/OpenNMT-tf.svg)](https://gitter.im/OpenNMT/OpenNMT-tf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # Steps to train a transformer model based on WMT EN-DE
 
@@ -41,15 +40,6 @@ cd scripts/wmt
 You can download directly the pre-tokenized SP dataset here: https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz
 you can download the pre-trained averaged model here: https://s3.amazonaws.com/opennmt-trainingdata/averaged-ende-ckpt500k.tar.gz
 
-## Acknowledgments
+Nist Bleu on Newstest 2014: 26.9
+Nist Bleu on Neswtest 2017: 28.0
 
-The implementation is inspired by the following:
-
-* [TensorFlow's NMT tutorial](https://github.com/tensorflow/nmt)
-* [Tensor2Tensor](https://github.com/tensorflow/tensor2tensor)
-* [Google's seq2seq](https://github.com/google/seq2seq)
-
-## Additional resources
-
-* [Documentation](http://opennmt.net/OpenNMT-tf)
-* [Forum](http://forum.opennmt.net)
