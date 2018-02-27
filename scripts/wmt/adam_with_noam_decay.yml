@@ -1,0 +1,14 @@
+# Uses the learning rate schedule defined in https://arxiv.org/abs/1706.03762.
+
+params:
+  optimizer: LazyAdamOptimizer
+  optimizer_params:
+    beta1: 0.9
+    beta2: 0.998
+  learning_rate: 2.0 # The scale constant.
+#  clip_gradients: null
+  decay_type: noam_decay
+  decay_rate: 512 # Model dimension.
+  decay_step_duration: 2 # 1 decay step is 8 training steps.
+  decay_steps: 8000 # Warmup steps (= 16000 training steps).
+  start_decay_steps: 0
