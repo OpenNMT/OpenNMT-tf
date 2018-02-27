@@ -38,8 +38,8 @@ cd scripts/wmt
 
 ## Lazy run .....
 
-You can download directly the pre-tokenized SP dataset here: 
-you can download the pre-trained averaged model here:
+You can download directly the pre-tokenized SP dataset here: https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz
+you can download the pre-trained averaged model here: https://s3.amazonaws.com/opennmt-trainingdata/averaged-ende-ckpt500k.tar.gz
 
 ## Acknowledgments
 
