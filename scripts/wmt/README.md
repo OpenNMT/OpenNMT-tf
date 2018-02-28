@@ -1,14 +1,14 @@
-# Steps to train a transformer model based on WMT EN-DE
+# Steps to train a Transformer model on the WMT English-German dataset
 
-# Requirements
+## Requirements
 
 * `tensorflow` (`1.5`)
 * `pyyaml`
 * `sentencepiece`
 
-Please follow the instructions to install and build [sentencepiece](https://github.com/google/sentencepiece). Once it's installed, do not forget to change the `SP_PATH` variable in scripts.
+Please follow the instructions to install and build [SentencePiece](https://github.com/google/sentencepiece). Once it's installed, do not forget to change the `SP_PATH` variable in scripts.
 
-## Data Preparation
+## Data preparation
 
 Before running the script, look at the links to download the datasets. Depending on the task, you may change the filenames and the folders paths.
 

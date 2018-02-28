@@ -21,7 +21,7 @@ PYTHONPATH=../.. python bin/average_checkpoints.py --max_count=10 \
 fi
 
 if true; then
-PYTHONPATH=../.. python -m bin.main infer --config wmt_ende.yml --checkpoint_path=$runconfig/averaged \
+PYTHONPATH=../.. python -m bin.main infer --config config/wmt_ende.yml --checkpoint_path=$runconfig/averaged \
     --features_file data/$testset-src.$sl > data/$testset-src.hyp.$tl
 fi
 if true; then

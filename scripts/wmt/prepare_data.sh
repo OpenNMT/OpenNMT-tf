@@ -1,4 +1,3 @@
-
 ##################################################################################
 # Depending on the task:
 # commoncrawl europarl-v7 are the same for all tasks
@@ -96,10 +95,3 @@ sed -i '1i<blank>' data/wmt$sl$tl.vocab.tmp
 # Last tweak we replace the empty line supposed to be the "tab" character (removed by the cut above)
 perl -pe '$/=""; s/\n\n/\n\t\n/;' data/wmt$sl$tl.vocab.tmp > data/wmt$sl$tl.vocab
 rm data/wmt$sl$tl.vocab.tmp
-
-
-
-
-
-
-
