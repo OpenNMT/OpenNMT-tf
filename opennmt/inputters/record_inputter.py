@@ -16,24 +16,22 @@ class SequenceRecordInputter(Inputter):
   Tensors are expected to be of shape ``[time, depth]``.
   """
 
-  def __init__(self, input_depth_key, dtype=tf.float32):
+  def __init__(self, dtype=tf.float32):
     """Initializes the parameters of the record inputter.
 
     Args:
-      input_depth_key: The data configuration key of the input depth value
-        which has to be known statically.
       dtype: The values type.
     """
     super(SequenceRecordInputter, self).__init__(dtype=dtype)
-    self.input_depth_key = input_depth_key
-
-  def initialize(self, metadata):
-    self.input_depth = metadata[self.input_depth_key]
 
   def get_length(self, data):
     return data["length"]
 
   def make_dataset(self, data_file):
+    first_record = next(tf.python_io.tf_record_iterator(data_file))
+    first_record = tf.train.Example.FromString(first_record)
+    shape = first_record.features.feature["shape"].int64_list.value
+    self.input_depth = shape[-1]
     return tf.data.TFRecordDataset(data_file)
 
   def _get_serving_input(self):
