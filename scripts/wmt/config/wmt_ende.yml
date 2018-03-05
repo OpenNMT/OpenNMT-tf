@@ -16,6 +16,17 @@ params:
   label_smoothing: 0.1
   length_penalty: 0.6
 
+  optimizer: LazyAdamOptimizer
+  optimizer_params:
+    beta1: 0.9
+    beta2: 0.998
+  learning_rate: 2.0  # The learning rate scale constant.
+  decay_type: noam_decay
+  decay_rate: 512  # Model dimension.
+  decay_step_duration: 2  # 1 decay step is 2 training steps.
+  decay_steps: 8000 # Warmup steps (= 16000 training steps).
+  start_decay_steps: 0
+
 train:
   batch_size: 4096
   batch_type: tokens
@@ -30,9 +41,8 @@ train:
 
 eval:
   batch_size: 32
-  eval_delay: 3600 # Every 1 hour
+  eval_delay: 3600  # Every 1 hour
   external_evaluators: BLEU
 
 infer:
   batch_size: 32
-
