@@ -7,8 +7,7 @@ import opennmt as onmt
 
 def model():
   return onmt.models.SequenceToSequence(
-      source_inputter=onmt.inputters.SequenceRecordInputter(
-          input_depth_key="input_depth"),
+      source_inputter=onmt.inputters.SequenceRecordInputter(),
       target_inputter=onmt.inputters.WordEmbedder(
           vocabulary_file_key="target_vocabulary",
           embedding_size=50),
