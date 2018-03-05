@@ -73,7 +73,7 @@ def main():
                       help="Logs verbosity.")
   parser.add_argument("--seed", type=int, default=None,
                       help="Random seed.")
-  parser.add_argument("--gpu_allow_growth", type=bool, default=False,
+  parser.add_argument("--gpu_allow_growth", default=False, action="store_true",
                       help="Allocate GPU memory dynamically.")
   args = parser.parse_args()
 
