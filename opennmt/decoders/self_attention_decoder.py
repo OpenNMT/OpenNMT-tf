@@ -1,11 +1,12 @@
 """Define self-attention decoder."""
 
 import tensorflow as tf
-import opennmt.layers.transformer as transformer
+
+from opennmt.layers import transformer
+from opennmt.utils import beam_search
 
 from opennmt.decoders.decoder import Decoder, get_embedding_fn, build_output_layer
 from opennmt.layers.position import SinusoidalPositionEncoder
-from opennmt.utils.beam_search import beam_search
 
 
 class SelfAttentionDecoder(Decoder):
@@ -66,22 +67,12 @@ class SelfAttentionDecoder(Decoder):
     batch_size = tf.shape(memory)[0]
     depth = memory.get_shape().as_list()[-1]
 
-    def _create_placeholder(shape, loop_shape=None):
-      placeholder = tf.zeros(shape)
-      if loop_shape is not None:
-        placeholder._shape = tf.TensorShape(loop_shape)  # pylint: disable=protected-access
-      return placeholder
-
     for l in range(self.num_layers):
       cache["layer_{}".format(l)] = {
-          "self_keys": _create_placeholder(
-              [batch_size, 0, depth], loop_shape=[None, None, depth]),
-          "self_values": _create_placeholder(
-              [batch_size, 0, depth], loop_shape=[None, None, depth]),
-          "memory_keys": _create_placeholder(
-              [batch_size, 0, depth], loop_shape=[None, None, depth]),
-          "memory_values": _create_placeholder(
-              [batch_size, 0, depth], loop_shape=[None, None, depth]),
+          "self_keys": tf.zeros([batch_size, 0, depth]),
+          "self_values": tf.zeros([batch_size, 0, depth]),
+          "memory_keys": tf.zeros([batch_size, 0, depth]),
+          "memory_values": tf.zeros([batch_size, 0, depth]),
       }
 
     return cache
@@ -280,8 +271,7 @@ class SelfAttentionDecoder(Decoder):
             tf.TensorShape([None, None]),
             lengths.get_shape(),
             log_probs.get_shape(),
-            tf.contrib.framework.nest.map_structure(
-                lambda t: tf.TensorShape(t.shape), cache),
+            tf.contrib.framework.nest.map_structure(beam_search.get_state_shape_invariants, cache)
         ),
         parallel_iterations=1)
 
@@ -313,7 +303,7 @@ class SelfAttentionDecoder(Decoder):
     symbols_to_logits_fn = self._symbols_to_logits_fn(
         embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
 
-    outputs, log_probs = beam_search(
+    outputs, log_probs = beam_search.beam_search(
         symbols_to_logits_fn,
         start_tokens,
         beam_width,

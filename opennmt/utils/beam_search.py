@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2017 The Tensor2Tensor Authors.
+# Copyright 2018 The Tensor2Tensor Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ from __future__ import division
 from __future__ import print_function
 
 # Dependency imports
+
 import tensorflow as tf
 
 from tensorflow.python.util import nest
@@ -30,11 +31,24 @@ EOS_ID = 1
 INF = 1. * 1e7
 
 
-def _get_shape(tensor):
-  """Returns static shape if available and dynamic shape otherwise."""
-  static = tensor.shape.as_list()
-  dynamic = tf.unstack(tf.shape(tensor))
-  return [s[1] if s[0] is None else s[0] for s in zip(static, dynamic)]
+def _shape_list(x):
+  """Return list of dims, statically where possible."""
+  x = tf.convert_to_tensor(x)
+
+  # If unknown rank, return dynamic shape
+  if x.get_shape().dims is None:
+    return tf.shape(x)
+
+  static = x.get_shape().as_list()
+  shape = tf.shape(x)
+
+  ret = []
+  for i in xrange(len(static)):
+    dim = static[i]
+    if dim is None:
+      dim = shape[i]
+    ret.append(dim)
+  return ret
 
 
 def _merge_beam_dim(tensor):
@@ -46,7 +60,7 @@ def _merge_beam_dim(tensor):
   Returns:
     Reshaped tensor of shape [A*B, ...]
   """
-  shape = _get_shape(tensor)
+  shape = _shape_list(tensor)
   shape[0] *= shape[1]  # batch -> batch * beam_size
   shape.pop(1)  # Remove beam dim
   return tf.reshape(tensor, shape)
@@ -63,7 +77,7 @@ def _unmerge_beam_dim(tensor, batch_size, beam_size):
   Returns:
     Reshaped tensor of shape [batch_size, beam_size, ...]
   """
-  shape = _get_shape(tensor)
+  shape = _shape_list(tensor)
   new_shape = [batch_size] + [beam_size] + shape[1:]
   return tf.reshape(tensor, new_shape)
 
@@ -83,6 +97,14 @@ def _expand_to_beam_size(tensor, beam_size):
   tile_dims[1] = beam_size
 
   return tf.tile(tensor, tile_dims)
+
+
+def get_state_shape_invariants(tensor):
+  """Returns the shape of the tensor but sets middle dims to None."""
+  shape = tensor.shape.as_list()
+  for i in range(1, len(shape) - 1):
+    shape[i] = None
+  return tf.TensorShape(shape)
 
 
 def _log_prob_from_logits(logits):
@@ -180,7 +202,8 @@ def beam_search(symbols_to_logits_fn,
                 vocab_size,
                 alpha,
                 states=None,
-                eos_id=EOS_ID):
+                eos_id=EOS_ID,
+                stop_early=True):
   """Beam search with length penalties.
 
   Requires a function that can take the currently decoded sybmols and return
@@ -203,6 +226,10 @@ def beam_search(symbols_to_logits_fn,
   capturing observed from these operations, tensors, clients can make
   assumptions about which step is being recorded.
 
+  WARNING: Assumes 2nd dimension of tensors in `states` and not invariant, this
+  means that the shape of the 2nd dimension of these tensors will not be
+  available (i.e. set to None) inside symbols_to_logits_fn.
+
   Args:
     symbols_to_logits_fn: Interface to the model, to provide logits.
         Shoud take [batch_size, decoded_ids] and return [batch_size, vocab_size]
@@ -216,12 +243,13 @@ def beam_search(symbols_to_logits_fn,
     alpha: alpha for length penalty.
     states: dict (possibly nested) of decoding states.
     eos_id: ID for end of sentence.
+    stop_early: a boolean - stop once best sequence is provably determined.
   Returns:
     Tuple of
     (decoded beams [batch_size, beam_size, decode_length]
      decoding probablities [batch_size, beam_size])
   """
-  batch_size = tf.shape(initial_ids)[0]
+  batch_size = _shape_list(initial_ids)[0]
 
   # Assume initial_ids are prob 1.0
   initial_log_probs = tf.constant([[0.] + [-float("inf")] * (beam_size - 1)])
@@ -240,7 +268,7 @@ def beam_search(symbols_to_logits_fn,
   # Finished will keep track of all the sequences that have finished so far
   # Finished log probs will be negative infinity in the beginning
   # finished_flags will keep track of booleans
-  finished_seq = tf.zeros(tf.shape(alive_seq), tf.int32)
+  finished_seq = tf.zeros(_shape_list(alive_seq), tf.int32)
   # Setting the scores of the initial to negative infinity.
   finished_scores = tf.ones([batch_size, beam_size]) * -INF
   finished_flags = tf.zeros([batch_size, beam_size], tf.bool)
@@ -475,6 +503,8 @@ def beam_search(symbols_to_logits_fn,
     Returns:
       Bool.
     """
+    if not stop_early:
+      return tf.less(i, decode_length)
     max_length_penalty = tf.pow(((5. + tf.to_float(decode_length)) / 6.), alpha)
     # The best possible score of the most likley alive sequence
     lower_bound_alive_scores = alive_log_probs[:, 0] / max_length_penalty
@@ -513,8 +543,7 @@ def beam_search(symbols_to_logits_fn,
            tf.TensorShape([None, None, None]),
            finished_scores.get_shape(),
            finished_flags.get_shape(),
-           nest.map_structure(
-               lambda tensor: tf.TensorShape(tensor.shape), states),
+           nest.map_structure(get_state_shape_invariants, states),
        ],
        parallel_iterations=1,
        back_prop=False)
