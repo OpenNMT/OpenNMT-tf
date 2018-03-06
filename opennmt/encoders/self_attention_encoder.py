@@ -1,7 +1,8 @@
 """Define the self-attention encoder."""
 
 import tensorflow as tf
-import opennmt.layers.transformer as transformer
+
+from opennmt.layers import transformer
 
 from opennmt.encoders.encoder import Encoder
 from opennmt.layers.position import SinusoidalPositionEncoder
