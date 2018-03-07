@@ -16,7 +16,7 @@ def _smooth_one_hot_labels(logits, labels, label_smoothing):
 def _softmax_cross_entropy(logits, labels, label_smoothing, mode):
   if mode == tf.estimator.ModeKeys.TRAIN and label_smoothing > 0.0:
     smoothed_labels = _smooth_one_hot_labels(logits, labels, label_smoothing)
-    return tf.nn.softmax_cross_entropy_with_logits(
+    return tf.nn.softmax_cross_entropy_with_logits_v2(
         logits=logits, labels=smoothed_labels)
   else:
     return tf.nn.sparse_softmax_cross_entropy_with_logits(
