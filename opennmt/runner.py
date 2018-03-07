@@ -86,6 +86,7 @@ class Runner(object):
             single_pass=self._config["train"].get("single_pass", False),
             num_threads=self._config["train"].get("num_threads"),
             sample_buffer_size=self._config["train"].get("sample_buffer_size", 500000),
+            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size", 1),
             maximum_features_length=self._config["train"].get("maximum_features_length"),
             maximum_labels_length=self._config["train"].get("maximum_labels_length")),
         max_steps=self._config["train"].get("train_steps"),
@@ -117,6 +118,7 @@ class Runner(object):
             self._config["data"],
             self._config["data"]["eval_features_file"],
             num_threads=self._config["eval"].get("num_threads"),
+            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size", 1),
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
         hooks=eval_hooks,
@@ -165,7 +167,8 @@ class Runner(object):
         batch_size,
         self._config["data"],
         features_file,
-        num_threads=self._config["infer"].get("num_threads"))
+        num_threads=self._config["infer"].get("num_threads"),
+        prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size", 1))
 
     if predictions_file:
       stream = open(predictions_file, "w")
