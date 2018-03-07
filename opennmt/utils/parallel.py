@@ -12,17 +12,20 @@ class GraphDispatcher(object):
   sharded batches.
   """
 
-  def __init__(self, num_devices):
+  def __init__(self, num_devices, daisy_chain_variables=True):
     """Initializes the dispatcher.
 
     Args:
       num_devices: The number of devices to dispatch on.
+      daisy_chain_variables: If ``True``, variables are copied in a daisy chain
+        fashion between devices (credits to Tensor2Tensor).
 
     Raises:
       ValueError: if the number of visible devices is lower than
         :obj:`num_devices`.
     """
     devices = [x.name for x in device_lib.list_local_devices() if x.device_type == "GPU"]
+    self._daisy_chain_variables = daisy_chain_variables
 
     if not devices:
       self._n = 1
@@ -82,10 +85,8 @@ class GraphDispatcher(object):
   def __call__(self, fun, *args, **kwargs):
     """Dispatches :obj:`fun` calls accross devices.
 
-    * Each argument must either not be a list or a list with length the
-      number of devices used for dispatching.
-    * Variables are copied in a daisy chain fashion between devices
-      (credits to Tensor2Tensor).
+    Each argument must either not be a list or a list with length the number of
+    devices used for dispatching.
 
     Args:
       fun: A callable.
@@ -131,11 +132,15 @@ class GraphDispatcher(object):
         cache[device_var_key] = v
         return v
 
+      custom_getter = None
+      if self._daisy_chain_variables:
+        custom_getter = _daisy_chain_getter
+
       with tf.name_scope("parallel_{}".format(i)):
         with tf.variable_scope(
             tf.get_variable_scope(),
             reuse=True if i > 0 else None,
-            custom_getter=_daisy_chain_getter):
+            custom_getter=custom_getter):
           if device is None:
             outputs.append(funs[i](*args[i], **kwargs[i]))
           else:
