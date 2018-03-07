@@ -73,16 +73,6 @@ class Runner(object):
             every_n_steps=self._estimator.config.save_summary_steps,
             output_dir=self._estimator.model_dir)]
 
-    default_sample_buffer_size = 1000000
-    if "sample_buffer_size" not in self._config["train"]:
-      tf.logging.warn("You did not set sample_buffer_size. By default, the "
-                      "training dataset is shuffled by chunk of %d examples. "
-                      "If your dataset is larger than this value and eval_delay "
-                      "is shorter than the training time of one epoch, a section "
-                      "of the dataset will be discarded. Consider setting "
-                      "sample_buffer_size to the size of your dataset."
-                      % default_sample_buffer_size)
-
     train_spec = tf.estimator.TrainSpec(
         input_fn=self._model.input_fn(
             tf.estimator.ModeKeys.TRAIN,
@@ -95,8 +85,7 @@ class Runner(object):
             bucket_width=self._config["train"].get("bucket_width", 5),
             single_pass=self._config["train"].get("single_pass", False),
             num_threads=self._config["train"].get("num_threads"),
-            sample_buffer_size=self._config["train"].get(
-                "sample_buffer_size", default_sample_buffer_size),
+            sample_buffer_size=self._config["train"].get("sample_buffer_size", 500000),
             maximum_features_length=self._config["train"].get("maximum_features_length"),
             maximum_labels_length=self._config["train"].get("maximum_labels_length")),
         max_steps=self._config["train"].get("train_steps"),

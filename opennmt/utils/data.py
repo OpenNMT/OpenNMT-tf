@@ -1,6 +1,7 @@
 """Functions for reading data."""
 
 import tensorflow as tf
+import numpy as np
 
 
 def filter_irregular_batches(multiple):
@@ -68,6 +69,28 @@ def filter_examples_by_length(maximum_features_length=None,
     return tf.reduce_all(cond)
 
   return lambda dataset: dataset.filter(_predicate)
+
+def random_shard(shard_size, dataset_size):
+  """Transformation that shards the dataset in a random order.
+
+  Args:
+    shard_size: The number of examples in each shard.
+    dataset_size: The total number of examples in the dataset.
+
+  Returns:
+    A ``tf.data.Dataset`` transformation.
+  """
+  num_shards = -(-dataset_size // shard_size)  # Ceil division.
+  offsets = np.linspace(0, dataset_size, num=num_shards, endpoint=False, dtype=np.int64)
+
+  def _random_shard(dataset):
+    sharded_dataset = tf.data.Dataset.from_tensor_slices(offsets)
+    sharded_dataset = sharded_dataset.shuffle(num_shards)
+    sharded_dataset = sharded_dataset.flat_map(
+        lambda offset: dataset.skip(offset).take(shard_size))
+    return sharded_dataset
+
+  return _random_shard
 
 def batch_train_dataset(batch_size,
                         batch_type="examples",

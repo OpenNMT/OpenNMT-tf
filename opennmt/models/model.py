@@ -225,6 +225,18 @@ class Model(object):
     return None
 
   @abc.abstractmethod
+  def _get_dataset_size(self, features_file):
+    """Returns the size of the dataset.
+
+    Args:
+      features_file: The file of features.
+
+    Returns:
+      The total size.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
   def _get_features_builder(self, features_file):
     """Returns the recipe to build features.
 
@@ -283,6 +295,12 @@ class Model(object):
           feat_padded_shapes_fn(), labels_padded_shapes_fn())
 
     if mode == tf.estimator.ModeKeys.TRAIN:
+      dataset_size = self._get_dataset_size(features_file)
+      if sample_buffer_size < dataset_size:
+        # When the sample buffer size is smaller than the dataset size, shard
+        # the dataset in a random order. This ensures that all parts of the
+        # dataset can be seen when the evaluation frequency is high.
+        dataset = dataset.apply(data.random_shard(sample_buffer_size, dataset_size))
       dataset = dataset.shuffle(sample_buffer_size)
       dataset = dataset.map(
           process_fn,
