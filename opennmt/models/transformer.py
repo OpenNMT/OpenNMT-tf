@@ -69,6 +69,7 @@ class Transformer(SequenceToSequence):
         target_inputter,
         encoder,
         decoder,
+        daisy_chain_variables=True,
         name=name)
 
   def _initializer(self, params):

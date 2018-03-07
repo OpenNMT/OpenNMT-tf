@@ -18,8 +18,9 @@ from opennmt.utils.parallel import GraphDispatcher
 class Model(object):
   """Base class for models."""
 
-  def __init__(self, name, dtype=tf.float32):
+  def __init__(self, name, daisy_chain_variables=False, dtype=tf.float32):
     self.name = name
+    self.daisy_chain_variables = daisy_chain_variables
     self.dtype = dtype
 
   def model_fn(self, num_devices=1):
@@ -32,7 +33,8 @@ class Model(object):
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       arguments and the returned value.
     """
-    dispatcher = GraphDispatcher(num_devices)
+    dispatcher = GraphDispatcher(
+        num_devices, daisy_chain_variables=self.daisy_chain_variables)
 
     def _loss_op(features, labels, params, mode, config):
       """Single callable to compute the loss."""

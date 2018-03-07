@@ -17,6 +17,7 @@ class SequenceTagger(Model):
                labels_vocabulary_file_key,
                tagging_scheme=None,
                crf_decoding=False,
+               daisy_chain_variables=False,
                name="seqtagger"):
     """Initializes a sequence tagger.
 
@@ -30,9 +31,12 @@ class SequenceTagger(Model):
         only BIOES), additional evaluation metrics could be computed such as
         precision, recall, etc.
       crf_decoding: If ``True``, add a CRF layer after the encoder.
+      daisy_chain_variables: If ``True``, copy variables in a daisy chain
+        between devices for this model. Not compatible with RNN based models.
       name: The name of this model.
     """
-    super(SequenceTagger, self).__init__(name, dtype=inputter.dtype)
+    super(SequenceTagger, self).__init__(
+        name, daisy_chain_variables=daisy_chain_variables, dtype=inputter.dtype)
 
     self.encoder = encoder
     self.inputter = inputter

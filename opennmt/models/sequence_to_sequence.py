@@ -60,6 +60,7 @@ class SequenceToSequence(Model):
                target_inputter,
                encoder,
                decoder,
+               daisy_chain_variables=False,
                name="seq2seq"):
     """Initializes a sequence-to-sequence model.
 
@@ -71,6 +72,8 @@ class SequenceToSequence(Model):
         :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.
       encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the source.
       decoder: A :class:`opennmt.decoders.decoder.Decoder` to decode the target.
+      daisy_chain_variables: If ``True``, copy variables in a daisy chain
+        between devices for this model. Not compatible with RNN based models.
       name: The name of this model.
 
     Raises:
@@ -84,7 +87,8 @@ class SequenceToSequence(Model):
           "Source and target inputters must have the same dtype, "
           "saw: {} and {}".format(source_inputter.dtype, target_inputter.dtype))
 
-    super(SequenceToSequence, self).__init__(name, dtype=source_inputter.dtype)
+    super(SequenceToSequence, self).__init__(
+        name, daisy_chain_variables=daisy_chain_variables, dtype=source_inputter.dtype)
 
     if not isinstance(target_inputter, inputters.WordEmbedder):
       raise TypeError("Target inputter must be a WordEmbedder")
