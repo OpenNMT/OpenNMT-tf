@@ -109,6 +109,9 @@ class SequenceToSequence(Model):
   def _get_labels_length(self, labels):
     return self.target_inputter.get_length(labels)
 
+  def _get_dataset_size(self, features_file):
+    return self.source_inputter.get_dataset_size(features_file)
+
   def _get_features_builder(self, features_file):
     dataset = self.source_inputter.make_dataset(features_file)
     process_fn = self.source_inputter.process
