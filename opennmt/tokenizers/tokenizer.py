@@ -208,7 +208,7 @@ class SpaceTokenizer(Tokenizer):
     return tf.string_split([text], delimiter=" ").values
 
   def _detokenize_tensor(self, tokens):
-    return tf.foldl(lambda a, x: a + " " + x, tokens, back_prop=False)
+    return tf.reduce_join(tokens, axis=0, separator=" ")
 
   def _tokenize_string(self, text):
     return text.split()
