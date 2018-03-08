@@ -100,9 +100,12 @@ def split_heads(inputs, num_heads):
   Returns:
     A ``tf.Tensor`` of shape :math:`[B, H, T, D / H]`.
   """
-  inputs = tf.reshape(inputs, [tf.shape(inputs)[0], tf.shape(inputs)[1], num_heads, -1])
-  inputs = tf.transpose(inputs, perm=[0, 2, 1, 3])
-  return inputs
+  static_shape = inputs.get_shape().as_list()
+  depth = static_shape[-1]
+  outputs = tf.reshape(
+      inputs, [tf.shape(inputs)[0], tf.shape(inputs)[1], num_heads, depth // num_heads])
+  outputs = tf.transpose(outputs, perm=[0, 2, 1, 3])
+  return outputs
 
 def combine_heads(inputs):
   """Concatenates heads.
@@ -113,9 +116,12 @@ def combine_heads(inputs):
   Returns:
     A ``tf.Tensor`` of shape :math:`[B, T, D * H]`.
   """
-  inputs = tf.transpose(inputs, perm=[0, 2, 1, 3])
-  inputs = tf.reshape(inputs, [tf.shape(inputs)[0], tf.shape(inputs)[1], -1])
-  return inputs
+  static_shape = inputs.get_shape().as_list()
+  depth = static_shape[-1]
+  num_heads = static_shape[1]
+  outputs = tf.transpose(inputs, perm=[0, 2, 1, 3])
+  outputs = tf.reshape(inputs, [tf.shape(outputs)[0], tf.shape(outputs)[1], depth * num_heads])
+  return outputs
 
 def dot_product_attention(queries,
                           keys,
@@ -225,7 +231,6 @@ def multi_head_attention(num_heads,
 
   # Concatenate all heads output.
   combined = combine_heads(heads)
-  combined.set_shape((None, None, num_units))
   outputs = tf.layers.conv1d(combined, num_units, 1)
 
   return outputs

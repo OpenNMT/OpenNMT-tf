@@ -105,6 +105,43 @@ class TransformerTest(tf.test.TestCase):
       for b in range(len(length)):
         self.assertAllEqual(expected, mask[b])
 
+  def testSplitHeads(self):
+    batch_size = 3
+    length = [5, 3, 7]
+    num_heads = 8
+    depth = 20
+
+    inputs = tf.placeholder_with_default(
+        np.random.randn(batch_size, max(length), depth * num_heads).astype(np.float32),
+        shape=(None, None, depth * num_heads))
+    outputs = transformer.split_heads(inputs, num_heads)
+
+    static_shape = outputs.get_shape().as_list()
+    self.assertEqual(num_heads, static_shape[1])
+    self.assertEqual(depth, static_shape[-1])
+
+    with self.test_session() as sess:
+      outputs = sess.run(outputs)
+      self.assertAllEqual([batch_size, num_heads, max(length), depth], outputs.shape)
+
+  def testCombineHeads(self):
+    batch_size = 3
+    length = [5, 3, 7]
+    num_heads = 8
+    depth = 20
+
+    inputs = tf.placeholder_with_default(
+        np.random.randn(batch_size, num_heads, max(length), depth).astype(np.float32),
+        shape=(None, num_heads, None, depth))
+    outputs = transformer.combine_heads(inputs)
+
+    static_shape = outputs.get_shape().as_list()
+    self.assertEqual(depth * num_heads, static_shape[-1])
+
+    with self.test_session() as sess:
+      outputs = sess.run(outputs)
+      self.assertAllEqual([batch_size, max(length), depth * num_heads], outputs.shape)
+
   def testScaledDotAttention(self):
     batch_size = 3
     num_heads = 8
