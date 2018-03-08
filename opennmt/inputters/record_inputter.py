@@ -70,3 +70,21 @@ class SequenceRecordInputter(Inputter):
 
   def transform(self, inputs, mode):
     return inputs
+
+
+def write_sequence_record(vector, writer):
+  """Writes a vector as a TFRecord.
+
+  Args:
+    vector: A 2D Numpy array.
+    writer: A ``tf.python_io.TFRecordWriter``.
+  """
+  shape = list(vector.shape)
+  values = vector.flatten().tolist()
+
+  example = tf.train.Example(features=tf.train.Features(feature={
+      "shape": tf.train.Feature(int64_list=tf.train.Int64List(value=shape)),
+      "values": tf.train.Feature(float_list=tf.train.FloatList(value=values))
+  }))
+
+  writer.write(example.SerializeToString())

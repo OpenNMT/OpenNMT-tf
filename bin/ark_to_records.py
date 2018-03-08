@@ -10,6 +10,8 @@ import argparse
 import numpy as np
 import tensorflow as tf
 
+from opennmt.inputters.record_inputter import write_sequence_record
+
 
 def consume_next_vector(ark_file, dtype):
   """Consumes the next vector.
@@ -58,18 +60,6 @@ def consume_next_text(text_file):
 
   return idx, text
 
-def write_record(vector, writer):
-  """Serializes `vector` as TFRecord."""
-  shape = list(vector.shape)
-  values = vector.flatten().tolist()
-
-  example = tf.train.Example(features=tf.train.Features(feature={
-      "shape": tf.train.Feature(int64_list=tf.train.Int64List(value=shape)),
-      "values": tf.train.Feature(float_list=tf.train.FloatList(value=values))
-  }))
-
-  writer.write(example.SerializeToString())
-
 def write_text(text, writer):
   """Serializes a line of text."""
   writer.write(text)
@@ -85,7 +75,7 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix, dtype=np.flo
   count = 0
 
   def _write_example(vector, text):
-    write_record(vector, record_writer)
+    write_sequence_record(vector, record_writer)
     write_text(text, text_writer)
 
   def _search_aligned():
@@ -151,7 +141,7 @@ def ark_to_records(ark_filename, out_prefix, dtype=np.float32):
       ark_idx, vector = consume_next_vector(ark_file, dtype=dtype)
       if not ark_idx:
         break
-      write_record(vector, record_writer)
+      write_sequence_record(vector, record_writer)
       count += 1
 
   record_writer.close()

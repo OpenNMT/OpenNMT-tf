@@ -4,9 +4,10 @@ import os
 import six
 
 import tensorflow as tf
+import numpy as np
 
 from opennmt.constants import PADDING_TOKEN as PAD
-from opennmt.inputters import inputter, text_inputter
+from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
 
 
@@ -14,22 +15,27 @@ embedding_file = "inputter_test_embedding.tmp"
 vocab_file = "inputter_test_vocab.tmp"
 vocab_alt_file = "inputter_test_vocab_alt.tmp"
 data_file = "inputter_test_data.tmp"
+record_file = "inputter_test_record.tmp"
 
 
-def _first_element(inputter, data_file, metadata):
-  inputter.initialize(metadata)
+def _first_element(inputter, data_file, metadata=None):
+  if metadata is not None:
+    inputter.initialize(metadata)
   dataset = inputter.make_dataset(data_file)
   iterator = dataset.make_initializable_iterator()
   tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
   next_element = iterator.get_next()
   data = inputter.process(next_element)
+  data_in = {}
   for key, value in six.iteritems(data):
-    data[key] = tf.expand_dims(value, 0)
-  transformed = inputter.transform_data(data)
+    value = tf.expand_dims(value, 0)
+    value.set_shape([None] + inputter.padded_shapes[key])
+    data_in[key] = value
+  transformed = inputter.transform_data(data_in)
   return data, transformed
 
 
-class InputterTest(tf.test.TestCase):
+class TextInputterTest(tf.test.TestCase):
 
   def tearDown(self):
     if os.path.isfile(embedding_file):
@@ -140,8 +146,8 @@ class InputterTest(tf.test.TestCase):
       data, transformed = sess.run([data, transformed])
       self.assertNotIn("raw", data)
       self.assertNotIn("tokens", data)
-      self.assertAllEqual([3], data["length"])
-      self.assertAllEqual([[2, 1, 4]], data["ids"])
+      self.assertAllEqual(3, data["length"])
+      self.assertAllEqual([2, 1, 4], data["ids"])
       self.assertAllEqual([1, 3, 10], transformed.shape)
 
   def testCharConvEmbedder(self):
@@ -172,9 +178,9 @@ class InputterTest(tf.test.TestCase):
       data, transformed = sess.run([data, transformed])
       self.assertNotIn("raw", data)
       self.assertNotIn("tokens", data)
-      self.assertAllEqual([3], data["length"])
+      self.assertAllEqual(3, data["length"])
       self.assertAllEqual(
-          [[[0, 1, 2, 2, 4], [3, 4, 5, 2, 5], [5, 5, 5, 5, 5]]],
+          [[0, 1, 2, 2, 4], [3, 4, 5, 2, 5], [5, 5, 5, 5, 5]],
           data["char_ids"])
       self.assertAllEqual([1, 3, 5], transformed.shape)
 
@@ -254,6 +260,40 @@ class InputterTest(tf.test.TestCase):
       self.assertIn("ids", data)
       self.assertIn("char_ids", data)
       self.assertAllEqual([1, 3, 15], transformed.shape)
+
+
+class RecordInputterTest(tf.test.TestCase):
+
+  def tearDown(self):
+    if os.path.isfile(record_file):
+      os.remove(record_file)
+
+
+  def testSequenceRecord(self):
+    vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)
+
+    writer = tf.python_io.TFRecordWriter(record_file)
+    record_inputter.write_sequence_record(vector, writer)
+    writer.close()
+
+    inputter = record_inputter.SequenceRecordInputter()
+    data, transformed = _first_element(inputter, record_file)
+    input_receiver = inputter.get_serving_input_receiver()
+
+    self.assertIn("length", data)
+    self.assertIn("tensor", data)
+    self.assertIn("length", input_receiver.features)
+    self.assertIn("tensor", input_receiver.features)
+
+    self.assertAllEqual([None, None, 2], transformed.get_shape().as_list())
+    self.assertAllEqual([None, None, 2], input_receiver.features["tensor"].get_shape().as_list())
+
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      data, transformed = sess.run([data, transformed])
+      self.assertEqual(2, data["length"])
+      self.assertAllEqual(vector, data["tensor"])
+      self.assertAllEqual([vector], transformed)
 
 
 if __name__ == "__main__":
