@@ -4,7 +4,6 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
 from opennmt.utils import misc
 
 
@@ -68,7 +67,7 @@ class CountersHook(tf.train.SessionRunHook):
       return
 
     if self._summary_writer is None and self._output_dir:
-      self._summary_writer = SummaryWriterCache.get(self._output_dir)
+      self._summary_writer = tf.summary.FileWriterCache.get(self._output_dir)
 
     self._last_count = [None for _ in self._counters]
     self._global_step = tf.train.get_global_step()
