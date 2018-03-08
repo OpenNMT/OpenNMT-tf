@@ -68,6 +68,14 @@ class TokenizerTest(tf.test.TestCase):
     self._testDetokenizer(CharacterTokenizer(), [["a", "▁", "b"]], ["a b"])
     self._testTokenizer(CharacterTokenizer(), "你好，世界！", ["你", "好", "，", "世", "界", "！"])
 
+  def testOpenNMTTokenizer(self):
+    try:
+      from opennmt.tokenizers import OpenNMTTokenizer
+      self._testTokenizer(OpenNMTTokenizer(), "Hello world!", ["Hello", "world", "!"])
+      self._testDetokenizer(
+          OpenNMTTokenizer(), [["Hello", "world", "￭!"], ["a￭", "b"]], ["Hello world!", "ab"])
+    except ImportError:
+      pass
 
 if __name__ == "__main__":
   tf.test.main()
