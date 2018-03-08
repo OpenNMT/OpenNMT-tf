@@ -128,15 +128,7 @@ class Tokenizer(object):
       elif rank == 2:
         if sequence_length is None:
           raise ValueError("sequence_length is required for Tensor detokenization")
-        batch_size = tf.shape(tokens)[0]
-        array = tf.TensorArray(tf.string, size=batch_size, dynamic_size=False)
-        _, array = tf.while_loop(
-            lambda i, _: i < batch_size,
-            lambda i, a: (
-                i + 1, a.write(i, self._detokenize_tensor(tokens[i, :sequence_length[i]]))),
-            (tf.constant(0), array),
-            back_prop=False)
-        return array.stack()
+        return self._detokenize_batch_tensor(tokens, sequence_length)
       else:
         raise ValueError("Unsupported tensor rank for detokenization: {}".format(rank))
     else:
@@ -173,6 +165,24 @@ class Tokenizer(object):
       A 0-D string ``tf.Tensor``.
     """
     return tf.py_func(self.detokenize, [tokens], tf.string)
+
+  def _detokenize_batch_tensor(self, tokens, sequence_length):
+    """Detokenizes a batch of tokens.
+
+    When not overriden, this default implementation calls _detokenize_tensor on
+    each tensor within the batch.
+
+    Args:
+      tokens: A 2-D ``tf.Tensor``.
+
+    Returns:
+      A 1-D string ``tf.Tensor``.
+    """
+    return tf.map_fn(
+        lambda x: self._detokenize_tensor(x[0][:x[1]]),
+        (tokens, sequence_length),
+        dtype=tf.string,
+        back_prop=False)
 
   @abc.abstractmethod
   def _tokenize_string(self, text):
