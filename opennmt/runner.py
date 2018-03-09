@@ -132,19 +132,19 @@ class Runner(object):
     return eval_spec
 
   def train_and_evaluate(self):
-    """Runs training and evaluation loop."""
+    """Runs the training and evaluation loop."""
     train_spec = self._build_train_spec()
     eval_spec = self._build_eval_spec()
     tf.estimator.train_and_evaluate(self._estimator, train_spec, eval_spec)
 
   def train(self):
-    """Runs training loop."""
+    """Runs the training loop."""
     train_spec = self._build_train_spec()
     self._estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
 
   def evaluate(self, checkpoint_path=None):
-    """Runs training loop."""
+    """Runs evaluation."""
     if checkpoint_path is not None and os.path.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     eval_spec = self._build_eval_spec()
