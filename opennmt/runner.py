@@ -45,6 +45,10 @@ class Runner(object):
         session_config=session_config,
         tf_random_seed=seed)
 
+    # Create a first session to enforce GPU options.
+    # See https://github.com/OpenNMT/OpenNMT-tf/issues/80.
+    _ = tf.Session(config=session_config)
+
     np.random.seed(seed)
     random.seed(seed)
 
