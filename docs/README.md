@@ -5,7 +5,7 @@ We currently use [Sphinx](http://www.sphinx-doc.org) to automatically build docu
 ## Install dependencies
 
 ```bash
-pip install sphinx
+pip install sphinx==1.6.7
 pip install sphinx_rtd_theme
 pip install recommonmark
 ```
