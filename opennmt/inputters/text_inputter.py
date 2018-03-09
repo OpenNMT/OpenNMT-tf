@@ -17,6 +17,7 @@ from opennmt.tokenizers.tokenizer import SpaceTokenizer
 from opennmt.inputters.inputter import Inputter
 from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
+from opennmt.layers.common import embedding_lookup
 
 
 def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets=1):
@@ -374,7 +375,7 @@ class WordEmbedder(TextInputter):
           initializer=initializer,
           trainable=self.trainable)
 
-    outputs = tf.nn.embedding_lookup(embeddings, inputs)
+    outputs = embedding_lookup(embeddings, inputs)
 
     outputs = tf.layers.dropout(
         outputs,
@@ -469,7 +470,7 @@ class CharConvEmbedder(TextInputter):
     embeddings = tf.get_variable(
         "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
 
-    outputs = tf.nn.embedding_lookup(embeddings, inputs)
+    outputs = embedding_lookup(embeddings, inputs)
     outputs = tf.layers.dropout(
         outputs,
         rate=self.dropout,

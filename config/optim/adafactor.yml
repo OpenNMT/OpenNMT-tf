@@ -1,0 +1,14 @@
+params:
+  optimizer: AdafactorOptimizer
+  optimizer_params:
+    beta1: 0.0
+    factored: true
+    decay_type: pow
+    memory_exponent: 0.8
+    clipping_threshold: 1.0
+  learning_rate: 2.0  # The scale constant.
+  clip_gradients: null
+  decay_type: rsqrt_decay
+  decay_step_duration: 8  # 1 decay step is 8 training steps.
+  decay_steps: 10000  # Warmup steps (= 80000 training steps).
+  start_decay_steps: 0
