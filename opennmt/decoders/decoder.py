@@ -5,6 +5,8 @@ import six
 
 import tensorflow as tf
 
+from opennmt.layers.common import embedding_lookup
+
 
 def logits_to_cum_log_probs(logits, sequence_length):
   """Returns the cumulated log probabilities of sequences.
@@ -39,7 +41,7 @@ def get_embedding_fn(embedding):
   if callable(embedding):
     return embedding
   else:
-    return lambda ids: tf.nn.embedding_lookup(embedding, ids)
+    return lambda ids: embedding_lookup(embedding, ids)
 
 def build_output_layer(num_units, vocab_size, dtype=None):
   """Builds the output projection layer.
