@@ -3,6 +3,7 @@
 import tensorflow as tf
 
 from opennmt.utils import decay
+from opennmt.utils import adafactor
 
 
 def learning_rate_decay_fn(decay_type,
@@ -77,6 +78,8 @@ def get_optimizer_class(classname):
   if optimizer_class is None:
     optimizer_class = getattr(tf.contrib.opt, classname, None)
   if optimizer_class is None:
+    optimizer_class = getattr(adafactor, classname, None)
+  if optimizer_class is None:
     raise ValueError("Unknown optimizer class: {}".format(classname))
 
   return optimizer_class
@@ -112,11 +115,16 @@ def optimize(loss, params):
   optimizer_class = get_optimizer_class(params["optimizer"])
   optimizer_params = params.get("optimizer_params", {})
 
+  if optimizer_class.__name__ == "AdafactorOptimizer":
+    optimizer = adafactor.get_optimizer_from_params(optimizer_class, optimizer_params)
+  else:
+    optimizer = lambda lr: optimizer_class(lr, **optimizer_params)
+
   return tf.contrib.layers.optimize_loss(
       loss,
       global_step,
       learning_rate,
-      lambda lr: optimizer_class(lr, **optimizer_params),
+      optimizer,
       clip_gradients=clip_gradients,
       learning_rate_decay_fn=decay_fn,
       name="optim",
