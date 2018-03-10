@@ -4,6 +4,7 @@ from importlib import import_module
 
 import os
 import pickle
+import sys
 import yaml
 
 import tensorflow as tf
@@ -18,9 +19,10 @@ def load_model_module(path):
   Returns:
     A Python module.
   """
-  module, _ = path.rsplit(".", 1)
-  module = module.replace("/", ".")
-  module = import_module(module)
+  dirname, filename = os.path.split(path)
+  module_name, _ = os.path.splitext(filename)
+  sys.path.insert(0, os.path.abspath(dirname))
+  module = import_module(module_name)
 
   if not hasattr(module, "model"):
     raise ImportError("No model defined in {}".format(path))
