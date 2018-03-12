@@ -110,7 +110,9 @@ def optimize(loss, params):
     decay_fn = None
 
   learning_rate = float(params["learning_rate"])
-  clip_gradients = float(params["clip_gradients"]) if "clip_gradients" in params else None
+  clip_gradients = params.get("clip_gradients")
+  if clip_gradients is not None:
+    clip_gradients = float(clip_gradients)
 
   optimizer_class = get_optimizer_class(params["optimizer"])
   optimizer_params = params.get("optimizer_params", {})
