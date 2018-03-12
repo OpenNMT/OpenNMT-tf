@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import os
 import sys
 import six
 
@@ -34,6 +35,16 @@ def item_or_tuple(x):
     return x[0]
   else:
     return x
+
+def get_third_party_dir():
+  """Returns a path to the third_party directory."""
+  utils_dir = os.path.dirname(__file__)
+  opennmt_dir = os.path.dirname(utils_dir)
+  root_dir = os.path.dirname(opennmt_dir)
+  third_party_dir = os.path.join(root_dir, "third_party")
+  if not os.path.isdir(third_party_dir):
+    raise RuntimeError("no third_party directory found in {}".format(root_dir))
+  return third_party_dir
 
 def count_lines(filename):
   """Returns the number of lines of the file :obj:`filename`."""

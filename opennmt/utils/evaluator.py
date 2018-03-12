@@ -11,6 +11,8 @@ import tensorflow as tf
 
 from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
 
+from opennmt.utils.misc import get_third_party_dir
+
 
 @six.add_metaclass(abc.ABCMeta)
 class ExternalEvaluator(object):
@@ -71,9 +73,14 @@ class BLEUEvaluator(ExternalEvaluator):
   def score(self, labels_file, predictions_path):
     bleu_script = self._get_bleu_script()
     try:
+      third_party_dir = get_third_party_dir()
+    except RuntimeError as e:
+      tf.logging.warning("%s", str(e))
+      return None
+    try:
       with open(predictions_path, "r") as predictions_file:
         bleu_out = subprocess.check_output(
-            [os.path.join("third_party", bleu_script), labels_file],
+            [os.path.join(third_party_dir, bleu_script), labels_file],
             stdin=predictions_file,
             stderr=subprocess.STDOUT)
         bleu_out = bleu_out.decode("utf-8")
