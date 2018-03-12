@@ -89,6 +89,62 @@ class DataTest(tf.test.TestCase):
     self._testFilterByLength(
         [1, 2], 1, maximum_features_length=[1, 1], maximum_labels_length=1, filtered=True)
 
+  def _testBatchTrainDataset(self, check_fn, batch_size, **kwargs):
+    num_examples = 1000
+    features = tf.random_normal([num_examples], mean=12, stddev=6, seed=42)
+    labels_diff = tf.random_normal([num_examples], mean=0, stddev=3, seed=42)
+    labels = features + labels_diff
+
+    features = tf.maximum(tf.to_int32(1), tf.to_int32(features))
+    labels = tf.maximum(tf.to_int32(1), tf.to_int32(labels))
+
+    dataset = tf.data.Dataset.zip((
+        tf.data.Dataset.from_tensor_slices(features),
+        tf.data.Dataset.from_tensor_slices(labels)))
+    dataset = dataset.apply(data.batch_train_dataset(
+        batch_size,
+        padded_shapes=([], []),
+        features_length_fn=lambda x: x,
+        labels_length_fn=lambda x: x,
+        **kwargs))
+
+    iterator = dataset.make_initializable_iterator()
+    next_element = iterator.get_next()
+
+    with self.test_session() as sess:
+      sess.run(iterator.initializer)
+      check_fn(sess, next_element)
+
+  def testBatchTrainDatasetSimple(self):
+    def _check_fn(sess, next_element):
+      features, labels = sess.run(next_element)
+      self.assertEqual(64, features.shape[0])
+    self._testBatchTrainDataset(_check_fn, 64)
+
+  def testBatchTrainDatasetMultiplier(self):
+    def _check_fn(sess, next_element):
+      features, labels = sess.run(next_element)
+      self.assertEqual(30, features.shape[0])
+    self._testBatchTrainDataset(_check_fn, 10, batch_multiplier=3)
+
+  def testBatchTrainDatasetBucket(self):
+    def _check_fn(sess, next_element):
+      for _ in range(20):
+        features, labels = sess.run(next_element)
+        length = [max(f, l) for f, l in zip(features, labels)]
+        self.assertGreater(3, max(length) - min(length))
+        self.assertGreaterEqual(64, features.shape[0])
+    self._testBatchTrainDataset(_check_fn, 64, bucket_width=3)
+
+  def testBatchTrainDatasetTokens(self):
+    def _check_fn(sess, next_element):
+      for _ in range(20):
+        features, labels = sess.run(next_element)
+        batch_size = features.shape[0]
+        max_length = max(list(features) + list(labels))
+        self.assertGreaterEqual(256, batch_size * max_length)
+    self._testBatchTrainDataset(_check_fn, 256, batch_type="tokens", bucket_width=1)
+
 
 if __name__ == "__main__":
   tf.test.main()
