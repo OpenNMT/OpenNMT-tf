@@ -120,6 +120,7 @@ class TextInputterTest(tf.test.TestCase):
 
     embedder = text_inputter.WordEmbedder(
         "vocabulary_file", embedding_size=10)
+    self.assertEqual(1, embedder.get_dataset_size(data_file))
     data, transformed = _first_element(
         embedder, data_file, {"vocabulary_file": vocab_file})
 
@@ -155,6 +156,7 @@ class TextInputterTest(tf.test.TestCase):
       data.write("hello world !\n")
 
     embedder = text_inputter.CharConvEmbedder("vocabulary_file", 10, 5)
+    self.assertEqual(1, embedder.get_dataset_size(data_file))
     data, transformed = _first_element(
         embedder, data_file, {"vocabulary_file": vocab_file})
 
@@ -190,13 +192,16 @@ class TextInputterTest(tf.test.TestCase):
     with open(data_file, "w") as data:
       data.write("hello world !\n")
 
+    data_files = [data_file, data_file]
+
     parallel_inputter = inputter.ParallelInputter([
         text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10),
         text_inputter.WordEmbedder("vocabulary_file_2", embedding_size=5)])
+    self.assertEqual(1, parallel_inputter.get_dataset_size(data_files))
 
     data, transformed = _first_element(
         parallel_inputter,
-        [data_file, data_file],
+        data_files,
         {"vocabulary_file_1": vocab_file, "vocabulary_file_2": vocab_file})
 
     self.assertEqual(2, len(parallel_inputter.get_length(data)))
@@ -242,6 +247,7 @@ class TextInputterTest(tf.test.TestCase):
         text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10),
         text_inputter.CharConvEmbedder("vocabulary_file_2", 10, 5)],
         reducer=reducer.ConcatReducer())
+    self.assertEqual(1, mixed_inputter.get_dataset_size(data_file))
 
     data, transformed = _first_element(
         mixed_inputter,
@@ -275,6 +281,7 @@ class RecordInputterTest(tf.test.TestCase):
     writer.close()
 
     inputter = record_inputter.SequenceRecordInputter()
+    self.assertEqual(1, inputter.get_dataset_size(record_file))
     data, transformed = _first_element(inputter, record_file)
     input_receiver = inputter.get_serving_input_receiver()
 

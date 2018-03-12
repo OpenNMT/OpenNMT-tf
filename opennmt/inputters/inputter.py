@@ -241,8 +241,9 @@ class MultiInputter(Inputter):
   def make_dataset(self, data_file):
     raise NotImplementedError()
 
+  @abc.abstractmethod
   def get_dataset_size(self, data_file):
-    return self.inputters[0].get_dataset_size(data_file)
+    raise NotImplementedError()
 
   def initialize(self, metadata):
     for inputter in self.inputters:
@@ -296,6 +297,18 @@ class ParallelInputter(MultiInputter):
         inputter.make_dataset(data)
         for inputter, data in zip(self.inputters, data_file)]
     return tf.data.Dataset.zip(tuple(datasets))
+
+  def get_dataset_size(self, data_file):
+    if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
+      raise ValueError("The number of data files must be the same as the number of inputters")
+    dataset_sizes = [
+        inputter.get_dataset_size(data)
+        for inputter, data in zip(self.inputters, data_file)]
+    dataset_size = dataset_sizes[0]
+    for size in dataset_sizes:
+      if size != dataset_size:
+        raise RuntimeError("The parallel data files do not have the same size")
+    return dataset_size
 
   def _get_serving_input(self):
     all_receiver_tensors = {}
@@ -362,6 +375,9 @@ class MixedInputter(MultiInputter):
 
   def make_dataset(self, data_file):
     return self.inputters[0].make_dataset(data_file)
+
+  def get_dataset_size(self, data_file):
+    return self.inputters[0].get_dataset_size(data_file)
 
   def _get_serving_input(self):
     all_receiver_tensors = {}
