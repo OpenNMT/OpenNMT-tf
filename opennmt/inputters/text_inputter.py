@@ -231,8 +231,8 @@ class TextInputter(Inputter):
       tokens = self.tokenizer.tokenize(text)
       length = tf.shape(tokens)[0]
 
-      data = self.set_data_field(data, "tokens", tokens, padded_shape=[None], volatile=True)
-      data = self.set_data_field(data, "length", length, padded_shape=[])
+      data = self.set_data_field(data, "tokens", tokens, volatile=True)
+      data = self.set_data_field(data, "length", length)
 
     return data
 
@@ -332,7 +332,7 @@ class WordEmbedder(TextInputter):
       tokens = data["tokens"]
       ids = self.vocabulary.lookup(tokens)
 
-      data = self.set_data_field(data, "ids", ids, padded_shape=[None])
+      data = self.set_data_field(data, "ids", ids)
 
     return data
 
@@ -450,7 +450,7 @@ class CharConvEmbedder(TextInputter):
       chars, _ = tokens_to_chars(tokens)
       ids = self.vocabulary.lookup(chars)
 
-      data = self.set_data_field(data, "char_ids", ids, padded_shape=[None, None])
+      data = self.set_data_field(data, "char_ids", ids)
 
     return data
 

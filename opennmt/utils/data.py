@@ -4,6 +4,19 @@ import tensorflow as tf
 import numpy as np
 
 
+def get_padded_shapes(dataset):
+  """Returns the padded shapes for ``tf.data.Dataset.padded_batch``.
+
+  Args:
+    dataset: The dataset that will be batched with padding.
+
+  Returns:
+    The same structure as ``dataset.output_shapes`` containing the padded
+    shapes.
+  """
+  return tf.contrib.framework.nest.map_structure(
+      lambda shape: shape.as_list(), dataset.output_shapes)
+
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
 
@@ -92,14 +105,14 @@ def random_shard(shard_size, dataset_size):
 
   return _random_shard
 
-def batch_train_dataset(batch_size,
-                        batch_type="examples",
-                        batch_multiplier=1,
-                        bucket_width=None,
-                        padded_shapes=None,
-                        features_length_fn=None,
-                        labels_length_fn=None):
-  """Transformation that batches the dataset for training.
+def batch_parallel_dataset(batch_size,
+                           batch_type="examples",
+                           batch_multiplier=1,
+                           bucket_width=None,
+                           padded_shapes=None,
+                           features_length_fn=None,
+                           labels_length_fn=None):
+  """Transformation that batches a parallel dataset.
 
   This implements an example-based and a token-based batching strategy
   with optional bucketing of sequences.
@@ -120,7 +133,8 @@ def batch_train_dataset(batch_size,
     batch_multiplier: The batch size multiplier to prepare splitting accross
       replicated graph parts.
     bucket_width: The sequence length bucket width.
-    padded_shapes: The padded shapes.
+    padded_shapes: The padded shapes for this dataset. If ``None``, the shapes
+      are automatically infered from the dataset output shapes.
     features_length_fn: A callable mapping features to a sequence length.
     labels_length_fn: A callable mapping labels to a sequence length.
 
@@ -132,10 +146,10 @@ def batch_train_dataset(batch_size,
   """
   batch_size = batch_size * batch_multiplier
 
-  if bucket_width is None:
-    return lambda dataset: dataset.padded_batch(
+  def _batch_func(dataset):
+    return dataset.padded_batch(
         batch_size,
-        padded_shapes=padded_shapes)
+        padded_shapes=padded_shapes or get_padded_shapes(dataset))
 
   def _key_func(features, labels):
     features_length = features_length_fn(features) if features_length_fn is not None else None
@@ -151,9 +165,7 @@ def batch_train_dataset(batch_size,
     return tf.to_int64(bucket_id)
 
   def _reduce_func(unused_key, dataset):
-    return dataset.padded_batch(
-        batch_size,
-        padded_shapes=padded_shapes)
+    return _batch_func(dataset)
 
   def _window_size_func(key):
     if bucket_width > 1:
@@ -163,6 +175,9 @@ def batch_train_dataset(batch_size,
       # Make the window size a multiple of batch_multiplier.
       size = size + batch_multiplier - size % batch_multiplier
     return tf.to_int64(tf.maximum(size, batch_multiplier))
+
+  if bucket_width is None:
+    return _batch_func
 
   if batch_type == "examples":
     return tf.contrib.data.group_by_window(

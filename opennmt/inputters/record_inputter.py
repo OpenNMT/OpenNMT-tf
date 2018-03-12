@@ -58,10 +58,11 @@ class SequenceRecordInputter(Inputter):
       shape = tf.cast(features["shape"].values, tf.int32)
 
       tensor = tf.reshape(values, shape)
+      tensor.set_shape([None, self.input_depth])
       length = tf.shape(tensor)[0]
 
-      data = self.set_data_field(data, "tensor", tensor, padded_shape=[None, self.input_depth])
-      data = self.set_data_field(data, "length", length, padded_shape=[])
+      data = self.set_data_field(data, "tensor", tensor)
+      data = self.set_data_field(data, "length", length)
 
     return data
 

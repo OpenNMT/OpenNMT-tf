@@ -65,8 +65,7 @@ class SequenceTagger(Model):
   def _get_features_builder(self, features_file):
     dataset = self.inputter.make_dataset(features_file)
     process_fn = self.inputter.process
-    padded_shapes_fn = lambda: self.inputter.padded_shapes
-    return dataset, process_fn, padded_shapes_fn
+    return dataset, process_fn
 
   def _get_labels_builder(self, labels_file):
     labels_vocabulary = tf.contrib.lookup.index_table_from_file(
@@ -78,11 +77,7 @@ class SequenceTagger(Model):
         "tags": tf.string_split([x]).values,
         "tags_id": labels_vocabulary.lookup(tf.string_split([x]).values)
     }
-    padded_shapes_fn = lambda: {
-        "tags": [None],
-        "tags_id": [None]
-    }
-    return dataset, process_fn, padded_shapes_fn
+    return dataset, process_fn
 
   def _build(self, features, labels, params, mode, config):
     length = self._get_features_length(features)

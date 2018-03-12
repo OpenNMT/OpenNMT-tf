@@ -35,16 +35,8 @@ def shift_target_sequence(inputter, data):
   ids = data["ids"]
   length = data["length"]
 
-  data = inputter.set_data_field(
-      data,
-      "ids_out",
-      tf.concat([ids, eos], axis=0),
-      padded_shape=[None])
-  data = inputter.set_data_field(
-      data,
-      "ids",
-      tf.concat([bos, ids], axis=0),
-      padded_shape=[None])
+  data = inputter.set_data_field(data, "ids_out", tf.concat([ids, eos], axis=0))
+  data = inputter.set_data_field(data, "ids", tf.concat([bos, ids], axis=0))
 
   # Increment length accordingly.
   inputter.set_data_field(data, "length", length + 1)
@@ -119,14 +111,12 @@ class SequenceToSequence(Model):
   def _get_features_builder(self, features_file):
     dataset = self.source_inputter.make_dataset(features_file)
     process_fn = self.source_inputter.process
-    padded_shapes_fn = lambda: self.source_inputter.padded_shapes
-    return dataset, process_fn, padded_shapes_fn
+    return dataset, process_fn
 
   def _get_labels_builder(self, labels_file):
     dataset = self.target_inputter.make_dataset(labels_file)
     process_fn = self.target_inputter.process
-    padded_shapes_fn = lambda: self.target_inputter.padded_shapes
-    return dataset, process_fn, padded_shapes_fn
+    return dataset, process_fn
 
   def _scoped_target_embedding_fn(self, mode, scope):
     def _target_embedding_fn(ids):

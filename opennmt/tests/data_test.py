@@ -101,9 +101,8 @@ class DataTest(tf.test.TestCase):
     dataset = tf.data.Dataset.zip((
         tf.data.Dataset.from_tensor_slices(features),
         tf.data.Dataset.from_tensor_slices(labels)))
-    dataset = dataset.apply(data.batch_train_dataset(
+    dataset = dataset.apply(data.batch_parallel_dataset(
         batch_size,
-        padded_shapes=([], []),
         features_length_fn=lambda x: x,
         labels_length_fn=lambda x: x,
         **kwargs))
