@@ -73,20 +73,10 @@ def roll_sequence(tensor, offsets):
   """
   batch_size = tf.shape(tensor)[0]
   time = tf.shape(tensor)[1]
-
-  cols = tf.range(time)
-  cols = tf.tile(cols, [batch_size])
-  cols = tf.reshape(cols, [batch_size, time])
+  cols, rows = tf.meshgrid(tf.range(time), tf.range(batch_size))
   cols -= tf.expand_dims(offsets, 1)
   cols = tf.mod(cols, time)
-
-  rows = tf.range(batch_size)
-  rows = tf.tile(rows, [time])
-  rows = tf.reshape(rows, [time, batch_size])
-  rows = tf.transpose(rows, perm=[1, 0])
-
-  indices = tf.concat([tf.expand_dims(rows, -1), tf.expand_dims(cols, -1)], -1)
-
+  indices = tf.stack([rows, cols], axis=-1)
   return tf.gather_nd(tensor, indices)
 
 
