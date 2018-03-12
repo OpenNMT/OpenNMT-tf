@@ -142,6 +142,22 @@ class TransformerTest(tf.test.TestCase):
       outputs = sess.run(outputs)
       self.assertAllEqual([batch_size, max(length), depth * num_heads], outputs.shape)
 
+  def testSplitAndCombineHeads(self):
+    batch_size = 3
+    length = [5, 3, 7]
+    num_heads = 8
+    depth = 20
+
+    inputs = tf.placeholder_with_default(
+        np.random.randn(batch_size, max(length), depth * num_heads).astype(np.float32),
+        shape=(None, None, depth * num_heads))
+    split = transformer.split_heads(inputs, num_heads)
+    combined = transformer.combine_heads(split)
+
+    with self.test_session() as sess:
+      inputs, combined = sess.run([inputs, combined])
+      self.assertAllEqual(inputs, combined)
+
   def testScaledDotAttention(self):
     batch_size = 3
     num_heads = 8

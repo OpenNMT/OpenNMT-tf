@@ -120,7 +120,7 @@ def combine_heads(inputs):
   depth = static_shape[-1]
   num_heads = static_shape[1]
   outputs = tf.transpose(inputs, perm=[0, 2, 1, 3])
-  outputs = tf.reshape(inputs, [tf.shape(outputs)[0], tf.shape(outputs)[1], depth * num_heads])
+  outputs = tf.reshape(outputs, [tf.shape(outputs)[0], tf.shape(outputs)[1], depth * num_heads])
   return outputs
 
 def dot_product_attention(queries,
