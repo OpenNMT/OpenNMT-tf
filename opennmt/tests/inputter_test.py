@@ -11,13 +11,6 @@ from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
 
 
-embedding_file = "inputter_test_embedding.tmp"
-vocab_file = "inputter_test_vocab.tmp"
-vocab_alt_file = "inputter_test_vocab_alt.tmp"
-data_file = "inputter_test_data.tmp"
-record_file = "inputter_test_record.tmp"
-
-
 def _first_element(inputter, data_file, metadata=None):
   if metadata is not None:
     inputter.initialize(metadata)
@@ -37,17 +30,6 @@ def _first_element(inputter, data_file, metadata=None):
 
 class TextInputterTest(tf.test.TestCase):
 
-  def tearDown(self):
-    if os.path.isfile(embedding_file):
-      os.remove(embedding_file)
-    if os.path.isfile(vocab_file):
-      os.remove(vocab_file)
-    if os.path.isfile(vocab_alt_file):
-      os.remove(vocab_alt_file)
-    if os.path.isfile(data_file):
-      os.remove(data_file)
-
-
   def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
     expected_chars = [[tf.compat.as_bytes(c) for c in w] for w in expected_chars]
     chars, lengths = text_inputter.tokens_to_chars(tf.constant(tokens))
@@ -66,6 +48,9 @@ class TextInputterTest(tf.test.TestCase):
         [4, 1, 2])
 
   def testPretrainedEmbeddingsLoading(self):
+    embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+
     with open(embedding_file, "w") as embedding:
       embedding.write("toto 1 1\n"
                       "titi 2 2\n"
@@ -97,6 +82,9 @@ class TextInputterTest(tf.test.TestCase):
     self.assertAllEqual([3, 3], embeddings[2])
 
   def testPretrainedEmbeddingsWithHeaderLoading(self):
+    embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+
     with open(embedding_file, "w") as embedding:
       embedding.write("3 2\n"
                       "toto 1 1\n"
@@ -119,6 +107,9 @@ class TextInputterTest(tf.test.TestCase):
     self.assertAllEqual([3, 3], embeddings[2])
 
   def testWordEmbedder(self):
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+    data_file = os.path.join(self.get_temp_dir(), "data.txt")
+
     with open(vocab_file, "w") as vocab:
       vocab.write("the\n"
                   "world\n"
@@ -151,6 +142,9 @@ class TextInputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 10], transformed.shape)
 
   def testCharConvEmbedder(self):
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+    data_file = os.path.join(self.get_temp_dir(), "data.txt")
+
     with open(vocab_file, "w") as vocab:
       vocab.write("h\n"
                   "e\n"
@@ -185,6 +179,9 @@ class TextInputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 5], transformed.shape)
 
   def testParallelInputter(self):
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+    data_file = os.path.join(self.get_temp_dir(), "data.txt")
+
     with open(vocab_file, "w") as vocab:
       vocab.write("the\n"
                   "world\n"
@@ -223,6 +220,10 @@ class TextInputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 5], transformed[1].shape)
 
   def testMixedInputter(self):
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+    vocab_alt_file = os.path.join(self.get_temp_dir(), "vocab_alt.txt")
+    data_file = os.path.join(self.get_temp_dir(), "data.txt")
+
     with open(vocab_file, "w") as vocab:
       vocab.write("the\n"
                   "world\n"
@@ -264,14 +265,11 @@ class TextInputterTest(tf.test.TestCase):
 
 class RecordInputterTest(tf.test.TestCase):
 
-  def tearDown(self):
-    if os.path.isfile(record_file):
-      os.remove(record_file)
-
 
   def testSequenceRecord(self):
     vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)
 
+    record_file = os.path.join(self.get_temp_dir(), "data.records")
     writer = tf.python_io.TFRecordWriter(record_file)
     record_inputter.write_sequence_record(vector, writer)
     writer.close()

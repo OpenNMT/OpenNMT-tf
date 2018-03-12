@@ -5,15 +5,7 @@ import tensorflow as tf
 from opennmt.utils import Vocab
 
 
-vocab_file = "vocab_test.tmp"
-
-
 class VocabTest(tf.test.TestCase):
-
-  def tearDown(self):
-    if os.path.isfile(vocab_file):
-      os.remove(vocab_file)
-
 
   def testSimpleVocab(self):
     vocab = Vocab()
@@ -70,6 +62,8 @@ class VocabTest(tf.test.TestCase):
     vocab1.add("titi")
     vocab1.add("titi")
     vocab1.add("tata")
+
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
 
     vocab1.serialize(vocab_file)
     vocab2 = Vocab()

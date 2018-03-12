@@ -5,22 +5,14 @@ import tensorflow as tf
 
 from opennmt import config
 
-config_file_1 = "config_test_1.tmp"
-config_file_2 = "config_test_2.tmp"
-
 
 class ConfigTest(tf.test.TestCase):
-
-  def tearDown(self):
-    if os.path.isfile(config_file_1):
-      os.remove(config_file_1)
-    if os.path.isfile(config_file_2):
-      os.remove(config_file_2)
-
 
   def testConfigOverride(self):
     config1 = {"model_dir": "foo", "train": {"batch_size": 32, "steps": 42}}
     config2 = {"model_dir": "bar", "train": {"batch_size": 64}}
+    config_file_1 = os.path.join(self.get_temp_dir(), "config1.yml")
+    config_file_2 = os.path.join(self.get_temp_dir(), "config2.yml")
 
     with open(config_file_1, "w") as config_file:
       config_file.write(yaml.dump(config1))
