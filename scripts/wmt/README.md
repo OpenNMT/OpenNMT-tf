@@ -37,10 +37,10 @@ cd scripts/wmt
 
 ## Lazy run...
 
-* Pre-tokenized SentencePiece dataset: https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz
+* [Pre-tokenized SentencePiece dataset](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz)
 * Pre-trained averaged model:
-  * checkpoint: https://s3.amazonaws.com/opennmt-models/averaged-ende-ckpt500k.tar.gz (compatible with [OpenNMT-tf@105d260b](https://github.com/OpenNMT/OpenNMT-tf/commit/105d260b034bfaad3814deb1244a97d2b4102301))
-  * export: https://s3.amazonaws.com/opennmt-models/averaged-ende-export500k.tar.gz
+  * [checkpoint](https://s3.amazonaws.com/opennmt-models/averaged-ende-ckpt500k.tar.gz)
+  * [export](https://s3.amazonaws.com/opennmt-models/averaged-ende-export500k.tar.gz)
 
 This model achieved the following scores:
 
