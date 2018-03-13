@@ -128,13 +128,13 @@ def batch_parallel_dataset(batch_size,
 
   Args:
     batch_size: The batch size.
-    batch_type: The training batching stragety to use: can be "examples" or
+    batch_type: The training batching strategy to use: can be "examples" or
       "tokens".
     batch_multiplier: The batch size multiplier to prepare splitting accross
       replicated graph parts.
     bucket_width: The sequence length bucket width.
     padded_shapes: The padded shapes for this dataset. If ``None``, the shapes
-      are automatically infered from the dataset output shapes.
+      are automatically inferred from the dataset output shapes.
     features_length_fn: A callable mapping features to a sequence length.
     labels_length_fn: A callable mapping labels to a sequence length.
 
