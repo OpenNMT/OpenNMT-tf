@@ -246,7 +246,7 @@ class Model(object):
       features_file: The file of features.
 
     Returns:
-      A tuple ``(tf.data.Dataset, process_fn, padded_shapes_fn)``.
+      A tuple ``(tf.data.Dataset, process_fn)``.
     """
     raise NotImplementedError()
 
@@ -258,7 +258,7 @@ class Model(object):
       labels_file: The file of labels.
 
     Returns:
-      A tuple ``(tf.data.Dataset, process_fn, padded_shapes_fn)``.
+      A tuple ``(tf.data.Dataset, process_fn)``.
     """
     raise NotImplementedError()
 
@@ -280,22 +280,18 @@ class Model(object):
     """See ``input_fn``."""
     self._initialize(metadata)
 
-    feat_dataset, feat_process_fn, feat_padded_shapes_fn = self._get_features_builder(features_file)
+    feat_dataset, feat_process_fn = self._get_features_builder(features_file)
 
     if labels_file is None:
       dataset = feat_dataset
       # Parallel inputs must be catched in a single tuple and not considered as multiple arguments.
       process_fn = lambda *arg: feat_process_fn(item_or_tuple(arg))
-      padded_shapes_fn = feat_padded_shapes_fn
     else:
-      labels_dataset, labels_process_fn, labels_padded_shapes_fn = (
-          self._get_labels_builder(labels_file))
+      labels_dataset, labels_process_fn = self._get_labels_builder(labels_file)
 
       dataset = tf.data.Dataset.zip((feat_dataset, labels_dataset))
       process_fn = lambda features, labels: (
           feat_process_fn(features), labels_process_fn(labels))
-      padded_shapes_fn = lambda: (
-          feat_padded_shapes_fn(), labels_padded_shapes_fn())
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       dataset_size = self._get_dataset_size(features_file)
@@ -313,12 +309,11 @@ class Model(object):
           maximum_labels_length=maximum_labels_length,
           features_length_fn=self._get_features_length,
           labels_length_fn=self._get_labels_length))
-      dataset = dataset.apply(data.batch_train_dataset(
+      dataset = dataset.apply(data.batch_parallel_dataset(
           batch_size,
           batch_type=batch_type,
           batch_multiplier=batch_multiplier,
           bucket_width=bucket_width,
-          padded_shapes=padded_shapes_fn(),
           features_length_fn=self._get_features_length,
           labels_length_fn=self._get_labels_length))
       dataset = dataset.apply(data.filter_irregular_batches(batch_multiplier))
@@ -328,9 +323,7 @@ class Model(object):
       dataset = dataset.map(
           process_fn,
           num_parallel_calls=num_threads or 1)
-      dataset = dataset.padded_batch(
-          batch_size,
-          padded_shapes=padded_shapes_fn())
+      dataset = dataset.apply(data.batch_parallel_dataset(batch_size))
 
     if prefetch_buffer_size:
       dataset = dataset.prefetch(prefetch_buffer_size)
