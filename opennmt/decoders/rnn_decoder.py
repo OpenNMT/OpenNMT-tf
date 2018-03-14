@@ -245,7 +245,7 @@ def _build_attention_mechanism(attention_mechanism,
   """Builds an attention mechanism from a class or a callable."""
   if inspect.isclass(attention_mechanism):
     return attention_mechanism(
-        num_units, memory, memory_sequence_length=memory_sequence_length)
+        num_units, memory, memory_sequence_length=memory_sequence_length, dtype=memory.dtype)
   elif callable(attention_mechanism):
     return attention_mechanism(
         num_units, memory, memory_sequence_length)

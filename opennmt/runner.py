@@ -201,4 +201,5 @@ class Runner(object):
     self._estimator.export_savedmodel(
         os.path.join(export_dir, "manual"),
         self._model.serving_input_fn(self._config["data"]),
-        checkpoint_path=checkpoint_path)
+        checkpoint_path=checkpoint_path,
+        strip_default_attrs=True)
