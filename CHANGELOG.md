@@ -16,6 +16,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * Update minimum required TensorFlow version from 1.4 to 1.6
 
+## [1.0.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/1.0.1) (2018-03-14)
+
 ### Fixes and improvements
 
 * Fix undefined `xrange` error in `utils/beam_search.py` when using Python 3
