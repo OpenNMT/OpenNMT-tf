@@ -8,8 +8,6 @@ OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow with produc
 * sequence tagging
 * sequence classification
 
-*The project is still in beta and does not come with backward compatibility guarantees.*
-
 ## Key features
 
 OpenNMT-tf focuses on modularity to support advanced modeling and training capabilities:
