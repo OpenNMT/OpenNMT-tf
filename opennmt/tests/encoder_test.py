@@ -32,8 +32,11 @@ class EncoderTest(tf.test.TestCase):
     sequence_length = [17, 21, 20]
     inputs = _build_dummy_sequences(sequence_length)
     encoder = encoders.PyramidalRNNEncoder(3, 10, reduction_factor=2)
-    outputs, _, encoded_length = encoder.encode(
+    outputs, state, encoded_length = encoder.encode(
         inputs, sequence_length=sequence_length)
+    self.assertEqual(3, len(state))
+    for s in state:
+      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       outputs, encoded_length = sess.run([outputs, encoded_length])
@@ -46,12 +49,34 @@ class EncoderTest(tf.test.TestCase):
     encoder = encoders.SequentialEncoder([
         encoders.UnidirectionalRNNEncoder(1, 20),
         encoders.PyramidalRNNEncoder(3, 10, reduction_factor=2)])
-    _, _, encoded_length = encoder.encode(
+    _, state, encoded_length = encoder.encode(
         inputs, sequence_length=sequence_length)
+    self.assertEqual(4, len(state))
+    for s in state:
+      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       encoded_length = sess.run(encoded_length)
       self.assertAllEqual([4, 5, 5], encoded_length)
+
+  def _testGoogleRNNEncoder(self, num_layers):
+    sequence_length = [17, 21, 20]
+    inputs = _build_dummy_sequences(sequence_length)
+    encoder = encoders.GoogleRNNEncoder(num_layers, 10)
+    outputs, state, _ = encoder.encode(
+        inputs, sequence_length=sequence_length)
+    self.assertEqual(num_layers, len(state))
+    for s in state:
+      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+      outputs = sess.run(outputs)
+      self.assertAllEqual([3, max(sequence_length), 10], outputs.shape)
+
+  def testGoogleRNNEncoder2Layers(self):
+    self._testGoogleRNNEncoder(2)
+  def testGoogleRNNEncoder3Layers(self):
+    self._testGoogleRNNEncoder(3)
 
   def testParallelEncoder(self):
     sequence_lengths = [[17, 21, 20], [10, 9, 15]]
@@ -61,8 +86,11 @@ class EncoderTest(tf.test.TestCase):
         encoders.UnidirectionalRNNEncoder(1, 20),
         encoders.UnidirectionalRNNEncoder(1, 20)],
         outputs_reducer=reducer.ConcatReducer(axis=1))
-    outputs, _, encoded_length = encoder.encode(
+    outputs, state, encoded_length = encoder.encode(
         inputs, sequence_length=sequence_lengths)
+    self.assertEqual(2, len(state))
+    for s in state:
+      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       outputs, encoded_length = sess.run([outputs, encoded_length])
