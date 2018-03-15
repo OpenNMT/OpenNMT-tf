@@ -184,7 +184,7 @@ class GoogleRNNEncoder(Encoder):
         sequence_length=sequence_length,
         mode=mode)
 
-    encoder_state = bidirectional_state + unidirectional_state
+    encoder_state = JoinReducer().reduce([bidirectional_state, unidirectional_state])
 
     return (encoder_outputs, encoder_state, sequence_length)
 

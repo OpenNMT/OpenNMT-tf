@@ -16,6 +16,10 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * Update minimum required TensorFlow version from 1.4 to 1.6
 
+### Fixes and improvements
+
+* Fix the encoder state structure when RNN encoders are combined (e.g. in `SequentialEncoder`)
+
 ## [1.0.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.1) (2018-03-14)
 
 ### Fixes and improvements
