@@ -1,3 +1,5 @@
+import collections
+
 import tensorflow as tf
 
 from opennmt.layers import reducer
@@ -154,6 +156,17 @@ class ReducerTest(tf.test.TestCase):
       reduced, length = sess.run([reduced, length])
       self.assertAllEqual(expected, reduced)
       self.assertAllEqual([5, 5, 4], length)
+
+  def testJoinReducer(self):
+    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer().reduce([1, 2, 3]))
+    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer().reduce([(1,), (2,), (3,)]))
+    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer().reduce([1, (2, 3)]))
+
+    # Named tuples should not be unpacked.
+    State = collections.namedtuple("State", ["h", "c"])
+    self.assertTupleEqual((State(h=1, c=2), State(h=3, c=4), State(h=5, c=6)),
+                          reducer.JoinReducer().reduce([
+                              State(h=1, c=2), (State(h=3, c=4), State(h=5, c=6))]))
 
 
 if __name__ == "__main__":

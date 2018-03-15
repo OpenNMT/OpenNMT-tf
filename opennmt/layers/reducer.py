@@ -194,13 +194,14 @@ class JoinReducer(Reducer):
   """A reducer that joins its inputs in a single tuple."""
 
   def reduce(self, inputs):
-    output = ()
+    output = []
     for elem in inputs:
-      if isinstance(elem, tuple):
-        output += elem
+      if isinstance(elem, tuple) and not hasattr(elem, "_fields"):
+        for e in elem:
+          output.append(e)
       else:
-        output += (elem,)
-    return output
+        output.append(elem)
+    return tuple(output)
 
   def reduce_sequence(self, inputs, sequence_lengths):
     raise NotImplementedError("JoinReducer does not support sequence reduction")
