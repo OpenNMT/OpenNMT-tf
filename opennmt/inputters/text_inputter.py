@@ -176,29 +176,40 @@ def tokens_to_chars(tokens):
   def _string_len(token):
     return len(token.decode("utf-8"))
 
-  # Get the length of each token.
-  lengths = tf.map_fn(
-      lambda x: tf.py_func(_string_len, [x], tf.int64),
-      tokens,
-      dtype=tf.int64,
-      back_prop=False)
+  def _apply():
+    # Get the length of each token.
+    lengths = tf.map_fn(
+        lambda x: tf.py_func(_string_len, [x], tf.int64),
+        tokens,
+        dtype=tf.int64,
+        back_prop=False)
 
-  max_length = tf.reduce_max(lengths)
+    max_length = tf.reduce_max(lengths)
 
-  # Add a delimiter between each unicode character.
-  spaced_chars = tf.map_fn(
-      lambda x: tf.py_func(_split_chars, [x, max_length], [tf.string]),
-      tokens,
-      dtype=[tf.string],
-      back_prop=False)
+    # Add a delimiter between each unicode character.
+    spaced_chars = tf.map_fn(
+        lambda x: tf.py_func(_split_chars, [x, max_length], [tf.string]),
+        tokens,
+        dtype=[tf.string],
+        back_prop=False)
 
-  # Split on this delimiter
-  chars = tf.map_fn(
-      lambda x: tf.string_split(x, delimiter=" ").values,
-      spaced_chars,
-      dtype=tf.string,
-      back_prop=False)
+    # Split on this delimiter
+    chars = tf.map_fn(
+        lambda x: tf.string_split(x, delimiter=" ").values,
+        spaced_chars,
+        dtype=tf.string,
+        back_prop=False)
 
+    return chars, lengths
+
+  def _none():
+    chars = tf.constant([], dtype=tf.string)
+    lengths = tf.constant([], dtype=tf.int64)
+    return chars, lengths
+
+  chars, lengths = tf.cond(tf.equal(tf.shape(tokens)[0], 0), true_fn=_none, false_fn=_apply)
+  chars.set_shape([None, None])
+  lengths.set_shape([None])
   return chars, lengths
 
 
