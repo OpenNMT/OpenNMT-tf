@@ -17,11 +17,15 @@ class InputterTest(tf.test.TestCase):
 
   def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
     expected_chars = [[tf.compat.as_bytes(c) for c in w] for w in expected_chars]
-    chars, lengths = text_inputter.tokens_to_chars(tf.constant(tokens))
+    tokens = tf.placeholder_with_default(tokens, shape=[None])
+    chars, lengths = text_inputter.tokens_to_chars(tokens)
     with self.test_session() as sess:
       chars, lengths = sess.run([chars, lengths])
-      self.assertAllEqual(expected_chars, chars)
-      self.assertAllEqual(expected_lengths, lengths)
+      self.assertListEqual(expected_chars, chars.tolist())
+      self.assertListEqual(expected_lengths, lengths.tolist())
+
+  def testTokensToCharsEmpty(self):
+    self._testTokensToChars([], [], [])
 
   def testTokensToCharsSingle(self):
     self._testTokensToChars(["Hello"], [["H", "e", "l", "l", "o"]], [5])
