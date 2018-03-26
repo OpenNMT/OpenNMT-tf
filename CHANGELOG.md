@@ -16,6 +16,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Label smoothing schedule
+
 ### Fixes and improvements
 
 * Fix error when using FP16 and an `AttentionMechanism` module (for TensorFlow 1.5+)

@@ -61,6 +61,13 @@ params:
   scheduled_sampling_k: 0
   # (optional) The label smoothing value.
   label_smoothing: 0.1
+  # or can also be a schedule:
+  label_smoothing:
+    initial_value: 0.0  # Initial value of the label smoothing.
+    schedule: linear  # Type of scheduling (only linear currently).
+    target_value: 0.1  # Target value of the label smoothing.
+    warmup_steps: 1000  # Start converging to target_value after this many steps.
+    gain_steps: 10000  # Converge to target_value in this many steps.
   # (optional) Width of the beam search (default: 1).
   beam_width: 5
   # (optional) Length penaly weight to apply on hypotheses (default: 0).

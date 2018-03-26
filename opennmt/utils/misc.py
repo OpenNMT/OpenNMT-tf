@@ -91,6 +91,41 @@ def extract_batches(tensors):
           key: value[b] for key, value in six.iteritems(tensors)
       }
 
+def linear_schedule(global_step,
+                    initial_value,
+                    target_value=None,
+                    delay_steps=None,
+                    gain_steps=None,
+                    dtype=tf.float32):
+  """Defines a linear scheduling function.
+
+  Args:
+    global_step: The current training step.
+    initial_value: The initial value of the function.
+    target_value: The target value of the function. If ``None``, the function
+      will return the constant :obj:`initial_value` for every steps.
+    delay_steps: Start converging linearly to :obj:`target_value` after this
+      many steps. If ``None``, the convergence is not delayed.
+    gain_steps: Move from :obj:`initial_value` to :obj:`target_value` in this
+      many steps. If ``None``, the function will take the value
+      :obj:`target_value` at the step :obj:`delay_steps` + 1.
+    dtype: The dtype of the function value.
+
+  Returns:
+    A :obj:`dtype` ``tf.Tensor`` containing the value of the linear function.
+  """
+  initial_value = float(initial_value)
+  if target_value is None:
+    return tf.constant(initial_value, dtype=dtype)
+  if delay_steps is None:
+    delay_steps = 0
+  if gain_steps is None:
+    gain_steps = 1
+  target_value = float(target_value)
+  slope = (target_value - initial_value) / gain_steps
+  step = tf.minimum(tf.maximum(global_step - delay_steps, 0), gain_steps)
+  return tf.cast(step, dtype=dtype) * slope + initial_value
+
 
 # The next 2 functions come with the following license and copyright:
 
