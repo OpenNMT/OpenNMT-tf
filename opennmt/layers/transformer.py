@@ -63,15 +63,13 @@ def build_future_mask(sequence_length,
   """
   if num_heads is not None:
     sequence_length = tile_sequence_length(sequence_length, num_heads)
-  if maximum_length is None:
-    maximum_length = tf.reduce_max(sequence_length)
-  mask = tf.map_fn(
-      lambda x: tf.sequence_mask(
-          tf.minimum(tf.range(maximum_length) + 1, x),
-          maxlen=maximum_length,
-          dtype=dtype),
-      sequence_length,
-      dtype=dtype)
+  sequence_mask = tf.sequence_mask(sequence_length, maxlen=maximum_length, dtype=dtype)
+  shape = tf.shape(sequence_mask)
+  batch_size = shape[0]
+  max_time = shape[1]
+  mask = tf.ones([batch_size, max_time, max_time], dtype=dtype)
+  mask = tf.matrix_band_part(mask, -1, 0)
+  mask *= tf.expand_dims(sequence_mask, axis=1)
   if num_heads is not None:
     mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
   return mask
