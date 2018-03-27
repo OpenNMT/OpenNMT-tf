@@ -175,9 +175,9 @@ class AdafactorOptimizer(tf.train.Optimizer):
 
   def _apply_dense(self, grad, var):
     return self._resource_apply_dense(grad, var)
+
   def _apply_sparse(self, grad, var):
-    print(grad, var)
-    raise NotImplementedError()
+    return self._apply_dense(tf.convert_to_tensor(grad), var)
 
   def _parameter_scale(self, var):
     """Estimate the scale of the parameters from the current values.
