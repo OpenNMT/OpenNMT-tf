@@ -18,6 +18,10 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.0.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.2) (2018-03-28)
+
+### Fixes and improvements
+
 * Fix the encoder state structure when RNN encoders are combined (e.g. in `SequentialEncoder`)
 * Fix `CharConvEmbedder` error on empty sequences
 * Fix `Adafactor` crash on sparse updates, automatically fallback to dense updates instead
