@@ -92,7 +92,7 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix, dtype=np.flo
 
     return None, None
 
-  with io.open(ark_filename, encoding="utf-8") as ark_file, open(text_filename, encoding="utf-8") as text_file:
+  with io.open(ark_filename, encoding="utf-8") as ark_file, open(text_filename, encoding="utf-8") as text_file: #pylint: disable=line-too-long
     while True:
       ark_idx, vector = consume_next_vector(ark_file, dtype=dtype)
       text_idx, text = consume_next_text(text_file)
