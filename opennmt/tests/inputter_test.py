@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import io
 import os
 import six
 
@@ -40,11 +41,11 @@ class InputterTest(tf.test.TestCase):
     embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
 
-    with open(embedding_file, "w") as embedding:
+    with io.open(embedding_file, encoding="utf-8", mode="w") as embedding:
       embedding.write("toto 1 1\n"
                       "titi 2 2\n"
                       "tata 3 3\n")
-    with open(vocab_file, "w") as vocab:
+    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
       vocab.write("Toto\n"
                   "tOTO\n"
                   "tata\n"
@@ -74,12 +75,12 @@ class InputterTest(tf.test.TestCase):
     embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
 
-    with open(embedding_file, "w") as embedding:
+    with io.open(embedding_file, encoding="utf-8", mode="w") as embedding:
       embedding.write("3 2\n"
                       "toto 1 1\n"
                       "titi 2 2\n"
                       "tata 3 3\n")
-    with open(vocab_file, "w") as vocab:
+    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
       vocab.write("Toto\n"
                   "tOTO\n"
                   "tata\n"
@@ -123,12 +124,12 @@ class InputterTest(tf.test.TestCase):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
     data_file = os.path.join(self.get_temp_dir(), "data.txt")
 
-    with open(vocab_file, "w") as vocab:
+    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
       vocab.write("the\n"
                   "world\n"
                   "hello\n"
                   "toto\n")
-    with open(data_file, "w") as data:
+    with io.open(data_file, encoding="utf-8", mode="w") as data:
       data.write("hello world !\n")
 
     embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
@@ -152,13 +153,13 @@ class InputterTest(tf.test.TestCase):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
     data_file = os.path.join(self.get_temp_dir(), "data.txt")
 
-    with open(vocab_file, "w") as vocab:
+    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
       vocab.write("h\n"
                   "e\n"
                   "l\n"
                   "w\n"
                   "o\n")
-    with open(data_file, "w") as data:
+    with io.open(data_file, encoding="utf-8", mode="w") as data:
       data.write("hello world !\n")
 
     embedder = text_inputter.CharConvEmbedder("vocabulary_file", 10, 5)
@@ -184,12 +185,12 @@ class InputterTest(tf.test.TestCase):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
     data_file = os.path.join(self.get_temp_dir(), "data.txt")
 
-    with open(vocab_file, "w") as vocab:
+    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
       vocab.write("the\n"
                   "world\n"
                   "hello\n"
                   "toto\n")
-    with open(data_file, "w") as data:
+    with io.open(data_file, encoding="utf-8", mode="w") as data:
       data.write("hello world !\n")
 
     data_files = [data_file, data_file]
@@ -223,18 +224,18 @@ class InputterTest(tf.test.TestCase):
     vocab_alt_file = os.path.join(self.get_temp_dir(), "vocab_alt.txt")
     data_file = os.path.join(self.get_temp_dir(), "data.txt")
 
-    with open(vocab_file, "w") as vocab:
+    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
       vocab.write("the\n"
                   "world\n"
                   "hello\n"
                   "toto\n")
-    with open(vocab_alt_file, "w") as vocab_alt:
+    with io.open(vocab_alt_file, encoding="utf-8", mode="w") as vocab_alt:
       vocab_alt.write("h\n"
                       "e\n"
                       "l\n"
                       "w\n"
                       "o\n")
-    with open(data_file, "w") as data:
+    with io.open(data_file, encoding="utf-8", mode="w") as data:
       data.write("hello world !\n")
 
     mixed_inputter = inputter.MixedInputter([
