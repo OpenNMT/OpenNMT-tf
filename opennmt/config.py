@@ -2,6 +2,7 @@
 
 from importlib import import_module
 
+import io
 import os
 import pickle
 import sys
@@ -80,7 +81,7 @@ def load_config(config_paths, config=None):
     config = {}
 
   for config_path in config_paths:
-    with open(config_path) as config_file:
+    with io.open(config_path, encoding="utf-8") as config_file:
       subconfig = yaml.load(config_file.read())
 
       # Add or update section in main configuration.
