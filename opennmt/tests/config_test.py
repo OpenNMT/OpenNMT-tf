@@ -24,7 +24,7 @@ class ConfigTest(tf.test.TestCase):
       try:
         config_file.write(yaml.dump(config2))
       except TypeError:
-        config_file.write(unicode(yaml.dump(config1)))
+        config_file.write(unicode(yaml.dump(config2)))
 
     loaded_config = config.load_config([config_file_1, config_file_2])
 
