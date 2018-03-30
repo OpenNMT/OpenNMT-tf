@@ -7,6 +7,7 @@ to write aligned source and target data.
 from __future__ import print_function
 
 import argparse
+import io
 import numpy as np
 import tensorflow as tf
 
@@ -68,7 +69,7 @@ def write_text(text, writer):
 def ark_to_records_aligned(ark_filename, text_filename, out_prefix, dtype=np.float32):
   """Converts ARK and text datasets to aligned TFRecords and text datasets."""
   record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
-  text_writer = open(out_prefix + ".txt", "w")
+  text_writer = io.open(out_prefix + ".txt", encoding="utf-8", mode="w")
 
   ark_buffer = {}
   text_buffer = {}
@@ -91,7 +92,7 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix, dtype=np.flo
 
     return None, None
 
-  with open(ark_filename) as ark_file, open(text_filename) as text_file:
+  with io.open(ark_filename, encoding="utf-8") as ark_file, open(text_filename, encoding="utf-8") as text_file: #pylint: disable=line-too-long
     while True:
       ark_idx, vector = consume_next_vector(ark_file, dtype=dtype)
       text_idx, text = consume_next_text(text_file)
@@ -136,7 +137,7 @@ def ark_to_records(ark_filename, out_prefix, dtype=np.float32):
   record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
   count = 0
 
-  with open(ark_filename) as ark_file:
+  with io.open(ark_filename, encoding="utf-8") as ark_file:
     while True:
       ark_idx, vector = consume_next_vector(ark_file, dtype=dtype)
       if not ark_idx:
