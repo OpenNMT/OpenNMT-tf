@@ -19,6 +19,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * Make `Runner.export` return the path to the export directory
+* Fix missing modules when running `python setup.py install`
 
 ## [1.0.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.2) (2018-03-28)
 
