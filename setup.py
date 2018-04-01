@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="OpenNMT-tf",
@@ -15,5 +15,5 @@ setup(
         "nose2"
     ],
     test_suite="nose2.collector.collector",
-    packages=["opennmt"]
+    packages=find_packages(exclude=["bin", "*.tests"])
 )
