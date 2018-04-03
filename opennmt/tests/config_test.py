@@ -1,4 +1,3 @@
-import io
 import os
 import yaml
 
@@ -15,16 +14,10 @@ class ConfigTest(tf.test.TestCase):
     config_file_1 = os.path.join(self.get_temp_dir(), "config1.yml")
     config_file_2 = os.path.join(self.get_temp_dir(), "config2.yml")
 
-    with io.open(config_file_1, encoding="utf-8", mode="w") as config_file:
-      try:
-        config_file.write(yaml.dump(config1))
-      except TypeError:
-        config_file.write(unicode(yaml.dump(config1)))
-    with io.open(config_file_2, encoding="utf-8", mode="w") as config_file:
-      try:
-        config_file.write(yaml.dump(config2))
-      except TypeError:
-        config_file.write(unicode(yaml.dump(config2)))
+    with open(config_file_1, mode="wb") as config_file:
+      config_file.write(tf.compat.as_bytes(yaml.dump(config1)))
+    with open(config_file_2, mode="wb") as config_file:
+      config_file.write(tf.compat.as_bytes(yaml.dump(config2)))
 
     loaded_config = config.load_config([config_file_1, config_file_2])
 
