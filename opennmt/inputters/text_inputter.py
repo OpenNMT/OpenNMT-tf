@@ -40,12 +40,12 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
   shutil.copy(vocabulary_file, destination)
 
   # Append <unk> tokens.
-  with io.open(destination, encoding="utf-8", mode="a") as vocab:
+  with open(destination, mode="ab") as vocab:
     if num_oov_buckets == 1:
-      vocab.write("<unk>\n")
+      vocab.write(b"<unk>\n")
     else:
       for i in range(num_oov_buckets):
-        vocab.write("<unk{}>\n".format(i))
+        vocab.write(b"<unk{}>\n".format(i))
 
   config = projector.ProjectorConfig()
 
