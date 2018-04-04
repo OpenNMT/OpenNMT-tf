@@ -60,7 +60,9 @@ autodoc_member_order = "bysource"
 napoleon_include_init_with_doc = True
 napoleon_include_special_with_doc = True
 
-scv_whitelist_branches = ('master',)
+scv_whitelist_branches = (,)
+scv_sort = ("semver",)
+scv_greatest_tag = True
 
 def setup(app):
   app.add_stylesheet("custom.css")
