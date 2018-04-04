@@ -26,7 +26,7 @@ Parameters are described in separate YAML files. They define data files, optimiz
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
 
 ```bash
-python -m bin.main [...] --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml config/data/toy-ende.yml
+onmt-main [...] --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml config/data/toy-ende.yml
 ```
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
@@ -34,5 +34,5 @@ If a configuration key is duplicated, the value defined in the rightmost configu
 If you are unsure about the configuration that is actually used or simply prefer working with a single file, consider using the `merge_config` script:
 
 ```bash
-python -m bin.merge_config config/opennmt-defaults.yml config/optim/adam_with_decay.yml config/data/toy-ende.yml > config/my_config.yml
+onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml config/data/toy-ende.yml > config/my_config.yml
 ```

@@ -24,7 +24,7 @@ The name of this site , and program name Title purchased will not be displayed .
 
 ### Vectors
 
-The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *TFRecords*. To simplify the preparation of these data, the script `bin/ark_to_records.py` can be used to convert vectors serialized in the ARK text format:
+The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *TFRecords*. To simplify the preparation of these data, the script `onmt-ark-to-records` can be used to convert vectors serialized in the ARK text format:
 
 ```text
 KEY [
@@ -35,7 +35,7 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 
 which describes an example of `m` vectors of depth `n` and identified by `KEY`.
 
-See `python -m bin.ark_to_records -h` for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with `KEY`s) to generate aligned source vectors and target texts.
+See `onmt-ark-to-records -h` for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with `KEY`s) to generate aligned source vectors and target texts.
 
 ## Parallel inputs
 
