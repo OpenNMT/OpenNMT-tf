@@ -15,16 +15,16 @@ setup(
         "nose2"
     ],
     test_suite="nose2.collector.collector",
-    packages=find_packages(exclude=["*.tests"]),
+    packages=find_packages(exclude=["bin", "*.tests"]),
     entry_points={
         "console_scripts": [
-            "bin.ark_to_records=opennmt.bin.ark_to_records:main",
-            "bin.average_checkpoints=opennmt.bin.average_checkpoints:main",
-            "bin.build_vocab=opennmt.bin.build_vocab:main",
-            "bin.detokenize_text=opennmt.bin.detokenize_text:main",
-            "bin.main=opennmt.bin.main:main",
-            "bin.merge_config=opennmt.bin.merge_config:main",
-            "bin.tokenize_text=opennmt.bin.tokenize_text:main",
+            "onmt-ark-to-records=opennmt.bin.ark_to_records:main",
+            "onmt-average-checkpoints=opennmt.bin.average_checkpoints:main",
+            "onmt-build-vocab=opennmt.bin.build_vocab:main",
+            "onmt-detokenize-text=opennmt.bin.detokenize_text:main",
+            "onmt-main=opennmt.bin.main:main",
+            "onmt-merge-config=opennmt.bin.merge_config:main",
+            "onmt-tokenize-text=opennmt.bin.tokenize_text:main",
         ],
     }
 )
