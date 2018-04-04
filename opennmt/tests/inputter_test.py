@@ -30,7 +30,7 @@ class InputterTest(tf.test.TestCase):
       vocab_file = os.path.join(self.get_temp_dir(), vocab_filename)
       with open(vocab_file, mode="wb") as vocab:
         for i in range(vocab_size):
-          vocab.write(b"%d\n" % i)
+          vocab.write(tf.compat.as_bytes("%d\n" % i))
       variable = tf.get_variable(name, shape=[vocab_size + num_oov_buckets, 4])
       return variable, vocab_file
 
