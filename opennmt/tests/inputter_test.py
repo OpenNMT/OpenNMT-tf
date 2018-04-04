@@ -7,14 +7,68 @@ import six
 import tensorflow as tf
 import numpy as np
 
+from tensorflow.contrib.tensorboard.plugins import projector
+
+from google.protobuf import text_format
+
 from opennmt.constants import PADDING_TOKEN as PAD
 from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
 from opennmt.utils import data
-from opennmt.utils.misc import item_or_tuple
+from opennmt.utils.misc import item_or_tuple, count_lines
 
 
 class InputterTest(tf.test.TestCase):
+
+  def testVisualizeEmbeddings(self):
+    log_dir = os.path.join(self.get_temp_dir(), "log")
+    if not os.path.exists(log_dir):
+      os.mkdir(log_dir)
+
+    def _create_embedding(name, vocab_filename, num_oov_buckets=1):
+      vocab_size = 10
+      vocab_file = os.path.join(self.get_temp_dir(), vocab_filename)
+      with open(vocab_file, mode="wb") as vocab:
+        for i in range(vocab_size):
+          vocab.write(b"%d\n" % i)
+      variable = tf.get_variable(name, shape=[vocab_size + num_oov_buckets, 4])
+      return variable, vocab_file
+
+    def _visualize(embedding, vocab_file, num_oov_buckets=1):
+      text_inputter.visualize_embeddings(
+          log_dir, embedding, vocab_file, num_oov_buckets=num_oov_buckets)
+      projector_config = projector.ProjectorConfig()
+      projector_config_path = os.path.join(log_dir, "projector_config.pbtxt")
+      vocab_file = os.path.join(log_dir, os.path.basename(vocab_file))
+      self.assertTrue(os.path.exists(projector_config_path))
+      self.assertTrue(os.path.exists(vocab_file))
+      self.assertEqual(embedding.get_shape().as_list()[0], count_lines(vocab_file))
+      with io.open(projector_config_path, encoding="utf-8") as projector_config_file:
+        text_format.Merge(projector_config_file.read(), projector_config)
+      return projector_config
+
+    # Register an embedding variable.
+    src_embedding, src_vocab_file = _create_embedding("src_emb", "src_vocab.txt")
+    projector_config = _visualize(src_embedding, src_vocab_file)
+    self.assertEqual(1, len(projector_config.embeddings))
+    self.assertEqual(src_embedding.name, projector_config.embeddings[0].tensor_name)
+    self.assertEqual("src_vocab.txt", projector_config.embeddings[0].metadata_path)
+
+    # Register a second embedding variable.
+    tgt_embedding, tgt_vocab_file = _create_embedding(
+        "tgt_emb", "tgt_vocab.txt", num_oov_buckets=2)
+    projector_config = _visualize(tgt_embedding, tgt_vocab_file, num_oov_buckets=2)
+    self.assertEqual(2, len(projector_config.embeddings))
+    self.assertEqual(tgt_embedding.name, projector_config.embeddings[1].tensor_name)
+    self.assertEqual("tgt_vocab.txt", projector_config.embeddings[1].metadata_path)
+
+    # Update an existing embedding variable with another vocabulary path.
+    new_src_vocab_file = os.path.join(self.get_temp_dir(), "src_vocab_new.txt")
+    os.rename(src_vocab_file, new_src_vocab_file)
+    projector_config = _visualize(src_embedding, new_src_vocab_file)
+    self.assertEqual(2, len(projector_config.embeddings))
+    self.assertEqual(src_embedding.name, projector_config.embeddings[0].tensor_name)
+    self.assertEqual("src_vocab_new.txt", projector_config.embeddings[0].metadata_path)
 
   def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
     expected_chars = [[tf.compat.as_bytes(c) for c in w] for w in expected_chars]

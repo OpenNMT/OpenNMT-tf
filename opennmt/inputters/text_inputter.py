@@ -45,7 +45,7 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
       vocab.write(b"<unk>\n")
     else:
       for i in range(num_oov_buckets):
-        vocab.write(b"<unk{}>\n".format(i))
+        vocab.write(b"<unk%d>\n" % i)
 
   config = projector.ProjectorConfig()
 
