@@ -29,8 +29,19 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 
 ## Requirements
 
-* `tensorflow` (`1.4`)
-* `pyyaml`
+* `tensorflow` (>= 1.4)
+
+## Installation
+
+```bash
+pip install OpenNMT-tf
+```
+
+Or if `pip` can't find the package, install directly from GitHub:
+
+```bash
+pip install git+https://github.com/OpenNMT/OpenNMT-tf.git
+```
 
 ## Overview
 
@@ -43,7 +54,7 @@ A minimal OpenNMT-tf run consists of 3 elements:
 that are passed to the main script:
 
 ```
-python -m bin.main <run_type> --model <model_file.py> --config <config_file.yml>
+onmt-main <run_type> --model <model_file.py> --config <config_file.yml>
 ```
 
 * For more information about configuration files, see the [documentation](http://opennmt.net/OpenNMT-tf/configuration.html).
@@ -56,20 +67,20 @@ Here is a minimal workflow to get you started in using OpenNMT-tf. This example 
 1\. Build the word vocabularies:
 
 ```
-python -m bin.build_vocab --size 50000 --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
-python -m bin.build_vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
+onmt-build-vocab --size 50000 --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
+onmt-build-vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
 ```
 
 2\. Train with preset parameters:
 
 ```
-python -m bin.main train_and_eval --model config/models/nmt_small.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
+onmt-main train_and_eval --model config/models/nmt_small.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
 ```
 
 3\. Translate a test file with the latest checkpoint:
 
 ```
-python -m bin.main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --features_file data/toy-ende/src-test.txt
+onmt-main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --features_file data/toy-ende/src-test.txt
 ```
 
 **Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.

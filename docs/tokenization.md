@@ -4,42 +4,20 @@ OpenNMT-tf can use the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer)
 
 ## Installation
 
-The following tools and packages are required:
+*Note: we plan to release a package on PyPi to facilitate the installation of this plugin.*
 
-* C++11 compiler
-* CMake
-* Boost.Python
+1\. Follow the Tokenizer [installation instructions](https://github.com/OpenNMT/Tokenizer) with [Python bindings](https://github.com/OpenNMT/Tokenizer/tree/master/bindings/python).
 
-On Ubuntu, these packages can be installed with `apt-get`:
+2\. Configure your environment for Python to find the newly generated package, e.g.:
 
 ```bash
-sudo apt-get install build-essential gcc cmake libboost-python-dev
+export PYTHONPATH="$PYTHONPATH:$HOME/Tokenizer/build/bindings/python/"
 ```
 
-1\. Fetch the Tokenizer plugin under OpenNMT-tf repository:
+3\. Test the plugin:
 
 ```bash
-git submodule update --init
-```
-
-2\. Compile the tokenizer plugin:
-
-```bash
-mkdir build && cd build
-cmake .. && make
-cd ..
-```
-
-3\. Configure your environment for Python to find the newly generated package:
-
-```bash
-export PYTHONPATH="$PYTHONPATH:$HOME/OpenNMT-tf/build/third_party/OpenNMTTokenizer/bindings/python/"
-```
-
-4\. Test the plugin:
-
-```bash
-$ echo "Hello world!" | python -m bin.tokenize_text --tokenizer OpenNMTTokenizer
+$ echo "Hello world!" | onmt-tokenize-text --tokenizer OpenNMTTokenizer
 Hello world !
 ```
 
@@ -52,8 +30,8 @@ Here is an example workflow:
 1\. Build the vocabularies with the custom tokenizer, e.g.:
 
 ```bash
-python -m bin.build_vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml --size 50000 --save_vocab data/enfr/en-vocab.txt data/enfr/en-train.txt
-python -m bin.build_vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml --size 50000 --save_vocab data/enfr/fr-vocab.txt data/enfr/fr-train.txt
+onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml --size 50000 --save_vocab data/enfr/en-vocab.txt data/enfr/en-train.txt
+onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml --size 50000 --save_vocab data/enfr/fr-vocab.txt data/enfr/fr-train.txt
 ```
 
 *The text files are only given as examples and are not part of the repository.*
