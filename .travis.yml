@@ -5,7 +5,11 @@ python:
   - "3.5"
   - "3.6"
 env:
-  - MAIN_PYTHON_VERSION="2.7"
+  global:
+    - MAIN_PYTHON_VERSION="2.7"
+  matrix:
+    - TF_VERSION="1.6.*"
+    - TF_VERSION="1.7.*"
 addons:
   apt:
     sources:
@@ -18,7 +22,7 @@ addons:
       - cmake-data
       - libboost-python-dev
 before_install:
-  - pip install tensorflow==1.6.0
+  - pip install tensorflow==$TF_VERSION
   - pip install pyyaml
   - pip install nose2
   - |
