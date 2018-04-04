@@ -5,7 +5,12 @@ python:
   - "3.5"
   - "3.6"
 env:
-  - MAIN_PYTHON_VERSION="2.7"
+  global:
+    - MAIN_PYTHON_VERSION="2.7"
+    - MAIN_TF_VERSION="1.6.*"
+  matrix:
+    - TF_VERSION="1.6.*"
+    - TF_VERSION="1.7.*"
 addons:
   apt:
     sources:
@@ -18,11 +23,11 @@ addons:
       - cmake-data
       - libboost-python-dev
 before_install:
-  - pip install tensorflow==1.6.0
+  - pip install tensorflow==$TF_VERSION
   - pip install pyyaml
   - pip install nose2
   - |
-        if [ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" ]; then
+        if [ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]; then
             pip install pylint==1.8.2
             pip install sphinx==1.6.7
             pip install sphinxcontrib-versioning
@@ -38,10 +43,10 @@ install:
   - cd ..
 script:
   - nose2
-  - if [ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" ]; then pylint opennmt/ bin/; fi
+  - if [ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]; then pylint opennmt/ bin/; fi
 after_success:
   - |
-        if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && ("$TRAVIS_BRANCH" == "master" || -n $TRAVIS_TAG) ]]; then
+        if [[ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" && -n $TRAVIS_TAG ]]; then
             eval "$(ssh-agent -s)"; touch docs/key; chmod 0600 docs/key
             openssl aes-256-cbc -K $encrypted_6389583f9019_key -iv $encrypted_6389583f9019_iv -in docs/key.enc -out docs/key -d && ssh-add docs/key
             git config --global user.email "builds@travis-ci.com"

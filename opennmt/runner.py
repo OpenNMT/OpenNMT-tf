@@ -1,5 +1,6 @@
 """Main library entrypoint."""
 
+import io
 import os
 import sys
 import random
@@ -175,7 +176,7 @@ class Runner(object):
         prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size", 1))
 
     if predictions_file:
-      stream = open(predictions_file, "w")
+      stream = io.open(predictions_file, encoding="utf-8", mode="w")
     else:
       stream = sys.stdout
 

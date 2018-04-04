@@ -1,6 +1,7 @@
 """Custom hooks."""
 
 from __future__ import print_function
+import io
 
 import tensorflow as tf
 
@@ -129,7 +130,7 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
   def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
     predictions, self._current_step = run_values.results
     self._output_path = "{}.{}".format(self._output_file, self._current_step)
-    with open(self._output_path, "a") as output_file:
+    with io.open(self._output_path, encoding="utf-8", mode="a") as output_file:
       for prediction in misc.extract_batches(predictions):
         self._model.print_prediction(prediction, stream=output_file)
 

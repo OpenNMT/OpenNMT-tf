@@ -3,6 +3,7 @@
 import subprocess
 
 import abc
+import io
 import re
 import os
 import six
@@ -78,7 +79,7 @@ class BLEUEvaluator(ExternalEvaluator):
       tf.logging.warning("%s", str(e))
       return None
     try:
-      with open(predictions_path, "r") as predictions_file:
+      with io.open(predictions_path, encoding="utf-8", mode="r") as predictions_file:
         bleu_out = subprocess.check_output(
             [os.path.join(third_party_dir, bleu_script), labels_file],
             stdin=predictions_file,
