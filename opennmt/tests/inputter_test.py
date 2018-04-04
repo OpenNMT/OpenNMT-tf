@@ -203,6 +203,40 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([[2, 1, 4]], features["ids"])
       self.assertAllEqual([1, 3, 10], transformed.shape)
 
+  def testWordEmbedderWithPretrainedEmbeddings(self):
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+    data_file = os.path.join(self.get_temp_dir(), "data.txt")
+    embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
+
+    with io.open(embedding_file, encoding="utf-8", mode="w") as embedding:
+      embedding.write(u"hello 1 1\n"
+                      u"world 2 2\n"
+                      u"toto 3 3\n")
+    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
+      vocab.write(u"the\n"
+                  u"world\n"
+                  u"hello\n"
+                  u"toto\n")
+    with io.open(data_file, encoding="utf-8", mode="w") as data:
+      data.write(u"hello world !\n")
+
+    embedder = text_inputter.WordEmbedder(
+        "vocabulary_file",
+        embedding_file_key="embedding_file",
+        embedding_file_with_header=False)
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata={"vocabulary_file": vocab_file, "embedding_file": embedding_file},
+        shapes={"ids": [None, None], "length": [None]})
+
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      sess.run(tf.global_variables_initializer())
+      features, transformed = sess.run([features, transformed])
+      self.assertAllEqual([1, 1], transformed[0][0])
+      self.assertAllEqual([2, 2], transformed[0][1])
+
   def testCharConvEmbedder(self):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
     data_file = os.path.join(self.get_temp_dir(), "data.txt")
