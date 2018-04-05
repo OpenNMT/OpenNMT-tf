@@ -32,8 +32,8 @@ setup(
         "pyyaml"
     ],
     extras_require={
-        "tensorflow": ["tensorflow>=1.6.0"],
-        "tensorflow_gpu": ["tensorflow-gpu>=1.6.0"]
+        "tensorflow": ["tensorflow>=1.4.0"],
+        "tensorflow_gpu": ["tensorflow-gpu>=1.4.0"]
     },
     tests_require=[
         "nose2"

@@ -14,7 +14,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Breaking changes
 
-* Update minimum required TensorFlow version from 1.4 to 1.6
+### New features
 
 ### Fixes and improvements
 
