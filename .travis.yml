@@ -39,6 +39,8 @@ before_install:
             pip install sphinxcontrib-versioning
             pip install sphinx_rtd_theme
             pip install recommonmark
+            pip install wheel
+            pip install twine
         fi
 install:
   - export CXX="g++-4.8" CC="gcc-4.8"
@@ -59,4 +61,6 @@ after_success:
             git config --global user.name "Travis CI"
             git remote set-url --push origin "git@github.com:$TRAVIS_REPO_SLUG"
             sphinx-versioning push -e .nojekyll docs gh-pages .
+            python setup.py bdist_wheel --universal
+            twine upload dist/*
         fi
