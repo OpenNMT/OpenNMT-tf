@@ -61,6 +61,6 @@ after_success:
             git config --global user.name "Travis CI"
             git remote set-url --push origin "git@github.com:$TRAVIS_REPO_SLUG"
             sphinx-versioning push -e .nojekyll docs gh-pages .
-            python setup.py bdist_wheel --universal
+            python setup.py sdist bdist_wheel --universal
             twine upload dist/*
         fi
