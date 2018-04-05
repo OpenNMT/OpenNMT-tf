@@ -14,9 +14,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Breaking changes
 
-* Update minimum required TensorFlow version from 1.4 to 1.6
+### New features
 
 ### Fixes and improvements
+
+* Fix error when using FP16 and an `AttentionMechanism` module (for TensorFlow 1.5+)
+* Manual export will remove default-valued attributes from the NodeDefs (for TensorFlow 1.6+)
+* Silence some deprecation warnings with recent TensorFlow versions
 
 ## [1.0.3](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.3) (2018-04-02)
 
@@ -43,5 +47,3 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ## [1.0.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.0) (2018-03-14)
 
 Initial stable release.
-
-This is the latest major release compatible with TensorFlow 1.4.

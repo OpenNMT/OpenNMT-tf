@@ -8,6 +8,8 @@ import random
 import numpy as np
 import tensorflow as tf
 
+from tensorflow.python.estimator.util import fn_args
+
 from opennmt.utils import hooks
 from opennmt.utils.evaluator import external_evaluation_fn
 
@@ -202,8 +204,14 @@ class Runner(object):
     if not os.path.isdir(export_dir):
       os.makedirs(export_dir)
 
+    kwargs = {}
+    if "strip_default_attrs" in fn_args(self._estimator.export_savedmodel):
+      # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
+      # with the behavior of tf.estimator.Exporter.
+      kwargs["strip_default_attrs"] = True
+
     return self._estimator.export_savedmodel(
         os.path.join(export_dir, "manual"),
         self._model.serving_input_fn(self._config["data"]),
         checkpoint_path=checkpoint_path,
-        strip_default_attrs=True)
+        **kwargs)

@@ -48,4 +48,4 @@ In particular, the provided configuration makes the server run a batch translati
 
 This explains why running the command above, the first 2 translations were received immediately (`max_batch_size` reached) and the third came 5 seconds later (`batch_timeout_micros` reached).
 
-For more information, see the [TensorFlow Serving Batching Guide](https://github.com/tensorflow/serving/tree/r1.6/tensorflow_serving/batching).
+For more information, see the [TensorFlow Serving Batching Guide](https://github.com/tensorflow/serving/tree/master/tensorflow_serving/batching).
