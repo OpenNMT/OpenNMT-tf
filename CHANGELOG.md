@@ -16,6 +16,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Update the OpenNMT tokenizer to 1.3.0 and use its Python package instead of requiring a manual compilation (Linux only)
+
 ### Fixes and improvements
 
 * Fix error when using FP16 and an `AttentionMechanism` module (for TensorFlow 1.5+)
