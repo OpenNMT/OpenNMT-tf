@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 
-from opennmt.tokenizers import SpaceTokenizer, CharacterTokenizer
+from opennmt.tokenizers import SpaceTokenizer, CharacterTokenizer, OpenNMTTokenizer
 
 
 class TokenizerTest(tf.test.TestCase):
@@ -67,6 +67,13 @@ class TokenizerTest(tf.test.TestCase):
     self._testTokenizer(CharacterTokenizer(), "a b", ["a", "▁", "b"])
     self._testDetokenizer(CharacterTokenizer(), [["a", "▁", "b"]], ["a b"])
     self._testTokenizer(CharacterTokenizer(), "你好，世界！", ["你", "好", "，", "世", "界", "！"])
+
+  def testOpenNMTTokenizer(self):
+    self._testTokenizer(OpenNMTTokenizer(), "Hello world!", ["Hello", "world", "!"])
+    self._testDetokenizer(
+        OpenNMTTokenizer(),
+        [["Hello", "world", "￭!"], ["Test"], ["My", "name"]],
+        ["Hello world!", "Test", "My name"])
 
 
 if __name__ == "__main__":

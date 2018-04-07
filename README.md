@@ -37,12 +37,6 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 pip install OpenNMT-tf
 ```
 
-Or if `pip` can't find the package, install directly from GitHub:
-
-```bash
-pip install git+https://github.com/OpenNMT/OpenNMT-tf.git
-```
-
 ## Overview
 
 A minimal OpenNMT-tf run consists of 3 elements:
@@ -58,26 +52,33 @@ onmt-main <run_type> --model <model_file.py> --config <config_file.yml>
 ```
 
 * For more information about configuration files, see the [documentation](http://opennmt.net/OpenNMT-tf/configuration.html).
-* For more information about command line options, see the help flag `python -m bin.main -h`.
+* For more information about command line options, see the help flag `onmt-main -h`.
 
 ## Quickstart
 
 Here is a minimal workflow to get you started in using OpenNMT-tf. This example uses a toy English-German dataset for machine translation.
 
-1\. Build the word vocabularies:
+1\. Clone the repository to fetch the sample data and the predefined configurations:
+
+```
+git clone --depth 1 --branch r1 --single-branch https://github.com/OpenNMT/OpenNMT-tf.git
+cd OpenNMT-tf
+```
+
+2\. Build the word vocabularies:
 
 ```
 onmt-build-vocab --size 50000 --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
 onmt-build-vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
 ```
 
-2\. Train with preset parameters:
+3\. Train with preset parameters:
 
 ```
 onmt-main train_and_eval --model config/models/nmt_small.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
 ```
 
-3\. Translate a test file with the latest checkpoint:
+4\. Translate a test file with the latest checkpoint:
 
 ```
 onmt-main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --features_file data/toy-ende/src-test.txt

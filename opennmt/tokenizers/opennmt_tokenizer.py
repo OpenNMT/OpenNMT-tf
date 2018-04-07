@@ -27,9 +27,11 @@ def create_tokenizer(config):
 
   kwargs = {}
   _set(kwargs, "bpe_model_path")
+  _set(kwargs, "sp_model_path")
   _set(kwargs, "joiner")
   _set(kwargs, "joiner_annotate")
   _set(kwargs, "joiner_new")
+  _set(kwargs, "spacer_annotate")
   _set(kwargs, "case_feature")
   _set(kwargs, "no_substitution")
   _set(kwargs, "segment_case")
