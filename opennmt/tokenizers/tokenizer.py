@@ -7,9 +7,8 @@ import sys
 import os
 import abc
 import six
-import yaml
-
 import tensorflow as tf
+import yaml
 
 from opennmt.utils.misc import print_bytes
 

@@ -6,9 +6,8 @@ import io
 import os
 import pickle
 import sys
-import yaml
-
 import tensorflow as tf
+import yaml
 
 
 def load_model_module(path):
