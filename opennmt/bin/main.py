@@ -7,8 +7,10 @@ import six
 
 import tensorflow as tf
 
+from opennmt.models import catalog
 from opennmt.runner import Runner
 from opennmt.config import load_model, load_config
+from opennmt.utils.misc import classes_in_module
 
 
 def _prefix_paths(prefix, paths):
@@ -39,8 +41,10 @@ def main():
                       help="Run type.")
   parser.add_argument("--config", required=True, nargs="+",
                       help="List of configuration files.")
+  parser.add_argument("--model_type", default="", choices=list(classes_in_module(catalog)),
+                      help="Model type from the catalog.")
   parser.add_argument("--model", default="",
-                      help="Model configuration file.")
+                      help="Custom model configuration file.")
   parser.add_argument("--run_dir", default="",
                       help="If set, model_dir will be created relative to this location.")
   parser.add_argument("--data_dir", default="",
@@ -104,7 +108,7 @@ def main():
     tf.logging.info("Creating model directory %s", config["model_dir"])
     os.makedirs(config["model_dir"])
 
-  model = load_model(config["model_dir"], model_file=args.model)
+  model = load_model(config["model_dir"], model_file=args.model, model_name=args.model_type)
   runner = Runner(
       model,
       config,

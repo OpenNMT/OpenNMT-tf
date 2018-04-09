@@ -11,6 +11,7 @@ Submodules
 
 .. toctree::
 
+   opennmt.models.catalog
    opennmt.models.model
    opennmt.models.sequence_classifier
    opennmt.models.sequence_tagger

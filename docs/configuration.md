@@ -2,9 +2,9 @@
 
 ## Model
 
-Models are defined from the code to allow a high level of modeling freedom. The user should provide a `opennmt.models.Model` instance using [available](package/opennmt.html) or user-defined modules.
+### Definition
 
-Some modules are defined to contain other modules and can be used to design complex architectures:
+Models are defined from the code to allow a high level of modeling freedom. They are `opennmt.models.Model` instances that use [available](package/opennmt.html) or user-defined modules. Some of these modules are defined to contain other modules and can be used to design complex architectures:
 
 * `opennmt.encoders.ParallelEncoder`
 * `opennmt.encoders.SequentialEncoder`
@@ -13,7 +13,14 @@ Some modules are defined to contain other modules and can be used to design comp
 
 For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).
 
-*See the template file `config/models/template.py` and predefined models in `config/models/`. Contributions to add more model configurations are welcome.*
+### Usage
+
+The user can either:
+
+* select a predefined model from the [catalog](package/opennmt.models.catalog.html) and use the `--model_type` command line option
+* **or** provide a custom configuration file that follows the template file `config/models/template.py` and use the `--model` command line option
+
+*See the predefined models definitions in the [catalog](_modules/opennmt/models/catalog.html). Contributions to add more default models are welcome.*
 
 ## Parameters
 
