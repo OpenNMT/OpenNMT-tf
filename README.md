@@ -41,14 +41,14 @@ pip install OpenNMT-tf
 
 A minimal OpenNMT-tf run consists of 3 elements:
 
-* a **run** type: `train_and_eval`, `train`, `eval`, `infer`, or `export`
-* a Python file describing the **model**
-* a YAML file describing the **parameters**
+* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, or `export`
+* the **model** type
+* the **parameters** described in a YAML file
 
 that are passed to the main script:
 
 ```
-onmt-main <run_type> --model <model_file.py> --config <config_file.yml>
+onmt-main <run_type> --model_type <model> --config <config_file.yml>
 ```
 
 * For more information about configuration files, see the [documentation](http://opennmt.net/OpenNMT-tf/configuration.html).
@@ -75,7 +75,7 @@ onmt-build-vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-
 3\. Train with preset parameters:
 
 ```
-onmt-main train_and_eval --model config/models/nmt_small.py --config config/opennmt-defaults.yml config/data/toy-ende.yml
+onmt-main train_and_eval --model_type NMTSmall --config config/opennmt-defaults.yml config/data/toy-ende.yml
 ```
 
 4\. Translate a test file with the latest checkpoint:
