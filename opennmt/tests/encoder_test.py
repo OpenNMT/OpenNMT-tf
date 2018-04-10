@@ -5,9 +5,8 @@ from opennmt import encoders
 from opennmt.layers import reducer
 
 
-def _build_dummy_sequences(sequence_length):
+def _build_dummy_sequences(sequence_length, depth=5):
   batch_size = len(sequence_length)
-  depth = 5
   return tf.placeholder_with_default(
       np.random.randn(
           batch_size, max(sequence_length), depth).astype(np.float32),
@@ -15,6 +14,22 @@ def _build_dummy_sequences(sequence_length):
 
 
 class EncoderTest(tf.test.TestCase):
+
+  def testSelfAttentionEncoder(self):
+    sequence_length = [17, 21, 20]
+    inputs = _build_dummy_sequences(sequence_length, depth=10)
+    encoder = encoders.SelfAttentionEncoder(
+        3, num_units=36, num_heads=4, ffn_inner_dim=52)
+    outputs, state, encoded_length = encoder.encode(
+        inputs, sequence_length=tf.constant(sequence_length))
+    self.assertEqual(3, len(state))
+    for s in state:
+      self.assertIsInstance(s, tf.Tensor)
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+      outputs, encoded_length = sess.run([outputs, encoded_length])
+      self.assertAllEqual([3, 21, 36], outputs.shape)
+      self.assertAllEqual(sequence_length, encoded_length)
 
   def testConvEncoder(self):
     sequence_length = [17, 21, 20]
