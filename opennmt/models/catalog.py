@@ -29,6 +29,32 @@ class ListenAttendSpell(onmt.models.SequenceToSequence):
             dropout=0.3,
             residual_connections=False))
 
+class NMTBig(onmt.models.SequenceToSequence):
+  """Defines a bidirectional LSTM encoder-decoder model."""
+  def __init__(self):
+    super(NMTBig, self).__init__(
+        source_inputter=onmt.inputters.WordEmbedder(
+            vocabulary_file_key="source_words_vocabulary",
+            embedding_size=512),
+        target_inputter=onmt.inputters.WordEmbedder(
+            vocabulary_file_key="target_words_vocabulary",
+            embedding_size=512),
+        encoder=onmt.encoders.BidirectionalRNNEncoder(
+            num_layers=4,
+            num_units=1024,
+            reducer=onmt.layers.ConcatReducer(),
+            cell_class=tf.contrib.rnn.LSTMCell,
+            dropout=0.3,
+            residual_connections=False),
+        decoder=onmt.decoders.AttentionalRNNDecoder(
+            num_layers=4,
+            num_units=1024,
+            bridge=onmt.layers.CopyBridge(),
+            attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
+            cell_class=tf.contrib.rnn.LSTMCell,
+            dropout=0.3,
+            residual_connections=False))
+
 class NMTMedium(onmt.models.SequenceToSequence):
   """Defines a medium-sized bidirectional LSTM encoder-decoder model."""
   def __init__(self):
@@ -124,5 +150,23 @@ class Transformer(onmt.models.Transformer):
         num_heads=8,
         ffn_inner_dim=2048,
         dropout=0.1,
+        attention_dropout=0.1,
+        relu_dropout=0.1)
+
+class TransformerBig(onmt.models.Transformer):
+  """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+  def __init__(self):
+    super(TransformerBig, self).__init__(
+        source_inputter=onmt.inputters.WordEmbedder(
+            vocabulary_file_key="source_words_vocabulary",
+            embedding_size=1024),
+        target_inputter=onmt.inputters.WordEmbedder(
+            vocabulary_file_key="target_words_vocabulary",
+            embedding_size=1024),
+        num_layers=6,
+        num_units=1024,
+        num_heads=16,
+        ffn_inner_dim=4096,
+        dropout=0.3,
         attention_dropout=0.1,
         relu_dropout=0.1)
