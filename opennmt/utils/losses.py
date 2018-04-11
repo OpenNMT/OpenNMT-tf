@@ -2,9 +2,28 @@
 
 import tensorflow as tf
 
+from opennmt.utils.misc import linear_schedule
+
 
 def _smooth_one_hot_labels(logits, labels, label_smoothing):
-  label_smoothing = tf.constant(label_smoothing, dtype=logits.dtype)
+  if isinstance(label_smoothing, dict):
+    global_step = tf.train.get_or_create_global_step()
+    schedule = label_smoothing.get("schedule")
+    if schedule is None:
+      label_smoothing = tf.constant(label_smoothing["initial_value"], dtype=logits.dtype)
+    elif schedule == "linear":
+      label_smoothing = linear_schedule(
+          global_step,
+          label_smoothing["initial_value"],
+          target_value=label_smoothing.get("target_value"),
+          delay_steps=label_smoothing.get("warmup_steps"),
+          gain_steps=label_smoothing.get("gain_steps"),
+          dtype=logits.dtype)
+    else:
+      raise ValueError("invalid label smoothing schedule: %s" % schedule)
+    tf.summary.scalar("label_smoothing", label_smoothing)
+  else:
+    label_smoothing = tf.constant(label_smoothing, dtype=logits.dtype)
   num_classes = tf.shape(logits)[-1]
   return tf.one_hot(
       tf.cast(labels, tf.int32),
@@ -14,7 +33,8 @@ def _smooth_one_hot_labels(logits, labels, label_smoothing):
       dtype=logits.dtype)
 
 def _softmax_cross_entropy(logits, labels, label_smoothing, mode):
-  if mode == tf.estimator.ModeKeys.TRAIN and label_smoothing > 0.0:
+  if (mode == tf.estimator.ModeKeys.TRAIN
+      and (isinstance(label_smoothing, dict) or label_smoothing > 0.0)):
     smoothed_labels = _smooth_one_hot_labels(logits, labels, label_smoothing)
     if hasattr(tf.nn, "softmax_cross_entropy_with_logits_v2"):
       cross_entropy_fn = tf.nn.softmax_cross_entropy_with_logits_v2
@@ -38,7 +58,8 @@ def cross_entropy_sequence_loss(logits,
     logits: The unscaled probabilities.
     labels: The true labels.
     sequence_length: The length of each sequence.
-    label_smoothing: The label smoothing value.
+    label_smoothing: The label smoothing value or a dictionary describing the
+      label smoothing schedule.
     average_in_time: If ``True``, also average the loss in the time dimension.
     mode: A ``tf.estimator.ModeKeys`` mode.
 
