@@ -18,10 +18,20 @@ from opennmt.utils.parallel import GraphDispatcher
 class Model(object):
   """Base class for models."""
 
-  def __init__(self, name, daisy_chain_variables=False, dtype=tf.float32):
+  def __init__(self,
+               name,
+               features_inputter=None,
+               labels_inputter=None,
+               daisy_chain_variables=False,
+               dtype=None):
     self.name = name
+    self.features_inputter = features_inputter
+    self.labels_inputter = labels_inputter
     self.daisy_chain_variables = daisy_chain_variables
-    self.dtype = dtype
+    if dtype is None and self.features_inputter is not None:
+      self.dtype = features_inputter.dtype
+    else:
+      self.dtype = dtype or tf.float32
 
   def model_fn(self, num_devices=1):
     """Returns the model function.
@@ -192,18 +202,22 @@ class Model(object):
       metadata: A dictionary containing additional metadata set
         by the user.
     """
-    pass
+    if self.features_inputter is not None:
+      self.features_inputter.initialize(metadata)
+    if self.labels_inputter is not None:
+      self.labels_inputter.initialize(metadata)
 
-  @abc.abstractmethod
   def _get_serving_input_receiver(self):
     """Returns an input receiver for serving this model.
 
     Returns:
       A ``tf.estimator.export.ServingInputReceiver``.
     """
-    raise NotImplementedError()
+    if self.features_inputter is None:
+      raise NotImplementedError()
+    return self.features_inputter.get_serving_input_receiver()
 
-  def _get_features_length(self, features):  # pylint: disable=unused-argument
+  def _get_features_length(self, features):
     """Returns the features length.
 
     Args:
@@ -213,9 +227,11 @@ class Model(object):
       The length as a ``tf.Tensor`` or list of ``tf.Tensor``, or ``None`` if
       length is undefined.
     """
-    return None
+    if self.features_inputter is None:
+      return None
+    return self.features_inputter.get_length(features)
 
-  def _get_labels_length(self, labels):  # pylint: disable=unused-argument
+  def _get_labels_length(self, labels):
     """Returns the labels length.
 
     Args:
@@ -224,9 +240,10 @@ class Model(object):
     Returns:
       The length as a ``tf.Tensor``  or ``None`` if length is undefined.
     """
-    return None
+    if self.labels_inputter is None:
+      return None
+    return self.labels_inputter.get_length(labels)
 
-  @abc.abstractmethod
   def _get_dataset_size(self, features_file):
     """Returns the size of the dataset.
 
@@ -236,9 +253,10 @@ class Model(object):
     Returns:
       The total size.
     """
-    raise NotImplementedError()
+    if self.features_inputter is None:
+      raise NotImplementedError()
+    return self.features_inputter.get_dataset_size(features_file)
 
-  @abc.abstractmethod
   def _get_features_builder(self, features_file):
     """Returns the recipe to build features.
 
@@ -248,9 +266,12 @@ class Model(object):
     Returns:
       A tuple ``(tf.data.Dataset, process_fn)``.
     """
-    raise NotImplementedError()
+    if self.features_inputter is None:
+      raise NotImplementedError()
+    dataset = self.features_inputter.make_dataset(features_file)
+    process_fn = self.features_inputter.process
+    return dataset, process_fn
 
-  @abc.abstractmethod
   def _get_labels_builder(self, labels_file):
     """Returns the recipe to build labels.
 
@@ -260,7 +281,11 @@ class Model(object):
     Returns:
       A tuple ``(tf.data.Dataset, process_fn)``.
     """
-    raise NotImplementedError()
+    if self.labels_inputter is None:
+      raise NotImplementedError()
+    dataset = self.labels_inputter.make_dataset(labels_file)
+    process_fn = self.labels_inputter.process
+    return dataset, process_fn
 
   def _input_fn_impl(self,
                      mode,
