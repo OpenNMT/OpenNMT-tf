@@ -48,7 +48,7 @@ class Model(object):
 
     def _loss_op(features, labels, params, mode, config):
       """Single callable to compute the loss."""
-      logits, _ = self._build(features, labels, params, mode, config)
+      logits, _ = self._build(features, labels, params, mode, config=config)
       return self._compute_loss(features, labels, logits, params, mode)
 
     def _normalize_loss(num, den=None):
@@ -95,7 +95,7 @@ class Model(object):
             train_op=train_op)
       elif mode == tf.estimator.ModeKeys.EVAL:
         with tf.variable_scope(self.name):
-          logits, predictions = self._build(features, labels, params, mode, config)
+          logits, predictions = self._build(features, labels, params, mode, config=config)
           loss = self._compute_loss(features, labels, logits, params, mode)
 
         loss = _extract_loss(loss)
@@ -110,7 +110,7 @@ class Model(object):
             eval_metric_ops=eval_metric_ops)
       elif mode == tf.estimator.ModeKeys.PREDICT:
         with tf.variable_scope(self.name):
-          _, predictions = self._build(features, labels, params, mode, config)
+          _, predictions = self._build(features, labels, params, mode, config=config)
 
         export_outputs = {}
         export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
@@ -141,7 +141,7 @@ class Model(object):
     return None
 
   @abc.abstractmethod
-  def _build(self, features, labels, params, mode, config):
+  def _build(self, features, labels, params, mode, config=None):
     """Creates the graph.
 
     Returns:

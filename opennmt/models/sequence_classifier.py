@@ -63,12 +63,12 @@ class SequenceClassifier(Model):
     }
     return dataset, process_fn
 
-  def _build(self, features, labels, params, mode, config):
+  def _build(self, features, labels, params, mode, config=None):
     with tf.variable_scope("encoder"):
       inputs = self.features_inputter.transform_data(
           features,
           mode=mode,
-          log_dir=config.model_dir)
+          log_dir=config.model_dir if config is not None else None)
 
       encoder_outputs, _, _ = self.encoder.encode(
           inputs,

@@ -103,14 +103,15 @@ class SequenceToSequence(Model):
           return self.target_inputter.transform(ids, mode=mode)
     return _target_embedding_fn
 
-  def _build(self, features, labels, params, mode, config):
+  def _build(self, features, labels, params, mode, config=None):
     features_length = self._get_features_length(features)
+    log_dir = config.model_dir if config is not None else None
 
     with tf.variable_scope("encoder"):
       source_inputs = self.source_inputter.transform_data(
           features,
           mode=mode,
-          log_dir=config.model_dir)
+          log_dir=log_dir)
       encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
           source_inputs,
           sequence_length=features_length,
@@ -130,7 +131,7 @@ class SequenceToSequence(Model):
         target_inputs = self.target_inputter.transform_data(
             labels,
             mode=mode,
-            log_dir=config.model_dir)
+            log_dir=log_dir)
         logits, _, _ = self.decoder.decode(
             target_inputs,
             self._get_labels_length(labels),
