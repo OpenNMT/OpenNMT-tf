@@ -320,12 +320,15 @@ class Model(object):
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       dataset_size = self._get_dataset_size(features_file)
-      if sample_buffer_size < dataset_size:
-        # When the sample buffer size is smaller than the dataset size, shard
-        # the dataset in a random order. This ensures that all parts of the
-        # dataset can be seen when the evaluation frequency is high.
-        dataset = dataset.apply(data.random_shard(sample_buffer_size, dataset_size))
-      dataset = dataset.shuffle(sample_buffer_size)
+      if sample_buffer_size is not None and sample_buffer_size != 0:
+        if sample_buffer_size < 0:
+          sample_buffer_size = dataset_size
+        elif sample_buffer_size < dataset_size:
+          # When the sample buffer size is smaller than the dataset size, shard
+          # the dataset in a random order. This ensures that all parts of the
+          # dataset can be seen when the evaluation frequency is high.
+          dataset = dataset.apply(data.random_shard(sample_buffer_size, dataset_size))
+        dataset = dataset.shuffle(sample_buffer_size)
       dataset = dataset.map(
           process_fn,
           num_parallel_calls=num_threads or 4)

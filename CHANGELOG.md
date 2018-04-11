@@ -24,6 +24,9 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 * Fix error when using FP16 and an `AttentionMechanism` module (for TensorFlow 1.5+)
 * Manual export will remove default-valued attributes from the NodeDefs (for TensorFlow 1.6+)
 * Silence some deprecation warnings with recent TensorFlow versions
+* Training option `sample_buffer_size` now accepts special values:
+  * `0` or `null` to disable shuffling
+  * `-1` to create a buffer with the same size as the training dataset
 
 ## [1.0.3](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.3) (2018-04-02)
 
