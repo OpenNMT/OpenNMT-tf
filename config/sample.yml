@@ -93,7 +93,7 @@ train:
   # (optional) The number of threads to use for processing data in parallel (default: 4).
   num_threads: 4
   # (optional) The number of elements from which to sample during shuffling (default: 500000).
-  # Consider setting this to the number of training examples.
+  # Set 0 or null to disable shuffling, -1 to match the number of training examples.
   sample_buffer_size: 500000
   # (optional) The number of batches to prefetch asynchronously (default: 1).
   prefetch_buffer_size: 1

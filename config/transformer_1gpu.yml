@@ -29,7 +29,8 @@ train:
   save_summary_steps: 100
   train_steps: 1000000
 
-  sample_buffer_size: 5000000  # Consider setting this to the training dataset size.
+  # Consider setting this to -1 to match the number of training examples.
+  sample_buffer_size: 5000000
 
 eval:
   batch_size: 64

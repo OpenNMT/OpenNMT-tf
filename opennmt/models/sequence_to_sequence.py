@@ -78,45 +78,20 @@ class SequenceToSequence(Model):
       raise TypeError(
           "Source and target inputters must have the same dtype, "
           "saw: {} and {}".format(source_inputter.dtype, target_inputter.dtype))
-
-    super(SequenceToSequence, self).__init__(
-        name, daisy_chain_variables=daisy_chain_variables, dtype=source_inputter.dtype)
-
     if not isinstance(target_inputter, inputters.WordEmbedder):
       raise TypeError("Target inputter must be a WordEmbedder")
 
+    super(SequenceToSequence, self).__init__(
+        name,
+        features_inputter=source_inputter,
+        labels_inputter=target_inputter,
+        daisy_chain_variables=daisy_chain_variables)
+
     self.encoder = encoder
     self.decoder = decoder
-
     self.source_inputter = source_inputter
     self.target_inputter = target_inputter
     self.target_inputter.add_process_hooks([shift_target_sequence])
-
-  def _initialize(self, metadata):
-    self.source_inputter.initialize(metadata)
-    self.target_inputter.initialize(metadata)
-
-  def _get_serving_input_receiver(self):
-    return self.source_inputter.get_serving_input_receiver()
-
-  def _get_features_length(self, features):
-    return self.source_inputter.get_length(features)
-
-  def _get_labels_length(self, labels):
-    return self.target_inputter.get_length(labels)
-
-  def _get_dataset_size(self, features_file):
-    return self.source_inputter.get_dataset_size(features_file)
-
-  def _get_features_builder(self, features_file):
-    dataset = self.source_inputter.make_dataset(features_file)
-    process_fn = self.source_inputter.process
-    return dataset, process_fn
-
-  def _get_labels_builder(self, labels_file):
-    dataset = self.target_inputter.make_dataset(labels_file)
-    process_fn = self.target_inputter.process
-    return dataset, process_fn
 
   def _scoped_target_embedding_fn(self, mode, scope):
     def _target_embedding_fn(ids):
@@ -128,14 +103,15 @@ class SequenceToSequence(Model):
           return self.target_inputter.transform(ids, mode=mode)
     return _target_embedding_fn
 
-  def _build(self, features, labels, params, mode, config):
+  def _build(self, features, labels, params, mode, config=None):
     features_length = self._get_features_length(features)
+    log_dir = config.model_dir if config is not None else None
 
     with tf.variable_scope("encoder"):
       source_inputs = self.source_inputter.transform_data(
           features,
           mode=mode,
-          log_dir=config.model_dir)
+          log_dir=log_dir)
       encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
           source_inputs,
           sequence_length=features_length,
@@ -155,7 +131,7 @@ class SequenceToSequence(Model):
         target_inputs = self.target_inputter.transform_data(
             labels,
             mode=mode,
-            log_dir=config.model_dir)
+            log_dir=log_dir)
         logits, _, _ = self.decoder.decode(
             target_inputs,
             self._get_labels_length(labels),

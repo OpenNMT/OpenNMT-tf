@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import os
 import sys
+import inspect
 import six
 
 import tensorflow as tf
@@ -35,6 +36,10 @@ def item_or_tuple(x):
     return x[0]
   else:
     return x
+
+def classes_in_module(module):
+  """Returns a generator over the classes defined in :obj:`module`."""
+  return (symbol for symbol in dir(module) if inspect.isclass(getattr(module, symbol)))
 
 def get_third_party_dir():
   """Returns a path to the third_party directory."""

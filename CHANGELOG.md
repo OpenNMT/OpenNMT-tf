@@ -12,7 +12,27 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ## [Unreleased]
 
+### Breaking changes
+
+### New features
+
 ### Fixes and improvements
+
+## [1.1.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.1.0) (2018-04-12)
+
+### New features
+
+* Update the OpenNMT tokenizer to 1.3.0 and use its Python package instead of requiring a manual compilation (Linux only)
+* Include a catalog of models in the library package and allow model selection with the `--model_type` command line option
+
+### Fixes and improvements
+
+* Fix error when using FP16 and an `AttentionMechanism` module (for TensorFlow 1.5+)
+* Manual export will remove default-valued attributes from the NodeDefs (for TensorFlow 1.6+)
+* Silence some deprecation warnings with recent TensorFlow versions
+* Training option `sample_buffer_size` now accepts special values:
+  * `0` or `null` to disable shuffling
+  * `-1` to create a buffer with the same size as the training dataset
 
 ## [1.0.3](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.3) (2018-04-02)
 
@@ -39,5 +59,3 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ## [1.0.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.0.0) (2018-03-14)
 
 Initial stable release.
-
-This is the latest major release compatible with TensorFlow 1.4.

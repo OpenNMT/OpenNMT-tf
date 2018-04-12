@@ -1,29 +1,27 @@
 # Tokenization
 
-OpenNMT-tf can use the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer) as a plugin to provide advanced tokenization behaviors.
+OpenNMT-tf ships the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer) as a dependency to provide advanced tokenization behaviors, either offline or online.
 
-## Installation
+*Note: the `pyonmttok` package is only supported on Linux as of now.*
 
-*Note: we plan to release a package on PyPi to facilitate the installation of this plugin.*
+## Configuration files
 
-1\. Follow the Tokenizer [installation instructions](https://github.com/OpenNMT/Tokenizer) with [Python bindings](https://github.com/OpenNMT/Tokenizer/tree/master/bindings/python).
+YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. See the sample file `config/tokenization/sample.yml`.
 
-2\. Configure your environment for Python to find the newly generated package, e.g.:
+## Offline usage
 
-```bash
-export PYTHONPATH="$PYTHONPATH:$HOME/Tokenizer/build/bindings/python/"
-```
-
-3\. Test the plugin:
+You can invoke the `onmt-tokenize-text` script directly and select the `OpenNMTTokenizer` tokenizer:
 
 ```bash
 $ echo "Hello world!" | onmt-tokenize-text --tokenizer OpenNMTTokenizer
 Hello world !
+$ echo "Hello world!" | onmt-tokenize-text --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml
+Hello world ￭!
 ```
 
-## Usage
+## Online usage
 
-YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. See the sample file `config/tokenization/sample.yml`.
+A key feature is the possibility to tokenize the data on-the-fly during the training. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.
 
 Here is an example workflow:
 

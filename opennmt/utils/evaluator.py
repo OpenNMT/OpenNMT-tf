@@ -10,8 +10,6 @@ import six
 
 import tensorflow as tf
 
-from tensorflow.python.summary.writer.writer_cache import FileWriterCache as SummaryWriterCache
-
 from opennmt.utils.misc import get_third_party_dir
 
 
@@ -24,7 +22,7 @@ class ExternalEvaluator(object):
     self._summary_writer = None
 
     if output_dir is not None:
-      self._summary_writer = SummaryWriterCache.get(output_dir)
+      self._summary_writer = tf.summary.FileWriterCache.get(output_dir)
 
   def __call__(self, step, predictions_path):
     """Scores the predictions and logs the result.

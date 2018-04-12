@@ -1,13 +1,40 @@
 # This is a sample tokenization configuration with all values set to their default.
 
+# Can be: conservative, aggressive, none.
+#  conservative: Allows mix of alphanumeric as in "2,000", "E65", "soft-landing".
+#  aggressive: Only keeps sequences of letters/numbers.
+#  none: Forwards the input text (possibly to the subtokenizer).
 mode: conservative
+
+# (optional) Path the BPE model.
 bpe_model_path: ""
+# (optional) Path the SentencePiece model. Set mode to "none" for pure SentencePiece tokenization.
+sp_model_path: ""
+
+# (optional) Joiner character to use for the tokenization to be reversible.
 joiner: ￭
+# (optional) Mark tokens with the joiner for reversible tokenization.
 joiner_annotate: false
+# (optional) Make the joiner character a new token (i.e. do not mark existing tokens).
 joiner_new: false
-case_feature: false
-no_substitution: false
+
+# (optional) Make tokenization reversible by marking spacer characters (alternative to joiner_annotate).
+spacer_annotate: false
+
+# (optional) Segment a word on casing changes (e.g. AbC -> Ab C).
 segment_case: false
+# (optional) Segment digits (e.g. 42 -> 4 2).
 segment_numbers: false
+# (optional) Segment on alphabet change.
 segment_alphabet_change: false
+# (optional) Segment all characters from these alphabets.
+# See the supported list here: https://github.com/OpenNMT/Tokenizer/blob/master/include/onmt/Alphabet.h
 segment_alphabet: []
+
+# (optional) The tokenization uses some special characters that if found in the
+# original text are replaced with alternatives. Set to true to disable.
+no_substitution: false
+
+# (unsupported) Casing features is currently unsupported.
+# Setting this option to true will only result in lowercasing each word.
+case_feature: false

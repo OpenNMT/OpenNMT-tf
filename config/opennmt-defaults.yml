@@ -20,7 +20,9 @@ train:
   train_steps: 1000000
   maximum_features_length: 50
   maximum_labels_length: 50
-  sample_buffer_size: 1000000  # Consider setting this to the training dataset size.
+
+  # Consider setting this to -1 to match the number of training examples.
+  sample_buffer_size: 1000000
 
 eval:
   eval_delay: 18000  # Every 5 hours.

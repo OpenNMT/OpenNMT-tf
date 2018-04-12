@@ -18,7 +18,7 @@ This example shows how to translate a batch of sentences using the TensorFlow C+
 ```
 git clone https://github.com/tensorflow/tensorflow.git ~/tensorflow
 cd ~/tensorflow
-git checkout r1.4
+git checkout r1.6
 ```
 
 3\. Add a custom compilation target at the end of `tensorflow/BUILD`:

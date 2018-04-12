@@ -1,49 +1,37 @@
 language: python
 python:
   - "2.7"
-  - "3.4"
-  - "3.5"
   - "3.6"
 env:
   global:
     - MAIN_PYTHON_VERSION="2.7"
     - MAIN_TF_VERSION="1.6.*"
   matrix:
+    - TF_VERSION="1.4.*"
+    - TF_VERSION="1.5.*"
     - TF_VERSION="1.6.*"
     - TF_VERSION="1.7.*"
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-4.8
-      - g++-4.8
-      - cmake
-      - cmake-data
-      - libboost-python-dev
+matrix:
+  exclude:
+    - python: "3.6"
+      env: TF_VERSION="1.4.*"
+    - python: "3.6"
+      env: TF_VERSION="1.5.*"
 before_install:
   - pip install tensorflow==$TF_VERSION
-  - pip install pyyaml
-  - pip install nose2
   - |
-        if [ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]; then
+        if [[ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]]; then
             pip install pylint==1.8.2
             pip install sphinx==1.6.7
             pip install sphinxcontrib-versioning
             pip install sphinx_rtd_theme
             pip install recommonmark
+            pip install wheel
+            pip install twine
         fi
-install:
-  - export CXX="g++-4.8" CC="gcc-4.8"
-  - mkdir build && cd build
-  - cmake ..
-  - make
-  - export PYTHONPATH="$PYTHONPATH:$PWD/third_party/OpenNMTTokenizer/bindings/python/"
-  - cd ..
 script:
-  - nose2
-  - if [ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]; then pylint opennmt/ bin/; fi
+  - python setup.py test
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]]; then pylint opennmt/; fi
 after_success:
   - |
         if [[ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" && -n $TRAVIS_TAG ]]; then
@@ -53,4 +41,6 @@ after_success:
             git config --global user.name "Travis CI"
             git remote set-url --push origin "git@github.com:$TRAVIS_REPO_SLUG"
             sphinx-versioning push -e .nojekyll docs gh-pages .
+            python setup.py sdist bdist_wheel --universal
+            twine upload dist/*
         fi

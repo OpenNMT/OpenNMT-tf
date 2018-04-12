@@ -167,6 +167,10 @@ class SinusoidalPositionEncoder(PositionEncoder):
   """
 
   def encode(self, positions, depth, dtype=tf.float32):
+    if depth % 2 != 0:
+      raise ValueError("SinusoidalPositionEncoder expects the depth to be divisble "
+                       "by 2 but got %d" % depth)
+
     batch_size = tf.shape(positions)[0]
     positions = tf.cast(positions, dtype)
 

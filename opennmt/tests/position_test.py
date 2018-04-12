@@ -19,14 +19,19 @@ class PositionTest(tf.test.TestCase):
       positions = sess.run(positions)
       self.assertAllEqual([[1, 2, 3, 4, 0, 0, 0], [1, 2, 3, 4, 5, 6, 0]], positions)
 
-  def testSinusoidalPositionEncoder(self):
+  def _testSinusoidalPositionEncoder(self, depth):
     encoder = position.SinusoidalPositionEncoder()
     positions = position.make_positions([4, 6])
-    depth = 10
     encoding = encoder.encode(positions, depth)
     with self.test_session() as sess:
       encoding = sess.run(encoding)
       self.assertAllEqual([2, 6, depth], encoding.shape)
+
+  def testSinusoidalPositionEncoder(self):
+    self._testSinusoidalPositionEncoder(10)
+  def testSinusoidalPositionEncoderInvalidDepth(self):
+    with self.assertRaises(ValueError):
+      self._testSinusoidalPositionEncoder(5)
 
 
 if __name__ == "__main__":

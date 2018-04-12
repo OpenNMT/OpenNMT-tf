@@ -36,10 +36,11 @@ class SequenceTagger(Model):
       name: The name of this model.
     """
     super(SequenceTagger, self).__init__(
-        name, daisy_chain_variables=daisy_chain_variables, dtype=inputter.dtype)
+        name,
+        features_inputter=inputter,
+        daisy_chain_variables=daisy_chain_variables)
 
     self.encoder = encoder
-    self.inputter = inputter
     self.labels_vocabulary_file_key = labels_vocabulary_file_key
     self.crf_decoding = crf_decoding
 
@@ -49,23 +50,9 @@ class SequenceTagger(Model):
       self.tagging_scheme = None
 
   def _initialize(self, metadata):
-    self.inputter.initialize(metadata)
+    super(SequenceTagger, self)._initialize(metadata)
     self.labels_vocabulary_file = metadata[self.labels_vocabulary_file_key]
     self.num_labels = count_lines(self.labels_vocabulary_file)
-
-  def _get_serving_input_receiver(self):
-    return self.inputter.get_serving_input_receiver()
-
-  def _get_features_length(self, features):
-    return self.inputter.get_length(features)
-
-  def _get_dataset_size(self, features_file):
-    return self.inputter.get_dataset_size(features_file)
-
-  def _get_features_builder(self, features_file):
-    dataset = self.inputter.make_dataset(features_file)
-    process_fn = self.inputter.process
-    return dataset, process_fn
 
   def _get_labels_builder(self, labels_file):
     labels_vocabulary = tf.contrib.lookup.index_table_from_file(
@@ -79,14 +66,14 @@ class SequenceTagger(Model):
     }
     return dataset, process_fn
 
-  def _build(self, features, labels, params, mode, config):
+  def _build(self, features, labels, params, mode, config=None):
     length = self._get_features_length(features)
 
     with tf.variable_scope("encoder"):
-      inputs = self.inputter.transform_data(
+      inputs = self.features_inputter.transform_data(
           features,
           mode=mode,
-          log_dir=config.model_dir)
+          log_dir=config.model_dir if config is not None else None)
 
       encoder_outputs, _, encoder_sequence_length = self.encoder.encode(
           inputs,

@@ -4,7 +4,6 @@ Tokenizers can work on string ``tf.Tensor`` as in-graph transformation.
 """
 
 import sys
-import inspect
 
 try:
   import pyonmttok
@@ -16,11 +15,8 @@ from opennmt.tokenizers.tokenizer import SpaceTokenizer, CharacterTokenizer
 
 def add_command_line_arguments(parser):
   """Adds command line arguments to select the tokenizer."""
-  choices = []
-  module = sys.modules[__name__]
-  for symbol in dir(module):
-    if inspect.isclass(getattr(module, symbol)):
-      choices.append(symbol)
+  from opennmt.utils.misc import classes_in_module
+  choices = list(classes_in_module(sys.modules[__name__]))
 
   parser.add_argument(
       "--tokenizer", default="SpaceTokenizer", choices=choices,
