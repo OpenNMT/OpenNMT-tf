@@ -1,0 +1,6 @@
+# This file overrides some options from wmt_ende.yml
+
+model_dir: wmt_ende_transformer_1gpu_lr2_ws8000_dur2_0.998
+
+params:
+  decay_step_duration: 8  # 1 decay step is 8 training steps.

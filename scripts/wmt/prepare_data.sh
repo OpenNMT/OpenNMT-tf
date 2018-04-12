@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ##################################################################################
 # Depending on the task:
 # commoncrawl europarl-v7 are the same for all tasks
@@ -13,23 +15,37 @@
 #
 # For WMT16 Rico Sennrich released some News back translation
 # http://data.statmt.org/rsennrich/wmt16_backtranslations/en-de/
+#
+# Tests sets: http://data.statmt.org/wmt17/translation-task/test.tgz
 ##################################################################################
 
+if [ $# -eq 0 ]
+then
+    echo "usage: $0 <data_dir>"
+    exit 1
+fi
+
+SP_PATH=/usr/local/bin
+DATA_PATH=$1
+TEST_PATH=$DATA_PATH/test
+
 vocab_size=32000
-SP_PATH=~/sentencepiece/src
-DATA_PATH=/mosesgpu4-hd1TB/datasets/de_DE-en_EN/public
 sl=en
 tl=de
 
 corpus[1]=commoncrawl.de-en
 corpus[2]=europarl-v7.de-en
-corpus[3]=News-Commentary11.de-en
+corpus[3]=news-commentary-v11.de-en
 #corpus[3]=news-commentary-v12.de-en
 #corpus[4]=news.bt.en-de
 #corpus[5]=rapid2016.de-en
 
 validset=newstest2014-deen
 testset=newstest2017-ende
+
+export PATH=$SP_PATH:$PATH
+
+wget -nc https://raw.githubusercontent.com/OpenNMT/OpenNMT-tf/master/third_party/input-from-sgm.perl
 
 ##################################################################################
 # Starting from here, original files are supposed to be in $DATA_PATH
@@ -41,7 +57,7 @@ testset=newstest2017-ende
 if true; then
  mkdir -p data
  echo "$0: Training sentencepiece model"
- [ -f data/train.txt ] && rm data/train.txt
+ rm -f data/train.txt
  for ((i=1; i<= ${#corpus[@]}; i++))
  do
   for f in $DATA_PATH/${corpus[$i]}.$sl $DATA_PATH/${corpus[$i]}.$tl
@@ -49,19 +65,20 @@ if true; then
     cat $f >> data/train.txt
    done
  done
- $SP_PATH/spm_train --input=data/train.txt --model_prefix=wmt$sl$tl --vocab_size=$vocab_size --character_coverage=1
+ spm_train --input=data/train.txt --model_prefix=wmt$sl$tl \
+           --vocab_size=$vocab_size --character_coverage=1
  rm data/train.txt
 fi
 # Second we use the trained model to tokenize all the files
 if true; then
  echo "$0: Tokenizing with sentencepiece model"
- [ -f data/train.txt ] && rm data/train.txt
+ rm -f data/train.txt
  for ((i=1; i<= ${#corpus[@]}; i++))
  do
   for f in $DATA_PATH/${corpus[$i]}.$sl $DATA_PATH/${corpus[$i]}.$tl
    do
     file=$(basename $f)
-    $SP_PATH/spm_encode --model=wmt$sl$tl.model < $f > data/$file.sp
+    spm_encode --model=wmt$sl$tl.model < $f > data/$file.sp
    done
  done
 fi
@@ -72,18 +89,14 @@ if true; then
 fi
 #  We use the same tokenization method for a valid set (and test set)
 if true; then
- validsetfile=$(basename $validset-src.$sl.sgm)
- ../../third_party/input-from-sgm.perl < $DATA_PATH/test/$validset-src.$sl.sgm \
-    | $SP_PATH/spm_encode --model=wmt$sl$tl.model > data/valid.$sl
- validsetfile=$(basename $validset-ref.$tl.sgm)
- ../../third_party/input-from-sgm.perl < $DATA_PATH/test/$validset-ref.$tl.sgm \
-    | $SP_PATH/spm_encode --model=wmt$sl$tl.model > data/valid.$tl
- testsetfile=$(basename $testset-src.$sl.sgm)
- ../../third_party/input-from-sgm.perl < $DATA_PATH/test/$testset-src.$sl.sgm \
-    | $SP_PATH/spm_encode --model=wmt$sl$tl.model > data/test.$sl
- testsetfile=$(basename $testset-ref.$tl.sgm)
- ../../third_party/input-from-sgm.perl < $DATA_PATH/test/$testset-ref.$tl.sgm \
-    | $SP_PATH/spm_encode --model=wmt$sl$tl.model > data/test.$tl
+ perl input-from-sgm.perl < $TEST_PATH/$validset-src.$sl.sgm \
+    | spm_encode --model=wmt$sl$tl.model > data/valid.$sl
+ perl input-from-sgm.perl < $TEST_PATH/$validset-ref.$tl.sgm \
+    | spm_encode --model=wmt$sl$tl.model > data/valid.$tl
+ perl input-from-sgm.perl < $TEST_PATH/$testset-src.$sl.sgm \
+    | spm_encode --model=wmt$sl$tl.model > data/test.$sl
+ perl input-from-sgm.perl < $TEST_PATH/$testset-ref.$tl.sgm \
+    | spm_encode --model=wmt$sl$tl.model > data/test.$tl
 fi
 
 # Let's finish and clean up
