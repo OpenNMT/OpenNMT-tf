@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+tests_require = [
+    "nose2"
+]
+
 setup(
     name="OpenNMT-tf",
     version="1.1.0",
@@ -33,12 +37,11 @@ setup(
         "pyyaml"
     ],
     extras_require={
+        "tests": tests_require,
         "tensorflow": ["tensorflow>=1.4.0"],
         "tensorflow_gpu": ["tensorflow-gpu>=1.4.0"]
     },
-    tests_require=[
-        "nose2"
-    ],
+    tests_require=tests_require,
     test_suite="nose2.collector.collector",
     packages=find_packages(exclude=["bin", "*.tests"]),
     package_data={
