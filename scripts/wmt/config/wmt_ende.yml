@@ -30,14 +30,17 @@ params:
 train:
   batch_size: 4096
   batch_type: tokens
-  bucket_width: 5
+  bucket_width: 1
   save_checkpoints_steps: 1000
   keep_checkpoint_max: 10
   save_summary_steps: 50
-  train_steps: 200000
-  sample_buffer_size: 5000000
+  train_steps: 500000
   maximum_features_length: 100
   maximum_labels_length: 100
+
+  # Uniformly shuffle accross the training data.
+  # Set a fixed value if you are running low on system memory.
+  sample_buffer_size: -1
 
 eval:
   batch_size: 32
