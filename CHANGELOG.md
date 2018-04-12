@@ -16,6 +16,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [1.1.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.1.0) (2018-04-12)
+
+### New features
+
 * Update the OpenNMT tokenizer to 1.3.0 and use its Python package instead of requiring a manual compilation (Linux only)
 * Include a catalog of models in the library package and allow model selection with the `--model_type` command line option
 
