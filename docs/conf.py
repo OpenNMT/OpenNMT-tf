@@ -60,7 +60,8 @@ autodoc_member_order = "bysource"
 napoleon_include_init_with_doc = True
 napoleon_include_special_with_doc = True
 
-scv_whitelist_branches = []
+scv_whitelist_branches = ("none",)
+scv_whitelist_tags = (re.compile(r'^v\d+\.\d+\.0$'),)
 scv_sort = ("semver",)
 scv_greatest_tag = True
 
