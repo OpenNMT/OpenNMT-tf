@@ -3,6 +3,7 @@
 
 import os
 import sys
+import re
 sys.path.insert(0, "..")
 sys.path.insert(0, ".")
 
