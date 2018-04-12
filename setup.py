@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="OpenNMT-tf",
-    version="1.0.3",
+    version="1.1.0",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
