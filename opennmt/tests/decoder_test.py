@@ -1,6 +1,9 @@
 import math
 
 import tensorflow as tf
+import numpy as np
+
+from tensorflow.python.estimator.util import fn_args
 
 from opennmt import decoders
 from opennmt.decoders import decoder
@@ -41,6 +44,121 @@ class DecoderTest(tf.test.TestCase):
       self.assertAlmostEqual(
           1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), sess.run(inv_sig_sample_prob))
 
+  def _testDecoderGeneric(self,
+                          decoder,
+                          with_beam_search=False,
+                          with_alignment_history=False,
+                          support_alignment_history=True):
+    batch_size = 4
+    beam_width = 5
+    num_hyps = beam_width if with_beam_search else 1
+    vocab_size = 10
+    depth = 6
+    end_token = 2
+    start_tokens = tf.placeholder_with_default([1] * batch_size, shape=[None])
+    memory_sequence_length = [3, 7, 5, 4]
+    memory_time = max(memory_sequence_length)
+    memory =  tf.placeholder_with_default(
+        np.random.randn(batch_size, memory_time, depth).astype(np.float32),
+        shape=(None, None, depth))
+    memory_sequence_length = tf.placeholder_with_default(memory_sequence_length, shape=[None])
+    embedding =  tf.placeholder_with_default(
+        np.random.randn(vocab_size, depth).astype(np.float32),
+        shape=(vocab_size, depth))
+
+    if with_beam_search:
+      decode_fn = decoder.dynamic_decode_and_search
+    else:
+      decode_fn = decoder.dynamic_decode
+
+    additional_kwargs = {}
+    if with_alignment_history:
+      additional_kwargs["return_alignment_history"] = True
+    if with_beam_search:
+      additional_kwargs["beam_width"] = beam_width
+
+    if (with_beam_search and with_alignment_history and "RNN" in decoder.__class__.__name__
+        and not "reorder_tensor_arrays" in fn_args(tf.contrib.seq2seq.BeamSearchDecoder.__init__)):
+      support_alignment_history = False
+
+    outputs = decode_fn(
+        embedding,
+        start_tokens,
+        end_token,
+        vocab_size=vocab_size,
+        maximum_iterations=10,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length,
+        **additional_kwargs)
+
+    ids = outputs[0]
+    state = outputs[1]
+    lengths = outputs[2]
+    log_probs = outputs[3]
+
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+
+    if not with_alignment_history:
+      self.assertEqual(4, len(outputs))
+    else:
+      self.assertEqual(5, len(outputs))
+      alignment_history = outputs[4]
+      if support_alignment_history:
+        self.assertIsInstance(alignment_history, tf.Tensor)
+        with self.test_session() as sess:
+          alignment_history = sess.run(alignment_history)
+          self.assertAllEqual([batch_size, num_hyps, memory_time], alignment_history.shape[1:])
+      else:
+        self.assertIsNone(alignment_history)
+
+    with self.test_session() as sess:
+      ids, lengths, log_probs = sess.run([ids, lengths, log_probs])
+      self.assertAllEqual([batch_size, num_hyps], ids.shape[0:2])
+      self.assertAllEqual([batch_size, num_hyps], lengths.shape)
+      self.assertAllEqual([batch_size, num_hyps], log_probs.shape)
+
+  def _testDecoder(self, decoder, support_alignment_history=True):
+    with tf.variable_scope(""):
+      self._testDecoderGeneric(
+          decoder,
+          with_beam_search=False,
+          with_alignment_history=False,
+          support_alignment_history=support_alignment_history)
+    with tf.variable_scope("", reuse=True):
+      self._testDecoderGeneric(
+          decoder,
+          with_beam_search=False,
+          with_alignment_history=True,
+          support_alignment_history=support_alignment_history)
+    with tf.variable_scope("", reuse=True):
+      self._testDecoderGeneric(
+          decoder,
+          with_beam_search=True,
+          with_alignment_history=False,
+          support_alignment_history=support_alignment_history)
+    with tf.variable_scope("", reuse=True):
+      self._testDecoderGeneric(
+          decoder,
+          with_beam_search=True,
+          with_alignment_history=True,
+          support_alignment_history=support_alignment_history)
+
+  def testRNNDecoder(self):
+    decoder = decoders.RNNDecoder(2, 20)
+    self._testDecoder(decoder, support_alignment_history=False)
+
+  def testAttentionalRNNDecoder(self):
+    decoder = decoders.AttentionalRNNDecoder(2, 20)
+    self._testDecoder(decoder)
+
+  def testMultiAttentionalRNNDecoder(self):
+    decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
+    self._testDecoder(decoder, support_alignment_history=False)
+
+  def testSelfAttentionDecoder(self):
+    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
+    self._testDecoder(decoder, support_alignment_history=False)
 
 if __name__ == "__main__":
   tf.test.main()
