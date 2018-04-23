@@ -154,7 +154,7 @@ class SequenceToSequence(Model):
         end_token = constants.END_OF_SENTENCE_ID
 
         if beam_width <= 1:
-          sampled_ids, _, sampled_length, log_probs = self.decoder.dynamic_decode(
+          sampled_ids, _, sampled_length, log_probs, alignment = self.decoder.dynamic_decode(
               self._scoped_target_embedding_fn(mode, decoder_scope),
               start_tokens,
               end_token,
@@ -164,22 +164,25 @@ class SequenceToSequence(Model):
               mode=mode,
               memory=encoder_outputs,
               memory_sequence_length=encoder_sequence_length,
-              dtype=target_dtype)
+              dtype=target_dtype,
+              return_alignment_history=True)
         else:
           length_penalty = params.get("length_penalty", 0)
-          sampled_ids, _, sampled_length, log_probs = self.decoder.dynamic_decode_and_search(
-              self._scoped_target_embedding_fn(mode, decoder_scope),
-              start_tokens,
-              end_token,
-              vocab_size=target_vocab_size,
-              initial_state=encoder_state,
-              beam_width=beam_width,
-              length_penalty=length_penalty,
-              maximum_iterations=maximum_iterations,
-              mode=mode,
-              memory=encoder_outputs,
-              memory_sequence_length=encoder_sequence_length,
-              dtype=target_dtype)
+          sampled_ids, _, sampled_length, log_probs, alignment = (
+              self.decoder.dynamic_decode_and_search(
+                  self._scoped_target_embedding_fn(mode, decoder_scope),
+                  start_tokens,
+                  end_token,
+                  vocab_size=target_vocab_size,
+                  initial_state=encoder_state,
+                  beam_width=beam_width,
+                  length_penalty=length_penalty,
+                  maximum_iterations=maximum_iterations,
+                  mode=mode,
+                  memory=encoder_outputs,
+                  memory_sequence_length=encoder_sequence_length,
+                  dtype=target_dtype,
+                  return_alignment_history=True))
 
       target_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
           self.target_inputter.vocabulary_file,
@@ -191,6 +194,8 @@ class SequenceToSequence(Model):
           "length": sampled_length,
           "log_probs": log_probs
       }
+      if alignment is not None:
+        predictions["alignment"] = alignment
     else:
       predictions = None
 
