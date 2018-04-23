@@ -188,9 +188,27 @@ class SequenceToSequence(Model):
           self.target_inputter.vocabulary_file,
           vocab_size=target_vocab_size - self.target_inputter.num_oov_buckets,
           default_value=constants.UNKNOWN_TOKEN)
+      target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
+
+      if params.get("replace_unknown_target", False):
+        if alignment is None:
+          raise TypeError("replace_unknown_target is not compatible with decoders "
+                          "that don't return alignment history")
+        if not isinstance(self.source_inputter, inputters.WordEmbedder):
+          raise TypeError("replace_unknown_target is only defined when the source "
+                          "inputter is a WordEmbedder")
+        source_tokens = features["tokens"]
+        if beam_width > 1:
+          source_tokens = tf.contrib.seq2seq.tile_batch(source_tokens, multiplier=beam_width)
+        # Merge batch and beam dimensions.
+        original_shape = tf.shape(target_tokens)
+        target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
+        attention = tf.reshape(alignment, [-1, tf.shape(alignment)[2], tf.shape(alignment)[3]])
+        replaced_target_tokens = replace_unknown_target(target_tokens, source_tokens, attention)
+        target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
       predictions = {
-          "tokens": target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64)),
+          "tokens": target_tokens,
           "length": sampled_length,
           "log_probs": log_probs
       }
@@ -221,3 +239,50 @@ class SequenceToSequence(Model):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
       sentence = self.target_inputter.tokenizer.detokenize(tokens)
       print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+
+
+def align_tokens_from_attention(tokens, attention):
+  """Returns aligned tokens from the attention.
+
+  Args:
+    tokens: The tokens on which the attention is applied as a string
+      ``tf.Tensor`` of shape :math:`[B, T_s]`.
+    attention: The attention vector of shape :math:`[B, T_t, T_s]`.
+
+  Returns:
+    The aligned tokens as a string ``tf.Tensor`` of shape :math:`[B, T_t]`.
+  """
+  alignment = tf.argmax(attention, axis=-1, output_type=tf.int32)
+  batch_size = tf.shape(tokens)[0]
+  max_time = tf.shape(attention)[1]
+  batch_ids = tf.range(batch_size)
+  batch_ids = tf.tile(batch_ids, [max_time])
+  batch_ids = tf.reshape(batch_ids, [max_time, batch_size])
+  batch_ids = tf.transpose(batch_ids, perm=[1, 0])
+  aligned_pos = tf.stack([batch_ids, alignment], axis=-1)
+  aligned_tokens = tf.gather_nd(tokens, aligned_pos)
+  return aligned_tokens
+
+def replace_unknown_target(target_tokens,
+                           source_tokens,
+                           attention,
+                           unknown_token=constants.UNKNOWN_TOKEN):
+  """Replaces all target unknown tokens by the source token with the highest
+  attention.
+
+  Args:
+    target_tokens: A a string ``tf.Tensor`` of shape :math:`[B, T_t]`.
+    source_tokens: A a string ``tf.Tensor`` of shape :math:`[B, T_s]`.
+    attention: The attention vector of shape :math:`[B, T_t, T_s]`.
+    unknown_token: The target token to replace.
+
+  Returns:
+    A string ``tf.Tensor`` with the same shape and type as :obj:`target_tokens`
+    but will all instances of :obj:`unknown_token` replaced by the aligned source
+    token.
+  """
+  aligned_source_tokens = align_tokens_from_attention(source_tokens, attention)
+  return tf.where(
+      tf.equal(target_tokens, unknown_token),
+      x=aligned_source_tokens,
+      y=target_tokens)
