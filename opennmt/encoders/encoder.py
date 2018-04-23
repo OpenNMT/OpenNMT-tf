@@ -59,9 +59,12 @@ class SequentialEncoder(Encoder):
 
 
 class ParallelEncoder(Encoder):
-  """An encoder that encodes inputs with several encoders. If the input
-  is a sequence, each encoder will encode its corresponding input in the
-  sequence. Otherwise, the same input will be encoded by every encoders.
+  """An encoder that encodes its input with several encoders and reduces the
+  outputs and states together. If the input is a single ``tf.Tensor``, the same
+  input will be encoded by every encoders. Otherwise, when the input is a Python
+  sequence (e.g. the non reduced output of a
+  :class:`opennmt.inputters.inputter.ParallelInputter`), each encoder will encode
+  its corresponding input in the sequence.
   """
 
   def __init__(self,
