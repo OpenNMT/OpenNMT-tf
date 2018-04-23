@@ -187,7 +187,7 @@ class RNNDecoder(Decoder):
     if return_alignment_history:
       alignment_history = _get_alignment_history(state)
       if alignment_history is not None:
-        alignment_history = tf.expand_dims(alignment_history, 2)
+        alignment_history = tf.expand_dims(alignment_history, 1)
       return (predicted_ids, state, length, log_probs, alignment_history)
     return (predicted_ids, state, length, log_probs)
 
@@ -261,7 +261,7 @@ class RNNDecoder(Decoder):
       alignment_history = _get_alignment_history(state)
       if alignment_history is not None:
         alignment_history = tf.reshape(
-            alignment_history, [-1, batch_size, beam_width, tf.shape(memory)[1]])
+            alignment_history, [batch_size, beam_width, -1, tf.shape(memory)[1]])
       return (predicted_ids, state, length, log_probs, alignment_history)
     return (predicted_ids, state, length, log_probs)
 
@@ -273,6 +273,7 @@ def _get_alignment_history(cell_state):
   alignment_history = cell_state.alignment_history
   if isinstance(alignment_history, tf.TensorArray):
     alignment_history = alignment_history.stack()
+  alignment_history = tf.transpose(alignment_history, perm=[1, 0, 2])
   return alignment_history
 
 def _build_attention_mechanism(attention_mechanism,

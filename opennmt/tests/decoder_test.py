@@ -96,6 +96,8 @@ class DecoderTest(tf.test.TestCase):
     lengths = outputs[2]
     log_probs = outputs[3]
 
+    decode_time = tf.shape(ids)[-1]
+
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
 
@@ -107,8 +109,9 @@ class DecoderTest(tf.test.TestCase):
       if support_alignment_history:
         self.assertIsInstance(alignment_history, tf.Tensor)
         with self.test_session() as sess:
-          alignment_history = sess.run(alignment_history)
-          self.assertAllEqual([batch_size, num_hyps, memory_time], alignment_history.shape[1:])
+          alignment_history, decode_time = sess.run([alignment_history, decode_time])
+          self.assertAllEqual(
+              [batch_size, num_hyps, decode_time, memory_time], alignment_history.shape)
       else:
         self.assertIsNone(alignment_history)
 
