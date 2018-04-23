@@ -191,9 +191,7 @@ class InputterTest(tf.test.TestCase):
         embedder,
         data_file,
         metadata={"vocabulary_file": vocab_file},
-        shapes={"ids": [None, None], "length": [None]})
-
-    self.assertNotIn("tokens", features)
+        shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
     with self.test_session() as sess:
       sess.run(tf.tables_initializer())
@@ -228,7 +226,7 @@ class InputterTest(tf.test.TestCase):
         embedder,
         data_file,
         metadata={"vocabulary_file": vocab_file, "embedding_file": embedding_file},
-        shapes={"ids": [None, None], "length": [None]})
+        shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
     with self.test_session() as sess:
       sess.run(tf.tables_initializer())
@@ -256,8 +254,6 @@ class InputterTest(tf.test.TestCase):
         data_file,
         metadata={"vocabulary_file": vocab_file},
         shapes={"char_ids": [None, None, None], "length": [None]})
-
-    self.assertNotIn("tokens", features)
 
     with self.test_session() as sess:
       sess.run(tf.tables_initializer())
@@ -295,9 +291,7 @@ class InputterTest(tf.test.TestCase):
 
     self.assertEqual(2, len(parallel_inputter.get_length(features)))
     self.assertNotIn("inputter_0_raw", features)
-    self.assertNotIn("inputter_0_tokens", features)
     self.assertNotIn("inputter_1_raw", features)
-    self.assertNotIn("inputter_1_tokens", features)
 
     with self.test_session() as sess:
       sess.run(tf.tables_initializer())
@@ -335,8 +329,6 @@ class InputterTest(tf.test.TestCase):
         data_file,
         metadata={"vocabulary_file_1": vocab_file, "vocabulary_file_2": vocab_alt_file},
         shapes={"char_ids": [None, None, None], "ids": [None, None], "length": [None]})
-
-    self.assertNotIn("tokens", features)
 
     with self.test_session() as sess:
       sess.run(tf.tables_initializer())
