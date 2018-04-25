@@ -105,10 +105,10 @@ class Reducer(object):
     """Reduces all input elements.
 
     Args:
-      inputs: A list of (possibly nested structure of) ``tf.Tensor``.
+      inputs: A list of ``tf.Tensor``s.
 
     Returns:
-      A (possibly nested structure of) ``tf.Tensor``.
+      A reduced ``tf.Tensor``.
     """
     raise NotImplementedError()
 
@@ -117,12 +117,12 @@ class Reducer(object):
     """Reduces all input sequences.
 
     Args:
-      inputs: A list of (possibly nested structure of) ``tf.Tensor``.
+      inputs: A list of ``tf.Tensor``s.
       sequence_lengths: The length of each input sequence.
 
     Returns:
-      A tuple ``(reduced_input, reduced_length)`` which are a (possibly nested
-      structure of) ``tf.Tensor`` and the reduced sequence length.
+      A tuple ``(reduced_input, reduced_length)`` with the reduced ``tf.Tensor``
+      and sequence length.
     """
     raise NotImplementedError()
 
