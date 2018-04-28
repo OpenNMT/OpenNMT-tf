@@ -6,7 +6,7 @@ tests_require = [
 
 setup(
     name="OpenNMT-tf",
-    version="1.1.0",
+    version="1.2.0",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
