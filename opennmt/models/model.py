@@ -353,8 +353,9 @@ class Model(object):
           num_parallel_calls=num_threads or 1)
       dataset = dataset.apply(data.batch_parallel_dataset(batch_size))
 
-    if prefetch_buffer_size:
-      dataset = dataset.prefetch(prefetch_buffer_size)
+    if not hasattr(tf.contrib.data, "AUTOTUNE") and prefetch_buffer_size is None:
+      prefetch_buffer_size = 1
+    dataset = dataset.prefetch(prefetch_buffer_size)
 
     iterator = dataset.make_initializable_iterator()
 
@@ -396,7 +397,9 @@ class Model(object):
       single_pass: If ``True``, makes a single pass over the training data.
       num_threads: The number of elements processed in parallel.
       sample_buffer_size: The number of elements from which to sample.
-      prefetch_buffer_size: The number of batches to prefetch asynchronously.
+      prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+        older versions.
       maximum_features_length: The maximum length or list of maximum lengths of
         the features sequence(s). ``None`` to not constrain the length.
       maximum_labels_length: The maximum length of the labels sequence.
