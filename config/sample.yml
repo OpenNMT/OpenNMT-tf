@@ -67,6 +67,9 @@ params:
   length_penalty: 0.2
   # (optional) Maximum decoding iterations before stopping (default: 250).
   maximum_iterations: 200
+  # (optional) Replace unknown target tokens by the original source token with the
+  # highest attention (default: false).
+  replace_unknown_target: false
 
 # Training options.
 train:
@@ -95,8 +98,9 @@ train:
   # (optional) The number of elements from which to sample during shuffling (default: 500000).
   # Set 0 or null to disable shuffling, -1 to match the number of training examples.
   sample_buffer_size: 500000
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
+  # (optional) The number of batches to prefetch asynchronously. If not set, use an
+  # automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).
+  prefetch_buffer_size: null
 
 # (optional) Evaluation options.
 eval:

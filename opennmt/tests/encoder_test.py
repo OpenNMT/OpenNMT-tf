@@ -58,12 +58,14 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([3, 6, 10], outputs.shape)
       self.assertAllEqual([4, 5, 5], encoded_length)
 
-  def testSequentialEncoder(self):
+  def _testSequentialEncoder(self, transition_layer_fn=None):
     sequence_length = [17, 21, 20]
     inputs = _build_dummy_sequences(sequence_length)
-    encoder = encoders.SequentialEncoder([
+    encoders_sequence = [
         encoders.UnidirectionalRNNEncoder(1, 20),
-        encoders.PyramidalRNNEncoder(3, 10, reduction_factor=2)])
+        encoders.PyramidalRNNEncoder(3, 10, reduction_factor=2)]
+    encoder = encoders.SequentialEncoder(
+        encoders_sequence, transition_layer_fn=transition_layer_fn)
     _, state, encoded_length = encoder.encode(
         inputs, sequence_length=sequence_length)
     self.assertEqual(4, len(state))
@@ -73,6 +75,22 @@ class EncoderTest(tf.test.TestCase):
       sess.run(tf.global_variables_initializer())
       encoded_length = sess.run(encoded_length)
       self.assertAllEqual([4, 5, 5], encoded_length)
+
+  def testSequentialEncoder(self):
+    self._testSequentialEncoder()
+
+  def testSequentialEncoderWithTransitionLayer(self):
+    layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
+    self._testSequentialEncoder(transition_layer_fn=layer_norm_fn)
+
+  def testSequentialEncoderWithTransitionLayerList(self):
+    layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
+    self._testSequentialEncoder(transition_layer_fn=[layer_norm_fn])
+
+  def testSequentialEncoderWithInvalidTransitionLayerList(self):
+    layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
+    with self.assertRaises(ValueError):
+      self._testSequentialEncoder(transition_layer_fn=[layer_norm_fn, layer_norm_fn])
 
   def _testGoogleRNNEncoder(self, num_layers):
     sequence_length = [17, 21, 20]

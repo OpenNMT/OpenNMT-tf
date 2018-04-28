@@ -13,7 +13,13 @@ toy-ende/export/latest/1507109306/
     └── variables.index
 ```
 
-Models are automatically exported during the training or manually with the `export` run type.
+Multiple run types are exporting models inside the model directory:
+
+* `train_and_eval` exports a new model in `export/latest/` after each evaluation
+* `eval` exports the evaluated checkpoint to `export/latest/`
+* `export` exports the targeted checkpoint to `export/manual/`
+
+Each export creates a directory whose name contains the current timestamp.
 
 When using an exported model, you need to know the input and output nodes of your model. You can use the [`saved_model_cli`](https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel) script provided by TensorFlow for inspection, e.g.:
 

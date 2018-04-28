@@ -165,7 +165,8 @@ class Decoder(object):
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
                      memory_sequence_length=None,
-                     dtype=None):
+                     dtype=None,
+                     return_alignment_history=False):
     """Decodes dynamically from :obj:`start_tokens` with greedy search.
 
     Usually used for inference.
@@ -184,9 +185,14 @@ class Decoder(object):
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
       dtype: The data type. Required if :obj:`memory` is ``None``.
+      return_alignment_history: If ``True``, also returns the alignment
+        history from the attention layer (``None`` will be returned if
+        unsupported by the decoder).
 
     Returns:
-      A tuple ``(predicted_ids, state, sequence_length, log_probs)``.
+      A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
+      ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
+      if :obj:`return_alignment_history` is ``True``.
     """
     raise NotImplementedError()
 
@@ -204,7 +210,8 @@ class Decoder(object):
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None,
-                                dtype=None):
+                                dtype=None,
+                                return_alignment_history=False):
     """Decodes dynamically from :obj:`start_tokens` with beam search.
 
     Usually used for inference.
@@ -225,8 +232,13 @@ class Decoder(object):
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
       dtype: The data type. Required if :obj:`memory` is ``None``.
+      return_alignment_history: If ``True``, also returns the alignment
+        history from the attention layer (``None`` will be returned if
+        unsupported by the decoder).
 
     Returns:
-      A tuple ``(predicted_ids, state, sequence_length, log_probs)``.
+      A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
+      ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
+      if :obj:`return_alignment_history` is ``True``.
     """
     raise NotImplementedError()

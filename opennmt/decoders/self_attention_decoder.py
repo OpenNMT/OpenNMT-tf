@@ -221,7 +221,8 @@ class SelfAttentionDecoder(Decoder):
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
                      memory_sequence_length=None,
-                     dtype=None):
+                     dtype=None,
+                     return_alignment_history=False):
     batch_size = tf.shape(start_tokens)[0]
     finished = tf.tile([False], [batch_size])
     step = tf.constant(0)
@@ -282,6 +283,8 @@ class SelfAttentionDecoder(Decoder):
     lengths = tf.expand_dims(lengths, 1)
     log_probs = tf.expand_dims(log_probs, 1)
 
+    if return_alignment_history:
+      return (outputs, None, lengths, log_probs, None)
     return (outputs, None, lengths, log_probs)
 
 
@@ -298,7 +301,8 @@ class SelfAttentionDecoder(Decoder):
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None,
-                                dtype=None):
+                                dtype=None,
+                                return_alignment_history=False):
     cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
     symbols_to_logits_fn = self._symbols_to_logits_fn(
         embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
@@ -318,4 +322,6 @@ class SelfAttentionDecoder(Decoder):
     lengths = tf.cast(lengths, tf.int32)
     lengths = tf.reduce_sum(lengths, axis=-1)
 
+    if return_alignment_history:
+      return (outputs, None, lengths, log_probs, None)
     return (outputs, None, lengths, log_probs)

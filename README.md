@@ -29,7 +29,8 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 
 ## Requirements
 
-* `tensorflow` (>= 1.4)
+* Python (>= 2.7)
+* TensorFlow (>= 1.4)
 
 ## Installation
 
@@ -51,7 +52,8 @@ that are passed to the main script:
 onmt-main <run_type> --model_type <model> --config <config_file.yml>
 ```
 
-* Additional experimental models are available in the `config/models/` directory and can be used with the option `--model <model_file.py>`.
+Additional experimental models are available in the `config/models/` directory and can be used with the option `--model <model_file.py>`.
+
 * For more information about configuration files, see the [documentation](http://opennmt.net/OpenNMT-tf/configuration.html).
 * For more information about command line options, see the help flag `onmt-main -h`.
 

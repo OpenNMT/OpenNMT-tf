@@ -13,24 +13,35 @@ def pad_in_time(x, padding_length):
   x.set_shape((None, None, depth))
   return x
 
-def pad_with_identity(x, sequence_length, max_sequence_length, identity_values=0):
+def align_in_time(x, length):
+  """Aligns the time dimension of :obj:`x` with :obj:`length`."""
+  time_dim = tf.shape(x)[1]
+  return tf.cond(
+      tf.less(time_dim, length),
+      true_fn=lambda: pad_in_time(x, length - time_dim),
+      false_fn=lambda: x[:, :length])
+
+def pad_with_identity(x, sequence_length, max_sequence_length, identity_values=0, maxlen=None):
   """Pads a tensor with identity values up to :obj:`max_sequence_length`.
 
   Args:
-    x: A ``tf.Tensor`` of shape ``[batch_size, max(sequence_length), depth]``.
+    x: A ``tf.Tensor`` of shape ``[batch_size, time, depth]``.
     sequence_length: The true sequence length of :obj:`x`.
     max_sequence_length: The sequence length up to which the tensor must contain
       :obj:`identity values`.
     identity_values: The identity value.
+    maxlen: Size of the output time dimension. Default is the maximum value in
+      obj:`max_sequence_length`.
 
   Returns:
-    A ``tf.Tensor`` of shape ``[batch_size, max(max_sequence_length), depth]``.
+    A ``tf.Tensor`` of shape ``[batch_size, maxlen, depth]``.
   """
-  maxlen = tf.reduce_max(max_sequence_length)
+  if maxlen is None:
+    maxlen = tf.reduce_max(max_sequence_length)
 
   mask = tf.sequence_mask(sequence_length, maxlen=maxlen, dtype=x.dtype)
   mask = tf.expand_dims(mask, axis=-1)
-  mask_combined = tf.sequence_mask(max_sequence_length, dtype=x.dtype)
+  mask_combined = tf.sequence_mask(max_sequence_length, maxlen=maxlen, dtype=x.dtype)
   mask_combined = tf.expand_dims(mask_combined, axis=-1)
 
   identity_mask = mask_combined * (1.0 - mask)
@@ -55,8 +66,10 @@ def pad_n_with_identity(inputs, sequence_lengths, identity_values=0):
     sequence length.
   """
   max_sequence_length = tf.reduce_max(sequence_lengths, axis=0)
+  maxlen = tf.reduce_max([tf.shape(x)[1] for x in inputs])
   padded = [
-      pad_with_identity(x, length, max_sequence_length, identity_values=identity_values)
+      pad_with_identity(
+          x, length, max_sequence_length, identity_values=identity_values, maxlen=maxlen)
       for x, length in zip(inputs, sequence_lengths)]
   return padded, max_sequence_length
 
@@ -105,10 +118,10 @@ class Reducer(object):
     """Reduces all input elements.
 
     Args:
-      inputs: A list of (possibly nested structure of) ``tf.Tensor``.
+      inputs: A list of ``tf.Tensor``s.
 
     Returns:
-      A (possibly nested structure of) ``tf.Tensor``.
+      A reduced ``tf.Tensor``.
     """
     raise NotImplementedError()
 
@@ -117,12 +130,12 @@ class Reducer(object):
     """Reduces all input sequences.
 
     Args:
-      inputs: A list of (possibly nested structure of) ``tf.Tensor``.
+      inputs: A list of ``tf.Tensor``s.
       sequence_lengths: The length of each input sequence.
 
     Returns:
-      A tuple ``(reduced_input, reduced_length)`` which are a (possibly nested
-      structure of) ``tf.Tensor`` and the reduced sequence length.
+      A tuple ``(reduced_input, reduced_length)`` with the reduced ``tf.Tensor``
+      and sequence length.
     """
     raise NotImplementedError()
 
@@ -165,15 +178,15 @@ class ConcatReducer(Reducer):
       padded, combined_length = pad_n_with_identity(inputs, sequence_lengths)
       return self.reduce(padded), combined_length
     elif axis == 1:
-      # Pad all input tensors up to maximum combined length.
+      # Align all input tensors to the maximum combined length.
       combined_length = tf.add_n(sequence_lengths)
       maxlen = tf.reduce_max(combined_length)
-      padded = [pad_in_time(x, maxlen - tf.shape(x)[1]) for x in inputs]
+      aligned = [align_in_time(x, maxlen) for x in inputs]
 
       current_length = None
       accumulator = None
 
-      for elem, length in zip(padded, sequence_lengths):
+      for elem, length in zip(aligned, sequence_lengths):
         # Make sure padding are 0 vectors as it is required for the next step.
         mask = tf.sequence_mask(length, maxlen=maxlen, dtype=elem.dtype)
         elem = elem * tf.expand_dims(mask, -1)
