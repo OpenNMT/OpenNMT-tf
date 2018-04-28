@@ -28,24 +28,47 @@ class Encoder(object):
 
 
 class SequentialEncoder(Encoder):
-  """An encoder that executes multiple encoders sequentially."""
+  """An encoder that executes multiple encoders sequentially with optional
+  transition layers.
 
-  def __init__(self, encoders, states_reducer=JoinReducer()):
+  See for example "Cascaded Encoder" in https://arxiv.org/abs/1804.09849.
+  """
+
+  def __init__(self, encoders, states_reducer=JoinReducer(), transition_layer_fn=None):
     """Initializes the parameters of the encoder.
 
     Args:
       encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
       states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
         states.
+      transition_layer_fn: A callable or list of callables applied to the
+        output of an encoder before passing it as input to the next. If it is a
+        single callable, it is applied between every encoders. Otherwise, the
+        `i`-th callable will be applied between encoder `i` and `i + 1`.
+
+    Raises:
+      ValueError: if :obj:`transition_layer_fn` is a list with a size not equal
+        to the number of encoder transitions `len(encoders) - 1`.
     """
+    if (transition_layer_fn is not None and isinstance(transition_layer_fn, list)
+        and len(transition_layer_fn) != len(encoders) - 1):
+      raise ValueError("The number of transition layers must match the number of encoder "
+                       "transitions, expected %d layers but got %d."
+                       % (len(encoders) - 1, len(transition_layer_fn)))
     self.encoders = encoders
     self.states_reducer = states_reducer
+    self.transition_layer_fn = transition_layer_fn
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     encoder_state = []
 
     for i, encoder in enumerate(self.encoders):
       with tf.variable_scope("encoder_{}".format(i)):
+        if i > 0 and self.transition_layer_fn is not None:
+          if isinstance(self.transition_layer_fn, list):
+            inputs = self.transition_layer_fn[i - 1](inputs)
+          else:
+            inputs = self.transition_layer_fn(inputs)
         inputs, state, sequence_length = encoder.encode(
             inputs,
             sequence_length=sequence_length,
@@ -65,6 +88,8 @@ class ParallelEncoder(Encoder):
   sequence (e.g. the non reduced output of a
   :class:`opennmt.inputters.inputter.ParallelInputter`), each encoder will encode
   its corresponding input in the sequence.
+
+  See for example "Multi-Columnn Encoder" in https://arxiv.org/abs/1804.09849.
   """
 
   def __init__(self,
