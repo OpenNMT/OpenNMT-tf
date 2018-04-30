@@ -1,0 +1,13 @@
+[run]
+branch = True
+source = opennmt
+omit =
+    */bin*
+    */tests*
+    */__init__.py
+
+[report]
+omit =
+    */bin*
+    */tests*
+    */__init__.py
