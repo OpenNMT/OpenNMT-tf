@@ -145,20 +145,71 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([3, 35, 20], outputs.shape)
       self.assertAllEqual([27, 30, 35], encoded_length)
 
+  def _encodeInParallel(self,
+                        inputs,
+                        sequence_length=None,
+                        outputs_layer_fn=None,
+                        combined_output_layer_fn=None):
+    columns = [
+        encoders.UnidirectionalRNNEncoder(1, 20),
+        encoders.UnidirectionalRNNEncoder(1, 20)]
+    encoder = encoders.ParallelEncoder(
+        columns,
+        outputs_reducer=reducer.ConcatReducer(),
+        outputs_layer_fn=outputs_layer_fn,
+        combined_output_layer_fn=combined_output_layer_fn)
+    return encoder.encode(inputs, sequence_length=sequence_length)
+
   def testParallelEncoderSameInput(self):
     sequence_length = [17, 21, 20]
     inputs = _build_dummy_sequences(sequence_length)
-    encoder = encoders.ParallelEncoder([
-        encoders.UnidirectionalRNNEncoder(1, 20),
-        encoders.UnidirectionalRNNEncoder(1, 20)],
-        outputs_reducer=reducer.ConcatReducer())
-    outputs, _, encoded_length = encoder.encode(
+    outputs, _, encoded_length = self._encodeInParallel(
         inputs, sequence_length=sequence_length)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       outputs, encoded_length = sess.run([outputs, encoded_length])
       self.assertAllEqual([3, 21, 40], outputs.shape)
       self.assertAllEqual(sequence_length, encoded_length)
+
+  def testParallelEncoderCombinedOutputLayer(self):
+    sequence_length = [4, 6, 5]
+    inputs = _build_dummy_sequences(sequence_length)
+    outputs, _, encoded_length = self._encodeInParallel(
+        inputs,
+        sequence_length=sequence_length,
+        combined_output_layer_fn=lambda x: tf.layers.dense(x, 15))
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+      outputs = sess.run(outputs)
+      self.assertEqual(15, outputs.shape[-1])
+
+  def _encodeAndProjectInParallel(self, outputs_size):
+    sequence_length = [4, 6, 5]
+    inputs = _build_dummy_sequences(sequence_length)
+    if isinstance(outputs_size, list):
+      outputs_layer_fn = [lambda x, s=s: tf.layers.dense(x, s) for s in outputs_size]
+      combined_output_size = sum(outputs_size)
+    else:
+      outputs_layer_fn = lambda x: tf.layers.dense(x, outputs_size)
+      combined_output_size = outputs_size * 2
+    outputs, _, encoded_length = self._encodeInParallel(
+        inputs,
+        sequence_length=sequence_length,
+        outputs_layer_fn=outputs_layer_fn)
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+      outputs = sess.run(outputs)
+      self.assertEqual(combined_output_size, outputs.shape[-1])
+
+  def testParallelEncoderSameOutputsLayer(self):
+    self._encodeAndProjectInParallel(15)
+
+  def testParallelEncoderOutputsLayer(self):
+    self._encodeAndProjectInParallel([14, 15])
+
+  def testParallelEncoderOutputsLayerInvalid(self):
+    with self.assertRaises(ValueError):
+      self._encodeAndProjectInParallel([15])
 
 
 if __name__ == "__main__":

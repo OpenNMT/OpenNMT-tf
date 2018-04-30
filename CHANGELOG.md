@@ -18,6 +18,9 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * RNMT+ encoder
 * L1, L2, and L1 L2 regularization penalties (see `regularization` parameter)
+* Support additional post processing layers in `ParallelEncoder`:
+  * `outputs_layer_fn` applied on each encoder outputs
+  * `combined_output_layer_fn` applied on the combined output
 
 ### Fixes and improvements
 
