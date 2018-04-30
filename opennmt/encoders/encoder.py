@@ -83,11 +83,14 @@ class SequentialEncoder(Encoder):
 
 class ParallelEncoder(Encoder):
   """An encoder that encodes its input with several encoders and reduces the
-  outputs and states together. If the input is a single ``tf.Tensor``, the same
-  input will be encoded by every encoders. Otherwise, when the input is a Python
-  sequence (e.g. the non reduced output of a
-  :class:`opennmt.inputters.inputter.ParallelInputter`), each encoder will encode
-  its corresponding input in the sequence.
+  outputs and states together. Additional layers can be applied on each encoder
+  output and on the combined output (e.g. to layer normalize each encoder
+  output).
+
+  If the input is a single ``tf.Tensor``, the same input will be encoded by
+  every encoders. Otherwise, when the input is a Python sequence (e.g. the non
+  reduced output of a :class:`opennmt.inputters.inputter.ParallelInputter`),
+  each encoder will encode its corresponding input in the sequence.
 
   See for example "Multi-Columnn Encoder" in https://arxiv.org/abs/1804.09849.
   """
@@ -95,7 +98,9 @@ class ParallelEncoder(Encoder):
   def __init__(self,
                encoders,
                outputs_reducer=ConcatReducer(axis=1),
-               states_reducer=JoinReducer()):
+               states_reducer=JoinReducer(),
+               outputs_layer_fn=None,
+               combined_output_layer_fn=None):
     """Initializes the parameters of the encoder.
 
     Args:
@@ -104,10 +109,27 @@ class ParallelEncoder(Encoder):
         outputs.
       states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
         states.
+      outputs_layer_fn: A callable or list of callables applied to the
+        encoders outputs If it is a single callable, it is on each encoder
+        output. Otherwise, the ``i`` th callable is applied on encoder ``i``
+        output.
+      combined_output_layer_fn: A callable to apply on the combined output
+        (i.e. the output of :obj:`outputs_reducer`).
+
+    Raises:
+      ValueError: if :obj:`outputs_layer_fn` is a list with a size not equal
+        to the number of encoders.
     """
+    if (outputs_layer_fn is not None and isinstance(outputs_layer_fn, list)
+        and len(outputs_layer_fn) != len(encoders)):
+      raise ValueError("The number of output layers must match the number of encoders; "
+                       "expected %d layers but got %d."
+                       % (len(encoders), len(outputs_layer_fn)))
     self.encoders = encoders
     self.outputs_reducer = outputs_reducer
     self.states_reducer = states_reducer
+    self.outputs_layer_fn = outputs_layer_fn
+    self.combined_output_layer_fn = combined_output_layer_fn
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     all_outputs = []
@@ -131,11 +153,20 @@ class ParallelEncoder(Encoder):
             sequence_length=length,
             mode=mode)
 
+        if self.outputs_layer_fn is not None:
+          if isinstance(self.outputs_layer_fn, list):
+            outputs = self.outputs_layer_fn[i](outputs)
+          else:
+            outputs = self.outputs_layer_fn(outputs)
+
         all_outputs.append(outputs)
         all_states.append(state)
         all_sequence_lengths.append(length)
 
     outputs, sequence_length = self.outputs_reducer.reduce_sequence(
         all_outputs, all_sequence_lengths)
+
+    if self.combined_output_layer_fn is not None:
+      outputs = self.combined_output_layer_fn(outputs)
 
     return (outputs, self.states_reducer.reduce(all_states), sequence_length)
