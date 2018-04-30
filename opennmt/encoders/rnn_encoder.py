@@ -139,6 +139,59 @@ class BidirectionalRNNEncoder(RNNEncoder):
     return (encoder_outputs, encoder_state, sequence_length)
 
 
+class RNMTPlusEncoder(Encoder):
+  """The RNMT+ encoder described in https://arxiv.org/abs/1804.09849."""
+
+  def __init__(self,
+               num_layers=6,
+               num_units=1024,
+               cell_class=tf.contrib.rnn.LayerNormBasicLSTMCell,
+               dropout=0.3):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each RNN layer and the final output.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
+        argument and returning a cell. For efficiency, consider using the
+        standard ``tf.contrib.rnn.LSTMCell`` instead.
+      dropout: The probability to drop units in each layer output.
+    """
+    self._num_units = num_units
+    self._dropout = dropout
+    self._layers = [
+        BidirectionalRNNEncoder(
+            num_layers=1,
+            num_units=num_units * 2,
+            reducer=ConcatReducer(),
+            cell_class=cell_class,
+            dropout=0.0)
+        for _ in range(num_layers)]
+
+  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+    inputs = tf.layers.dropout(
+        inputs,
+        rate=self._dropout,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
+
+    states = []
+    for i, layer in enumerate(self._layers):
+      with tf.variable_scope("layer_%d" % i):
+        outputs, state, sequence_length = layer.encode(
+            inputs, sequence_length=sequence_length, mode=mode)
+        outputs = tf.layers.dropout(
+            outputs,
+            rate=self._dropout,
+            training=mode == tf.estimator.ModeKeys.TRAIN)
+        inputs = outputs + inputs if i >= 2 else outputs
+        states.append(state)
+
+    with tf.variable_scope("projection"):
+      projected = tf.layers.dense(inputs, self._num_units)
+    state = JoinReducer().reduce(states)
+    return (projected, state, sequence_length)
+
+
 class GoogleRNNEncoder(Encoder):
   """The RNN encoder used in GNMT as described in
   https://arxiv.org/abs/1609.08144.
