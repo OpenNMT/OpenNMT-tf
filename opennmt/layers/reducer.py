@@ -118,7 +118,7 @@ class Reducer(object):
     """Reduces all input elements.
 
     Args:
-      inputs: A list of ``tf.Tensor``s.
+      inputs: A list of ``tf.Tensor``.
 
     Returns:
       A reduced ``tf.Tensor``.
@@ -130,7 +130,7 @@ class Reducer(object):
     """Reduces all input sequences.
 
     Args:
-      inputs: A list of ``tf.Tensor``s.
+      inputs: A list of ``tf.Tensor``.
       sequence_lengths: The length of each input sequence.
 
     Returns:

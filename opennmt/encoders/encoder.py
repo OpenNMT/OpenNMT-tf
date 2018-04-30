@@ -44,11 +44,11 @@ class SequentialEncoder(Encoder):
       transition_layer_fn: A callable or list of callables applied to the
         output of an encoder before passing it as input to the next. If it is a
         single callable, it is applied between every encoders. Otherwise, the
-        `i`-th callable will be applied between encoder `i` and `i + 1`.
+        ``i`` th callable will be applied between encoders ``i`` and ``i + 1``.
 
     Raises:
       ValueError: if :obj:`transition_layer_fn` is a list with a size not equal
-        to the number of encoder transitions `len(encoders) - 1`.
+        to the number of encoder transitions ``len(encoders) - 1``.
     """
     if (transition_layer_fn is not None and isinstance(transition_layer_fn, list)
         and len(transition_layer_fn) != len(encoders) - 1):
