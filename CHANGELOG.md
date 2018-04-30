@@ -17,6 +17,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### New features
 
 * RNMT+ encoder
+* L1, L2, and L1 L2 regularization penalties (see `regularization` parameter)
 
 ### Fixes and improvements
 
