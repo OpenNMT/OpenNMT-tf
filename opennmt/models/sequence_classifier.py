@@ -1,5 +1,7 @@
 """Sequence classifier."""
 
+import collections
+
 import tensorflow as tf
 
 from opennmt.models.model import Model
@@ -70,7 +72,7 @@ class SequenceClassifier(Model):
           mode=mode,
           log_dir=config.model_dir if config is not None else None)
 
-      encoder_outputs, _, _ = self.encoder.encode(
+      encoder_outputs, encoder_state, _ = self.encoder.encode(
           inputs,
           sequence_length=self._get_features_length(features),
           mode=mode)
@@ -78,7 +80,7 @@ class SequenceClassifier(Model):
     if self.encoding == "average":
       encoding = tf.reduce_mean(encoder_outputs, axis=1)
     elif self.encoding == "last":
-      encoding = tf.squeeze(encoder_outputs[:, -1:, :], axis=1)
+      encoding = last_encoding_from_state(encoder_state)
 
     with tf.variable_scope("generator"):
       logits = tf.layers.dense(
@@ -113,3 +115,22 @@ class SequenceClassifier(Model):
 
   def print_prediction(self, prediction, params=None, stream=None):
     print_bytes(prediction["classes"], stream=stream)
+
+
+def last_encoding_from_state(state):
+  """Returns the last encoding vector from the state.
+
+  For example, this is the last hidden states of the last LSTM layer for a
+  LSTM-based encoder.
+
+  Args:
+    state: The encoder state.
+
+  Returns:
+    The last encoding vector.
+  """
+  if isinstance(state, collections.Sequence):
+    state = state[-1]
+  if isinstance(state, tf.contrib.rnn.LSTMStateTuple):
+    return state.h
+  return state
