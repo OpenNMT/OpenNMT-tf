@@ -18,6 +18,20 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.3.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.3.0) (2018-05-14)
+
+### New features
+
+* RNMT+ encoder
+* L1, L2, and L1 L2 regularization penalties (see `regularization` parameter)
+* Support additional post processing layers in `ParallelEncoder`:
+  * `outputs_layer_fn` applied on each encoder outputs
+  * `combined_output_layer_fn` applied on the combined output
+
+### Fixes and improvements
+
+* Fix `SequenceClassifier` "last" encoding for variable length sequences
+
 ## [1.2.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.2.0) (2018-04-28)
 
 ### New features

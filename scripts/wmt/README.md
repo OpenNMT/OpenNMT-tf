@@ -58,6 +58,6 @@ This model achieved the following scores:
 | Test set | NIST BLEU |
 | --- | --- |
 | newstest2014 | 26.9 |
-| neswtest2017 | 28.0 |
+| newstest2017 | 28.0 |
 
 (*) *The model was exported with TensorFlow 1.7.0 and OpenNMT-tf 1.1.0.*
