@@ -132,3 +132,12 @@ infer:
   prefetch_buffer_size: 1
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1
+
+# (optional) Scoring options.
+score:
+  # (optional) The batch size to use (default: 64).
+  batch_size: 64
+  # (optional) The number of threads to use for processing data in parallel (default: 1).
+  num_threads: 1
+  # (optional) The number of batches to prefetch asynchronously (default: 1).
+  prefetch_buffer_size: 1
