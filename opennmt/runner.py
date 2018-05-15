@@ -118,6 +118,11 @@ class Runner(object):
               self._config["data"]["eval_labels_file"],
               output_dir=self._estimator.model_dir)))
 
+    exporters = None
+    if self._config["eval"].get("export", True):
+      exporters = tf.estimator.LatestExporter(
+          "latest", self._model.serving_input_fn(self._config["data"]))
+
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self._model.input_fn(
             tf.estimator.ModeKeys.EVAL,
@@ -129,8 +134,7 @@ class Runner(object):
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
         hooks=eval_hooks,
-        exporters=tf.estimator.LatestExporter(
-            "latest", self._model.serving_input_fn(self._config["data"])),
+        exporters=exporters,
         throttle_secs=self._config["eval"].get("eval_delay", 18000))
     return eval_spec
 
