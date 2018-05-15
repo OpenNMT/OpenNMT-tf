@@ -121,6 +121,8 @@ eval:
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
   # Available evaluators: BLEU, BLEU-detok
   external_evaluators: BLEU
+  # (optional) Export model after evaluation (default: true).
+  export: true
 
 # (optional) Inference options.
 infer:
