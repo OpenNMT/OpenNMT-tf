@@ -78,7 +78,7 @@ class ROUGEEvaluator(ExternalEvaluator):
 
   def score(self, labels_file, predictions_path):
     from rouge import FilesRouge
-    files_rouge = FilesRouge(predictions_path, labels_file, stats=["f"])
+    files_rouge = FilesRouge(predictions_path, labels_file)
     rouge_scores = files_rouge.get_scores(avg=True)
     return {k:v["f"] for k, v in six.iteritems(rouge_scores)}
 
