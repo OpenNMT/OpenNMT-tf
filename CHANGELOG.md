@@ -16,6 +16,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* ROUGE external evaluator for summarization
+
 ### Fixes and improvements
 
 * Model export after evaluation can be disabled by adding `export: false` to the `eval` section

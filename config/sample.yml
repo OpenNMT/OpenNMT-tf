@@ -119,7 +119,7 @@ eval:
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: BLEU, BLEU-detok
+  # Available evaluators: BLEU, BLEU-detok, ROUGE
   external_evaluators: BLEU
   # (optional) Export model after evaluation (default: true).
   export: true
