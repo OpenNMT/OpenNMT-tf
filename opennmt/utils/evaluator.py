@@ -63,6 +63,7 @@ class ExternalEvaluator(object):
 
 
 class ROUGEEvaluator(ExternalEvaluator):
+  """ROUGE evaluator based on https://github.com/pltrdy/rouge."""
 
   def name(self):
     return "ROUGE"
