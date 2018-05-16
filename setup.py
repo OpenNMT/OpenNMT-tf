@@ -35,7 +35,7 @@ setup(
     install_requires=[
         "pyonmttok==1.*;platform_system=='Linux'",
         "pyyaml",
-        "git+https://github.com/pltrdy/rouge@809299cb4000f95e24e016f4d6abf71ac45c9b06"
+        "rouge==0.3.0"
     ],
     extras_require={
         "tests": tests_require,
