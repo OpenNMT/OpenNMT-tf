@@ -19,6 +19,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * Model export after evaluation can be disabled by adding `export: false` to the `eval` section
+* Allow `JoinReducer` to be used on the `ParallelEncoder` output
 
 ## [1.3.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.3.0) (2018-05-14)
 

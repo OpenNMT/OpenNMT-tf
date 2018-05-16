@@ -217,4 +217,4 @@ class JoinReducer(Reducer):
     return tuple(output)
 
   def reduce_sequence(self, inputs, sequence_lengths):
-    raise NotImplementedError("JoinReducer does not support sequence reduction")
+    return self.reduce(inputs), self.reduce(sequence_lengths)
