@@ -100,23 +100,6 @@ class Runner(object):
         hooks=train_hooks)
     return train_spec
 
-  def _make_exporters(self, types):
-    if types is None:
-      return None
-    if not isinstance(types, list):
-      types = [types]
-    exporters = []
-    for exporter in types:
-      exporter = exporter.lower()
-      if exporter == "last":
-        exporters.append(tf.estimator.LatestExporter(
-            "latest", self._model.serving_input_fn(self._config["data"])))
-      else:
-        raise ValueError("invalid exporter type: %s" % exporter)
-    if len(exporters) == 1:
-      return exporters[0]
-    return exporters
-
   def _build_eval_spec(self):
     if "eval" not in self._config:
       self._config["eval"] = {}
@@ -146,7 +129,9 @@ class Runner(object):
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
         hooks=eval_hooks,
-        exporters=self._make_exporters(self._config["eval"].get("exporters", "last")),
+        exporters=_make_exporters(
+            self._config["eval"].get("exporters", "last"),
+            self._model.serving_input_fn(self._config["data"])),
         throttle_secs=self._config["eval"].get("eval_delay", 18000))
     return eval_spec
 
@@ -231,3 +216,20 @@ class Runner(object):
         self._model.serving_input_fn(self._config["data"]),
         checkpoint_path=checkpoint_path,
         **kwargs)
+
+
+def _make_exporters(exporters_type, serving_input_fn):
+  if exporters_type is None:
+    return None
+  if not isinstance(exporters_type, list):
+    exporters_type = [exporters_type]
+  exporters = []
+  for exporter_type in exporters_type:
+    exporter_type = exporter_type.lower()
+    if exporter_type == "last":
+      exporters.append(tf.estimator.LatestExporter("latest", serving_input_fn))
+    else:
+      raise ValueError("invalid exporter type: %s" % exporter_type)
+  if len(exporters) == 1:
+    return exporters[0]
+  return exporters
