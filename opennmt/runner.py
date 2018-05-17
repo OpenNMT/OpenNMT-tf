@@ -100,6 +100,23 @@ class Runner(object):
         hooks=train_hooks)
     return train_spec
 
+  def _make_exporters(self, types):
+    if types is None:
+      return None
+    if not isinstance(types, list):
+      types = [types]
+    exporters = []
+    for exporter in types:
+      exporter = exporter.lower()
+      if exporter == "last":
+        exporters.append(tf.estimator.LatestExporter(
+            "latest", self._model.serving_input_fn(self._config["data"])))
+      else:
+        raise ValueError("invalid exporter type: %s" % exporter)
+    if len(exporters) == 1:
+      return exporters[0]
+    return exporters
+
   def _build_eval_spec(self):
     if "eval" not in self._config:
       self._config["eval"] = {}
@@ -118,11 +135,6 @@ class Runner(object):
               self._config["data"]["eval_labels_file"],
               output_dir=self._estimator.model_dir)))
 
-    exporters = None
-    if self._config["eval"].get("export", True):
-      exporters = tf.estimator.LatestExporter(
-          "latest", self._model.serving_input_fn(self._config["data"]))
-
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self._model.input_fn(
             tf.estimator.ModeKeys.EVAL,
@@ -134,7 +146,7 @@ class Runner(object):
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
         hooks=eval_hooks,
-        exporters=exporters,
+        exporters=self._make_exporters(self._config["eval"].get("exporters", "last")),
         throttle_secs=self._config["eval"].get("eval_delay", 18000))
     return eval_spec
 
