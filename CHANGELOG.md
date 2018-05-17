@@ -12,8 +12,6 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ## [Unreleased]
 
-### Breaking changes
-
 ### New features
 
 * ROUGE external evaluator for summarization
