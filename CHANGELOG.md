@@ -14,6 +14,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* `MultistepAdamOptimizer` to simulate trainings with large batch size (credits to Tensor2Tensor, requires TensorFlow 1.6+)
 * `--log_prediction_time` flag to summarize inference execution time:
   * total prediction time
   * average prediction time
