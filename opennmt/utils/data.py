@@ -36,6 +36,24 @@ def filter_irregular_batches(multiple):
 
   return lambda dataset: dataset.filter(_predicate)
 
+def prefetch_element(buffer_size=None):
+  """Transformation that prefetches elements from the dataset.
+
+  This is a small wrapper around tf.data.Dataset.prefetch to customize the
+  case :obj:`buffer_size` is ``None`` for some TensorFlow versions.
+
+  Args:
+    buffer_size: The number of batches to prefetch asynchronously. If ``None``,
+      use an automatically tuned value on TensorFlow 1.8+ and 1 on older
+      versions.
+
+  Returns:
+    A ``tf.data.Dataset`` transformation.
+  """
+  if not hasattr(tf.contrib.data, "AUTOTUNE") and buffer_size is None:
+    buffer_size = 1
+  return lambda dataset: dataset.prefetch(buffer_size)
+
 def filter_examples_by_length(maximum_features_length=None,
                               maximum_labels_length=None,
                               features_length_fn=None,
@@ -188,3 +206,104 @@ def batch_parallel_dataset(batch_size,
   else:
     raise ValueError(
         "Invalid batch type: '{}'; should be 'examples' or 'tokens'".format(batch_type))
+
+
+def training_pipeline(dataset,
+                      batch_size,
+                      batch_type="examples",
+                      batch_multiplier=1,
+                      bucket_width=None,
+                      single_pass=False,
+                      process_fn=None,
+                      num_threads=None,
+                      shuffle_buffer_size=None,
+                      prefetch_buffer_size=None,
+                      dataset_size=None,
+                      maximum_features_length=None,
+                      maximum_labels_length=None,
+                      features_length_fn=None,
+                      labels_length_fn=None):
+  """Defines a complete training data pipeline.
+
+  Args:
+    dataset: The base dataset.
+    batch_size: The batch size to use.
+    batch_type: The training batching stragety to use: can be "examples" or
+      "tokens".
+    batch_multiplier: The batch size multiplier to prepare splitting accross
+       replicated graph parts.
+    bucket_width: The width of the length buckets to select batch candidates
+      from. ``None`` to not constrain batch formation.
+    single_pass: If ``True``, makes a single pass over the training data.
+    process_fn: The processing function to apply on each element.
+    num_threads: The number of elements processed in parallel.
+    shuffle_buffer_size: The number of elements from which to sample.
+    prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+      older versions.
+    dataset_size: The total size of the dataset, if known. It is recommended to
+      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size.
+    maximum_features_length: The maximum length or list of maximum lengths of
+      the features sequence(s). ``None`` to not constrain the length.
+    maximum_labels_length: The maximum length of the labels sequence.
+      ``None`` to not constrain the length.
+    features_length_fn: A callable mapping features to a sequence length.
+    labels_length_fn: A callable mapping labels to a sequence length.
+
+  Returns:
+    A ``tf.data.Dataset``.
+  """
+  if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
+    if dataset_size is not None:
+      if shuffle_buffer_size < 0:
+        shuffle_buffer_size = dataset_size
+      elif shuffle_buffer_size < dataset_size:
+        # When the sample buffer size is smaller than the dataset size, shard
+        # the dataset in a random order. This ensures that all parts of the
+        # dataset can be seen when the evaluation frequency is high.
+        dataset = dataset.apply(random_shard(shuffle_buffer_size, dataset_size))
+    dataset = dataset.shuffle(shuffle_buffer_size)
+  if process_fn is not None:
+    dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
+  dataset = dataset.apply(filter_examples_by_length(
+      maximum_features_length=maximum_features_length,
+      maximum_labels_length=maximum_labels_length,
+      features_length_fn=features_length_fn,
+      labels_length_fn=labels_length_fn))
+  dataset = dataset.apply(batch_parallel_dataset(
+      batch_size,
+      batch_type=batch_type,
+      batch_multiplier=batch_multiplier,
+      bucket_width=bucket_width,
+      features_length_fn=features_length_fn,
+      labels_length_fn=labels_length_fn))
+  dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
+  if not single_pass:
+    dataset = dataset.repeat()
+  dataset = dataset.apply(prefetch_element(buffer_size=prefetch_buffer_size))
+  return dataset
+
+def inference_pipeline(dataset,
+                       batch_size,
+                       process_fn=None,
+                       num_threads=None,
+                       prefetch_buffer_size=None):
+  """Defines a complete inference data pipeline.
+
+  Args:
+    dataset: The base dataset.
+    batch_size: The batch size to use.
+    process_fn: The processing function to apply on each element.
+    num_threads: The number of elements processed in parallel.
+    prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+      older versions.
+
+  Returns:
+    A ``tf.data.Dataset``.
+  """
+  if process_fn is not None:
+    dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 1)
+  dataset = dataset.apply(batch_parallel_dataset(batch_size))
+  dataset = dataset.apply(prefetch_element(buffer_size=prefetch_buffer_size))
+  return dataset

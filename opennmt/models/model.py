@@ -334,43 +334,29 @@ class Model(object):
           feat_process_fn(features), labels_process_fn(labels))
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      dataset_size = self._get_dataset_size(features_file)
-      if sample_buffer_size is not None and sample_buffer_size != 0:
-        if sample_buffer_size < 0:
-          sample_buffer_size = dataset_size
-        elif sample_buffer_size < dataset_size:
-          # When the sample buffer size is smaller than the dataset size, shard
-          # the dataset in a random order. This ensures that all parts of the
-          # dataset can be seen when the evaluation frequency is high.
-          dataset = dataset.apply(data.random_shard(sample_buffer_size, dataset_size))
-        dataset = dataset.shuffle(sample_buffer_size)
-      dataset = dataset.map(
-          process_fn,
-          num_parallel_calls=num_threads or 4)
-      dataset = dataset.apply(data.filter_examples_by_length(
-          maximum_features_length=maximum_features_length,
-          maximum_labels_length=maximum_labels_length,
-          features_length_fn=self._get_features_length,
-          labels_length_fn=self._get_labels_length))
-      dataset = dataset.apply(data.batch_parallel_dataset(
+      dataset = data.training_pipeline(
+          dataset,
           batch_size,
           batch_type=batch_type,
           batch_multiplier=batch_multiplier,
           bucket_width=bucket_width,
+          single_pass=single_pass,
+          process_fn=process_fn,
+          num_threads=num_threads,
+          shuffle_buffer_size=sample_buffer_size,
+          prefetch_buffer_size=prefetch_buffer_size,
+          dataset_size=self._get_dataset_size(features_file),
+          maximum_features_length=maximum_features_length,
+          maximum_labels_length=maximum_labels_length,
           features_length_fn=self._get_features_length,
-          labels_length_fn=self._get_labels_length))
-      dataset = dataset.apply(data.filter_irregular_batches(batch_multiplier))
-      if not single_pass:
-        dataset = dataset.repeat()
+          labels_length_fn=self._get_labels_length)
     else:
-      dataset = dataset.map(
-          process_fn,
-          num_parallel_calls=num_threads or 1)
-      dataset = dataset.apply(data.batch_parallel_dataset(batch_size))
-
-    if not hasattr(tf.contrib.data, "AUTOTUNE") and prefetch_buffer_size is None:
-      prefetch_buffer_size = 1
-    dataset = dataset.prefetch(prefetch_buffer_size)
+      dataset = data.inference_pipeline(
+          dataset,
+          batch_size,
+          process_fn=process_fn,
+          num_threads=num_threads,
+          prefetch_buffer_size=prefetch_buffer_size)
 
     iterator = dataset.make_initializable_iterator()
 
