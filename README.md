@@ -42,7 +42,7 @@ pip install OpenNMT-tf
 
 A minimal OpenNMT-tf run consists of 3 elements:
 
-* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, or `export`
+* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, `export`, or `score`
 * the **model** type
 * the **parameters** described in a YAML file
 

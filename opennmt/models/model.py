@@ -33,6 +33,21 @@ class Model(object):
     else:
       self.dtype = dtype or tf.float32
 
+  def __call__(self, features, labels, params, mode, config=None):
+    """Calls the model function.
+
+    Returns:
+      outputs: The model outputs (usually unscaled probabilities).
+        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.PREDICT``.
+      predictions: The model predictions.
+        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.TRAIN``.
+
+    See Also:
+      ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
+      the arguments of this function.
+    """
+    return self._build(features, labels, params, mode, config=config)
+
   def model_fn(self, num_devices=1):
     """Returns the model function.
 
