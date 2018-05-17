@@ -1,0 +1,4 @@
+recommonmark
+sphinx==1.6.7
+sphinx_rtd_theme
+sphinxcontrib-versioning
