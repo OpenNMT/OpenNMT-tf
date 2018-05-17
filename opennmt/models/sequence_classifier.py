@@ -1,10 +1,9 @@
 """Sequence classifier."""
 
-import collections
-
 import tensorflow as tf
 
 from opennmt.models.model import Model
+from opennmt.utils.cell import last_encoding_from_state
 from opennmt.utils.misc import count_lines, print_bytes
 from opennmt.utils.losses import cross_entropy_loss
 
@@ -115,22 +114,3 @@ class SequenceClassifier(Model):
 
   def print_prediction(self, prediction, params=None, stream=None):
     print_bytes(prediction["classes"], stream=stream)
-
-
-def last_encoding_from_state(state):
-  """Returns the last encoding vector from the state.
-
-  For example, this is the last hidden states of the last LSTM layer for a
-  LSTM-based encoder.
-
-  Args:
-    state: The encoder state.
-
-  Returns:
-    The last encoding vector.
-  """
-  if isinstance(state, collections.Sequence):
-    state = state[-1]
-  if isinstance(state, tf.contrib.rnn.LSTMStateTuple):
-    return state.h
-  return state

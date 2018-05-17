@@ -16,6 +16,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * `score` run type to score existing predictions
 * ROUGE external evaluator for summarization
+* `CharRNNEmbedder` that runs a RNN layer over character embeddings
 
 ### Fixes and improvements
 
