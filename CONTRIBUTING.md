@@ -33,6 +33,7 @@ and **should**:
 
 * pass the [`pylint`](https://www.pylint.org/) code checker (we use the TensorFlow Python coding style with relaxed line length)
 * add new tests
+* update the [documentation](docs/README.md)
 
 ## Helping others
 
