@@ -286,6 +286,7 @@ class Runner(object):
             fmt = "%f ||| %s" % (batch["score"], sentence)
             print_bytes(tf.compat.as_bytes(fmt))
 
+
 def _make_exporters(exporters_type, serving_input_fn):
   if exporters_type is None:
     return None
