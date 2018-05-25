@@ -1,7 +1,10 @@
 """Custom hooks."""
 
 from __future__ import print_function
+
 import io
+import time
+import six
 
 import tensorflow as tf
 
@@ -97,6 +100,37 @@ class CountersHook(tf.train.SessionRunHook):
               self._summary_writer.add_summary(summary, step)
             tf.logging.info("%s: %g", name, value)
           self._last_count[i] = counters[i]
+
+
+class LogPredictionTimeHook(tf.train.SessionRunHook):
+  """Hooks that gathers and logs prediction times."""
+
+  def begin(self):
+    self._total_time = 0
+    self._total_tokens = 0
+    self._total_examples = 0
+
+  def before_run(self, run_context):
+    self._run_start_time = time.time()
+    predictions = run_context.original_args.fetches
+    return tf.train.SessionRunArgs(predictions)
+
+  def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
+    self._total_time += time.time() - self._run_start_time
+    predictions = run_values.results
+    batch_size = next(six.itervalues(predictions)).shape[0]
+    self._total_examples += batch_size
+    length = predictions.get("length")
+    if length is not None:
+      if len(length.shape) == 2:
+        length = length[:, 0]
+      self._total_tokens += sum(length)
+
+  def end(self, session):
+    tf.logging.info("Total prediction time (s): %f", self._total_time)
+    tf.logging.info("Average prediction time (s): %f", self._total_time / self._total_examples)
+    if self._total_tokens > 0:
+      tf.logging.info("Tokens per second: %f", self._total_tokens / self._total_time)
 
 
 class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
