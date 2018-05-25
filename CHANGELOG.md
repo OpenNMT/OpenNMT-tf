@@ -12,11 +12,23 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ## [Unreleased]
 
-### Breaking changes
-
 ### New features
 
 ### Fixes and improvements
+
+## [1.4.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.4.0) (2018-05-25)
+
+### New features
+
+* `score` run type to score existing predictions
+* ROUGE external evaluator for summarization
+* `CharRNNEmbedder` that runs a RNN layer over character embeddings
+* High level APIs for efficient data pipelines (see `utils.data.{training,inference}_pipeline`)
+
+### Fixes and improvements
+
+* Add more control over model export after evaluation with the `exporters` option
+* Allow `JoinReducer` to be used on the `ParallelEncoder` output
 
 ## [1.3.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.3.0) (2018-05-14)
 

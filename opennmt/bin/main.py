@@ -37,7 +37,8 @@ def _prefix_paths(prefix, paths):
 
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument("run", choices=["train_and_eval", "train", "eval", "infer", "export"],
+  parser.add_argument("run",
+                      choices=["train_and_eval", "train", "eval", "infer", "export", "score"],
                       help="Run type.")
   parser.add_argument("--config", required=True, nargs="+",
                       help="List of configuration files.")
@@ -133,6 +134,15 @@ def main():
         checkpoint_path=args.checkpoint_path)
   elif args.run == "export":
     runner.export(checkpoint_path=args.checkpoint_path)
+  elif args.run == "score":
+    if not args.features_file:
+      parser.error("--features_file is required for scoring.")
+    if not args.predictions_file:
+      parser.error("--predictions_file is required for scoring.")
+    runner.score(
+        args.features_file,
+        args.predictions_file,
+        checkpoint_path=args.checkpoint_path)
 
 
 if __name__ == "__main__":

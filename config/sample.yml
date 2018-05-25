@@ -119,8 +119,10 @@ eval:
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: BLEU, BLEU-detok
+  # Available evaluators: BLEU, BLEU-detok, ROUGE
   external_evaluators: BLEU
+  # (optional) Model exporter(s) to use after evaluation: last or null (default: last).
+  exporters: last
 
 # (optional) Inference options.
 infer:
@@ -132,3 +134,12 @@ infer:
   prefetch_buffer_size: 1
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1
+
+# (optional) Scoring options.
+score:
+  # (optional) The batch size to use (default: 64).
+  batch_size: 64
+  # (optional) The number of threads to use for processing data in parallel (default: 1).
+  num_threads: 1
+  # (optional) The number of batches to prefetch asynchronously (default: 1).
+  prefetch_buffer_size: 1

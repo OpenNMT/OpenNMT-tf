@@ -24,10 +24,7 @@ before_install:
   - |
         if [[ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]]; then
             pip install pylint==1.8.2
-            pip install sphinx==1.6.7
-            pip install sphinxcontrib-versioning
-            pip install sphinx_rtd_theme
-            pip install recommonmark
+            pip install -r docs/requirements.txt
             pip install wheel
             pip install twine
         fi

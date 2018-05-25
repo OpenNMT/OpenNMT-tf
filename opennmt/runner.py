@@ -12,6 +12,7 @@ from tensorflow.python.estimator.util import fn_args
 
 from opennmt.utils import hooks
 from opennmt.utils.evaluator import external_evaluation_fn
+from opennmt.utils.misc import extract_batches, print_bytes
 
 
 class Runner(object):
@@ -129,8 +130,9 @@ class Runner(object):
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
         hooks=eval_hooks,
-        exporters=tf.estimator.LatestExporter(
-            "latest", self._model.serving_input_fn(self._config["data"])),
+        exporters=_make_exporters(
+            self._config["eval"].get("exporters", "last"),
+            self._model.serving_input_fn(self._config["data"])),
         throttle_secs=self._config["eval"].get("eval_delay", 18000))
     return eval_spec
 
@@ -215,3 +217,88 @@ class Runner(object):
         self._model.serving_input_fn(self._config["data"]),
         checkpoint_path=checkpoint_path,
         **kwargs)
+
+  def score(self, features_file, predictions_file, checkpoint_path=None):
+    """Scores existing predictions.
+
+    Args:
+      features_file: The input file.
+      predictions_file: The predictions file to score.
+      checkpoint_path: Path of a specific checkpoint to use. If ``None``,
+        the latest is used.
+
+    Raises:
+      ValueError: if no checkpoint are found or if the model is not a sequence to
+        sequence model.
+    """
+    if not hasattr(self._model, "target_inputter"):
+      raise ValueError("scoring only works for sequence to sequence models")
+
+    if checkpoint_path is None:
+      checkpoint_path = tf.train.latest_checkpoint(self._estimator.model_dir)
+    elif os.path.isdir(checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    if checkpoint_path is None:
+      raise ValueError("could not find a trained model in %s" % self._estimator.model_dir)
+
+    if "score" not in self._config:
+      self._config["score"] = {}
+    batch_size = self._config["score"].get("batch_size", 64)
+    input_fn = self._model.input_fn(
+        tf.estimator.ModeKeys.EVAL,
+        batch_size,
+        self._config["data"],
+        features_file,
+        labels_file=predictions_file,
+        num_threads=self._config["score"].get("num_threads"),
+        prefetch_buffer_size=self._config["score"].get("prefetch_buffer_size"))
+
+    with tf.Graph().as_default() as g:
+      tf.train.create_global_step(g)
+      features, labels = input_fn()
+      with tf.variable_scope(self._model.name):
+        logits, _ = self._model(
+            features,
+            labels,
+            self._estimator.params,
+            tf.estimator.ModeKeys.EVAL)
+
+      cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+          logits=logits, labels=labels["ids_out"])
+      weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
+      masked_cross_entropy = cross_entropy * weights
+      scores = (tf.reduce_sum(masked_cross_entropy, axis=1) /
+                tf.cast(labels["length"], cross_entropy.dtype))
+      results = {
+          "score": scores,
+          "tokens": labels["tokens"],
+          "length": labels["length"] - 1  # For -1, see sequence_to_sequence.shift_target_sequence.
+      }
+
+      with tf.train.MonitoredSession(
+          session_creator=tf.train.ChiefSessionCreator(
+              checkpoint_filename_with_path=checkpoint_path,
+              config=self._estimator.config.session_config)) as sess:
+        while not sess.should_stop():
+          for batch in extract_batches(sess.run(results)):
+            tokens = batch["tokens"][:batch["length"]]
+            sentence = self._model.target_inputter.tokenizer.detokenize(tokens)
+            fmt = "%f ||| %s" % (batch["score"], sentence)
+            print_bytes(tf.compat.as_bytes(fmt))
+
+
+def _make_exporters(exporters_type, serving_input_fn):
+  if exporters_type is None:
+    return None
+  if not isinstance(exporters_type, list):
+    exporters_type = [exporters_type]
+  exporters = []
+  for exporter_type in exporters_type:
+    exporter_type = exporter_type.lower()
+    if exporter_type == "last":
+      exporters.append(tf.estimator.LatestExporter("latest", serving_input_fn))
+    else:
+      raise ValueError("invalid exporter type: %s" % exporter_type)
+  if len(exporters) == 1:
+    return exporters[0]
+  return exporters

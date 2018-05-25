@@ -16,6 +16,7 @@ Subpackages
     opennmt.inputters
     opennmt.layers
     opennmt.models
+    opennmt.optimizers
     opennmt.tokenizers
     opennmt.utils
 
