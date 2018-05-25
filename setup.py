@@ -1,12 +1,14 @@
 from setuptools import setup, find_packages
 
+rouge_package = "rouge==0.3.0"
 tests_require = [
-    "nose2"
+    "nose2",
+    rouge_package
 ]
 
 setup(
     name="OpenNMT-tf",
-    version="1.4.0",
+    version="1.4.1",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
@@ -34,10 +36,10 @@ setup(
     keywords="tensorflow opennmt nmt neural machine translation",
     install_requires=[
         "pyonmttok==1.*;platform_system=='Linux'",
-        "pyyaml",
-        "rouge==0.3.0"
+        "pyyaml"
     ],
     extras_require={
+        "rouge": [rouge_package],
         "tests": tests_require,
         "tensorflow": ["tensorflow>=1.4.0"],
         "tensorflow_gpu": ["tensorflow-gpu>=1.4.0"]
