@@ -14,6 +14,11 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* `--log_prediction_time` flag to summarize inference execution time:
+  * total prediction time
+  * average prediction time
+  * tokens per second
+
 ### Fixes and improvements
 
 ## [1.4.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.4.1) (2018-05-25)

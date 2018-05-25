@@ -156,7 +156,11 @@ class Runner(object):
     self._estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
 
-  def infer(self, features_file, predictions_file=None, checkpoint_path=None):
+  def infer(self,
+            features_file,
+            predictions_file=None,
+            checkpoint_path=None,
+            log_time=False):
     """Runs inference.
 
     Args:
@@ -164,6 +168,8 @@ class Runner(object):
       predictions_file: If set, predictions are saved in this file.
       checkpoint_path: Path of a specific checkpoint to predict. If ``None``,
         the latest is used.
+      log_time: If ``True``, several time metrics will be printed in the logs at
+        the end of the inference loop.
     """
     if "infer" not in self._config:
       self._config["infer"] = {}
@@ -184,7 +190,14 @@ class Runner(object):
     else:
       stream = sys.stdout
 
-    for prediction in self._estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path):
+    infer_hooks = []
+    if log_time:
+      infer_hooks.append(hooks.LogPredictionTimeHook())
+
+    for prediction in self._estimator.predict(
+        input_fn=input_fn,
+        checkpoint_path=checkpoint_path,
+        hooks=infer_hooks):
       self._model.print_prediction(prediction, params=self._config["infer"], stream=stream)
 
     if predictions_file:

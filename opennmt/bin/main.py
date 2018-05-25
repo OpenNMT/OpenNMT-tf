@@ -55,6 +55,8 @@ def main():
   parser.add_argument("--predictions_file", default="",
                       help=("File used to save predictions. If not set, predictions are printed "
                             "on the standard output."))
+  parser.add_argument("--log_prediction_time", default=False, action="store_true",
+                      help="Logs some prediction time metrics.")
   parser.add_argument("--checkpoint_path", default=None,
                       help=("Checkpoint or directory to use for inference or export "
                             "(when a directory is set, the latest checkpoint is used)."))
@@ -131,7 +133,8 @@ def main():
     runner.infer(
         args.features_file,
         predictions_file=args.predictions_file,
-        checkpoint_path=args.checkpoint_path)
+        checkpoint_path=args.checkpoint_path,
+        log_time=args.log_prediction_time)
   elif args.run == "export":
     runner.export(checkpoint_path=args.checkpoint_path)
   elif args.run == "score":
