@@ -67,7 +67,7 @@ class ROUGEEvaluator(ExternalEvaluator):
 
   def __init__(self, labels_file=None, output_dir=None):
     try:
-      import rouge
+      import rouge  # pylint: disable=unused-variable
     except ImportError:
       raise ImportError("Please install the 'rouge' package, run 'pip install rouge==0.3.0'")
     super(ROUGEEvaluator, self).__init__(labels_file=output_dir, output_dir=output_dir)
