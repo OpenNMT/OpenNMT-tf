@@ -18,6 +18,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
   * total prediction time
   * average prediction time
   * tokens per second
+* Expose API for checkpoints averaging
 
 ### Fixes and improvements
 
