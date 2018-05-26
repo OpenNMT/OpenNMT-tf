@@ -10,7 +10,7 @@ import tensorflow as tf
 
 from tensorflow.python.estimator.util import fn_args
 
-from opennmt.utils import hooks
+from opennmt.utils import hooks, checkpoint
 from opennmt.utils.evaluator import external_evaluation_fn
 from opennmt.utils.misc import extract_batches, print_bytes
 
@@ -155,6 +155,22 @@ class Runner(object):
     eval_spec = self._build_eval_spec()
     self._estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
+
+  def average_checkpoints(self, output_dir, max_count=8):
+    """Averages checkpoints.
+
+    Args:
+      output_dir: The directory that will contain the averaged checkpoint.
+      max_count: The maximum number of checkpoints to average.
+
+    Returns:
+      The path to the directory containing the averaged checkpoint.
+    """
+    return checkpoint.average_checkpoints(
+        self._estimator.model_dir,
+        output_dir,
+        max_count=max_count,
+        session_config=self._estimator.config.session_config)
 
   def infer(self,
             features_file,

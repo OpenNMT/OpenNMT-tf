@@ -14,6 +14,7 @@ Submodules
    opennmt.utils.adafactor
    opennmt.utils.beam_search
    opennmt.utils.cell
+   opennmt.utils.checkpoint
    opennmt.utils.data
    opennmt.utils.decay
    opennmt.utils.evaluator
