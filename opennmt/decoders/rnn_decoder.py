@@ -8,6 +8,7 @@ from tensorflow.python.estimator.util import fn_args
 
 from opennmt.decoders.decoder import Decoder, logits_to_cum_log_probs, build_output_layer
 from opennmt.utils.cell import build_cell
+from opennmt.layers.reducer import align_in_time
 
 
 class RNNDecoder(Decoder):
@@ -132,6 +133,9 @@ class RNNDecoder(Decoder):
       logits = output_layer(outputs.rnn_output)
     else:
       logits = outputs.rnn_output
+    # Make sure outputs have the same time_dim as inputs
+    inputs_len = tf.shape(inputs)[1]
+    logits = align_in_time(logits, inputs_len)
 
     return (logits, state, length)
 
