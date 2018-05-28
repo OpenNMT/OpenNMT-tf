@@ -22,6 +22,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+* Fix possible error when training RNN models with in-graph replication (time dimension mismatch) 
+
 ## [1.4.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.4.1) (2018-05-25)
 
 ### Fixes and improvements
