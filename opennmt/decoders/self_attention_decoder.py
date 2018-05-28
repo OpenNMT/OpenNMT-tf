@@ -92,7 +92,6 @@ class SelfAttentionDecoder(Decoder):
           cache=cache,
           memory=cache["memory"],
           memory_sequence_length=None)
-      outputs = outputs[:, -1:, :]
       logits = output_layer(outputs)
       return logits, cache
 
