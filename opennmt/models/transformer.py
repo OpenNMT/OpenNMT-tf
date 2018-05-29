@@ -24,6 +24,7 @@ class Transformer(SequenceToSequence):
                attention_dropout=0.1,
                relu_dropout=0.1,
                position_encoder=SinusoidalPositionEncoder(),
+               decoder_self_attention_type="scaled_dot",
                name="transformer"):
     """Initializes a Transformer model.
 
@@ -43,6 +44,8 @@ class Transformer(SequenceToSequence):
         the feed forward layer.
       position_encoder: A :class:`opennmt.layers.position.PositionEncoder` to
         apply on the inputs.
+      decoder_self_attention_type: Type of self attention in the decoder,
+        "scaled_dot" or "average" (case insensitive).
       name: The name of this model.
     """
     encoder = SelfAttentionEncoder(
@@ -62,7 +65,8 @@ class Transformer(SequenceToSequence):
         dropout=dropout,
         attention_dropout=attention_dropout,
         relu_dropout=relu_dropout,
-        position_encoder=position_encoder)
+        position_encoder=position_encoder,
+        self_attention_type=decoder_self_attention_type)
 
     super(Transformer, self).__init__(
         source_inputter,

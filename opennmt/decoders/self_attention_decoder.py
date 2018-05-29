@@ -22,7 +22,8 @@ class SelfAttentionDecoder(Decoder):
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
-               position_encoder=SinusoidalPositionEncoder()):
+               position_encoder=SinusoidalPositionEncoder(),
+               self_attention_type="scaled_dot"):
     """Initializes the parameters of the decoder.
 
     Args:
@@ -37,6 +38,11 @@ class SelfAttentionDecoder(Decoder):
         the feed forward layer.
       position_encoder: A :class:`opennmt.layers.position.PositionEncoder` to
         apply on inputs or ``None``.
+      self_attention_type: Type of self attention, "scaled_dot" or "average" (case
+        insensitive).
+
+    Raises:
+      ValueError: if :obj:`self_attention_type` is invalid.
     """
     self.num_layers = num_layers
     self.num_units = num_units
@@ -46,6 +52,9 @@ class SelfAttentionDecoder(Decoder):
     self.attention_dropout = attention_dropout
     self.relu_dropout = relu_dropout
     self.position_encoder = position_encoder
+    self.self_attention_type = self_attention_type.lower()
+    if self.self_attention_type not in ("scaled_dot", "average"):
+      raise ValueError("invalid attention type %s" % self.self_attention_type)
 
   def _build_memory_mask(self, memory, memory_sequence_length=None):
     if memory_sequence_length is None:
@@ -68,12 +77,16 @@ class SelfAttentionDecoder(Decoder):
     depth = memory.get_shape().as_list()[-1]
 
     for l in range(self.num_layers):
-      cache["layer_{}".format(l)] = {
-          "self_keys": tf.zeros([batch_size, 0, depth]),
-          "self_values": tf.zeros([batch_size, 0, depth]),
+      layer_cache = {
           "memory_keys": tf.zeros([batch_size, 0, depth]),
           "memory_values": tf.zeros([batch_size, 0, depth]),
       }
+      if self.self_attention_type == "scaled_dot":
+        layer_cache["self_keys"] = tf.zeros([batch_size, 0, depth])
+        layer_cache["self_values"] = tf.zeros([batch_size, 0, depth])
+      elif self.self_attention_type == "average":
+        layer_cache["prev_g"] = tf.zeros([batch_size, 1, depth])
+      cache["layer_{}".format(l)] = layer_cache
 
     return cache
 
@@ -91,7 +104,8 @@ class SelfAttentionDecoder(Decoder):
           mode=mode,
           cache=cache,
           memory=cache["memory"],
-          memory_sequence_length=None)
+          memory_sequence_length=None,
+          step=step)
       logits = output_layer(outputs)
       return logits, cache
 
@@ -103,7 +117,8 @@ class SelfAttentionDecoder(Decoder):
                             mode=tf.estimator.ModeKeys.TRAIN,
                             cache=None,
                             memory=None,
-                            memory_sequence_length=None):
+                            memory_sequence_length=None,
+                            step=None):
     inputs = tf.layers.dropout(
         inputs,
         rate=self.dropout,
@@ -112,12 +127,20 @@ class SelfAttentionDecoder(Decoder):
     decoder_mask = None
     memory_mask = None
 
-    if sequence_length is not None:
-      decoder_mask = transformer.build_future_mask(
-          sequence_length,
-          num_heads=self.num_heads,
-          maximum_length=tf.shape(inputs)[1],
-          dtype=inputs.dtype)
+    if self.self_attention_type == "scaled_dot":
+      if sequence_length is not None:
+        decoder_mask = transformer.build_future_mask(
+            sequence_length,
+            num_heads=self.num_heads,
+            maximum_length=tf.shape(inputs)[1],
+            dtype=inputs.dtype)
+    elif self.self_attention_type == "average":
+      if cache is None:
+        if sequence_length is None:
+          sequence_length = tf.fill([tf.shape(inputs)[0]], tf.shape(inputs)[1])
+        decoder_mask = transformer.cumulative_average_mask(
+            sequence_length, maximum_length=tf.shape(inputs)[1], dtype=inputs.dtype)
+
     if memory is not None:
       if cache is not None:
         memory_mask = cache["memory_mask"]
@@ -129,21 +152,37 @@ class SelfAttentionDecoder(Decoder):
       layer_name = "layer_{}".format(l)
       layer_cache = cache[layer_name] if cache is not None else None
       with tf.variable_scope(layer_name):
-        with tf.variable_scope("masked_multi_head"):
-          encoded = transformer.multi_head_attention(
-              self.num_heads,
-              transformer.norm(inputs),
-              None,
-              mode,
-              num_units=self.num_units,
-              mask=decoder_mask,
-              cache=layer_cache,
-              dropout=self.attention_dropout)
-          encoded = transformer.drop_and_add(
-              inputs,
-              encoded,
-              mode,
-              dropout=self.dropout)
+        if self.self_attention_type == "scaled_dot":
+          with tf.variable_scope("masked_multi_head"):
+            encoded = transformer.multi_head_attention(
+                self.num_heads,
+                transformer.norm(inputs),
+                None,
+                mode,
+                num_units=self.num_units,
+                mask=decoder_mask,
+                cache=layer_cache,
+                dropout=self.attention_dropout)
+            encoded = transformer.drop_and_add(
+                inputs,
+                encoded,
+                mode,
+                dropout=self.dropout)
+        elif self.self_attention_type == "average":
+          with tf.variable_scope("average_attention"):
+            # Cumulative average.
+            x = transformer.norm(inputs)
+            y = transformer.cumulative_average(
+                x, decoder_mask if cache is None else step, cache=layer_cache)
+            # FFN.
+            y = transformer.feed_forward(
+                y, self.ffn_inner_dim, mode, dropout=self.relu_dropout)
+            # Gating layer.
+            z = tf.layers.dense(tf.concat([x, y], -1), self.num_units * 2)
+            i, f = tf.split(z, 2, axis=-1)
+            y = tf.sigmoid(i) * x + tf.sigmoid(f) * y
+            encoded = transformer.drop_and_add(
+                inputs, y, mode, dropout=self.dropout)
 
         if memory is not None:
           with tf.variable_scope("multi_head"):
