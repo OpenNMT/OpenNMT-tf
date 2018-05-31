@@ -141,12 +141,14 @@ class Runner(object):
     train_spec = self._build_train_spec()
     eval_spec = self._build_eval_spec()
     tf.estimator.train_and_evaluate(self._estimator, train_spec, eval_spec)
+    self._maybe_average_checkpoints()
 
   def train(self):
     """Runs the training loop."""
     train_spec = self._build_train_spec()
     self._estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
+    self._maybe_average_checkpoints()
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation."""
@@ -155,6 +157,25 @@ class Runner(object):
     eval_spec = self._build_eval_spec()
     self._estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
+
+  def _maybe_average_checkpoints(self, avg_subdirectory="avg"):
+    """Averages checkpoints if enabled in the training configuration and if the
+    current training instance is the chief.
+
+    Args:
+      avg_subdirectory: The directory within the model directory that will
+        contain the averaged checkpoint.
+
+    Returns:
+      The path to the directory containing the averaged checkpoint or ``None``
+      if no checkpoints were averaged.
+    """
+    average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
+    if average_last_checkpoints > 0 and self._estimator.config.is_chief:
+      return self.average_checkpoints(
+          os.path.join(self._estimator.model_dir, avg_subdirectory),
+          max_count=average_last_checkpoints)
+    return None
 
   def average_checkpoints(self, output_dir, max_count=8):
     """Averages checkpoints.

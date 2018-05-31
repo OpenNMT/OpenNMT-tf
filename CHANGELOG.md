@@ -19,7 +19,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
   * total prediction time
   * average prediction time
   * tokens per second
-* Expose API for checkpoints averaging
+* Training option `average_last_checkpoints` to automatically average checkpoints at the end of the training
 
 ### Fixes and improvements
 
