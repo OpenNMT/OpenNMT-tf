@@ -4,7 +4,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * command line options
 * configuration files
-* checkpoints
+* checkpoints of non experimental models
 * public classes and functions that do not come from third parties
 * minimum required TensorFlow version
 
@@ -14,12 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
-* Average attention network ([Zhang et al. 2018](https://arxiv.org/abs/1805.00631)) in the Transformer decoder
 * `--log_prediction_time` flag to summarize inference execution time:
   * total prediction time
   * average prediction time
   * tokens per second
 * Training option `average_last_checkpoints` to automatically average checkpoints at the end of the training
+* [*experimental*] Average attention network ([Zhang et al. 2018](https://arxiv.org/abs/1805.00631)) in the Transformer decoder
 
 ### Fixes and improvements
 

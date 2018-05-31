@@ -55,6 +55,9 @@ class SelfAttentionDecoder(Decoder):
     self.self_attention_type = self_attention_type.lower()
     if self.self_attention_type not in ("scaled_dot", "average"):
       raise ValueError("invalid attention type %s" % self.self_attention_type)
+    if self.self_attention_type == "average":
+      tf.logging.warning("Support for average attention network is experimental "
+                         "and may change in future versions.")
 
   def _build_memory_mask(self, memory, memory_sequence_length=None):
     if memory_sequence_length is None:
