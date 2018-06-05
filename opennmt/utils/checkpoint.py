@@ -64,7 +64,10 @@ def average_checkpoints(model_dir, output_dir, max_count=8, session_config=None)
 
   tf_vars = []
   for name, value in six.iteritems(avg_values):
-    tf_vars.append(tf.get_variable(name, shape=value.shape))
+    if name.startswith("words_per_sec"):
+      tf_vars.append(tf.get_variable(name, shape=value.shape, trainable=False))
+    else:
+      tf_vars.append(tf.get_variable(name, shape=value.shape))
   placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
   assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, placeholders)]
 
