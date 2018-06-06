@@ -172,11 +172,14 @@ class SinusoidalPositionEncoder(PositionEncoder):
                        "by 2 but got %d" % depth)
 
     batch_size = tf.shape(positions)[0]
-    positions = tf.cast(positions, dtype)
+    positions = tf.cast(positions, tf.float32)
 
     log_timescale_increment = math.log(10000) / (depth / 2 - 1)
-    inv_timescales = tf.exp(tf.range(depth / 2, dtype=dtype) * -log_timescale_increment)
+    inv_timescales = tf.exp(tf.range(depth / 2, dtype=tf.float32) * -log_timescale_increment)
     inv_timescales = tf.reshape(tf.tile(inv_timescales, [batch_size]), [batch_size, -1])
     scaled_time = tf.expand_dims(positions, -1) * tf.expand_dims(inv_timescales, 1)
 
-    return tf.concat([tf.sin(scaled_time), tf.cos(scaled_time)], axis=2)
+    encoding = tf.concat([tf.sin(scaled_time), tf.cos(scaled_time)], axis=2)
+    if dtype != tf.float32:
+      encoding = tf.cast(encoding, dtype)
+    return encoding

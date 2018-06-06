@@ -4,7 +4,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * command line options
 * configuration files
-* checkpoints
+* checkpoints of non experimental models
 * public classes and functions that do not come from third parties
 * minimum required TensorFlow version
 
@@ -12,11 +12,39 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ## [Unreleased]
 
-### Breaking changes
+### New features
+
+* `MultistepAdamOptimizer` to simulate trainings with large batch size (credits to Tensor2Tensor, requires TensorFlow 1.6+)
+* `--log_prediction_time` flag to summarize inference execution time:
+  * total prediction time
+  * average prediction time
+  * tokens per second
+* Training option `average_last_checkpoints` to automatically average checkpoints at the end of the training
+* [*experimental*] Average attention network ([Zhang et al. 2018](https://arxiv.org/abs/1805.00631)) in the Transformer decoder
+
+### Fixes and improvements
+
+* Fix possible error when training RNN models with in-graph replication (time dimension mismatch)
+
+## [1.4.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.4.1) (2018-05-25)
+
+### Fixes and improvements
+
+* Make `rouge` an optional dependency to avoid install error in a fresh environment
+
+## [1.4.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.4.0) (2018-05-25)
 
 ### New features
 
+* `score` run type to score existing predictions
+* ROUGE external evaluator for summarization
+* `CharRNNEmbedder` that runs a RNN layer over character embeddings
+* High level APIs for efficient data pipelines (see `utils.data.{training,inference}_pipeline`)
+
 ### Fixes and improvements
+
+* Add more control over model export after evaluation with the `exporters` option
+* Allow `JoinReducer` to be used on the `ParallelEncoder` output
 
 ## [1.3.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.3.0) (2018-05-14)
 

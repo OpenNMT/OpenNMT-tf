@@ -59,8 +59,6 @@ def main():
   replace_string_in_file("## \[Unreleased\]",
                          "## [Unreleased]\n"
                          "\n"
-                         "### Breaking changes\n"
-                         "\n"
                          "### New features\n"
                          "\n"
                          "### Fixes and improvements\n"

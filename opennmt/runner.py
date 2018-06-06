@@ -10,8 +10,9 @@ import tensorflow as tf
 
 from tensorflow.python.estimator.util import fn_args
 
-from opennmt.utils import hooks
+from opennmt.utils import hooks, checkpoint
 from opennmt.utils.evaluator import external_evaluation_fn
+from opennmt.utils.misc import extract_batches, print_bytes
 
 
 class Runner(object):
@@ -129,8 +130,9 @@ class Runner(object):
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
         hooks=eval_hooks,
-        exporters=tf.estimator.LatestExporter(
-            "latest", self._model.serving_input_fn(self._config["data"])),
+        exporters=_make_exporters(
+            self._config["eval"].get("exporters", "last"),
+            self._model.serving_input_fn(self._config["data"])),
         throttle_secs=self._config["eval"].get("eval_delay", 18000))
     return eval_spec
 
@@ -139,12 +141,14 @@ class Runner(object):
     train_spec = self._build_train_spec()
     eval_spec = self._build_eval_spec()
     tf.estimator.train_and_evaluate(self._estimator, train_spec, eval_spec)
+    self._maybe_average_checkpoints()
 
   def train(self):
     """Runs the training loop."""
     train_spec = self._build_train_spec()
     self._estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
+    self._maybe_average_checkpoints()
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation."""
@@ -154,7 +158,46 @@ class Runner(object):
     self._estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
 
-  def infer(self, features_file, predictions_file=None, checkpoint_path=None):
+  def _maybe_average_checkpoints(self, avg_subdirectory="avg"):
+    """Averages checkpoints if enabled in the training configuration and if the
+    current training instance is the chief.
+
+    Args:
+      avg_subdirectory: The directory within the model directory that will
+        contain the averaged checkpoint.
+
+    Returns:
+      The path to the directory containing the averaged checkpoint or ``None``
+      if no checkpoints were averaged.
+    """
+    average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
+    if average_last_checkpoints > 0 and self._estimator.config.is_chief:
+      return self.average_checkpoints(
+          os.path.join(self._estimator.model_dir, avg_subdirectory),
+          max_count=average_last_checkpoints)
+    return None
+
+  def average_checkpoints(self, output_dir, max_count=8):
+    """Averages checkpoints.
+
+    Args:
+      output_dir: The directory that will contain the averaged checkpoint.
+      max_count: The maximum number of checkpoints to average.
+
+    Returns:
+      The path to the directory containing the averaged checkpoint.
+    """
+    return checkpoint.average_checkpoints(
+        self._estimator.model_dir,
+        output_dir,
+        max_count=max_count,
+        session_config=self._estimator.config.session_config)
+
+  def infer(self,
+            features_file,
+            predictions_file=None,
+            checkpoint_path=None,
+            log_time=False):
     """Runs inference.
 
     Args:
@@ -162,6 +205,8 @@ class Runner(object):
       predictions_file: If set, predictions are saved in this file.
       checkpoint_path: Path of a specific checkpoint to predict. If ``None``,
         the latest is used.
+      log_time: If ``True``, several time metrics will be printed in the logs at
+        the end of the inference loop.
     """
     if "infer" not in self._config:
       self._config["infer"] = {}
@@ -182,7 +227,14 @@ class Runner(object):
     else:
       stream = sys.stdout
 
-    for prediction in self._estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path):
+    infer_hooks = []
+    if log_time:
+      infer_hooks.append(hooks.LogPredictionTimeHook())
+
+    for prediction in self._estimator.predict(
+        input_fn=input_fn,
+        checkpoint_path=checkpoint_path,
+        hooks=infer_hooks):
       self._model.print_prediction(prediction, params=self._config["infer"], stream=stream)
 
     if predictions_file:
@@ -215,3 +267,88 @@ class Runner(object):
         self._model.serving_input_fn(self._config["data"]),
         checkpoint_path=checkpoint_path,
         **kwargs)
+
+  def score(self, features_file, predictions_file, checkpoint_path=None):
+    """Scores existing predictions.
+
+    Args:
+      features_file: The input file.
+      predictions_file: The predictions file to score.
+      checkpoint_path: Path of a specific checkpoint to use. If ``None``,
+        the latest is used.
+
+    Raises:
+      ValueError: if no checkpoint are found or if the model is not a sequence to
+        sequence model.
+    """
+    if not hasattr(self._model, "target_inputter"):
+      raise ValueError("scoring only works for sequence to sequence models")
+
+    if checkpoint_path is None:
+      checkpoint_path = tf.train.latest_checkpoint(self._estimator.model_dir)
+    elif os.path.isdir(checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    if checkpoint_path is None:
+      raise ValueError("could not find a trained model in %s" % self._estimator.model_dir)
+
+    if "score" not in self._config:
+      self._config["score"] = {}
+    batch_size = self._config["score"].get("batch_size", 64)
+    input_fn = self._model.input_fn(
+        tf.estimator.ModeKeys.EVAL,
+        batch_size,
+        self._config["data"],
+        features_file,
+        labels_file=predictions_file,
+        num_threads=self._config["score"].get("num_threads"),
+        prefetch_buffer_size=self._config["score"].get("prefetch_buffer_size"))
+
+    with tf.Graph().as_default() as g:
+      tf.train.create_global_step(g)
+      features, labels = input_fn()
+      with tf.variable_scope(self._model.name):
+        logits, _ = self._model(
+            features,
+            labels,
+            self._estimator.params,
+            tf.estimator.ModeKeys.EVAL)
+
+      cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+          logits=logits, labels=labels["ids_out"])
+      weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
+      masked_cross_entropy = cross_entropy * weights
+      scores = (tf.reduce_sum(masked_cross_entropy, axis=1) /
+                tf.cast(labels["length"], cross_entropy.dtype))
+      results = {
+          "score": scores,
+          "tokens": labels["tokens"],
+          "length": labels["length"] - 1  # For -1, see sequence_to_sequence.shift_target_sequence.
+      }
+
+      with tf.train.MonitoredSession(
+          session_creator=tf.train.ChiefSessionCreator(
+              checkpoint_filename_with_path=checkpoint_path,
+              config=self._estimator.config.session_config)) as sess:
+        while not sess.should_stop():
+          for batch in extract_batches(sess.run(results)):
+            tokens = batch["tokens"][:batch["length"]]
+            sentence = self._model.target_inputter.tokenizer.detokenize(tokens)
+            fmt = "%f ||| %s" % (batch["score"], sentence)
+            print_bytes(tf.compat.as_bytes(fmt))
+
+
+def _make_exporters(exporters_type, serving_input_fn):
+  if exporters_type is None:
+    return None
+  if not isinstance(exporters_type, list):
+    exporters_type = [exporters_type]
+  exporters = []
+  for exporter_type in exporters_type:
+    exporter_type = exporter_type.lower()
+    if exporter_type == "last":
+      exporters.append(tf.estimator.LatestExporter("latest", serving_input_fn))
+    else:
+      raise ValueError("invalid exporter type: %s" % exporter_type)
+  if len(exporters) == 1:
+    return exporters[0]
+  return exporters

@@ -18,7 +18,7 @@ onmt-main infer --config config/my_config.yml --features_file newstest2014.en.to
 
 To control the saving of checkpoints during the training, configure the following options in your configuration file:
 
-```yml
+```yaml
 train:
   # (optional) Save a checkpoint every this many steps.
   save_checkpoints_steps: 5000

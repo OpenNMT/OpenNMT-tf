@@ -44,6 +44,51 @@ class DecoderTest(tf.test.TestCase):
       self.assertAlmostEqual(
           1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), sess.run(inv_sig_sample_prob))
 
+  def _testDecoderTraining(self, decoder):
+    batch_size = 4
+    vocab_size = 10
+    time_dim = 5
+    depth = 6
+    inputs = tf.placeholder_with_default(
+        np.random.randn(batch_size, time_dim, depth).astype(np.float32),
+        shape=(None, None, depth))
+    # NOTE: max(sequence_length) may be less than time_dim when num_gpus > 1
+    sequence_length = [1, 3, 4, 2]
+    memory_sequence_length = [3, 7, 5, 4]
+    memory_time = max(memory_sequence_length)
+    memory = tf.placeholder_with_default(
+        np.random.randn(batch_size, memory_time, depth).astype(np.float32),
+        shape=(None, None, depth))
+    outputs, _, _ = decoder.decode(
+        inputs,
+        sequence_length,
+        vocab_size=vocab_size,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
+    output_time_dim = tf.shape(outputs)[1]
+
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+    with self.test_session() as sess:
+      output_time_dim_val = sess.run(output_time_dim)
+      self.assertEqual(time_dim, output_time_dim_val)
+
+  def testRNNDecoderTraining(self):
+    decoder = decoders.RNNDecoder(2, 20)
+    self._testDecoderTraining(decoder)
+
+  def testAttentionalRNNDecoderTraining(self):
+    decoder = decoders.AttentionalRNNDecoder(2, 20)
+    self._testDecoderTraining(decoder)
+
+  def testMultiAttentionalRNNDecoderTraining(self):
+    decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
+    self._testDecoderTraining(decoder)
+
+  def testSelfAttentionDecoderTraining(self):
+    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
+    self._testDecoderTraining(decoder)
+
   def _testDecoderGeneric(self,
                           decoder,
                           with_beam_search=False,

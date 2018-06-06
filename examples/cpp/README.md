@@ -1,15 +1,15 @@
-## Inference with the TensorFlow C++ API
+# Inference with the TensorFlow C++ API
 
 This example shows how to translate a batch of sentences using the TensorFlow C++ API.
 
-### Requirements
+## Requirements
 
 * TensorFlow compiled as a library (see below)
 * an exported translation model
 
 **Note:** for this example to work, the model should be a `SequenceToSequence` model with `WordEmbedder` as the source inputter.
 
-### Compile TensorFlow as a shared library
+## Compile TensorFlow as a shared library
 
 1\. [Prepare the environment](https://www.tensorflow.org/install/install_sources#prepare_environment_for_linux) for compiling TensorFlow.
 
@@ -65,7 +65,7 @@ bazel build --config=opt //tensorflow:libtensorflow_opennmt.so
 
 **Note:** this compilation approach is presented for the sole purpose of this example. It may not be the recommended way to work with the TensorFlow C++ API.
 
-### Usage
+## Usage
 
 ```
 export LD_LIBRARY_PATH=$HOME/tensorflow/bazel-bin/tensorflow

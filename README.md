@@ -19,7 +19,7 @@ OpenNMT-tf focuses on modularity to support advanced modeling and training capab
 * **on-the-fly tokenization**<br/>apply advanced tokenization dynamically during the training and detokenize the predictions during inference or evaluation.
 * **automatic evaluation**<br/>support for saving evaluation predictions and running external evaluators (e.g. BLEU).
 
-and all of the above can be used simultaneously to train novel and complex architectures. See the [predefined models](config/models) to discover how they are defined and the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) to customize them.
+and all of the above can be used simultaneously to train novel and complex architectures. See the [predefined models](opennmt/models/catalog.py) to discover how they are defined and the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) to customize them.
 
 OpenNMT-tf is also compatible with some of the best TensorFlow features:
 
@@ -42,7 +42,7 @@ pip install OpenNMT-tf
 
 A minimal OpenNMT-tf run consists of 3 elements:
 
-* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, or `export`
+* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, `export`, or `score`
 * the **model** type
 * the **parameters** described in a YAML file
 

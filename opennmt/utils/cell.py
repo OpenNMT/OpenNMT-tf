@@ -1,5 +1,7 @@
 """RNN cells helpers."""
 
+import collections
+
 import tensorflow as tf
 
 
@@ -58,3 +60,21 @@ def build_cell(num_layers,
     return cells[0]
   else:
     return tf.contrib.rnn.MultiRNNCell(cells)
+
+def last_encoding_from_state(state):
+  """Returns the last encoding vector from the state.
+
+  For example, this is the last hidden states of the last LSTM layer for a
+  LSTM-based encoder.
+
+  Args:
+    state: The encoder state.
+
+  Returns:
+    The last encoding vector.
+  """
+  if isinstance(state, collections.Sequence):
+    state = state[-1]
+  if isinstance(state, tf.contrib.rnn.LSTMStateTuple):
+    return state.h
+  return state

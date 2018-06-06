@@ -265,6 +265,32 @@ class InputterTest(tf.test.TestCase):
           features["char_ids"])
       self.assertAllEqual([1, 3, 5], transformed.shape)
 
+  def testCharRNNEmbedder(self):
+    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+    data_file = os.path.join(self.get_temp_dir(), "data.txt")
+
+    with open(vocab_file, "w") as vocab:
+      vocab.write("h\n"
+                  "e\n"
+                  "l\n"
+                  "w\n"
+                  "o\n")
+    with open(data_file, "w") as data:
+      data.write("hello world !\n")
+
+    embedder = text_inputter.CharRNNEmbedder("vocabulary_file", 10, 5)
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata={"vocabulary_file": vocab_file},
+        shapes={"char_ids": [None, None, None], "length": [None]})
+
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      sess.run(tf.global_variables_initializer())
+      features, transformed = sess.run([features, transformed])
+      self.assertAllEqual([1, 3, 5], transformed.shape)
+
   def testParallelInputter(self):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
     data_file = os.path.join(self.get_temp_dir(), "data.txt")

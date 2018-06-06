@@ -37,7 +37,8 @@ def _prefix_paths(prefix, paths):
 
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument("run", choices=["train_and_eval", "train", "eval", "infer", "export"],
+  parser.add_argument("run",
+                      choices=["train_and_eval", "train", "eval", "infer", "export", "score"],
                       help="Run type.")
   parser.add_argument("--config", required=True, nargs="+",
                       help="List of configuration files.")
@@ -54,6 +55,8 @@ def main():
   parser.add_argument("--predictions_file", default="",
                       help=("File used to save predictions. If not set, predictions are printed "
                             "on the standard output."))
+  parser.add_argument("--log_prediction_time", default=False, action="store_true",
+                      help="Logs some prediction time metrics.")
   parser.add_argument("--checkpoint_path", default=None,
                       help=("Checkpoint or directory to use for inference or export "
                             "(when a directory is set, the latest checkpoint is used)."))
@@ -130,9 +133,19 @@ def main():
     runner.infer(
         args.features_file,
         predictions_file=args.predictions_file,
-        checkpoint_path=args.checkpoint_path)
+        checkpoint_path=args.checkpoint_path,
+        log_time=args.log_prediction_time)
   elif args.run == "export":
     runner.export(checkpoint_path=args.checkpoint_path)
+  elif args.run == "score":
+    if not args.features_file:
+      parser.error("--features_file is required for scoring.")
+    if not args.predictions_file:
+      parser.error("--predictions_file is required for scoring.")
+    runner.score(
+        args.features_file,
+        args.predictions_file,
+        checkpoint_path=args.checkpoint_path)
 
 
 if __name__ == "__main__":

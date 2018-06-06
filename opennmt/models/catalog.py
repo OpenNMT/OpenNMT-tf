@@ -153,6 +153,27 @@ class Transformer(onmt.models.Transformer):
         attention_dropout=0.1,
         relu_dropout=0.1)
 
+class TransformerAAN(onmt.models.Transformer):
+  """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762
+  with cumulative average attention in the decoder as described in
+  https://arxiv.org/abs/1805.00631."""
+  def __init__(self):
+    super(TransformerAAN, self).__init__(
+        source_inputter=onmt.inputters.WordEmbedder(
+            vocabulary_file_key="source_words_vocabulary",
+            embedding_size=512),
+        target_inputter=onmt.inputters.WordEmbedder(
+            vocabulary_file_key="target_words_vocabulary",
+            embedding_size=512),
+        num_layers=6,
+        num_units=512,
+        num_heads=8,
+        ffn_inner_dim=2048,
+        dropout=0.1,
+        attention_dropout=0.1,
+        relu_dropout=0.1,
+        decoder_self_attention_type="average")
+
 class TransformerBig(onmt.models.Transformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
   def __init__(self):
