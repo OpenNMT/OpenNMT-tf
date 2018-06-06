@@ -170,3 +170,70 @@ class TransformerBig(onmt.models.Transformer):
         dropout=0.3,
         attention_dropout=0.1,
         relu_dropout=0.1)
+
+class TransLNMASRU(onmt.models.TransLNMASRU):
+
+    def __init__(self):
+      super(TransLNMASRU, self).__init__(
+          source_inputter=onmt.inputters.WordEmbedder(
+              vocabulary_file_key="source_words_vocabulary",
+              embedding_size=512),
+          target_inputter=onmt.inputters.WordEmbedder(
+              vocabulary_file_key="target_words_vocabulary",
+              embedding_size=512),
+          num_layers=1,
+          num_units=512,
+          num_heads=8,
+          dropout=0.1,
+          attention_dropout=0.1)
+
+
+class LNMASRUTrans(onmt.models.LNMASRUTrans):
+
+  def __init__(self):
+    super(LNMASRUTrans, self).__init__(
+        source_inputter=onmt.inputters.WordEmbedder(
+           vocabulary_file_key="source_words_vocabulary",
+           embedding_size=512),
+        target_inputter=onmt.inputters.WordEmbedder(
+           vocabulary_file_key="target_words_vocabulary",
+           embedding_size=512),
+        num_layers=3,
+        num_units=512,
+        num_heads=8,
+        dropout=0.1,
+        attention_dropout=0.1)
+
+class LNMASRU(onmt.models.LNMASRU):
+
+  def __init__(self):
+    super(LNMASRU, self).__init__(
+        source_inputter=onmt.inputters.WordEmbedder(
+           vocabulary_file_key="source_words_vocabulary",
+           embedding_size=512),
+        target_inputter=onmt.inputters.WordEmbedder(
+           vocabulary_file_key="target_words_vocabulary",
+           embedding_size=512),
+        num_layers=3,
+        num_units=512,
+        num_heads=8,
+        dropout=0.1,
+        attention_dropout=0.1)
+
+
+
+class LNMASRU10(onmt.models.LNMASRU):
+
+  def __init__(self):
+    super(LNMASRU10, self).__init__(
+        source_inputter=onmt.inputters.WordEmbedder(
+           vocabulary_file_key="source_words_vocabulary",
+           embedding_size=512),
+        target_inputter=onmt.inputters.WordEmbedder(
+           vocabulary_file_key="target_words_vocabulary",
+           embedding_size=512),
+        num_layers=10,
+        num_units=512,
+        num_heads=8,
+        dropout=0.1,
+        attention_dropout=0.1)
