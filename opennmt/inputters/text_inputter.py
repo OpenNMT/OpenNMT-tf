@@ -38,7 +38,8 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
   # Copy vocabulary file to log_dir.
   basename = os.path.basename(vocabulary_file)
   destination = os.path.join(log_dir, basename)
-  shutil.copy(vocabulary_file, destination)
+  if vocabulary_file != destination:
+    shutil.copy(vocabulary_file, destination)
 
   # Append <unk> tokens.
   with open(destination, mode="ab") as vocab:
