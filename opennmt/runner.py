@@ -25,7 +25,8 @@ class Runner(object):
                config,
                seed=None,
                num_devices=1,
-               gpu_allow_growth=False):
+               gpu_allow_growth=False,
+               session_config=None):
     """Initializes the runner parameters.
 
     Args:
@@ -34,16 +35,20 @@ class Runner(object):
       seed: The random seed to set.
       num_devices: The number of devices (GPUs) to use for training.
       gpu_allow_growth: Allow GPU memory to grow dynamically.
+      session_config: ``tf.ConfigProto`` overrides.
     """
     self._model = model
     self._config = config
     self._num_devices = num_devices
 
-    session_config = tf.ConfigProto(
+    session_config_base = tf.ConfigProto(
         allow_soft_placement=True,
         log_device_placement=False,
         gpu_options=tf.GPUOptions(
             allow_growth=gpu_allow_growth))
+    if session_config is not None:
+      session_config_base.MergeFrom(session_config)
+    session_config = session_config_base
     run_config = tf.estimator.RunConfig(
         model_dir=self._config["model_dir"],
         session_config=session_config,
