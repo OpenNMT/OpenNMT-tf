@@ -20,6 +20,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
   * average prediction time
   * tokens per second
 * Training option `average_last_checkpoints` to automatically average checkpoints at the end of the training
+* Command line options `--{inter,intra}_op_parallelism_threads` to control the level of CPU parallelism
 * [*experimental*] Average attention network ([Zhang et al. 2018](https://arxiv.org/abs/1805.00631)) in the Transformer decoder
 
 ### Fixes and improvements
