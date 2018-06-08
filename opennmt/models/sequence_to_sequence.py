@@ -116,7 +116,6 @@ class SequenceToSequence(Model):
           source_inputs,
           sequence_length=features_length,
           mode=mode)
-
     target_vocab_size = self.target_inputter.vocabulary_size
     target_dtype = self.target_inputter.dtype
 

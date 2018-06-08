@@ -225,17 +225,22 @@ class LNMASRUTrans(onmt.models.LNMASRUTrans):
         dropout=0.1,
         attention_dropout=0.1)
 
+
 class LNMASRU(onmt.models.LNMASRU):
 
   def __init__(self):
     super(LNMASRU, self).__init__(
         source_inputter=onmt.inputters.WordEmbedder(
            vocabulary_file_key="source_words_vocabulary",
-           embedding_size=512),
+           embedding_size=512,
+           case_insensitive_embeddings=False,
+           dropout=0.0),
         target_inputter=onmt.inputters.WordEmbedder(
            vocabulary_file_key="target_words_vocabulary",
-           embedding_size=512),
-        num_layers=3,
+           embedding_size=512,
+           case_insensitive_embeddings=False,
+           dropout=0.0),
+        num_layers=4,
         num_units=512,
         num_heads=8,
         dropout=0.1,
@@ -249,7 +254,8 @@ class LNMASRU10(onmt.models.LNMASRU):
     super(LNMASRU10, self).__init__(
         source_inputter=onmt.inputters.WordEmbedder(
            vocabulary_file_key="source_words_vocabulary",
-           embedding_size=512),
+           embedding_size=512,
+           ),
         target_inputter=onmt.inputters.WordEmbedder(
            vocabulary_file_key="target_words_vocabulary",
            embedding_size=512),
