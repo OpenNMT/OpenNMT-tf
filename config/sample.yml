@@ -105,6 +105,9 @@ train:
   # (optional) The number of batches to prefetch asynchronously. If not set, use an
   # automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).
   prefetch_buffer_size: null
+  # (optional) Number of checkpoints to average at the end of the training to the directory
+  # model_dir/avg (default: 0).
+  average_last_checkpoints: 8
 
 # (optional) Evaluation options.
 eval:

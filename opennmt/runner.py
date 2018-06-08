@@ -10,7 +10,7 @@ import tensorflow as tf
 
 from tensorflow.python.estimator.util import fn_args
 
-from opennmt.utils import hooks
+from opennmt.utils import hooks, checkpoint
 from opennmt.utils.evaluator import external_evaluation_fn
 from opennmt.utils.misc import extract_batches, print_bytes
 
@@ -25,7 +25,8 @@ class Runner(object):
                config,
                seed=None,
                num_devices=1,
-               gpu_allow_growth=False):
+               gpu_allow_growth=False,
+               session_config=None):
     """Initializes the runner parameters.
 
     Args:
@@ -34,16 +35,20 @@ class Runner(object):
       seed: The random seed to set.
       num_devices: The number of devices (GPUs) to use for training.
       gpu_allow_growth: Allow GPU memory to grow dynamically.
+      session_config: ``tf.ConfigProto`` overrides.
     """
     self._model = model
     self._config = config
     self._num_devices = num_devices
 
-    session_config = tf.ConfigProto(
+    session_config_base = tf.ConfigProto(
         allow_soft_placement=True,
         log_device_placement=False,
         gpu_options=tf.GPUOptions(
             allow_growth=gpu_allow_growth))
+    if session_config is not None:
+      session_config_base.MergeFrom(session_config)
+    session_config = session_config_base
     run_config = tf.estimator.RunConfig(
         model_dir=self._config["model_dir"],
         session_config=session_config,
@@ -141,12 +146,14 @@ class Runner(object):
     train_spec = self._build_train_spec()
     eval_spec = self._build_eval_spec()
     tf.estimator.train_and_evaluate(self._estimator, train_spec, eval_spec)
+    self._maybe_average_checkpoints()
 
   def train(self):
     """Runs the training loop."""
     train_spec = self._build_train_spec()
     self._estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
+    self._maybe_average_checkpoints()
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation."""
@@ -156,7 +163,46 @@ class Runner(object):
     self._estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
 
-  def infer(self, features_file, predictions_file=None, checkpoint_path=None):
+  def _maybe_average_checkpoints(self, avg_subdirectory="avg"):
+    """Averages checkpoints if enabled in the training configuration and if the
+    current training instance is the chief.
+
+    Args:
+      avg_subdirectory: The directory within the model directory that will
+        contain the averaged checkpoint.
+
+    Returns:
+      The path to the directory containing the averaged checkpoint or ``None``
+      if no checkpoints were averaged.
+    """
+    average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
+    if average_last_checkpoints > 0 and self._estimator.config.is_chief:
+      return self.average_checkpoints(
+          os.path.join(self._estimator.model_dir, avg_subdirectory),
+          max_count=average_last_checkpoints)
+    return None
+
+  def average_checkpoints(self, output_dir, max_count=8):
+    """Averages checkpoints.
+
+    Args:
+      output_dir: The directory that will contain the averaged checkpoint.
+      max_count: The maximum number of checkpoints to average.
+
+    Returns:
+      The path to the directory containing the averaged checkpoint.
+    """
+    return checkpoint.average_checkpoints(
+        self._estimator.model_dir,
+        output_dir,
+        max_count=max_count,
+        session_config=self._estimator.config.session_config)
+
+  def infer(self,
+            features_file,
+            predictions_file=None,
+            checkpoint_path=None,
+            log_time=False):
     """Runs inference.
 
     Args:
@@ -164,6 +210,8 @@ class Runner(object):
       predictions_file: If set, predictions are saved in this file.
       checkpoint_path: Path of a specific checkpoint to predict. If ``None``,
         the latest is used.
+      log_time: If ``True``, several time metrics will be printed in the logs at
+        the end of the inference loop.
     """
     if "infer" not in self._config:
       self._config["infer"] = {}
@@ -184,7 +232,14 @@ class Runner(object):
     else:
       stream = sys.stdout
 
-    for prediction in self._estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path):
+    infer_hooks = []
+    if log_time:
+      infer_hooks.append(hooks.LogPredictionTimeHook())
+
+    for prediction in self._estimator.predict(
+        input_fn=input_fn,
+        checkpoint_path=checkpoint_path,
+        hooks=infer_hooks):
       self._model.print_prediction(prediction, params=self._config["infer"], stream=stream)
 
     if predictions_file:

@@ -55,6 +55,8 @@ def main():
   parser.add_argument("--predictions_file", default="",
                       help=("File used to save predictions. If not set, predictions are printed "
                             "on the standard output."))
+  parser.add_argument("--log_prediction_time", default=False, action="store_true",
+                      help="Logs some prediction time metrics.")
   parser.add_argument("--checkpoint_path", default=None,
                       help=("Checkpoint or directory to use for inference or export "
                             "(when a directory is set, the latest checkpoint is used)."))
@@ -80,6 +82,12 @@ def main():
                       help="Random seed.")
   parser.add_argument("--gpu_allow_growth", default=False, action="store_true",
                       help="Allocate GPU memory dynamically.")
+  parser.add_argument("--intra_op_parallelism_threads", type=int, default=0,
+                      help=("Number of intra op threads (0 means the system picks "
+                            "an appropriate number)."))
+  parser.add_argument("--inter_op_parallelism_threads", type=int, default=0,
+                      help=("Number of inter op threads (0 means the system picks "
+                            "an appropriate number)."))
   args = parser.parse_args()
 
   tf.logging.set_verbosity(getattr(tf.logging, args.log_level))
@@ -110,12 +118,16 @@ def main():
     os.makedirs(config["model_dir"])
 
   model = load_model(config["model_dir"], model_file=args.model, model_name=args.model_type)
+  session_config = tf.ConfigProto(
+      intra_op_parallelism_threads=args.intra_op_parallelism_threads,
+      inter_op_parallelism_threads=args.inter_op_parallelism_threads)
   runner = Runner(
       model,
       config,
       seed=args.seed,
       num_devices=args.num_gpus,
-      gpu_allow_growth=args.gpu_allow_growth)
+      gpu_allow_growth=args.gpu_allow_growth,
+      session_config=session_config)
 
   if args.run == "train_and_eval":
     runner.train_and_evaluate()
@@ -131,7 +143,8 @@ def main():
     runner.infer(
         args.features_file,
         predictions_file=args.predictions_file,
-        checkpoint_path=args.checkpoint_path)
+        checkpoint_path=args.checkpoint_path,
+        log_time=args.log_prediction_time)
   elif args.run == "export":
     runner.export(checkpoint_path=args.checkpoint_path)
   elif args.run == "score":

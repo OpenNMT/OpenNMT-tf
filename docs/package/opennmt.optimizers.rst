@@ -12,4 +12,5 @@ Submodules
 .. toctree::
 
    opennmt.optimizers.adafactor
+   opennmt.optimizers.multistep_adam
 
