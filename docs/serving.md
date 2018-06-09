@@ -24,7 +24,8 @@ Each export creates a directory whose name contains the current timestamp.
 When using an exported model, you need to know the input and output nodes of your model. You can use the [`saved_model_cli`](https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel) script provided by TensorFlow for inspection, e.g.:
 
 ```bash
-saved_model_cli show --dir toy-ende/export/latest/1507109306/ --tag_set serve --signature_def serving_default
+saved_model_cli show --dir toy-ende/export/latest/1507109306/ \
+    --tag_set serve --signature_def serving_default
 ```
 
 Some examples using exported models are available in the `examples/` directory:

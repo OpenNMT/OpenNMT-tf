@@ -43,7 +43,12 @@ To enable distributed training, the user should set on the command line:
 Then a training instance should be started on each host with a selected task, e.g.:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 onmt-main train [...] --ps_hosts localhost:2222 --chief_host localhost:2223 --worker_hosts localhost:2224,localhost:2225 --task_type worker --task_index 1
+CUDA_VISIBLE_DEVICES=0 onmt-main train [...] \
+    --ps_hosts localhost:2222 \
+    --chief_host localhost:2223 \
+    --worker_hosts localhost:2224,localhost:2225 \
+    --task_type worker \
+    --task_index 1
 ```
 
 will start the worker 1 on the current machine and first GPU. By setting `CUDA_VISIBLE_DEVICES` correctly, asynchronous distributed training can be run on a single multi-GPU machine.
