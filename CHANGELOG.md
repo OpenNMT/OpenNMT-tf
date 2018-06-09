@@ -14,6 +14,10 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* New model exporter types:
+  * `best` to export a new model only if it achieves the best evaluation loss so far (requires TensorFlow 1.9+)
+  * `final` to only export the model at the end of the training
+
 ### Fixes and improvements
 
 ## [1.5.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.5.0) (2018-06-08)
