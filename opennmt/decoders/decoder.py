@@ -6,6 +6,7 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.common import embedding_lookup
+from opennmt.utils.beam_search import get_state_shape_invariants
 
 
 def logits_to_cum_log_probs(logits, sequence_length):
@@ -242,3 +243,73 @@ class Decoder(object):
       if :obj:`return_alignment_history` is ``True``.
     """
     raise NotImplementedError()
+
+
+def greedy_decode(symbols_to_logits_fn,
+                  initial_ids,
+                  end_id,
+                  decode_length=None,
+                  state=None):
+  """Greedily decodes from :obj:`initial_ids`.
+
+  Args:
+    symbols_to_logits_fn: Interface to the model, to provide logits.
+        Shoud take [batch_size, decoded_ids] and return [batch_size, vocab_size].
+    initial_ids: Ids to start off the decoding, this will be the first thing
+        handed to symbols_to_logits_fn.
+    eos_id: ID for end of sentence.
+    decode_length: Maximum number of steps to decode for.
+    states: A dictionnary of (possibly nested) decoding states.
+
+  Returns:
+    A tuple with the decoded output, the decoded lengths, and the log probabilities.
+  """
+  batch_size = tf.shape(initial_ids)[0]
+  finished = tf.tile([False], [batch_size])
+  step = tf.constant(0)
+  inputs = tf.expand_dims(initial_ids, 1)
+  lengths = tf.zeros([batch_size], dtype=tf.int32)
+  log_probs = tf.zeros([batch_size])
+
+  def _condition(unused_step, finished, unused_inputs,
+                 unused_lengths, unused_log_probs, unused_state):
+    return tf.logical_not(tf.reduce_all(finished))
+
+  def _body(step, finished, inputs, lengths, log_probs, state):
+    inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, lengths.dtype))
+
+    logits, state = symbols_to_logits_fn(inputs, step, state)
+    probs = tf.nn.log_softmax(logits)
+    sample_ids = tf.argmax(probs, axis=-1)
+
+    # Accumulate log probabilities.
+    sample_probs = tf.reduce_max(probs, axis=-1)
+    masked_probs = tf.squeeze(sample_probs, -1) * (1.0 - tf.cast(finished, sample_probs.dtype))
+    log_probs = tf.add(log_probs, masked_probs)
+
+    next_inputs = tf.concat([inputs, tf.cast(sample_ids, inputs.dtype)], -1)
+    next_lengths = inputs_lengths
+    next_finished = tf.logical_or(
+        finished,
+        tf.equal(tf.squeeze(sample_ids, axis=[1]), end_id))
+    step = step + 1
+
+    if decode_length is not None:
+      next_finished = tf.logical_or(next_finished, step >= decode_length)
+
+    return step, next_finished, next_inputs, next_lengths, log_probs, state
+
+  _, _, outputs, lengths, log_probs, _ = tf.while_loop(
+      _condition,
+      _body,
+      loop_vars=(step, finished, inputs, lengths, log_probs, state),
+      shape_invariants=(
+          tf.TensorShape([]),
+          finished.get_shape(),
+          tf.TensorShape([None, None]),
+          lengths.get_shape(),
+          log_probs.get_shape(),
+          tf.contrib.framework.nest.map_structure(get_state_shape_invariants, state)),
+      parallel_iterations=1)
+
+  return outputs, lengths, log_probs

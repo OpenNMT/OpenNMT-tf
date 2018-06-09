@@ -2,14 +2,13 @@
 
 import tensorflow as tf
 
+from opennmt.decoders import decoder
 from opennmt.layers import transformer
 from opennmt.utils import beam_search
-
-from opennmt.decoders.decoder import Decoder, get_embedding_fn, build_output_layer
 from opennmt.layers.position import SinusoidalPositionEncoder
 
 
-class SelfAttentionDecoder(Decoder):
+class SelfAttentionDecoder(decoder.Decoder):
   """Decoder using self-attention as described in
   https://arxiv.org/abs/1706.03762.
   """
@@ -94,9 +93,9 @@ class SelfAttentionDecoder(Decoder):
     return cache
 
   def _symbols_to_logits_fn(self, embedding, vocab_size, mode, output_layer=None, dtype=None):
-    embedding_fn = get_embedding_fn(embedding)
+    embedding_fn = decoder.get_embedding_fn(embedding)
     if output_layer is None:
-      output_layer = build_output_layer(self.num_units, vocab_size, dtype=dtype)
+      output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=dtype)
 
     def _impl(ids, step, cache):
       inputs = embedding_fn(ids[:, -1:])
@@ -246,7 +245,7 @@ class SelfAttentionDecoder(Decoder):
         memory_sequence_length=memory_sequence_length)
 
     if output_layer is None:
-      output_layer = build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
+      output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
     logits = output_layer(outputs)
 
     return (logits, None, sequence_length)
@@ -264,59 +263,16 @@ class SelfAttentionDecoder(Decoder):
                      memory_sequence_length=None,
                      dtype=None,
                      return_alignment_history=False):
-    batch_size = tf.shape(start_tokens)[0]
-    finished = tf.tile([False], [batch_size])
-    step = tf.constant(0)
-    inputs = tf.expand_dims(start_tokens, 1)
-    lengths = tf.zeros([batch_size], dtype=tf.int32)
-    log_probs = tf.zeros([batch_size])
     cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
-
     symbols_to_logits_fn = self._symbols_to_logits_fn(
         embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
 
-    def _condition(unused_step, finished, unused_inputs,
-                   unused_lengths, unused_log_probs, unused_cache):
-      return tf.logical_not(tf.reduce_all(finished))
-
-    def _body(step, finished, inputs, lengths, log_probs, cache):
-      inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, lengths.dtype))
-
-      logits, cache = symbols_to_logits_fn(inputs, step, cache)
-      probs = tf.nn.log_softmax(logits)
-      sample_ids = tf.argmax(probs, axis=-1)
-
-      # Accumulate log probabilities.
-      sample_probs = tf.reduce_max(probs, axis=-1)
-      masked_probs = tf.squeeze(sample_probs, -1) * (1.0 - tf.cast(finished, sample_probs.dtype))
-      log_probs = tf.add(log_probs, masked_probs)
-
-      next_inputs = tf.concat([inputs, tf.cast(sample_ids, inputs.dtype)], -1)
-      next_lengths = inputs_lengths
-      next_finished = tf.logical_or(
-          finished,
-          tf.equal(tf.squeeze(sample_ids, axis=[1]), end_token))
-      step = step + 1
-
-      if maximum_iterations is not None:
-        next_finished = tf.logical_or(next_finished, step >= maximum_iterations)
-
-      return step, next_finished, next_inputs, next_lengths, log_probs, cache
-
-    step, _, outputs, lengths, log_probs, _ = tf.while_loop(
-        _condition,
-        _body,
-        loop_vars=(step, finished, inputs, lengths, log_probs, cache),
-        shape_invariants=(
-            tf.TensorShape([]),
-            finished.get_shape(),
-            tf.TensorShape([None, None]),
-            lengths.get_shape(),
-            log_probs.get_shape(),
-            tf.contrib.framework.nest.map_structure(beam_search.get_state_shape_invariants, cache)
-        ),
-        parallel_iterations=1)
-
+    outputs, lengths, log_probs = decoder.greedy_decode(
+        symbols_to_logits_fn,
+        start_tokens,
+        end_token,
+        decode_length=maximum_iterations,
+        state=cache)
     outputs = tf.slice(outputs, [0, 1], [-1, -1]) # Ignore <s>.
 
     # Make shape consistent with beam search.
