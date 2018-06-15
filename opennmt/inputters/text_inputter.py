@@ -376,12 +376,12 @@ class WordEmbedder(TextInputter):
             case_insensitive_embeddings=self.case_insensitive_embeddings)
         self.embedding_size = pretrained.shape[-1]
 
-        shape = None
-        initializer = tf.constant(pretrained.astype(self.dtype.as_numpy_dtype()))
+        initializer = tf.constant_initializer(
+            pretrained.astype(self.dtype.as_numpy_dtype()), dtype=self.dtype)
       else:
-        shape = [self.vocabulary_size, self.embedding_size]
         initializer = None
 
+      shape = [self.vocabulary_size, self.embedding_size]
       embeddings = tf.get_variable(
           "w_embs",
           shape=shape,
