@@ -352,6 +352,13 @@ def _make_exporters(exporters_type, serving_input_fn):
     exporter_type = exporter_type.lower()
     if exporter_type == "last":
       exporters.append(tf.estimator.LatestExporter("latest", serving_input_fn))
+    elif exporter_type == "final":
+      exporters.append(tf.estimator.FinalExporter("final", serving_input_fn))
+    elif exporter_type == "best":
+      if not hasattr(tf.estimator, "BestExporter"):
+        raise ValueError("BestExporter is only available starting from TensorFlow 1.9")
+      exporters.append(tf.estimator.BestExporter(
+          name="best", serving_input_receiver_fn=serving_input_fn))
     else:
       raise ValueError("invalid exporter type: %s" % exporter_type)
   if len(exporters) == 1:
