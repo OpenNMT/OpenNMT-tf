@@ -32,7 +32,7 @@ class GraphDispatcher(object):
       self._devices = [None]
     elif len(devices) < num_devices:
       raise ValueError("Only %d devices are visible but %d were requested"
-                       % (len(devices), num_replicas))
+                       % (len(devices), num_devices))
     else:
       self._n = num_devices
       self._devices = devices[:self._n]
