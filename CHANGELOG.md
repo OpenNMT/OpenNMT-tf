@@ -21,6 +21,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * Fix error when reloading models with target pretrained embeddings
+* Fix error message when the number of requested GPUs is incompatible with the number of visible devices
 
 ## [1.5.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.5.0) (2018-06-08)
 
