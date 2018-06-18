@@ -41,13 +41,13 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
   if vocabulary_file != destination:
     shutil.copy(vocabulary_file, destination)
 
-  # Append <unk> tokens.
-  with open(destination, mode="ab") as vocab:
-    if num_oov_buckets == 1:
-      vocab.write(b"<unk>\n")
-    else:
-      for i in range(num_oov_buckets):
-        vocab.write(tf.compat.as_bytes("<unk%d>\n" % i))
+    # Append <unk> tokens.
+    with open(destination, mode="ab") as vocab:
+      if num_oov_buckets == 1:
+        vocab.write(b"<unk>\n")
+      else:
+        for i in range(num_oov_buckets):
+          vocab.write(tf.compat.as_bytes("<unk%d>\n" % i))
 
   config = projector.ProjectorConfig()
 
