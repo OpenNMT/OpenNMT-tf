@@ -66,8 +66,7 @@ class VocabTest(tf.test.TestCase):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
 
     vocab1.serialize(vocab_file)
-    vocab2 = Vocab()
-    vocab2.add_from_text(vocab_file)
+    vocab2 = Vocab(from_file=vocab_file)
 
     self.assertEqual(vocab1.size, vocab2.size)
     self.assertEqual(vocab1.lookup("titi"), vocab2.lookup("titi"))

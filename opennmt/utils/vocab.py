@@ -8,11 +8,12 @@ import tensorflow as tf
 class Vocab(object):
   """Vocabulary class."""
 
-  def __init__(self, special_tokens=None):
+  def __init__(self, special_tokens=None, from_file=None):
     """Initializes a vocabulary.
 
     Args:
       special_tokens: A list of special tokens (e.g. start of sentence).
+      from_file: Optionally initialize from an existing saved vocabulary.
     """
     self._token_to_id = {}
     self._id_to_token = []
@@ -28,10 +29,18 @@ class Vocab(object):
         # the same index.
         self._frequency.insert(index, float("inf"))
 
+    if from_file is not None:
+      self.load(from_file)
+
   @property
   def size(self):
     """Returns the number of entries of the vocabulary."""
     return len(self._id_to_token)
+
+  @property
+  def words(self):
+    """Returns the list of words."""
+    return self._id_to_token
 
   def add_from_text(self, filename, tokenizer=None):
     """Fills the vocabulary from a text file.
@@ -60,6 +69,17 @@ class Vocab(object):
       for token in self._id_to_token:
         vocab.write(tf.compat.as_bytes(token))
         vocab.write(b"\n")
+
+  def load(self, path):
+    """Loads a serialized vocabulary.
+
+    Args:
+      path: The path to the vocabulary to load.
+    """
+    with open(path, "rb") as vocab:
+      for token in vocab:
+        token = token.strip()
+        self.add(tf.compat.as_text(token))
 
   def add(self, token):
     """Adds a token or increases its frequency.
