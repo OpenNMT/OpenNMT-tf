@@ -61,6 +61,7 @@ setup(
             "onmt-main=opennmt.bin.main:main",
             "onmt-merge-config=opennmt.bin.merge_config:main",
             "onmt-tokenize-text=opennmt.bin.tokenize_text:main",
+            "onmt-update-vocab=opennmt.bin.update_vocab:main",
         ],
     }
 )
