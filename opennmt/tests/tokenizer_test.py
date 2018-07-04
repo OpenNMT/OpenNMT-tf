@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 import tensorflow as tf
 
 from opennmt.tokenizers import SpaceTokenizer, CharacterTokenizer, OpenNMTTokenizer
@@ -70,6 +72,15 @@ class TokenizerTest(tf.test.TestCase):
 
   def testOpenNMTTokenizer(self):
     self._testTokenizer(OpenNMTTokenizer(), "Hello world!", ["Hello", "world", "!"])
+
+    tok_config = os.path.join(self.get_temp_dir(), "tok_config.yml")
+    with open(tok_config, "wb") as tok_config_file:
+      tok_config_file.write(b"mode: aggressive\n"
+                            b"spacer_annotate: true\n"
+                            b"spacer_new: true\n")
+    self._testTokenizer(OpenNMTTokenizer(configuration_file_or_key=tok_config),
+                        "Hello World-s", ["Hello", "▁", "World", "-", "s"])
+
     self._testDetokenizer(
         OpenNMTTokenizer(),
         [["Hello", "world", "￭!"], ["Test"], ["My", "name"]],

@@ -25,6 +25,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 * Fix error message when the number of requested GPUs is incompatible with the number of visible devices
 * Fix error when continuing the training from an averaged checkpoint
 * Re-introduce `rouge` as a dependency since its installation is now fixed
+* Make code forward compatible with future `pyonmttok` options
 
 ## [1.5.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.5.0) (2018-06-08)
 
