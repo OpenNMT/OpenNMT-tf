@@ -38,10 +38,10 @@ class OpenNMTTokenizer(Tokenizer):
       self._tokenizer = create_tokenizer(self._config)
     text = tf.compat.as_bytes(text)
     tokens, _ = self._tokenizer.tokenize(text)
-    return tokens
+    return [tf.compat.as_text(token) for token in tokens]
 
   def _detokenize_string(self, tokens):
     if self._tokenizer is None:
       self._tokenizer = create_tokenizer(self._config)
     tokens = [tf.compat.as_bytes(token) for token in tokens]
-    return self._tokenizer.detokenize(tokens)
+    return tf.compat.as_text(self._tokenizer.detokenize(tokens))
