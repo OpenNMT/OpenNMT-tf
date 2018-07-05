@@ -32,6 +32,8 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 * Python (>= 2.7)
 * TensorFlow (>= 1.4)
 
+*(Some features may require newer TensorFlow versions, see the [changelog](CHANGELOG.md).)*
+
 ## Installation
 
 ```bash

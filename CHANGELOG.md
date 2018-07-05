@@ -16,6 +16,23 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.6.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.6.0) (2018-07-05)
+
+### New features
+
+* New model exporter types:
+  * `best` to export a new model only if it achieves the best evaluation loss so far (requires TensorFlow 1.9+)
+  * `final` to only export the model at the end of the training
+* Script and API to map a checkpoint to new vocabularies while keeping the trained weights of common words
+
+### Fixes and improvements
+
+* Fix error when reloading models with target pretrained embeddings
+* Fix error message when the number of requested GPUs is incompatible with the number of visible devices
+* Fix error when continuing the training from an averaged checkpoint
+* Re-introduce `rouge` as a dependency since its installation is now fixed
+* Make code forward compatible with future `pyonmttok` options
+
 ## [1.5.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.5.0) (2018-06-08)
 
 ### New features

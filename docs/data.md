@@ -48,3 +48,10 @@ data:
     - train_source_2.txt
     - train_source_3.txt
 ```
+
+Similarly, when using the `--features_file` command line option of the main script (e.g. for inference or scoring), a list of files must also be provided:
+
+```bash
+onmt.main infer [...] \
+    --features_file test_source_1.records test_source_2.txt test_source_3.txt
+```

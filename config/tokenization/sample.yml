@@ -8,6 +8,11 @@ mode: conservative
 
 # (optional) Path the BPE model.
 bpe_model_path: ""
+# (optional) Path the vocabulary for BPE to not generate OOV words.
+bpe_model_path: ""
+# (optional) Treat any word with a frequency lower than this threshold as a OOV.
+bpe_vocab_threshold: 50
+
 # (optional) Path the SentencePiece model. Set mode to "none" for pure SentencePiece tokenization.
 sp_model_path: ""
 
@@ -20,6 +25,11 @@ joiner_new: false
 
 # (optional) Make tokenization reversible by marking spacer characters (alternative to joiner_annotate).
 spacer_annotate: false
+# (optional) Make the spacer character a new token (i.e. do not mark existing tokens).
+spacer_new: false
+
+# (optional) Do not attach joiners or spacers to placeholder tokens.
+preserve_placeholders: false
 
 # (optional) Segment a word on casing changes (e.g. AbC -> Ab C).
 segment_case: false

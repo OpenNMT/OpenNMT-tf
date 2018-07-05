@@ -34,7 +34,7 @@ Note that evaluation and inference will run on a single device.
 
 OpenNMT-tf also supports asynchronous distributed training with *between-graph replication*. In this mode, each graph replica processes a batch independently, compute the gradients, and asynchronously update a shared set of parameters.
 
-To enable distributed training, the user should set on the command line:
+To enable distributed training, the user should use the `train_and_eval` run type and set on the command line:
 
 * a **chief worker** host that runs a training loop and manages checkpoints, summaries, etc.
 * a list of **worker** hosts that run a training loop
@@ -43,7 +43,12 @@ To enable distributed training, the user should set on the command line:
 Then a training instance should be started on each host with a selected task, e.g.:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 onmt-main train [...] --ps_hosts localhost:2222 --chief_host localhost:2223 --worker_hosts localhost:2224,localhost:2225 --task_type worker --task_index 1
+CUDA_VISIBLE_DEVICES=0 onmt-main train_and_eval [...] \
+    --ps_hosts localhost:2222 \
+    --chief_host localhost:2223 \
+    --worker_hosts localhost:2224,localhost:2225 \
+    --task_type worker \
+    --task_index 1
 ```
 
 will start the worker 1 on the current machine and first GPU. By setting `CUDA_VISIBLE_DEVICES` correctly, asynchronous distributed training can be run on a single multi-GPU machine.
