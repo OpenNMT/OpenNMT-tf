@@ -10,6 +10,8 @@ import tensorflow as tf
 
 from tensorflow.python.estimator.util import fn_args
 
+from google.protobuf import text_format
+
 from opennmt.utils import hooks, checkpoint
 from opennmt.utils.evaluator import external_evaluation_fn
 from opennmt.utils.misc import extract_batches, print_bytes
@@ -46,6 +48,23 @@ class Runner(object):
         log_device_placement=False,
         gpu_options=tf.GPUOptions(
             allow_growth=gpu_allow_growth))
+
+    # Disable layout optimizer for better conv1d performance, see:
+    # https://github.com/tensorflow/tensorflow/issues/20309
+    # This field does not exist in TensorFlow 1.4, so guard against the
+    # exception.
+    try:
+      rewrite_options = text_format.Parse("""
+          graph_options {
+            rewrite_options {
+              layout_optimizer: OFF
+            }
+          }
+          """, tf.ConfigProto())
+      session_config_base.MergeFrom(rewrite_options)
+    except text_format.ParseError:
+      pass
+
     if session_config is not None:
       session_config_base.MergeFrom(session_config)
     session_config = session_config_base
