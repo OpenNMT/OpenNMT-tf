@@ -79,13 +79,14 @@ class SelfAttentionDecoder(decoder.Decoder):
     depth = memory.get_shape().as_list()[-1]
 
     for l in range(self.num_layers):
+      proj_cache_shape = [batch_size, self.num_heads, 0, depth // self.num_heads]
       layer_cache = {
-          "memory_keys": tf.zeros([batch_size, 0, depth]),
-          "memory_values": tf.zeros([batch_size, 0, depth]),
+          "memory_keys": tf.zeros(proj_cache_shape),
+          "memory_values": tf.zeros(proj_cache_shape),
       }
       if self.self_attention_type == "scaled_dot":
-        layer_cache["self_keys"] = tf.zeros([batch_size, 0, depth])
-        layer_cache["self_values"] = tf.zeros([batch_size, 0, depth])
+        layer_cache["self_keys"] = tf.zeros(proj_cache_shape)
+        layer_cache["self_values"] = tf.zeros(proj_cache_shape)
       elif self.self_attention_type == "average":
         layer_cache["prev_g"] = tf.zeros([batch_size, 1, depth])
       cache["layer_{}".format(l)] = layer_cache
