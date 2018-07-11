@@ -8,9 +8,9 @@ import random
 import numpy as np
 import tensorflow as tf
 
-from google.protobuf import text_format
-
 from tensorflow.python.estimator.util import fn_args
+
+from google.protobuf import text_format
 
 from opennmt.utils import hooks, checkpoint
 from opennmt.utils.evaluator import external_evaluation_fn
