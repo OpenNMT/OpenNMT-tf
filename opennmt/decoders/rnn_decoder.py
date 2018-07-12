@@ -104,8 +104,10 @@ class RNNDecoder(Decoder):
           sequence_length,
           embedding,
           sampling_probability)
+      fused_projection = False
     else:
       helper = tf.contrib.seq2seq.TrainingHelper(inputs, sequence_length)
+      fused_projection = True  # With TrainingHelper, project all timesteps at once.
 
     cell, initial_state = self._build_cell(
         mode,
@@ -117,9 +119,6 @@ class RNNDecoder(Decoder):
 
     if output_layer is None:
       output_layer = build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
-
-    # With TrainingHelper, project all timesteps at once.
-    fused_projection = isinstance(helper, tf.contrib.seq2seq.TrainingHelper)
 
     decoder = tf.contrib.seq2seq.BasicDecoder(
         cell,
