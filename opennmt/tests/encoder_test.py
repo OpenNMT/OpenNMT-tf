@@ -59,7 +59,7 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([4, 5, 5], encoded_length)
 
   def testPyramidalEncoderShortSequences(self):
-    sequence_length = [3, 4, 3]
+    sequence_length = [3, 4, 2]
     inputs = _build_dummy_sequences(sequence_length)
     encoder = encoders.PyramidalRNNEncoder(3, 10, reduction_factor=2)
     outputs, state, encoded_length = encoder.encode(
@@ -67,7 +67,7 @@ class EncoderTest(tf.test.TestCase):
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       encoded_length = sess.run(encoded_length)
-      self.assertAllGreater(encoded_length, 0)
+      self.assertAllEqual([1, 1, 1], encoded_length)
 
   def _testSequentialEncoder(self, transition_layer_fn=None):
     sequence_length = [17, 21, 20]
