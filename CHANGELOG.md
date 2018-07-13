@@ -18,6 +18,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * Fix invalid scheduled sampling implementation with RNN decoders
 * Fix possible "Data loss: Invalid size in bundle entry" error when loading an averaged checkpoint
+* Fix `PyramidalEncoder` error when input lengths are smaller than the total reduction factor
 
 ## [1.6.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.6.1) (2018-07-11)
 
