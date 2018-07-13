@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from opennmt.utils.cell import build_cell
 from opennmt.encoders.encoder import Encoder
-from opennmt.layers.reducer import SumReducer, ConcatReducer, JoinReducer
+from opennmt.layers.reducer import SumReducer, ConcatReducer, JoinReducer, pad_in_time
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -287,12 +287,10 @@ class PyramidalRNNEncoder(Encoder):
         current_length = tf.shape(inputs)[1]
         factor = tf.divide(tf.cast(current_length, tf.float32), total_reduction_factor)
         new_length = tf.cast(tf.ceil(factor), tf.int32) * total_reduction_factor
-        padding = new_length - current_length
+        inputs = pad_in_time(inputs, new_length - current_length)
 
-        inputs = tf.pad(
-            inputs,
-            [[0, 0], [0, padding], [0, 0]])
-        inputs.set_shape((None, None, input_depth))
+        # Lengths should not be smaller than the total reduction factor.
+        sequence_length = tf.maximum(sequence_length, total_reduction_factor)
       else:
         # In other cases, reduce the time dimension.
         inputs = tf.reshape(
