@@ -26,7 +26,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * Fix error when initialiazing the ROUGE evaluator
 * Improve Transformer models performance:
-  * optimize `tf.layers.conv1d` perfomance on TensorFlow 1.7+ (+20%)
+  * fix performance regression of `tf.layers.conv1d` on TensorFlow 1.7+ (+20%)
   * better caching during decoding (+15%)
 
 ## [1.6.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.6.0) (2018-07-05)
