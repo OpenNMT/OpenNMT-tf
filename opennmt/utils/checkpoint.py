@@ -191,7 +191,7 @@ def average_checkpoints(model_dir, output_dir, max_count=8, session_config=None)
   avg_values = {}
   for name, shape in var_list:
     if not name.startswith("global_step"):
-      avg_values[name] = np.zeros(shape)
+      avg_values[name] = np.zeros(shape, dtype=np.float32)
 
   for checkpoint_path in checkpoints_path:
     tf.logging.info("Loading checkpoint %s" % checkpoint_path)

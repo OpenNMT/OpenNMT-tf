@@ -16,13 +16,21 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.6.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.6.2) (2018-07-14)
+
+### Fixes and improvements
+
+* Fix invalid scheduled sampling implementation with RNN decoders
+* Fix possible "Data loss: Invalid size in bundle entry" error when loading an averaged checkpoint
+* Fix `PyramidalEncoder` error when input lengths are smaller than the total reduction factor
+
 ## [1.6.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.6.1) (2018-07-11)
 
 ### Fixes and improvements
 
 * Fix error when initialiazing the ROUGE evaluator
 * Improve Transformer models performance:
-  * optimize `tf.layers.conv1d` perfomance on TensorFlow 1.7+ (+20%)
+  * fix performance regression of `tf.layers.conv1d` on TensorFlow 1.7+ (+20%)
   * better caching during decoding (+15%)
 
 ## [1.6.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.6.0) (2018-07-05)

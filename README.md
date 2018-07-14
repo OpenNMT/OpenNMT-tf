@@ -91,11 +91,38 @@ onmt-main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --
 
 **Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
 
-For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf) or the [WMT training scripts](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt).
+*For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf) or the [WMT training scripts](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt).*
 
 ## Using as a library
 
-OpenNMT-tf also exposes well-defined and [documented](http://opennmt.net/OpenNMT-tf/package/opennmt.html) functions and classes. For example, OpenNMT-tf has been used to implement [unsupervised NMT](https://github.com/OpenNMT/Hackathon/tree/master/unsupervised-nmt) in TensorFlow.
+OpenNMT-tf also exposes well-defined and stable APIs. Here is an example using the library to encode a sequence using a self-attentional encoder:
+
+```python
+import tensorflow as tf
+import opennmt as onmt
+
+# Build a random batch of input sequences.
+sequence_length = [4, 6, 5]
+input_depth = 512
+inputs = tf.placeholder_with_default(
+    np.random.randn(
+        len(sequence_length), max(sequence_length), input_depth).astype(np.float32),
+    shape=(None, None, input_depth))
+
+# Encode with a self-attentional encoder.
+encoder = onmt.encoders.SelfAttentionEncoder(num_layers=4)
+outputs, state, outputs_length = encoder.encode(
+    inputs,
+    sequence_length=sequence_length,
+    mode=tf.estimator.ModeKeys.TRAIN)
+```
+
+For more advanced examples, some online resources are using OpenNMT-tf as a library:
+
+* [OpenNMT Hackathon 2018](https://github.com/OpenNMT/Hackathon/tree/master/unsupervised-nmt) features a tutorial to implement unsupervised NMT using OpenNMT-tf
+* [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `onmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
+
+*For a complete overview of the APIs, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html).*
 
 ## Compatibility with {Lua,Py}Torch implementations
 
