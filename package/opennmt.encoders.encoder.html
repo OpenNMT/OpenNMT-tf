@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.encoders.encoder module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.encoders.mean_encoder module" href="opennmt.encoders.mean_encoder.html" />
+    <link rel="prev" title="opennmt.encoders.conv_encoder module" href="opennmt.encoders.conv_encoder.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.encoders.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.encoders.html">opennmt.encoders package</a> &raquo;</li>
+        
+      <li>opennmt.encoders.encoder module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.encoders.encoder">
+<span id="opennmt-encoders-encoder-module"></span><h1>opennmt.encoders.encoder module<a class="headerlink" href="#module-opennmt.encoders.encoder" title="Permalink to this headline">¶</a></h1>
+<p>Base class for encoders and generic multi encoders.</p>
+<dl class="class">
+<dt id="opennmt.encoders.encoder.Encoder">
+<em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">Encoder</code><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#Encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.Encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for encoders.</p>
+<dl class="method">
+<dt id="opennmt.encoders.encoder.Encoder.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#Encoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.Encoder.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.encoders.encoder.SequentialEncoder">
+<em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">SequentialEncoder</code><span class="sig-paren">(</span><em>encoders</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>transition_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#SequentialEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.SequentialEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<p>An encoder that executes multiple encoders sequentially with optional
+transition layers.</p>
+<p>See for example “Cascaded Encoder” in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
+<dl class="method">
+<dt id="opennmt.encoders.encoder.SequentialEncoder.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>encoders</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>transition_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#SequentialEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.SequentialEncoder.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the parameters of the encoder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>encoders</strong> – A list of <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a>.</li>
+<li><strong>states_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
+states.</li>
+<li><strong>transition_layer_fn</strong> – A callable or list of callables applied to the
+output of an encoder before passing it as input to the next. If it is a
+single callable, it is applied between every encoders. Otherwise, the
+<code class="docutils literal"><span class="pre">i</span></code> th callable will be applied between encoders <code class="docutils literal"><span class="pre">i</span></code> and <code class="docutils literal"><span class="pre">i</span> <span class="pre">+</span> <span class="pre">1</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">transition_layer_fn</span></code> is a list with a size not equal
+to the number of encoder transitions <code class="docutils literal"><span class="pre">len(encoders)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.encoders.encoder.SequentialEncoder.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#SequentialEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.SequentialEncoder.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.encoders.encoder.ParallelEncoder">
+<em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">ParallelEncoder</code><span class="sig-paren">(</span><em>encoders</em>, <em>outputs_reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>outputs_layer_fn=None</em>, <em>combined_output_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<p>An encoder that encodes its input with several encoders and reduces the
+outputs and states together. Additional layers can be applied on each encoder
+output and on the combined output (e.g. to layer normalize each encoder
+output).</p>
+<p>If the input is a single <code class="docutils literal"><span class="pre">tf.Tensor</span></code>, the same input will be encoded by
+every encoders. Otherwise, when the input is a Python sequence (e.g. the non
+reduced output of a <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter" title="opennmt.inputters.inputter.ParallelInputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.ParallelInputter</span></code></a>),
+each encoder will encode its corresponding input in the sequence.</p>
+<p>See for example “Multi-Columnn Encoder” in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
+<dl class="method">
+<dt id="opennmt.encoders.encoder.ParallelEncoder.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>encoders</em>, <em>outputs_reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>outputs_layer_fn=None</em>, <em>combined_output_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the parameters of the encoder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>encoders</strong> – A list of <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a>.</li>
+<li><strong>outputs_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
+outputs.</li>
+<li><strong>states_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
+states.</li>
+<li><strong>outputs_layer_fn</strong> – A callable or list of callables applied to the
+encoders outputs If it is a single callable, it is on each encoder
+output. Otherwise, the <code class="docutils literal"><span class="pre">i</span></code> th callable is applied on encoder <code class="docutils literal"><span class="pre">i</span></code>
+output.</li>
+<li><strong>combined_output_layer_fn</strong> – A callable to apply on the combined output
+(i.e. the output of <code class="xref py py-obj docutils literal"><span class="pre">outputs_reducer</span></code>).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">outputs_layer_fn</span></code> is a list with a size not equal
+to the number of encoders.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.encoders.encoder.ParallelEncoder.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.encoders.mean_encoder.html" class="btn btn-neutral float-right" title="opennmt.encoders.mean_encoder module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.encoders.conv_encoder.html" class="btn btn-neutral" title="opennmt.encoders.conv_encoder module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

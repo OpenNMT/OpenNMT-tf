@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.utils.parallel &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.utils.parallel</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.utils.parallel</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Utilities to run execution in parallel.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.client</span> <span class="k">import</span> <span class="n">device_lib</span>
+
+
+<div class="viewcode-block" id="GraphDispatcher"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher">[docs]</a><span class="k">class</span> <span class="nc">GraphDispatcher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Helper class to replicate graph parts on multiple devices and dispatch</span>
+<span class="sd">  sharded batches.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GraphDispatcher.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="p">,</span> <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the dispatcher.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_devices: The number of devices to dispatch on.</span>
+<span class="sd">      daisy_chain_variables: If ``True``, variables are copied in a daisy chain</span>
+<span class="sd">        fashion between devices (credits to Tensor2Tensor).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if the number of visible devices is lower than</span>
+<span class="sd">        :obj:`num_devices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">devices</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">device_lib</span><span class="o">.</span><span class="n">list_local_devices</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">device_type</span> <span class="o">==</span> <span class="s2">&quot;GPU&quot;</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_daisy_chain_variables</span> <span class="o">=</span> <span class="n">daisy_chain_variables</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">devices</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="mi">1</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_devices</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only </span><span class="si">%d</span><span class="s2"> devices are visible but </span><span class="si">%d</span><span class="s2"> were requested&quot;</span>
+                       <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">),</span> <span class="n">num_devices</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="n">num_devices</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">devices</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="GraphDispatcher.shard"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.shard">[docs]</a>  <span class="k">def</span> <span class="nf">shard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Shards a structure of ``tf.Tensor`` for dispatching.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      data: A ``tf.Tensor`` of dictionary of ``tf.Tensor``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A list of the same ``tf.Tensor`` structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">split_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphDispatcher.repeat"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.repeat">[docs]</a>  <span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ensures that the object is dispatchable list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      data: The object to convert.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      :obj:`data` if it is valid list or a list where :obj:`data` is replicated.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`data` is a non dispatchable list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;List arguments must contain </span><span class="si">%d</span><span class="s2"> elements, saw </span><span class="si">%d</span><span class="s2"> instead&quot;</span>
+                         <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+      <span class="k">return</span> <span class="n">data</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span></div>
+
+  <span class="k">def</span> <span class="nf">_parallel_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Makes each argument dispatchable.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+      <span class="n">parallel_args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+      <span class="n">parallel_args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">parallel_args</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">parallel_args</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">)]</span>
+    <span class="n">parallel_kwargs</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">):</span>
+        <span class="n">parallel_kwargs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">parallel_args</span><span class="p">,</span> <span class="n">parallel_kwargs</span>
+
+<div class="viewcode-block" id="GraphDispatcher.__call__"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dispatches :obj:`fun` calls accross devices.</span>
+
+<span class="sd">    Each argument must either not be a list or a list with length the number of</span>
+<span class="sd">    devices used for dispatching.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      fun: A callable.</span>
+<span class="sd">      *args: The callable arguments.</span>
+<span class="sd">      **kwargs: The callable keyword arguments.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The sharded outputs of :obj:`fun`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">funs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">tensor_to_var</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">device</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="p">):</span>
+
+      <span class="c1"># pylint: disable=cell-var-from-loop</span>
+      <span class="k">def</span> <span class="nf">_daisy_chain_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a variable and cache in a daisy chain.&quot;&quot;&quot;</span>
+        <span class="c1"># Copyright 2017 The Tensor2Tensor Authors.</span>
+        <span class="c1"># Licensed under the Apache License, Version 2.0</span>
+        <span class="n">device_var_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">device_var_key</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+          <span class="c1"># if we have the variable on the correct device, return it.</span>
+          <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">device_var_key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+          <span class="c1"># if we have it on a different device, copy it from the last device</span>
+          <span class="n">last_device_v</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+          <span class="n">var</span> <span class="o">=</span> <span class="n">tensor_to_var</span><span class="p">[</span><span class="n">last_device_v</span><span class="p">]</span>
+          <span class="n">v</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">last_device_v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">var</span> <span class="o">=</span> <span class="n">getter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">v</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_ref</span><span class="p">())</span>  <span class="c1"># pylint: disable=protected-access</span>
+
+        <span class="c1"># keep track of the original variable</span>
+        <span class="n">tensor_to_var</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">read_value</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">assign_sub</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">assign_sub</span>
+        <span class="c1"># update the cache</span>
+        <span class="n">cache</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">cache</span><span class="p">[</span><span class="n">device_var_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">v</span>
+
+      <span class="n">custom_getter</span> <span class="o">=</span> <span class="kc">None</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_daisy_chain_variables</span><span class="p">:</span>
+        <span class="n">custom_getter</span> <span class="o">=</span> <span class="n">_daisy_chain_getter</span>
+
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s2">&quot;parallel_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">(),</span>
+            <span class="n">reuse</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">custom_getter</span><span class="o">=</span><span class="n">custom_getter</span><span class="p">):</span>
+          <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">funs</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+          <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+              <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">funs</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+    <span class="c1"># If the function returned a tuple, also return a tuple of sharded results.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">outputs</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">outputs</span></div></div>
+
+
+<div class="viewcode-block" id="split_batch"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.split_batch">[docs]</a><span class="k">def</span> <span class="nf">split_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_shards</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Split data into shards.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">_split_dictionary</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Split a dictionary into shards.&quot;&quot;&quot;</span>
+    <span class="n">shards</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_shards</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">SparseTensor</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">shard</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">sparse_split</span><span class="p">(</span><span class="n">sp_input</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">num_split</span><span class="o">=</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)):</span>
+          <span class="n">shards</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">shard</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">shard</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">num_shards</span><span class="p">)):</span>
+          <span class="n">shards</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">shard</span>
+    <span class="k">return</span> <span class="n">shards</span>
+
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s2">&quot;split_inputs&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">data_shards</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="n">data_shards</span> <span class="o">=</span> <span class="n">_split_dictionary</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">data_shards</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_shards</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">data_shards</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

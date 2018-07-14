@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Training" href="training.html" />
+    <link rel="prev" title="Tokenization" href="tokenization.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model">Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multiple-configuration-files">Multiple configuration files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-session">TensorFlow session</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<span id="configuration"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="model">
+<span id="model"></span><h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="definition">
+<span id="definition"></span><h3>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
+<p>Models are defined from the code to allow a high level of modeling freedom. They are <code class="docutils literal"><span class="pre">opennmt.models.Model</span></code> instances that use <a class="reference external" href="package/opennmt.html">available</a> or user-defined modules. Some of these modules are defined to contain other modules and can be used to design complex architectures:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></li>
+<li><code class="docutils literal"><span class="pre">opennmt.encoders.SequentialEncoder</span></code></li>
+<li><code class="docutils literal"><span class="pre">opennmt.inputters.MixedInputter</span></code></li>
+<li><code class="docutils literal"><span class="pre">opennmt.inputters.ParallelInputter</span></code></li>
+</ul>
+<p>For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).</p>
+</div>
+<div class="section" id="usage">
+<span id="usage"></span><h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>The user can either:</p>
+<ul class="simple">
+<li>select a predefined model from the <a class="reference external" href="package/opennmt.models.catalog.html">catalog</a> and use the <code class="docutils literal"><span class="pre">--model_type</span></code> command line option</li>
+<li><strong>or</strong> provide a custom configuration file that follows the template file <code class="docutils literal"><span class="pre">config/models/template.py</span></code> and use the <code class="docutils literal"><span class="pre">--model</span></code> command line option</li>
+</ul>
+<p><em>See the predefined models definitions in the <a class="reference external" href="_modules/opennmt/models/catalog.html">catalog</a>. More experimental models and examples are also available in the <code class="docutils literal"><span class="pre">config/models/</span></code> directory. Contributions to add more model definitions are welcome.</em></p>
+</div>
+</div>
+<div class="section" id="parameters">
+<span id="parameters"></span><h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<p>Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference.</p>
+<p><em>See the example configuration <code class="docutils literal"><span class="pre">config/sample.yml</span></code> to learn about available parameters.</em></p>
+<div class="section" id="multiple-configuration-files">
+<span id="multiple-configuration-files"></span><h3>Multiple configuration files<a class="headerlink" href="#multiple-configuration-files" title="Permalink to this headline">¶</a></h3>
+<p>The command line accepts multiple configuration files so that some parts can be made reusable, e.g:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
+    config/data/toy-ende.yml
+</pre></div>
+</div>
+<p>If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.</p>
+<p>If you are unsure about the configuration that is actually used or simply prefer working with a single file, consider using the <code class="docutils literal"><span class="pre">merge_config</span></code> script:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
+    config/data/toy-ende.yml &gt; config/my_config.yml
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="tensorflow-session">
+<span id="tensorflow-session"></span><h2>TensorFlow session<a class="headerlink" href="#tensorflow-session" title="Permalink to this headline">¶</a></h2>
+<p>The command line option <code class="docutils literal"><span class="pre">--session_config</span></code> can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal"><span class="pre">tf.ConfigProto</span></code></a> message serialized in text format.</p>
+<p>Here is an example to enable the <code class="docutils literal"><span class="pre">allow_growth</span></code> GPU option:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>$ cat config/session_config.txt
+gpu_options {
+  allow_growth: true
+}
+</pre></div>
+</div>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --session_config config/session_config.txt
+</pre></div>
+</div>
+<p>For possible options and values, see the <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal"><span class="pre">tf.ConfigProto</span></code></a> file.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="training.html" class="btn btn-neutral float-right" title="Training" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tokenization.html" class="btn btn-neutral" title="Tokenization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

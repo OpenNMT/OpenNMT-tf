@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.utils.hooks module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.utils.losses module" href="opennmt.utils.losses.html" />
+    <link rel="prev" title="opennmt.utils.evaluator module" href="opennmt.utils.evaluator.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.utils.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.utils.html">opennmt.utils package</a> &raquo;</li>
+        
+      <li>opennmt.utils.hooks module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.utils.hooks">
+<span id="opennmt-utils-hooks-module"></span><h1>opennmt.utils.hooks module<a class="headerlink" href="#module-opennmt.utils.hooks" title="Permalink to this headline">¶</a></h1>
+<p>Custom hooks.</p>
+<dl class="class">
+<dt id="opennmt.utils.hooks.LogParametersCountHook">
+<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">LogParametersCountHook</code><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LogParametersCountHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LogParametersCountHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tensorflow.python.training.session_run_hook.SessionRunHook</span></code></p>
+<p>Simple hook that logs the number of trainable parameters.</p>
+<dl class="method">
+<dt id="opennmt.utils.hooks.LogParametersCountHook.begin">
+<code class="descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LogParametersCountHook.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LogParametersCountHook.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.hooks.add_counter">
+<code class="descclassname">opennmt.utils.hooks.</code><code class="descname">add_counter</code><span class="sig-paren">(</span><em>name</em>, <em>tensor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#add_counter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.add_counter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new counter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> – The name of this counter.</li>
+<li><strong>tensor</strong> – The integer <code class="docutils literal"><span class="pre">tf.Tensor</span></code> to count.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-meth docutils literal"><span class="pre">opennmt.utils.misc.WordCounterHook()</span></code> that fetches these counters
+to log their value in TensorBoard.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.hooks.CountersHook">
+<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">CountersHook</code><span class="sig-paren">(</span><em>every_n_steps=100</em>, <em>every_n_secs=None</em>, <em>output_dir=None</em>, <em>summary_writer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#CountersHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.CountersHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tensorflow.python.training.session_run_hook.SessionRunHook</span></code></p>
+<p>Hook that summarizes counters.</p>
+<p>Implementation is mostly copied from StepCounterHook.</p>
+<dl class="method">
+<dt id="opennmt.utils.hooks.CountersHook.begin">
+<code class="descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#CountersHook.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.CountersHook.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.CountersHook.before_run">
+<code class="descname">before_run</code><span class="sig-paren">(</span><em>run_context</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#CountersHook.before_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.CountersHook.before_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.CountersHook.after_run">
+<code class="descname">after_run</code><span class="sig-paren">(</span><em>run_context</em>, <em>run_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#CountersHook.after_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.CountersHook.after_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.hooks.LogPredictionTimeHook">
+<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">LogPredictionTimeHook</code><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LogPredictionTimeHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LogPredictionTimeHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tensorflow.python.training.session_run_hook.SessionRunHook</span></code></p>
+<p>Hooks that gathers and logs prediction times.</p>
+<dl class="method">
+<dt id="opennmt.utils.hooks.LogPredictionTimeHook.begin">
+<code class="descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LogPredictionTimeHook.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LogPredictionTimeHook.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.LogPredictionTimeHook.before_run">
+<code class="descname">before_run</code><span class="sig-paren">(</span><em>run_context</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LogPredictionTimeHook.before_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LogPredictionTimeHook.before_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.LogPredictionTimeHook.after_run">
+<code class="descname">after_run</code><span class="sig-paren">(</span><em>run_context</em>, <em>run_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LogPredictionTimeHook.after_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LogPredictionTimeHook.after_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.LogPredictionTimeHook.end">
+<code class="descname">end</code><span class="sig-paren">(</span><em>session</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LogPredictionTimeHook.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LogPredictionTimeHook.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook">
+<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">SaveEvaluationPredictionHook</code><span class="sig-paren">(</span><em>model</em>, <em>output_file</em>, <em>post_evaluation_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tensorflow.python.training.session_run_hook.SessionRunHook</span></code></p>
+<p>Hook that saves the evaluation predictions.</p>
+<dl class="method">
+<dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>output_file</em>, <em>post_evaluation_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes this hook.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model</strong> – The model for which to save the evaluation predictions.</li>
+<li><strong>output_file</strong> – The output filename which will be suffixed by the current
+training step.</li>
+<li><strong>post_evaluation_fn</strong> – (optional) A callable that takes as argument the
+current step and the file with the saved predictions.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook.begin">
+<code class="descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook.before_run">
+<code class="descname">before_run</code><span class="sig-paren">(</span><em>run_context</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook.before_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook.before_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook.after_run">
+<code class="descname">after_run</code><span class="sig-paren">(</span><em>run_context</em>, <em>run_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook.after_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook.after_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook.end">
+<code class="descname">end</code><span class="sig-paren">(</span><em>session</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.utils.losses.html" class="btn btn-neutral float-right" title="opennmt.utils.losses module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.utils.evaluator.html" class="btn btn-neutral" title="opennmt.utils.evaluator module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

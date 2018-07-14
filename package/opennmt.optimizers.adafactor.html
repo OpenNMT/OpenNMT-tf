@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.optimizers.adafactor module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.optimizers.multistep_adam module" href="opennmt.optimizers.multistep_adam.html" />
+    <link rel="prev" title="opennmt.optimizers package" href="opennmt.optimizers.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.optimizers.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.optimizers.html">opennmt.optimizers package</a> &raquo;</li>
+        
+      <li>opennmt.optimizers.adafactor module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.optimizers.adafactor">
+<span id="opennmt-optimizers-adafactor-module"></span><h1>opennmt.optimizers.adafactor module<a class="headerlink" href="#module-opennmt.optimizers.adafactor" title="Permalink to this headline">¶</a></h1>
+<p>Optimization.</p>
+<dl class="class">
+<dt id="opennmt.optimizers.adafactor.AdafactorOptimizer">
+<em class="property">class </em><code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">AdafactorOptimizer</code><span class="sig-paren">(</span><em>multiply_by_parameter_scale=True</em>, <em>learning_rate=None</em>, <em>decay_rate=None</em>, <em>beta1=0.0</em>, <em>clipping_threshold=1.0</em>, <em>factored=True</em>, <em>use_locking=False</em>, <em>name='Adafactor'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#AdafactorOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.AdafactorOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tensorflow.python.training.optimizer.Optimizer</span></code></p>
+<p>Optimizer that implements the Adafactor algorithm.</p>
+<p>Adafactor is described in TODO(noam): post paper to arxiv.</p>
+<p>Adafactor is most similar to Adam (Kingma and Ba), the major differences are:</p>
+<ol class="arabic simple">
+<li>For a two-dimensional AxB weight matrix, Adafactor uses only A+B auxiliary
+parameters to maintain the second-moment estimator, instead of AB.
+This is advantagous on memory-limited systems.  In addition, beta1
+(momentum) is set to zero by default, saving an additional auxiliary
+parameter per weight.</li>
+<li>Adafactor incorporates “update-clipping” - a scale-invariant analog of
+gradient clipping.  This adds stability</li>
+<li>Adafactor does not require an external “learning rate”.  By default, it
+incorporates a relative-update-scale schedule, corresponding to
+inverse-square-root learning-rate-decay in ADAM.  We hope this works well
+for most applications.</li>
+</ol>
+<p>ALGORITHM:</p>
+<p>parameter -= absolute_update_scale * clip(grad / grad_scale)</p>
+<p>where:</p>
+<blockquote>
+<div>absolute_update_scale := relative_update_scale * parameter_scale
+relative_update_scale := min((step_num + 1)**-0.5, 1e-2)
+parameter_scale := max(rms(var)), 1e-3)
+clip(x) := x / max(1.0, rms(x))
+grad_scale := tf.sqrt(v)   (v is the second-moment estimator)</div></blockquote>
+<p>The second-moment estimator v is maintained in a manner similar to Adam:
+We initialize
+<a href="#id1"><span class="problematic" id="id2">``</span></a>`
+if var is 2-dimensional:</p>
+<blockquote>
+<div>v_r &lt;- zeros([num_rows])
+v_c &lt;- zeros([num_cols])</div></blockquote>
+<dl class="docutils">
+<dt>else:</dt>
+<dd>v &lt;- zeros(shape(var))</dd>
+</dl>
+<p><a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a></p>
+<p>The update rule is as follows:
+<a href="#id7"><span class="problematic" id="id8">``</span></a>`
+decay_rate = 1 - (step_num + 1) ^ -0.8
+grad_squared = tf.square(grad) + epsilon
+if var is 2-dimensional:</p>
+<blockquote>
+<div>v_r &lt;- decay_rate * v_r + (1 - decay_rate) * reduce_mean(grad_squared, 1)
+v_c &lt;- decay_rate * v_c + (1 - decay_rate) * reduce_mean(grad_squared, 0)
+v = outer_prod(v_r, v_c) / reduce_mean(v_r)</div></blockquote>
+<dl class="docutils">
+<dt>else:</dt>
+<dd>v &lt;- decay_rate * v + (1 - decay_rate) * grad_squared</dd>
+</dl>
+<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a></p>
+<p>Several parts of this algorithm are configurable from the initializer.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>multiply_by_parameter_scale:  If True, then compute absolute_update_scale</dt>
+<dd>as described above.  If False, let absolute_update_scale be the externally
+supplied learning_rate.</dd>
+<dt>learning_rate: represents relative_update_scale if</dt>
+<dd>multiply_by_parameter_scale==True, or absolute_update_scale if
+multiply_by_parameter_scale==False.</dd>
+<dt>decay_rate: Decay rate of the second moment estimator (varies by step_num).</dt>
+<dd>This should be set to a function such that:
+1-1/(step_num + 1) &lt;= decay_rate(step_num) &lt; 1.0</dd>
+</dl>
+<p>beta1: enables momentum, as in Adam.  Uses extra memory if nonzero.
+clipping_threshold: should be &gt;=1.0 or None for no update clipping
+factored: whether to factor the second-moment estimator.  True means</p>
+<blockquote>
+<div>less memory usage.</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>TODO(noam): we should also apply the 2d logic to the two final dimensions.</dt>
+<dd>of &gt;2d convolutional kernels.</dd>
+</dl>
+<dl class="method">
+<dt id="opennmt.optimizers.adafactor.AdafactorOptimizer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>multiply_by_parameter_scale=True</em>, <em>learning_rate=None</em>, <em>decay_rate=None</em>, <em>beta1=0.0</em>, <em>clipping_threshold=1.0</em>, <em>factored=True</em>, <em>use_locking=False</em>, <em>name='Adafactor'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#AdafactorOptimizer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.AdafactorOptimizer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a new Adafactor optimizer.</p>
+<p>See class comment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>multiply_by_parameter_scale</strong> – a boolean</li>
+<li><strong>learning_rate</strong> – an optional Scalar.</li>
+<li><strong>decay_rate</strong> – an optional Scalar.</li>
+<li><strong>beta1</strong> – a float value between 0 and 1</li>
+<li><strong>clipping_threshold</strong> – an optional float &gt;= 1</li>
+<li><strong>factored</strong> – a boolean - whether to use factored second-moment estimator
+for 2d variables</li>
+<li><strong>use_locking</strong> – If True use locks for update operations.</li>
+<li><strong>name</strong> – Optional name for the operations created when applying gradients.
+Defaults to “AdafactorOptimizer”.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if absolute_update_scale and relative_update_scale_fn are both
+present or both absent.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.optimizers.adafactor.adafactor_decay_rate_adam">
+<code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">adafactor_decay_rate_adam</code><span class="sig-paren">(</span><em>beta2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#adafactor_decay_rate_adam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.adafactor_decay_rate_adam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second-moment decay rate like Adam, subsuming the correction factor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>beta2</strong> – a float between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a scalar</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.optimizers.adafactor.adafactor_decay_rate_pow">
+<code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">adafactor_decay_rate_pow</code><span class="sig-paren">(</span><em>exponent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#adafactor_decay_rate_pow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.adafactor_decay_rate_pow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second moment decay rate where memory-length grows as step_num^exponent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exponent</strong> – a float between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a scalar</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.optimizers.adafactor.get_optimizer_from_params">
+<code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">get_optimizer_from_params</code><span class="sig-paren">(</span><em>optimizer_class</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#get_optimizer_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.get_optimizer_from_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Adafactor optimizer from user parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>optimizer_class</strong> – The AdafactorOptimizer class.</li>
+<li><strong>params</strong> – A dictionary containing the user parameters for this optimizer.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A callable that takes the learning rate as argument.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.optimizers.multistep_adam.html" class="btn btn-neutral float-right" title="opennmt.optimizers.multistep_adam module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.optimizers.html" class="btn btn-neutral" title="opennmt.optimizers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.models.sequence_classifier module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.models.sequence_tagger module" href="opennmt.models.sequence_tagger.html" />
+    <link rel="prev" title="opennmt.models.model module" href="opennmt.models.model.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.models.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.models.html">opennmt.models package</a> &raquo;</li>
+        
+      <li>opennmt.models.sequence_classifier module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.models.sequence_classifier">
+<span id="opennmt-models-sequence-classifier-module"></span><h1>opennmt.models.sequence_classifier module<a class="headerlink" href="#module-opennmt.models.sequence_classifier" title="Permalink to this headline">¶</a></h1>
+<p>Sequence classifier.</p>
+<dl class="class">
+<dt id="opennmt.models.sequence_classifier.SequenceClassifier">
+<em class="property">class </em><code class="descclassname">opennmt.models.sequence_classifier.</code><code class="descname">SequenceClassifier</code><span class="sig-paren">(</span><em>inputter</em>, <em>encoder</em>, <em>labels_vocabulary_file_key</em>, <em>encoding='average'</em>, <em>daisy_chain_variables=False</em>, <em>name='seqclassifier'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_classifier.html#SequenceClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_classifier.SequenceClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal"><span class="pre">opennmt.models.model.Model</span></code></a></p>
+<p>A sequence classifier.</p>
+<dl class="method">
+<dt id="opennmt.models.sequence_classifier.SequenceClassifier.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>inputter</em>, <em>encoder</em>, <em>labels_vocabulary_file_key</em>, <em>encoding='average'</em>, <em>daisy_chain_variables=False</em>, <em>name='seqclassifier'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_classifier.html#SequenceClassifier.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_classifier.SequenceClassifier.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a sequence classifier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process the
+input data.</li>
+<li><strong>encoder</strong> – A <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a> to encode the input.</li>
+<li><strong>labels_vocabulary_file_key</strong> – The data configuration key of the labels
+vocabulary file containing one label per line.</li>
+<li><strong>encoding</strong> – “average” or “last” (case insensitive), the encoding vector to
+extract from the encoder outputs.</li>
+<li><strong>daisy_chain_variables</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, copy variables in a daisy chain
+between devices for this model. Not compatible with RNN based models.</li>
+<li><strong>name</strong> – The name of this model.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">encoding</span></code> is invalid.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.sequence_classifier.SequenceClassifier.print_prediction">
+<code class="descname">print_prediction</code><span class="sig-paren">(</span><em>prediction</em>, <em>params=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_classifier.html#SequenceClassifier.print_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_classifier.SequenceClassifier.print_prediction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.models.sequence_tagger.html" class="btn btn-neutral float-right" title="opennmt.models.sequence_tagger module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.models.model.html" class="btn btn-neutral" title="opennmt.models.model module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

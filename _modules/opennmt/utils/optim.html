@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.utils.optim</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.utils.optim</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Optimization related functions.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">optimizers</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">decay</span>
+
+
+<div class="viewcode-block" id="learning_rate_decay_fn"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.learning_rate_decay_fn">[docs]</a><span class="k">def</span> <span class="nf">learning_rate_decay_fn</span><span class="p">(</span><span class="n">decay_type</span><span class="p">,</span>
+                           <span class="n">decay_rate</span><span class="p">,</span>
+                           <span class="n">decay_steps</span><span class="p">,</span>
+                           <span class="n">decay_step_duration</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">staircase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">start_decay_steps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                           <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns the learning rate decay functions.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    decay_type: The type of decay. A function from ``tf.train`` or</span>
+<span class="sd">     :mod:`opennmt.utils.decay` as a string.</span>
+<span class="sd">    decay_rate: The decay rate to apply.</span>
+<span class="sd">    decay_steps: The decay steps as described in the decay type function.</span>
+<span class="sd">    decay_step_duration: The number of training steps that make 1 decay step.</span>
+<span class="sd">    staircase: If ``True``, learning rate is decayed in a staircase fashion.</span>
+<span class="sd">    start_decay_steps: Start decay after this many steps.</span>
+<span class="sd">    minimum_learning_rate: Do not decay past this learning rate value.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A function with signature</span>
+<span class="sd">    ``(learning_rate, global_step) -&gt; decayed_learning_rate``.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`decay_type` can not be resolved.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">_decay_fn</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">global_step</span><span class="p">):</span>
+    <span class="n">decay_op_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">decay_op_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">decay_op_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="p">,</span> <span class="n">decay_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">decay_op_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">decay_op_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">decay</span><span class="p">,</span> <span class="n">decay_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">decay_op_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown decay function: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">decay_type</span><span class="p">))</span>
+
+    <span class="c1"># Map the training step to a decay step.</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">global_step</span> <span class="o">-</span> <span class="n">start_decay_steps</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">decay_step_duration</span><span class="p">)</span>
+
+    <span class="n">decayed_learning_rate</span> <span class="o">=</span> <span class="n">decay_op_name</span><span class="p">(</span>
+        <span class="n">learning_rate</span><span class="p">,</span>
+        <span class="n">step</span><span class="p">,</span>
+        <span class="n">decay_steps</span><span class="p">,</span>
+        <span class="n">decay_rate</span><span class="p">,</span>
+        <span class="n">staircase</span><span class="o">=</span><span class="n">staircase</span><span class="p">)</span>
+    <span class="n">decayed_learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">decayed_learning_rate</span><span class="p">,</span> <span class="n">minimum_learning_rate</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decayed_learning_rate</span>
+
+  <span class="k">return</span> <span class="n">_decay_fn</span></div>
+
+<div class="viewcode-block" id="get_optimizer_class"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.get_optimizer_class">[docs]</a><span class="k">def</span> <span class="nf">get_optimizer_class</span><span class="p">(</span><span class="n">classname</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns the optimizer class.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    classname: The name of the optimizer class in ``tf.train`` or</span>
+<span class="sd">      ``tf.contrib.opt`` as a string.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A class inheriting from ``tf.train.Optimizer``.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`classname` can not be resolved.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">optimizer_class</span> <span class="o">=</span> <span class="kc">None</span>
+
+  <span class="k">if</span> <span class="n">optimizer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">optimizer_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="p">,</span> <span class="n">classname</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">optimizer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">optimizer_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">opt</span><span class="p">,</span> <span class="n">classname</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">optimizer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">optimizer_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">optimizers</span><span class="p">,</span> <span class="n">classname</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">optimizer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown optimizer class: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">classname</span><span class="p">))</span>
+
+  <span class="k">return</span> <span class="n">optimizer_class</span></div>
+
+<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Minimizes the loss.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    loss: The loss to minimize.</span>
+<span class="sd">    params: A dictionary of hyperparameters.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The loss minimization op.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_or_create_global_step</span><span class="p">()</span>
+  <span class="n">decay_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">decay_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">decay_fn</span> <span class="o">=</span> <span class="n">learning_rate_decay_fn</span><span class="p">(</span>
+        <span class="n">decay_type</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_rate&quot;</span><span class="p">],</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_steps&quot;</span><span class="p">],</span>
+        <span class="n">decay_step_duration</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">staircase</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;staircase&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="n">start_decay_steps</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_decay_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_learning_rate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">decay_fn</span> <span class="o">=</span> <span class="kc">None</span>
+
+  <span class="n">learning_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">])</span>
+  <span class="n">clip_gradients</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">clip_gradients</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">clip_gradients</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_gradients</span><span class="p">)</span>
+
+  <span class="n">optimizer_class</span> <span class="o">=</span> <span class="n">get_optimizer_class</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">])</span>
+  <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+  <span class="k">if</span> <span class="n">optimizer_class</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AdafactorOptimizer&quot;</span><span class="p">:</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">get_adafactor_optimizer_from_params</span><span class="p">(</span><span class="n">optimizer_class</span><span class="p">,</span> <span class="n">optimizer_params</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lr</span><span class="p">:</span> <span class="n">optimizer_class</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_params</span><span class="p">)</span>
+
+  <span class="n">regularization</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regularization&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">regularization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">loss</span> <span class="o">+=</span> <span class="n">regularization_penalty</span><span class="p">(</span><span class="n">regularization</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">regularization</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">])</span>
+
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">optimize_loss</span><span class="p">(</span>
+      <span class="n">loss</span><span class="p">,</span>
+      <span class="n">global_step</span><span class="p">,</span>
+      <span class="n">learning_rate</span><span class="p">,</span>
+      <span class="n">optimizer</span><span class="p">,</span>
+      <span class="n">clip_gradients</span><span class="o">=</span><span class="n">clip_gradients</span><span class="p">,</span>
+      <span class="n">learning_rate_decay_fn</span><span class="o">=</span><span class="n">decay_fn</span><span class="p">,</span>
+      <span class="n">name</span><span class="o">=</span><span class="s2">&quot;optim&quot;</span><span class="p">,</span>
+      <span class="n">summaries</span><span class="o">=</span><span class="p">[</span>
+          <span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;global_gradient_norm&quot;</span><span class="p">,</span>
+      <span class="p">],</span>
+      <span class="n">colocate_gradients_with_ops</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="regularization_penalty"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.regularization_penalty">[docs]</a><span class="k">def</span> <span class="nf">regularization_penalty</span><span class="p">(</span><span class="n">regularization_type</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">weights_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Computes the weights regularization penalty.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    regularization_type: The regularization type: ``l1``, ``l2``, or ``l1_l2``.</span>
+<span class="sd">    scale: The regularization multiplier. If :obj:`regularization_type` is</span>
+<span class="sd">      ``l1_l2``, this should be a list or tuple containing the L1 regularization</span>
+<span class="sd">      scale and the L2 regularization scale.</span>
+<span class="sd">    weights_list: The list of weights. Defaults to non bias variables.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The regularization penalty.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`regularization_type` is invalid or is ``l1_l2`` but</span>
+<span class="sd">      :obj:`scale` is not a sequence.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">_is_bias</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;bias:0&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">weights_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">weights_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_bias</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+
+  <span class="n">regularization_type</span> <span class="o">=</span> <span class="n">regularization_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+  <span class="k">if</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">l1_regularizer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
+  <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">l2_regularizer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
+  <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1_l2&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;l1_l2 regularization requires 2 scale values&quot;</span><span class="p">)</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">l1_l2_regularizer</span><span class="p">(</span>
+        <span class="n">scale_l1</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">scale_l2</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid regularization type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">regularization_type</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">apply_regularization</span><span class="p">(</span><span class="n">regularizer</span><span class="p">,</span> <span class="n">weights_list</span><span class="o">=</span><span class="n">weights_list</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.utils.misc</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.utils.misc</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Various utility functions to use throughout the project.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
+<div class="viewcode-block" id="print_bytes"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.print_bytes">[docs]</a><span class="k">def</span> <span class="nf">print_bytes</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Prints a string viewed as bytes.</span>
+
+<span class="sd">  This function calls ``decode()`` depending on the output stream encoding.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    str_as_bytes: The bytes to print.</span>
+<span class="sd">    stream: The stream to print to (``sys.stdout`` if not set).</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">encoding</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">encoding</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">encoding</span>
+  <span class="k">if</span> <span class="n">encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">encoding</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getdefaultencoding</span><span class="p">()</span>
+  <span class="n">text</span> <span class="o">=</span> <span class="n">str_as_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span> <span class="o">!=</span> <span class="s2">&quot;ascii&quot;</span> <span class="k">else</span> <span class="n">str_as_bytes</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="item_or_tuple"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.item_or_tuple">[docs]</a><span class="k">def</span> <span class="nf">item_or_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns :obj:`x` as a tuple or its single element.&quot;&quot;&quot;</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="classes_in_module"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.classes_in_module">[docs]</a><span class="k">def</span> <span class="nf">classes_in_module</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns a generator over the classes defined in :obj:`module`.&quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="get_third_party_dir"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.get_third_party_dir">[docs]</a><span class="k">def</span> <span class="nf">get_third_party_dir</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Returns a path to the third_party directory.&quot;&quot;&quot;</span>
+  <span class="n">utils_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+  <span class="n">opennmt_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">utils_dir</span><span class="p">)</span>
+  <span class="n">root_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">opennmt_dir</span><span class="p">)</span>
+  <span class="n">third_party_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s2">&quot;third_party&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">third_party_dir</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;no third_party directory found in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">third_party_dir</span></div>
+
+<div class="viewcode-block" id="count_lines"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.count_lines">[docs]</a><span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns the number of lines of the file :obj:`filename`.&quot;&quot;&quot;</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+      <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="count_parameters"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.count_parameters">[docs]</a><span class="k">def</span> <span class="nf">count_parameters</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Returns the total number of trainable parameters.&quot;&quot;&quot;</span>
+  <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">():</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">variable</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">:</span>
+      <span class="n">count</span> <span class="o">*=</span> <span class="n">dim</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">total</span> <span class="o">+=</span> <span class="n">count</span>
+  <span class="k">return</span> <span class="n">total</span></div>
+
+<div class="viewcode-block" id="extract_prefixed_keys"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.extract_prefixed_keys">[docs]</a><span class="k">def</span> <span class="nf">extract_prefixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are prefixed</span>
+<span class="sd">  with :obj:`prefix`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+      <span class="n">original_key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
+      <span class="n">sub_dict</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+  <span class="k">return</span> <span class="n">sub_dict</span></div>
+
+<div class="viewcode-block" id="extract_batches"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.extract_batches">[docs]</a><span class="k">def</span> <span class="nf">extract_batches</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns a generator to iterate on each batch of a Numpy array or dict of</span>
+<span class="sd">  Numpy arrays.&quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
+      <span class="k">yield</span> <span class="n">tensor</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">itervalues</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+      <span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="ow">or</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+      <span class="k">yield</span> <span class="p">{</span>
+          <span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
+      <span class="p">}</span></div>
+
+
+<span class="c1"># The next 2 functions come with the following license and copyright:</span>
+
+<span class="c1"># Copyright 2017 Google Inc.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+
+<div class="viewcode-block" id="add_dict_to_collection"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.add_dict_to_collection">[docs]</a><span class="k">def</span> <span class="nf">add_dict_to_collection</span><span class="p">(</span><span class="n">collection_name</span><span class="p">,</span> <span class="n">dict_</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Adds a dictionary to a graph collection.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    collection_name: The name of the collection to add the dictionary to</span>
+<span class="sd">    dict_: A dictionary of string keys to tensor values</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">key_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_keys&quot;</span>
+  <span class="n">value_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_values&quot;</span>
+  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dict_</span><span class="p">):</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">key_collection</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">value_collection</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_dict_from_collection"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.get_dict_from_collection">[docs]</a><span class="k">def</span> <span class="nf">get_dict_from_collection</span><span class="p">(</span><span class="n">collection_name</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Gets a dictionary from a graph collection.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    collection_name: A collection name to read a dictionary from</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A dictionary with string keys and tensor values</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">key_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_keys&quot;</span>
+  <span class="n">value_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_values&quot;</span>
+  <span class="n">keys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">key_collection</span><span class="p">)</span>
+  <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">value_collection</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

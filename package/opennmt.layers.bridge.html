@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.layers.bridge module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.layers.common module" href="opennmt.layers.common.html" />
+    <link rel="prev" title="opennmt.layers package" href="opennmt.layers.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.layers.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.layers.html">opennmt.layers package</a> &raquo;</li>
+        
+      <li>opennmt.layers.bridge module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.layers.bridge">
+<span id="opennmt-layers-bridge-module"></span><h1>opennmt.layers.bridge module<a class="headerlink" href="#module-opennmt.layers.bridge" title="Permalink to this headline">¶</a></h1>
+<p>Define bridges: logic of passing the encoder state to the decoder.</p>
+<dl class="function">
+<dt id="opennmt.layers.bridge.assert_state_is_compatible">
+<code class="descclassname">opennmt.layers.bridge.</code><code class="descname">assert_state_is_compatible</code><span class="sig-paren">(</span><em>expected_state</em>, <em>state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#assert_state_is_compatible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.assert_state_is_compatible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that states are compatible.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>expected_state</strong> – The reference state.</li>
+<li><strong>state</strong> – The state that must be compatible with <code class="xref py py-obj docutils literal"><span class="pre">expected_state</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if the states are incompatible.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.bridge.Bridge">
+<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">Bridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.Bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for bridges.</p>
+<dl class="method">
+<dt id="opennmt.layers.bridge.Bridge.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>encoder_state</em>, <em>decoder_zero_state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.Bridge.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the initial decoder state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>encoder_state</strong> – The encoder state.</li>
+<li><strong>decoder_zero_state</strong> – The default decoder state.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The decoder initial state.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.bridge.CopyBridge">
+<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">CopyBridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#CopyBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.CopyBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
+<p>A bridge that passes the encoder state as is.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.bridge.ZeroBridge">
+<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">ZeroBridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#ZeroBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.ZeroBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
+<p>A bridge that does not pass information from the encoder.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.bridge.DenseBridge">
+<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">DenseBridge</code><span class="sig-paren">(</span><em>activation=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#DenseBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.DenseBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
+<p>A bridge that applies a parameterized linear transformation from the
+encoder state to the decoder state size.</p>
+<dl class="method">
+<dt id="opennmt.layers.bridge.DenseBridge.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>activation=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#DenseBridge.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.DenseBridge.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the bridge.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activation</strong> – Activation function (a callable).
+Set it to <code class="docutils literal"><span class="pre">None</span></code> to maintain a linear activation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.layers.common.html" class="btn btn-neutral float-right" title="opennmt.layers.common module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.layers.html" class="btn btn-neutral" title="opennmt.layers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

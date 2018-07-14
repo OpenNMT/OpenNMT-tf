@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.encoders.self_attention_encoder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.encoders.self_attention_encoder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define the self-attention encoder.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">transformer</span>
+
+<span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">Encoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="k">import</span> <span class="n">SinusoidalPositionEncoder</span>
+
+
+<div class="viewcode-block" id="SelfAttentionEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoder">[docs]</a><span class="k">class</span> <span class="nc">SelfAttentionEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Encoder using self-attention as described in</span>
+<span class="sd">  https://arxiv.org/abs/1706.03762.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SelfAttentionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+               <span class="n">num_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+               <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+               <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+               <span class="n">relu_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+               <span class="n">position_encoder</span><span class="o">=</span><span class="n">SinusoidalPositionEncoder</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of hidden units.</span>
+<span class="sd">      num_heads: The number of heads in the multi-head attention.</span>
+<span class="sd">      ffn_inner_dim: The number of units of the inner linear transformation</span>
+<span class="sd">        in the feed forward layer.</span>
+<span class="sd">      dropout: The probability to drop units from the outputs.</span>
+<span class="sd">      attention_dropout: The probability to drop units from the attention.</span>
+<span class="sd">      relu_dropout: The probability to drop units from the ReLU activation in</span>
+<span class="sd">        the feed forward layer.</span>
+<span class="sd">      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to</span>
+<span class="sd">        apply on inputs or ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span> <span class="o">=</span> <span class="n">num_heads</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ffn_inner_dim</span> <span class="o">=</span> <span class="n">ffn_inner_dim</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attention_dropout</span> <span class="o">=</span> <span class="n">attention_dropout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">relu_dropout</span> <span class="o">=</span> <span class="n">relu_dropout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="o">=</span> <span class="n">position_encoder</span></div>
+
+<div class="viewcode-block" id="SelfAttentionEncoder.encode"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoder.encode">[docs]</a>  <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">):</span>
+    <span class="n">inputs</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="o">**</span><span class="mf">0.5</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">build_sequence_mask</span><span class="p">(</span>
+        <span class="n">sequence_length</span><span class="p">,</span>
+        <span class="n">num_heads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">,</span>
+        <span class="n">maximum_length</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;layer_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">l</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;multi_head&quot;</span><span class="p">):</span>
+          <span class="n">context</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">multi_head_attention</span><span class="p">(</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">,</span>
+              <span class="n">transformer</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+              <span class="kc">None</span><span class="p">,</span>
+              <span class="n">mode</span><span class="p">,</span>
+              <span class="n">num_units</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span>
+              <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+              <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">attention_dropout</span><span class="p">)</span>
+          <span class="n">context</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">drop_and_add</span><span class="p">(</span>
+              <span class="n">inputs</span><span class="p">,</span>
+              <span class="n">context</span><span class="p">,</span>
+              <span class="n">mode</span><span class="p">,</span>
+              <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;ffn&quot;</span><span class="p">):</span>
+          <span class="n">transformed</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">feed_forward</span><span class="p">(</span>
+              <span class="n">transformer</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">ffn_inner_dim</span><span class="p">,</span>
+              <span class="n">mode</span><span class="p">,</span>
+              <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relu_dropout</span><span class="p">)</span>
+          <span class="n">transformed</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">drop_and_add</span><span class="p">(</span>
+              <span class="n">context</span><span class="p">,</span>
+              <span class="n">transformed</span><span class="p">,</span>
+              <span class="n">mode</span><span class="p">,</span>
+              <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">transformed</span>
+        <span class="n">state</span> <span class="o">+=</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),)</span>
+
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

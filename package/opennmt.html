@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt package &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.decoders package" href="opennmt.decoders.html" />
+    <link rel="prev" title="Serving" href="../serving.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">opennmt package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.config.html">opennmt.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.constants.html">opennmt.constants module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.runner.html">opennmt.runner module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>opennmt package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt">
+<span id="opennmt-package"></span><h1>opennmt package<a class="headerlink" href="#module-opennmt" title="Permalink to this headline">¶</a></h1>
+<p>OpenNMT module.</p>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.decoders.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.decoder.html">opennmt.decoders.decoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.rnn_decoder.html">opennmt.decoders.rnn_decoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.self_attention_decoder.html">opennmt.decoders.self_attention_decoder module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.encoders.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.conv_encoder.html">opennmt.encoders.conv_encoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.encoder.html">opennmt.encoders.encoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.mean_encoder.html">opennmt.encoders.mean_encoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.rnn_encoder.html">opennmt.encoders.rnn_encoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.self_attention_encoder.html">opennmt.encoders.self_attention_encoder module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.inputters.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.inputter.html">opennmt.inputters.inputter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.record_inputter.html">opennmt.inputters.record_inputter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.text_inputter.html">opennmt.inputters.text_inputter module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.layers.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.bridge.html">opennmt.layers.bridge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.common.html">opennmt.layers.common module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.position.html">opennmt.layers.position module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.reducer.html">opennmt.layers.reducer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.transformer.html">opennmt.layers.transformer module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.models.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.catalog.html">opennmt.models.catalog module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.model.html">opennmt.models.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.sequence_classifier.html">opennmt.models.sequence_classifier module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.sequence_tagger.html">opennmt.models.sequence_tagger module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.sequence_to_sequence.html">opennmt.models.sequence_to_sequence module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.transformer.html">opennmt.models.transformer module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.optimizers.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.adafactor.html">opennmt.optimizers.adafactor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.multistep_adam.html">opennmt.optimizers.multistep_adam module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.tokenizers.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.opennmt_tokenizer.html">opennmt.tokenizers.opennmt_tokenizer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.tokenizer.html">opennmt.tokenizers.tokenizer module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.utils.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.adafactor.html">opennmt.utils.adafactor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.beam_search.html">opennmt.utils.beam_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.cell.html">opennmt.utils.cell module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.checkpoint.html">opennmt.utils.checkpoint module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.data.html">opennmt.utils.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.decay.html">opennmt.utils.decay module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.evaluator.html">opennmt.utils.evaluator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.hooks.html">opennmt.utils.hooks module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.losses.html">opennmt.utils.losses module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.misc.html">opennmt.utils.misc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.optim.html">opennmt.utils.optim module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.parallel.html">opennmt.utils.parallel module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.vocab.html">opennmt.utils.vocab module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.config.html">opennmt.config module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.constants.html">opennmt.constants module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.runner.html">opennmt.runner module</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.decoders.html" class="btn btn-neutral float-right" title="opennmt.decoders package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../serving.html" class="btn btn-neutral" title="Serving" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

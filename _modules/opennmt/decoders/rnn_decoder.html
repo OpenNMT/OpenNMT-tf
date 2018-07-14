@@ -1,0 +1,685 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.decoders.rnn_decoder &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.decoders.rnn_decoder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.decoders.rnn_decoder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define RNN-based decoders.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.estimator.util</span> <span class="k">import</span> <span class="n">fn_args</span>
+
+<span class="kn">from</span> <span class="nn">opennmt.decoders.decoder</span> <span class="k">import</span> <span class="n">Decoder</span><span class="p">,</span> <span class="n">logits_to_cum_log_probs</span><span class="p">,</span> <span class="n">build_output_layer</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.cell</span> <span class="k">import</span> <span class="n">build_cell</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers.reducer</span> <span class="k">import</span> <span class="n">align_in_time</span>
+
+
+<div class="viewcode-block" id="RNNDecoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder">[docs]</a><span class="k">class</span> <span class="nc">RNNDecoder</span><span class="p">(</span><span class="n">Decoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A basic RNN decoder.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RNNDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="p">,</span>
+               <span class="n">bridge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+               <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of units in each layer.</span>
+<span class="sd">      bridge: A :class:`opennmt.layers.bridge.Bridge` to pass the encoder state</span>
+<span class="sd">        to the decoder.</span>
+<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">        argument and returning a cell.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+<span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
+<span class="sd">        output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span> <span class="o">=</span> <span class="n">bridge</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cell_class</span> <span class="o">=</span> <span class="n">cell_class</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">residual_connections</span> <span class="o">=</span> <span class="n">residual_connections</span></div>
+
+  <span class="k">def</span> <span class="nf">_init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_state</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">zero_state</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A bridge must be configured when passing encoder state&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">zero_state</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_build_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                  <span class="n">mode</span><span class="p">,</span>
+                  <span class="n">batch_size</span><span class="p">,</span>
+                  <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">memory_sequence_length</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">alignment_history</span>
+
+    <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dtype argument is required when memory is not set&quot;</span><span class="p">)</span>
+
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">build_cell</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">residual_connections</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_class</span><span class="p">)</span>
+
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_state</span><span class="p">(</span>
+        <span class="n">cell</span><span class="o">.</span><span class="n">zero_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">or</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cell</span><span class="p">,</span> <span class="n">initial_state</span>
+
+<div class="viewcode-block" id="RNNDecoder.decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.decode">[docs]</a>  <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">inputs</span><span class="p">,</span>
+             <span class="n">sequence_length</span><span class="p">,</span>
+             <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">embedding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span>
+             <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">memory</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">memory_sequence_length</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">sampling_probability</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">sampling_probability</span><span class="p">)</span>
+             <span class="ow">or</span> <span class="n">sampling_probability</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)):</span>
+      <span class="k">if</span> <span class="n">embedding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;embedding argument must be set when using scheduled sampling&quot;</span><span class="p">)</span>
+
+      <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;sampling_probability&quot;</span><span class="p">,</span> <span class="n">sampling_probability</span><span class="p">)</span>
+      <span class="n">helper</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">ScheduledEmbeddingTrainingHelper</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span>
+          <span class="n">sequence_length</span><span class="p">,</span>
+          <span class="n">embedding</span><span class="p">,</span>
+          <span class="n">sampling_probability</span><span class="p">)</span>
+      <span class="n">fused_projection</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">helper</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">TrainingHelper</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span>
+      <span class="n">fused_projection</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># With TrainingHelper, project all timesteps at once.</span>
+
+    <span class="n">cell</span><span class="p">,</span> <span class="n">initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_cell</span><span class="p">(</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">alignment_history</span><span class="o">=</span><span class="n">return_alignment_history</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">output_layer</span> <span class="o">=</span> <span class="n">build_output_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">BasicDecoder</span><span class="p">(</span>
+        <span class="n">cell</span><span class="p">,</span>
+        <span class="n">helper</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">fused_projection</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span><span class="n">decoder</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fused_projection</span> <span class="ow">and</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">logits</span> <span class="o">=</span> <span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">rnn_output</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">rnn_output</span>
+    <span class="c1"># Make sure outputs have the same time_dim as inputs</span>
+    <span class="n">inputs_len</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">align_in_time</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">inputs_len</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_alignment_history</span><span class="p">:</span>
+      <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">_get_alignment_history</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">alignment_history</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">align_in_time</span><span class="p">(</span><span class="n">alignment_history</span><span class="p">,</span> <span class="n">inputs_len</span><span class="p">)</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">alignment_history</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RNNDecoder.dynamic_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.dynamic_decode">[docs]</a>  <span class="k">def</span> <span class="nf">dynamic_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">embedding</span><span class="p">,</span>
+                     <span class="n">start_tokens</span><span class="p">,</span>
+                     <span class="n">end_token</span><span class="p">,</span>
+                     <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">maximum_iterations</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+                     <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">PREDICT</span><span class="p">,</span>
+                     <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">start_tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">helper</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">GreedyEmbeddingHelper</span><span class="p">(</span>
+        <span class="n">embedding</span><span class="p">,</span>
+        <span class="n">start_tokens</span><span class="p">,</span>
+        <span class="n">end_token</span><span class="p">)</span>
+
+    <span class="n">cell</span><span class="p">,</span> <span class="n">initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_cell</span><span class="p">(</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">alignment_history</span><span class="o">=</span><span class="n">return_alignment_history</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">output_layer</span> <span class="o">=</span> <span class="n">build_output_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span> <span class="ow">or</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">BasicDecoder</span><span class="p">(</span>
+        <span class="n">cell</span><span class="p">,</span>
+        <span class="n">helper</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">)</span>
+
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
+        <span class="n">decoder</span><span class="p">,</span> <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">)</span>
+
+    <span class="n">predicted_ids</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">sample_id</span>
+    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">logits_to_cum_log_probs</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">rnn_output</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+
+    <span class="c1"># Make shape consistent with beam search.</span>
+    <span class="n">predicted_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">predicted_ids</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_alignment_history</span><span class="p">:</span>
+      <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">_get_alignment_history</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">alignment_history</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">alignment_history</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">predicted_ids</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">alignment_history</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">predicted_ids</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RNNDecoder.dynamic_decode_and_search"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.dynamic_decode_and_search">[docs]</a>  <span class="k">def</span> <span class="nf">dynamic_decode_and_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                <span class="n">embedding</span><span class="p">,</span>
+                                <span class="n">start_tokens</span><span class="p">,</span>
+                                <span class="n">end_token</span><span class="p">,</span>
+                                <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">beam_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                                <span class="n">length_penalty</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                                <span class="n">maximum_iterations</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+                                <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">PREDICT</span><span class="p">,</span>
+                                <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">return_alignment_history</span> <span class="ow">and</span>
+        <span class="s2">&quot;reorder_tensor_arrays&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fn_args</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">BeamSearchDecoder</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)):</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The current version of tf.contrib.seq2seq.BeamSearchDecoder &quot;</span>
+                      <span class="s2">&quot;does not support returning the alignment history. None will &quot;</span>
+                      <span class="s2">&quot;be returned instead. Consider upgrading TensorFlow.&quot;</span><span class="p">)</span>
+      <span class="n">alignment_history</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">return_alignment_history</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">start_tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Replicate batch `beam_width` times.</span>
+    <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">initial_state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span>
+          <span class="n">initial_state</span><span class="p">,</span> <span class="n">multiplier</span><span class="o">=</span><span class="n">beam_width</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">memory</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span>
+          <span class="n">memory</span><span class="p">,</span> <span class="n">multiplier</span><span class="o">=</span><span class="n">beam_width</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span>
+          <span class="n">memory_sequence_length</span><span class="p">,</span> <span class="n">multiplier</span><span class="o">=</span><span class="n">beam_width</span><span class="p">)</span>
+
+    <span class="n">cell</span><span class="p">,</span> <span class="n">initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_cell</span><span class="p">(</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">batch_size</span> <span class="o">*</span> <span class="n">beam_width</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">alignment_history</span><span class="o">=</span><span class="n">alignment_history</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">output_layer</span> <span class="o">=</span> <span class="n">build_output_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span> <span class="ow">or</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">BeamSearchDecoder</span><span class="p">(</span>
+        <span class="n">cell</span><span class="p">,</span>
+        <span class="n">embedding</span><span class="p">,</span>
+        <span class="n">start_tokens</span><span class="p">,</span>
+        <span class="n">end_token</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">beam_width</span><span class="p">,</span>
+        <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">,</span>
+        <span class="n">length_penalty_weight</span><span class="o">=</span><span class="n">length_penalty</span><span class="p">)</span>
+
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">beam_state</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
+        <span class="n">decoder</span><span class="p">,</span> <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">)</span>
+
+    <span class="n">predicted_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">predicted_ids</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">beam_state</span><span class="o">.</span><span class="n">log_probs</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">beam_state</span><span class="o">.</span><span class="n">cell_state</span>
+
+    <span class="k">if</span> <span class="n">return_alignment_history</span><span class="p">:</span>
+      <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">_get_alignment_history</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">alignment_history</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">alignment_history</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_width</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]])</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">predicted_ids</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">alignment_history</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">predicted_ids</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_alignment_history</span><span class="p">(</span><span class="n">cell_state</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns the alignment history from the cell state.&quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cell_state</span><span class="p">,</span> <span class="s2">&quot;alignment_history&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cell_state</span><span class="o">.</span><span class="n">alignment_history</span> <span class="o">==</span> <span class="p">():</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">cell_state</span><span class="o">.</span><span class="n">alignment_history</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alignment_history</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">):</span>
+    <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">alignment_history</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+  <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">alignment_history</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+  <span class="k">return</span> <span class="n">alignment_history</span>
+
+<span class="k">def</span> <span class="nf">_build_attention_mechanism</span><span class="p">(</span><span class="n">attention_mechanism</span><span class="p">,</span>
+                               <span class="n">num_units</span><span class="p">,</span>
+                               <span class="n">memory</span><span class="p">,</span>
+                               <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Builds an attention mechanism from a class or a callable.&quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">attention_mechanism</span><span class="p">):</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="s2">&quot;dtype&quot;</span> <span class="ow">in</span> <span class="n">fn_args</span><span class="p">(</span><span class="n">attention_mechanism</span><span class="p">):</span>
+      <span class="c1"># For TensorFlow 1.5+, dtype should be set in the constructor.</span>
+      <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="k">return</span> <span class="n">attention_mechanism</span><span class="p">(</span>
+        <span class="n">num_units</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">attention_mechanism</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">attention_mechanism</span><span class="p">(</span>
+        <span class="n">num_units</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to build the attention mechanism&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AttentionalRNNDecoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder">[docs]</a><span class="k">class</span> <span class="nc">AttentionalRNNDecoder</span><span class="p">(</span><span class="n">RNNDecoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A RNN decoder with attention.</span>
+
+<span class="sd">  It simple overrides the cell construction to add an attention wrapper.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AttentionalRNNDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="p">,</span>
+               <span class="n">bridge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
+               <span class="n">output_is_attention</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+               <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of units in each layer.</span>
+<span class="sd">      bridge: A :class:`opennmt.layers.bridge.Bridge` to pass the encoder state</span>
+<span class="sd">        to the decoder.</span>
+<span class="sd">      attention_mechanism_class: A class inheriting from</span>
+<span class="sd">        ``tf.contrib.seq2seq.AttentionMechanism`` or a callable that takes</span>
+<span class="sd">        ``(num_units, memory, memory_sequence_length)`` as arguments and returns</span>
+<span class="sd">        a ``tf.contrib.seq2seq.AttentionMechanism``.</span>
+<span class="sd">      output_is_attention: If ``True``, the final decoder output (before logits)</span>
+<span class="sd">        is the output of the attention layer. In all cases, the output of the</span>
+<span class="sd">        attention layer is passed to the next step.</span>
+<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">        argument and returning a cell.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+<span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
+<span class="sd">        output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">AttentionalRNNDecoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">num_layers</span><span class="p">,</span>
+        <span class="n">num_units</span><span class="p">,</span>
+        <span class="n">bridge</span><span class="o">=</span><span class="n">bridge</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="n">attention_mechanism_class</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output_is_attention</span> <span class="o">=</span> <span class="n">output_is_attention</span></div>
+
+  <span class="k">def</span> <span class="nf">_build_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                  <span class="n">mode</span><span class="p">,</span>
+                  <span class="n">batch_size</span><span class="p">,</span>
+                  <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">attention_mechanism</span> <span class="o">=</span> <span class="n">_build_attention_mechanism</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism_class</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span>
+        <span class="n">memory</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">)</span>
+
+    <span class="n">cell</span><span class="p">,</span> <span class="n">initial_cell_state</span> <span class="o">=</span> <span class="n">RNNDecoder</span><span class="o">.</span><span class="n">_build_cell</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">memory</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">AttentionWrapper</span><span class="p">(</span>
+        <span class="n">cell</span><span class="p">,</span>
+        <span class="n">attention_mechanism</span><span class="p">,</span>
+        <span class="n">attention_layer_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span>
+        <span class="n">alignment_history</span><span class="o">=</span><span class="n">alignment_history</span><span class="p">,</span>
+        <span class="n">output_attention</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_is_attention</span><span class="p">,</span>
+        <span class="n">initial_cell_state</span><span class="o">=</span><span class="n">initial_cell_state</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+      <span class="n">cell</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">DropoutWrapper</span><span class="p">(</span>
+          <span class="n">cell</span><span class="p">,</span> <span class="n">output_keep_prob</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">zero_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cell</span><span class="p">,</span> <span class="n">initial_state</span></div>
+
+
+<div class="viewcode-block" id="MultiAttentionalRNNDecoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder">[docs]</a><span class="k">class</span> <span class="nc">MultiAttentionalRNNDecoder</span><span class="p">(</span><span class="n">RNNDecoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A RNN decoder with multi-attention.</span>
+
+<span class="sd">  This decoder can attend the encoder outputs after multiple RNN layers using</span>
+<span class="sd">  one or multiple attention mechanisms. Additionally, the cell state of this</span>
+<span class="sd">  decoder is not initialized from the encoder state (i.e. a</span>
+<span class="sd">  :class:`opennmt.layers.bridge.ZeroBridge` is imposed).</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MultiAttentionalRNNDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="p">,</span>
+               <span class="n">attention_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+               <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of units in each layer.</span>
+<span class="sd">      attention_layers: A list of integers, the layers after which to add</span>
+<span class="sd">        attention. If ``None``, attention will only be added after the last</span>
+<span class="sd">        layer.</span>
+<span class="sd">      attention_mechanism_class: A class or list of classes inheriting from</span>
+<span class="sd">        ``tf.contrib.seq2seq.AttentionMechanism``. Alternatively, the class can</span>
+<span class="sd">        be replaced by a callable that takes</span>
+<span class="sd">        ``(num_units, memory, memory_sequence_length)`` as arguments and returns</span>
+<span class="sd">        a ``tf.contrib.seq2seq.AttentionMechanism``.</span>
+<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">        argument and returning a cell.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+<span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
+<span class="sd">        output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">MultiAttentionalRNNDecoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">num_layers</span><span class="p">,</span>
+        <span class="n">num_units</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">)</span>
+
+    <span class="n">attention_layers</span> <span class="o">=</span> <span class="n">attention_layers</span> <span class="ow">or</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">attention_layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="o">%</span> <span class="n">num_layers</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">attention_layers</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attention_mechanism_class</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="p">[</span><span class="n">attention_mechanism_class</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">attention_layers</span><span class="p">]</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="n">attention_mechanism_class</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attention_layers</span> <span class="o">=</span> <span class="n">attention_layers</span></div>
+
+  <span class="k">def</span> <span class="nf">_build_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                  <span class="n">mode</span><span class="p">,</span>
+                  <span class="n">batch_size</span><span class="p">,</span>
+                  <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">attention_mechanisms</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_build_attention_mechanism</span><span class="p">(</span>
+            <span class="n">attention_mechanism</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span>
+            <span class="n">memory</span><span class="p">,</span>
+            <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attention_mechanism</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism_class</span><span class="p">]</span>
+
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">build_cell</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">residual_connections</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_class</span><span class="p">,</span>
+        <span class="n">attention_layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">attention_layers</span><span class="p">,</span>
+        <span class="n">attention_mechanisms</span><span class="o">=</span><span class="n">attention_mechanisms</span><span class="p">)</span>
+
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">zero_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cell</span><span class="p">,</span> <span class="n">initial_state</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

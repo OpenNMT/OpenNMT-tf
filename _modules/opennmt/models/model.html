@@ -1,0 +1,693 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.models.model &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.models.model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.models.model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Base class for models.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">data</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.optim</span> <span class="k">import</span> <span class="n">optimize</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.hooks</span> <span class="k">import</span> <span class="n">add_counter</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">add_dict_to_collection</span><span class="p">,</span> <span class="n">item_or_tuple</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.parallel</span> <span class="k">import</span> <span class="n">GraphDispatcher</span>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Base class for models.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">name</span><span class="p">,</span>
+               <span class="n">features_inputter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">labels_inputter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="o">=</span> <span class="n">features_inputter</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="o">=</span> <span class="n">labels_inputter</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">daisy_chain_variables</span> <span class="o">=</span> <span class="n">daisy_chain_variables</span>
+    <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">features_inputter</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span> <span class="ow">or</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+
+<div class="viewcode-block" id="Model.__call__"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calls the model function.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      outputs: The model outputs (usually unscaled probabilities).</span>
+<span class="sd">        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.PREDICT``.</span>
+<span class="sd">      predictions: The model predictions.</span>
+<span class="sd">        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.TRAIN``.</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">      ``tf.estimator.Estimator`` &#39;s ``model_fn`` argument for more details about</span>
+<span class="sd">      the arguments of this function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.model_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.model_fn">[docs]</a>  <span class="k">def</span> <span class="nf">model_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the model function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_devices: The number of devices used for training.</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">      ``tf.estimator.Estimator`` &#39;s ``model_fn`` argument for more details about</span>
+<span class="sd">      arguments and the returned value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dispatcher</span> <span class="o">=</span> <span class="n">GraphDispatcher</span><span class="p">(</span>
+        <span class="n">num_devices</span><span class="p">,</span> <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">daisy_chain_variables</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_loss_op</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Single callable to compute the loss.&quot;&quot;&quot;</span>
+      <span class="n">logits</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_loss</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_normalize_loss</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">den</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Normalizes the loss.&quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># Sharded mode.</span>
+        <span class="k">if</span> <span class="n">den</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">den</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+          <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">den</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+      <span class="k">elif</span> <span class="n">den</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">den</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">num</span>
+
+    <span class="k">def</span> <span class="nf">_extract_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Extracts and summarizes the loss.&quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">actual_loss</span> <span class="o">=</span> <span class="n">_normalize_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+        <span class="n">tboard_loss</span> <span class="o">=</span> <span class="n">actual_loss</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">actual_loss</span> <span class="o">=</span> <span class="n">_normalize_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">den</span><span class="o">=</span><span class="n">loss</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">tboard_loss</span> <span class="o">=</span> <span class="n">_normalize_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">den</span><span class="o">=</span><span class="n">loss</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">actual_loss</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">tboard_loss</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">actual_loss</span>
+
+    <span class="k">def</span> <span class="nf">_model_fn</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;model_fn implementation.&quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_register_word_counters</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+        <span class="n">features_shards</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">labels_shards</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_initializer</span><span class="p">(</span><span class="n">params</span><span class="p">)):</span>
+          <span class="n">losses_shards</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="p">(</span>
+              <span class="n">_loss_op</span><span class="p">,</span> <span class="n">features_shards</span><span class="p">,</span> <span class="n">labels_shards</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">_extract_loss</span><span class="p">(</span><span class="n">losses_shards</span><span class="p">)</span>
+        <span class="n">train_op</span> <span class="o">=</span> <span class="n">optimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">EstimatorSpec</span><span class="p">(</span>
+            <span class="n">mode</span><span class="p">,</span>
+            <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+            <span class="n">train_op</span><span class="o">=</span><span class="n">train_op</span><span class="p">)</span>
+      <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">EVAL</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+          <span class="n">logits</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+          <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_loss</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">_extract_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+        <span class="n">eval_metric_ops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_metrics</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="c1"># Register predictions in a collection so that hooks can easily fetch them.</span>
+          <span class="n">add_dict_to_collection</span><span class="p">(</span><span class="s2">&quot;predictions&quot;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">EstimatorSpec</span><span class="p">(</span>
+            <span class="n">mode</span><span class="p">,</span>
+            <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+            <span class="n">eval_metric_ops</span><span class="o">=</span><span class="n">eval_metric_ops</span><span class="p">)</span>
+      <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">PREDICT</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+          <span class="n">_</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">export_outputs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">export_outputs</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">signature_constants</span><span class="o">.</span><span class="n">DEFAULT_SERVING_SIGNATURE_DEF_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">export</span><span class="o">.</span><span class="n">PredictOutput</span><span class="p">(</span><span class="n">predictions</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">EstimatorSpec</span><span class="p">(</span>
+            <span class="n">mode</span><span class="p">,</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
+            <span class="n">export_outputs</span><span class="o">=</span><span class="n">export_outputs</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid mode&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_model_fn</span></div>
+
+  <span class="k">def</span> <span class="nf">_initializer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the global initializer for this model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      params: A dictionary of hyperparameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The initializer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">param_init</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param_init&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">param_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_uniform_initializer</span><span class="p">(</span>
+          <span class="n">minval</span><span class="o">=-</span><span class="n">param_init</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="n">param_init</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates the graph.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      outputs: The model outputs (usually unscaled probabilities).</span>
+<span class="sd">        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.PREDICT``.</span>
+<span class="sd">      predictions: The model predictions.</span>
+<span class="sd">        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.TRAIN``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">_compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the loss.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      features: The dict of features ``tf.Tensor``.</span>
+<span class="sd">      labels: The dict of labels ``tf.Tensor``.</span>
+<span class="sd">      output: The model outputs (usually unscaled probabilities).</span>
+<span class="sd">      params: A dictionary of hyperparameters.</span>
+<span class="sd">      mode: A ``tf.estimator.ModeKeys`` mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The loss or a tuple containing the computed loss and the loss to display.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">_compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="sd">&quot;&quot;&quot;Computes additional metrics on the predictions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      features: The dict of features ``tf.Tensor``.</span>
+<span class="sd">      labels: The dict of labels ``tf.Tensor``.</span>
+<span class="sd">      predictions: The model predictions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A dict of metric results (tuple ``(metric_tensor, update_op)``) keyed by</span>
+<span class="sd">      name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+  <span class="k">def</span> <span class="nf">_register_word_counters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates word counters for sequences (if any) of :obj:`features` and</span>
+<span class="sd">    :obj:`labels`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">labels_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;words_per_sec&quot;</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">features_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">features_length</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">labels_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">labels_length</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Runs model specific initialization (e.g. vocabularies loading).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      metadata: A dictionary containing additional metadata set</span>
+<span class="sd">        by the user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_serving_input_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an input receiver for serving this model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A ``tf.estimator.export.ServingInputReceiver``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_serving_input_receiver</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">_get_features_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the features length.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      features: A dict of ``tf.Tensor``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The length as a ``tf.Tensor`` or list of ``tf.Tensor``, or ``None`` if</span>
+<span class="sd">      length is undefined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_labels_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the labels length.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      labels: A dict of ``tf.Tensor``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The length as a ``tf.Tensor``  or ``None`` if length is undefined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the size of the dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      features_file: The file of features.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The total size.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">features_file</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_features_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the recipe to build features.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      features_file: The file of features.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple ``(tf.data.Dataset, process_fn)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">features_file</span><span class="p">)</span>
+    <span class="n">process_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">process</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span>
+
+  <span class="k">def</span> <span class="nf">_get_labels_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the recipe to build labels.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      labels_file: The file of labels.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple ``(tf.data.Dataset, process_fn)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">labels_file</span><span class="p">)</span>
+    <span class="n">process_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">process</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span>
+
+  <span class="k">def</span> <span class="nf">_augment_parallel_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Augments a parallel dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      dataset: A parallel dataset.</span>
+<span class="sd">      process_fn: The current dataset processing function.</span>
+<span class="sd">      mode: A ``tf.estimator.ModeKeys`` mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple ``(tf.data.Dataset, process_fn)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">mode</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span>
+
+  <span class="k">def</span> <span class="nf">_input_fn_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">mode</span><span class="p">,</span>
+                     <span class="n">batch_size</span><span class="p">,</span>
+                     <span class="n">metadata</span><span class="p">,</span>
+                     <span class="n">features_file</span><span class="p">,</span>
+                     <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">batch_type</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
+                     <span class="n">batch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">single_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">sample_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">maximum_features_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">maximum_labels_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See ``input_fn``.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="n">feat_dataset</span><span class="p">,</span> <span class="n">feat_process_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features_builder</span><span class="p">(</span><span class="n">features_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">labels_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">feat_dataset</span>
+      <span class="c1"># Parallel inputs must be catched in a single tuple and not considered as multiple arguments.</span>
+      <span class="n">process_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="n">feat_process_fn</span><span class="p">(</span><span class="n">item_or_tuple</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">labels_dataset</span><span class="p">,</span> <span class="n">labels_process_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_builder</span><span class="p">(</span><span class="n">labels_file</span><span class="p">)</span>
+
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">zip</span><span class="p">((</span><span class="n">feat_dataset</span><span class="p">,</span> <span class="n">labels_dataset</span><span class="p">))</span>
+      <span class="n">process_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="p">(</span>
+          <span class="n">feat_process_fn</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="n">labels_process_fn</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+      <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_parallel_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">training_pipeline</span><span class="p">(</span>
+          <span class="n">dataset</span><span class="p">,</span>
+          <span class="n">batch_size</span><span class="p">,</span>
+          <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
+          <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
+          <span class="n">bucket_width</span><span class="o">=</span><span class="n">bucket_width</span><span class="p">,</span>
+          <span class="n">single_pass</span><span class="o">=</span><span class="n">single_pass</span><span class="p">,</span>
+          <span class="n">process_fn</span><span class="o">=</span><span class="n">process_fn</span><span class="p">,</span>
+          <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
+          <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="n">sample_buffer_size</span><span class="p">,</span>
+          <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">,</span>
+          <span class="n">dataset_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset_size</span><span class="p">(</span><span class="n">features_file</span><span class="p">),</span>
+          <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
+          <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
+          <span class="n">features_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features_length</span><span class="p">,</span>
+          <span class="n">labels_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span>
+          <span class="n">dataset</span><span class="p">,</span>
+          <span class="n">batch_size</span><span class="p">,</span>
+          <span class="n">process_fn</span><span class="o">=</span><span class="n">process_fn</span><span class="p">,</span>
+          <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
+          <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">)</span>
+
+    <span class="n">iterator</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">make_initializable_iterator</span><span class="p">()</span>
+
+    <span class="c1"># Add the initializer to a standard collection for it to be initialized.</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">TABLE_INITIALIZERS</span><span class="p">,</span> <span class="n">iterator</span><span class="o">.</span><span class="n">initializer</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">iterator</span><span class="o">.</span><span class="n">get_next</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Model.input_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.input_fn">[docs]</a>  <span class="k">def</span> <span class="nf">input_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">mode</span><span class="p">,</span>
+               <span class="n">batch_size</span><span class="p">,</span>
+               <span class="n">metadata</span><span class="p">,</span>
+               <span class="n">features_file</span><span class="p">,</span>
+               <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">batch_type</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
+               <span class="n">batch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+               <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">single_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">sample_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">maximum_features_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">maximum_labels_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an input function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      mode: A ``tf.estimator.ModeKeys`` mode.</span>
+<span class="sd">      batch_size: The batch size to use.</span>
+<span class="sd">      metadata: A dictionary containing additional metadata set</span>
+<span class="sd">        by the user.</span>
+<span class="sd">      features_file: The file containing input features.</span>
+<span class="sd">      labels_file: The file containing output labels.</span>
+<span class="sd">      batch_type: The training batching stragety to use: can be &quot;examples&quot; or</span>
+<span class="sd">        &quot;tokens&quot;.</span>
+<span class="sd">      batch_multiplier: The batch size multiplier to prepare splitting accross</span>
+<span class="sd">         replicated graph parts.</span>
+<span class="sd">      bucket_width: The width of the length buckets to select batch candidates</span>
+<span class="sd">        from. ``None`` to not constrain batch formation.</span>
+<span class="sd">      single_pass: If ``True``, makes a single pass over the training data.</span>
+<span class="sd">      num_threads: The number of elements processed in parallel.</span>
+<span class="sd">      sample_buffer_size: The number of elements from which to sample.</span>
+<span class="sd">      prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
+<span class="sd">        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on</span>
+<span class="sd">        older versions.</span>
+<span class="sd">      maximum_features_length: The maximum length or list of maximum lengths of</span>
+<span class="sd">        the features sequence(s). ``None`` to not constrain the length.</span>
+<span class="sd">      maximum_labels_length: The maximum length of the labels sequence.</span>
+<span class="sd">        ``None`` to not constrain the length.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A callable that returns the next element.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`labels_file` is not set when in training or</span>
+<span class="sd">        evaluation mode.</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">      ``tf.estimator.Estimator``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">PREDICT</span> <span class="ow">and</span> <span class="n">labels_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Labels file is required for training and evaluation&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_fn_impl</span><span class="p">(</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">,</span>
+        <span class="n">features_file</span><span class="p">,</span>
+        <span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span>
+        <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
+        <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
+        <span class="n">bucket_width</span><span class="o">=</span><span class="n">bucket_width</span><span class="p">,</span>
+        <span class="n">single_pass</span><span class="o">=</span><span class="n">single_pass</span><span class="p">,</span>
+        <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
+        <span class="n">sample_buffer_size</span><span class="o">=</span><span class="n">sample_buffer_size</span><span class="p">,</span>
+        <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">,</span>
+        <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
+        <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">)</span></div>
+
+  <span class="k">def</span> <span class="nf">_serving_input_fn_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See ``serving_input_fn``.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_serving_input_receiver</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Model.serving_input_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.serving_input_fn">[docs]</a>  <span class="k">def</span> <span class="nf">serving_input_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the serving input function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      metadata: A dictionary containing additional metadata set</span>
+<span class="sd">        by the user.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A callable that returns a ``tf.estimator.export.ServingInputReceiver``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serving_input_fn_impl</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.print_prediction">[docs]</a>  <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prints the model prediction.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      prediction: The evaluated prediction.</span>
+<span class="sd">      params: (optional) Dictionary of formatting parameters.</span>
+<span class="sd">      stream: (optional) The stream to print to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">params</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,496 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.decoders.decoder module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.decoders.rnn_decoder module" href="opennmt.decoders.rnn_decoder.html" />
+    <link rel="prev" title="opennmt.decoders package" href="opennmt.decoders.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.decoders.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.decoders.html">opennmt.decoders package</a> &raquo;</li>
+        
+      <li>opennmt.decoders.decoder module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.decoders.decoder">
+<span id="opennmt-decoders-decoder-module"></span><h1>opennmt.decoders.decoder module<a class="headerlink" href="#module-opennmt.decoders.decoder" title="Permalink to this headline">¶</a></h1>
+<p>Base class and functions for dynamic decoders.</p>
+<dl class="function">
+<dt id="opennmt.decoders.decoder.logits_to_cum_log_probs">
+<code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">logits_to_cum_log_probs</code><span class="sig-paren">(</span><em>logits</em>, <em>sequence_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#logits_to_cum_log_probs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.logits_to_cum_log_probs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cumulated log probabilities of sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>logits</strong> – The sequence of logits of shape <span class="math">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each sequence of shape <span class="math">\([B]\)</span>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The cumulated log probability of each sequence.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.decoders.decoder.get_embedding_fn">
+<code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">get_embedding_fn</code><span class="sig-paren">(</span><em>embedding</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#get_embedding_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.get_embedding_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the embedding function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A callable that takes word ids.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.decoders.decoder.build_output_layer">
+<code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">build_output_layer</code><span class="sig-paren">(</span><em>num_units</em>, <em>vocab_size</em>, <em>dtype=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#build_output_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.build_output_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the output projection layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_units</strong> – The layer input depth.</li>
+<li><strong>vocab_size</strong> – The layer output depth.</li>
+<li><strong>dtype</strong> – The layer dtype.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A <code class="docutils literal"><span class="pre">tf.layers.Dense</span></code> instance.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">vocab_size</span></code> is <code class="docutils literal"><span class="pre">None</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.decoders.decoder.get_sampling_probability">
+<code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">get_sampling_probability</code><span class="sig-paren">(</span><em>global_step</em>, <em>read_probability=None</em>, <em>schedule_type=None</em>, <em>k=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#get_sampling_probability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.get_sampling_probability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sampling probability as described in
+<a class="reference external" href="https://arxiv.org/abs/1506.03099">https://arxiv.org/abs/1506.03099</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>global_step</strong> – The training step.</li>
+<li><strong>read_probability</strong> – The probability to read from the inputs.</li>
+<li><strong>schedule_type</strong> – The type of schedule.</li>
+<li><strong>k</strong> – The convergence constant.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The probability to sample from the output ids as a 0D <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or
+<code class="docutils literal"><span class="pre">None</span></code> if scheduled sampling is not configured.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">schedule_type</span></code> is set but not <code class="xref py py-obj docutils literal"><span class="pre">k</span></code> or if
+<code class="xref py py-obj docutils literal"><span class="pre">schedule_type</span></code> is <code class="docutils literal"><span class="pre">linear</span></code> but an initial <code class="xref py py-obj docutils literal"><span class="pre">read_probability</span></code>
+is not set.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">schedule_type</span></code> is invalid.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.decoders.decoder.Decoder">
+<em class="property">class </em><code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">Decoder</code><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for decoders.</p>
+<dl class="method">
+<dt id="opennmt.decoders.decoder.Decoder.decode">
+<code class="descname">decode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>sampling_probability=None</em>, <em>embedding=None</em>, <em>output_layer=None</em>, <em>mode='train'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes a full input sequence.</p>
+<p>Usually used for training and evaluation where target sequences are known.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The input to decode of shape <span class="math">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math">\([B]\)</span>.</li>
+<li><strong>vocab_size</strong> – The output vocabulary size. Must be set if <code class="xref py py-obj docutils literal"><span class="pre">output_layer</span></code>
+is not set.</li>
+<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
+<li><strong>sampling_probability</strong> – The probability of sampling categorically from
+the output ids instead of reading directly from the inputs.</li>
+<li><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.
+Must be set when <code class="xref py py-obj docutils literal"><span class="pre">sampling_probability</span></code> is set.</li>
+<li><strong>output_layer</strong> – Optional layer to apply to the output prior sampling.
+Must be set if <code class="xref py py-obj docutils literal"><span class="pre">vocab_size</span></code> is not set.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+<li><strong>return_alignment_history</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, also returns the alignment
+history from the attention layer (<code class="docutils literal"><span class="pre">None</span></code> will be returned if
+unsupported by the decoder).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code> or
+<code class="docutils literal"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">alignment_history)</span></code>
+if <code class="xref py py-obj docutils literal"><span class="pre">return_alignment_history</span></code> is <code class="docutils literal"><span class="pre">True</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.decoder.Decoder.dynamic_decode">
+<code class="descname">dynamic_decode</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>maximum_iterations=250</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal"><span class="pre">start_tokens</span></code> with greedy search.</p>
+<p>Usually used for inference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.</li>
+<li><strong>start_tokens</strong> – The start token ids with shape <span class="math">\([B]\)</span>.</li>
+<li><strong>end_token</strong> – The end token id.</li>
+<li><strong>vocab_size</strong> – The output vocabulary size. Must be set if <code class="xref py py-obj docutils literal"><span class="pre">output_layer</span></code>
+is not set.</li>
+<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
+<li><strong>output_layer</strong> – Optional layer to apply to the output prior sampling.
+Must be set if <code class="xref py py-obj docutils literal"><span class="pre">vocab_size</span></code> is not set.</li>
+<li><strong>maximum_iterations</strong> – The maximum number of decoding iterations.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+<li><strong>dtype</strong> – The data type. Required if <code class="xref py py-obj docutils literal"><span class="pre">memory</span></code> is <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>return_alignment_history</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, also returns the alignment
+history from the attention layer (<code class="docutils literal"><span class="pre">None</span></code> will be returned if
+unsupported by the decoder).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs)</span></code> or
+<code class="docutils literal"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs,</span> <span class="pre">alignment_history)</span></code>
+if <code class="xref py py-obj docutils literal"><span class="pre">return_alignment_history</span></code> is <code class="docutils literal"><span class="pre">True</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.decoder.Decoder.dynamic_decode_and_search">
+<code class="descname">dynamic_decode_and_search</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>beam_width=5</em>, <em>length_penalty=0.0</em>, <em>maximum_iterations=250</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode_and_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode_and_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal"><span class="pre">start_tokens</span></code> with beam search.</p>
+<p>Usually used for inference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.</li>
+<li><strong>start_tokens</strong> – The start token ids with shape <span class="math">\([B]\)</span>.</li>
+<li><strong>end_token</strong> – The end token id.</li>
+<li><strong>vocab_size</strong> – The output vocabulary size. Must be set if <code class="xref py py-obj docutils literal"><span class="pre">output_layer</span></code>
+is not set.</li>
+<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
+<li><strong>output_layer</strong> – Optional layer to apply to the output prior sampling.
+Must be set if <code class="xref py py-obj docutils literal"><span class="pre">vocab_size</span></code> is not set.</li>
+<li><strong>beam_width</strong> – The width of the beam.</li>
+<li><strong>length_penalty</strong> – The length penalty weight during beam search.</li>
+<li><strong>maximum_iterations</strong> – The maximum number of decoding iterations.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+<li><strong>dtype</strong> – The data type. Required if <code class="xref py py-obj docutils literal"><span class="pre">memory</span></code> is <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>return_alignment_history</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, also returns the alignment
+history from the attention layer (<code class="docutils literal"><span class="pre">None</span></code> will be returned if
+unsupported by the decoder).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs)</span></code> or
+<code class="docutils literal"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs,</span> <span class="pre">alignment_history)</span></code>
+if <code class="xref py py-obj docutils literal"><span class="pre">return_alignment_history</span></code> is <code class="docutils literal"><span class="pre">True</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.decoders.decoder.greedy_decode">
+<code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">greedy_decode</code><span class="sig-paren">(</span><em>symbols_to_logits_fn</em>, <em>initial_ids</em>, <em>end_id</em>, <em>decode_length=None</em>, <em>state=None</em>, <em>return_state=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#greedy_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.greedy_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Greedily decodes from <code class="xref py py-obj docutils literal"><span class="pre">initial_ids</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>symbols_to_logits_fn</strong> – Interface to the model, to provide logits.
+Shoud take [batch_size, decoded_ids] and return [batch_size, vocab_size].</li>
+<li><strong>initial_ids</strong> – Ids to start off the decoding, this will be the first thing
+handed to symbols_to_logits_fn.</li>
+<li><strong>eos_id</strong> – ID for end of sentence.</li>
+<li><strong>decode_length</strong> – Maximum number of steps to decode for.</li>
+<li><strong>states</strong> – A dictionnary of (possibly nested) decoding states.</li>
+<li><strong>return_state</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, also return the updated decoding states.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple with the decoded output, the decoded lengths, the log probabilities,
+and the decoding states (if <code class="xref py py-obj docutils literal"><span class="pre">return_state</span></code> is <code class="docutils literal"><span class="pre">True</span></code>).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.decoders.rnn_decoder.html" class="btn btn-neutral float-right" title="opennmt.decoders.rnn_decoder module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.decoders.html" class="btn btn-neutral" title="opennmt.decoders package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

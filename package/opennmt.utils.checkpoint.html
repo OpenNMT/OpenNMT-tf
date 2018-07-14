@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.utils.checkpoint module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.utils.data module" href="opennmt.utils.data.html" />
+    <link rel="prev" title="opennmt.utils.cell module" href="opennmt.utils.cell.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.utils.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.utils.html">opennmt.utils package</a> &raquo;</li>
+        
+      <li>opennmt.utils.checkpoint module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.utils.checkpoint">
+<span id="opennmt-utils-checkpoint-module"></span><h1>opennmt.utils.checkpoint module<a class="headerlink" href="#module-opennmt.utils.checkpoint" title="Permalink to this headline">¶</a></h1>
+<p>Checkpoint utilities.</p>
+<dl class="function">
+<dt id="opennmt.utils.checkpoint.update_vocab">
+<code class="descclassname">opennmt.utils.checkpoint.</code><code class="descname">update_vocab</code><span class="sig-paren">(</span><em>model_dir</em>, <em>output_dir</em>, <em>current_src_vocab</em>, <em>current_tgt_vocab</em>, <em>new_src_vocab=None</em>, <em>new_tgt_vocab=None</em>, <em>mode='merge'</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/checkpoint.html#update_vocab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.checkpoint.update_vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the last checkpoint to support new vocabularies.</p>
+<p>This allows to add new words to a model while keeping the previously learned
+weights.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>model_dir</strong> – The directory containing checkpoints (the most recent will be loaded).</li>
+<li><strong>output_dir</strong> – The directory that will contain the converted checkpoint.</li>
+<li><strong>current_src_vocab</strong> – Path to the source vocabulary currently use in the model.</li>
+<li><strong>current_tgt_vocab</strong> – Path to the target vocabulary currently use in the model.</li>
+<li><strong>new_src_vocab</strong> – Path to the new source vocabulary to support.</li>
+<li><strong>new_tgt_vocab</strong> – Path to the new target vocabulary to support.</li>
+<li><strong>mode</strong> – Update mode: “merge” keeps all existing words and adds new words,
+“replace” makes the new vocabulary file the active one. In all modes,
+if an existing word appears in the new vocabulary, its learned weights
+are kept in the converted checkpoint.</li>
+<li><strong>session_config</strong> – Optional configuration to use when creating the session.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The path to the directory containing the converted checkpoint.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">output_dir</span></code> is the same as <code class="xref py py-obj docutils literal"><span class="pre">model_dir</span></code> or if
+<code class="xref py py-obj docutils literal"><span class="pre">mode</span></code> is invalid.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.checkpoint.average_checkpoints">
+<code class="descclassname">opennmt.utils.checkpoint.</code><code class="descname">average_checkpoints</code><span class="sig-paren">(</span><em>model_dir</em>, <em>output_dir</em>, <em>max_count=8</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/checkpoint.html#average_checkpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.checkpoint.average_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Averages checkpoints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>model_dir</strong> – The directory containing checkpoints.</li>
+<li><strong>output_dir</strong> – The directory that will contain the averaged checkpoint.</li>
+<li><strong>max_count</strong> – The maximum number of checkpoints to average.</li>
+<li><strong>session_config</strong> – Configuration to use when creating the session.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The path to the directory containing the averaged checkpoint.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">output_dir</span></code> is the same as <code class="xref py py-obj docutils literal"><span class="pre">model_dir</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.utils.data.html" class="btn btn-neutral float-right" title="opennmt.utils.data module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.utils.cell.html" class="btn btn-neutral" title="opennmt.utils.cell module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

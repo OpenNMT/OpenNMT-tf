@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.layers.transformer module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.models package" href="opennmt.models.html" />
+    <link rel="prev" title="opennmt.layers.reducer module" href="opennmt.layers.reducer.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.layers.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.layers.html">opennmt.layers package</a> &raquo;</li>
+        
+      <li>opennmt.layers.transformer module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.layers.transformer">
+<span id="opennmt-layers-transformer-module"></span><h1>opennmt.layers.transformer module<a class="headerlink" href="#module-opennmt.layers.transformer" title="Permalink to this headline">¶</a></h1>
+<p>Define layers related to the Google’s Transformer model.</p>
+<dl class="function">
+<dt id="opennmt.layers.transformer.tile_sequence_length">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">tile_sequence_length</code><span class="sig-paren">(</span><em>sequence_length</em>, <em>num_heads</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#tile_sequence_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.tile_sequence_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tiles lengths <code class="xref py py-obj docutils literal"><span class="pre">num_heads</span></code> times.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sequence_length</strong> – The sequence length.</li>
+<li><strong>num_heads</strong> – The number of heads.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> where each length is replicated <code class="xref py py-obj docutils literal"><span class="pre">num_heads</span></code> times.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.build_sequence_mask">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">build_sequence_mask</code><span class="sig-paren">(</span><em>sequence_length</em>, <em>num_heads=None</em>, <em>maximum_length=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#build_sequence_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.build_sequence_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the dot product mask.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sequence_length</strong> – The sequence length.</li>
+<li><strong>num_heads</strong> – The number of heads.</li>
+<li><strong>maximum_length</strong> – Optional size of the returned time dimension. Otherwise
+it is the maximum of <code class="xref py py-obj docutils literal"><span class="pre">sequence_length</span></code>.</li>
+<li><strong>dtype</strong> – The type of the mask tensor.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A broadcastable <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of type <code class="xref py py-obj docutils literal"><span class="pre">dtype</span></code> and shape
+<code class="docutils literal"><span class="pre">[batch_size,</span> <span class="pre">num_heads,</span> <span class="pre">1,</span> <span class="pre">max_length]</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.build_future_mask">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">build_future_mask</code><span class="sig-paren">(</span><em>sequence_length</em>, <em>num_heads=None</em>, <em>maximum_length=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#build_future_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.build_future_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the dot product mask for future positions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sequence_length</strong> – The sequence length.</li>
+<li><strong>num_heads</strong> – The number of heads.</li>
+<li><strong>maximum_length</strong> – Optional size of the returned time dimension. Otherwise
+it is the maximum of <code class="xref py py-obj docutils literal"><span class="pre">sequence_length</span></code>.</li>
+<li><strong>dtype</strong> – The type of the mask tensor.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of type <code class="xref py py-obj docutils literal"><span class="pre">dtype</span></code> and shape
+<code class="docutils literal"><span class="pre">[batch_size,</span> <span class="pre">num_heads,</span> <span class="pre">max_length,</span> <span class="pre">max_length]</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.cumulative_average_mask">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">cumulative_average_mask</code><span class="sig-paren">(</span><em>sequence_length</em>, <em>maximum_length=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#cumulative_average_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.cumulative_average_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the mask to compute the cumulative average as described in
+<a class="reference external" href="https://arxiv.org/abs/1805.00631">https://arxiv.org/abs/1805.00631</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sequence_length</strong> – The sequence length.</li>
+<li><strong>maximum_length</strong> – Optional size of the returned time dimension. Otherwise
+it is the maximum of <code class="xref py py-obj docutils literal"><span class="pre">sequence_length</span></code>.</li>
+<li><strong>dtype</strong> – The type of the mask tensor.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of type <code class="xref py py-obj docutils literal"><span class="pre">dtype</span></code> and shape
+<code class="docutils literal"><span class="pre">[batch_size,</span> <span class="pre">max_length,</span> <span class="pre">max_length]</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.cumulative_average">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">cumulative_average</code><span class="sig-paren">(</span><em>inputs</em>, <em>mask_or_step</em>, <em>cache=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#cumulative_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.cumulative_average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cumulative average as described in
+<a class="reference external" href="https://arxiv.org/abs/1805.00631">https://arxiv.org/abs/1805.00631</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The sequence to average. A tensor of shape <span class="math">\([B, T, D]\)</span>.</li>
+<li><strong>mask_or_step</strong> – If <code class="xref py py-obj docutils literal"><span class="pre">cache</span></code> is set, this is assumed to be the current step
+of the dynamic decoding. Otherwise, it is the mask matrix used to compute
+the cumulative average.</li>
+<li><strong>cache</strong> – A dictionnary containing the cumulative average of the previous step.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The cumulative average, a tensor of the same shape and type as <code class="xref py py-obj docutils literal"><span class="pre">inputs</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.fused_projection">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">fused_projection</code><span class="sig-paren">(</span><em>inputs</em>, <em>num_units</em>, <em>num_outputs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#fused_projection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.fused_projection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Projects the same input into multiple output spaces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to project.</li>
+<li><strong>num_units</strong> – The number of output units of each space.</li>
+<li><strong>num_outputs</strong> – The number of output spaces.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">num_outputs</span></code> <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of depth <code class="xref py py-obj docutils literal"><span class="pre">num_units</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.split_heads">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">split_heads</code><span class="sig-paren">(</span><em>inputs</em>, <em>num_heads</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#split_heads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.split_heads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits a tensor in depth.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, T, D]\)</span>.</li>
+<li><strong>num_heads</strong> – The number of heads <span class="math">\(H\)</span>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, H, T, D / H]\)</span>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.combine_heads">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">combine_heads</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#combine_heads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.combine_heads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenates heads.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> – A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, H, T, D]\)</span>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, T, D * H]\)</span>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.dot_product_attention">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">dot_product_attention</code><span class="sig-paren">(</span><em>queries</em>, <em>keys</em>, <em>values</em>, <em>mode</em>, <em>mask=None</em>, <em>dropout=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#dot_product_attention"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.dot_product_attention" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the dot product attention.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queries</strong> – The sequence of queries. A tensor of shape <span class="math">\([B, T_1, ...]\)</span>.</li>
+<li><strong>keys</strong> – The sequence use to calculate attention scores. A tensor of shape
+<span class="math">\([B, T_2, ...]\)</span>.</li>
+<li><strong>values</strong> – The sequence to attend. A tensor of shape <span class="math">\([B, T_2, ...]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>mask</strong> – A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> applied to the dot product.</li>
+<li><strong>dropout</strong> – The probability to drop units from the inputs.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(context</span> <span class="pre">vector,</span> <span class="pre">attention</span> <span class="pre">vector)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.multi_head_attention">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">multi_head_attention</code><span class="sig-paren">(</span><em>num_heads</em>, <em>queries</em>, <em>memory</em>, <em>mode</em>, <em>num_units=None</em>, <em>mask=None</em>, <em>cache=None</em>, <em>dropout=0.0</em>, <em>return_attention=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#multi_head_attention"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.multi_head_attention" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the multi-head attention as described in
+<a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_heads</strong> – The number of attention heads.</li>
+<li><strong>queries</strong> – The sequence of queries. A tensor of shape <span class="math">\([B, T_1, ...]\)</span>.</li>
+<li><strong>memory</strong> – The sequence to attend. A tensor of shape <span class="math">\([B, T_2, ...]\)</span>.
+If <code class="docutils literal"><span class="pre">None</span></code>, computes self-attention.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>num_units</strong> – The number of hidden units. If not set, it is set to the input
+dimension.</li>
+<li><strong>mask</strong> – A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> applied to the dot product.</li>
+<li><strong>cache</strong> – A dictionary containing pre-projected keys and values.</li>
+<li><strong>dropout</strong> – The probability to drop units from the inputs.</li>
+<li><strong>return_attention</strong> – Return the attention head probabilities in addition to the
+context.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The concatenated attention context of each head and the attention
+probabilities (if <code class="xref py py-obj docutils literal"><span class="pre">return_attention</span></code> is set).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.feed_forward">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">feed_forward</code><span class="sig-paren">(</span><em>x</em>, <em>inner_dim</em>, <em>mode</em>, <em>dropout=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#feed_forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.feed_forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements the Transformer’s “Feed Forward” layer.</p>
+<div class="math">
+\[ffn(x) = max(0, x*W_1 + b_1)*W_2 + b_2\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> – The input.</li>
+<li><strong>inner_dim</strong> – The number of units of the inner linear transformation.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>dropout</strong> – The probability to drop units from the inner transformation.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.norm">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">norm</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Layer normalizes <code class="xref py py-obj docutils literal"><span class="pre">inputs</span></code>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.transformer.drop_and_add">
+<code class="descclassname">opennmt.layers.transformer.</code><code class="descname">drop_and_add</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em>, <em>mode</em>, <em>dropout=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#drop_and_add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.drop_and_add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drops units in the outputs and adds the previous values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The input of the previous layer.</li>
+<li><strong>outputs</strong> – The output of the previous layer.</li>
+<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>dropout</strong> – The probability to drop units in <code class="xref py py-obj docutils literal"><span class="pre">outputs</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The residual and normalized output.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.models.html" class="btn btn-neutral float-right" title="opennmt.models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.layers.reducer.html" class="btn btn-neutral" title="opennmt.layers.reducer module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

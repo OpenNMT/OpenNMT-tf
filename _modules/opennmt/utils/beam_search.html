@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.utils.beam_search &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.utils.beam_search</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.utils.beam_search</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="c1"># Copyright 2018 The Tensor2Tensor Authors.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;Implementation of beam search with penalties.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+
+<span class="c1"># Dependency imports</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">nest</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.estimator.util</span> <span class="k">import</span> <span class="n">fn_args</span>
+
+<span class="c1"># Assuming EOS_ID is 1</span>
+<span class="n">EOS_ID</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># Default value for INF</span>
+<span class="n">INF</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="mf">1e7</span>
+
+
+<span class="k">def</span> <span class="nf">_shape_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Return list of dims, statically where possible.&quot;&quot;&quot;</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+  <span class="c1"># If unknown rank, return dynamic shape</span>
+  <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+  <span class="n">static</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+  <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">static</span><span class="p">):</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">static</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">dim</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">_merge_beam_dim</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Reshapes first two dimensions in to single dimension.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    tensor: Tensor to reshape of shape [A, B, ...]</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    Reshaped tensor of shape [A*B, ...]</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">_shape_list</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+  <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># batch -&gt; batch * beam_size</span>
+  <span class="n">shape</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Remove beam dim</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_unmerge_beam_dim</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Reshapes first dimension back to [batch_size, beam_size].</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    tensor: Tensor to reshape of shape [batch_size*beam_size, ...]</span>
+<span class="sd">    batch_size: Tensor, original batch size.</span>
+<span class="sd">    beam_size: int, original beam size.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    Reshaped tensor of shape [batch_size, beam_size, ...]</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">_shape_list</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+  <span class="n">new_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">beam_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_expand_to_beam_size</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Tiles a given tensor by beam_size.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    tensor: tensor to tile [batch_size, ...]</span>
+<span class="sd">    beam_size: How much to tile the tensor by.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    Tiled tensor [batch_size, beam_size, ...]</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">tile_dims</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
+  <span class="n">tile_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">beam_size</span>
+
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tile_dims</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_state_shape_invariants"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.get_state_shape_invariants">[docs]</a><span class="k">def</span> <span class="nf">get_state_shape_invariants</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns the shape of the tensor but sets middle dims to None.&quot;&quot;&quot;</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_log_prob_from_logits</span><span class="p">(</span><span class="n">logits</span><span class="p">):</span>
+  <span class="c1"># Silence deprecation warning in TensorFlow 1.5+ by using the renamed argument.</span>
+  <span class="k">if</span> <span class="s2">&quot;keepdims&quot;</span> <span class="ow">in</span> <span class="n">fn_args</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_logsumexp</span><span class="p">):</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;keepdims&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;keep_dims&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+  <span class="k">return</span> <span class="n">logits</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_logsumexp</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="compute_batch_indices"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.compute_batch_indices">[docs]</a><span class="k">def</span> <span class="nf">compute_batch_indices</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Computes the i&#39;th coordinate that contains the batch index for gathers.</span>
+
+<span class="sd">  Batch pos is a tensor like [[0,0,0,0,],[1,1,1,1],..]. It says which</span>
+<span class="sd">  batch the beam item is in. This will create the i of the i,j coordinate</span>
+<span class="sd">  needed for the gather.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    batch_size: Batch size</span>
+<span class="sd">    beam_size: Size of the beam.</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    batch_pos: [batch_size, beam_size] tensor of ids</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">batch_pos</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">beam_size</span><span class="p">)</span> <span class="o">//</span> <span class="n">beam_size</span>
+  <span class="n">batch_pos</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">batch_pos</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">])</span>
+  <span class="k">return</span> <span class="n">batch_pos</span></div>
+
+
+<div class="viewcode-block" id="compute_topk_scores_and_seq"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.compute_topk_scores_and_seq">[docs]</a><span class="k">def</span> <span class="nf">compute_topk_scores_and_seq</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">scores_to_gather</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span>
+                                <span class="n">beam_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+                                <span class="n">states_to_gather</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Given sequences and scores, will gather the top k=beam size sequences.</span>
+
+<span class="sd">  This function is used to grow alive, and finished. It takes sequences,</span>
+<span class="sd">  scores, and flags, and returns the top k from sequences, scores_to_gather,</span>
+<span class="sd">  and flags based on the values in scores.</span>
+
+<span class="sd">  This method permits easy introspection using tfdbg.  It adds three named ops</span>
+<span class="sd">  that are prefixed by `prefix`:</span>
+<span class="sd">    - _topk_seq: the tensor for topk_seq returned by this method.</span>
+<span class="sd">    - _topk_flags: the tensor for topk_finished_flags returned by this method.</span>
+<span class="sd">    - _topk_scores: the tensor for tokp_gathered_scores returned by this method.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    sequences: Tensor of sequences that we need to gather from.</span>
+<span class="sd">      [batch_size, beam_size, seq_length]</span>
+<span class="sd">    scores: Tensor of scores for each sequence in sequences.</span>
+<span class="sd">      [batch_size, beam_size]. We will use these to compute the topk.</span>
+<span class="sd">    scores_to_gather: Tensor of scores for each sequence in sequences.</span>
+<span class="sd">      [batch_size, beam_size]. We will return the gathered scores from here.</span>
+<span class="sd">      Scores to gather is different from scores because for grow_alive, we will</span>
+<span class="sd">      need to return log_probs, while for grow_finished, we will need to return</span>
+<span class="sd">      the length penalized scores.</span>
+<span class="sd">    flags: Tensor of bools for sequences that say whether a sequence has reached</span>
+<span class="sd">      EOS or not</span>
+<span class="sd">    beam_size: int</span>
+<span class="sd">    batch_size: int</span>
+<span class="sd">    prefix: string that will prefix unique names for the ops run.</span>
+<span class="sd">    states_to_gather: dict (possibly nested) of decoding states.</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    Tuple of</span>
+<span class="sd">    (topk_seq [batch_size, beam_size, decode_length],</span>
+<span class="sd">     topk_gathered_scores [batch_size, beam_size],</span>
+<span class="sd">     topk_finished_flags[batch_size, beam_size])</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">topk_indexes</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">beam_size</span><span class="p">)</span>
+  <span class="c1"># The next three steps are to create coordinates for tf.gather_nd to pull</span>
+  <span class="c1"># out the topk sequences from sequences based on scores.</span>
+  <span class="c1"># batch pos is a tensor like [[0,0,0,0,],[1,1,1,1],..]. It says which</span>
+  <span class="c1"># batch the beam item is in. This will create the i of the i,j coordinate</span>
+  <span class="c1"># needed for the gather</span>
+  <span class="n">batch_pos</span> <span class="o">=</span> <span class="n">compute_batch_indices</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span>
+
+  <span class="c1"># top coordinates will give us the actual coordinates to do the gather.</span>
+  <span class="c1"># stacking will create a tensor of dimension batch * beam * 2, where the</span>
+  <span class="c1"># last dimension contains the i,j gathering coordinates.</span>
+  <span class="n">top_coordinates</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_pos</span><span class="p">,</span> <span class="n">topk_indexes</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+  <span class="c1"># Gather up the highest scoring sequences.  For each operation added, give it</span>
+  <span class="c1"># a concrete name to simplify observing these operations with tfdbg.  Clients</span>
+  <span class="c1"># can capture these tensors by watching these node names.</span>
+  <span class="k">def</span> <span class="nf">_gather</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">top_coordinates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">name</span><span class="p">))</span>
+  <span class="n">topk_seq</span> <span class="o">=</span> <span class="n">_gather</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span> <span class="s2">&quot;_topk_seq&quot;</span><span class="p">)</span>
+  <span class="n">topk_flags</span> <span class="o">=</span> <span class="n">_gather</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="s2">&quot;_topk_flags&quot;</span><span class="p">)</span>
+  <span class="n">topk_gathered_scores</span> <span class="o">=</span> <span class="n">_gather</span><span class="p">(</span><span class="n">scores_to_gather</span><span class="p">,</span> <span class="s2">&quot;_topk_scores&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">states_to_gather</span><span class="p">:</span>
+    <span class="n">topk_gathered_states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">_gather</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;_topk_states&quot;</span><span class="p">),</span> <span class="n">states_to_gather</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">topk_gathered_states</span> <span class="o">=</span> <span class="n">states_to_gather</span>
+  <span class="k">return</span> <span class="n">topk_seq</span><span class="p">,</span> <span class="n">topk_gathered_scores</span><span class="p">,</span> <span class="n">topk_flags</span><span class="p">,</span> <span class="n">topk_gathered_states</span></div>
+
+
+<div class="viewcode-block" id="beam_search"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.beam_search">[docs]</a><span class="k">def</span> <span class="nf">beam_search</span><span class="p">(</span><span class="n">symbols_to_logits_fn</span><span class="p">,</span>
+                <span class="n">initial_ids</span><span class="p">,</span>
+                <span class="n">beam_size</span><span class="p">,</span>
+                <span class="n">decode_length</span><span class="p">,</span>
+                <span class="n">vocab_size</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="p">,</span>
+                <span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">eos_id</span><span class="o">=</span><span class="n">EOS_ID</span><span class="p">,</span>
+                <span class="n">stop_early</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">return_states</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Beam search with length penalties.</span>
+
+<span class="sd">  Requires a function that can take the currently decoded symbols and return</span>
+<span class="sd">  the logits for the next symbol. The implementation is inspired by</span>
+<span class="sd">  https://arxiv.org/abs/1609.08144.</span>
+
+<span class="sd">  When running, the beam search steps can be visualized by using tfdbg to watch</span>
+<span class="sd">  the operations generating the output ids for each beam step.  These operations</span>
+<span class="sd">  have the pattern:</span>
+<span class="sd">    (alive|finished)_topk_(seq,scores)</span>
+
+<span class="sd">  Operations marked `alive` represent the new beam sequences that will be</span>
+<span class="sd">  processed in the next step.  Operations marked `finished` represent the</span>
+<span class="sd">  completed beam sequences, which may be padded with 0s if no beams finished.</span>
+
+<span class="sd">  Operations marked `seq` store the full beam sequence for the time step.</span>
+<span class="sd">  Operations marked `scores` store the sequence&#39;s final log scores.</span>
+
+<span class="sd">  The beam search steps will be processed sequentially in order, so when</span>
+<span class="sd">  capturing observed from these operations, tensors, clients can make</span>
+<span class="sd">  assumptions about which step is being recorded.</span>
+
+<span class="sd">  WARNING: Assumes 2nd dimension of tensors in `states` and not invariant, this</span>
+<span class="sd">  means that the shape of the 2nd dimension of these tensors will not be</span>
+<span class="sd">  available (i.e. set to None) inside symbols_to_logits_fn.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    symbols_to_logits_fn: Interface to the model, to provide logits.</span>
+<span class="sd">        Shoud take [batch_size, decoded_ids] and return [batch_size, vocab_size]</span>
+<span class="sd">    initial_ids: Ids to start off the decoding, this will be the first thing</span>
+<span class="sd">        handed to symbols_to_logits_fn (after expanding to beam size)</span>
+<span class="sd">        [batch_size]</span>
+<span class="sd">    beam_size: Size of the beam.</span>
+<span class="sd">    decode_length: Number of steps to decode for.</span>
+<span class="sd">    vocab_size: Size of the vocab, must equal the size of the logits returned by</span>
+<span class="sd">        symbols_to_logits_fn</span>
+<span class="sd">    alpha: alpha for length penalty.</span>
+<span class="sd">    states: dict (possibly nested) of decoding states.</span>
+<span class="sd">    eos_id: ID for end of sentence.</span>
+<span class="sd">    stop_early: a boolean - stop once best sequence is provably determined.</span>
+<span class="sd">    return_states: a boolean - return the update states dictionary.</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    Tuple of</span>
+<span class="sd">    (decoded beams [batch_size, beam_size, decode_length]</span>
+<span class="sd">     decoding probabilities [batch_size, beam_size]) and the decoding</span>
+<span class="sd">    states if `return_states` is True.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">_shape_list</span><span class="p">(</span><span class="n">initial_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+  <span class="c1"># Assume initial_ids are prob 1.0</span>
+  <span class="n">initial_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([[</span><span class="mf">0.</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">beam_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])</span>
+  <span class="c1"># Expand to beam_size (batch_size, beam_size)</span>
+  <span class="n">alive_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">initial_log_probs</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+  <span class="c1"># Expand each batch and state to beam_size</span>
+  <span class="n">alive_seq</span> <span class="o">=</span> <span class="n">_expand_to_beam_size</span><span class="p">(</span><span class="n">initial_ids</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span>
+  <span class="n">alive_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">alive_seq</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># (batch_size, beam_size, 1)</span>
+  <span class="k">if</span> <span class="n">states</span><span class="p">:</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">_expand_to_beam_size</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">),</span> <span class="n">states</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="p">{}</span>
+
+  <span class="c1"># Finished will keep track of all the sequences that have finished so far</span>
+  <span class="c1"># Finished log probs will be negative infinity in the beginning</span>
+  <span class="c1"># finished_flags will keep track of booleans</span>
+  <span class="n">finished_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">_shape_list</span><span class="p">(</span><span class="n">alive_seq</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+  <span class="c1"># Setting the scores of the initial to negative infinity.</span>
+  <span class="n">finished_scores</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">])</span> <span class="o">*</span> <span class="o">-</span><span class="n">INF</span>
+  <span class="n">finished_flags</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">grow_finished</span><span class="p">(</span><span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span><span class="p">,</span> <span class="n">finished_flags</span><span class="p">,</span> <span class="n">curr_seq</span><span class="p">,</span>
+                    <span class="n">curr_scores</span><span class="p">,</span> <span class="n">curr_finished</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given sequences and scores, will gather the top k=beam size sequences.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      finished_seq: Current finished sequences.</span>
+<span class="sd">        [batch_size, beam_size, current_decoded_length]</span>
+<span class="sd">      finished_scores: scores for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">      finished_flags: finished bools for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">      curr_seq: current topk sequence that has been grown by one position.</span>
+<span class="sd">        [batch_size, beam_size, current_decoded_length]</span>
+<span class="sd">      curr_scores: scores for each of these sequences. [batch_size, beam_size]</span>
+<span class="sd">      curr_finished: Finished flags for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      Tuple of</span>
+<span class="sd">        (Topk sequences based on scores,</span>
+<span class="sd">         log probs of these sequences,</span>
+<span class="sd">         Finished flags of these sequences)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># First append a column of 0&#39;ids to finished to make the same length with</span>
+    <span class="c1"># finished scores</span>
+    <span class="n">finished_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">finished_seq</span><span class="p">,</span>
+         <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Set the scores of the unfinished seq in curr_seq to large negative</span>
+    <span class="c1"># values</span>
+    <span class="n">curr_scores</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">curr_finished</span><span class="p">))</span> <span class="o">*</span> <span class="o">-</span><span class="n">INF</span>
+    <span class="c1"># concatenating the sequences and scores along beam axis</span>
+    <span class="n">curr_finished_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">finished_seq</span><span class="p">,</span> <span class="n">curr_seq</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">curr_finished_scores</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">finished_scores</span><span class="p">,</span> <span class="n">curr_scores</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">curr_finished_flags</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">finished_flags</span><span class="p">,</span> <span class="n">curr_finished</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">compute_topk_scores_and_seq</span><span class="p">(</span>
+        <span class="n">curr_finished_seq</span><span class="p">,</span> <span class="n">curr_finished_scores</span><span class="p">,</span> <span class="n">curr_finished_scores</span><span class="p">,</span>
+        <span class="n">curr_finished_flags</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="s2">&quot;grow_finished&quot;</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">grow_alive</span><span class="p">(</span><span class="n">curr_seq</span><span class="p">,</span> <span class="n">curr_scores</span><span class="p">,</span> <span class="n">curr_log_probs</span><span class="p">,</span> <span class="n">curr_finished</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given sequences and scores, will gather the top k=beam size sequences.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      curr_seq: current topk sequence that has been grown by one position.</span>
+<span class="sd">        [batch_size, beam_size, i+1]</span>
+<span class="sd">      curr_scores: scores for each of these sequences. [batch_size, beam_size]</span>
+<span class="sd">      curr_log_probs: log probs for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">      curr_finished: Finished flags for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">      states: dict (possibly nested) of decoding states.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      Tuple of</span>
+<span class="sd">        (Topk sequences based on scores,</span>
+<span class="sd">         log probs of these sequences,</span>
+<span class="sd">         Finished flags of these sequences)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set the scores of the finished seq in curr_seq to large negative</span>
+    <span class="c1"># values</span>
+    <span class="n">curr_scores</span> <span class="o">+=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">curr_finished</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="n">INF</span>
+    <span class="k">return</span> <span class="n">compute_topk_scores_and_seq</span><span class="p">(</span><span class="n">curr_seq</span><span class="p">,</span> <span class="n">curr_scores</span><span class="p">,</span> <span class="n">curr_log_probs</span><span class="p">,</span>
+                                       <span class="n">curr_finished</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span>
+                                       <span class="s2">&quot;grow_alive&quot;</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">grow_topk</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Inner beam search loop.</span>
+
+<span class="sd">    This function takes the current alive sequences, and grows them to topk</span>
+<span class="sd">    sequences where k = 2*beam. We use 2*beam because, we could have beam_size</span>
+<span class="sd">    number of sequences that might hit &lt;EOS&gt; and there will be no alive</span>
+<span class="sd">    sequences to continue. With 2*beam_size, this will not happen. This relies</span>
+<span class="sd">    on the assumption the vocab size is &gt; beam size. If this is true, we&#39;ll</span>
+<span class="sd">    have at least beam_size non &lt;EOS&gt; extensions if we extract the next top</span>
+<span class="sd">    2*beam words.</span>
+<span class="sd">    Length penalty is given by = (5+len(decode)/6) ^ -\alpha. Pls refer to</span>
+<span class="sd">    https://arxiv.org/abs/1609.08144.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      i: loop index</span>
+<span class="sd">      alive_seq: Topk sequences decoded so far [batch_size, beam_size, i+1]</span>
+<span class="sd">      alive_log_probs: probabilities of these sequences. [batch_size, beam_size]</span>
+<span class="sd">      states: dict (possibly nested) of decoding states.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      Tuple of</span>
+<span class="sd">        (Topk sequences extended by the next word,</span>
+<span class="sd">         The log probs of these sequences,</span>
+<span class="sd">         The scores with length penalty of these sequences,</span>
+<span class="sd">         Flags indicating which of these sequences have finished decoding,</span>
+<span class="sd">         dict of transformed decoding states)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the logits for all the possible next symbols</span>
+    <span class="n">flat_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">alive_seq</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">beam_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># (batch_size * beam_size, decoded_length)</span>
+    <span class="k">if</span> <span class="n">states</span><span class="p">:</span>
+      <span class="n">flat_states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">_merge_beam_dim</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+      <span class="n">flat_logits</span><span class="p">,</span> <span class="n">flat_states</span> <span class="o">=</span> <span class="n">symbols_to_logits_fn</span><span class="p">(</span><span class="n">flat_ids</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">flat_states</span><span class="p">)</span>
+      <span class="n">states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+          <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">_unmerge_beam_dim</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">),</span> <span class="n">flat_states</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">flat_logits</span> <span class="o">=</span> <span class="n">symbols_to_logits_fn</span><span class="p">(</span><span class="n">flat_ids</span><span class="p">)</span>
+
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">flat_logits</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># Convert logits to normalized log probs</span>
+    <span class="n">candidate_log_probs</span> <span class="o">=</span> <span class="n">_log_prob_from_logits</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
+
+    <span class="c1"># Multiply the probabilities by the current probabilities of the beam.</span>
+    <span class="c1"># (batch_size, beam_size, vocab_size) + (batch_size, beam_size, 1)</span>
+    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">candidate_log_probs</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">length_penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(((</span><span class="mf">5.</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mf">6.</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span>
+
+    <span class="n">curr_scores</span> <span class="o">=</span> <span class="n">log_probs</span> <span class="o">/</span> <span class="n">length_penalty</span>
+    <span class="c1"># Flatten out (beam_size, vocab_size) probs in to a list of possibilities</span>
+    <span class="n">flat_curr_scores</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">curr_scores</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">beam_size</span> <span class="o">*</span> <span class="n">vocab_size</span><span class="p">])</span>
+
+    <span class="n">topk_scores</span><span class="p">,</span> <span class="n">topk_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">flat_curr_scores</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">beam_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Recovering the log probs because we will need to send them back</span>
+    <span class="n">topk_log_probs</span> <span class="o">=</span> <span class="n">topk_scores</span> <span class="o">*</span> <span class="n">length_penalty</span>
+
+    <span class="c1"># Work out what beam the top probs are in.</span>
+    <span class="n">topk_beam_index</span> <span class="o">=</span> <span class="n">topk_ids</span> <span class="o">//</span> <span class="n">vocab_size</span>
+    <span class="n">topk_ids</span> <span class="o">%=</span> <span class="n">vocab_size</span>  <span class="c1"># Unflatten the ids</span>
+
+    <span class="c1"># The next three steps are to create coordinates for tf.gather_nd to pull</span>
+    <span class="c1"># out the correct sequences from id&#39;s that we need to grow.</span>
+    <span class="c1"># We will also use the coordinates to gather the booleans of the beam items</span>
+    <span class="c1"># that survived.</span>
+    <span class="n">batch_pos</span> <span class="o">=</span> <span class="n">compute_batch_indices</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># top beams will give us the actual coordinates to do the gather.</span>
+    <span class="c1"># stacking will create a tensor of dimension batch * beam * 2, where the</span>
+    <span class="c1"># last dimension contains the i,j gathering coordinates.</span>
+    <span class="n">topk_coordinates</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_pos</span><span class="p">,</span> <span class="n">topk_beam_index</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Gather up the most probable 2*beams both for the ids and finished_in_alive</span>
+    <span class="c1"># bools</span>
+    <span class="n">topk_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">alive_seq</span><span class="p">,</span> <span class="n">topk_coordinates</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">states</span><span class="p">:</span>
+      <span class="n">states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+          <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">topk_coordinates</span><span class="p">),</span> <span class="n">states</span><span class="p">)</span>
+
+    <span class="c1"># Append the most probable alive</span>
+    <span class="n">topk_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">topk_seq</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">topk_ids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">topk_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">topk_ids</span><span class="p">,</span> <span class="n">eos_id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">topk_seq</span><span class="p">,</span> <span class="n">topk_log_probs</span><span class="p">,</span> <span class="n">topk_scores</span><span class="p">,</span> <span class="n">topk_finished</span><span class="p">,</span> <span class="n">states</span>
+
+  <span class="k">def</span> <span class="nf">inner_loop</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span><span class="p">,</span>
+                 <span class="n">finished_flags</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Inner beam search loop.</span>
+
+<span class="sd">    There are three groups of tensors, alive, finished, and topk.</span>
+<span class="sd">    The alive group contains information about the current alive sequences</span>
+<span class="sd">    The topk group contains information about alive + topk current decoded words</span>
+<span class="sd">    the finished group contains information about finished sentences, that is,</span>
+<span class="sd">    the ones that have decoded to &lt;EOS&gt;. These are what we return.</span>
+<span class="sd">    The general beam search algorithm is as follows:</span>
+<span class="sd">    While we haven&#39;t terminated (pls look at termination condition)</span>
+<span class="sd">      1. Grow the current alive to get beam*2 topk sequences</span>
+<span class="sd">      2. Among the topk, keep the top beam_size ones that haven&#39;t reached EOS</span>
+<span class="sd">      into alive</span>
+<span class="sd">      3. Among the topk, keep the top beam_size ones have reached EOS into</span>
+<span class="sd">      finished</span>
+<span class="sd">    Repeat</span>
+<span class="sd">    To make things simple with using fixed size tensors, we will end</span>
+<span class="sd">    up inserting unfinished sequences into finished in the beginning. To stop</span>
+<span class="sd">    that we add -ve INF to the score of the unfinished sequence so that when a</span>
+<span class="sd">    true finished sequence does appear, it will have a higher score than all the</span>
+<span class="sd">    unfinished ones.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      i: loop index</span>
+<span class="sd">      alive_seq: Topk sequences decoded so far [batch_size, beam_size, i+1]</span>
+<span class="sd">      alive_log_probs: probabilities of the beams. [batch_size, beam_size]</span>
+<span class="sd">      finished_seq: Current finished sequences.</span>
+<span class="sd">        [batch_size, beam_size, i+1]</span>
+<span class="sd">      finished_scores: scores for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">      finished_flags: finished bools for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">      states: dict (possibly nested) of decoding states.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Tuple of</span>
+<span class="sd">        (Incremented loop index</span>
+<span class="sd">         New alive sequences,</span>
+<span class="sd">         Log probs of the alive sequences,</span>
+<span class="sd">         New finished sequences,</span>
+<span class="sd">         Scores of the new finished sequences,</span>
+<span class="sd">         Flags indicating which sequence in finished as reached EOS,</span>
+<span class="sd">         dict of final decoding states)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Each inner loop, we carry out three steps:</span>
+    <span class="c1"># 1. Get the current topk items.</span>
+    <span class="c1"># 2. Extract the ones that have finished and haven&#39;t finished</span>
+    <span class="c1"># 3. Recompute the contents of finished based on scores.</span>
+    <span class="n">topk_seq</span><span class="p">,</span> <span class="n">topk_log_probs</span><span class="p">,</span> <span class="n">topk_scores</span><span class="p">,</span> <span class="n">topk_finished</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="n">grow_topk</span><span class="p">(</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+    <span class="n">alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="n">grow_alive</span><span class="p">(</span>
+        <span class="n">topk_seq</span><span class="p">,</span> <span class="n">topk_scores</span><span class="p">,</span> <span class="n">topk_log_probs</span><span class="p">,</span> <span class="n">topk_finished</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+    <span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span><span class="p">,</span> <span class="n">finished_flags</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">grow_finished</span><span class="p">(</span>
+        <span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span><span class="p">,</span> <span class="n">finished_flags</span><span class="p">,</span> <span class="n">topk_seq</span><span class="p">,</span> <span class="n">topk_scores</span><span class="p">,</span>
+        <span class="n">topk_finished</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span><span class="p">,</span>
+            <span class="n">finished_flags</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_is_finished</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">unused_alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">unused_finished_seq</span><span class="p">,</span>
+                   <span class="n">finished_scores</span><span class="p">,</span> <span class="n">finished_in_finished</span><span class="p">,</span> <span class="n">unused_states</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checking termination condition.</span>
+
+<span class="sd">    We terminate when we decoded up to decode_length or the lowest scoring item</span>
+<span class="sd">    in finished has a greater score that the highest prob item in alive divided</span>
+<span class="sd">    by the max length penalty</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      i: loop index</span>
+<span class="sd">      alive_log_probs: probabilities of the beams. [batch_size, beam_size]</span>
+<span class="sd">      finished_scores: scores for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+<span class="sd">      finished_in_finished: finished bools for each of these sequences.</span>
+<span class="sd">        [batch_size, beam_size]</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Bool.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stop_early</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">decode_length</span><span class="p">)</span>
+    <span class="n">max_length_penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(((</span><span class="mf">5.</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">decode_length</span><span class="p">))</span> <span class="o">/</span> <span class="mf">6.</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="c1"># The best possible score of the most likely alive sequence.</span>
+    <span class="n">lower_bound_alive_scores</span> <span class="o">=</span> <span class="n">alive_log_probs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_length_penalty</span>
+
+    <span class="c1"># Now to compute the lowest score of a finished sequence in finished</span>
+    <span class="c1"># If the sequence isn&#39;t finished, we multiply it&#39;s score by 0. since</span>
+    <span class="c1"># scores are all -ve, taking the min will give us the score of the lowest</span>
+    <span class="c1"># finished item.</span>
+    <span class="n">lowest_score_of_finished_in_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">(</span>
+        <span class="n">finished_scores</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">finished_in_finished</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># If none of the sequences have finished, then the min will be 0 and</span>
+    <span class="c1"># we have to replace it by -ve INF if it is. The score of any seq in alive</span>
+    <span class="c1"># will be much higher than -ve INF and the termination condition will not</span>
+    <span class="c1"># be met.</span>
+    <span class="n">lowest_score_of_finished_in_finished</span> <span class="o">+=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_any</span><span class="p">(</span><span class="n">finished_in_finished</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> <span class="o">*</span> <span class="o">-</span><span class="n">INF</span><span class="p">)</span>
+
+    <span class="n">bound_is_met</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">lowest_score_of_finished_in_finished</span><span class="p">,</span>
+                   <span class="n">lower_bound_alive_scores</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">decode_length</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">bound_is_met</span><span class="p">))</span>
+
+  <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span><span class="p">,</span>
+   <span class="n">finished_flags</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span>
+       <span class="n">_is_finished</span><span class="p">,</span>
+       <span class="n">inner_loop</span><span class="p">,</span> <span class="p">[</span>
+           <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">finished_seq</span><span class="p">,</span>
+           <span class="n">finished_scores</span><span class="p">,</span> <span class="n">finished_flags</span><span class="p">,</span> <span class="n">states</span>
+       <span class="p">],</span>
+       <span class="n">shape_invariants</span><span class="o">=</span><span class="p">[</span>
+           <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([]),</span>
+           <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]),</span>
+           <span class="n">alive_log_probs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span>
+           <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]),</span>
+           <span class="n">finished_scores</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span>
+           <span class="n">finished_flags</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span>
+           <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">get_state_shape_invariants</span><span class="p">,</span> <span class="n">states</span><span class="p">),</span>
+       <span class="p">],</span>
+       <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+       <span class="n">back_prop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+  <span class="n">alive_seq</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+  <span class="n">finished_seq</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+  <span class="c1"># Accounting for corner case: It&#39;s possible that no sequence in alive for a</span>
+  <span class="c1"># particular batch item ever reached EOS. In that case, we should just copy</span>
+  <span class="c1"># the contents of alive for that batch item. tf.reduce_any(finished_flags, 1)</span>
+  <span class="c1"># if 0, means that no sequence for that batch index had reached EOS. We need</span>
+  <span class="c1"># to do the same for the scores as well.</span>
+  <span class="n">finished_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">reduce_any</span><span class="p">(</span><span class="n">finished_flags</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">finished_seq</span><span class="p">,</span> <span class="n">alive_seq</span><span class="p">)</span>
+  <span class="n">finished_scores</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">reduce_any</span><span class="p">(</span><span class="n">finished_flags</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">finished_scores</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">return_states</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span><span class="p">,</span> <span class="n">states</span>
+  <span class="k">return</span> <span class="n">finished_seq</span><span class="p">,</span> <span class="n">finished_scores</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

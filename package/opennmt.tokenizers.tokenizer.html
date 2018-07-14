@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.tokenizers.tokenizer module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.utils package" href="opennmt.utils.html" />
+    <link rel="prev" title="opennmt.tokenizers.opennmt_tokenizer module" href="opennmt.tokenizers.opennmt_tokenizer.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.tokenizers.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.tokenizers.html">opennmt.tokenizers package</a> &raquo;</li>
+        
+      <li>opennmt.tokenizers.tokenizer module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.tokenizers.tokenizer">
+<span id="opennmt-tokenizers-tokenizer-module"></span><h1>opennmt.tokenizers.tokenizer module<a class="headerlink" href="#module-opennmt.tokenizers.tokenizer" title="Permalink to this headline">¶</a></h1>
+<p>Define base tokenizers.</p>
+<dl class="class">
+<dt id="opennmt.tokenizers.tokenizer.Tokenizer">
+<em class="property">class </em><code class="descclassname">opennmt.tokenizers.tokenizer.</code><code class="descname">Tokenizer</code><span class="sig-paren">(</span><em>configuration_file_or_key=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for tokenizers.</p>
+<dl class="method">
+<dt id="opennmt.tokenizers.tokenizer.Tokenizer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>configuration_file_or_key=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the tokenizer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configuration_file_or_key</strong> – The YAML configuration file or a the key to
+the YAML configuration file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.tokenizers.tokenizer.Tokenizer.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the tokenizer (e.g. load BPE models).</p>
+<p>Any external assets should be registered in the standard assets collection:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">ASSET_FILEPATHS</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional metadata set
+by the user.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.tokenizers.tokenizer.Tokenizer.tokenize_stream">
+<code class="descname">tokenize_stream</code><span class="sig-paren">(</span><em>input_stream=&lt;_io.TextIOWrapper name='&lt;stdin&gt;' mode='r' encoding='UTF-8'&gt;</em>, <em>output_stream=&lt;_io.TextIOWrapper name='&lt;stdout&gt;' mode='w' encoding='UTF-8'&gt;</em>, <em>delimiter=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.tokenize_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer.tokenize_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tokenizes a stream of sentences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_stream</strong> – The input stream.</li>
+<li><strong>output_stream</strong> – The output stream.</li>
+<li><strong>delimiter</strong> – The token delimiter to use for text serialization.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.tokenizers.tokenizer.Tokenizer.detokenize_stream">
+<code class="descname">detokenize_stream</code><span class="sig-paren">(</span><em>input_stream=&lt;_io.TextIOWrapper name='&lt;stdin&gt;' mode='r' encoding='UTF-8'&gt;</em>, <em>output_stream=&lt;_io.TextIOWrapper name='&lt;stdout&gt;' mode='w' encoding='UTF-8'&gt;</em>, <em>delimiter=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.detokenize_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer.detokenize_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detokenizes a stream of sentences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_stream</strong> – The input stream.</li>
+<li><strong>output_stream</strong> – The output stream.</li>
+<li><strong>delimiter</strong> – The token delimiter used for text serialization.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.tokenizers.tokenizer.Tokenizer.tokenize">
+<code class="descname">tokenize</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer.tokenize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tokenizes text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – The text to tokenize as a <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or Python string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 1-D string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal"><span class="pre">text</span></code> is a <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or a list of
+Python unicode strings otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if the rank of <code class="xref py py-obj docutils literal"><span class="pre">text</span></code> is greater than 0.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.tokenizers.tokenizer.Tokenizer.detokenize">
+<code class="descname">detokenize</code><span class="sig-paren">(</span><em>tokens</em>, <em>sequence_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.detokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer.detokenize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detokenizes tokens.</p>
+<p>The Tensor version supports batches of tokens.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tokens</strong> – The tokens as a 1-D or 2-D <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or list of Python
+strings.</li>
+<li><strong>sequence_length</strong> – The length of each sequence. Required if <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code>
+is a <code class="docutils literal"><span class="pre">tf.Tensor</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A 0-D or 1-D string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code> is a <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or a
+Python unicode strings otherwise.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if the rank of <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code> is greater than 2.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code> is a 2-D <code class="docutils literal"><span class="pre">tf.Tensor</span></code> and
+<code class="xref py py-obj docutils literal"><span class="pre">sequence_length</span></code> is not set.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.tokenizers.tokenizer.SpaceTokenizer">
+<em class="property">class </em><code class="descclassname">opennmt.tokenizers.tokenizer.</code><code class="descname">SpaceTokenizer</code><span class="sig-paren">(</span><em>configuration_file_or_key=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#SpaceTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.SpaceTokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
+<p>A tokenizer that splits on spaces.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.tokenizers.tokenizer.CharacterTokenizer">
+<em class="property">class </em><code class="descclassname">opennmt.tokenizers.tokenizer.</code><code class="descname">CharacterTokenizer</code><span class="sig-paren">(</span><em>configuration_file_or_key=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#CharacterTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.CharacterTokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
+<p>A tokenizer that splits unicode characters.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.utils.html" class="btn btn-neutral float-right" title="opennmt.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.tokenizers.opennmt_tokenizer.html" class="btn btn-neutral" title="opennmt.tokenizers.opennmt_tokenizer module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Inference &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Serving" href="serving.html" />
+    <link rel="prev" title="Training" href="training.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Inference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#checkpoints-averaging">Checkpoints averaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#n-best-list">N-best list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scoring">Scoring</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Inference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="inference">
+<span id="inference"></span><h1>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="checkpoints-averaging">
+<span id="checkpoints-averaging"></span><h2>Checkpoints averaging<a class="headerlink" href="#checkpoints-averaging" title="Permalink to this headline">¶</a></h2>
+<p>The script <code class="docutils literal"><span class="pre">onmt-average-checkpoints</span></code> can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-average-checkpoints <span class="se">\</span>
+    --model_dir run/baseline-enfr <span class="se">\</span>
+    --output_dir run/baseline-enfr/avg <span class="se">\</span>
+    --max_count <span class="m">5</span>
+</pre></div>
+</div>
+<p>will average the parameters of the 5 latest checkpoints in the <code class="docutils literal"><span class="pre">run/baseline-enfr</span></code> model directory and save a new checkpoint in the directory <code class="docutils literal"><span class="pre">run/baseline-enfr/avg</span></code>.</p>
+<p>Then, execute the inference by setting the <code class="docutils literal"><span class="pre">--checkpoint_path</span></code> option, e.g.:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-main infer <span class="se">\</span>
+    --config config/my_config.yml <span class="se">\</span>
+    --features_file newstest2014.en.tok <span class="se">\</span>
+    --predictions_file newstest2014.en.tok.out <span class="se">\</span>
+    --checkpoint_path run/baseline-enfr/avg/model.ckpt-200000
+</pre></div>
+</div>
+<p>To control the saving of checkpoints during the training, configure the following options in your configuration file:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">train</span><span class="p p-Indicator">:</span>
+  <span class="c1"># (optional) Save a checkpoint every this many steps.</span>
+  <span class="l l-Scalar l-Scalar-Plain">save_checkpoints_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+  <span class="c1"># (optional) How many checkpoints to keep on disk.</span>
+  <span class="l l-Scalar l-Scalar-Plain">keep_checkpoint_max</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="n-best-list">
+<span id="n-best-list"></span><h2>N-best list<a class="headerlink" href="#n-best-list" title="Permalink to this headline">¶</a></h2>
+<p>A n-best list can be generated for models using beam search. You can configure it in your configuration file:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">infer</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">n_best</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+</pre></div>
+</div>
+<p>With this option, each input line will simply generate N consecutive lines in the output, ordered from best to worst.</p>
+<p><em>Note that N can not be greater than the configured <code class="docutils literal"><span class="pre">beam_width</span></code>.</em></p>
+</div>
+<div class="section" id="scoring">
+<span id="scoring"></span><h2>Scoring<a class="headerlink" href="#scoring" title="Permalink to this headline">¶</a></h2>
+<p>The main OpenNMT-tf script can also be used to score existing translations via the <code class="docutils literal"><span class="pre">score</span></code> run type. It requires 2 command line options to be set:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">--features_file</span></code>, the input labels;</li>
+<li><code class="docutils literal"><span class="pre">--predictions_file</span></code>, the translations to score.</li>
+</ul>
+<p>e.g.:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-main score <span class="se">\</span>
+    --config config/my_config.yml <span class="se">\</span>
+    --features_file newstest2014.en.tok <span class="se">\</span>
+    --predictions_file newstest2014.en.tok.out
+</pre></div>
+</div>
+<p>The command will write on the standard output the score generated for each line in the following format:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>&lt;score&gt; ||| &lt;translation&gt;
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">&lt;score&gt;</span></code> is the negative log likelihood of the provided translation.</p>
+<p><strong>Tip:</strong> combining the n-best list generation and the scoring can be used for reranking translations.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="serving.html" class="btn btn-neutral float-right" title="Serving" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="training.html" class="btn btn-neutral" title="Training" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

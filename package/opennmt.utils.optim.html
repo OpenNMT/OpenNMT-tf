@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.utils.optim module &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.utils.parallel module" href="opennmt.utils.parallel.html" />
+    <link rel="prev" title="opennmt.utils.misc module" href="opennmt.utils.misc.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.utils.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.utils.html">opennmt.utils package</a> &raquo;</li>
+        
+      <li>opennmt.utils.optim module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.utils.optim">
+<span id="opennmt-utils-optim-module"></span><h1>opennmt.utils.optim module<a class="headerlink" href="#module-opennmt.utils.optim" title="Permalink to this headline">¶</a></h1>
+<p>Optimization related functions.</p>
+<dl class="function">
+<dt id="opennmt.utils.optim.learning_rate_decay_fn">
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">learning_rate_decay_fn</code><span class="sig-paren">(</span><em>decay_type</em>, <em>decay_rate</em>, <em>decay_steps</em>, <em>decay_step_duration=1</em>, <em>staircase=True</em>, <em>start_decay_steps=0</em>, <em>minimum_learning_rate=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#learning_rate_decay_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.learning_rate_decay_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the learning rate decay functions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>decay_type</strong> – The type of decay. A function from <code class="docutils literal"><span class="pre">tf.train</span></code> or
+<a class="reference internal" href="opennmt.utils.decay.html#module-opennmt.utils.decay" title="opennmt.utils.decay"><code class="xref py py-mod docutils literal"><span class="pre">opennmt.utils.decay</span></code></a> as a string.</li>
+<li><strong>decay_rate</strong> – The decay rate to apply.</li>
+<li><strong>decay_steps</strong> – The decay steps as described in the decay type function.</li>
+<li><strong>decay_step_duration</strong> – The number of training steps that make 1 decay step.</li>
+<li><strong>staircase</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, learning rate is decayed in a staircase fashion.</li>
+<li><strong>start_decay_steps</strong> – Start decay after this many steps.</li>
+<li><strong>minimum_learning_rate</strong> – Do not decay past this learning rate value.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A function with signature
+<code class="docutils literal"><span class="pre">(learning_rate,</span> <span class="pre">global_step)</span> <span class="pre">-&gt;</span> <span class="pre">decayed_learning_rate</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">decay_type</span></code> can not be resolved.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.optim.get_optimizer_class">
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">get_optimizer_class</code><span class="sig-paren">(</span><em>classname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#get_optimizer_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.get_optimizer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the optimizer class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>classname</strong> – The name of the optimizer class in <code class="docutils literal"><span class="pre">tf.train</span></code> or
+<code class="docutils literal"><span class="pre">tf.contrib.opt</span></code> as a string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A class inheriting from <code class="docutils literal"><span class="pre">tf.train.Optimizer</span></code>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">classname</span></code> can not be resolved.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.optim.optimize">
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">optimize</code><span class="sig-paren">(</span><em>loss</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.optimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimizes the loss.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>loss</strong> – The loss to minimize.</li>
+<li><strong>params</strong> – A dictionary of hyperparameters.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The loss minimization op.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.optim.regularization_penalty">
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">regularization_penalty</code><span class="sig-paren">(</span><em>regularization_type</em>, <em>scale</em>, <em>weights_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#regularization_penalty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.regularization_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the weights regularization penalty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>regularization_type</strong> – The regularization type: <code class="docutils literal"><span class="pre">l1</span></code>, <code class="docutils literal"><span class="pre">l2</span></code>, or <code class="docutils literal"><span class="pre">l1_l2</span></code>.</li>
+<li><strong>scale</strong> – The regularization multiplier. If <code class="xref py py-obj docutils literal"><span class="pre">regularization_type</span></code> is
+<code class="docutils literal"><span class="pre">l1_l2</span></code>, this should be a list or tuple containing the L1 regularization
+scale and the L2 regularization scale.</li>
+<li><strong>weights_list</strong> – The list of weights. Defaults to non bias variables.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The regularization penalty.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">regularization_type</span></code> is invalid or is <code class="docutils literal"><span class="pre">l1_l2</span></code> but
+<code class="xref py py-obj docutils literal"><span class="pre">scale</span></code> is not a sequence.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.utils.parallel.html" class="btn btn-neutral float-right" title="opennmt.utils.parallel module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.utils.misc.html" class="btn btn-neutral" title="opennmt.utils.misc module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

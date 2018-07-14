@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.optimizers.multistep_adam &mdash; OpenNMT-tf 1.8.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.optimizers.multistep_adam</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.optimizers.multistep_adam</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="c1"># Copyright 2018 The Tensor2Tensor Authors.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># Changes:</span>
+<span class="c1"># * raise exception on incompatible TensorFlow version</span>
+<span class="c1"># * fix Pylint warnings</span>
+
+<span class="sd">&quot;&quot;&quot;Optimizer variants which make it possible to use very large batch sizes with</span>
+<span class="sd">limited GPU memory. Optimizers in this module accumulate the gradients for n</span>
+<span class="sd">batches, and call the optimizer&#39;s update rule every n batches with the</span>
+<span class="sd">accumulated gradients.</span>
+<span class="sd">See [Saunders et al., 2018](https://arxiv.org/abs/1805.00456) for details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+
+<span class="c1"># Dependency imports</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
+<div class="viewcode-block" id="MultistepAdamOptimizer"><a class="viewcode-back" href="../../../package/opennmt.optimizers.multistep_adam.html#opennmt.optimizers.multistep_adam.MultistepAdamOptimizer">[docs]</a><span class="k">class</span> <span class="nc">MultistepAdamOptimizer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Adam with SGD updates every n steps with accumulated gradients.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+               <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Adam&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">MultistepAdamOptimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="n">beta1</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="n">beta2</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">,</span>
+        <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_create_non_slot_variable&quot;</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;MultistepAdamOptimizer requires TensorFlow 1.6+&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="n">n</span>  <span class="c1"># Call Adam optimizer every n batches with accumulated grads</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_n_t</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># n as tensor</span>
+
+  <span class="k">def</span> <span class="nf">_create_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create slot variables for Adam with accumulated gradients.</span>
+
+<span class="sd">    Like super class method, but additionally creates slots for the gradient</span>
+<span class="sd">    accumulator `acc_grad` and the counter variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">MultistepAdamOptimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_create_slots</span><span class="p">(</span><span class="n">var_list</span><span class="p">)</span>
+    <span class="n">first_var</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">var_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_create_non_slot_variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;iter&quot;</span><span class="p">,</span>
+                                   <span class="n">colocate_with</span><span class="o">=</span><span class="n">first_var</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_zeros_slot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;grad_acc&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_iter_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">eager</span><span class="o">.</span><span class="n">in_eager_mode</span><span class="p">():</span>
+      <span class="n">graph</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">graph</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_non_slot_variable</span><span class="p">(</span><span class="s2">&quot;iter&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">MultistepAdamOptimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_prepare</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_n_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_apply_cond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">apply_fn</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Conditionally apply or accumulate gradient.</span>
+
+<span class="sd">    Call `apply_fn only if the current counter value (iter) is zero. This</span>
+<span class="sd">    method couples common functionality for all _apply_*() implementations</span>
+<span class="sd">    in Adam.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grad_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;grad_acc&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_apply_adam</span><span class="p">(</span><span class="n">grad_acc</span><span class="p">,</span> <span class="n">apply_fn</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="n">total_grad</span> <span class="o">=</span> <span class="p">(</span><span class="n">grad_acc</span> <span class="o">+</span> <span class="n">grad</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_t</span><span class="p">,</span> <span class="n">grad</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">adam_op</span> <span class="o">=</span> <span class="n">apply_fn</span><span class="p">(</span><span class="n">total_grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">adam_op</span><span class="p">]):</span>
+        <span class="n">grad_acc_to_zero_op</span> <span class="o">=</span> <span class="n">grad_acc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">grad_acc</span><span class="p">),</span>
+                                              <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">adam_op</span><span class="p">,</span> <span class="n">grad_acc_to_zero_op</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_accumulate_gradient</span><span class="p">(</span><span class="n">grad_acc</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+      <span class="n">assign_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">grad_acc</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">assign_op</span><span class="p">)</span>  <span class="c1"># Strip return value</span>
+
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_iter_variable</span><span class="p">(),</span> <span class="mi">0</span><span class="p">),</span>
+                   <span class="k">lambda</span><span class="p">:</span> <span class="n">_apply_adam</span><span class="p">(</span><span class="n">grad_acc</span><span class="p">,</span> <span class="n">apply_fn</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+                   <span class="k">lambda</span><span class="p">:</span> <span class="n">_accumulate_gradient</span><span class="p">(</span><span class="n">grad_acc</span><span class="p">,</span> <span class="n">grad</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">_apply_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cond</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MultistepAdamOptimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_apply_dense</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_resource_apply_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cond</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MultistepAdamOptimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_resource_apply_dense</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_apply_sparse_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">scatter_add</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cond</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MultistepAdamOptimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_apply_sparse_shared</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span>
+        <span class="n">indices</span><span class="p">,</span> <span class="n">scatter_add</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_apply_sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="c1"># TODO: Implement a sparse version</span>
+    <span class="n">dense_grad</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cond</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MultistepAdamOptimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_apply_dense</span><span class="p">,</span> <span class="n">dense_grad</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_ops</span><span class="p">,</span> <span class="n">name_scope</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Like super class method, but updates beta_power variables only every</span>
+<span class="sd">    n batches. The iter variable is updated with</span>
+
+<span class="sd">       iter &lt;- iter + 1 mod n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">iter_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_iter_variable</span><span class="p">()</span>
+    <span class="n">beta1_power</span><span class="p">,</span> <span class="n">beta2_power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_beta_accumulators</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">update_ops</span><span class="p">):</span>
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">colocate_with</span><span class="p">(</span><span class="n">iter_</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">_update_beta_op</span><span class="p">():</span>
+          <span class="n">update_beta1</span> <span class="o">=</span> <span class="n">beta1_power</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+              <span class="n">beta1_power</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1_t</span><span class="p">,</span>
+              <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+          <span class="n">update_beta2</span> <span class="o">=</span> <span class="n">beta2_power</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+              <span class="n">beta2_power</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta2_t</span><span class="p">,</span>
+              <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+          <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">update_beta1</span><span class="p">,</span> <span class="n">update_beta2</span><span class="p">)</span>
+        <span class="n">maybe_update_beta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">iter_</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">_update_beta_op</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">no_op</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">maybe_update_beta</span><span class="p">]):</span>
+          <span class="n">update_iter</span> <span class="o">=</span> <span class="n">iter_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">iter_</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_t</span><span class="p">),</span>
+                                     <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">update_ops</span> <span class="o">+</span> <span class="p">[</span><span class="n">update_iter</span><span class="p">,</span> <span class="n">maybe_update_beta</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">name_scope</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.8.1',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
