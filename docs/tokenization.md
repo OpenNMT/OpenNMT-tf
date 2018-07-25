@@ -29,7 +29,7 @@ Here is an example workflow:
 
 ### Usage
 
-* --save_vocab[] Outpu vocabulary file to be created
+* --save_vocab[] Output vocabulary file to be created
 * --min_frequency[1] Minimum word frequency
 * --size [0] Maximum vocabulary size. If = 0, do not limit vocabulary
 * --without_sequence_tokens[False] If set, do not add special sequence tokens (start, end) in the vocabulary
