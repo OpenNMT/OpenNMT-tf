@@ -29,16 +29,13 @@ Here is an example workflow:
 
 ### Usage
 
-```bash
-onmt-build-vocab
 * --save_vocab[] Outpu vocabulary file to be created
 * --min_frequency[1] Minimum word frequency
 * --size [0] Maximum vocabulary size. If = 0, do not limit vocabulary
 * --without_sequence_tokens[False] If set, do not add special sequence tokens (start, end) in the vocabulary
 * --tokenizer {CharacterTokenizer,SpaceTokenizer} To tokenize the corpus use [OpenNMT Tokenizer](https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md)  
 * --tokenizer_config[] Path to tokenizer configration file
-* data [data ...] File for which vocabulary to be created
-```
+* data [data ...] File for which vocabulary to be created`
 
 Example command
 
