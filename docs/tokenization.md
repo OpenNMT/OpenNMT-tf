@@ -25,6 +25,8 @@ A key feature is the possibility to tokenize the data on-the-fly during the trai
 
 Here is an example workflow:
 
+1\. Build the vocabularies with the custom tokenizer, e.g.:
+
 ### Usage
 
 ```bash
@@ -38,7 +40,7 @@ onmt-build-vocab
 * data [data ...] File for which vocabulary to be created
 ```
 
-1\. Build the vocabularies with the custom tokenizer, e.g.:
+Example command
 
 ```bash
 onmt-build-vocab --tokenizer SpaceTokenizer --tokenizer_config config/tokenization/aggressive.yml --size 50000 --save_vocab data/enfr/en-vocab.txt data/enfr/en-train.txt
