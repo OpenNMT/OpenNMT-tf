@@ -80,7 +80,8 @@ def main():
 
   for tokens, future in zip(batch_tokens, futures):
     result = parse_translation_result(future.result())
-    print("{} ||| {}".format(" ".join(tokens), " ".join(result)))
+    print("{} ||| {}".format(" ".join(tokens), " ".
+          join(token.decode("utf-8") for token in result)))
 
 
 if __name__ == "__main__":
