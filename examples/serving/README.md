@@ -4,7 +4,7 @@ This example implements a simple client that sends translation requests to a mod
 
 ## Requirements
 
-* [TensorFlow Serving](https://www.tensorflow.org/serving)
+* [TensorFlow Serving](https://www.tensorflow.org/serving) 1.8 or above
 * an exported translation model
 
 **Note:** for this example to work, the model should be a `SequenceToSequence` model with `WordEmbedder` as the source inputter.
