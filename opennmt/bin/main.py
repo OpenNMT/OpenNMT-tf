@@ -27,6 +27,10 @@ def _prefix_paths(prefix, paths):
     for key, path in six.iteritems(paths):
       paths[key] = _prefix_paths(prefix, path)
     return paths
+  elif isinstance(paths, list):
+    for i, path in enumerate(paths):
+      paths[i] = _prefix_paths(prefix, path)
+    return paths
   else:
     path = paths
     new_path = os.path.join(prefix, path)
