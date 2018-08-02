@@ -14,6 +14,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Command line option `--session_config` to configure TensorFlow session parameters (see the "Configuration" documentation)
+
 ### Fixes and improvements
 
 * Fix error when using `--data_dir` and parallel inputs in the data configuration

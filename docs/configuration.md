@@ -45,3 +45,22 @@ If you are unsure about the configuration that is actually used or simply prefer
 onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
     config/data/toy-ende.yml > config/my_config.yml
 ```
+
+## TensorFlow session
+
+The command line option `--session_config` can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a [`tf.ConfigProto`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto) message serialized in text format.
+
+Here is an example to enable the `allow_growth` GPU option:
+
+```text
+$ cat config/session_config.txt
+gpu_options {
+  allow_growth: true
+}
+```
+
+```bash
+onmt-main [...] --session_config config/session_config.txt
+```
+
+For possible options and values, see the [`tf.ConfigProto`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto) file.
