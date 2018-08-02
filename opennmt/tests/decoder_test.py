@@ -167,25 +167,25 @@ class DecoderTest(tf.test.TestCase):
       self.assertAllEqual([batch_size, num_hyps], log_probs.shape)
 
   def _testDecoder(self, decoder, support_alignment_history=True):
-    with tf.variable_scope(""):
+    with tf.variable_scope(tf.get_variable_scope()):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=False,
           with_alignment_history=False,
           support_alignment_history=support_alignment_history)
-    with tf.variable_scope("", reuse=True):
+    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=False,
           with_alignment_history=True,
           support_alignment_history=support_alignment_history)
-    with tf.variable_scope("", reuse=True):
+    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=True,
           with_alignment_history=False,
           support_alignment_history=support_alignment_history)
-    with tf.variable_scope("", reuse=True):
+    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=True,

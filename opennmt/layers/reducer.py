@@ -155,7 +155,7 @@ class MultiplyReducer(Reducer):
   """A reducer that multiplies the inputs."""
 
   def reduce(self, inputs):
-    return tf.foldl(lambda a, x: a * x, inputs)
+    return tf.foldl(lambda a, x: a * x, tf.stack(inputs))
 
   def reduce_sequence(self, inputs, sequence_lengths):
     padded, combined_length = pad_n_with_identity(inputs, sequence_lengths, identity_values=1)
