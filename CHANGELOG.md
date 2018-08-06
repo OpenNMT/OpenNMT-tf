@@ -20,6 +20,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * Fix error when using `--data_dir` and parallel inputs in the data configuration
 * Fix TensorFlow 1.9+ compatibility issue when using `MultiplyReducer`
+* Better support of other filesystems (HDFS, S3, etc.) for the model directory and data files
 
 ## [1.6.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.6.2) (2018-07-14)
 

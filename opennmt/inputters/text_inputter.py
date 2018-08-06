@@ -2,9 +2,7 @@
 
 import abc
 import collections
-import io
 import os
-import shutil
 import six
 
 import numpy as np
@@ -39,10 +37,10 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
   basename = os.path.basename(vocabulary_file)
   destination = os.path.join(log_dir, basename)
   if vocabulary_file != destination:
-    shutil.copy(vocabulary_file, destination)
+    tf.gfile.Copy(vocabulary_file, destination, overwrite=True)
 
     # Append <unk> tokens.
-    with open(destination, mode="ab") as vocab:
+    with tf.gfile.Open(destination, mode="ab") as vocab:
       if num_oov_buckets == 1:
         vocab.write(b"<unk>\n")
       else:
@@ -53,8 +51,8 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
 
   # If the projector file exists, load it.
   target = os.path.join(log_dir, "projector_config.pbtxt")
-  if os.path.exists(target):
-    with io.open(target, encoding="utf-8") as target_file:
+  if tf.gfile.Exists(target):
+    with tf.gfile.Open(target, mode="rb") as target_file:
       text_format.Merge(target_file.read(), config)
 
   # If this embedding is already registered, just update the metadata path.
@@ -125,7 +123,7 @@ def load_pretrained_embeddings(embedding_file,
   """
   # Map words to ids from the vocabulary.
   word_to_id = collections.defaultdict(list)
-  with io.open(vocabulary_file, encoding="utf-8") as vocabulary:
+  with tf.gfile.Open(vocabulary_file, mode="rb") as vocabulary:
     count = 0
     for word in vocabulary:
       word = word.strip()
@@ -135,7 +133,7 @@ def load_pretrained_embeddings(embedding_file,
       count += 1
 
   # Fill pretrained embedding matrix.
-  with io.open(embedding_file, encoding="utf-8") as embedding:
+  with tf.gfile.Open(embedding_file, mode="rb") as embedding:
     pretrained = None
 
     if with_header:
