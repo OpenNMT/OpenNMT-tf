@@ -2,7 +2,6 @@
 
 """Define base tokenizers."""
 
-import io
 import sys
 import os
 import abc
@@ -27,7 +26,7 @@ class Tokenizer(object):
     self._config = {}
     if configuration_file_or_key is not None and os.path.isfile(configuration_file_or_key):
       configuration_file = configuration_file_or_key
-      with io.open(configuration_file, encoding="utf-8") as conf_file:
+      with tf.gfile.Open(configuration_file, mode="rb") as conf_file:
         self._config = yaml.load(conf_file)
       self._configuration_file_key = None
     else:
@@ -48,7 +47,7 @@ class Tokenizer(object):
     """
     if self._configuration_file_key is not None:
       configuration_file = metadata[self._configuration_file_key]
-      with io.open(configuration_file, encoding="utf-8") as conf_file:
+      with tf.gfile.Open(configuration_file, mode="rb") as conf_file:
         self._config = yaml.load(conf_file)
 
   def tokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):

@@ -122,11 +122,16 @@ def main():
   if args.data_dir:
     config["data"] = _prefix_paths(args.data_dir, config["data"])
 
-  if not os.path.isdir(config["model_dir"]):
+  is_chief = args.task_type == "chief"
+  if is_chief and not tf.gfile.Exists(config["model_dir"]):
     tf.logging.info("Creating model directory %s", config["model_dir"])
-    os.makedirs(config["model_dir"])
+    tf.gfile.MakeDirs(config["model_dir"])
 
-  model = load_model(config["model_dir"], model_file=args.model, model_name=args.model_type)
+  model = load_model(
+      config["model_dir"],
+      model_file=args.model,
+      model_name=args.model_type,
+      serialize_model=is_chief)
   session_config = tf.ConfigProto(
       intra_op_parallelism_threads=args.intra_op_parallelism_threads,
       inter_op_parallelism_threads=args.inter_op_parallelism_threads)
