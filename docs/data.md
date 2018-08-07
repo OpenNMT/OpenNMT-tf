@@ -37,6 +37,21 @@ which describes an example of `m` vectors of depth `n` and identified by `KEY`.
 
 See `onmt-ark-to-records -h` for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with `KEY`s) to generate aligned source vectors and target texts.
 
+## Data location
+
+By default, the data are expected to be on the same filesystem. However, it is possible to reference data stored in HDFS, Amazon S3, or any other remote storages supported by TensorFlow. For example:
+
+```yaml
+data:
+  train_features_file: s3://namebucket/toy-ende/src-train.txt
+  train_labels_file: hdfs://namenode:8020/toy-ende/tgt-train.txt
+```
+
+For more information, see the TensorFlow documentation:
+
+* [How to run TensorFlow on Hadoop](https://www.tensorflow.org/deploy/hadoop)
+* [How to run TensorFlow on S3](https://www.tensorflow.org/deploy/s3)
+
 ## Parallel inputs
 
 When using `opennmt.inputters.ParallelInputter`, as many input files as inputters are expected. You have to configure your YAML file accordingly:
