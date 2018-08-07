@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 
-from opennmt.models.sequence_to_sequence import SequenceToSequence
+from opennmt.models.sequence_to_sequence import SequenceToSequence, EmbeddingsSharingLevel
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
 from opennmt.layers.position import SinusoidalPositionEncoder
@@ -25,6 +25,7 @@ class Transformer(SequenceToSequence):
                relu_dropout=0.1,
                position_encoder=SinusoidalPositionEncoder(),
                decoder_self_attention_type="scaled_dot",
+               share_embeddings=EmbeddingsSharingLevel.NONE,
                name="transformer"):
     """Initializes a Transformer model.
 
@@ -46,6 +47,9 @@ class Transformer(SequenceToSequence):
         apply on the inputs.
       decoder_self_attention_type: Type of self attention in the decoder,
         "scaled_dot" or "average" (case insensitive).
+      share_embeddings: Level of embeddings sharing, see
+        :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
+        for possible values.
       name: The name of this model.
     """
     encoder = SelfAttentionEncoder(
@@ -73,6 +77,7 @@ class Transformer(SequenceToSequence):
         target_inputter,
         encoder,
         decoder,
+        share_embeddings=share_embeddings,
         daisy_chain_variables=True,
         name=name)
 

@@ -7,6 +7,8 @@ import six
 
 import tensorflow as tf
 
+from google.protobuf import text_format
+
 from opennmt.models import catalog
 from opennmt.runner import Runner
 from opennmt.config import load_model, load_config
@@ -26,6 +28,10 @@ def _prefix_paths(prefix, paths):
   if isinstance(paths, dict):
     for key, path in six.iteritems(paths):
       paths[key] = _prefix_paths(prefix, path)
+    return paths
+  elif isinstance(paths, list):
+    for i, path in enumerate(paths):
+      paths[i] = _prefix_paths(prefix, path)
     return paths
   else:
     path = paths
@@ -88,6 +94,9 @@ def main():
   parser.add_argument("--inter_op_parallelism_threads", type=int, default=0,
                       help=("Number of inter op threads (0 means the system picks "
                             "an appropriate number)."))
+  parser.add_argument("--session_config", default=None,
+                      help=("Path to a file containing a tf.ConfigProto message in text format "
+                            "and used to create the TensorFlow sessions."))
   args = parser.parse_args()
 
   tf.logging.set_verbosity(getattr(tf.logging, args.log_level))
@@ -113,14 +122,22 @@ def main():
   if args.data_dir:
     config["data"] = _prefix_paths(args.data_dir, config["data"])
 
-  if not os.path.isdir(config["model_dir"]):
+  is_chief = args.task_type == "chief"
+  if is_chief and not tf.gfile.Exists(config["model_dir"]):
     tf.logging.info("Creating model directory %s", config["model_dir"])
-    os.makedirs(config["model_dir"])
+    tf.gfile.MakeDirs(config["model_dir"])
 
-  model = load_model(config["model_dir"], model_file=args.model, model_name=args.model_type)
+  model = load_model(
+      config["model_dir"],
+      model_file=args.model,
+      model_name=args.model_type,
+      serialize_model=is_chief)
   session_config = tf.ConfigProto(
       intra_op_parallelism_threads=args.intra_op_parallelism_threads,
       inter_op_parallelism_threads=args.inter_op_parallelism_threads)
+  if args.session_config is not None:
+    with open(args.session_config, "rb") as session_config_file:
+      text_format.Merge(session_config_file.read(), session_config)
   runner = Runner(
       model,
       config,

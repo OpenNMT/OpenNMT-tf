@@ -2,7 +2,6 @@
 
 from importlib import import_module
 
-import io
 import os
 import pickle
 import sys
@@ -42,7 +41,10 @@ def load_model_from_catalog(name):
   """
   return getattr(catalog, name)()
 
-def load_model(model_dir, model_file=None, model_name=None):
+def load_model(model_dir,
+               model_file=None,
+               model_name=None,
+               serialize_model=True):
   """Loads the model from the catalog or a file.
 
   The model object is pickled in :obj:`model_dir` to make the model
@@ -54,6 +56,7 @@ def load_model(model_dir, model_file=None, model_name=None):
       Mutually exclusive with :obj:`model_name`.
     model_name: An optional model name from the catalog.
       Mutually exclusive with :obj:`model_file`.
+    serialize_model: Serialize the model definition in the model directory.
 
   Returns:
     A :class:`opennmt.models.model.Model` instance.
@@ -80,13 +83,14 @@ def load_model(model_dir, model_file=None, model_name=None):
     elif model_name:
       model = load_model_from_catalog(model_name)
 
-    with open(serial_model_file, "wb") as serial_model:
-      pickle.dump(model, serial_model)
-  elif not os.path.isfile(serial_model_file):
+    if serialize_model:
+      with tf.gfile.Open(serial_model_file, mode="wb") as serial_model:
+        pickle.dump(model, serial_model)
+  elif not tf.gfile.Exists(serial_model_file):
     raise RuntimeError("A model configuration is required.")
   else:
     tf.logging.info("Loading serialized model description from %s", serial_model_file)
-    with open(serial_model_file, "rb") as serial_model:
+    with tf.gfile.Open(serial_model_file, mode="rb") as serial_model:
       model = pickle.load(serial_model)
 
   return model
@@ -105,7 +109,7 @@ def load_config(config_paths, config=None):
     config = {}
 
   for config_path in config_paths:
-    with io.open(config_path, encoding="utf-8") as config_file:
+    with tf.gfile.Open(config_path, mode="rb") as config_file:
       subconfig = yaml.load(config_file.read())
 
       # Add or update section in main configuration.
