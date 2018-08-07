@@ -15,6 +15,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### New features
 
 * Command line option `--session_config` to configure TensorFlow session parameters (see the "Configuration" documentation)
+* `share_embeddings` argument to `SequenceToSequence` models to configure the level of embeddings sharing
 
 ### Fixes and improvements
 
