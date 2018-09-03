@@ -215,7 +215,8 @@ def multi_head_attention(num_heads,
                          num_units=None,
                          mask=None,
                          cache=None,
-                         dropout=0.0):
+                         dropout=0.0,
+                         return_attention=False):
   """Computes the multi-head attention as described in
   https://arxiv.org/abs/1706.03762.
 
@@ -230,9 +231,12 @@ def multi_head_attention(num_heads,
     mask: A ``tf.Tensor`` applied to the dot product.
     cache: A dictionary containing pre-projected keys and values.
     dropout: The probability to drop units from the inputs.
+    return_attention: Return the attention head probabilities in addition to the
+      context.
 
   Returns:
-    The concatenated attention context of each head.
+    The concatenated attention context of each head and the attention
+    probabilities (if :obj:`return_attention` is set).
   """
   num_units = num_units or queries.get_shape().as_list()[-1]
 
@@ -273,7 +277,7 @@ def multi_head_attention(num_heads,
   queries = split_heads(queries, num_heads)
   queries *= (num_units // num_heads)**-0.5
 
-  heads, _ = dot_product_attention(
+  heads, attn = dot_product_attention(
       queries,
       keys,
       values,
@@ -285,7 +289,9 @@ def multi_head_attention(num_heads,
   combined = combine_heads(heads)
   outputs = tf.layers.conv1d(combined, num_units, 1)
 
-  return outputs
+  if not return_attention:
+    return outputs
+  return outputs, attn
 
 def feed_forward(x, inner_dim, mode, dropout=0.0):
   """Implements the Transformer's "Feed Forward" layer.
