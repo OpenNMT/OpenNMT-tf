@@ -197,13 +197,13 @@ def dot_product_attention(queries,
 
   # Compute attention weights.
   attn = tf.nn.softmax(dot)
-  attn = tf.layers.dropout(
+  drop_attn = tf.layers.dropout(
       attn,
       rate=dropout,
       training=mode == tf.estimator.ModeKeys.TRAIN)
 
   # Compute attention context.
-  context = tf.matmul(attn, values)
+  context = tf.matmul(drop_attn, values)
 
   return context, attn
 
