@@ -206,7 +206,7 @@ class DecoderTest(tf.test.TestCase):
 
   def testSelfAttentionDecoder(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoder(decoder, support_alignment_history=False)
+    self._testDecoder(decoder)
 
 if __name__ == "__main__":
   tf.test.main()

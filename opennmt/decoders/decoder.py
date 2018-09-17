@@ -249,7 +249,8 @@ def greedy_decode(symbols_to_logits_fn,
                   initial_ids,
                   end_id,
                   decode_length=None,
-                  state=None):
+                  state=None,
+                  return_state=False):
   """Greedily decodes from :obj:`initial_ids`.
 
   Args:
@@ -260,9 +261,11 @@ def greedy_decode(symbols_to_logits_fn,
     eos_id: ID for end of sentence.
     decode_length: Maximum number of steps to decode for.
     states: A dictionnary of (possibly nested) decoding states.
+    return_state: If ``True``, also return the updated decoding states.
 
   Returns:
-    A tuple with the decoded output, the decoded lengths, and the log probabilities.
+    A tuple with the decoded output, the decoded lengths, the log probabilities,
+    and the decoding states (if :obj:`return_state` is ``True``).
   """
   batch_size = tf.shape(initial_ids)[0]
   finished = tf.tile([False], [batch_size])
@@ -299,7 +302,7 @@ def greedy_decode(symbols_to_logits_fn,
 
     return step, next_finished, next_inputs, next_lengths, log_probs, state
 
-  _, _, outputs, lengths, log_probs, _ = tf.while_loop(
+  _, _, outputs, lengths, log_probs, state = tf.while_loop(
       _condition,
       _body,
       loop_vars=(step, finished, inputs, lengths, log_probs, state),
@@ -312,4 +315,6 @@ def greedy_decode(symbols_to_logits_fn,
           tf.contrib.framework.nest.map_structure(get_state_shape_invariants, state)),
       parallel_iterations=1)
 
+  if return_state:
+    return outputs, lengths, log_probs, state
   return outputs, lengths, log_probs
