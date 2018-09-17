@@ -75,6 +75,7 @@ class SequenceToSequence(Model):
                encoder,
                decoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
+               alignment_file_key=None,
                daisy_chain_variables=False,
                name="seq2seq"):
     """Initializes a sequence-to-sequence model.
@@ -90,6 +91,8 @@ class SequenceToSequence(Model):
       share_embeddings: Level of embeddings sharing, see
         :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
         for possible values.
+      alignment_file_key: The data configuration key of the training alignment
+        file to support guided alignment.
       daisy_chain_variables: If ``True``, copy variables in a daisy chain
         between devices for this model. Not compatible with RNN based models.
       name: The name of this model.
@@ -124,6 +127,32 @@ class SequenceToSequence(Model):
     self.source_inputter = source_inputter
     self.target_inputter = target_inputter
     self.target_inputter.add_process_hooks([shift_target_sequence])
+    self.alignment_file_key = alignment_file_key
+    self.alignment_file = None
+
+  def _initialize(self, metadata):
+    super(SequenceToSequence, self)._initialize(metadata)
+    if self.alignment_file_key is not None:
+      self.alignment_file = metadata[self.alignment_file_key]
+
+  def _augment_parallel_dataset(self, dataset, process_fn, mode=None):
+    # Possibly add alignments as labels.
+    if self.alignment_file is None or mode != tf.estimator.ModeKeys.TRAIN:
+      return dataset, process_fn
+
+    def _inject_alignments(text, alignment_line):
+      source, target = text
+      features, labels = process_fn(source, target)  # Default processing.
+      alignments = alignment_matrix_from_pharaoh(
+          alignment_line,
+          self._get_features_length(features),
+          self._get_labels_length(labels))
+      labels["alignment"] = alignments
+      return features, labels
+
+    alignment_dataset = tf.data.TextLineDataset(self.alignment_file)
+    dataset = tf.data.Dataset.zip((dataset, alignment_dataset))
+    return dataset, _inject_alignments
 
   def _get_input_scope(self, default_name=""):
     if self.share_embeddings == EmbeddingsSharingLevel.SOURCE_TARGET_INPUT:
@@ -280,6 +309,64 @@ class SequenceToSequence(Model):
             prediction["log_probs"][i] / prediction["length"][i], sentence)
       print_bytes(tf.compat.as_bytes(sentence), stream=stream)
 
+
+def alignment_matrix_from_pharaoh(alignment_line, source_length, target_length):
+  """Parse Pharaoh alignments into an alignment matrix.
+
+  Args:
+    alignment_line: A string ``tf.Tensor`` in the Pharaoh format.
+    source_length: The length of the source sentence.
+    target_length The length of the target sentence.
+
+  Returns:
+    The alignment matrix as a float 2-D ``tf.Tensor`` of shape
+    ``[target_length, source_length]``, where ``[i, j] = 1`` if the ``i`` th
+    target word is aligned with the ``j`` th source word.
+  """
+  align_pairs_str = tf.string_split([alignment_line], delimiter=" ").values
+  align_pairs_flat_str = tf.string_split(align_pairs_str, delimiter="-").values
+  align_pairs_flat = tf.string_to_number(align_pairs_flat_str, out_type=tf.int32)
+  sparse_indices = tf.reshape(align_pairs_flat, [-1, 2])
+  sparse_values = tf.ones([tf.shape(sparse_indices)[0]])
+  alignment_matrix = tf.sparse_to_dense(
+      sparse_indices,
+      [source_length, target_length],
+      sparse_values,
+      validate_indices=False)
+  return tf.transpose(alignment_matrix)
+
+def guided_alignment_cost(attention_probs,
+                          gold_alignment,
+                          sequence_length,
+                          guided_alignment_type,
+                          guided_alignment_weight=1):
+  """Computes the guided alignment cost.
+
+  Args:
+    attention_probs: The attention probabilities, a float ``tf.Tensor`` of shape
+      :math:`[B, T_t, T_s]`.
+    gold_alignment: The true alignments, an int ``tf.Tensor`` of shape
+      :math:`[B, T_t - 1]` (``-1`` as it does not contain the alignment for the
+      final token ``</s>``).
+    sequence_length: The length of each sequence.
+    guided_alignment_type: The type of guided alignment cost function to compute
+      (can be: ce).
+    guided_alignment_weight: The weight applied to the guided alignment cost.
+
+  Returns:
+    The guided alignment cost.
+  """
+  if guided_alignment_type == "ce":
+    attention_probs = attention_probs[:, :-1]  # Ignore attention of </s>.
+    gold_one_hot = tf.one_hot(
+        gold_alignment, tf.shape(attention_probs)[-1], dtype=attention_probs.dtype)
+    cross_entropy = -tf.reduce_sum(tf.log(attention_probs + 1e-6) * gold_one_hot, axis=-1)
+    weights = tf.sequence_mask(
+        sequence_length, maxlen=tf.shape(cross_entropy)[1], dtype=cross_entropy.dtype)
+    loss = tf.reduce_sum(cross_entropy * weights)
+    return guided_alignment_weight * loss
+  else:
+    raise ValueError("invalid guided_alignment_type: %s" % guided_alignment_type)
 
 def align_tokens_from_attention(tokens, attention):
   """Returns aligned tokens from the attention.
