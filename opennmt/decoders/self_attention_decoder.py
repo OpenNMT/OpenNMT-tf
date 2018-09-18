@@ -239,7 +239,8 @@ class SelfAttentionDecoder(decoder.Decoder):
              output_layer=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
-             memory_sequence_length=None):
+             memory_sequence_length=None,
+             return_alignment_history=False):
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
 
@@ -247,7 +248,7 @@ class SelfAttentionDecoder(decoder.Decoder):
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
-    outputs, _ = self._self_attention_stack(
+    outputs, attention = self._self_attention_stack(
         inputs,
         sequence_length=sequence_length,
         mode=mode,
@@ -258,6 +259,8 @@ class SelfAttentionDecoder(decoder.Decoder):
       output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
     logits = output_layer(outputs)
 
+    if return_alignment_history:
+      return (logits, None, sequence_length, attention)
     return (logits, None, sequence_length)
 
   def dynamic_decode(self,

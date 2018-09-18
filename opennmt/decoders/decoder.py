@@ -128,7 +128,8 @@ class Decoder(object):
              output_layer=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
-             memory_sequence_length=None):
+             memory_sequence_length=None,
+             return_alignment_history=False):
     """Decodes a full input sequence.
 
     Usually used for training and evaluation where target sequences are known.
@@ -148,9 +149,14 @@ class Decoder(object):
       mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
+      return_alignment_history: If ``True``, also returns the alignment
+        history from the attention layer (``None`` will be returned if
+        unsupported by the decoder).
 
     Returns:
-      A tuple ``(outputs, state, sequence_length)``.
+      A tuple ``(outputs, state, sequence_length)`` or
+      ``(outputs, state, sequence_length, alignment_history)``
+      if :obj:`return_alignment_history` is ``True``.
     """
     raise NotImplementedError()
 
