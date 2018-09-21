@@ -138,6 +138,8 @@ infer:
   prefetch_buffer_size: 1
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1
+  # (optional) For compatible models, also output the score (default: false).
+  with_scores: false
 
 # (optional) Scoring options.
 score:

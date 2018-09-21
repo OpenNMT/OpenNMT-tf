@@ -275,6 +275,9 @@ class SequenceToSequence(Model):
     for i in range(n_best):
       tokens = prediction["tokens"][i][:prediction["length"][i] - 1] # Ignore </s>.
       sentence = self.target_inputter.tokenizer.detokenize(tokens)
+      if params.get("with_scores"):
+        sentence = "%f ||| %s" % (
+            prediction["log_probs"][i] / prediction["length"][i], sentence)
       print_bytes(tf.compat.as_bytes(sentence), stream=stream)
 
 
