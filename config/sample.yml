@@ -144,6 +144,9 @@ infer:
   n_best: 1
   # (optional) For compatible models, also output the score (default: false).
   with_scores: false
+  # (optional) For compatible models, also output the alignments (can be: "null", "hard",
+  # default: "null").
+  with_alignments: null
 
 # (optional) Scoring options.
 score:
