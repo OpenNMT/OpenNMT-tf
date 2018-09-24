@@ -26,6 +26,7 @@ class Transformer(SequenceToSequence):
                position_encoder=SinusoidalPositionEncoder(),
                decoder_self_attention_type="scaled_dot",
                share_embeddings=EmbeddingsSharingLevel.NONE,
+               alignment_file_key=None,
                name="transformer"):
     """Initializes a Transformer model.
 
@@ -50,6 +51,8 @@ class Transformer(SequenceToSequence):
       share_embeddings: Level of embeddings sharing, see
         :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
         for possible values.
+      alignment_file_key: The data configuration key of the training alignment
+        file to support guided alignment.
       name: The name of this model.
     """
     encoder = SelfAttentionEncoder(
@@ -78,6 +81,7 @@ class Transformer(SequenceToSequence):
         encoder,
         decoder,
         share_embeddings=share_embeddings,
+        alignment_file_key=alignment_file_key,
         daisy_chain_variables=True,
         name=name)
 

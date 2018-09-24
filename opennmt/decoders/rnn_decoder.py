@@ -86,7 +86,8 @@ class RNNDecoder(Decoder):
              output_layer=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
-             memory_sequence_length=None):
+             memory_sequence_length=None,
+             return_alignment_history=False):
     _ = memory
     _ = memory_sequence_length
 
@@ -136,6 +137,8 @@ class RNNDecoder(Decoder):
     inputs_len = tf.shape(inputs)[1]
     logits = align_in_time(logits, inputs_len)
 
+    if return_alignment_history:
+      return (logits, state, length, None)
     return (logits, state, length)
 
   def dynamic_decode(self,

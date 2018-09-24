@@ -302,6 +302,20 @@ class Model(object):
     process_fn = self.labels_inputter.process
     return dataset, process_fn
 
+  def _augment_parallel_dataset(self, dataset, process_fn, mode=None):
+    """Augments a parallel dataset.
+
+    Args:
+      dataset: A parallel dataset.
+      process_fn: The current dataset processing function.
+      mode: A ``tf.estimator.ModeKeys`` mode.
+
+    Returns:
+      A tuple ``(tf.data.Dataset, process_fn)``.
+    """
+    _ = mode
+    return dataset, process_fn
+
   def _input_fn_impl(self,
                      mode,
                      batch_size,
@@ -332,6 +346,7 @@ class Model(object):
       dataset = tf.data.Dataset.zip((feat_dataset, labels_dataset))
       process_fn = lambda features, labels: (
           feat_process_fn(features), labels_process_fn(labels))
+      dataset, process_fn = self._augment_parallel_dataset(dataset, process_fn, mode=mode)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       dataset = data.training_pipeline(

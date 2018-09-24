@@ -37,6 +37,27 @@ which describes an example of `m` vectors of depth `n` and identified by `KEY`.
 
 See `onmt-ark-to-records -h` for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with `KEY`s) to generate aligned source vectors and target texts.
 
+### Alignments
+
+Guided alignment requires an alignment file for the parallel training data that uses the widely used "Pharaoh" format:
+
+```text
+0-0 1-1 2-4 3-2 4-3 5-5 6-6
+0-0 1-1 2-2 2-3 3-4 4-5
+0-0 1-2 2-1 3-3 4-4 5-5
+```
+
+where a pair `i-j` indicates that the `i`th word of the source sentence is aligned with the `j`th word of the target sentence (zero-indexed).
+
+This file should be added in the data configuration, e.g.:
+
+```yaml
+data:
+  train_alignment: train-alignment.txt
+```
+
+and the constructor of the `SequenceToSequence` model should reference the key of this alignment file by setting the `alignment_file_key` argument (here to `train_alignment`).
+
 ## Data location
 
 By default, the data are expected to be on the same filesystem. However, it is possible to reference data stored in HDFS, Amazon S3, or any other remote storages supported by TensorFlow. For example:
