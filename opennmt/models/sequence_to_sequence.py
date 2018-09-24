@@ -198,7 +198,7 @@ class SequenceToSequence(Model):
               schedule_type=params.get("scheduled_sampling_type"),
               k=params.get("scheduled_sampling_k"))
 
-        logits, _, _ = self.decoder.decode(
+        logits, _, _, attention = self.decoder.decode(
             target_inputs,
             self._get_labels_length(labels),
             vocab_size=target_vocab_size,
@@ -207,9 +207,14 @@ class SequenceToSequence(Model):
             embedding=target_embedding_fn,
             mode=mode,
             memory=encoder_outputs,
-            memory_sequence_length=encoder_sequence_length)
+            memory_sequence_length=encoder_sequence_length,
+            return_alignment_history=True)
+        outputs = {
+            "logits": logits,
+            "attention": attention
+        }
     else:
-      logits = None
+      outputs = None
 
     if mode != tf.estimator.ModeKeys.TRAIN:
       with tf.variable_scope("decoder", reuse=labels is not None):
@@ -283,16 +288,38 @@ class SequenceToSequence(Model):
     else:
       predictions = None
 
-    return logits, predictions
+    return outputs, predictions
 
   def _compute_loss(self, features, labels, outputs, params, mode):
-    return cross_entropy_sequence_loss(
-        outputs,
+    if isinstance(outputs, dict):
+      logits = outputs["logits"]
+      attention = outputs.get("attention")
+    else:
+      logits = outputs
+      attention = None
+    labels_lengths = self._get_labels_length(labels)
+    loss, loss_normalizer, loss_token_normalizer = cross_entropy_sequence_loss(
+        logits,
         labels["ids_out"],
-        self._get_labels_length(labels),
+        labels_lengths,
         label_smoothing=params.get("label_smoothing", 0.0),
         average_in_time=params.get("average_loss_in_time", False),
         mode=mode)
+    if mode == tf.estimator.ModeKeys.TRAIN:
+      gold_alignments = labels.get("alignment")
+      guided_alignment_type = params.get("guided_alignment_type")
+      if gold_alignments is not None and guided_alignment_type is not None:
+        if attention is None:
+          tf.logging.warning("This model did not return attention vectors; "
+                             "guided alignment will not be applied")
+        else:
+          loss += guided_alignment_cost(
+              attention,
+              gold_alignments,
+              labels_lengths,
+              guided_alignment_type,
+              guided_alignment_weight=params.get("guided_alignment_weight", 1))
+    return loss, loss_normalizer, loss_token_normalizer
 
   def print_prediction(self, prediction, params=None, stream=None):
     n_best = params and params.get("n_best")
@@ -345,9 +372,8 @@ def guided_alignment_cost(attention_probs,
   Args:
     attention_probs: The attention probabilities, a float ``tf.Tensor`` of shape
       :math:`[B, T_t, T_s]`.
-    gold_alignment: The true alignments, an int ``tf.Tensor`` of shape
-      :math:`[B, T_t - 1]` (``-1`` as it does not contain the alignment for the
-      final token ``</s>``).
+    gold_alignment: The true alignment matrix, a float ``tf.Tensor`` of shape
+      :math:`[B, T_t, T_s]`.
     sequence_length: The length of each sequence.
     guided_alignment_type: The type of guided alignment cost function to compute
       (can be: ce).
@@ -357,10 +383,7 @@ def guided_alignment_cost(attention_probs,
     The guided alignment cost.
   """
   if guided_alignment_type == "ce":
-    attention_probs = attention_probs[:, :-1]  # Ignore attention of </s>.
-    gold_one_hot = tf.one_hot(
-        gold_alignment, tf.shape(attention_probs)[-1], dtype=attention_probs.dtype)
-    cross_entropy = -tf.reduce_sum(tf.log(attention_probs + 1e-6) * gold_one_hot, axis=-1)
+    cross_entropy = -tf.reduce_sum(tf.log(attention_probs + 1e-6) * gold_alignment, axis=-1)
     weights = tf.sequence_mask(
         sequence_length, maxlen=tf.shape(cross_entropy)[1], dtype=cross_entropy.dtype)
     loss = tf.reduce_sum(cross_entropy * weights)

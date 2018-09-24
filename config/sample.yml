@@ -74,6 +74,10 @@ params:
   # (optional) Replace unknown target tokens by the original source token with the
   # highest attention (default: false).
   replace_unknown_target: false
+  # (optional) The type of guided alignment cost to compute (can be: "null", "ce", default: "null").
+  guided_alignment_type: null
+  # (optional) The weight of the guided alignment cost (default: 1).
+  guided_alignment_weight: 1
 
 # Training options.
 train:
