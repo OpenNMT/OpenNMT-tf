@@ -116,7 +116,8 @@ class RNNDecoder(Decoder):
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
-        dtype=inputs.dtype)
+        dtype=inputs.dtype,
+        alignment_history=return_alignment_history)
 
     if output_layer is None:
       output_layer = build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
@@ -138,7 +139,10 @@ class RNNDecoder(Decoder):
     logits = align_in_time(logits, inputs_len)
 
     if return_alignment_history:
-      return (logits, state, length, None)
+      alignment_history = _get_alignment_history(state)
+      if alignment_history is not None:
+        alignment_history = align_in_time(alignment_history, inputs_len)
+      return (logits, state, length, alignment_history)
     return (logits, state, length)
 
   def dynamic_decode(self,

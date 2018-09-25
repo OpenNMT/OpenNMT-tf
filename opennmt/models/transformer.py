@@ -26,7 +26,7 @@ class Transformer(SequenceToSequence):
                position_encoder=SinusoidalPositionEncoder(),
                decoder_self_attention_type="scaled_dot",
                share_embeddings=EmbeddingsSharingLevel.NONE,
-               alignment_file_key=None,
+               alignment_file_key="train_alignments",
                name="transformer"):
     """Initializes a Transformer model.
 

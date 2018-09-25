@@ -39,7 +39,7 @@ See `onmt-ark-to-records -h` for the script usage. It also accepts an optional i
 
 ### Alignments
 
-Guided alignment requires an alignment file for the parallel training data that uses the widely used "Pharaoh" format:
+Guided alignment requires a training alignment file that uses the "Pharaoh" format, e.g.:
 
 ```text
 0-0 1-1 2-4 3-2 4-3 5-5 6-6
@@ -49,14 +49,14 @@ Guided alignment requires an alignment file for the parallel training data that 
 
 where a pair `i-j` indicates that the `i`th word of the source sentence is aligned with the `j`th word of the target sentence (zero-indexed).
 
-This file should be added in the data configuration, e.g.:
+This file should then be added in the data configuration:
 
 ```yaml
 data:
-  train_alignment: train-alignment.txt
+  train_alignments: train-alignment.txt
 ```
 
-and the constructor of the `SequenceToSequence` model should reference the key of this alignment file by setting the `alignment_file_key` argument (here to `train_alignment`).
+and a guided alignment type should be set in the training configuration.
 
 ## Data location
 
