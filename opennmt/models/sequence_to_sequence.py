@@ -396,14 +396,17 @@ def guided_alignment_cost(attention_probs,
   Returns:
     The guided alignment cost.
   """
+  weights = tf.sequence_mask(
+      sequence_length, maxlen=tf.shape(attention_probs)[1], dtype=attention_probs.dtype)
   if guided_alignment_type == "ce":
     cross_entropy = -tf.reduce_sum(tf.log(attention_probs + 1e-6) * gold_alignment, axis=-1)
-    weights = tf.sequence_mask(
-        sequence_length, maxlen=tf.shape(cross_entropy)[1], dtype=cross_entropy.dtype)
     loss = tf.reduce_sum(cross_entropy * weights)
-    return guided_alignment_weight * loss
+  elif guided_alignment_type == "mse":
+    loss = tf.losses.mean_squared_error(
+        gold_alignment, attention_probs, weights=tf.expand_dims(weights, -1))
   else:
     raise ValueError("invalid guided_alignment_type: %s" % guided_alignment_type)
+  return guided_alignment_weight * loss
 
 def align_tokens_from_attention(tokens, attention):
   """Returns aligned tokens from the attention.
