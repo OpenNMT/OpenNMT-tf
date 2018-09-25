@@ -76,7 +76,7 @@ class SequenceToSequence(Model):
                encoder,
                decoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
-               alignment_file_key=None,
+               alignment_file_key="train_alignments",
                daisy_chain_variables=False,
                name="seq2seq"):
     """Initializes a sequence-to-sequence model.
@@ -133,8 +133,10 @@ class SequenceToSequence(Model):
 
   def _initialize(self, metadata):
     super(SequenceToSequence, self)._initialize(metadata)
-    if self.alignment_file_key is not None:
+    if self.alignment_file_key is not None and self.alignment_file_key in metadata:
       self.alignment_file = metadata[self.alignment_file_key]
+      tf.logging.info(
+          "Training with guided alignment using alignments from %s", self.alignment_file)
 
   def _augment_parallel_dataset(self, dataset, process_fn, mode=None):
     # Possibly add alignments as labels.
