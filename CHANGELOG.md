@@ -14,7 +14,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
-* Guided alignment for models using `SelfAttentionDecoder`
+* Guided alignment for models using `SelfAttentionDecoder` and `AttentionalRNNDecoder`
 * `with_scores` inference option to also output the prediction score
 * `with_alignments` inference option to also output the source-target alignments
 
