@@ -10,6 +10,9 @@ data:
   train_features_file: data/toy-ende/src-train.txt
   train_labels_file: data/toy-ende/tgt-train.txt
 
+  # (optional) Pharaoh alignments of the training files.
+  train_alignments: data/toy-ende/alignments-train.txt
+
   # (required for train_end_eval and eval run types).
   eval_features_file: data/toy-ende/src-val.txt
   eval_labels_file: data/toy-ende/tgt-val.txt
@@ -74,6 +77,11 @@ params:
   # (optional) Replace unknown target tokens by the original source token with the
   # highest attention (default: false).
   replace_unknown_target: false
+  # (optional) The type of guided alignment cost to compute (can be: "null", "ce", "mse",
+  # default: "null").
+  guided_alignment_type: null
+  # (optional) The weight of the guided alignment cost (default: 1).
+  guided_alignment_weight: 1
 
 # Training options.
 train:
@@ -138,6 +146,11 @@ infer:
   prefetch_buffer_size: 1
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   n_best: 1
+  # (optional) For compatible models, also output the score (default: false).
+  with_scores: false
+  # (optional) For compatible models, also output the alignments (can be: "null", "hard",
+  # default: "null").
+  with_alignments: null
 
 # (optional) Scoring options.
 score:

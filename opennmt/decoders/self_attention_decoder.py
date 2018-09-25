@@ -69,14 +69,16 @@ class SelfAttentionDecoder(decoder.Decoder):
           dtype=memory.dtype)
 
   def _init_cache(self, memory, memory_sequence_length=None):
+    batch_size = tf.shape(memory)[0]
+    memory_time = tf.shape(memory)[1]
+    depth = memory.get_shape().as_list()[-1]
+
     cache = {
+        "attn": tf.zeros([batch_size, 0, memory_time]),
         "memory": memory,
         "memory_mask": self._build_memory_mask(
             memory, memory_sequence_length=memory_sequence_length)
     }
-
-    batch_size = tf.shape(memory)[0]
-    depth = memory.get_shape().as_list()[-1]
 
     for l in range(self.num_layers):
       proj_cache_shape = [batch_size, self.num_heads, 0, depth // self.num_heads]
@@ -102,7 +104,7 @@ class SelfAttentionDecoder(decoder.Decoder):
       inputs = embedding_fn(ids[:, -1:])
       inputs *= self.num_units**0.5
       inputs = self.position_encoder.apply_one(inputs, step + 1)
-      outputs = self._self_attention_stack(
+      outputs, _ = self._self_attention_stack(
           inputs,
           mode=mode,
           cache=cache,
@@ -129,6 +131,7 @@ class SelfAttentionDecoder(decoder.Decoder):
 
     decoder_mask = None
     memory_mask = None
+    last_attention = None
 
     if self.self_attention_type == "scaled_dot":
       if sequence_length is not None:
@@ -189,14 +192,15 @@ class SelfAttentionDecoder(decoder.Decoder):
 
         if memory is not None:
           with tf.variable_scope("multi_head"):
-            context = transformer.multi_head_attention(
+            context, last_attention = transformer.multi_head_attention(
                 self.num_heads,
                 transformer.norm(encoded),
                 memory,
                 mode,
                 mask=memory_mask,
                 cache=layer_cache,
-                dropout=self.attention_dropout)
+                dropout=self.attention_dropout,
+                return_attention=True)
             context = transformer.drop_and_add(
                 encoded,
                 context,
@@ -217,8 +221,13 @@ class SelfAttentionDecoder(decoder.Decoder):
 
         inputs = transformed
 
+    # The first head of the last layer is returned.
+    first_head_attention = last_attention[:, 0]
+    if cache is not None and "attn" in cache:
+      cache["attn"] = tf.concat([cache["attn"], first_head_attention], 1)
+
     outputs = transformer.norm(inputs)
-    return outputs
+    return outputs, first_head_attention
 
   def decode(self,
              inputs,
@@ -230,7 +239,8 @@ class SelfAttentionDecoder(decoder.Decoder):
              output_layer=None,
              mode=tf.estimator.ModeKeys.TRAIN,
              memory=None,
-             memory_sequence_length=None):
+             memory_sequence_length=None,
+             return_alignment_history=False):
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
 
@@ -238,7 +248,7 @@ class SelfAttentionDecoder(decoder.Decoder):
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs, sequence_length=sequence_length)
 
-    outputs = self._self_attention_stack(
+    outputs, attention = self._self_attention_stack(
         inputs,
         sequence_length=sequence_length,
         mode=mode,
@@ -249,6 +259,8 @@ class SelfAttentionDecoder(decoder.Decoder):
       output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
     logits = output_layer(outputs)
 
+    if return_alignment_history:
+      return (logits, None, sequence_length, attention)
     return (logits, None, sequence_length)
 
   def dynamic_decode(self,
@@ -268,12 +280,13 @@ class SelfAttentionDecoder(decoder.Decoder):
     symbols_to_logits_fn = self._symbols_to_logits_fn(
         embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
 
-    outputs, lengths, log_probs = decoder.greedy_decode(
+    outputs, lengths, log_probs, cache = decoder.greedy_decode(
         symbols_to_logits_fn,
         start_tokens,
         end_token,
         decode_length=maximum_iterations,
-        state=cache)
+        state=cache,
+        return_state=True)
     outputs = tf.slice(outputs, [0, 1], [-1, -1]) # Ignore <s>.
 
     # Make shape consistent with beam search.
@@ -282,7 +295,8 @@ class SelfAttentionDecoder(decoder.Decoder):
     log_probs = tf.expand_dims(log_probs, 1)
 
     if return_alignment_history:
-      return (outputs, None, lengths, log_probs, None)
+      attention = tf.expand_dims(cache["attn"], 1)
+      return (outputs, None, lengths, log_probs, attention)
     return (outputs, None, lengths, log_probs)
 
 
@@ -305,7 +319,7 @@ class SelfAttentionDecoder(decoder.Decoder):
     symbols_to_logits_fn = self._symbols_to_logits_fn(
         embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
 
-    outputs, log_probs = beam_search.beam_search(
+    outputs, log_probs, cache = beam_search.beam_search(
         symbols_to_logits_fn,
         start_tokens,
         beam_width,
@@ -313,7 +327,8 @@ class SelfAttentionDecoder(decoder.Decoder):
         vocab_size,
         length_penalty,
         states=cache,
-        eos_id=end_token)
+        eos_id=end_token,
+        return_states=True)
     outputs = tf.slice(outputs, [0, 0, 1], [-1, -1, -1]) # Ignore <s>.
 
     lengths = tf.not_equal(outputs, 0)
@@ -321,5 +336,5 @@ class SelfAttentionDecoder(decoder.Decoder):
     lengths = tf.reduce_sum(lengths, axis=-1)
 
     if return_alignment_history:
-      return (outputs, None, lengths, log_probs, None)
+      return (outputs, None, lengths, log_probs, cache["attn"])
     return (outputs, None, lengths, log_probs)

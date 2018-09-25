@@ -210,7 +210,8 @@ def beam_search(symbols_to_logits_fn,
                 alpha,
                 states=None,
                 eos_id=EOS_ID,
-                stop_early=True):
+                stop_early=True,
+                return_states=False):
   """Beam search with length penalties.
 
   Requires a function that can take the currently decoded symbols and return
@@ -251,10 +252,12 @@ def beam_search(symbols_to_logits_fn,
     states: dict (possibly nested) of decoding states.
     eos_id: ID for end of sentence.
     stop_early: a boolean - stop once best sequence is provably determined.
+    return_states: a boolean - return the update states dictionary.
   Returns:
     Tuple of
     (decoded beams [batch_size, beam_size, decode_length]
-     decoding probabilities [batch_size, beam_size])
+     decoding probabilities [batch_size, beam_size]) and the decoding
+    states if `return_states` is True.
   """
   batch_size = _shape_list(initial_ids)[0]
 
@@ -538,7 +541,7 @@ def beam_search(symbols_to_logits_fn,
         tf.less(i, decode_length), tf.logical_not(bound_is_met))
 
   (_, alive_seq, alive_log_probs, finished_seq, finished_scores,
-   finished_flags, _) = tf.while_loop(
+   finished_flags, states) = tf.while_loop(
        _is_finished,
        inner_loop, [
            tf.constant(0), alive_seq, alive_log_probs, finished_seq,
@@ -568,4 +571,6 @@ def beam_search(symbols_to_logits_fn,
       tf.reduce_any(finished_flags, 1), finished_seq, alive_seq)
   finished_scores = tf.where(
       tf.reduce_any(finished_flags, 1), finished_scores, alive_log_probs)
+  if return_states:
+    return finished_seq, finished_scores, states
   return finished_seq, finished_scores

@@ -13,6 +13,7 @@ env:
     - TF_VERSION="1.7.*"
     - TF_VERSION="1.8.*"
     - TF_VERSION="1.9.*"
+    - TF_VERSION="1.10.*"
 matrix:
   exclude:
     - python: "3.6"
@@ -25,6 +26,8 @@ matrix:
       env: TF_VERSION="1.7.*"
     - python: "3.6"
       env: TF_VERSION="1.8.*"
+    - python: "3.6"
+      env: TF_VERSION="1.9.*"
 before_install:
   - pip install tensorflow==$TF_VERSION
   - pip install -e .[tests]

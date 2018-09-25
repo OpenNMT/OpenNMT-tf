@@ -44,7 +44,7 @@ class DecoderTest(tf.test.TestCase):
       self.assertAlmostEqual(
           1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), sess.run(inv_sig_sample_prob))
 
-  def _testDecoderTraining(self, decoder):
+  def _testDecoderTraining(self, decoder, support_alignment_history=False):
     batch_size = 4
     vocab_size = 10
     time_dim = 5
@@ -59,19 +59,27 @@ class DecoderTest(tf.test.TestCase):
     memory = tf.placeholder_with_default(
         np.random.randn(batch_size, memory_time, depth).astype(np.float32),
         shape=(None, None, depth))
-    outputs, _, _ = decoder.decode(
+    outputs, _, _, attention = decoder.decode(
         inputs,
         sequence_length,
         vocab_size=vocab_size,
         memory=memory,
-        memory_sequence_length=memory_sequence_length)
+        memory_sequence_length=memory_sequence_length,
+        return_alignment_history=True)
     output_time_dim = tf.shape(outputs)[1]
+    if support_alignment_history:
+      self.assertIsNotNone(attention)
+    else:
+      self.assertIsNone(attention)
 
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
     with self.test_session() as sess:
       output_time_dim_val = sess.run(output_time_dim)
       self.assertEqual(time_dim, output_time_dim_val)
+      if support_alignment_history:
+        attention_val = sess.run(attention)
+        self.assertAllEqual([batch_size, time_dim, memory_time], attention_val.shape)
 
   def testRNNDecoderTraining(self):
     decoder = decoders.RNNDecoder(2, 20)
@@ -79,7 +87,7 @@ class DecoderTest(tf.test.TestCase):
 
   def testAttentionalRNNDecoderTraining(self):
     decoder = decoders.AttentionalRNNDecoder(2, 20)
-    self._testDecoderTraining(decoder)
+    self._testDecoderTraining(decoder, support_alignment_history=True)
 
   def testMultiAttentionalRNNDecoderTraining(self):
     decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
@@ -87,7 +95,7 @@ class DecoderTest(tf.test.TestCase):
 
   def testSelfAttentionDecoderTraining(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoderTraining(decoder)
+    self._testDecoderTraining(decoder, support_alignment_history=True)
 
   def _testDecoderGeneric(self,
                           decoder,
@@ -206,7 +214,7 @@ class DecoderTest(tf.test.TestCase):
 
   def testSelfAttentionDecoder(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoder(decoder, support_alignment_history=False)
+    self._testDecoder(decoder)
 
 if __name__ == "__main__":
   tf.test.main()
