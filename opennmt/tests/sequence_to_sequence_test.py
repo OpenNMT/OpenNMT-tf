@@ -40,8 +40,7 @@ class SequenceToSequenceTest(tf.test.TestCase):
 
   def _testPharaohAlignments(self, line, lengths, expected_matrix):
     matrix = sequence_to_sequence.alignment_matrix_from_pharaoh(
-        tf.constant(line), lengths[0], lengths[1])
-    matrix = tf.cast(matrix, tf.int32)
+        tf.constant(line), lengths[0], lengths[1], dtype=tf.int32)
     with self.test_session() as sess:
       self.assertListEqual(expected_matrix, sess.run(matrix).tolist())
 

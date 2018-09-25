@@ -346,16 +346,21 @@ class SequenceToSequence(Model):
       print_bytes(tf.compat.as_bytes(sentence), stream=stream)
 
 
-def alignment_matrix_from_pharaoh(alignment_line, source_length, target_length):
+def alignment_matrix_from_pharaoh(alignment_line,
+                                  source_length,
+                                  target_length,
+                                  dtype=tf.float32):
   """Parse Pharaoh alignments into an alignment matrix.
 
   Args:
     alignment_line: A string ``tf.Tensor`` in the Pharaoh format.
     source_length: The length of the source sentence.
     target_length The length of the target sentence.
+    dtype: The output matrix dtype. Defaults to ``tf.float32`` for convenience
+      when computing the guided alignment loss.
 
   Returns:
-    The alignment matrix as a float 2-D ``tf.Tensor`` of shape
+    The alignment matrix as a 2-D ``tf.Tensor`` of type :obj:`dtype` and shape
     ``[target_length, source_length]``, where ``[i, j] = 1`` if the ``i`` th
     target word is aligned with the ``j`` th source word.
   """
@@ -369,7 +374,7 @@ def alignment_matrix_from_pharaoh(alignment_line, source_length, target_length):
       [source_length, target_length],
       sparse_values,
       validate_indices=False)
-  return tf.transpose(alignment_matrix)
+  return tf.cast(tf.transpose(alignment_matrix), dtype)
 
 def guided_alignment_cost(attention_probs,
                           gold_alignment,
