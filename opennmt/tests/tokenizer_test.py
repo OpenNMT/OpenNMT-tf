@@ -85,7 +85,7 @@ class TokenizerTest(tf.test.TestCase):
         "spacer_new": True
     }
     tok_config = os.path.join(self.get_temp_dir(), "tok_config.yml")
-    with open(tok_config, "wb") as tok_config_file:
+    with open(tok_config, "w") as tok_config_file:
       yaml.dump(params, tok_config_file)
 
     def _test(tokenizer):
