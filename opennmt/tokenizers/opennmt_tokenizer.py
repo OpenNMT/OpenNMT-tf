@@ -31,17 +31,17 @@ class OpenNMTTokenizer(Tokenizer):
 
   def __init__(self, *arg, **kwargs):
     super(OpenNMTTokenizer, self).__init__(*arg, **kwargs)
-    self._tokenizer = None
+    self._tokenizer = create_tokenizer(self._config)
+
+  def initialize(self, metadata):
+    super(OpenNMTTokenizer, self).initialize(metadata)
+    self._tokenizer = create_tokenizer(self._config)
 
   def _tokenize_string(self, text):
-    if self._tokenizer is None:
-      self._tokenizer = create_tokenizer(self._config)
     text = tf.compat.as_bytes(text)
     tokens, _ = self._tokenizer.tokenize(text)
     return [tf.compat.as_text(token) for token in tokens]
 
   def _detokenize_string(self, tokens):
-    if self._tokenizer is None:
-      self._tokenizer = create_tokenizer(self._config)
     tokens = [tf.compat.as_bytes(token) for token in tokens]
     return tf.compat.as_text(self._tokenizer.detokenize(tokens))
