@@ -331,14 +331,14 @@ class Runner(object):
       tf.train.create_global_step(g)
       features, labels = input_fn()
       with tf.variable_scope(self._model.name):
-        outputs, _ = self._model(
+        logits, _ = self._model(
             features,
             labels,
             self._estimator.params,
             tf.estimator.ModeKeys.EVAL)
 
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-          logits=outputs["logits"], labels=labels["ids_out"])
+          logits=logits, labels=labels["ids_out"])
       weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
       masked_cross_entropy = cross_entropy * weights
       scores = (tf.reduce_sum(masked_cross_entropy, axis=1) /
