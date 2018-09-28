@@ -29,8 +29,8 @@ def create_tokenizer(config):
 class OpenNMTTokenizer(Tokenizer):
   """Uses the OpenNMT tokenizer."""
 
-  def __init__(self, configuration_file_or_key=None):
-    super(OpenNMTTokenizer, self).__init__(configuration_file_or_key=configuration_file_or_key)
+  def __init__(self, *arg, **kwargs):
+    super(OpenNMTTokenizer, self).__init__(*arg, **kwargs)
     self._tokenizer = None
 
   def _tokenize_string(self, text):
