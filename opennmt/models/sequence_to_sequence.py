@@ -212,10 +212,13 @@ class SequenceToSequence(Model):
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length,
             return_alignment_history=True)
-        outputs = {
-            "logits": logits,
-            "attention": attention
-        }
+        if "alignment" in labels:
+          outputs = {
+              "logits": logits,
+              "attention": attention
+          }
+        else:
+          outputs = logits
     else:
       outputs = None
 
