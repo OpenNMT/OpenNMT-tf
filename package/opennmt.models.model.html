@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.models.model.Model">
 <em class="property">class </em><code class="descclassname">opennmt.models.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>name</em>, <em>features_inputter=None</em>, <em>labels_inputter=None</em>, <em>daisy_chain_variables=False</em>, <em>dtype=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for models.</p>
 <dl class="method">
 <dt id="opennmt.models.model.Model.__call__">
@@ -195,9 +195,9 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
 <dt>The model outputs (usually unscaled probabilities).</dt>
-<dd>Optional if <code class="xref py py-obj docutils literal"><span class="pre">mode</span></code> is <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys.PREDICT</span></code>.</dd>
+<dd>Optional if <code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code> is <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys.PREDICT</span></code>.</dd>
 <dt>predictions: The model predictions.</dt>
-<dd>Optional if <code class="xref py py-obj docutils literal"><span class="pre">mode</span></code> is <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys.TRAIN</span></code>.</dd>
+<dd>Optional if <code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code> is <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys.TRAIN</span></code>.</dd>
 </dl>
 </td>
 </tr>
@@ -207,7 +207,7 @@
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="docutils literal"><span class="pre">tf.estimator.Estimator</span></code> ‘s <code class="docutils literal"><span class="pre">model_fn</span></code> argument for more details about
+<p class="last"><code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code> ‘s <code class="docutils literal notranslate"><span class="pre">model_fn</span></code> argument for more details about
 the arguments of this function.</p>
 </div>
 </dd></dl>
@@ -226,7 +226,7 @@ the arguments of this function.</p>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="docutils literal"><span class="pre">tf.estimator.Estimator</span></code> ‘s <code class="docutils literal"><span class="pre">model_fn</span></code> argument for more details about
+<p class="last"><code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code> ‘s <code class="docutils literal notranslate"><span class="pre">model_fn</span></code> argument for more details about
 arguments and the returned value.</p>
 </div>
 </dd></dl>
@@ -240,7 +240,7 @@ arguments and the returned value.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
 <li><strong>batch_size</strong> – The batch size to use.</li>
 <li><strong>metadata</strong> – A dictionary containing additional metadata set
 by the user.</li>
@@ -251,24 +251,24 @@ by the user.</li>
 <li><strong>batch_multiplier</strong> – The batch size multiplier to prepare splitting accross
 replicated graph parts.</li>
 <li><strong>bucket_width</strong> – The width of the length buckets to select batch candidates
-from. <code class="docutils literal"><span class="pre">None</span></code> to not constrain batch formation.</li>
-<li><strong>single_pass</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, makes a single pass over the training data.</li>
+from. <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch formation.</li>
+<li><strong>single_pass</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, makes a single pass over the training data.</li>
 <li><strong>num_threads</strong> – The number of elements processed in parallel.</li>
 <li><strong>sample_buffer_size</strong> – The number of elements from which to sample.</li>
 <li><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
 older versions.</li>
 <li><strong>maximum_features_length</strong> – The maximum length or list of maximum lengths of
-the features sequence(s). <code class="docutils literal"><span class="pre">None</span></code> to not constrain the length.</li>
+the features sequence(s). <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</li>
 <li><strong>maximum_labels_length</strong> – The maximum length of the labels sequence.
-<code class="docutils literal"><span class="pre">None</span></code> to not constrain the length.</li>
+<code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A callable that returns the next element.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">labels_file</span></code> is not set when in training or
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">labels_file</span></code> is not set when in training or
 evaluation mode.</p>
 </td>
 </tr>
@@ -276,7 +276,7 @@ evaluation mode.</p>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="docutils literal"><span class="pre">tf.estimator.Estimator</span></code>.</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code>.</p>
 </div>
 </dd></dl>
 
@@ -291,7 +291,7 @@ evaluation mode.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional metadata set
 by the user.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A callable that returns a <code class="docutils literal"><span class="pre">tf.estimator.export.ServingInputReceiver</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A callable that returns a <code class="docutils literal notranslate"><span class="pre">tf.estimator.export.ServingInputReceiver</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -340,6 +340,7 @@ by the user.</td>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

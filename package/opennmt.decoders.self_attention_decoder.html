@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoder">
 <em class="property">class </em><code class="descclassname">opennmt.decoders.self_attention_decoder.</code><code class="descname">SelfAttentionDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units=512</em>, <em>num_heads=8</em>, <em>ffn_inner_dim=2048</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>relu_dropout=0.1</em>, <em>position_encoder=&lt;opennmt.layers.position.SinusoidalPositionEncoder object&gt;</em>, <em>self_attention_type='scaled_dot'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder" title="opennmt.decoders.decoder.Decoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.decoders.decoder.Decoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder" title="opennmt.decoders.decoder.Decoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.decoder.Decoder</span></code></a></p>
 <p>Decoder using self-attention as described in
 <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
 <dl class="method">
@@ -204,14 +204,14 @@ in the feed forward layer.</li>
 <li><strong>attention_dropout</strong> – The probability to drop units from the attention.</li>
 <li><strong>relu_dropout</strong> – The probability to drop units from the ReLU activation in
 the feed forward layer.</li>
-<li><strong>position_encoder</strong> – A <a class="reference internal" href="opennmt.layers.position.html#opennmt.layers.position.PositionEncoder" title="opennmt.layers.position.PositionEncoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.position.PositionEncoder</span></code></a> to
-apply on inputs or <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>position_encoder</strong> – A <a class="reference internal" href="opennmt.layers.position.html#opennmt.layers.position.PositionEncoder" title="opennmt.layers.position.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.position.PositionEncoder</span></code></a> to
+apply on inputs or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
 <li><strong>self_attention_type</strong> – Type of self attention, “scaled_dot” or “average” (case
 insensitive).</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">self_attention_type</span></code> is invalid.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">self_attention_type</span></code> is invalid.</p>
 </td>
 </tr>
 </tbody>
@@ -221,17 +221,119 @@ insensitive).</li>
 <dl class="method">
 <dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.decode">
 <code class="descname">decode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>sampling_probability=None</em>, <em>embedding=None</em>, <em>output_layer=None</em>, <em>mode='train'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.decode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Decodes a full input sequence.</p>
+<p>Usually used for training and evaluation where target sequences are known.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The input to decode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>vocab_size</strong> – The output vocabulary size. Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_layer</span></code>
+is not set.</li>
+<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
+<li><strong>sampling_probability</strong> – The probability of sampling categorically from
+the output ids instead of reading directly from the inputs.</li>
+<li><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.
+Must be set when <code class="xref py py-obj docutils literal notranslate"><span class="pre">sampling_probability</span></code> is set.</li>
+<li><strong>output_layer</strong> – Optional layer to apply to the output prior sampling.
+Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">vocab_size</span></code> is not set.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+<li><strong>return_alignment_history</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also returns the alignment
+history from the attention layer (<code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned if
+unsupported by the decoder).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">alignment_history)</span></code>
+if <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_alignment_history</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.dynamic_decode">
 <code class="descname">dynamic_decode</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>maximum_iterations=250</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_tokens</span></code> with greedy search.</p>
+<p>Usually used for inference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.</li>
+<li><strong>start_tokens</strong> – The start token ids with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>end_token</strong> – The end token id.</li>
+<li><strong>vocab_size</strong> – The output vocabulary size. Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_layer</span></code>
+is not set.</li>
+<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
+<li><strong>output_layer</strong> – Optional layer to apply to the output prior sampling.
+Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">vocab_size</span></code> is not set.</li>
+<li><strong>maximum_iterations</strong> – The maximum number of decoding iterations.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+<li><strong>dtype</strong> – The data type. Required if <code class="xref py py-obj docutils literal notranslate"><span class="pre">memory</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+<li><strong>return_alignment_history</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also returns the alignment
+history from the attention layer (<code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned if
+unsupported by the decoder).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs,</span> <span class="pre">alignment_history)</span></code>
+if <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_alignment_history</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.dynamic_decode_and_search">
 <code class="descname">dynamic_decode_and_search</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>beam_width=5</em>, <em>length_penalty=0.0</em>, <em>maximum_iterations=250</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder.dynamic_decode_and_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.dynamic_decode_and_search" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_tokens</span></code> with beam search.</p>
+<p>Usually used for inference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.</li>
+<li><strong>start_tokens</strong> – The start token ids with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>end_token</strong> – The end token id.</li>
+<li><strong>vocab_size</strong> – The output vocabulary size. Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_layer</span></code>
+is not set.</li>
+<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
+<li><strong>output_layer</strong> – Optional layer to apply to the output prior sampling.
+Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">vocab_size</span></code> is not set.</li>
+<li><strong>beam_width</strong> – The width of the beam.</li>
+<li><strong>length_penalty</strong> – The length penalty weight during beam search.</li>
+<li><strong>maximum_iterations</strong> – The maximum number of decoding iterations.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+<li><strong>dtype</strong> – The data type. Required if <code class="xref py py-obj docutils literal notranslate"><span class="pre">memory</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+<li><strong>return_alignment_history</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also returns the alignment
+history from the attention layer (<code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned if
+unsupported by the decoder).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">(predicted_ids,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">log_probs,</span> <span class="pre">alignment_history)</span></code>
+if <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_alignment_history</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -257,6 +359,7 @@ insensitive).</li>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.optimizers.adafactor.AdafactorOptimizer">
 <em class="property">class </em><code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">AdafactorOptimizer</code><span class="sig-paren">(</span><em>multiply_by_parameter_scale=True</em>, <em>learning_rate=None</em>, <em>decay_rate=None</em>, <em>beta1=0.0</em>, <em>clipping_threshold=1.0</em>, <em>factored=True</em>, <em>use_locking=False</em>, <em>name='Adafactor'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#AdafactorOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.AdafactorOptimizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tensorflow.python.training.optimizer.Optimizer</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.training.optimizer.Optimizer</span></code></p>
 <p>Optimizer that implements the Adafactor algorithm.</p>
 <p>Adafactor is described in TODO(noam): post paper to arxiv.</p>
 <p>Adafactor is most similar to Adam (Kingma and Ba), the major differences are:</p>
@@ -281,7 +281,7 @@ Defaults to “AdafactorOptimizer”.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if absolute_update_scale and relative_update_scale_fn are both
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if absolute_update_scale and relative_update_scale_fn are both
 present or both absent.</p>
 </td>
 </tr>
@@ -366,6 +366,7 @@ present or both absent.</p>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

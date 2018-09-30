@@ -165,15 +165,15 @@
   <div class="section" id="tokenization">
 <span id="tokenization"></span><h1>Tokenization<a class="headerlink" href="#tokenization" title="Permalink to this headline">¶</a></h1>
 <p>OpenNMT-tf ships the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a> as a dependency to provide advanced tokenization behaviors, either offline or online.</p>
-<p><em>Note: the <code class="docutils literal"><span class="pre">pyonmttok</span></code> package is only supported on Linux as of now.</em></p>
+<p><em>Note: the <code class="docutils literal notranslate"><span class="pre">pyonmttok</span></code> package is only supported on Linux as of now.</em></p>
 <div class="section" id="configuration-files">
 <span id="configuration-files"></span><h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
-<p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. See the sample file <code class="docutils literal"><span class="pre">config/tokenization/sample.yml</span></code>.</p>
+<p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. See the sample file <code class="docutils literal notranslate"><span class="pre">config/tokenization/sample.yml</span></code>.</p>
 </div>
 <div class="section" id="offline-usage">
 <span id="offline-usage"></span><h2>Offline usage<a class="headerlink" href="#offline-usage" title="Permalink to this headline">¶</a></h2>
-<p>You can invoke the <code class="docutils literal"><span class="pre">onmt-tokenize-text</span></code> script directly and select the <code class="docutils literal"><span class="pre">OpenNMTTokenizer</span></code> tokenizer:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;Hello world!&quot;</span> <span class="p">|</span> onmt-tokenize-text --tokenizer OpenNMTTokenizer
+<p>You can invoke the <code class="docutils literal notranslate"><span class="pre">onmt-tokenize-text</span></code> script directly and select the <code class="docutils literal notranslate"><span class="pre">OpenNMTTokenizer</span></code> tokenizer:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;Hello world!&quot;</span> <span class="p">|</span> onmt-tokenize-text --tokenizer OpenNMTTokenizer
 Hello world !
 $ <span class="nb">echo</span> <span class="s2">&quot;Hello world!&quot;</span> <span class="p">|</span> onmt-tokenize-text --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml
 Hello world ￭!
@@ -185,13 +185,13 @@ Hello world ￭!
 <p>A key feature is the possibility to tokenize the data on-the-fly during the training. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.</p>
 <p>Here is an example workflow:</p>
 <p>1. Build the vocabularies with the custom tokenizer, e.g.:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml --size <span class="m">50000</span> --save_vocab data/enfr/en-vocab.txt data/enfr/en-train.txt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml --size <span class="m">50000</span> --save_vocab data/enfr/en-vocab.txt data/enfr/en-train.txt
 onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokenization/aggressive.yml --size <span class="m">50000</span> --save_vocab data/enfr/fr-vocab.txt data/enfr/fr-train.txt
 </pre></div>
 </div>
 <p><em>The text files are only given as examples and are not part of the repository.</em></p>
-<p>2. Update your model’s <code class="docutils literal"><span class="pre">TextInputter</span></code>s to use the custom tokenizer, e.g.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">(</span>
+<p>2. Update your model’s <code class="docutils literal notranslate"><span class="pre">TextInputter</span></code>s to use the custom tokenizer, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">(</span>
     <span class="n">source_inputter</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
         <span class="n">vocabulary_file_key</span><span class="o">=</span><span class="s2">&quot;source_words_vocabulary&quot;</span><span class="p">,</span>
         <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
@@ -206,7 +206,7 @@ onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokeniza
 </pre></div>
 </div>
 <p>3. Reference the tokenizer configurations in the data configuration, e.g.:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">source_tokenizer_config</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span>
   <span class="l l-Scalar l-Scalar-Plain">target_tokenizer_config</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span>
 </pre></div>
@@ -216,7 +216,7 @@ onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokeniza
 <span id="notes"></span><h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As of now, tokenizers are not part of the exported graph.</li>
-<li>Predictions saved during inference or evaluation are detokenized. Consider using the “BLEU-detok” external evaluator that calls <code class="docutils literal"><span class="pre">multi-bleu-detok.perl</span></code> instead of <code class="docutils literal"><span class="pre">multi-bleu.perl</span></code>.</li>
+<li>Predictions saved during inference or evaluation are detokenized. Consider using the “BLEU-detok” external evaluator that calls <code class="docutils literal notranslate"><span class="pre">multi-bleu-detok.perl</span></code> instead of <code class="docutils literal notranslate"><span class="pre">multi-bleu.perl</span></code>.</li>
 </ul>
 </div>
 </div>
@@ -241,6 +241,7 @@ onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokeniza
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

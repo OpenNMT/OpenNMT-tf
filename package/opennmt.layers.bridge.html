@@ -190,11 +190,11 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>expected_state</strong> – The reference state.</li>
-<li><strong>state</strong> – The state that must be compatible with <code class="xref py py-obj docutils literal"><span class="pre">expected_state</span></code>.</li>
+<li><strong>state</strong> – The state that must be compatible with <code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_state</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if the states are incompatible.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if the states are incompatible.</p>
 </td>
 </tr>
 </tbody>
@@ -204,7 +204,7 @@
 <dl class="class">
 <dt id="opennmt.layers.bridge.Bridge">
 <em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">Bridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.Bridge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for bridges.</p>
 <dl class="method">
 <dt id="opennmt.layers.bridge.Bridge.__call__">
@@ -232,21 +232,21 @@
 <dl class="class">
 <dt id="opennmt.layers.bridge.CopyBridge">
 <em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">CopyBridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#CopyBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.CopyBridge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
 <p>A bridge that passes the encoder state as is.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.layers.bridge.ZeroBridge">
 <em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">ZeroBridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#ZeroBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.ZeroBridge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
 <p>A bridge that does not pass information from the encoder.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.layers.bridge.DenseBridge">
 <em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">DenseBridge</code><span class="sig-paren">(</span><em>activation=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#DenseBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.DenseBridge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
 <p>A bridge that applies a parameterized linear transformation from the
 encoder state to the decoder state size.</p>
 <dl class="method">
@@ -258,7 +258,7 @@ encoder state to the decoder state size.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activation</strong> – Activation function (a callable).
-Set it to <code class="docutils literal"><span class="pre">None</span></code> to maintain a linear activation.</td>
+Set it to <code class="docutils literal notranslate"><span class="pre">None</span></code> to maintain a linear activation.</td>
 </tr>
 </tbody>
 </table>
@@ -288,6 +288,7 @@ Set it to <code class="docutils literal"><span class="pre">None</span></code> to
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

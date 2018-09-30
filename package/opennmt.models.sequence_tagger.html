@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.models.sequence_tagger.SequenceTagger">
 <em class="property">class </em><code class="descclassname">opennmt.models.sequence_tagger.</code><code class="descname">SequenceTagger</code><span class="sig-paren">(</span><em>inputter</em>, <em>encoder</em>, <em>labels_vocabulary_file_key</em>, <em>tagging_scheme=None</em>, <em>crf_decoding=False</em>, <em>daisy_chain_variables=False</em>, <em>name='seqtagger'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_tagger.SequenceTagger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal"><span class="pre">opennmt.models.model.Model</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.model.Model</span></code></a></p>
 <p>A sequence tagger.</p>
 <dl class="method">
 <dt id="opennmt.models.sequence_tagger.SequenceTagger.__init__">
@@ -194,16 +194,16 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process the
+<li><strong>inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process the
 input data.</li>
-<li><strong>encoder</strong> – A <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a> to encode the input.</li>
+<li><strong>encoder</strong> – A <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a> to encode the input.</li>
 <li><strong>labels_vocabulary_file_key</strong> – The data configuration key of the labels
 vocabulary file containing one label per line.</li>
 <li><strong>tagging_scheme</strong> – The tagging scheme used. For supported schemes (currently
 only BIOES), additional evaluation metrics could be computed such as
 precision, recall, etc.</li>
-<li><strong>crf_decoding</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, add a CRF layer after the encoder.</li>
-<li><strong>daisy_chain_variables</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, copy variables in a daisy chain
+<li><strong>crf_decoding</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, add a CRF layer after the encoder.</li>
+<li><strong>daisy_chain_variables</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, copy variables in a daisy chain
 between devices for this model. Not compatible with RNN based models.</li>
 <li><strong>name</strong> – The name of this model.</li>
 </ul>
@@ -216,7 +216,21 @@ between devices for this model. Not compatible with RNN based models.</li>
 <dl class="method">
 <dt id="opennmt.models.sequence_tagger.SequenceTagger.print_prediction">
 <code class="descname">print_prediction</code><span class="sig-paren">(</span><em>prediction</em>, <em>params=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger.print_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_tagger.SequenceTagger.print_prediction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Prints the model prediction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>prediction</strong> – The evaluated prediction.</li>
+<li><strong>params</strong> – (optional) Dictionary of formatting parameters.</li>
+<li><strong>stream</strong> – (optional) The stream to print to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -225,12 +239,12 @@ between devices for this model. Not compatible with RNN based models.</li>
 <code class="descclassname">opennmt.models.sequence_tagger.</code><code class="descname">flag_bioes_tags</code><span class="sig-paren">(</span><em>gold</em>, <em>predicted</em>, <em>sequence_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#flag_bioes_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_tagger.flag_bioes_tags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flags chunk matches for the BIOES tagging scheme.</p>
 <p>This function will produce the gold flags and the predicted flags. For each aligned
-gold flag <code class="docutils literal"><span class="pre">g</span></code> and predicted flag <code class="docutils literal"><span class="pre">p</span></code>:</p>
+gold flag <code class="docutils literal notranslate"><span class="pre">g</span></code> and predicted flag <code class="docutils literal notranslate"><span class="pre">p</span></code>:</p>
 <ul class="simple">
-<li>when <code class="docutils literal"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">True</span></code>, the chunk has been correctly identified (true positive).</li>
-<li>when <code class="docutils literal"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">False</span> <span class="pre">and</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">True</span></code>, the chunk has been incorrectly identified (false positive).</li>
-<li>when <code class="docutils literal"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">True</span> <span class="pre">and</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">False</span></code>, the chunk has been missed (false negative).</li>
-<li>when <code class="docutils literal"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">False</span></code>, the chunk has been correctly ignored (true negative).</li>
+<li>when <code class="docutils literal notranslate"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">True</span></code>, the chunk has been correctly identified (true positive).</li>
+<li>when <code class="docutils literal notranslate"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">False</span> <span class="pre">and</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">True</span></code>, the chunk has been incorrectly identified (false positive).</li>
+<li>when <code class="docutils literal notranslate"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">True</span> <span class="pre">and</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">False</span></code>, the chunk has been missed (false negative).</li>
+<li>when <code class="docutils literal notranslate"><span class="pre">g</span> <span class="pre">==</span> <span class="pre">p</span> <span class="pre">==</span> <span class="pre">False</span></code>, the chunk has been correctly ignored (true negative).</li>
 </ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -243,7 +257,7 @@ gold flag <code class="docutils literal"><span class="pre">g</span></code> and p
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(gold_flags,</span> <span class="pre">predicted_flags)</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(gold_flags,</span> <span class="pre">predicted_flags)</span></code>.</p>
 </td>
 </tr>
 </tbody>
@@ -272,6 +286,7 @@ gold flag <code class="docutils literal"><span class="pre">g</span></code> and p
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

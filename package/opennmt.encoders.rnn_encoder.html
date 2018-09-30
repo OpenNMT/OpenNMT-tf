@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.RNNEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">RNNEncoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.0</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#RNNEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.RNNEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>Base class for RNN encoders.</p>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.RNNEncoder.__init__">
@@ -194,14 +194,31 @@
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.RNNEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#RNNEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.RNNEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">UnidirectionalRNNEncoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#UnidirectionalRNNEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.rnn_encoder.RNNEncoder" title="opennmt.encoders.rnn_encoder.RNNEncoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.rnn_encoder.RNNEncoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.rnn_encoder.RNNEncoder" title="opennmt.encoders.rnn_encoder.RNNEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.rnn_encoder.RNNEncoder</span></code></a></p>
 <p>A simple RNN encoder.</p>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder.__init__">
@@ -214,10 +231,10 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>num_layers</strong> – The number of layers.</li>
 <li><strong>num_units</strong> – The number of units in each layer.</li>
-<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal"><span class="pre">num_units</span></code> as
+<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
 argument and returning a cell.</li>
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
-<li><strong>residual_connections</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, each layer input will be added to its
+<li><strong>residual_connections</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, each layer input will be added to its
 output.</li>
 </ul>
 </td>
@@ -229,14 +246,31 @@ output.</li>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#UnidirectionalRNNEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">BidirectionalRNNEncoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>reducer=&lt;opennmt.layers.reducer.SumReducer object&gt;</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#BidirectionalRNNEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.rnn_encoder.RNNEncoder" title="opennmt.encoders.rnn_encoder.RNNEncoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.rnn_encoder.RNNEncoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.rnn_encoder.RNNEncoder" title="opennmt.encoders.rnn_encoder.RNNEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.rnn_encoder.RNNEncoder</span></code></a></p>
 <p>An encoder that encodes an input sequence in both directions.</p>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder.__init__">
@@ -249,18 +283,18 @@ output.</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>num_layers</strong> – The number of layers.</li>
 <li><strong>num_units</strong> – The number of units in each layer.</li>
-<li><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> instance to merge
+<li><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> instance to merge
 bidirectional state and outputs.</li>
-<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal"><span class="pre">num_units</span></code> as
+<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
 argument and returning a cell.</li>
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
-<li><strong>residual_connections</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, each layer input will be added to its
+<li><strong>residual_connections</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, each layer input will be added to its
 output.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – when using <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.ConcatReducer" title="opennmt.layers.reducer.ConcatReducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.ConcatReducer</span></code></a> and
-<code class="xref py py-obj docutils literal"><span class="pre">num_units</span></code> is not divisible by 2.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – when using <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.ConcatReducer" title="opennmt.layers.reducer.ConcatReducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.ConcatReducer</span></code></a> and
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> is not divisible by 2.</p>
 </td>
 </tr>
 </tbody>
@@ -270,14 +304,31 @@ output.</li>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#BidirectionalRNNEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.RNMTPlusEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">RNMTPlusEncoder</code><span class="sig-paren">(</span><em>num_layers=6</em>, <em>num_units=1024</em>, <em>cell_class=&lt;class 'tensorflow.contrib.rnn.python.ops.rnn_cell.LayerNormBasicLSTMCell'&gt;</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#RNMTPlusEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.RNMTPlusEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>The RNMT+ encoder described in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.RNMTPlusEncoder.__init__">
@@ -290,9 +341,9 @@ output.</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>num_layers</strong> – The number of layers.</li>
 <li><strong>num_units</strong> – The number of units in each RNN layer and the final output.</li>
-<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal"><span class="pre">num_units</span></code> as
+<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
 argument and returning a cell. For efficiency, consider using the
-standard <code class="docutils literal"><span class="pre">tf.contrib.rnn.LSTMCell</span></code> instead.</li>
+standard <code class="docutils literal notranslate"><span class="pre">tf.contrib.rnn.LSTMCell</span></code> instead.</li>
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
 </ul>
 </td>
@@ -304,14 +355,31 @@ standard <code class="docutils literal"><span class="pre">tf.contrib.rnn.LSTMCel
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.RNMTPlusEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#RNMTPlusEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.RNMTPlusEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.GoogleRNNEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">GoogleRNNEncoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#GoogleRNNEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.GoogleRNNEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>The RNN encoder used in GNMT as described in
 <a class="reference external" href="https://arxiv.org/abs/1609.08144">https://arxiv.org/abs/1609.08144</a>.</p>
 <dl class="method">
@@ -329,7 +397,7 @@ standard <code class="docutils literal"><span class="pre">tf.contrib.rnn.LSTMCel
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">num_layers</span></code> &lt; 2.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_layers</span></code> &lt; 2.</p>
 </td>
 </tr>
 </tbody>
@@ -339,14 +407,31 @@ standard <code class="docutils literal"><span class="pre">tf.contrib.rnn.LSTMCel
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.GoogleRNNEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#GoogleRNNEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.GoogleRNNEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.PyramidalRNNEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">PyramidalRNNEncoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>reduction_factor=2</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#PyramidalRNNEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.PyramidalRNNEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>An encoder that reduces the time dimension after each bidirectional layer.</p>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.PyramidalRNNEncoder.__init__">
@@ -360,7 +445,7 @@ standard <code class="docutils literal"><span class="pre">tf.contrib.rnn.LSTMCel
 <li><strong>num_layers</strong> – The number of layers.</li>
 <li><strong>num_units</strong> – The number of units in each layer.</li>
 <li><strong>reduction_factor</strong> – The time reduction factor.</li>
-<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal"><span class="pre">num_units</span></code> as
+<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
 argument and returning a cell.</li>
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
 </ul>
@@ -373,7 +458,24 @@ argument and returning a cell.</li>
 <dl class="method">
 <dt id="opennmt.encoders.rnn_encoder.PyramidalRNNEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#PyramidalRNNEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.PyramidalRNNEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -399,6 +501,7 @@ argument and returning a cell.</li>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

@@ -172,9 +172,9 @@
 <dl class="class">
 <dt id="opennmt.runner.Runner">
 <em class="property">class </em><code class="descclassname">opennmt.runner.</code><code class="descname">Runner</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for managing training, inference, and export. It is mostly a
-wrapper around <code class="docutils literal"><span class="pre">tf.estimator.Estimator</span></code>.</p>
+wrapper around <code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code>.</p>
 <dl class="method">
 <dt id="opennmt.runner.Runner.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.__init__" title="Permalink to this definition">¶</a></dt>
@@ -184,12 +184,12 @@ wrapper around <code class="docutils literal"><span class="pre">tf.estimator.Est
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model</strong> – A <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal"><span class="pre">opennmt.models.model.Model</span></code></a> instance to run.</li>
+<li><strong>model</strong> – A <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.model.Model</span></code></a> instance to run.</li>
 <li><strong>config</strong> – The run configuration.</li>
 <li><strong>seed</strong> – The random seed to set.</li>
 <li><strong>num_devices</strong> – The number of devices (GPUs) to use for training.</li>
 <li><strong>gpu_allow_growth</strong> – Allow GPU memory to grow dynamically.</li>
-<li><strong>session_config</strong> – <code class="docutils literal"><span class="pre">tf.ConfigProto</span></code> overrides.</li>
+<li><strong>session_config</strong> – <code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code> overrides.</li>
 </ul>
 </td>
 </tr>
@@ -247,9 +247,9 @@ wrapper around <code class="docutils literal"><span class="pre">tf.estimator.Est
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features_file</strong> – The file(s) to infer from.</li>
 <li><strong>predictions_file</strong> – If set, predictions are saved in this file.</li>
-<li><strong>checkpoint_path</strong> – Path of a specific checkpoint to predict. If <code class="docutils literal"><span class="pre">None</span></code>,
+<li><strong>checkpoint_path</strong> – Path of a specific checkpoint to predict. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 the latest is used.</li>
-<li><strong>log_time</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, several time metrics will be printed in the logs at
+<li><strong>log_time</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, several time metrics will be printed in the logs at
 the end of the inference loop.</li>
 </ul>
 </td>
@@ -266,7 +266,7 @@ the end of the inference loop.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_path</strong> – The checkpoint path to export. If <code class="docutils literal"><span class="pre">None</span></code>, the latest is used.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_path</strong> – The checkpoint path to export. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the latest is used.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The string path to the exported directory.</td>
 </tr>
@@ -285,12 +285,12 @@ the end of the inference loop.</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>features_file</strong> – The input file.</li>
 <li><strong>predictions_file</strong> – The predictions file to score.</li>
-<li><strong>checkpoint_path</strong> – Path of a specific checkpoint to use. If <code class="docutils literal"><span class="pre">None</span></code>,
+<li><strong>checkpoint_path</strong> – Path of a specific checkpoint to use. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 the latest is used.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if no checkpoint are found or if the model is not a sequence to
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if no checkpoint are found or if the model is not a sequence to
 sequence model.</p>
 </td>
 </tr>
@@ -320,6 +320,7 @@ sequence model.</p>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

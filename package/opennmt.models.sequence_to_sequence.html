@@ -184,23 +184,23 @@
 <dt id="opennmt.models.sequence_to_sequence.shift_target_sequence">
 <code class="descclassname">opennmt.models.sequence_to_sequence.</code><code class="descname">shift_target_sequence</code><span class="sig-paren">(</span><em>inputter</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#shift_target_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_to_sequence.shift_target_sequence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepares shifted target sequences.</p>
-<p>Given a target sequence <code class="docutils literal"><span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span></code>, the decoder input should be
-<code class="docutils literal"><span class="pre">&lt;s&gt;</span> <span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span></code> and the output should be <code class="docutils literal"><span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span> <span class="pre">&lt;/s&gt;</span></code> for the dynamic
-decoding to start on <code class="docutils literal"><span class="pre">&lt;s&gt;</span></code> and stop on <code class="docutils literal"><span class="pre">&lt;/s&gt;</span></code>.</p>
+<p>Given a target sequence <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span></code>, the decoder input should be
+<code class="docutils literal notranslate"><span class="pre">&lt;s&gt;</span> <span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span></code> and the output should be <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span> <span class="pre">&lt;/s&gt;</span></code> for the dynamic
+decoding to start on <code class="docutils literal notranslate"><span class="pre">&lt;s&gt;</span></code> and stop on <code class="docutils literal notranslate"><span class="pre">&lt;/s&gt;</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputter</strong> – The <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> that processed
-<code class="xref py py-obj docutils literal"><span class="pre">data</span></code>.</li>
-<li><strong>data</strong> – A dict of <code class="docutils literal"><span class="pre">tf.Tensor</span></code> containing <code class="docutils literal"><span class="pre">ids</span></code> and <code class="docutils literal"><span class="pre">length</span></code> keys.</li>
+<li><strong>inputter</strong> – The <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> that processed
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code>.</li>
+<li><strong>data</strong> – A dict of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> containing <code class="docutils literal notranslate"><span class="pre">ids</span></code> and <code class="docutils literal notranslate"><span class="pre">length</span></code> keys.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The updated <code class="xref py py-obj docutils literal"><span class="pre">data</span></code> dictionary with <code class="docutils literal"><span class="pre">ids</span></code> the sequence prefixed
-with the start token id and <code class="docutils literal"><span class="pre">ids_out</span></code> the sequence suffixed with
-the end token id. Additionally, the <code class="docutils literal"><span class="pre">length</span></code> is increased by 1
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The updated <code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code> dictionary with <code class="docutils literal notranslate"><span class="pre">ids</span></code> the sequence prefixed
+with the start token id and <code class="docutils literal notranslate"><span class="pre">ids_out</span></code> the sequence suffixed with
+the end token id. Additionally, the <code class="docutils literal notranslate"><span class="pre">length</span></code> is increased by 1
 to reflect the added token on both sequences.</p>
 </td>
 </tr>
@@ -211,13 +211,13 @@ to reflect the added token on both sequences.</p>
 <dl class="class">
 <dt id="opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel">
 <em class="property">class </em><code class="descclassname">opennmt.models.sequence_to_sequence.</code><code class="descname">EmbeddingsSharingLevel</code><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#EmbeddingsSharingLevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Level of embeddings sharing.</p>
 <p>Possible values are:</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">NONE</span></code>: no sharing (default)</li>
-<li><code class="docutils literal"><span class="pre">SOURCE_TARGET_INPUT</span></code>: share source and target word embeddings</li>
+<li><code class="docutils literal notranslate"><span class="pre">NONE</span></code>: no sharing (default)</li>
+<li><code class="docutils literal notranslate"><span class="pre">SOURCE_TARGET_INPUT</span></code>: share source and target word embeddings</li>
 </ul>
 </div></blockquote>
 <dl class="attribute">
@@ -235,7 +235,7 @@ to reflect the added token on both sequences.</p>
 <dl class="class">
 <dt id="opennmt.models.sequence_to_sequence.SequenceToSequence">
 <em class="property">class </em><code class="descclassname">opennmt.models.sequence_to_sequence.</code><code class="descname">SequenceToSequence</code><span class="sig-paren">(</span><em>source_inputter</em>, <em>target_inputter</em>, <em>encoder</em>, <em>decoder</em>, <em>share_embeddings=0</em>, <em>alignment_file_key='train_alignments'</em>, <em>daisy_chain_variables=False</em>, <em>name='seq2seq'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_to_sequence.SequenceToSequence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal"><span class="pre">opennmt.models.model.Model</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.model.Model</span></code></a></p>
 <p>A sequence to sequence model.</p>
 <dl class="method">
 <dt id="opennmt.models.sequence_to_sequence.SequenceToSequence.__init__">
@@ -246,29 +246,29 @@ to reflect the added token on both sequences.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>source_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process
+<li><strong>source_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process
 the source data.</li>
-<li><strong>target_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process
+<li><strong>target_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process
 the target data. Currently, only the
-<a class="reference internal" href="opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder" title="opennmt.inputters.text_inputter.WordEmbedder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.text_inputter.WordEmbedder</span></code></a> is supported.</li>
-<li><strong>encoder</strong> – A <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a> to encode the source.</li>
-<li><strong>decoder</strong> – A <a class="reference internal" href="opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder" title="opennmt.decoders.decoder.Decoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.decoders.decoder.Decoder</span></code></a> to decode the target.</li>
+<a class="reference internal" href="opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder" title="opennmt.inputters.text_inputter.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.text_inputter.WordEmbedder</span></code></a> is supported.</li>
+<li><strong>encoder</strong> – A <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a> to encode the source.</li>
+<li><strong>decoder</strong> – A <a class="reference internal" href="opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder" title="opennmt.decoders.decoder.Decoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.decoder.Decoder</span></code></a> to decode the target.</li>
 <li><strong>share_embeddings</strong> – Level of embeddings sharing, see
-<a class="reference internal" href="#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel" title="opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel"><code class="xref py py-class docutils literal"><span class="pre">opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel</span></code></a>
+<a class="reference internal" href="#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel" title="opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel</span></code></a>
 for possible values.</li>
 <li><strong>alignment_file_key</strong> – The data configuration key of the training alignment
 file to support guided alignment.</li>
-<li><strong>daisy_chain_variables</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, copy variables in a daisy chain
+<li><strong>daisy_chain_variables</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, copy variables in a daisy chain
 between devices for this model. Not compatible with RNN based models.</li>
 <li><strong>name</strong> – The name of this model.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">target_inputter</span></code> is not a
-<a class="reference internal" href="opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder" title="opennmt.inputters.text_inputter.WordEmbedder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.text_inputter.WordEmbedder</span></code></a> (same for
-<code class="xref py py-obj docutils literal"><span class="pre">source_inputter</span></code> when embeddings sharing is enabled) or if
-<code class="xref py py-obj docutils literal"><span class="pre">source_inputter</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">target_inputter</span></code> do not have the same
-<code class="docutils literal"><span class="pre">dtype</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">target_inputter</span></code> is not a
+<a class="reference internal" href="opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder" title="opennmt.inputters.text_inputter.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.text_inputter.WordEmbedder</span></code></a> (same for
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">source_inputter</span></code> when embeddings sharing is enabled) or if
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">source_inputter</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">target_inputter</span></code> do not have the same
+<code class="docutils literal notranslate"><span class="pre">dtype</span></code>.</p>
 </td>
 </tr>
 </tbody>
@@ -278,7 +278,21 @@ between devices for this model. Not compatible with RNN based models.</li>
 <dl class="method">
 <dt id="opennmt.models.sequence_to_sequence.SequenceToSequence.print_prediction">
 <code class="descname">print_prediction</code><span class="sig-paren">(</span><em>prediction</em>, <em>params=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.print_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_to_sequence.SequenceToSequence.print_prediction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Prints the model prediction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>prediction</strong> – The evaluated prediction.</li>
+<li><strong>params</strong> – (optional) Dictionary of formatting parameters.</li>
+<li><strong>stream</strong> – (optional) The stream to print to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -291,17 +305,17 @@ between devices for this model. Not compatible with RNN based models.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>alignment_line</strong> – A string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> in the Pharaoh format.</li>
+<li><strong>alignment_line</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> in the Pharaoh format.</li>
 <li><strong>source_length</strong> – The length of the source sentence.</li>
 <li><strong>The length of the target sentence.</strong> (<em>target_length</em>) – </li>
-<li><strong>dtype</strong> – The output matrix dtype. Defaults to <code class="docutils literal"><span class="pre">tf.float32</span></code> for convenience
+<li><strong>dtype</strong> – The output matrix dtype. Defaults to <code class="docutils literal notranslate"><span class="pre">tf.float32</span></code> for convenience
 when computing the guided alignment loss.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The alignment matrix as a 2-D <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of type <code class="xref py py-obj docutils literal"><span class="pre">dtype</span></code> and shape
-<code class="docutils literal"><span class="pre">[target_length,</span> <span class="pre">source_length]</span></code>, where <code class="docutils literal"><span class="pre">[i,</span> <span class="pre">j]</span> <span class="pre">=</span> <span class="pre">1</span></code> if the <code class="docutils literal"><span class="pre">i</span></code> th
-target word is aligned with the <code class="docutils literal"><span class="pre">j</span></code> th source word.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The alignment matrix as a 2-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of type <code class="xref py py-obj docutils literal notranslate"><span class="pre">dtype</span></code> and shape
+<code class="docutils literal notranslate"><span class="pre">[target_length,</span> <span class="pre">source_length]</span></code>, where <code class="docutils literal notranslate"><span class="pre">[i,</span> <span class="pre">j]</span> <span class="pre">=</span> <span class="pre">1</span></code> if the <code class="docutils literal notranslate"><span class="pre">i</span></code> th
+target word is aligned with the <code class="docutils literal notranslate"><span class="pre">j</span></code> th source word.</p>
 </td>
 </tr>
 </tbody>
@@ -317,10 +331,10 @@ target word is aligned with the <code class="docutils literal"><span class="pre"
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>attention_probs</strong> – The attention probabilities, a float <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape
-<span class="math">\([B, T_t, T_s]\)</span>.</li>
-<li><strong>gold_alignment</strong> – The true alignment matrix, a float <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape
-<span class="math">\([B, T_t, T_s]\)</span>.</li>
+<li><strong>attention_probs</strong> – The attention probabilities, a float <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape
+<span class="math notranslate nohighlight">\([B, T_t, T_s]\)</span>.</li>
+<li><strong>gold_alignment</strong> – The true alignment matrix, a float <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape
+<span class="math notranslate nohighlight">\([B, T_t, T_s]\)</span>.</li>
 <li><strong>sequence_length</strong> – The length of each sequence.</li>
 <li><strong>guided_alignment_type</strong> – The type of guided alignment cost function to compute
 (can be: ce, mse).</li>
@@ -345,12 +359,12 @@ target word is aligned with the <code class="docutils literal"><span class="pre"
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tokens</strong> – The tokens on which the attention is applied as a string
-<code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, T_s]\)</span>.</li>
-<li><strong>attention</strong> – The attention vector of shape <span class="math">\([B, T_t, T_s]\)</span>.</li>
+<code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([B, T_s]\)</span>.</li>
+<li><strong>attention</strong> – The attention vector of shape <span class="math notranslate nohighlight">\([B, T_t, T_s]\)</span>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The aligned tokens as a string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, T_t]\)</span>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The aligned tokens as a string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([B, T_t]\)</span>.</p>
 </td>
 </tr>
 </tbody>
@@ -367,15 +381,15 @@ attention.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_tokens</strong> – A a string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, T_t]\)</span>.</li>
-<li><strong>source_tokens</strong> – A a string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <span class="math">\([B, T_s]\)</span>.</li>
-<li><strong>attention</strong> – The attention vector of shape <span class="math">\([B, T_t, T_s]\)</span>.</li>
+<li><strong>target_tokens</strong> – A a string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([B, T_t]\)</span>.</li>
+<li><strong>source_tokens</strong> – A a string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([B, T_s]\)</span>.</li>
+<li><strong>attention</strong> – The attention vector of shape <span class="math notranslate nohighlight">\([B, T_t, T_s]\)</span>.</li>
 <li><strong>unknown_token</strong> – The target token to replace.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> with the same shape and type as <code class="xref py py-obj docutils literal"><span class="pre">target_tokens</span></code>
-but will all instances of <code class="xref py py-obj docutils literal"><span class="pre">unknown_token</span></code> replaced by the aligned source
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> with the same shape and type as <code class="xref py py-obj docutils literal notranslate"><span class="pre">target_tokens</span></code>
+but will all instances of <code class="xref py py-obj docutils literal notranslate"><span class="pre">unknown_token</span></code> replaced by the aligned source
 token.</p>
 </td>
 </tr>
@@ -405,6 +419,7 @@ token.</p>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

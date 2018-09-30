@@ -191,21 +191,21 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>num_layers</strong> – The number of layers.</li>
 <li><strong>num_units</strong> – The number of units in each layer.</li>
-<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
-<li><strong>residual_connections</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, each layer input will be added to its output.</li>
-<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal"><span class="pre">num_units</span></code> as
+<li><strong>residual_connections</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, each layer input will be added to its output.</li>
+<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
 argument and returning a cell.</li>
 <li><strong>attention_layers</strong> – A list of integers, the layers after which to add attention.</li>
-<li><strong>attention_mechanisms</strong> – A list of <code class="docutils literal"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>
-with the same length as <code class="xref py py-obj docutils literal"><span class="pre">attention_layers</span></code>.</li>
+<li><strong>attention_mechanisms</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>
+with the same length as <code class="xref py py-obj docutils literal notranslate"><span class="pre">attention_layers</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A <code class="docutils literal"><span class="pre">tf.contrib.rnn.RNNCell</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A <code class="docutils literal notranslate"><span class="pre">tf.contrib.rnn.RNNCell</span></code>.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">attention_layers</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">attention_mechanisms</span></code> do
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">attention_layers</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">attention_mechanisms</span></code> do
 not have the same length.</p>
 </td>
 </tr>
@@ -253,6 +253,7 @@ LSTM-based encoder.</p>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

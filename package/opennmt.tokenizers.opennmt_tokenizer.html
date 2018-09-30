@@ -190,7 +190,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – A dictionary of tokenization options.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal"><span class="pre">pyonmttok.Tokenizer</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">pyonmttok.Tokenizer</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -199,12 +199,26 @@
 <dl class="class">
 <dt id="opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer">
 <em class="property">class </em><code class="descclassname">opennmt.tokenizers.opennmt_tokenizer.</code><code class="descname">OpenNMTTokenizer</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/opennmt_tokenizer.html#OpenNMTTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
 <p>Uses the OpenNMT tokenizer.</p>
 <dl class="method">
 <dt id="opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer.initialize">
 <code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/opennmt_tokenizer.html#OpenNMTTokenizer.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer.initialize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Initializes the tokenizer (e.g. load BPE models).</p>
+<p>Any external assets should be registered in the standard assets collection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">ASSET_FILEPATHS</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional metadata set
+by the user.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -230,6 +244,7 @@
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

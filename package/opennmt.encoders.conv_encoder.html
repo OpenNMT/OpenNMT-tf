@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.encoders.conv_encoder.ConvEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.conv_encoder.</code><code class="descname">ConvEncoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>kernel_size=3</em>, <em>dropout=0.3</em>, <em>position_encoder=&lt;opennmt.layers.position.PositionEmbedder object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/conv_encoder.html#ConvEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.conv_encoder.ConvEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>An encoder that applies a convolution over the input sequence
 as described in <a class="reference external" href="https://arxiv.org/abs/1611.02344">https://arxiv.org/abs/1611.02344</a>.</p>
 <dl class="method">
@@ -199,8 +199,8 @@ as described in <a class="reference external" href="https://arxiv.org/abs/1611.0
 <li><strong>num_units</strong> – The number of output filters.</li>
 <li><strong>kernel_size</strong> – The kernel size.</li>
 <li><strong>dropout</strong> – The probability to drop units from the inputs.</li>
-<li><strong>position_encoder</strong> – The <a class="reference internal" href="opennmt.layers.position.html#opennmt.layers.position.PositionEncoder" title="opennmt.layers.position.PositionEncoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.position.PositionEncoder</span></code></a> to
-apply on inputs or <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>position_encoder</strong> – The <a class="reference internal" href="opennmt.layers.position.html#opennmt.layers.position.PositionEncoder" title="opennmt.layers.position.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.position.PositionEncoder</span></code></a> to
+apply on inputs or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -211,7 +211,24 @@ apply on inputs or <code class="docutils literal"><span class="pre">None</span><
 <dl class="method">
 <dt id="opennmt.encoders.conv_encoder.ConvEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/conv_encoder.html#ConvEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.conv_encoder.ConvEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -237,6 +254,7 @@ apply on inputs or <code class="docutils literal"><span class="pre">None</span><
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

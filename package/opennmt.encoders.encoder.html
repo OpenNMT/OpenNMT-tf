@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.encoders.encoder.Encoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">Encoder</code><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#Encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.Encoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for encoders.</p>
 <dl class="method">
 <dt id="opennmt.encoders.encoder.Encoder.encode">
@@ -194,13 +194,13 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – The inputs to encode of shape <span class="math">\([B, T, ...]\)</span>.</li>
-<li><strong>sequence_length</strong> – The length of each input with shape <span class="math">\([B]\)</span>.</li>
-<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
 </td>
 </tr>
 </tbody>
@@ -212,7 +212,7 @@
 <dl class="class">
 <dt id="opennmt.encoders.encoder.SequentialEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">SequentialEncoder</code><span class="sig-paren">(</span><em>encoders</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>transition_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#SequentialEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.SequentialEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>An encoder that executes multiple encoders sequentially with optional
 transition layers.</p>
 <p>See for example “Cascaded Encoder” in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
@@ -225,18 +225,18 @@ transition layers.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>encoders</strong> – A list of <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a>.</li>
-<li><strong>states_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
+<li><strong>encoders</strong> – A list of <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a>.</li>
+<li><strong>states_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
 states.</li>
 <li><strong>transition_layer_fn</strong> – A callable or list of callables applied to the
 output of an encoder before passing it as input to the next. If it is a
 single callable, it is applied between every encoders. Otherwise, the
-<code class="docutils literal"><span class="pre">i</span></code> th callable will be applied between encoders <code class="docutils literal"><span class="pre">i</span></code> and <code class="docutils literal"><span class="pre">i</span> <span class="pre">+</span> <span class="pre">1</span></code>.</li>
+<code class="docutils literal notranslate"><span class="pre">i</span></code> th callable will be applied between encoders <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">+</span> <span class="pre">1</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">transition_layer_fn</span></code> is a list with a size not equal
-to the number of encoder transitions <code class="docutils literal"><span class="pre">len(encoders)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_layer_fn</span></code> is a list with a size not equal
+to the number of encoder transitions <code class="docutils literal notranslate"><span class="pre">len(encoders)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </td>
 </tr>
 </tbody>
@@ -246,21 +246,38 @@ to the number of encoder transitions <code class="docutils literal"><span class=
 <dl class="method">
 <dt id="opennmt.encoders.encoder.SequentialEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#SequentialEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.SequentialEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.encoders.encoder.ParallelEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">ParallelEncoder</code><span class="sig-paren">(</span><em>encoders</em>, <em>outputs_reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>outputs_layer_fn=None</em>, <em>combined_output_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>An encoder that encodes its input with several encoders and reduces the
 outputs and states together. Additional layers can be applied on each encoder
 output and on the combined output (e.g. to layer normalize each encoder
 output).</p>
-<p>If the input is a single <code class="docutils literal"><span class="pre">tf.Tensor</span></code>, the same input will be encoded by
+<p>If the input is a single <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, the same input will be encoded by
 every encoders. Otherwise, when the input is a Python sequence (e.g. the non
-reduced output of a <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter" title="opennmt.inputters.inputter.ParallelInputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.ParallelInputter</span></code></a>),
+reduced output of a <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter" title="opennmt.inputters.inputter.ParallelInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.ParallelInputter</span></code></a>),
 each encoder will encode its corresponding input in the sequence.</p>
 <p>See for example “Multi-Columnn Encoder” in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
 <dl class="method">
@@ -272,21 +289,21 @@ each encoder will encode its corresponding input in the sequence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>encoders</strong> – A list of <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a>.</li>
-<li><strong>outputs_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
+<li><strong>encoders</strong> – A list of <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a>.</li>
+<li><strong>outputs_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
 outputs.</li>
-<li><strong>states_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
+<li><strong>states_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
 states.</li>
 <li><strong>outputs_layer_fn</strong> – A callable or list of callables applied to the
 encoders outputs If it is a single callable, it is on each encoder
-output. Otherwise, the <code class="docutils literal"><span class="pre">i</span></code> th callable is applied on encoder <code class="docutils literal"><span class="pre">i</span></code>
+output. Otherwise, the <code class="docutils literal notranslate"><span class="pre">i</span></code> th callable is applied on encoder <code class="docutils literal notranslate"><span class="pre">i</span></code>
 output.</li>
 <li><strong>combined_output_layer_fn</strong> – A callable to apply on the combined output
-(i.e. the output of <code class="xref py py-obj docutils literal"><span class="pre">outputs_reducer</span></code>).</li>
+(i.e. the output of <code class="xref py py-obj docutils literal notranslate"><span class="pre">outputs_reducer</span></code>).</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">outputs_layer_fn</span></code> is a list with a size not equal
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">outputs_layer_fn</span></code> is a list with a size not equal
 to the number of encoders.</p>
 </td>
 </tr>
@@ -297,7 +314,24 @@ to the number of encoders.</p>
 <dl class="method">
 <dt id="opennmt.encoders.encoder.ParallelEncoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>mode='train'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes an input sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -323,6 +357,7 @@ to the number of encoders.</p>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

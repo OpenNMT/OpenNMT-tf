@@ -174,12 +174,12 @@
 <span id="model"></span><h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="definition">
 <span id="definition"></span><h3>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
-<p>Models are defined from the code to allow a high level of modeling freedom. They are <code class="docutils literal"><span class="pre">opennmt.models.Model</span></code> instances that use <a class="reference external" href="package/opennmt.html">available</a> or user-defined modules. Some of these modules are defined to contain other modules and can be used to design complex architectures:</p>
+<p>Models are defined from the code to allow a high level of modeling freedom. They are <code class="docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code> instances that use <a class="reference external" href="package/opennmt.html">available</a> or user-defined modules. Some of these modules are defined to contain other modules and can be used to design complex architectures:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></li>
-<li><code class="docutils literal"><span class="pre">opennmt.encoders.SequentialEncoder</span></code></li>
-<li><code class="docutils literal"><span class="pre">opennmt.inputters.MixedInputter</span></code></li>
-<li><code class="docutils literal"><span class="pre">opennmt.inputters.ParallelInputter</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.SequentialEncoder</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.MixedInputter</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></li>
 </ul>
 <p>For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).</p>
 </div>
@@ -187,26 +187,26 @@
 <span id="usage"></span><h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <p>The user can either:</p>
 <ul class="simple">
-<li>select a predefined model from the <a class="reference external" href="package/opennmt.models.catalog.html">catalog</a> and use the <code class="docutils literal"><span class="pre">--model_type</span></code> command line option</li>
-<li><strong>or</strong> provide a custom configuration file that follows the template file <code class="docutils literal"><span class="pre">config/models/template.py</span></code> and use the <code class="docutils literal"><span class="pre">--model</span></code> command line option</li>
+<li>select a predefined model from the <a class="reference external" href="package/opennmt.models.catalog.html">catalog</a> and use the <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> command line option</li>
+<li><strong>or</strong> provide a custom configuration file that follows the template file <code class="docutils literal notranslate"><span class="pre">config/models/template.py</span></code> and use the <code class="docutils literal notranslate"><span class="pre">--model</span></code> command line option</li>
 </ul>
-<p><em>See the predefined models definitions in the <a class="reference external" href="_modules/opennmt/models/catalog.html">catalog</a>. More experimental models and examples are also available in the <code class="docutils literal"><span class="pre">config/models/</span></code> directory. Contributions to add more model definitions are welcome.</em></p>
+<p><em>See the predefined models definitions in the <a class="reference external" href="_modules/opennmt/models/catalog.html">catalog</a>. More experimental models and examples are also available in the <code class="docutils literal notranslate"><span class="pre">config/models/</span></code> directory. Contributions to add more model definitions are welcome.</em></p>
 </div>
 </div>
 <div class="section" id="parameters">
 <span id="parameters"></span><h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <p>Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference.</p>
-<p><em>See the example configuration <code class="docutils literal"><span class="pre">config/sample.yml</span></code> to learn about available parameters.</em></p>
+<p><em>See the example configuration <code class="docutils literal notranslate"><span class="pre">config/sample.yml</span></code> to learn about available parameters.</em></p>
 <div class="section" id="multiple-configuration-files">
 <span id="multiple-configuration-files"></span><h3>Multiple configuration files<a class="headerlink" href="#multiple-configuration-files" title="Permalink to this headline">¶</a></h3>
 <p>The command line accepts multiple configuration files so that some parts can be made reusable, e.g:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
     config/data/toy-ende.yml
 </pre></div>
 </div>
 <p>If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.</p>
-<p>If you are unsure about the configuration that is actually used or simply prefer working with a single file, consider using the <code class="docutils literal"><span class="pre">merge_config</span></code> script:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
+<p>If you are unsure about the configuration that is actually used or simply prefer working with a single file, consider using the <code class="docutils literal notranslate"><span class="pre">merge_config</span></code> script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
     config/data/toy-ende.yml &gt; config/my_config.yml
 </pre></div>
 </div>
@@ -214,18 +214,18 @@
 </div>
 <div class="section" id="tensorflow-session">
 <span id="tensorflow-session"></span><h2>TensorFlow session<a class="headerlink" href="#tensorflow-session" title="Permalink to this headline">¶</a></h2>
-<p>The command line option <code class="docutils literal"><span class="pre">--session_config</span></code> can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal"><span class="pre">tf.ConfigProto</span></code></a> message serialized in text format.</p>
-<p>Here is an example to enable the <code class="docutils literal"><span class="pre">allow_growth</span></code> GPU option:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>$ cat config/session_config.txt
+<p>The command line option <code class="docutils literal notranslate"><span class="pre">--session_config</span></code> can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code></a> message serialized in text format.</p>
+<p>Here is an example to enable the <code class="docutils literal notranslate"><span class="pre">allow_growth</span></code> GPU option:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ cat config/session_config.txt
 gpu_options {
   allow_growth: true
 }
 </pre></div>
 </div>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --session_config config/session_config.txt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --session_config config/session_config.txt
 </pre></div>
 </div>
-<p>For possible options and values, see the <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal"><span class="pre">tf.ConfigProto</span></code></a> file.</p>
+<p>For possible options and values, see the <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code></a> file.</p>
 </div>
 </div>
 
@@ -249,6 +249,7 @@ gpu_options {
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

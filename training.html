@@ -165,8 +165,8 @@
 <span id="training"></span><h1>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="monitoring">
 <span id="monitoring"></span><h2>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf uses <a class="reference external" href="https://github.com/tensorflow/tensorboard">TensorBoard</a> to log information during the training. Simply start <code class="docutils literal"><span class="pre">tensorboard</span></code> by setting the active log directory, e.g.:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;.&quot;</span>
+<p>OpenNMT-tf uses <a class="reference external" href="https://github.com/tensorflow/tensorboard">TensorBoard</a> to log information during the training. Simply start <code class="docutils literal notranslate"><span class="pre">tensorboard</span></code> by setting the active log directory, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;.&quot;</span>
 </pre></div>
 </div>
 <p>then open the URL displayed in the shell to monitor and visualize several data, including:</p>
@@ -182,9 +182,9 @@
 </div>
 <div class="section" id="replicated-training">
 <span id="replicated-training"></span><h2>Replicated training<a class="headerlink" href="#replicated-training" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf training can make use of multiple GPUs with <em>in-graph replication</em>. In this mode, the main section of the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches <code class="docutils literal"><span class="pre">N</span></code> times larger, where <code class="docutils literal"><span class="pre">N</span></code> is the number of used GPUs.</p>
-<p>For example, if your machine has 4 GPUs, simply add the <code class="docutils literal"><span class="pre">--num_gpus</span></code> option:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt-main train <span class="o">[</span>...<span class="o">]</span> --num_gpus <span class="m">4</span>
+<p>OpenNMT-tf training can make use of multiple GPUs with <em>in-graph replication</em>. In this mode, the main section of the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of used GPUs.</p>
+<p>For example, if your machine has 4 GPUs, simply add the <code class="docutils literal notranslate"><span class="pre">--num_gpus</span></code> option:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train <span class="o">[</span>...<span class="o">]</span> --num_gpus <span class="m">4</span>
 </pre></div>
 </div>
 <p>Note that evaluation and inference will run on a single device.</p>
@@ -192,14 +192,14 @@
 <div class="section" id="distributed-training">
 <span id="distributed-training"></span><h2>Distributed training<a class="headerlink" href="#distributed-training" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf also supports asynchronous distributed training with <em>between-graph replication</em>. In this mode, each graph replica processes a batch independently, compute the gradients, and asynchronously update a shared set of parameters.</p>
-<p>To enable distributed training, the user should use the <code class="docutils literal"><span class="pre">train_and_eval</span></code> run type and set on the command line:</p>
+<p>To enable distributed training, the user should use the <code class="docutils literal notranslate"><span class="pre">train_and_eval</span></code> run type and set on the command line:</p>
 <ul class="simple">
 <li>a <strong>chief worker</strong> host that runs a training loop and manages checkpoints, summaries, etc.</li>
 <li>a list of <strong>worker</strong> hosts that run a training loop</li>
 <li>a list of <strong>parameter server</strong> hosts that synchronize the parameters</li>
 </ul>
 <p>Then a training instance should be started on each host with a selected task, e.g.:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span> onmt-main train_and_eval <span class="o">[</span>...<span class="o">]</span> <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span> onmt-main train_and_eval <span class="o">[</span>...<span class="o">]</span> <span class="se">\</span>
     --ps_hosts localhost:2222 <span class="se">\</span>
     --chief_host localhost:2223 <span class="se">\</span>
     --worker_hosts localhost:2224,localhost:2225 <span class="se">\</span>
@@ -207,9 +207,9 @@
     --task_index <span class="m">1</span>
 </pre></div>
 </div>
-<p>will start the worker 1 on the current machine and first GPU. By setting <code class="docutils literal"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> correctly, asynchronous distributed training can be run on a single multi-GPU machine.</p>
-<p>For more details, see the documentation of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/estimator/train_and_evaluate"><code class="docutils literal"><span class="pre">tf.estimator.train_and_evaluate</span></code></a>. Also see <a class="reference external" href="https://github.com/tensorflow/ecosystem">tensorflow/ecosystem</a> to integrate distributed training with open-source frameworks like Docker or Kubernetes.</p>
-<p><strong>Note:</strong> distributed training will also split the training directory <code class="docutils literal"><span class="pre">model_dir</span></code> accross the instances. This could impact features that restore checkpoints like inference, manual export, or checkpoint averaging. The recommend approach to properly support these features while running distributed training is to store the <code class="docutils literal"><span class="pre">model_dir</span></code> on a shared filesystem, e.g. by using <a class="reference external" href="https://www.tensorflow.org/deploy/hadoop">HDFS</a>.</p>
+<p>will start the worker 1 on the current machine and first GPU. By setting <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> correctly, asynchronous distributed training can be run on a single multi-GPU machine.</p>
+<p>For more details, see the documentation of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/estimator/train_and_evaluate"><code class="docutils literal notranslate"><span class="pre">tf.estimator.train_and_evaluate</span></code></a>. Also see <a class="reference external" href="https://github.com/tensorflow/ecosystem">tensorflow/ecosystem</a> to integrate distributed training with open-source frameworks like Docker or Kubernetes.</p>
+<p><strong>Note:</strong> distributed training will also split the training directory <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> accross the instances. This could impact features that restore checkpoints like inference, manual export, or checkpoint averaging. The recommend approach to properly support these features while running distributed training is to store the <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> on a shared filesystem, e.g. by using <a class="reference external" href="https://www.tensorflow.org/deploy/hadoop">HDFS</a>.</p>
 </div>
 </div>
 
@@ -233,6 +233,7 @@
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

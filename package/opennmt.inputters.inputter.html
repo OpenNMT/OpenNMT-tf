@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.inputters.inputter.Inputter">
 <em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">Inputter</code><span class="sig-paren">(</span><em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for inputters.</p>
 <dl class="method">
 <dt id="opennmt.inputters.inputter.Inputter.add_process_hooks">
@@ -191,13 +191,13 @@
 <dd><p>Adds processing hooks.</p>
 <p>Processing hooks are additional and model specific data processing
 functions applied after calling this inputter
-<a class="reference internal" href="#opennmt.inputters.inputter.Inputter.process" title="opennmt.inputters.inputter.Inputter.process"><code class="xref py py-meth docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter.process()</span></code></a> function.</p>
+<a class="reference internal" href="#opennmt.inputters.inputter.Inputter.process" title="opennmt.inputters.inputter.Inputter.process"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter.process()</span></code></a> function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hooks</strong> – A list of callables with the signature
-<code class="docutils literal"><span class="pre">(inputter,</span> <span class="pre">data)</span> <span class="pre">-&gt;</span> <span class="pre">data</span></code>.</td>
+<code class="docutils literal notranslate"><span class="pre">(inputter,</span> <span class="pre">data)</span> <span class="pre">-&gt;</span> <span class="pre">data</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -215,7 +215,7 @@ functions applied after calling this inputter
 <li><strong>data</strong> – The data dictionary.</li>
 <li><strong>key</strong> – The value key.</li>
 <li><strong>value</strong> – The value to assign.</li>
-<li><strong>volatile</strong> – If <code class="docutils literal"><span class="pre">True</span></code>, the key/value pair will be removed once the
+<li><strong>volatile</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the key/value pair will be removed once the
 processing done.</li>
 </ul>
 </td>
@@ -264,7 +264,7 @@ processing done.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal"><span class="pre">tf.data.Dataset</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -294,7 +294,7 @@ processing done.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal"><span class="pre">tf.estimator.export.ServingInputReceiver</span></code>.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">tf.estimator.export.ServingInputReceiver</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -306,7 +306,7 @@ processing done.</li>
 <dd><p>Initializes the inputter within the current graph.</p>
 <p>For example, one can create lookup tables in this method
 for their initializer to be added to the current graph
-<code class="docutils literal"><span class="pre">TABLE_INITIALIZERS</span></code> collection.</p>
+<code class="docutils literal notranslate"><span class="pre">TABLE_INITIALIZERS</span></code> collection.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -328,13 +328,13 @@ by the user.</td>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – The raw data.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of <code class="docutils literal"><span class="pre">tf.Tensor</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="#opennmt.inputters.inputter.Inputter.transform_data" title="opennmt.inputters.inputter.Inputter.transform_data"><code class="xref py py-meth docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter.transform_data()</span></code></a></p>
+<p class="last"><a class="reference internal" href="#opennmt.inputters.inputter.Inputter.transform_data" title="opennmt.inputters.inputter.Inputter.transform_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter.transform_data()</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -356,8 +356,8 @@ by the user.</td>
 <dt id="opennmt.inputters.inputter.Inputter.transform_data">
 <code class="descname">transform_data</code><span class="sig-paren">(</span><em>data</em>, <em>mode='train'</em>, <em>log_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.transform_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter.transform_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms the processed data to an input.</p>
-<p>This is usually a simple forward of a <code class="xref py py-obj docutils literal"><span class="pre">data</span></code> field to
-<a class="reference internal" href="#opennmt.inputters.inputter.Inputter.transform" title="opennmt.inputters.inputter.Inputter.transform"><code class="xref py py-meth docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter.transform()</span></code></a>.</p>
+<p>This is usually a simple forward of a <code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code> field to
+<a class="reference internal" href="#opennmt.inputters.inputter.Inputter.transform" title="opennmt.inputters.inputter.Inputter.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter.transform()</span></code></a>.</p>
 <p>See also <cite>process</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -365,7 +365,7 @@ by the user.</td>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>data</strong> – A dictionary of data fields.</li>
-<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
 <li><strong>log_dir</strong> – The log directory. If set, visualization will be setup.</li>
 </ul>
 </td>
@@ -386,9 +386,9 @@ by the user.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal"><span class="pre">tf.Tensor</span></code> which depends on
+<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
 the inputter.</li>
-<li><strong>mode</strong> – A <code class="docutils literal"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
 </ul>
 </td>
 </tr>
@@ -404,39 +404,100 @@ the inputter.</li>
 <dl class="class">
 <dt id="opennmt.inputters.inputter.MultiInputter">
 <em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">MultiInputter</code><span class="sig-paren">(</span><em>inputters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a></p>
 <p>An inputter that gathers multiple inputters.</p>
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MultiInputter.make_dataset">
 <code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the dataset required by this inputter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MultiInputter.get_dataset_size">
 <code class="descname">get_dataset_size</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the size of the dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total size.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MultiInputter.initialize">
 <code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.initialize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Initializes the inputter within the current graph.</p>
+<p>For example, one can create lookup tables in this method
+for their initializer to be added to the current graph
+<code class="docutils literal notranslate"><span class="pre">TABLE_INITIALIZERS</span></code> collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional metadata set
+by the user.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MultiInputter.visualize">
 <code class="descname">visualize</code><span class="sig-paren">(</span><em>log_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.visualize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Visualizes the transformation, usually embeddings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_dir</strong> – The active log directory.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MultiInputter.transform">
 <code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.transform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transforms inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
+the inputter.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.inputters.inputter.ParallelInputter">
 <em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">ParallelInputter</code><span class="sig-paren">(</span><em>inputters</em>, <em>reducer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.ParallelInputter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.MultiInputter" title="opennmt.inputters.inputter.MultiInputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.MultiInputter</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.MultiInputter" title="opennmt.inputters.inputter.MultiInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.MultiInputter</span></code></a></p>
 <p>An multi inputter that process parallel data.</p>
 <dl class="method">
 <dt id="opennmt.inputters.inputter.ParallelInputter.__init__">
@@ -447,8 +508,8 @@ the inputter.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>inputters</strong> – A list of <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a>.</li>
-<li><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all inputs. If
+<li><strong>inputters</strong> – A list of <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a>.</li>
+<li><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all inputs. If
 set, parallel inputs are assumed to have the same length.</li>
 </ul>
 </td>
@@ -460,29 +521,69 @@ set, parallel inputs are assumed to have the same length.</li>
 <dl class="method">
 <dt id="opennmt.inputters.inputter.ParallelInputter.get_length">
 <code class="descname">get_length</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.ParallelInputter.get_length" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the length of the input data, if defined.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.ParallelInputter.make_dataset">
 <code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.ParallelInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the dataset required by this inputter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.ParallelInputter.get_dataset_size">
 <code class="descname">get_dataset_size</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.ParallelInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the size of the dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total size.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.ParallelInputter.transform">
 <code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.ParallelInputter.transform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transforms inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
+the inputter.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.inputters.inputter.MixedInputter">
 <em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">MixedInputter</code><span class="sig-paren">(</span><em>inputters</em>, <em>reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>dropout=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MixedInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MixedInputter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.MultiInputter" title="opennmt.inputters.inputter.MultiInputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.MultiInputter</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.MultiInputter" title="opennmt.inputters.inputter.MultiInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.MultiInputter</span></code></a></p>
 <p>An multi inputter that applies several transformation on the same data.</p>
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MixedInputter.__init__">
@@ -493,8 +594,8 @@ set, parallel inputs are assumed to have the same length.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>inputters</strong> – A list of <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a>.</li>
-<li><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all inputs.</li>
+<li><strong>inputters</strong> – A list of <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a>.</li>
+<li><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all inputs.</li>
 <li><strong>dropout</strong> – The probability to drop units in the merged inputs.</li>
 </ul>
 </td>
@@ -506,22 +607,62 @@ set, parallel inputs are assumed to have the same length.</li>
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MixedInputter.get_length">
 <code class="descname">get_length</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MixedInputter.get_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MixedInputter.get_length" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the length of the input data, if defined.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MixedInputter.make_dataset">
 <code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MixedInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MixedInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the dataset required by this inputter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MixedInputter.get_dataset_size">
 <code class="descname">get_dataset_size</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MixedInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MixedInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the size of the dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total size.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MixedInputter.transform">
 <code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MixedInputter.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MixedInputter.transform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transforms inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
+the inputter.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -547,6 +688,7 @@ set, parallel inputs are assumed to have the same length.</li>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

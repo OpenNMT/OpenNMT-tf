@@ -159,13 +159,13 @@
 <p>We currently use <a class="reference external" href="http://www.sphinx-doc.org">Sphinx</a> to automatically build documentation from the code.</p>
 <div class="section" id="install-dependencies">
 <span id="install-dependencies"></span><h2>Install dependencies<a class="headerlink" href="#install-dependencies" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install -r docs/requirements.txt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r docs/requirements.txt
 </pre></div>
 </div>
 </div>
 <div class="section" id="register-sources-for-autodoc">
 <span id="register-sources-for-autodoc"></span><h2>Register sources for autodoc<a class="headerlink" href="#register-sources-for-autodoc" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># To run only if a Python source file is added, removed, or renamed.</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># To run only if a Python source file is added, removed, or renamed.</span>
 rm -f docs/package/*
 sphinx-apidoc -e -M -o docs/package opennmt opennmt/tests
 </pre></div>
@@ -173,7 +173,7 @@ sphinx-apidoc -e -M -o docs/package opennmt opennmt/tests
 </div>
 <div class="section" id="build-locally">
 <span id="build-locally"></span><h2>Build locally<a class="headerlink" href="#build-locally" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PWD</span> sphinx-build docs docs/build
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PWD</span> sphinx-build docs docs/build
 </pre></div>
 </div>
 </div>
@@ -190,6 +190,7 @@ sphinx-apidoc -e -M -o docs/package opennmt opennmt/tests
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

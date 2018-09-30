@@ -183,7 +183,7 @@
 <dl class="class">
 <dt id="opennmt.tokenizers.tokenizer.Tokenizer">
 <em class="property">class </em><code class="descclassname">opennmt.tokenizers.tokenizer.</code><code class="descname">Tokenizer</code><span class="sig-paren">(</span><em>configuration_file_or_key=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for tokenizers.</p>
 <dl class="method">
 <dt id="opennmt.tokenizers.tokenizer.Tokenizer.__init__">
@@ -205,7 +205,7 @@ the YAML configuration file.</td>
 <code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.Tokenizer.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the tokenizer (e.g. load BPE models).</p>
 <p>Any external assets should be registered in the standard assets collection:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">ASSET_FILEPATHS</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">ASSET_FILEPATHS</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -265,12 +265,12 @@ by the user.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – The text to tokenize as a <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or Python string.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – The text to tokenize as a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or Python string.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 1-D string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal"><span class="pre">text</span></code> is a <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or a list of
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 1-D string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or a list of
 Python unicode strings otherwise.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if the rank of <code class="xref py py-obj docutils literal"><span class="pre">text</span></code> is greater than 0.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if the rank of <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is greater than 0.</td>
 </tr>
 </tbody>
 </table>
@@ -286,21 +286,21 @@ Python unicode strings otherwise.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tokens</strong> – The tokens as a 1-D or 2-D <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or list of Python
+<li><strong>tokens</strong> – The tokens as a 1-D or 2-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or list of Python
 strings.</li>
-<li><strong>sequence_length</strong> – The length of each sequence. Required if <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code>
-is a <code class="docutils literal"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>sequence_length</strong> – The length of each sequence. Required if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code>
+is a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A 0-D or 1-D string <code class="docutils literal"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code> is a <code class="docutils literal"><span class="pre">tf.Tensor</span></code> or a
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A 0-D or 1-D string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or a
 Python unicode strings otherwise.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if the rank of <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code> is greater than 2.</li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal"><span class="pre">tokens</span></code> is a 2-D <code class="docutils literal"><span class="pre">tf.Tensor</span></code> and
-<code class="xref py py-obj docutils literal"><span class="pre">sequence_length</span></code> is not set.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if the rank of <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is greater than 2.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a 2-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> and
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">sequence_length</span></code> is not set.</li>
 </ul>
 </td>
 </tr>
@@ -313,14 +313,14 @@ Python unicode strings otherwise.</p>
 <dl class="class">
 <dt id="opennmt.tokenizers.tokenizer.SpaceTokenizer">
 <em class="property">class </em><code class="descclassname">opennmt.tokenizers.tokenizer.</code><code class="descname">SpaceTokenizer</code><span class="sig-paren">(</span><em>configuration_file_or_key=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#SpaceTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.SpaceTokenizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
 <p>A tokenizer that splits on spaces.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.tokenizers.tokenizer.CharacterTokenizer">
 <em class="property">class </em><code class="descclassname">opennmt.tokenizers.tokenizer.</code><code class="descname">CharacterTokenizer</code><span class="sig-paren">(</span><em>configuration_file_or_key=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#CharacterTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.tokenizer.CharacterTokenizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a></p>
 <p>A tokenizer that splits unicode characters.</p>
 </dd></dl>
 
@@ -346,6 +346,7 @@ Python unicode strings otherwise.</p>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

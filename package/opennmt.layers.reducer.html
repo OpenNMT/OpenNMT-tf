@@ -189,29 +189,29 @@
 <dl class="function">
 <dt id="opennmt.layers.reducer.align_in_time">
 <code class="descclassname">opennmt.layers.reducer.</code><code class="descname">align_in_time</code><span class="sig-paren">(</span><em>x</em>, <em>length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#align_in_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.align_in_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Aligns the time dimension of <code class="xref py py-obj docutils literal"><span class="pre">x</span></code> with <code class="xref py py-obj docutils literal"><span class="pre">length</span></code>.</p>
+<dd><p>Aligns the time dimension of <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code> with <code class="xref py py-obj docutils literal notranslate"><span class="pre">length</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="opennmt.layers.reducer.pad_with_identity">
 <code class="descclassname">opennmt.layers.reducer.</code><code class="descname">pad_with_identity</code><span class="sig-paren">(</span><em>x</em>, <em>sequence_length</em>, <em>max_sequence_length</em>, <em>identity_values=0</em>, <em>maxlen=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#pad_with_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.pad_with_identity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pads a tensor with identity values up to <code class="xref py py-obj docutils literal"><span class="pre">max_sequence_length</span></code>.</p>
+<dd><p>Pads a tensor with identity values up to <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_sequence_length</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> – A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <code class="docutils literal"><span class="pre">[batch_size,</span> <span class="pre">time,</span> <span class="pre">depth]</span></code>.</li>
-<li><strong>sequence_length</strong> – The true sequence length of <code class="xref py py-obj docutils literal"><span class="pre">x</span></code>.</li>
+<li><strong>x</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <code class="docutils literal notranslate"><span class="pre">[batch_size,</span> <span class="pre">time,</span> <span class="pre">depth]</span></code>.</li>
+<li><strong>sequence_length</strong> – The true sequence length of <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>.</li>
 <li><strong>max_sequence_length</strong> – The sequence length up to which the tensor must contain
-<code class="xref py py-obj docutils literal"><span class="pre">identity</span> <span class="pre">values</span></code>.</li>
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">identity</span> <span class="pre">values</span></code>.</li>
 <li><strong>identity_values</strong> – The identity value.</li>
 <li><strong>maxlen</strong> – Size of the output time dimension. Default is the maximum value in
 obj:<cite>max_sequence_length</cite>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <code class="docutils literal"><span class="pre">[batch_size,</span> <span class="pre">maxlen,</span> <span class="pre">depth]</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <code class="docutils literal notranslate"><span class="pre">[batch_size,</span> <span class="pre">maxlen,</span> <span class="pre">depth]</span></code>.</p>
 </td>
 </tr>
 </tbody>
@@ -222,20 +222,20 @@ obj:<cite>max_sequence_length</cite>.</li>
 <dt id="opennmt.layers.reducer.pad_n_with_identity">
 <code class="descclassname">opennmt.layers.reducer.</code><code class="descname">pad_n_with_identity</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_lengths</em>, <em>identity_values=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#pad_n_with_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.pad_n_with_identity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pads each input tensors with identity values up to
-<code class="docutils literal"><span class="pre">max(sequence_lengths)</span></code> for each batch.</p>
+<code class="docutils literal notranslate"><span class="pre">max(sequence_lengths)</span></code> for each batch.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A list of <code class="docutils literal"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
 <li><strong>sequence_lengths</strong> – A list of sequence length.</li>
 <li><strong>identity_values</strong> – The identity value.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(padded,</span> <span class="pre">max_sequence_length)</span></code> which are respectively a list of
-<code class="docutils literal"><span class="pre">tf.Tensor</span></code> where each tensor are padded with identity and the combined
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(padded,</span> <span class="pre">max_sequence_length)</span></code> which are respectively a list of
+<code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> where each tensor are padded with identity and the combined
 sequence length.</p>
 </td>
 </tr>
@@ -252,13 +252,13 @@ sequence length.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tensor</strong> – A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of shape <code class="docutils literal"><span class="pre">[batch_size,</span> <span class="pre">time,</span> <span class="pre">...]</span></code>.</li>
+<li><strong>tensor</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <code class="docutils literal notranslate"><span class="pre">[batch_size,</span> <span class="pre">time,</span> <span class="pre">...]</span></code>.</li>
 <li><strong>offsets</strong> – The offset of each sequence.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal"><span class="pre">tf.Tensor</span></code> of the same shape as <code class="xref py py-obj docutils literal"><span class="pre">tensor</span></code> with sequences shifted
-by <code class="xref py py-obj docutils literal"><span class="pre">offsets</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of the same shape as <code class="xref py py-obj docutils literal notranslate"><span class="pre">tensor</span></code> with sequences shifted
+by <code class="xref py py-obj docutils literal notranslate"><span class="pre">offsets</span></code>.</p>
 </td>
 </tr>
 </tbody>
@@ -268,12 +268,12 @@ by <code class="xref py py-obj docutils literal"><span class="pre">offsets</span
 <dl class="class">
 <dt id="opennmt.layers.reducer.Reducer">
 <em class="property">class </em><code class="descclassname">opennmt.layers.reducer.</code><code class="descname">Reducer</code><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#Reducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.Reducer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for reducers.</p>
 <dl class="method">
 <dt id="opennmt.layers.reducer.Reducer.zip_and_reduce">
 <code class="descname">zip_and_reduce</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#Reducer.zip_and_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.Reducer.zip_and_reduce" title="Permalink to this definition">¶</a></dt>
-<dd><p>Zips <code class="xref py py-obj docutils literal"><span class="pre">x</span></code> with <code class="xref py py-obj docutils literal"><span class="pre">y</span></code> and reduces all elements.</p>
+<dd><p>Zips <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code> with <code class="xref py py-obj docutils literal notranslate"><span class="pre">y</span></code> and reduces all elements.</p>
 </dd></dl>
 
 <dl class="method">
@@ -284,9 +284,9 @@ by <code class="xref py py-obj docutils literal"><span class="pre">offsets</span
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> – A list of <code class="docutils literal"><span class="pre">tf.Tensor</span></code>.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A reduced <code class="docutils literal"><span class="pre">tf.Tensor</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -301,12 +301,12 @@ by <code class="xref py py-obj docutils literal"><span class="pre">offsets</span
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A list of <code class="docutils literal"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
 <li><strong>sequence_lengths</strong> – The length of each input sequence.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal"><span class="pre">(reduced_input,</span> <span class="pre">reduced_length)</span></code> with the reduced <code class="docutils literal"><span class="pre">tf.Tensor</span></code>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(reduced_input,</span> <span class="pre">reduced_length)</span></code> with the reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>
 and sequence length.</p>
 </td>
 </tr>
@@ -319,68 +319,180 @@ and sequence length.</p>
 <dl class="class">
 <dt id="opennmt.layers.reducer.SumReducer">
 <em class="property">class </em><code class="descclassname">opennmt.layers.reducer.</code><code class="descname">SumReducer</code><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#SumReducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.SumReducer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
 <p>A reducer that sums the inputs.</p>
 <dl class="method">
 <dt id="opennmt.layers.reducer.SumReducer.reduce">
 <code class="descname">reduce</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#SumReducer.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.SumReducer.reduce" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.layers.reducer.SumReducer.reduce_sequence">
 <code class="descname">reduce_sequence</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_lengths</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#SumReducer.reduce_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.SumReducer.reduce_sequence" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>sequence_lengths</strong> – The length of each input sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(reduced_input,</span> <span class="pre">reduced_length)</span></code> with the reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>
+and sequence length.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.layers.reducer.MultiplyReducer">
 <em class="property">class </em><code class="descclassname">opennmt.layers.reducer.</code><code class="descname">MultiplyReducer</code><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#MultiplyReducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.MultiplyReducer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
 <p>A reducer that multiplies the inputs.</p>
 <dl class="method">
 <dt id="opennmt.layers.reducer.MultiplyReducer.reduce">
 <code class="descname">reduce</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#MultiplyReducer.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.MultiplyReducer.reduce" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.layers.reducer.MultiplyReducer.reduce_sequence">
 <code class="descname">reduce_sequence</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_lengths</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#MultiplyReducer.reduce_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.MultiplyReducer.reduce_sequence" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>sequence_lengths</strong> – The length of each input sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(reduced_input,</span> <span class="pre">reduced_length)</span></code> with the reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>
+and sequence length.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.layers.reducer.ConcatReducer">
 <em class="property">class </em><code class="descclassname">opennmt.layers.reducer.</code><code class="descname">ConcatReducer</code><span class="sig-paren">(</span><em>axis=-1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#ConcatReducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.ConcatReducer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
 <p>A reducer that concatenates the inputs.</p>
 <dl class="method">
 <dt id="opennmt.layers.reducer.ConcatReducer.reduce">
 <code class="descname">reduce</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#ConcatReducer.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.ConcatReducer.reduce" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.layers.reducer.ConcatReducer.reduce_sequence">
 <code class="descname">reduce_sequence</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_lengths</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#ConcatReducer.reduce_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.ConcatReducer.reduce_sequence" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>sequence_lengths</strong> – The length of each input sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(reduced_input,</span> <span class="pre">reduced_length)</span></code> with the reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>
+and sequence length.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.layers.reducer.JoinReducer">
 <em class="property">class </em><code class="descclassname">opennmt.layers.reducer.</code><code class="descname">JoinReducer</code><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#JoinReducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.JoinReducer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a></p>
 <p>A reducer that joins its inputs in a single tuple.</p>
 <dl class="method">
 <dt id="opennmt.layers.reducer.JoinReducer.reduce">
 <code class="descname">reduce</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#JoinReducer.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.JoinReducer.reduce" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.layers.reducer.JoinReducer.reduce_sequence">
 <code class="descname">reduce_sequence</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_lengths</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/reducer.html#JoinReducer.reduce_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.reducer.JoinReducer.reduce_sequence" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reduces all input sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>sequence_lengths</strong> – The length of each input sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(reduced_input,</span> <span class="pre">reduced_length)</span></code> with the reduced <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>
+and sequence length.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -406,6 +518,7 @@ and sequence length.</p>
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 

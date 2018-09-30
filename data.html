@@ -170,16 +170,16 @@
 <span id="data"></span><h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="data-format">
 <span id="data-format"></span><h2>Data format<a class="headerlink" href="#data-format" title="Permalink to this headline">¶</a></h2>
-<p>The format of the data files is defined by the <code class="docutils literal"><span class="pre">opennmt.inputters.Inputter</span></code> used by your model.</p>
+<p>The format of the data files is defined by the <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter</span></code> used by your model.</p>
 <div class="section" id="text">
 <span id="text"></span><h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
-<p>All <code class="docutils literal"><span class="pre">opennmt.inputters.TextInputter</span></code>s expect a text file as input where:</p>
+<p>All <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.TextInputter</span></code>s expect a text file as input where:</p>
 <ul class="simple">
 <li>sentences are separated by a <strong>newline</strong></li>
 <li>tokens are separated by a <strong>space</strong> (unless a custom tokenizer is set, see <a class="reference external" href="tokenization.html">Tokenization</a>)</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>$ head -5 data/toy-ende/src-train.txt
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ head -5 data/toy-ende/src-train.txt
 It is not acceptable that , with the help of the national bureaucracies , Parliament &amp;apos;s legislative prerogative should be made null and void by means of implementing provisions whose content , purpose and extent are not laid down in advance .
 Federal Master Trainer and Senior Instructor of the Italian Federation of Aerobic Fitness , Group Fitness , Postural Gym , Stretching and Pilates; from 2004 , he has been collaborating with Antiche Terme as personal Trainer and Instructor of Stretching , Pilates and Postural Gym .
 &amp;quot; Two soldiers came up to me and told me that if I refuse to sleep with them , they will kill me . They beat me and ripped my clothes .
@@ -190,27 +190,27 @@ The name of this site , and program name Title purchased will not be displayed .
 </div>
 <div class="section" id="vectors">
 <span id="vectors"></span><h3>Vectors<a class="headerlink" href="#vectors" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">opennmt.inputters.SequenceRecordInputter</span></code> expects a file with serialized <em>TFRecords</em>. To simplify the preparation of these data, the script <code class="docutils literal"><span class="pre">onmt-ark-to-records</span></code> can be used to convert vectors serialized in the ARK text format:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>KEY [
+<p>The <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.SequenceRecordInputter</span></code> expects a file with serialized <em>TFRecords</em>. To simplify the preparation of these data, the script <code class="docutils literal notranslate"><span class="pre">onmt-ark-to-records</span></code> can be used to convert vectors serialized in the ARK text format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>KEY [
 FEAT1.1 FEAT1.2 FEAT1.3 ... FEAT1.n
 ...
 FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 </pre></div>
 </div>
-<p>which describes an example of <code class="docutils literal"><span class="pre">m</span></code> vectors of depth <code class="docutils literal"><span class="pre">n</span></code> and identified by <code class="docutils literal"><span class="pre">KEY</span></code>.</p>
-<p>See <code class="docutils literal"><span class="pre">onmt-ark-to-records</span> <span class="pre">-h</span></code> for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with <code class="docutils literal"><span class="pre">KEY</span></code>s) to generate aligned source vectors and target texts.</p>
+<p>which describes an example of <code class="docutils literal notranslate"><span class="pre">m</span></code> vectors of depth <code class="docutils literal notranslate"><span class="pre">n</span></code> and identified by <code class="docutils literal notranslate"><span class="pre">KEY</span></code>.</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">onmt-ark-to-records</span> <span class="pre">-h</span></code> for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with <code class="docutils literal notranslate"><span class="pre">KEY</span></code>s) to generate aligned source vectors and target texts.</p>
 </div>
 <div class="section" id="alignments">
 <span id="alignments"></span><h3>Alignments<a class="headerlink" href="#alignments" title="Permalink to this headline">¶</a></h3>
 <p>Guided alignment requires a training alignment file that uses the “Pharaoh” format, e.g.:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>0-0 1-1 2-4 3-2 4-3 5-5 6-6
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>0-0 1-1 2-4 3-2 4-3 5-5 6-6
 0-0 1-1 2-2 2-3 3-4 4-5
 0-0 1-2 2-1 3-3 4-4 5-5
 </pre></div>
 </div>
-<p>where a pair <code class="docutils literal"><span class="pre">i-j</span></code> indicates that the <code class="docutils literal"><span class="pre">i</span></code>th word of the source sentence is aligned with the <code class="docutils literal"><span class="pre">j</span></code>th word of the target sentence (zero-indexed).</p>
+<p>where a pair <code class="docutils literal notranslate"><span class="pre">i-j</span></code> indicates that the <code class="docutils literal notranslate"><span class="pre">i</span></code>th word of the source sentence is aligned with the <code class="docutils literal notranslate"><span class="pre">j</span></code>th word of the target sentence (zero-indexed).</p>
 <p>This file should then be added in the data configuration:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">train_alignments</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">train-alignment.txt</span>
 </pre></div>
 </div>
@@ -220,7 +220,7 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 <div class="section" id="data-location">
 <span id="data-location"></span><h2>Data location<a class="headerlink" href="#data-location" title="Permalink to this headline">¶</a></h2>
 <p>By default, the data are expected to be on the same filesystem. However, it is possible to reference data stored in HDFS, Amazon S3, or any other remote storages supported by TensorFlow. For example:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">train_features_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">s3://namebucket/toy-ende/src-train.txt</span>
   <span class="l l-Scalar l-Scalar-Plain">train_labels_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">hdfs://namenode:8020/toy-ende/tgt-train.txt</span>
 </pre></div>
@@ -233,16 +233,16 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 </div>
 <div class="section" id="parallel-inputs">
 <span id="parallel-inputs"></span><h2>Parallel inputs<a class="headerlink" href="#parallel-inputs" title="Permalink to this headline">¶</a></h2>
-<p>When using <code class="docutils literal"><span class="pre">opennmt.inputters.ParallelInputter</span></code>, as many input files as inputters are expected. You have to configure your YAML file accordingly:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
+<p>When using <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code>, as many input files as inputters are expected. You have to configure your YAML file accordingly:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">train_features_file</span><span class="p p-Indicator">:</span>
     <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_1.records</span>
     <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_2.txt</span>
     <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_3.txt</span>
 </pre></div>
 </div>
-<p>Similarly, when using the <code class="docutils literal"><span class="pre">--features_file</span></code> command line option of the main script (e.g. for inference or scoring), a list of files must also be provided:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>onmt.main infer <span class="o">[</span>...<span class="o">]</span> <span class="se">\</span>
+<p>Similarly, when using the <code class="docutils literal notranslate"><span class="pre">--features_file</span></code> command line option of the main script (e.g. for inference or scoring), a list of files must also be provided:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt.main infer <span class="o">[</span>...<span class="o">]</span> <span class="se">\</span>
     --features_file test_source_1.records test_source_2.txt test_source_3.txt
 </pre></div>
 </div>
@@ -269,6 +269,7 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 
   <div role="contentinfo">
     <p>
+        &copy; Copyright 2018, The OpenNMT Authors.
 
     </p>
   </div> 
