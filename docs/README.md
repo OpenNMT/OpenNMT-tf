@@ -19,5 +19,5 @@ sphinx-apidoc -e -M -o docs/package opennmt opennmt/tests
 ## Build locally
 
 ```bash
-cd docs/ && make html
+PYTHONPATH=$PWD sphinx-build docs docs/build
 ```
