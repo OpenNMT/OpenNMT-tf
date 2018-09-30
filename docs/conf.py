@@ -37,7 +37,7 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+pygments_style = "default"
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {}
