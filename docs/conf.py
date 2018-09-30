@@ -7,7 +7,7 @@ import sys
 
 # General information about the project.
 project = "OpenNMT-tf"
-copyright = "2017, The OpenNMT Authors"
+copyright = "2018, The OpenNMT Authors"
 author = "OpenNMT"
 language = "en"
 
@@ -37,13 +37,13 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+pygments_style = "default"
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {}
 html_static_path = ["_static"]
 html_show_sourcelink = False
-html_show_copyright = False
+html_show_copyright = True
 html_show_sphinx = False
 html_logo = "_static/logo-alpha.png"
 htmlhelp_basename = "opennmtdoc"
