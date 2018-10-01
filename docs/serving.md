@@ -23,7 +23,7 @@ In the `train_and_eval` run type, models can be automatically exported following
 
 Export schedules are set by the `exporters` field in the `eval` section of the configuration file.
 
-Additionally, models can be manually exported using the `export` run type. Manually exported models are located in `export/manual/` within the model directory.
+Additionally, models can be manually exported using the `export` run type. Manually exported models are located by default in `export/manual/` within the model directory; a custom destination can be configured with the command line option `--export_dir_base`.
 
 ## Running SavedModel
 
