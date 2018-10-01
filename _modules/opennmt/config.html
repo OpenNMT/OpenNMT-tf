@@ -241,8 +241,14 @@
       <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">serial_model</span><span class="p">:</span>
-        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">serial_model</span><span class="p">)</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">serial_model</span><span class="p">:</span>
+          <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">serial_model</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="c1"># Ignore failure to serialize the model (e.g. the model contains an non</span>
+        <span class="c1"># serializable Boost Python module). Serialized model configuration</span>
+        <span class="c1"># is currently an undocumented feature that is planned for removal.</span>
+        <span class="k">pass</span>
   <span class="k">elif</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A model configuration is required.&quot;</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
