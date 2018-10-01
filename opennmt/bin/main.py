@@ -66,6 +66,8 @@ def main():
   parser.add_argument("--checkpoint_path", default=None,
                       help=("Checkpoint or directory to use for inference or export "
                             "(when a directory is set, the latest checkpoint is used)."))
+  parser.add_argument("--export_dir_base", default=None,
+                      help="The base directory of the exported model.")
   parser.add_argument("--num_gpus", type=int, default=1,
                       help="Number of GPUs to use for in-graph replication.")
   parser.add_argument("--chief_host", default="",
@@ -163,7 +165,9 @@ def main():
         checkpoint_path=args.checkpoint_path,
         log_time=args.log_prediction_time)
   elif args.run == "export":
-    runner.export(checkpoint_path=args.checkpoint_path)
+    runner.export(
+        checkpoint_path=args.checkpoint_path,
+        export_dir_base=args.export_dir_base)
   elif args.run == "score":
     if not args.features_file:
       parser.error("--features_file is required for scoring.")

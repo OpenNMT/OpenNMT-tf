@@ -14,6 +14,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Command line option `--export_dir_base` to configure the destination directory of manually exported models
+
 ### Fixes and improvements
 
 ## [1.8.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.8.1) (2018-09-28)

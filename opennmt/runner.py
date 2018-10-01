@@ -264,21 +264,22 @@ class Runner(object):
     if predictions_file:
       stream.close()
 
-  def export(self, checkpoint_path=None):
+  def export(self, checkpoint_path=None, export_dir_base=None):
     """Exports a model.
 
     Args:
       checkpoint_path: The checkpoint path to export. If ``None``, the latest is used.
+      export_dir_base: The base directory in which a timestamped subdirectory
+        containing the exported model will be created. Defaults to
+        ``$MODEL_DIR/export/manual``.
 
     Returns:
       The string path to the exported directory.
     """
     if checkpoint_path is not None and os.path.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-
-    export_dir = os.path.join(self._estimator.model_dir, "export")
-    if not os.path.isdir(export_dir):
-      os.makedirs(export_dir)
+    if export_dir_base is None:
+      export_dir_base = os.path.join(self._estimator.model_dir, "export", "manual")
 
     kwargs = {}
     if "strip_default_attrs" in fn_args(self._estimator.export_savedmodel):
@@ -287,7 +288,7 @@ class Runner(object):
       kwargs["strip_default_attrs"] = True
 
     return self._estimator.export_savedmodel(
-        os.path.join(export_dir, "manual"),
+        export_dir_base,
         self._model.serving_input_fn(self._config["data"]),
         checkpoint_path=checkpoint_path,
         **kwargs)
