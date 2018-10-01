@@ -2,7 +2,7 @@
 
 # OpenNMT-tf
 
-OpenNMT-tf is a general purpose TensorFlow sequence learning toolkit. While neural machine translation is the main target task, it has been designed to more generally support:
+OpenNMT-tf is a general purpose sequence learning toolkit using TensorFlow. While neural machine translation is the main target task, it has been designed to more generally support:
 
 * sequence to sequence mapping
 * sequence tagging
