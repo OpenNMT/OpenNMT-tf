@@ -260,15 +260,22 @@ the end of the inference loop.</li>
 
 <dl class="method">
 <dt id="opennmt.runner.Runner.export">
-<code class="descname">export</code><span class="sig-paren">(</span><em>checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.export" title="Permalink to this definition">¶</a></dt>
+<code class="descname">export</code><span class="sig-paren">(</span><em>checkpoint_path=None</em>, <em>export_dir_base=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.export" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports a model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_path</strong> – The checkpoint path to export. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the latest is used.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>checkpoint_path</strong> – The checkpoint path to export. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the latest is used.</li>
+<li><strong>export_dir_base</strong> – The base directory in which a timestamped subdirectory
+containing the exported model will be created. Defaults to
+<code class="docutils literal notranslate"><span class="pre">$MODEL_DIR/export/manual</span></code>.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The string path to the exported directory.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The string path to the exported directory.</p>
+</td>
 </tr>
 </tbody>
 </table>

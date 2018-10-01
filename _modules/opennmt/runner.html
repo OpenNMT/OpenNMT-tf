@@ -421,21 +421,22 @@
     <span class="k">if</span> <span class="n">predictions_file</span><span class="p">:</span>
       <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Runner.export"><a class="viewcode-back" href="../../package/opennmt.runner.html#opennmt.runner.Runner.export">[docs]</a>  <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner.export"><a class="viewcode-back" href="../../package/opennmt.runner.html#opennmt.runner.Runner.export">[docs]</a>  <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">export_dir_base</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exports a model.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      checkpoint_path: The checkpoint path to export. If ``None``, the latest is used.</span>
+<span class="sd">      export_dir_base: The base directory in which a timestamped subdirectory</span>
+<span class="sd">        containing the exported model will be created. Defaults to</span>
+<span class="sd">        ``$MODEL_DIR/export/manual``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      The string path to the exported directory.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">checkpoint_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
       <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
-
-    <span class="n">export_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;export&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">export_dir</span><span class="p">):</span>
-      <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">export_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">export_dir_base</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">export_dir_base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;export&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">)</span>
 
     <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="s2">&quot;strip_default_attrs&quot;</span> <span class="ow">in</span> <span class="n">fn_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span><span class="o">.</span><span class="n">export_savedmodel</span><span class="p">):</span>
@@ -444,7 +445,7 @@
       <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;strip_default_attrs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span><span class="o">.</span><span class="n">export_savedmodel</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">),</span>
+        <span class="n">export_dir_base</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">serving_input_fn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]),</span>
         <span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>

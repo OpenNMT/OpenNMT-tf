@@ -182,7 +182,7 @@
 <li><code class="docutils literal notranslate"><span class="pre">best</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/best</span></code> only if it achieves the best evaluation loss so far.</li>
 </ul>
 <p>Export schedules are set by the <code class="docutils literal notranslate"><span class="pre">exporters</span></code> field in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> section of the configuration file.</p>
-<p>Additionally, models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type. Manually exported models are located in <code class="docutils literal notranslate"><span class="pre">export/manual/</span></code> within the model directory.</p>
+<p>Additionally, models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type. Manually exported models are located by default in <code class="docutils literal notranslate"><span class="pre">export/manual/</span></code> within the model directory; a custom destination can be configured with the command line option <code class="docutils literal notranslate"><span class="pre">--export_dir_base</span></code>.</p>
 </div>
 <div class="section" id="running-savedmodel">
 <span id="running-savedmodel"></span><h2>Running SavedModel<a class="headerlink" href="#running-savedmodel" title="Permalink to this headline">¶</a></h2>
