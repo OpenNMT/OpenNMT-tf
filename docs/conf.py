@@ -46,6 +46,7 @@ html_show_sourcelink = False
 html_show_copyright = True
 html_show_sphinx = False
 html_logo = "_static/logo-alpha.png"
+html_favicon = "_static/favicon.png"
 htmlhelp_basename = "opennmtdoc"
 html_sidebars = {
     "**": [
