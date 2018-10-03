@@ -296,14 +296,16 @@
 
 <div class="viewcode-block" id="Transformer"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.Transformer">[docs]</a><span class="k">class</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">Transformer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">source_inputter</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
             <span class="n">vocabulary_file_key</span><span class="o">=</span><span class="s2">&quot;source_words_vocabulary&quot;</span><span class="p">,</span>
-            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
         <span class="n">target_inputter</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
             <span class="n">vocabulary_file_key</span><span class="o">=</span><span class="s2">&quot;target_words_vocabulary&quot;</span><span class="p">,</span>
-            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
         <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
         <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
         <span class="n">num_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
@@ -311,6 +313,11 @@
         <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">relu_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TransformerFP16"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.TransformerFP16">[docs]</a><span class="k">class</span> <span class="nc">TransformerFP16</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Defines a Transformer model that uses half-precision floating points.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">TransformerFP16</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TransformerAAN"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.TransformerAAN">[docs]</a><span class="k">class</span> <span class="nc">TransformerAAN</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762</span>

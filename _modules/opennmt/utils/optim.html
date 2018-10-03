@@ -165,6 +165,7 @@
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">optimizers</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">decay</span>
+<span class="kn">from</span> <span class="nn">opennmt.optimizers.mixed_precision_wrapper</span> <span class="k">import</span> <span class="n">get_loss_scale_from_params</span>
 
 
 <div class="viewcode-block" id="learning_rate_decay_fn"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.learning_rate_decay_fn">[docs]</a><span class="k">def</span> <span class="nf">learning_rate_decay_fn</span><span class="p">(</span><span class="n">decay_type</span><span class="p">,</span>
@@ -245,12 +246,14 @@
 
   <span class="k">return</span> <span class="n">optimizer_class</span></div>
 
-<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Minimizes the loss.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    loss: The loss to minimize.</span>
 <span class="sd">    params: A dictionary of hyperparameters.</span>
+<span class="sd">    mixed_precision: If ``True``, wraps the optimizer to maintain a float32 copy</span>
+<span class="sd">      of the weights.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    The loss minimization op.</span>
@@ -283,6 +286,12 @@
   <span class="k">else</span><span class="p">:</span>
     <span class="n">optimizer</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lr</span><span class="p">:</span> <span class="n">optimizer_class</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_params</span><span class="p">)</span>
 
+  <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
+    <span class="n">optimizer_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lr</span><span class="p">:</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">MixedPrecisionOptimizerWrapper</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="p">(</span><span class="n">lr</span><span class="p">),</span> <span class="n">loss_scale</span><span class="o">=</span><span class="n">get_loss_scale_from_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">optimizer_fn</span> <span class="o">=</span> <span class="n">optimizer</span>
+
   <span class="n">regularization</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regularization&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">regularization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">loss</span> <span class="o">+=</span> <span class="n">regularization_penalty</span><span class="p">(</span><span class="n">regularization</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">regularization</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">])</span>
@@ -291,7 +300,7 @@
       <span class="n">loss</span><span class="p">,</span>
       <span class="n">global_step</span><span class="p">,</span>
       <span class="n">learning_rate</span><span class="p">,</span>
-      <span class="n">optimizer</span><span class="p">,</span>
+      <span class="n">optimizer_fn</span><span class="p">,</span>
       <span class="n">clip_gradients</span><span class="o">=</span><span class="n">clip_gradients</span><span class="p">,</span>
       <span class="n">learning_rate_decay_fn</span><span class="o">=</span><span class="n">decay_fn</span><span class="p">,</span>
       <span class="n">name</span><span class="o">=</span><span class="s2">&quot;optim&quot;</span><span class="p">,</span>

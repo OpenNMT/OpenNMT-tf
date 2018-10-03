@@ -234,7 +234,7 @@
 
 <dl class="function">
 <dt id="opennmt.utils.optim.optimize">
-<code class="descclassname">opennmt.utils.optim.</code><code class="descname">optimize</code><span class="sig-paren">(</span><em>loss</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.optimize" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">optimize</code><span class="sig-paren">(</span><em>loss</em>, <em>params</em>, <em>mixed_precision=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.optimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimizes the loss.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -243,6 +243,8 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>loss</strong> – The loss to minimize.</li>
 <li><strong>params</strong> – A dictionary of hyperparameters.</li>
+<li><strong>mixed_precision</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, wraps the optimizer to maintain a float32 copy
+of the weights.</li>
 </ul>
 </td>
 </tr>

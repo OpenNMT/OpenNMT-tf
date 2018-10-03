@@ -25,6 +25,7 @@
 ./_modules/opennmt/models/sequence_to_sequence.html
 ./_modules/opennmt/models/transformer.html
 ./_modules/opennmt/optimizers/adafactor.html
+./_modules/opennmt/optimizers/mixed_precision_wrapper.html
 ./_modules/opennmt/optimizers/multistep_adam.html
 ./_modules/opennmt/runner.html
 ./_modules/opennmt/tokenizers.html
@@ -78,6 +79,7 @@
 ./_sources/package/opennmt.models.sequence_to_sequence.rst.txt
 ./_sources/package/opennmt.models.transformer.rst.txt
 ./_sources/package/opennmt.optimizers.adafactor.rst.txt
+./_sources/package/opennmt.optimizers.mixed_precision_wrapper.rst.txt
 ./_sources/package/opennmt.optimizers.multistep_adam.rst.txt
 ./_sources/package/opennmt.optimizers.rst.txt
 ./_sources/package/opennmt.rst.txt
@@ -198,6 +200,7 @@
 ./package/opennmt.models.transformer.html
 ./package/opennmt.optimizers.adafactor.html
 ./package/opennmt.optimizers.html
+./package/opennmt.optimizers.mixed_precision_wrapper.html
 ./package/opennmt.optimizers.multistep_adam.html
 ./package/opennmt.runner.html
 ./package/opennmt.tokenizers.html

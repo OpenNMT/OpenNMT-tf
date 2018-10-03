@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#monitoring">Monitoring</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#replicated-training">Replicated training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#distributed-training">Distributed training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixed-precision-training">Mixed precision training</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -212,6 +213,26 @@
 <p>will start the worker 1 on the current machine and first GPU. By setting <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> correctly, asynchronous distributed training can be run on a single multi-GPU machine.</p>
 <p>For more details, see the documentation of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/estimator/train_and_evaluate"><code class="docutils literal notranslate"><span class="pre">tf.estimator.train_and_evaluate</span></code></a>. Also see <a class="reference external" href="https://github.com/tensorflow/ecosystem">tensorflow/ecosystem</a> to integrate distributed training with open-source frameworks like Docker or Kubernetes.</p>
 <p><strong>Note:</strong> distributed training will also split the training directory <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> accross the instances. This could impact features that restore checkpoints like inference, manual export, or checkpoint averaging. The recommend approach to properly support these features while running distributed training is to store the <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> on a shared filesystem, e.g. by using <a class="reference external" href="https://www.tensorflow.org/deploy/hadoop">HDFS</a>.</p>
+</div>
+<div class="section" id="mixed-precision-training">
+<span id="mixed-precision-training"></span><h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline">¶</a></h2>
+<p>Thanks to <a class="reference external" href="https://github.com/NVIDIA/OpenSeq2Seq">work from NVIDIA</a>, OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the <a class="reference external" href="package/opennmt.inputters.inputter.html">inputters</a> is defined to be <code class="docutils literal notranslate"><span class="pre">tf.float16</span></code>. See for example the predefined model <code class="docutils literal notranslate"><span class="pre">TransformerFP16</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train <span class="o">[</span>...<span class="o">]</span> --model_type TransformerFP16
+</pre></div>
+</div>
+<p>Additional training configurations are available to tune the loss scaling algorithm:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">params</span><span class="p p-Indicator">:</span>
+  <span class="c1"># (optional) For mixed precision training, the loss scaling to apply (a constant value or</span>
+  <span class="c1"># an automatic scaling algorithm: &quot;backoff&quot;, &quot;logmax&quot;, default: &quot;backoff&quot;)</span>
+  <span class="l l-Scalar l-Scalar-Plain">loss_scale</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backoff</span>
+  <span class="c1"># (optional) For mixed precision training, the additional parameters to pass the loss scale</span>
+  <span class="c1"># (see the source file opennmt/optimizers/mixed_precision_wrapper.py).</span>
+  <span class="l l-Scalar l-Scalar-Plain">loss_scale_params</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">scale_min</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+    <span class="l l-Scalar l-Scalar-Plain">step_factor</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+</pre></div>
+</div>
+<p>For more information about the implementation and get expert recommendation on how to maximize performance, see the <a class="reference external" href="https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html">OpenSeq2Seq’s documentation</a>. Currently, mixed precision training requires Volta GPUs and the NVIDIA’s TensorFlow Docker image.</p>
 </div>
 </div>
 
