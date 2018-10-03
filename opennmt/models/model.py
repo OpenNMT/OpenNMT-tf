@@ -103,7 +103,7 @@ class Model(object):
               _loss_op, features_shards, labels_shards, params, mode, config)
 
         loss = _extract_loss(losses_shards)
-        train_op = optimize(loss, params)
+        train_op = optimize(loss, params, mixed_precision=(self.dtype == tf.float16))
         return tf.estimator.EstimatorSpec(
             mode,
             loss=loss,

@@ -35,6 +35,14 @@ params:
   param_init: 0.1
   # (optional) Maximum gradients norm (default: None).
   clip_gradients: 5.0
+  # (optional) For mixed precision training, the loss scaling to apply (a constant value or
+  # an automatic scaling algorithm: "backoff", "logmax", default: "backoff")
+  loss_scale: backoff
+  # (optional) For mixed precision training, the additional parameters to pass the loss scale
+  # (see the source file opennmt/optimizers/mixed_precision_wrapper.py).
+  loss_scale_params:
+    scale_min: 1.0
+    step_factor: 2.0
   # (optional) Weights regularization penalty (default: null).
   regularization:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).

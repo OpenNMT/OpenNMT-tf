@@ -14,6 +14,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Mixed precision training of Transformer models
 * Command line option `--export_dir_base` to configure the destination directory of manually exported models
 
 ### Fixes and improvements
