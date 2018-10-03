@@ -193,10 +193,10 @@ def dot_product_attention(queries,
   dot = tf.matmul(queries, keys, transpose_b=True)
 
   if mask is not None:
-    dot = dot * mask + ((1.0 - mask) * dot.dtype.min)
+    dot = tf.cast(tf.to_float(dot) * mask + ((1.0 - mask) * tf.float32.min), dot.dtype)
 
   # Compute attention weights.
-  attn = tf.nn.softmax(dot)
+  attn = tf.cast(tf.nn.softmax(tf.to_float(dot)), dot.dtype)
   drop_attn = tf.layers.dropout(
       attn,
       rate=dropout,

@@ -137,14 +137,16 @@ class SeqTagger(onmt.models.SequenceTagger):
 
 class Transformer(onmt.models.Transformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
-  def __init__(self):
+  def __init__(self, dtype=tf.float32):
     super(Transformer, self).__init__(
         source_inputter=onmt.inputters.WordEmbedder(
             vocabulary_file_key="source_words_vocabulary",
-            embedding_size=512),
+            embedding_size=512,
+            dtype=dtype),
         target_inputter=onmt.inputters.WordEmbedder(
             vocabulary_file_key="target_words_vocabulary",
-            embedding_size=512),
+            embedding_size=512,
+            dtype=dtype),
         num_layers=6,
         num_units=512,
         num_heads=8,
@@ -152,6 +154,11 @@ class Transformer(onmt.models.Transformer):
         dropout=0.1,
         attention_dropout=0.1,
         relu_dropout=0.1)
+
+class TransformerFP16(Transformer):
+  """Defines a Transformer model that uses half-precision floating points."""
+  def __init__(self):
+    super(TransformerFP16, self).__init__(dtype=tf.float16)
 
 class TransformerAAN(onmt.models.Transformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762
