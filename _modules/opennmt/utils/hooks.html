@@ -187,6 +187,9 @@
 <span class="sd">    name: The name of this counter.</span>
 <span class="sd">    tensor: The integer ``tf.Tensor`` to count.</span>
 
+<span class="sd">  Returns:</span>
+<span class="sd">    An op that increments the counter.</span>
+
 <span class="sd">  See Also:</span>
 <span class="sd">    :meth:`opennmt.utils.misc.WordCounterHook` that fetches these counters</span>
 <span class="sd">    to log their value in TensorBoard.</span>
@@ -201,7 +204,8 @@
       <span class="n">total_count_init</span><span class="p">,</span>
       <span class="n">count</span><span class="p">,</span>
       <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-  <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">_DEFAULT_COUNTERS_COLLECTION</span><span class="p">,</span> <span class="n">total_count</span><span class="p">)</span></div>
+  <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">_DEFAULT_COUNTERS_COLLECTION</span><span class="p">,</span> <span class="n">total_count</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">total_count</span></div>
 
 
 <div class="viewcode-block" id="CountersHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook">[docs]</a><span class="k">class</span> <span class="nc">CountersHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
@@ -214,7 +218,8 @@
                <span class="n">every_n_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                <span class="n">every_n_secs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">summary_writer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+               <span class="n">summary_writer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">counters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">every_n_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">every_n_secs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;exactly one of every_n_steps and every_n_secs should be provided.&quot;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SecondOrStepTimer</span><span class="p">(</span>
@@ -223,9 +228,11 @@
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="o">=</span> <span class="n">summary_writer</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_counters</span> <span class="o">=</span> <span class="n">counters</span>
 
 <div class="viewcode-block" id="CountersHook.begin"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook.begin">[docs]</a>  <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_counters</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">_DEFAULT_COUNTERS_COLLECTION</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_counters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_counters</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">_DEFAULT_COUNTERS_COLLECTION</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_counters</span><span class="p">:</span>
       <span class="k">return</span>
 
@@ -295,7 +302,7 @@
 <div class="viewcode-block" id="SaveEvaluationPredictionHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook">[docs]</a><span class="k">class</span> <span class="nc">SaveEvaluationPredictionHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Hook that saves the evaluation predictions.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SaveEvaluationPredictionHook.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">post_evaluation_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SaveEvaluationPredictionHook.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">post_evaluation_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes this hook.</span>
 
 <span class="sd">    Args:</span>
@@ -304,13 +311,16 @@
 <span class="sd">        training step.</span>
 <span class="sd">      post_evaluation_fn: (optional) A callable that takes as argument the</span>
 <span class="sd">        current step and the file with the saved predictions.</span>
+<span class="sd">      predictions: The predictions to save.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_output_file</span> <span class="o">=</span> <span class="n">output_file</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_post_evaluation_fn</span> <span class="o">=</span> <span class="n">post_evaluation_fn</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_post_evaluation_fn</span> <span class="o">=</span> <span class="n">post_evaluation_fn</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span> <span class="o">=</span> <span class="n">predictions</span></div>
 
 <div class="viewcode-block" id="SaveEvaluationPredictionHook.begin"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.begin">[docs]</a>  <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_dict_from_collection</span><span class="p">(</span><span class="s2">&quot;predictions&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_dict_from_collection</span><span class="p">(</span><span class="s2">&quot;predictions&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The model did not define any predictions.&quot;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_global_step</span><span class="p">()</span>

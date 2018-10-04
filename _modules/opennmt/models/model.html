@@ -166,10 +166,9 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">data</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">data</span><span class="p">,</span> <span class="n">hooks</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.optim</span> <span class="k">import</span> <span class="n">optimize</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.hooks</span> <span class="k">import</span> <span class="n">add_counter</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">add_dict_to_collection</span><span class="p">,</span> <span class="n">item_or_tuple</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">item_or_tuple</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.parallel</span> <span class="k">import</span> <span class="n">GraphDispatcher</span>
 
 
@@ -207,11 +206,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.model_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.model_fn">[docs]</a>  <span class="k">def</span> <span class="nf">model_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.model_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.model_fn">[docs]</a>  <span class="k">def</span> <span class="nf">model_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">eval_prediction_hooks_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the model function.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      num_devices: The number of devices used for training.</span>
+<span class="sd">      eval_prediction_hooks_fn: A callable that takes the model predictions</span>
+<span class="sd">        during evaluation and return an iterable of evaluation hooks (e.g. for</span>
+<span class="sd">        saving predictions on disk, running external evaluators, etc.).</span>
 
 <span class="sd">    See Also:</span>
 <span class="sd">      ``tf.estimator.Estimator`` &#39;s ``model_fn`` argument for more details about</span>
@@ -252,7 +254,11 @@
     <span class="k">def</span> <span class="nf">_model_fn</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;model_fn implementation.&quot;&quot;&quot;</span>
       <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_register_word_counters</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">counters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_word_counters</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">counters_hook</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">CountersHook</span><span class="p">(</span>
+            <span class="n">every_n_steps</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">save_summary_steps</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span>
+            <span class="n">counters</span><span class="o">=</span><span class="n">counters</span><span class="p">)</span>
 
         <span class="n">features_shards</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
         <span class="n">labels_shards</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
@@ -266,7 +272,8 @@
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">EstimatorSpec</span><span class="p">(</span>
             <span class="n">mode</span><span class="p">,</span>
             <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
-            <span class="n">train_op</span><span class="o">=</span><span class="n">train_op</span><span class="p">)</span>
+            <span class="n">train_op</span><span class="o">=</span><span class="n">train_op</span><span class="p">,</span>
+            <span class="n">training_hooks</span><span class="o">=</span><span class="p">[</span><span class="n">counters_hook</span><span class="p">])</span>
       <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">EVAL</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
           <span class="n">logits</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -274,14 +281,14 @@
 
         <span class="n">loss</span> <span class="o">=</span> <span class="n">_extract_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
         <span class="n">eval_metric_ops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_metrics</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-          <span class="c1"># Register predictions in a collection so that hooks can easily fetch them.</span>
-          <span class="n">add_dict_to_collection</span><span class="p">(</span><span class="s2">&quot;predictions&quot;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
-
+        <span class="n">evaluation_hooks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">eval_prediction_hooks_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="n">evaluation_hooks</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">eval_prediction_hooks_fn</span><span class="p">(</span><span class="n">predictions</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">EstimatorSpec</span><span class="p">(</span>
             <span class="n">mode</span><span class="p">,</span>
             <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
-            <span class="n">eval_metric_ops</span><span class="o">=</span><span class="n">eval_metric_ops</span><span class="p">)</span>
+            <span class="n">eval_metric_ops</span><span class="o">=</span><span class="n">eval_metric_ops</span><span class="p">,</span>
+            <span class="n">evaluation_hooks</span><span class="o">=</span><span class="n">evaluation_hooks</span><span class="p">)</span>
       <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">PREDICT</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
           <span class="n">_</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -363,11 +370,13 @@
     <span class="n">features_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
     <span class="n">labels_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
 
+    <span class="n">counters</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;words_per_sec&quot;</span><span class="p">):</span>
       <span class="k">if</span> <span class="n">features_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">features_length</span><span class="p">))</span>
+        <span class="n">counters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hooks</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">features_length</span><span class="p">)))</span>
       <span class="k">if</span> <span class="n">labels_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">labels_length</span><span class="p">))</span>
+        <span class="n">counters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hooks</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">labels_length</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">counters</span>
 
   <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Runs model specific initialization (e.g. vocabularies loading).</span>

@@ -208,10 +208,13 @@ graph, should not change the graph.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>name</strong> – The name of this counter.</li>
 <li><strong>tensor</strong> – The integer <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> to count.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An op that increments the counter.</p>
 </td>
 </tr>
 </tbody>
@@ -225,7 +228,7 @@ to log their value in TensorBoard.</p>
 
 <dl class="class">
 <dt id="opennmt.utils.hooks.CountersHook">
-<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">CountersHook</code><span class="sig-paren">(</span><em>every_n_steps=100</em>, <em>every_n_secs=None</em>, <em>output_dir=None</em>, <em>summary_writer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#CountersHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.CountersHook" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">CountersHook</code><span class="sig-paren">(</span><em>every_n_steps=100</em>, <em>every_n_secs=None</em>, <em>output_dir=None</em>, <em>summary_writer=None</em>, <em>counters=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#CountersHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.CountersHook" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.training.session_run_hook.SessionRunHook</span></code></p>
 <p>Hook that summarizes counters.</p>
 <p>Implementation is mostly copied from StepCounterHook.</p>
@@ -379,12 +382,12 @@ Note the difference between <cite>end()</cite> and <cite>after_run()</cite> beha
 
 <dl class="class">
 <dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook">
-<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">SaveEvaluationPredictionHook</code><span class="sig-paren">(</span><em>model</em>, <em>output_file</em>, <em>post_evaluation_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">SaveEvaluationPredictionHook</code><span class="sig-paren">(</span><em>model</em>, <em>output_file</em>, <em>post_evaluation_fn=None</em>, <em>predictions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.training.session_run_hook.SessionRunHook</span></code></p>
 <p>Hook that saves the evaluation predictions.</p>
 <dl class="method">
 <dt id="opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>output_file</em>, <em>post_evaluation_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>output_file</em>, <em>post_evaluation_fn=None</em>, <em>predictions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#SaveEvaluationPredictionHook.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes this hook.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -396,6 +399,7 @@ Note the difference between <cite>end()</cite> and <cite>after_run()</cite> beha
 training step.</li>
 <li><strong>post_evaluation_fn</strong> – (optional) A callable that takes as argument the
 current step and the file with the saved predictions.</li>
+<li><strong>predictions</strong> – The predictions to save.</li>
 </ul>
 </td>
 </tr>

@@ -216,13 +216,19 @@ the arguments of this function.</p>
 
 <dl class="method">
 <dt id="opennmt.models.model.Model.model_fn">
-<code class="descname">model_fn</code><span class="sig-paren">(</span><em>num_devices=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.model_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.model_fn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">model_fn</code><span class="sig-paren">(</span><em>num_devices=1</em>, <em>eval_prediction_hooks_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.model_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.model_fn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the model function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num_devices</strong> – The number of devices used for training.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_devices</strong> – The number of devices used for training.</li>
+<li><strong>eval_prediction_hooks_fn</strong> – A callable that takes the model predictions
+during evaluation and return an iterable of evaluation hooks (e.g. for
+saving predictions on disk, running external evaluators, etc.).</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
