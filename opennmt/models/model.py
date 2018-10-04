@@ -7,9 +7,8 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import data
+from opennmt.utils import data, hooks
 from opennmt.utils.optim import optimize
-from opennmt.utils.hooks import add_counter
 from opennmt.utils.misc import item_or_tuple
 from opennmt.utils.parallel import GraphDispatcher
 
@@ -96,7 +95,11 @@ class Model(object):
     def _model_fn(features, labels, params, mode, config):
       """model_fn implementation."""
       if mode == tf.estimator.ModeKeys.TRAIN:
-        self._register_word_counters(features, labels)
+        counters = self._register_word_counters(features, labels)
+        counters_hook = hooks.CountersHook(
+            every_n_steps=config.save_summary_steps,
+            output_dir=config.model_dir,
+            counters=counters)
 
         features_shards = dispatcher.shard(features)
         labels_shards = dispatcher.shard(labels)
@@ -110,7 +113,8 @@ class Model(object):
         return tf.estimator.EstimatorSpec(
             mode,
             loss=loss,
-            train_op=train_op)
+            train_op=train_op,
+            training_hooks=[counters_hook])
       elif mode == tf.estimator.ModeKeys.EVAL:
         with tf.variable_scope(self.name):
           logits, predictions = self._build(features, labels, params, mode, config=config)
@@ -207,11 +211,13 @@ class Model(object):
     features_length = self._get_features_length(features)
     labels_length = self._get_labels_length(labels)
 
+    counters = []
     with tf.variable_scope("words_per_sec"):
       if features_length is not None:
-        add_counter("features", tf.reduce_sum(features_length))
+        counters.append(hooks.add_counter("features", tf.reduce_sum(features_length)))
       if labels_length is not None:
-        add_counter("labels", tf.reduce_sum(labels_length))
+        counters.append(hooks.add_counter("labels", tf.reduce_sum(labels_length)))
+    return counters
 
   def _initialize(self, metadata):
     """Runs model specific initialization (e.g. vocabularies loading).

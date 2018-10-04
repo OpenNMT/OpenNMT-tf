@@ -121,10 +121,7 @@ class Runner(object):
 
   def _build_train_spec(self):
     train_hooks = [
-        hooks.LogParametersCountHook(),
-        hooks.CountersHook(
-            every_n_steps=self._estimator.config.save_summary_steps,
-            output_dir=self._estimator.model_dir)]
+        hooks.LogParametersCountHook()]
 
     train_spec = tf.estimator.TrainSpec(
         input_fn=self._model.input_fn(

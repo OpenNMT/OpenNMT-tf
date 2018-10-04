@@ -28,6 +28,9 @@ def add_counter(name, tensor):
     name: The name of this counter.
     tensor: The integer ``tf.Tensor`` to count.
 
+  Returns:
+    An op that increments the counter.
+
   See Also:
     :meth:`opennmt.utils.misc.WordCounterHook` that fetches these counters
     to log their value in TensorBoard.
@@ -43,6 +46,7 @@ def add_counter(name, tensor):
       count,
       name=name)
   tf.add_to_collection(_DEFAULT_COUNTERS_COLLECTION, total_count)
+  return total_count
 
 
 class CountersHook(tf.train.SessionRunHook):
@@ -55,7 +59,8 @@ class CountersHook(tf.train.SessionRunHook):
                every_n_steps=100,
                every_n_secs=None,
                output_dir=None,
-               summary_writer=None):
+               summary_writer=None,
+               counters=None):
     if (every_n_steps is None) == (every_n_secs is None):
       raise ValueError("exactly one of every_n_steps and every_n_secs should be provided.")
     self._timer = tf.train.SecondOrStepTimer(
@@ -64,9 +69,11 @@ class CountersHook(tf.train.SessionRunHook):
 
     self._summary_writer = summary_writer
     self._output_dir = output_dir
+    self._counters = counters
 
   def begin(self):
-    self._counters = tf.get_collection(_DEFAULT_COUNTERS_COLLECTION)
+    if self._counters is None:
+      self._counters = tf.get_collection(_DEFAULT_COUNTERS_COLLECTION)
     if not self._counters:
       return
 
