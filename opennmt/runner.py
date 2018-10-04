@@ -94,9 +94,30 @@ class Runner(object):
             keep_checkpoint_max=self._config["train"]["keep_checkpoint_max"])
 
     self._estimator = tf.estimator.Estimator(
-        self._model.model_fn(num_devices=self._num_devices),
+        self._model.model_fn(
+            num_devices=self._num_devices,
+            eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn()),
         config=run_config,
         params=self._config["params"])
+
+  def _make_eval_prediction_hooks_fn(self):
+    if "eval" not in self._config:
+      self._config["eval"] = {}
+    if (not self._config["eval"].get("save_eval_predictions", False)
+        and self._config["eval"].get("external_evaluators") is None):
+      return None
+    save_path = os.path.join(self._config["model_dir"], "eval")
+    if not os.path.isdir(save_path):
+      os.makedirs(save_path)
+    return lambda predictions: [
+        hooks.SaveEvaluationPredictionHook(
+            self._model,
+            os.path.join(save_path, "predictions.txt"),
+            post_evaluation_fn=external_evaluation_fn(
+                self._config["eval"].get("external_evaluators"),
+                self._config["data"]["eval_labels_file"],
+                output_dir=self._config["model_dir"]),
+            predictions=predictions)]
 
   def _build_train_spec(self):
     train_hooks = [
@@ -129,20 +150,6 @@ class Runner(object):
     if "eval" not in self._config:
       self._config["eval"] = {}
 
-    eval_hooks = []
-    if (self._config["eval"].get("save_eval_predictions", False)
-        or self._config["eval"].get("external_evaluators") is not None):
-      save_path = os.path.join(self._estimator.model_dir, "eval")
-      if not os.path.isdir(save_path):
-        os.makedirs(save_path)
-      eval_hooks.append(hooks.SaveEvaluationPredictionHook(
-          self._model,
-          os.path.join(save_path, "predictions.txt"),
-          post_evaluation_fn=external_evaluation_fn(
-              self._config["eval"].get("external_evaluators"),
-              self._config["data"]["eval_labels_file"],
-              output_dir=self._estimator.model_dir)))
-
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self._model.input_fn(
             tf.estimator.ModeKeys.EVAL,
@@ -153,7 +160,6 @@ class Runner(object):
             prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size"),
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
-        hooks=eval_hooks,
         exporters=_make_exporters(
             self._config["eval"].get("exporters", "last"),
             self._model.serving_input_fn(self._config["data"])),

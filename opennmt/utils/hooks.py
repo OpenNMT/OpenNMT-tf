@@ -136,7 +136,7 @@ class LogPredictionTimeHook(tf.train.SessionRunHook):
 class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
   """Hook that saves the evaluation predictions."""
 
-  def __init__(self, model, output_file, post_evaluation_fn=None):
+  def __init__(self, model, output_file, post_evaluation_fn=None, predictions=None):
     """Initializes this hook.
 
     Args:
@@ -145,13 +145,16 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
         training step.
       post_evaluation_fn: (optional) A callable that takes as argument the
         current step and the file with the saved predictions.
+      predictions: The predictions to save.
     """
     self._model = model
     self._output_file = output_file
     self._post_evaluation_fn = post_evaluation_fn
+    self._predictions = predictions
 
   def begin(self):
-    self._predictions = misc.get_dict_from_collection("predictions")
+    if self._predictions is None:
+      self._predictions = misc.get_dict_from_collection("predictions")
     if not self._predictions:
       raise RuntimeError("The model did not define any predictions.")
     self._global_step = tf.train.get_global_step()
