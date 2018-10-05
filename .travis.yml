@@ -28,13 +28,24 @@ matrix:
       env: TF_VERSION="1.8.*"
     - python: "3.6"
       env: TF_VERSION="1.9.*"
+  include:
+    - python: "3.6"
+      env:
+        - TF_VERSION="$MAIN_TF_VERSION"
+        - secure: "YoOVLtg7j03Il5IixovqClvANqQgO/D4idZ2JANmmj+Sea4iVTEIpd4WWLcis99yctY1Kh8aAeGKSFtHUB52+5N2ignewfAdHc3yPjsk8EngAtnhZfc9J40Inky/ogZSVRm4Wh+/3+zvN3VYKVB6hmOgfz9sBxfwBwOOLLliANnyHLo2j0a4GDhkIDy6IDGnl8yO8vMG6W83KVbmyS36Y6zNmMi26/uWTWMISrErrWc5BOAqWVsFvy5lZJDXQUbQ+nSBhprNWCVkZFtWd35EP3f6iVzaR09EfOwJTGKg1TmzmJr1OydNK/hrr/YVlb3byvDFmPPPz7dBu/yXmc26j/N6O5N8BQLqGv2JBNYpy8v4zV77uGjH+W0kXKHz4QAYuQHU40TjXFVa3ZEoWDNYM6T2lvZ+mAfoj9JgsAFQ9XZhmKH6al+5HnDzhohqxTVef32dIDY+mffNb0jofexVCu+ko1wCTjUh4KyzQKSncc4Dq4welYMbfIsLMaeyHdtz5hcJhUlseVbOu6rmLtaBVuYJ350paN4/rWD9svQ+ek53XrSUpiRRLO1VU7ErruralpG/DPyIZIzWKREqGoz1eBoOxjq+iytZqiLbeMwYP3BYmg+RvMzW6m1lpkAeAMMqsEYVj/IdTnTY7jxR1yaV0A7KpuON9pBTSjKy5Ci7cCE="
+      install:
+        - pip install -r docs/requirements.txt
+        - pip install doctr
+      script:
+        - set -e
+        - sphinx-build docs docs/build
+        - doctr deploy --built-docs docs/build .
 before_install:
   - pip install tensorflow==$TF_VERSION
   - pip install -e .[tests]
   - |
         if [[ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" ]]; then
             pip install pylint==1.8.2
-            pip install -r docs/requirements.txt
             pip install wheel
             pip install twine
         fi
@@ -44,12 +55,6 @@ script:
 after_success:
   - |
         if [[ "$TRAVIS_PYTHON_VERSION" == "$MAIN_PYTHON_VERSION" && "$TF_VERSION" == "$MAIN_TF_VERSION" && -n $TRAVIS_TAG ]]; then
-            eval "$(ssh-agent -s)"; touch docs/key; chmod 0600 docs/key
-            openssl aes-256-cbc -K $encrypted_6389583f9019_key -iv $encrypted_6389583f9019_iv -in docs/key.enc -out docs/key -d && ssh-add docs/key
-            git config --global user.email "builds@travis-ci.com"
-            git config --global user.name "Travis CI"
-            git remote set-url --push origin "git@github.com:$TRAVIS_REPO_SLUG"
-            sphinx-versioning push -e .nojekyll docs gh-pages .
             python setup.py sdist bdist_wheel --universal
             twine upload dist/*
         fi

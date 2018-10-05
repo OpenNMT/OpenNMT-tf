@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import yaml
 
 import tensorflow as tf
 
@@ -72,19 +73,34 @@ class TokenizerTest(tf.test.TestCase):
 
   def testOpenNMTTokenizer(self):
     self._testTokenizer(OpenNMTTokenizer(), "Hello world!", ["Hello", "world", "!"])
-
-    tok_config = os.path.join(self.get_temp_dir(), "tok_config.yml")
-    with open(tok_config, "wb") as tok_config_file:
-      tok_config_file.write(b"mode: aggressive\n"
-                            b"spacer_annotate: true\n"
-                            b"spacer_new: true\n")
-    self._testTokenizer(OpenNMTTokenizer(configuration_file_or_key=tok_config),
-                        "Hello World-s", ["Hello", "▁", "World", "-", "s"])
-
     self._testDetokenizer(
         OpenNMTTokenizer(),
         [["Hello", "world", "￭!"], ["Test"], ["My", "name"]],
         ["Hello world!", "Test", "My name"])
+
+  def testOpenNMTTokenizerFromConfiguration(self):
+    params = {
+        "mode": "aggressive",
+        "spacer_annotate": True,
+        "spacer_new": True
+    }
+    tok_config = os.path.join(self.get_temp_dir(), "tok_config.yml")
+    with open(tok_config, "w") as tok_config_file:
+      yaml.dump(params, tok_config_file)
+
+    def _test(tokenizer):
+      self._testTokenizer(tokenizer, "Hello World-s", ["Hello", "▁", "World", "-", "s"])
+
+    tokenizer = OpenNMTTokenizer(configuration_file_or_key=tok_config)
+    _test(tokenizer)
+    tokenizer = OpenNMTTokenizer(configuration_file_or_key="source_tokenization")
+    tokenizer.initialize({"source_tokenization": tok_config})
+    _test(tokenizer)
+    tokenizer = OpenNMTTokenizer(configuration_file_or_key="source_tokenization")
+    tokenizer.initialize({"source_tokenization": params})
+    _test(tokenizer)
+    tokenizer = OpenNMTTokenizer(params=params)
+    _test(tokenizer)
 
 
 if __name__ == "__main__":

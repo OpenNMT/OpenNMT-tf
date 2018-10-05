@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from opennmt import optimizers
 from opennmt.utils import decay
+from opennmt.optimizers.mixed_precision_wrapper import get_loss_scale_from_params
 
 
 def learning_rate_decay_fn(decay_type,
@@ -86,12 +87,14 @@ def get_optimizer_class(classname):
 
   return optimizer_class
 
-def optimize(loss, params):
+def optimize(loss, params, mixed_precision=False):
   """Minimizes the loss.
 
   Args:
     loss: The loss to minimize.
     params: A dictionary of hyperparameters.
+    mixed_precision: If ``True``, wraps the optimizer to maintain a float32 copy
+      of the weights.
 
   Returns:
     The loss minimization op.
@@ -124,6 +127,12 @@ def optimize(loss, params):
   else:
     optimizer = lambda lr: optimizer_class(lr, **optimizer_params)
 
+  if mixed_precision:
+    optimizer_fn = lambda lr: optimizers.MixedPrecisionOptimizerWrapper(
+        optimizer(lr), loss_scale=get_loss_scale_from_params(params))
+  else:
+    optimizer_fn = optimizer
+
   regularization = params.get("regularization")
   if regularization is not None:
     loss += regularization_penalty(regularization["type"], regularization["scale"])
@@ -132,7 +141,7 @@ def optimize(loss, params):
       loss,
       global_step,
       learning_rate,
-      optimizer,
+      optimizer_fn,
       clip_gradients=clip_gradients,
       learning_rate_decay_fn=decay_fn,
       name="optim",

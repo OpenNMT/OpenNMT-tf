@@ -16,21 +16,24 @@ from opennmt.utils.misc import print_bytes
 class Tokenizer(object):
   """Base class for tokenizers."""
 
-  def __init__(self, configuration_file_or_key=None):
+  def __init__(self, configuration_file_or_key=None, params=None):
     """Initializes the tokenizer.
 
     Args:
       configuration_file_or_key: The YAML configuration file or a the key to
         the YAML configuration file.
     """
-    self._config = {}
-    if configuration_file_or_key is not None and os.path.isfile(configuration_file_or_key):
-      configuration_file = configuration_file_or_key
-      with tf.gfile.Open(configuration_file, mode="rb") as conf_file:
-        self._config = yaml.load(conf_file)
-      self._configuration_file_key = None
+    self._configuration_key = None
+    if params is not None:
+      self._config = params
     else:
-      self._configuration_file_key = configuration_file_or_key
+      self._config = {}
+      if configuration_file_or_key is not None and os.path.isfile(configuration_file_or_key):
+        configuration_file = configuration_file_or_key
+        with tf.gfile.Open(configuration_file, mode="rb") as conf_file:
+          self._config = yaml.load(conf_file)
+      else:
+        self._configuration_key = configuration_file_or_key
 
   def initialize(self, metadata):
     """Initializes the tokenizer (e.g. load BPE models).
@@ -45,10 +48,13 @@ class Tokenizer(object):
       metadata: A dictionary containing additional metadata set
         by the user.
     """
-    if self._configuration_file_key is not None:
-      configuration_file = metadata[self._configuration_file_key]
-      with tf.gfile.Open(configuration_file, mode="rb") as conf_file:
-        self._config = yaml.load(conf_file)
+    if self._configuration_key is not None:
+      configuration = metadata[self._configuration_key]
+      if isinstance(configuration, dict):
+        self._config = configuration
+      else:
+        with tf.gfile.Open(configuration, mode="rb") as conf_file:
+          self._config = yaml.load(conf_file)
 
   def tokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
     """Tokenizes a stream of sentences.

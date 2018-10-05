@@ -56,3 +56,27 @@ will start the worker 1 on the current machine and first GPU. By setting `CUDA_V
 For more details, see the documentation of [`tf.estimator.train_and_evaluate`](https://www.tensorflow.org/api_docs/python/tf/estimator/train_and_evaluate). Also see [tensorflow/ecosystem](https://github.com/tensorflow/ecosystem) to integrate distributed training with open-source frameworks like Docker or Kubernetes.
 
 **Note:** distributed training will also split the training directory `model_dir` accross the instances. This could impact features that restore checkpoints like inference, manual export, or checkpoint averaging. The recommend approach to properly support these features while running distributed training is to store the `model_dir` on a shared filesystem, e.g. by using [HDFS](https://www.tensorflow.org/deploy/hadoop).
+
+## Mixed precision training
+
+Thanks to [work from NVIDIA](https://github.com/NVIDIA/OpenSeq2Seq), OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the [inputters](package/opennmt.inputters.inputter.html) is defined to be `tf.float16`. See for example the predefined model `TransformerFP16`:
+
+```bash
+onmt-main train [...] --model_type TransformerFP16
+```
+
+Additional training configurations are available to tune the loss scaling algorithm:
+
+```yaml
+params:
+  # (optional) For mixed precision training, the loss scaling to apply (a constant value or
+  # an automatic scaling algorithm: "backoff", "logmax", default: "backoff")
+  loss_scale: backoff
+  # (optional) For mixed precision training, the additional parameters to pass the loss scale
+  # (see the source file opennmt/optimizers/mixed_precision_wrapper.py).
+  loss_scale_params:
+    scale_min: 1.0
+    step_factor: 2.0
+```
+
+For more information about the implementation and get expert recommendation on how to maximize performance, see the [OpenSeq2Seq's documentation](https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html). Currently, mixed precision training requires Volta GPUs and the NVIDIA's TensorFlow Docker image.

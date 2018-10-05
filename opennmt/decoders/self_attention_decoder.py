@@ -65,8 +65,7 @@ class SelfAttentionDecoder(decoder.Decoder):
       return transformer.build_sequence_mask(
           memory_sequence_length,
           num_heads=self.num_heads,
-          maximum_length=tf.shape(memory)[1],
-          dtype=memory.dtype)
+          maximum_length=tf.shape(memory)[1])
 
   def _init_cache(self, memory, memory_sequence_length=None):
     batch_size = tf.shape(memory)[0]
@@ -138,8 +137,7 @@ class SelfAttentionDecoder(decoder.Decoder):
         decoder_mask = transformer.build_future_mask(
             sequence_length,
             num_heads=self.num_heads,
-            maximum_length=tf.shape(inputs)[1],
-            dtype=inputs.dtype)
+            maximum_length=tf.shape(inputs)[1])
     elif self.self_attention_type == "average":
       if cache is None:
         if sequence_length is None:

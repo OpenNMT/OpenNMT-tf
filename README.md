@@ -2,11 +2,13 @@
 
 # OpenNMT-tf
 
-OpenNMT-tf is a general purpose sequence modeling tool in TensorFlow with production in mind. While neural machine translation is the main target task, it has been designed to more generally support:
+OpenNMT-tf is a general purpose sequence learning toolkit using TensorFlow. While neural machine translation is the main target task, it has been designed to more generally support:
 
 * sequence to sequence mapping
 * sequence tagging
 * sequence classification
+
+The project is production-oriented and comes with [stability guarantees](CHANGELOG.md).
 
 ## Key features
 
@@ -14,10 +16,12 @@ OpenNMT-tf focuses on modularity to support advanced modeling and training capab
 
 * **arbitrarily complex encoder architectures**<br/>e.g. mixing RNNs, CNNs, self-attention, etc. in parallel or in sequence.
 * **hybrid encoder-decoder models**<br/>e.g. self-attention encoder and RNN decoder or vice versa.
+* **neural source-target alignment**<br/>train with guided alignment to constrain attention vectors and output alignments as part of the translation API.
 * **multi-source training**<br/>e.g. source text and Moses translation as inputs for machine translation.
 * **multiple input format**<br/>text with support of mixed word/character embeddings or real vectors serialized in *TFRecord* files.
 * **on-the-fly tokenization**<br/>apply advanced tokenization dynamically during the training and detokenize the predictions during inference or evaluation.
 * **automatic evaluation**<br/>support for saving evaluation predictions and running external evaluators (e.g. BLEU).
+* **mixed precision training**<br/>take advantage of the latest NVIDIA optimizations to train models with half-precision floating points.
 
 and all of the above can be used simultaneously to train novel and complex architectures. See the [predefined models](opennmt/models/catalog.py) to discover how they are defined and the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) to customize them.
 
@@ -135,6 +139,7 @@ The implementation is inspired by the following:
 * [TensorFlow's NMT tutorial](https://github.com/tensorflow/nmt)
 * [Tensor2Tensor](https://github.com/tensorflow/tensor2tensor)
 * [Google's seq2seq](https://github.com/google/seq2seq)
+* [OpenSeq2Seq](https://github.com/NVIDIA/OpenSeq2Seq)
 
 ## Additional resources
 
