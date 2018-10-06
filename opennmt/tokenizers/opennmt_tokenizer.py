@@ -1,5 +1,6 @@
 """Define the OpenNMT tokenizer."""
 
+import os
 import copy
 import six
 
@@ -34,12 +35,15 @@ class OpenNMTTokenizer(Tokenizer):
     super(OpenNMTTokenizer, self).__init__(*arg, **kwargs)
     self._tokenizer = create_tokenizer(self._config)
 
-  def initialize(self, metadata):
-    super(OpenNMTTokenizer, self).initialize(metadata)
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    assets = super(OpenNMTTokenizer, self).initialize(
+        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
     self._tokenizer = create_tokenizer(self._config)
-    for key, value in six.iteritems(self._config):
-      if key.endswith("path"):
-        tf.add_to_collection(tf.GraphKeys.ASSET_FILEPATHS, tf.constant(value))
+    if asset_dir is not None:
+      for key, value in six.iteritems(self._config):
+        if key.endswith("path"):
+          assets[os.path.basename(value)] = value
+    return assets
 
   def _tokenize_string(self, text):
     text = tf.compat.as_bytes(text)
