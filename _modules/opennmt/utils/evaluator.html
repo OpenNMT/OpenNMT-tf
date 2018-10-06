@@ -224,13 +224,6 @@
 <div class="viewcode-block" id="ROUGEEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ROUGEEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;ROUGE evaluator based on https://github.com/pltrdy/rouge.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-      <span class="kn">import</span> <span class="nn">rouge</span>  <span class="c1"># pylint: disable=unused-variable</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Please install the &#39;rouge&#39; package, run &#39;pip install rouge==0.3.0&#39;&quot;</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">ROUGEEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
-
 <div class="viewcode-block" id="ROUGEEvaluator.name"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator.name">[docs]</a>  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="s2">&quot;ROUGE&quot;</span></div>
 
