@@ -557,7 +557,7 @@ class CharRNNEmbedder(CharEmbedder):
                num_units,
                dropout=0.2,
                encoding="average",
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                tokenizer=SpaceTokenizer(),
                dtype=tf.float32):
     """Initializes the parameters of the character RNN embedder.

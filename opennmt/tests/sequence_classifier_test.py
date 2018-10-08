@@ -27,13 +27,13 @@ class SequenceClassifierTest(tf.test.TestCase):
 
   def testLastEncoding(self):
     self._testLastEncoding(encoders.UnidirectionalRNNEncoder(
-        1, 10, cell_class=tf.contrib.rnn.LSTMCell))
+        1, 10, cell_class=tf.nn.rnn_cell.LSTMCell))
     self._testLastEncoding(encoders.UnidirectionalRNNEncoder(
-        3, 10, cell_class=tf.contrib.rnn.LSTMCell))
+        3, 10, cell_class=tf.nn.rnn_cell.LSTMCell))
     self._testLastEncoding(encoders.UnidirectionalRNNEncoder(
-        1, 10, cell_class=tf.contrib.rnn.GRUCell))
+        1, 10, cell_class=tf.nn.rnn_cell.GRUCell))
     self._testLastEncoding(encoders.UnidirectionalRNNEncoder(
-        3, 10, cell_class=tf.contrib.rnn.GRUCell))
+        3, 10, cell_class=tf.nn.rnn_cell.GRUCell))
 
 
 if __name__ == "__main__":

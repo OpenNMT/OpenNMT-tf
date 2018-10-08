@@ -4,8 +4,8 @@ from opennmt.layers import bridge
 
 
 def _build_state(num_layers, num_units, batch_size):
-  cell = tf.contrib.rnn.MultiRNNCell(
-      [tf.contrib.rnn.LSTMCell(num_units) for _ in range(num_layers)])
+  cell = tf.nn.rnn_cell.MultiRNNCell(
+      [tf.nn.rnn_cell.LSTMCell(num_units) for _ in range(num_layers)])
   return cell.zero_state(batch_size, tf.float32)
 
 

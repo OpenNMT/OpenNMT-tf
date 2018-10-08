@@ -18,7 +18,7 @@ class RNNDecoder(Decoder):
                num_layers,
                num_units,
                bridge=None,
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.
@@ -317,7 +317,7 @@ class AttentionalRNNDecoder(RNNDecoder):
                bridge=None,
                attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
                output_is_attention=True,
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.
@@ -380,7 +380,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         initial_cell_state=initial_cell_state)
 
     if mode == tf.estimator.ModeKeys.TRAIN and self.dropout > 0.0:
-      cell = tf.contrib.rnn.DropoutWrapper(
+      cell = tf.nn.rnn_cell.DropoutWrapper(
           cell, output_keep_prob=1.0 - self.dropout)
 
     initial_state = cell.zero_state(batch_size, memory.dtype)
@@ -402,7 +402,7 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
                num_units,
                attention_layers=None,
                attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.

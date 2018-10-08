@@ -51,7 +51,7 @@ class EncoderTest(tf.test.TestCase):
         inputs, sequence_length=sequence_length)
     self.assertEqual(3, len(state))
     for s in state:
-      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
+      self.assertIsInstance(s, tf.nn.rnn_cell.LSTMStateTuple)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       outputs, encoded_length = sess.run([outputs, encoded_length])
@@ -81,7 +81,7 @@ class EncoderTest(tf.test.TestCase):
         inputs, sequence_length=sequence_length)
     self.assertEqual(4, len(state))
     for s in state:
-      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
+      self.assertIsInstance(s, tf.nn.rnn_cell.LSTMStateTuple)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       encoded_length = sess.run(encoded_length)
@@ -111,7 +111,7 @@ class EncoderTest(tf.test.TestCase):
         inputs, sequence_length=sequence_length)
     self.assertEqual(num_layers, len(state))
     for s in state:
-      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
+      self.assertIsInstance(s, tf.nn.rnn_cell.LSTMStateTuple)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       outputs = sess.run(outputs)
@@ -130,7 +130,7 @@ class EncoderTest(tf.test.TestCase):
         inputs, sequence_length=sequence_length)
     self.assertEqual(6, len(state))
     for s in state:
-      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
+      self.assertIsInstance(s, tf.nn.rnn_cell.LSTMStateTuple)
     self.assertEqual(10 * 2, state[0].h.get_shape().as_list()[-1])
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
@@ -149,7 +149,7 @@ class EncoderTest(tf.test.TestCase):
         inputs, sequence_length=sequence_lengths)
     self.assertEqual(2, len(state))
     for s in state:
-      self.assertIsInstance(s, tf.contrib.rnn.LSTMStateTuple)
+      self.assertIsInstance(s, tf.nn.rnn_cell.LSTMStateTuple)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
       outputs, encoded_length = sess.run([outputs, encoded_length])

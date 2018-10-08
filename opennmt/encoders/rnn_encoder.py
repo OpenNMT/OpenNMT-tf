@@ -17,7 +17,7 @@ class RNNEncoder(Encoder):
   def __init__(self,
                num_layers,
                num_units,
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                dropout=0.0,
                residual_connections=False):
     """Common constructor to save parameters."""
@@ -47,7 +47,7 @@ class UnidirectionalRNNEncoder(RNNEncoder):
   def __init__(self,
                num_layers,
                num_units,
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                dropout=0.3,
                residual_connections=False):
     """Initializes the parameters of the encoder.
@@ -87,7 +87,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
                num_layers,
                num_units,
                reducer=SumReducer(),
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                dropout=0.3,
                residual_connections=False):
     """Initializes the parameters of the encoder.
@@ -154,7 +154,7 @@ class RNMTPlusEncoder(Encoder):
       num_units: The number of units in each RNN layer and the final output.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell. For efficiency, consider using the
-        standard ``tf.contrib.rnn.LSTMCell`` instead.
+        standard ``tf.nn.rnn_cell.LSTMCell`` instead.
       dropout: The probability to drop units in each layer output.
     """
     self._num_units = num_units
@@ -218,12 +218,12 @@ class GoogleRNNEncoder(Encoder):
         1,
         num_units,
         reducer=ConcatReducer(),
-        cell_class=tf.contrib.rnn.LSTMCell,
+        cell_class=tf.nn.rnn_cell.LSTMCell,
         dropout=dropout)
     self.unidirectional = UnidirectionalRNNEncoder(
         num_layers - 1,
         num_units,
-        cell_class=tf.contrib.rnn.LSTMCell,
+        cell_class=tf.nn.rnn_cell.LSTMCell,
         dropout=dropout,
         residual_connections=True)
 
@@ -249,7 +249,7 @@ class PyramidalRNNEncoder(Encoder):
                num_layers,
                num_units,
                reduction_factor=2,
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                dropout=0.3):
     """Initializes the parameters of the encoder.
 
