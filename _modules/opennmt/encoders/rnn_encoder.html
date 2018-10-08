@@ -176,7 +176,7 @@
 <div class="viewcode-block" id="RNNEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNNEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Common constructor to save parameters.&quot;&quot;&quot;</span>
@@ -206,7 +206,7 @@
 <div class="viewcode-block" id="UnidirectionalRNNEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
@@ -246,7 +246,7 @@
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">(),</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
@@ -313,7 +313,7 @@
 <span class="sd">      num_units: The number of units in each RNN layer and the final output.</span>
 <span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
 <span class="sd">        argument and returning a cell. For efficiency, consider using the</span>
-<span class="sd">        standard ``tf.contrib.rnn.LSTMCell`` instead.</span>
+<span class="sd">        standard ``tf.nn.rnn_cell.LSTMCell`` instead.</span>
 <span class="sd">      dropout: The probability to drop units in each layer output.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_num_units</span> <span class="o">=</span> <span class="n">num_units</span>
@@ -377,12 +377,12 @@
         <span class="mi">1</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>
         <span class="n">reducer</span><span class="o">=</span><span class="n">ConcatReducer</span><span class="p">(),</span>
-        <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
         <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">unidirectional</span> <span class="o">=</span> <span class="n">UnidirectionalRNNEncoder</span><span class="p">(</span>
         <span class="n">num_layers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>
-        <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
         <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
         <span class="n">residual_connections</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
@@ -408,7 +408,7 @@
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
 

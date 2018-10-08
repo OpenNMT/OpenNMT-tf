@@ -177,7 +177,7 @@
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">bridge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
@@ -476,7 +476,7 @@
                <span class="n">bridge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
                <span class="n">output_is_attention</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
@@ -539,7 +539,7 @@
         <span class="n">initial_cell_state</span><span class="o">=</span><span class="n">initial_cell_state</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
-      <span class="n">cell</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">DropoutWrapper</span><span class="p">(</span>
+      <span class="n">cell</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">DropoutWrapper</span><span class="p">(</span>
           <span class="n">cell</span><span class="p">,</span> <span class="n">output_keep_prob</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
 
     <span class="n">initial_state</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">zero_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
@@ -561,7 +561,7 @@
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">attention_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>

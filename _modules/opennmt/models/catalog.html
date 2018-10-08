@@ -177,14 +177,14 @@
             <span class="n">num_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
             <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">),</span>
         <span class="n">decoder</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">decoders</span><span class="o">.</span><span class="n">MultiAttentionalRNNDecoder</span><span class="p">(</span>
             <span class="n">num_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
             <span class="n">attention_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongMonotonicAttention</span><span class="p">,</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
@@ -202,7 +202,7 @@
             <span class="n">num_layers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
             <span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
             <span class="n">reducer</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="n">decoder</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">decoders</span><span class="o">.</span><span class="n">AttentionalRNNDecoder</span><span class="p">(</span>
@@ -210,7 +210,7 @@
             <span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
             <span class="n">bridge</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">CopyBridge</span><span class="p">(),</span>
             <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
@@ -228,7 +228,7 @@
             <span class="n">num_layers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
             <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
             <span class="n">reducer</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="n">decoder</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">decoders</span><span class="o">.</span><span class="n">AttentionalRNNDecoder</span><span class="p">(</span>
@@ -236,7 +236,7 @@
             <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
             <span class="n">bridge</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">CopyBridge</span><span class="p">(),</span>
             <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
@@ -253,7 +253,7 @@
         <span class="n">encoder</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">encoders</span><span class="o">.</span><span class="n">UnidirectionalRNNEncoder</span><span class="p">(</span>
             <span class="n">num_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="n">decoder</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">decoders</span><span class="o">.</span><span class="n">AttentionalRNNDecoder</span><span class="p">(</span>
@@ -261,7 +261,7 @@
             <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
             <span class="n">bridge</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">CopyBridge</span><span class="p">(),</span>
             <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
@@ -288,7 +288,7 @@
             <span class="n">num_layers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">num_units</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
             <span class="n">reducer</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span>
-            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="n">labels_vocabulary_file_key</span><span class="o">=</span><span class="s2">&quot;tags_vocabulary&quot;</span><span class="p">,</span>

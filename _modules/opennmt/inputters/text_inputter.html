@@ -716,7 +716,7 @@
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
                <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
                <span class="n">tokenizer</span><span class="o">=</span><span class="n">SpaceTokenizer</span><span class="p">(),</span>
                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character RNN embedder.</span>
