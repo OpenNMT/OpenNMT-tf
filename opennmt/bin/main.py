@@ -136,7 +136,9 @@ def main():
       serialize_model=is_chief)
   session_config = tf.ConfigProto(
       intra_op_parallelism_threads=args.intra_op_parallelism_threads,
-      inter_op_parallelism_threads=args.inter_op_parallelism_threads)
+      inter_op_parallelism_threads=args.inter_op_parallelism_threads,
+      gpu_options=tf.GPUOptions(
+          allow_growth=args.gpu_allow_growth))
   if args.session_config is not None:
     with open(args.session_config, "rb") as session_config_file:
       text_format.Merge(session_config_file.read(), session_config)
@@ -145,7 +147,6 @@ def main():
       config,
       seed=args.seed,
       num_devices=args.num_gpus,
-      gpu_allow_growth=args.gpu_allow_growth,
       session_config=session_config)
 
   if args.run == "train_and_eval":
