@@ -20,6 +20,7 @@ OpenNMT-tf focuses on modularity to support advanced modeling and training capab
 * **multi-source training**<br/>e.g. source text and Moses translation as inputs for machine translation.
 * **multiple input format**<br/>text with support of mixed word/character embeddings or real vectors serialized in *TFRecord* files.
 * **on-the-fly tokenization**<br/>apply advanced tokenization dynamically during the training and detokenize the predictions during inference or evaluation.
+* **domain adaptation**<br/>specialize a model to a new domain in a few training steps by updating the word vocabularies in checkpoints.
 * **automatic evaluation**<br/>support for saving evaluation predictions and running external evaluators (e.g. BLEU).
 * **mixed precision training**<br/>take advantage of the latest NVIDIA optimizations to train models with half-precision floating points.
 
