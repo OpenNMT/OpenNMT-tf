@@ -305,7 +305,7 @@ processing done.</li>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.Inputter.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em>, <em>asset_dir=None</em>, <em>asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the inputter within the current graph.</p>
 <p>For example, one can create lookup tables in this method
 for their initializer to be added to the current graph
@@ -314,8 +314,17 @@ for their initializer to be added to the current graph
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional metadata set
-by the user.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metadata</strong> – A dictionary containing additional metadata set
+by the user.</li>
+<li><strong>asset_dir</strong> – The directory where assets can be written. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no
+assets are returned.</li>
+<li><strong>asset_prefix</strong> – The prefix to attach to assets filename.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary containing additional assets used by the inputter.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -443,7 +452,7 @@ the inputter.</li>
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MultiInputter.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em>, <em>asset_dir=None</em>, <em>asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the inputter within the current graph.</p>
 <p>For example, one can create lookup tables in this method
 for their initializer to be added to the current graph
@@ -452,8 +461,17 @@ for their initializer to be added to the current graph
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional metadata set
-by the user.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metadata</strong> – A dictionary containing additional metadata set
+by the user.</li>
+<li><strong>asset_dir</strong> – The directory where assets can be written. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no
+assets are returned.</li>
+<li><strong>asset_prefix</strong> – The prefix to attach to assets filename.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary containing additional assets used by the inputter.</p>
+</td>
 </tr>
 </tbody>
 </table>

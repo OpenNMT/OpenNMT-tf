@@ -208,10 +208,11 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">assets</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">labels_vocabulary_file</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_vocabulary_file_key</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_labels</span> <span class="o">=</span> <span class="n">count_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_vocabulary_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">assets</span>
 
   <span class="k">def</span> <span class="nf">_get_labels_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">):</span>
     <span class="n">labels_vocabulary</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">index_table_from_file</span><span class="p">(</span>

@@ -267,7 +267,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Inputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<div class="viewcode-block" id="Inputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the inputter within the current graph.</span>
 
 <span class="sd">    For example, one can create lookup tables in this method</span>
@@ -277,8 +277,17 @@
 <span class="sd">    Args:</span>
 <span class="sd">      metadata: A dictionary containing additional metadata set</span>
 <span class="sd">        by the user.</span>
+<span class="sd">      asset_dir: The directory where assets can be written. If ``None``, no</span>
+<span class="sd">        assets are returned.</span>
+<span class="sd">      asset_prefix: The prefix to attach to assets filename.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A dictionary containing additional assets used by the inputter.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">metadata</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">asset_dir</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">asset_prefix</span>
+    <span class="k">return</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="Inputter.process"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.process">[docs]</a>  <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Prepares raw data.</span>
@@ -397,9 +406,12 @@
   <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
-      <span class="n">inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span></div>
+<div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="n">assets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
+      <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+          <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">assets</span></div>
 
 <div class="viewcode-block" id="MultiInputter.visualize"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.visualize">[docs]</a>  <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>

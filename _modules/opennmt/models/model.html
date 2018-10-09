@@ -378,17 +378,26 @@
         <span class="n">counters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hooks</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">labels_length</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">counters</span>
 
-  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Runs model specific initialization (e.g. vocabularies loading).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      metadata: A dictionary containing additional metadata set</span>
 <span class="sd">        by the user.</span>
+<span class="sd">      asset_dir: The directory where assets can be written. If ``None``, no</span>
+<span class="sd">        assets are returned.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A dictionary containing additional assets used by the model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assets</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+      <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+          <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;source_&quot;</span><span class="p">))</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+      <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+          <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;target_&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">assets</span>
 
   <span class="k">def</span> <span class="nf">_get_serving_input_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns an input receiver for serving this model.</span>
@@ -634,6 +643,21 @@
 <span class="sd">      A callable that returns a ``tf.estimator.export.ServingInputReceiver``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serving_input_fn_impl</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.get_assets"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.get_assets">[docs]</a>  <span class="k">def</span> <span class="nf">get_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns additional assets used by this model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      metadata: A dictionary containing additional metadata set</span>
+<span class="sd">        by the user.</span>
+<span class="sd">      asset_dir: The directory where assets can be written.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A dictionary of additional assets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">reset_default_graph</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">assets</span></div>
 
 <div class="viewcode-block" id="Model.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.print_prediction">[docs]</a>  <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Prints the model prediction.</span>

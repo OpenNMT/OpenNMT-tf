@@ -217,7 +217,7 @@ onmt-build-vocab --tokenizer OpenNMTTokenizer --tokenizer_config config/tokeniza
 <div class="section" id="notes">
 <span id="notes"></span><h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>As of now, tokenizers are not part of the exported graph.</li>
+<li>As of now, tokenizers are not part of the exported graph. However, all tokenization resources (configuration, subword models, etc.) are registered as additional assets in the <code class="docutils literal notranslate"><span class="pre">SavedModel</span></code> bundle in the <code class="docutils literal notranslate"><span class="pre">assets.extra</span></code> directory.</li>
 <li>Predictions saved during inference or evaluation are detokenized. Consider using the “BLEU-detok” external evaluator that calls <code class="docutils literal notranslate"><span class="pre">multi-bleu-detok.perl</span></code> instead of <code class="docutils literal notranslate"><span class="pre">multi-bleu.perl</span></code>.</li>
 </ul>
 </div>
