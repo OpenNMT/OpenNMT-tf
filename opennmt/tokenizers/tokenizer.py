@@ -5,11 +5,23 @@
 import sys
 import os
 import abc
+import copy
 import six
+
 import tensorflow as tf
 import yaml
 
 from opennmt.utils.misc import print_bytes
+
+
+def _make_config_asset_file(config, asset_path):
+  asset_config = copy.deepcopy(config)
+  for key, value in six.iteritems(asset_config):
+    # Only keep the basename for files (that should also be registered as assets).
+    if isinstance(value, six.string_types) and os.path.exists(value):
+      asset_config[key] = os.path.basename(value)
+  with open(asset_path, "w") as asset_file:
+    yaml.dump(asset_config, stream=asset_file, default_flow_style=False)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -35,19 +47,20 @@ class Tokenizer(object):
       else:
         self._configuration_key = configuration_file_or_key
 
-  def initialize(self, metadata):
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     """Initializes the tokenizer (e.g. load BPE models).
-
-    Any external assets should be registered in the standard assets collection:
-
-    .. code-block:: python
-
-        tf.add_to_collection(tf.GraphKeys.ASSET_FILEPATHS, filename)
 
     Args:
       metadata: A dictionary containing additional metadata set
         by the user.
+      asset_dir: The directory where assets can be written. If ``None``, no
+        assets are returned.
+      asset_prefix: The prefix to attach to assets filename.
+
+    Returns:
+      A dictionary containing additional assets used by the tokenizer.
     """
+    assets = {}
     if self._configuration_key is not None:
       configuration = metadata[self._configuration_key]
       if isinstance(configuration, dict):
@@ -55,6 +68,12 @@ class Tokenizer(object):
       else:
         with tf.gfile.Open(configuration, mode="rb") as conf_file:
           self._config = yaml.load(conf_file)
+    if self._config and asset_dir is not None:
+      asset_name = "%stokenizer_config.yml" % asset_prefix
+      asset_path = os.path.join(asset_dir, asset_name)
+      _make_config_asset_file(self._config, asset_path)
+      assets[asset_name] = asset_path
+    return assets
 
   def tokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
     """Tokenizes a stream of sentences.

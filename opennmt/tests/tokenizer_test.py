@@ -102,6 +102,31 @@ class TokenizerTest(tf.test.TestCase):
     tokenizer = OpenNMTTokenizer(params=params)
     _test(tokenizer)
 
+  def testOpenNMTTokenizerAssets(self):
+    asset_dir = self.get_temp_dir()
+    # Write a dummy SentencePiece model.
+    sp_model_path = os.path.join(asset_dir, "model.sp")
+    with tf.gfile.Open(sp_model_path, mode="wb") as sp_model_file:
+      sp_model_file.write(b"some model data\n")
+
+    tokenizer = OpenNMTTokenizer(params={"mode": "none", "sp_model_path": sp_model_path})
+
+    # By default, no assets are returned.
+    assets = tokenizer.initialize({})
+    self.assertDictEqual(assets, {})
+
+    # Generated assets are prefixed but not existing resources.
+    assets = tokenizer.initialize({}, asset_dir=asset_dir, asset_prefix="source_")
+    self.assertIn("source_tokenizer_config.yml", assets)
+    self.assertTrue(os.path.exists(assets["source_tokenizer_config.yml"]))
+    self.assertIn("model.sp", assets)
+    self.assertTrue(os.path.exists(assets["model.sp"]))
+
+    # The tokenization configuration should not contain absolute paths to resources.
+    with tf.gfile.Open(assets["source_tokenizer_config.yml"], mode="rb") as config_file:
+      asset_config = yaml.load(config_file.read())
+    self.assertDictEqual(asset_config, {"mode": "none", "sp_model_path": "model.sp"})
+
 
 if __name__ == "__main__":
   tf.test.main()
