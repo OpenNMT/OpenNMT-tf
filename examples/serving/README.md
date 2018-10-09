@@ -1,51 +1,69 @@
 # Inference with TensorFlow Serving
 
-This example implements a simple client that sends translation requests to a model server managed by TensorFlow Serving.
+This example shows how to start a TensorFlow Serving GPU instance and sends translation requests via a simple Python client.
 
 ## Requirements
 
-* [TensorFlow Serving](https://www.tensorflow.org/serving) 1.8 or above
-* an exported translation model
-
-**Note:** for this example to work, the model should be a `SequenceToSequence` model with `WordEmbedder` as the source inputter.
+* [nvidia-docker](https://github.com/NVIDIA/nvidia-docker)
 
 ## Usage
 
-1\. Start `tensorflow_model_server`:
+**1\. Go into this directory, as assumed by the rest of the commands:**
 
-```
-tensorflow_model_server --port=9000 --enable_batching=true --batching_parameters_file=examples/serving/batching_parameters.txt --model_name=enfr --model_base_path=$HOME/OpenNMT-tf/models/enfr
-```
-
-* `examples/serving/batching_parameters.txt` contains settings related to the batching mechanism
-* `enfr` is the model name that the client will request
-* `$HOME/OpenNMT-tf/models/enfr` is a directory containing multiple exported versions of the same model
-
-2\. Run the client:
-
-```
-python examples/serving/nmt_client.py --host=localhost --port=9000 --model_name=enfr
+```bash
+cd examples/serving
 ```
 
-The output of this command should look like this:
+**2\. Download the English-German pretrained model:**
 
+```bash
+wget https://s3.amazonaws.com/opennmt-models/averaged-ende-export500k.tar.gz
+tar xf averaged-ende-export500k.tar.gz
+mv averaged-ende-export500k ende
 ```
-Hello world ! ||| Bonjour le monde !
-My name is John . ||| Mon nom est John .
-I live on the West coast . ||| Je vis sur la côte Ouest .
+
+**3\. Start a TensorFlow Serving GPU instance in the background:**
+
+```bash
+nvidia-docker run -d --rm -p 9000:9000 -v $PWD:/models \
+  --name tensorflow_serving --entrypoint tensorflow_model_server \
+  tensorflow/serving:1.11.0-gpu \
+  --enable_batching=true --batching_parameters_file=/models/batching_parameters.txt \
+  --port=9000 --model_base_path=/models/ende --model_name=ende
 ```
 
-See the next section to understand why the last translation took more time to appear.
+*For more information about the `batching_parameters.txt` file, see the [TensorFlow Serving Batching Guide](https://github.com/tensorflow/serving/tree/master/tensorflow_serving/batching).*
 
-## Batching with TensorFlow Serving
+**4\. Install the client dependencies:**
 
-In this example, the translation requests are sent separately because batching is handled on the server side. The `batching_parameters.txt` should be carefully tuned to achieve the throughput/latency balance that is suited for your application.
+```bash
+pip install -r requirements.txt
+```
 
-In particular, the provided configuration makes the server run a batch translation if:
+**5\. Run the client:**
 
-* the number of queued requests has reached `max_batch_size` (here 2)
-* **or** `batch_timeout_micros` microseconds has passed (here 5,000,000)
+```bash
+python ende_client.py --port 9000 --model_name ende \
+  --sentencepiece_model ende/1539080952/assets.extra/wmtende.model
+```
 
-This explains why running the command above, the first 2 translations were received immediately (`max_batch_size` reached) and the third came 5 seconds later (`batch_timeout_micros` reached).
+The output of this command should look like this (the model and client initialization might take some time):
 
-For more information, see the [TensorFlow Serving Batching Guide](https://github.com/tensorflow/serving/tree/master/tensorflow_serving/batching).
+```text
+Hello world! ||| Hallo Welt!
+My name is John. ||| Mein Name ist John.
+I live on the West coast. ||| Ich lebe an der Westküste.
+```
+
+**6\. Stop TensorFlow Serving:**
+
+```bash
+docker kill tensorflow_serving
+```
+
+## Going further
+
+Depending on your production requirements, you might need to build a simple proxy server between your application and TensorFlow Serving in order to:
+
+* manage multiple TensorFlow Serving instances (possibly running on multiple hosts) and keep persistent channels to them
+* apply tokenization and detokenization

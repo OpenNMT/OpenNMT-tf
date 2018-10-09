@@ -51,7 +51,7 @@ CUDA_VISIBLE_DEVICES=0 ./run_wmt_ende_1gpu.sh
 * [Pre-tokenized dataset](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz)
 * Pre-trained averaged model:
   * [checkpoint](https://s3.amazonaws.com/opennmt-models/averaged-ende-ckpt500k.tar.gz)
-  * [export](https://s3.amazonaws.com/opennmt-models/averaged-ende-export500k.tar.gz) (*)
+  * [export](https://s3.amazonaws.com/opennmt-models/averaged-ende-export500k.tar.gz)
 
 This model achieved the following scores:
 
@@ -59,5 +59,3 @@ This model achieved the following scores:
 | --- | --- |
 | newstest2014 | 26.9 |
 | newstest2017 | 28.0 |
-
-(*) *The model was exported with TensorFlow 1.7.0 and OpenNMT-tf 1.1.0.*
