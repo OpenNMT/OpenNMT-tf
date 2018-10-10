@@ -2,13 +2,13 @@
 
 ## Requirements
 
-* OpenNMT-tf (>= 1.1.0)
+* OpenNMT-tf (>= 1.10.0)
 * SentencePiece
 
 Please follow the instructions to install and build [SentencePiece](https://github.com/google/sentencepiece). If installed in a custom location, change the `SP_PATH` variable in the scripts.
 
 ```bash
-pip install OpenNMT-tf[tensorflow_gpu]>=1.1.0
+pip install OpenNMT-tf[tensorflow_gpu]>=1.10.0
 ```
 
 ## Steps
