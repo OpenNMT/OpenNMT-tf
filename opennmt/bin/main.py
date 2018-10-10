@@ -36,7 +36,7 @@ def _prefix_paths(prefix, paths):
   else:
     path = paths
     new_path = os.path.join(prefix, path)
-    if os.path.isfile(new_path):
+    if tf.gfile.Exists(new_path):
       return new_path
     else:
       return path

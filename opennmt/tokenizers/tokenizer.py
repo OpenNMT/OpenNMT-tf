@@ -18,7 +18,7 @@ def _make_config_asset_file(config, asset_path):
   asset_config = copy.deepcopy(config)
   for key, value in six.iteritems(asset_config):
     # Only keep the basename for files (that should also be registered as assets).
-    if isinstance(value, six.string_types) and os.path.exists(value):
+    if isinstance(value, six.string_types) and tf.gfile.Exists(value):
       asset_config[key] = os.path.basename(value)
   with open(asset_path, "w") as asset_file:
     yaml.dump(asset_config, stream=asset_file, default_flow_style=False)
@@ -40,7 +40,7 @@ class Tokenizer(object):
       self._config = params
     else:
       self._config = {}
-      if configuration_file_or_key is not None and os.path.isfile(configuration_file_or_key):
+      if configuration_file_or_key is not None and tf.gfile.Exists(configuration_file_or_key):
         configuration_file = configuration_file_or_key
         with tf.gfile.Open(configuration_file, mode="rb") as conf_file:
           self._config = yaml.load(conf_file)

@@ -107,8 +107,8 @@ class Runner(object):
         and self._config["eval"].get("external_evaluators") is None):
       return None
     save_path = os.path.join(self._config["model_dir"], "eval")
-    if not os.path.isdir(save_path):
-      os.makedirs(save_path)
+    if not tf.gfile.Exists(save_path):
+      tf.gfile.MakeDirs(save_path)
     return lambda predictions: [
         hooks.SaveEvaluationPredictionHook(
             self._model,
@@ -166,8 +166,8 @@ class Runner(object):
 
   def _get_model_assets(self):
     generated_assets_path = os.path.join(self._estimator.model_dir, "assets")
-    if not os.path.exists(generated_assets_path):
-      os.makedirs(generated_assets_path)
+    if not tf.gfile.Exists(generated_assets_path):
+      tf.gfile.MakeDirs(generated_assets_path)
     return self._model.get_assets(self._config["data"], asset_dir=generated_assets_path)
 
   def train_and_evaluate(self):
@@ -186,7 +186,7 @@ class Runner(object):
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation."""
-    if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+    if checkpoint_path is not None and tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     eval_spec = self._build_eval_spec()
     self._estimator.evaluate(
@@ -244,7 +244,7 @@ class Runner(object):
     """
     if "infer" not in self._config:
       self._config["infer"] = {}
-    if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+    if checkpoint_path is not None and tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
 
     batch_size = self._config["infer"].get("batch_size", 1)
@@ -286,7 +286,7 @@ class Runner(object):
     Returns:
       The string path to the exported directory.
     """
-    if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+    if checkpoint_path is not None and tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if export_dir_base is None:
       export_dir_base = os.path.join(self._estimator.model_dir, "export", "manual")
@@ -322,7 +322,7 @@ class Runner(object):
 
     if checkpoint_path is None:
       checkpoint_path = tf.train.latest_checkpoint(self._estimator.model_dir)
-    elif os.path.isdir(checkpoint_path):
+    elif tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if checkpoint_path is None:
       raise ValueError("could not find a trained model in %s" % self._estimator.model_dir)
