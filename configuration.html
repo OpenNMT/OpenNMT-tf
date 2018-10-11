@@ -89,6 +89,8 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
@@ -108,7 +110,8 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration_reference.html">Reference: Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">Reference: opennmt package</a></li>
 </ul>
 
             
@@ -198,8 +201,24 @@
 </div>
 <div class="section" id="parameters">
 <span id="parameters"></span><h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
-<p>Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference.</p>
-<p><em>See the example configuration <code class="docutils literal notranslate"><span class="pre">config/sample.yml</span></code> to learn about available parameters.</em></p>
+<p>Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference. It uses the following layout:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">model_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">path_to_the_model_directory</span>
+
+<span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
+  <span class="c1"># Data configuration (training and evaluation files, vocabularies, alignments, etc.)</span>
+<span class="l l-Scalar l-Scalar-Plain">params</span><span class="p p-Indicator">:</span>
+  <span class="c1"># Training and inference hyperparameters (learning rate, optimizer, beam size, etc.)</span>
+<span class="l l-Scalar l-Scalar-Plain">train</span><span class="p p-Indicator">:</span>
+  <span class="c1"># Training specific configuration (checkpoint frequency, number of training step, etc.)</span>
+<span class="l l-Scalar l-Scalar-Plain">eval</span><span class="p p-Indicator">:</span>
+  <span class="c1"># Evaluation specific configuration (evaluation frequency, external evaluators.)</span>
+<span class="l l-Scalar l-Scalar-Plain">infer</span><span class="p p-Indicator">:</span>
+  <span class="c1"># Inference specific configuration (output scores, alignments, etc.)</span>
+<span class="l l-Scalar l-Scalar-Plain">score</span><span class="p p-Indicator">:</span>
+  <span class="c1"># Scoring specific configuration</span>
+</pre></div>
+</div>
+<p>For a complete list of available options, see <a class="reference external" href="configuration_reference.html">Reference: Configuration</a>.</p>
 <div class="section" id="automatic-configuration">
 <span id="automatic-configuration"></span><h3>Automatic configuration<a class="headerlink" href="#automatic-configuration" title="Permalink to this headline">¶</a></h3>
 <p>Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag:</p>

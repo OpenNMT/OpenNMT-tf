@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Content &mdash; OpenNMT-tf 1.10.0 documentation</title>
+  <title>Installation &mdash; OpenNMT-tf 1.10.0 documentation</title>
   
 
   
@@ -31,7 +31,8 @@
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quickstart" href="quickstart.html" /> 
+    <link rel="next" title="Data" href="data.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -50,7 +51,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> OpenNMT-tf
+            <a href="index.html" class="icon icon-home"> OpenNMT-tf
           
 
           
@@ -87,9 +88,13 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#via-pip-recommended">Via pip (recommended)</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
@@ -112,7 +117,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">OpenNMT-tf</a>
+          <a href="index.html">OpenNMT-tf</a>
         
       </nav>
 
@@ -141,9 +146,9 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Content</li>
+      <li>Installation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -160,22 +165,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <p>This portal provides a complete documentation of OpenNMT-tf.</p>
-<div class="section" id="content">
-<h1>Content<a class="headerlink" href="#content" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">Reference: opennmt package</a></li>
+  <div class="section" id="installation">
+<span id="installation"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<span id="requirements"></span><h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>OpenNMT-tf requires:</p>
+<ul class="simple">
+<li>Python (&gt;= 2.7)</li>
+<li>TensorFlow (&gt;= 1.4)</li>
 </ul>
+<p>Some features added after the initial release may require newer TensorFlow versions. Please consult the changelog to know about new features availability.</p>
+</div>
+<div class="section" id="via-pip-recommended">
+<span id="via-pip-recommended"></span><h2>Via pip (recommended)<a class="headerlink" href="#via-pip-recommended" title="Permalink to this headline">¶</a></h2>
+<p>Each tagged version of the project are automatically pushed to <a class="reference external" href="https://pypi.org/project/OpenNMT-tf/">PyPi</a>. We recommend installing this package via <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install OpenNMT-tf
+</pre></div>
+</div>
+<p>To confirm that the package is correctly installed, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main -h
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -187,8 +197,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="data.html" class="btn btn-neutral float-right" title="Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="quickstart.html" class="btn btn-neutral" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

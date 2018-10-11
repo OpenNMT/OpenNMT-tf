@@ -53,9 +53,11 @@
 ./_modules/opennmt/utils/vocab.html
 ./_sources/README.md.txt
 ./_sources/configuration.md.txt
+./_sources/configuration_reference.md.txt
 ./_sources/data.md.txt
 ./_sources/index.rst.txt
 ./_sources/inference.md.txt
+./_sources/installation.md.txt
 ./_sources/package/modules.rst.txt
 ./_sources/package/opennmt.bin.ark_to_records.rst.txt
 ./_sources/package/opennmt.bin.average_checkpoints.rst.txt
@@ -118,6 +120,7 @@
 ./_sources/package/opennmt.utils.parallel.rst.txt
 ./_sources/package/opennmt.utils.rst.txt
 ./_sources/package/opennmt.utils.vocab.rst.txt
+./_sources/quickstart.md.txt
 ./_sources/serving.md.txt
 ./_sources/tokenization.md.txt
 ./_sources/training.md.txt
@@ -186,10 +189,12 @@
 ./_static/up.png
 ./_static/websupport.js
 ./configuration.html
+./configuration_reference.html
 ./data.html
 ./genindex.html
 ./index.html
 ./inference.html
+./installation.html
 ./objects.inv
 ./package/modules.html
 ./package/opennmt.bin.ark_to_records.html
@@ -254,6 +259,7 @@
 ./package/opennmt.utils.parallel.html
 ./package/opennmt.utils.vocab.html
 ./py-modindex.html
+./quickstart.html
 ./search.html
 ./searchindex.js
 ./serving.html
