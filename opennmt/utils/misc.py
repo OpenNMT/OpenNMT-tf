@@ -37,9 +37,11 @@ def item_or_tuple(x):
   else:
     return x
 
-def classes_in_module(module):
+def classes_in_module(module, public_only=False):
   """Returns a generator over the classes defined in :obj:`module`."""
-  return (symbol for symbol in dir(module) if inspect.isclass(getattr(module, symbol)))
+  return (symbol for symbol in dir(module)
+          if (inspect.isclass(getattr(module, symbol))
+              and (not public_only or not symbol.startswith("_"))))
 
 def get_third_party_dir():
   """Returns a path to the third_party directory."""
@@ -96,6 +98,22 @@ def extract_batches(tensors):
           key: value[b] for key, value in six.iteritems(tensors)
       }
 
+def merge_dict(dict1, dict2):
+  """Merges :obj:`dict2` into :obj:`dict1`.
+
+  Args:
+    dict1: The base dictionary.
+    dict2: The dictionary to merge.
+
+  Returns:
+    The merged dictionary :obj:`dict1`.
+  """
+  for key, value in six.iteritems(dict2):
+    if isinstance(value, dict):
+      dict1[key] = merge_dict(dict1.get(key, {}), value)
+    else:
+      dict1[key] = value
+  return dict1
 
 # The next 2 functions come with the following license and copyright:
 

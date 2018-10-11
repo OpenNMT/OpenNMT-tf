@@ -8,7 +8,7 @@ import opennmt.inputters as inputters
 
 from opennmt.models.model import Model
 from opennmt.utils.losses import cross_entropy_sequence_loss
-from opennmt.utils.misc import print_bytes
+from opennmt.utils.misc import print_bytes, merge_dict
 from opennmt.decoders.decoder import get_sampling_probability
 
 
@@ -130,6 +130,19 @@ class SequenceToSequence(Model):
     self.target_inputter.add_process_hooks([shift_target_sequence])
     self.alignment_file_key = alignment_file_key
     self.alignment_file = None
+
+  def auto_config(self, num_devices=1):
+    config = super(SequenceToSequence, self).auto_config(num_devices=num_devices)
+    return merge_dict(config, {
+        "params": {
+            "beam_width": 4,
+            "length_penalty": 0.6
+        },
+        "train": {
+            "sample_buffer_size": -1,
+            "train_steps": 500000
+        }
+    })
 
   def _initialize(self, metadata, asset_dir=None):
     assets = super(SequenceToSequence, self)._initialize(metadata, asset_dir=asset_dir)

@@ -3,6 +3,8 @@
 import tensorflow as tf
 import opennmt as onmt
 
+from opennmt.utils.misc import merge_dict
+
 
 class ListenAttendSpell(onmt.models.SequenceToSequence):
   """Defines a model similar to the "Listen, Attend and Spell" model described
@@ -29,7 +31,46 @@ class ListenAttendSpell(onmt.models.SequenceToSequence):
             dropout=0.3,
             residual_connections=False))
 
-class NMTBig(onmt.models.SequenceToSequence):
+  def auto_config(self, num_devices=1):
+    config = super(ListenAttendSpell, self).auto_config(num_devices=num_devices)
+    return merge_dict(config, {
+        "params": {
+            "optimizer": "GradientDescentOptimizer",
+            "learning_rate": 0.2,
+            "clip_gradients": 10.0,
+            "scheduled_sampling_type": "constant",
+            "scheduled_sampling_read_probability": 0.9
+        },
+        "train": {
+            "batch_size": 32,
+            "bucket_width": 15,
+            "maximum_features_length": 2450,
+            "maximum_labels_length": 330
+        }
+    })
+
+class _RNNBase(onmt.models.SequenceToSequence):
+  """Base class for RNN based NMT models."""
+  def __init__(self, *args, **kwargs):
+    super(_RNNBase, self).__init__(*args, **kwargs)
+
+  def auto_config(self, num_devices=1):
+    config = super(_RNNBase, self).auto_config(num_devices=num_devices)
+    return merge_dict(config, {
+        "params": {
+            "optimizer": "AdamOptimizer",
+            "learning_rate": 0.0002,
+            "param_init": 0.1,
+            "clip_gradients": 5.0
+        },
+        "train": {
+            "batch_size": 64,
+            "maximum_features_length": 80,
+            "maximum_labels_length": 80
+        }
+    })
+
+class NMTBig(_RNNBase):
   """Defines a bidirectional LSTM encoder-decoder model."""
   def __init__(self):
     super(NMTBig, self).__init__(
@@ -55,7 +96,7 @@ class NMTBig(onmt.models.SequenceToSequence):
             dropout=0.3,
             residual_connections=False))
 
-class NMTMedium(onmt.models.SequenceToSequence):
+class NMTMedium(_RNNBase):
   """Defines a medium-sized bidirectional LSTM encoder-decoder model."""
   def __init__(self):
     super(NMTMedium, self).__init__(
@@ -81,7 +122,7 @@ class NMTMedium(onmt.models.SequenceToSequence):
             dropout=0.3,
             residual_connections=False))
 
-class NMTSmall(onmt.models.SequenceToSequence):
+class NMTSmall(_RNNBase):
   """Defines a small unidirectional LSTM encoder-decoder model."""
   def __init__(self):
     super(NMTSmall, self).__init__(
@@ -134,6 +175,18 @@ class SeqTagger(onmt.models.SequenceTagger):
             residual_connections=False),
         labels_vocabulary_file_key="tags_vocabulary",
         crf_decoding=True)
+
+  def auto_config(self, num_devices=1):
+    config = super(SeqTagger, self).auto_config(num_devices=num_devices)
+    return merge_dict(config, {
+        "params": {
+            "optimizer": "AdamOptimizer",
+            "learning_rate": 0.001
+        },
+        "train": {
+            "batch_size": 32
+        }
+    })
 
 class Transformer(onmt.models.Transformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""

@@ -9,7 +9,7 @@ fi
 DATA_PATH=$1
 SP_PATH=/usr/local/bin
 
-runconfig=wmt_ende_transformer_4gpu_lr2_ws8000_dur2_0.998
+runconfig=wmt_ende_transformer
 testset=newstest2017-ende
 sl=en
 tl=de
@@ -24,19 +24,11 @@ perl input-from-sgm.perl < $DATA_PATH/test/$testset-src.$sl.sgm \
    | spm_encode --model=data/wmt$sl$tl.model > data/$testset-src.$sl
 perl input-from-sgm.perl < $DATA_PATH/test/$testset-ref.$tl.sgm > data/$testset-ref.$tl
 
-
-if false; then
-  mkdir -p $runconfig/averaged
-  onmt-average-checkpoints --max_count=10 \
-                           --model_dir=$runconfig/ \
-                           --output_dir=$runconfig/averaged/
-fi
-
 if true; then
   onmt-main infer \
             --model_type Transformer \
-            --config config/wmt_ende.yml \
-            --checkpoint_path=$runconfig/averaged \
+            --config config/wmt_ende.yml --auto_config \
+            --checkpoint_path=$runconfig/avg \
             --features_file data/$testset-src.$sl \
             > data/$testset-src.hyp.$tl
 fi
