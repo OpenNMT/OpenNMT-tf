@@ -14,11 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Include all tokenization assets in exported models
+
 ### Fixes and improvements
 
 * Update the [model serving example](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) to use a real pretrained model with the TensorFlow Serving 1.11 GPU Docker image
 * Small training speed improvement when the optimizer implements sparse updates
-* Include all tokenization assets in exported models
 
 ## [1.9.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.9.0) (2018-10-05)
 
