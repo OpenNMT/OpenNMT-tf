@@ -287,7 +287,7 @@ def greedy_decode(symbols_to_logits_fn,
     inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, lengths.dtype))
 
     logits, state = symbols_to_logits_fn(inputs, step, state)
-    probs = tf.nn.log_softmax(logits)
+    probs = tf.nn.log_softmax(tf.to_float(logits))
     sample_ids = tf.argmax(probs, axis=-1)
 
     # Accumulate log probabilities.
