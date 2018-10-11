@@ -7,7 +7,6 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import SumReducer
-from opennmt.layers.common import embedding_lookup
 
 
 def make_positions(sequence_length, maximum_length=None):
@@ -158,7 +157,7 @@ class PositionEmbedder(PositionEncoder):
     positions = tf.minimum(positions, self.maximum_position)
     embeddings = tf.get_variable(
         "w_embs", shape=[self.maximum_position + 1, depth], dtype=dtype)
-    return embedding_lookup(embeddings, positions)
+    return tf.nn.embedding_lookup(embeddings, positions)
 
 
 class SinusoidalPositionEncoder(PositionEncoder):

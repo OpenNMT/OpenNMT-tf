@@ -11,6 +11,7 @@ Subpackages
 
 .. toctree::
 
+    opennmt.bin
     opennmt.decoders
     opennmt.encoders
     opennmt.inputters

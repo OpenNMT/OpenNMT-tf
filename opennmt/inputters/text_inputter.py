@@ -17,7 +17,6 @@ from opennmt.inputters.inputter import Inputter
 from opennmt.utils.cell import build_cell, last_encoding_from_state
 from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
-from opennmt.layers.common import embedding_lookup
 
 
 def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets=1):
@@ -231,8 +230,8 @@ class TextInputter(Inputter):
   def get_dataset_size(self, data_file):
     return count_lines(data_file)
 
-  def initialize(self, metadata):
-    self.tokenizer.initialize(metadata)
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
   def _process(self, data):
     """Tokenizes raw text."""
@@ -314,8 +313,9 @@ class WordEmbedder(TextInputter):
     if embedding_size is None and embedding_file_key is None:
       raise ValueError("Must either provide embedding_size or embedding_file_key")
 
-  def initialize(self, metadata):
-    super(WordEmbedder, self).initialize(metadata)
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    assets = super(WordEmbedder, self).initialize(
+        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.embedding_file = metadata[self.embedding_file_key] if self.embedding_file_key else None
 
@@ -324,6 +324,7 @@ class WordEmbedder(TextInputter):
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         num_oov_buckets=self.num_oov_buckets)
+    return assets
 
   def _get_serving_input(self):
     receiver_tensors = {
@@ -387,7 +388,7 @@ class WordEmbedder(TextInputter):
           initializer=initializer,
           trainable=self.trainable)
 
-    outputs = embedding_lookup(embeddings, inputs)
+    outputs = tf.nn.embedding_lookup(embeddings, inputs)
 
     outputs = tf.layers.dropout(
         outputs,
@@ -425,14 +426,16 @@ class CharEmbedder(TextInputter):
     self.dropout = dropout
     self.num_oov_buckets = 1
 
-  def initialize(self, metadata):
-    super(CharEmbedder, self).initialize(metadata)
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    assets = super(CharEmbedder, self).initialize(
+        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         num_oov_buckets=self.num_oov_buckets)
+    return assets
 
   def _get_serving_input(self):
     receiver_tensors = {
@@ -474,7 +477,7 @@ class CharEmbedder(TextInputter):
     embeddings = tf.get_variable(
         "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
 
-    outputs = embedding_lookup(embeddings, inputs)
+    outputs = tf.nn.embedding_lookup(embeddings, inputs)
     outputs = tf.layers.dropout(
         outputs,
         rate=self.dropout,
@@ -557,7 +560,7 @@ class CharRNNEmbedder(CharEmbedder):
                num_units,
                dropout=0.2,
                encoding="average",
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                tokenizer=SpaceTokenizer(),
                dtype=tf.float32):
     """Initializes the parameters of the character RNN embedder.

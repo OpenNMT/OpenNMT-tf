@@ -49,10 +49,11 @@ class SequenceTagger(Model):
     else:
       self.tagging_scheme = None
 
-  def _initialize(self, metadata):
-    super(SequenceTagger, self)._initialize(metadata)
+  def _initialize(self, metadata, asset_dir=None):
+    assets = super(SequenceTagger, self)._initialize(metadata, asset_dir=asset_dir)
     self.labels_vocabulary_file = metadata[self.labels_vocabulary_file_key]
     self.num_labels = count_lines(self.labels_vocabulary_file)
+    return assets
 
   def _get_labels_builder(self, labels_file):
     labels_vocabulary = tf.contrib.lookup.index_table_from_file(

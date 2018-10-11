@@ -20,6 +20,7 @@ OpenNMT-tf focuses on modularity to support advanced modeling and training capab
 * **multi-source training**<br/>e.g. source text and Moses translation as inputs for machine translation.
 * **multiple input format**<br/>text with support of mixed word/character embeddings or real vectors serialized in *TFRecord* files.
 * **on-the-fly tokenization**<br/>apply advanced tokenization dynamically during the training and detokenize the predictions during inference or evaluation.
+* **domain adaptation**<br/>specialize a model to a new domain in a few training steps by updating the word vocabularies in checkpoints.
 * **automatic evaluation**<br/>support for saving evaluation predictions and running external evaluators (e.g. BLEU).
 * **mixed precision training**<br/>take advantage of the latest NVIDIA optimizations to train models with half-precision floating points.
 
@@ -55,7 +56,7 @@ A minimal OpenNMT-tf run consists of 3 elements:
 that are passed to the main script:
 
 ```
-onmt-main <run_type> --model_type <model> --config <config_file.yml>
+onmt-main <run_type> --model_type <model> --auto_config --config <config_file.yml>
 ```
 
 Additional experimental models are available in the `config/models/` directory and can be used with the option `--model <model_file.py>`.
@@ -84,13 +85,14 @@ onmt-build-vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-
 3\. Train with preset parameters:
 
 ```
-onmt-main train_and_eval --model_type NMTSmall --config config/opennmt-defaults.yml config/data/toy-ende.yml
+onmt-main train_and_eval --model_type NMTSmall --auto_config --config config/data/toy-ende.yml
 ```
 
 4\. Translate a test file with the latest checkpoint:
 
 ```
-onmt-main infer --config config/opennmt-defaults.yml config/data/toy-ende.yml --features_file data/toy-ende/src-test.txt
+onmt-main infer --model_type NMTSmall --auto_config --config config/data/toy-ende.yml \
+    --features_file data/toy-ende/src-test.txt
 ```
 
 **Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.

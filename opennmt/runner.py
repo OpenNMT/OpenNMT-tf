@@ -1,5 +1,7 @@
 """Main library entrypoint."""
 
+import copy
+import json
 import io
 import os
 import sys
@@ -12,10 +14,29 @@ from tensorflow.python.estimator.util import fn_args
 
 from google.protobuf import text_format
 
-from opennmt.utils import hooks, checkpoint
+from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils.evaluator import external_evaluation_fn
-from opennmt.utils.misc import extract_batches, print_bytes
 
+
+# These options require a value but we can fallback to a default one.
+_CONFIG_FALLBACK = {
+    "train": {
+        "batch_type": "examples",
+        "bucket_width": 1,
+        "sample_buffer_size": 500000,
+    },
+    "eval": {
+        "batch_size": 32,
+        "eval_delay": 18000,
+        "exporters": "last"
+    },
+    "infer": {
+        "batch_size": 16
+    },
+    "score": {
+        "batch_size": 64
+    }
+}
 
 class Runner(object):
   """Class for managing training, inference, and export. It is mostly a
@@ -28,7 +49,8 @@ class Runner(object):
                seed=None,
                num_devices=1,
                gpu_allow_growth=False,
-               session_config=None):
+               session_config=None,
+               auto_config=False):
     """Initializes the runner parameters.
 
     Args:
@@ -38,10 +60,26 @@ class Runner(object):
       num_devices: The number of devices (GPUs) to use for training.
       gpu_allow_growth: Allow GPU memory to grow dynamically.
       session_config: ``tf.ConfigProto`` overrides.
+      auto_config: If ``True``, use automatic configuration values defined by
+        :obj:`model`.
+
+    Raises:
+      NotImplementedError: If :obj:`auto_config` is ``True`` but :obj:`model`
+        does not define any automatic configuration values.
     """
     self._model = model
-    self._config = config
     self._num_devices = num_devices
+
+    # Configuration priority: user config > auto config > default config.
+    self._config = copy.deepcopy(_CONFIG_FALLBACK)
+    if auto_config:
+      model_config = self._model.auto_config(num_devices=num_devices)
+      if not model_config:
+        raise NotImplementedError("This model does not define any automatic configuration values")
+      misc.merge_dict(self._config, model_config)
+    misc.merge_dict(self._config, config)
+    tf.logging.info(
+        "Using parameters: %s", json.dumps(self._config, indent=2, sort_keys=True))
 
     session_config_base = tf.ConfigProto(
         allow_soft_placement=True,
@@ -107,8 +145,8 @@ class Runner(object):
         and self._config["eval"].get("external_evaluators") is None):
       return None
     save_path = os.path.join(self._config["model_dir"], "eval")
-    if not os.path.isdir(save_path):
-      os.makedirs(save_path)
+    if not tf.gfile.Exists(save_path):
+      tf.gfile.MakeDirs(save_path)
     return lambda predictions: [
         hooks.SaveEvaluationPredictionHook(
             self._model,
@@ -130,12 +168,12 @@ class Runner(object):
             self._config["data"],
             self._config["data"]["train_features_file"],
             labels_file=self._config["data"]["train_labels_file"],
-            batch_type=self._config["train"].get("batch_type", "examples"),
+            batch_type=self._config["train"]["batch_type"],
             batch_multiplier=self._num_devices,
-            bucket_width=self._config["train"].get("bucket_width", 5),
+            bucket_width=self._config["train"]["bucket_width"],
             single_pass=self._config["train"].get("single_pass", False),
             num_threads=self._config["train"].get("num_threads"),
-            sample_buffer_size=self._config["train"].get("sample_buffer_size", 500000),
+            sample_buffer_size=self._config["train"]["sample_buffer_size"],
             prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size"),
             maximum_features_length=self._config["train"].get("maximum_features_length"),
             maximum_labels_length=self._config["train"].get("maximum_labels_length")),
@@ -150,7 +188,7 @@ class Runner(object):
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self._model.input_fn(
             tf.estimator.ModeKeys.EVAL,
-            self._config["eval"].get("batch_size", 32),
+            self._config["eval"]["batch_size"],
             self._config["data"],
             self._config["data"]["eval_features_file"],
             num_threads=self._config["eval"].get("num_threads"),
@@ -158,10 +196,17 @@ class Runner(object):
             labels_file=self._config["data"]["eval_labels_file"]),
         steps=None,
         exporters=_make_exporters(
-            self._config["eval"].get("exporters", "last"),
-            self._model.serving_input_fn(self._config["data"])),
-        throttle_secs=self._config["eval"].get("eval_delay", 18000))
+            self._config["eval"]["exporters"],
+            self._model.serving_input_fn(self._config["data"]),
+            assets_extra=self._get_model_assets()),
+        throttle_secs=self._config["eval"]["eval_delay"])
     return eval_spec
+
+  def _get_model_assets(self):
+    generated_assets_path = os.path.join(self._estimator.model_dir, "assets")
+    if not tf.gfile.Exists(generated_assets_path):
+      tf.gfile.MakeDirs(generated_assets_path)
+    return self._model.get_assets(self._config["data"], asset_dir=generated_assets_path)
 
   def train_and_evaluate(self):
     """Runs the training and evaluation loop."""
@@ -179,7 +224,7 @@ class Runner(object):
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation."""
-    if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+    if checkpoint_path is not None and tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     eval_spec = self._build_eval_spec()
     self._estimator.evaluate(
@@ -237,13 +282,12 @@ class Runner(object):
     """
     if "infer" not in self._config:
       self._config["infer"] = {}
-    if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+    if checkpoint_path is not None and tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
 
-    batch_size = self._config["infer"].get("batch_size", 1)
     input_fn = self._model.input_fn(
         tf.estimator.ModeKeys.PREDICT,
-        batch_size,
+        self._config["infer"]["batch_size"],
         self._config["data"],
         features_file,
         num_threads=self._config["infer"].get("num_threads"),
@@ -279,7 +323,7 @@ class Runner(object):
     Returns:
       The string path to the exported directory.
     """
-    if checkpoint_path is not None and os.path.isdir(checkpoint_path):
+    if checkpoint_path is not None and tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if export_dir_base is None:
       export_dir_base = os.path.join(self._estimator.model_dir, "export", "manual")
@@ -293,6 +337,7 @@ class Runner(object):
     return self._estimator.export_savedmodel(
         export_dir_base,
         self._model.serving_input_fn(self._config["data"]),
+        assets_extra=self._get_model_assets(),
         checkpoint_path=checkpoint_path,
         **kwargs)
 
@@ -314,17 +359,16 @@ class Runner(object):
 
     if checkpoint_path is None:
       checkpoint_path = tf.train.latest_checkpoint(self._estimator.model_dir)
-    elif os.path.isdir(checkpoint_path):
+    elif tf.gfile.Exists(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if checkpoint_path is None:
       raise ValueError("could not find a trained model in %s" % self._estimator.model_dir)
 
     if "score" not in self._config:
       self._config["score"] = {}
-    batch_size = self._config["score"].get("batch_size", 64)
     input_fn = self._model.input_fn(
         tf.estimator.ModeKeys.EVAL,
-        batch_size,
+        self._config["score"]["batch_size"],
         self._config["data"],
         features_file,
         labels_file=predictions_file,
@@ -358,14 +402,14 @@ class Runner(object):
               checkpoint_filename_with_path=checkpoint_path,
               config=self._estimator.config.session_config)) as sess:
         while not sess.should_stop():
-          for batch in extract_batches(sess.run(results)):
+          for batch in misc.extract_batches(sess.run(results)):
             tokens = batch["tokens"][:batch["length"]]
             sentence = self._model.target_inputter.tokenizer.detokenize(tokens)
             fmt = "%f ||| %s" % (batch["score"], sentence)
-            print_bytes(tf.compat.as_bytes(fmt))
+            misc.print_bytes(tf.compat.as_bytes(fmt))
 
 
-def _make_exporters(exporters_type, serving_input_fn):
+def _make_exporters(exporters_type, serving_input_fn, assets_extra=None):
   if exporters_type is None:
     return None
   if not isinstance(exporters_type, list):
@@ -374,14 +418,16 @@ def _make_exporters(exporters_type, serving_input_fn):
   for exporter_type in exporters_type:
     exporter_type = exporter_type.lower()
     if exporter_type == "last":
-      exporters.append(tf.estimator.LatestExporter("latest", serving_input_fn))
+      exporters.append(tf.estimator.LatestExporter(
+          "latest", serving_input_fn, assets_extra=assets_extra))
     elif exporter_type == "final":
-      exporters.append(tf.estimator.FinalExporter("final", serving_input_fn))
+      exporters.append(tf.estimator.FinalExporter(
+          "final", serving_input_fn, assets_extra=assets_extra))
     elif exporter_type == "best":
       if not hasattr(tf.estimator, "BestExporter"):
         raise ValueError("BestExporter is only available starting from TensorFlow 1.9")
       exporters.append(tf.estimator.BestExporter(
-          name="best", serving_input_receiver_fn=serving_input_fn))
+          name="best", serving_input_receiver_fn=serving_input_fn, assets_extra=assets_extra))
     else:
       raise ValueError("invalid exporter type: %s" % exporter_type)
   if len(exporters) == 1:

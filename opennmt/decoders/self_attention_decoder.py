@@ -67,13 +67,13 @@ class SelfAttentionDecoder(decoder.Decoder):
           num_heads=self.num_heads,
           maximum_length=tf.shape(memory)[1])
 
-  def _init_cache(self, memory, memory_sequence_length=None):
+  def _init_cache(self, memory, memory_sequence_length=None, dtype=tf.float32):
     batch_size = tf.shape(memory)[0]
     memory_time = tf.shape(memory)[1]
     depth = memory.get_shape().as_list()[-1]
 
     cache = {
-        "attn": tf.zeros([batch_size, 0, memory_time]),
+        "attn": tf.zeros([batch_size, 0, memory_time], dtype=dtype),
         "memory": memory,
         "memory_mask": self._build_memory_mask(
             memory, memory_sequence_length=memory_sequence_length)
@@ -82,14 +82,14 @@ class SelfAttentionDecoder(decoder.Decoder):
     for l in range(self.num_layers):
       proj_cache_shape = [batch_size, self.num_heads, 0, depth // self.num_heads]
       layer_cache = {
-          "memory_keys": tf.zeros(proj_cache_shape),
-          "memory_values": tf.zeros(proj_cache_shape),
+          "memory_keys": tf.zeros(proj_cache_shape, dtype=dtype),
+          "memory_values": tf.zeros(proj_cache_shape, dtype=dtype),
       }
       if self.self_attention_type == "scaled_dot":
-        layer_cache["self_keys"] = tf.zeros(proj_cache_shape)
-        layer_cache["self_values"] = tf.zeros(proj_cache_shape)
+        layer_cache["self_keys"] = tf.zeros(proj_cache_shape, dtype=dtype)
+        layer_cache["self_values"] = tf.zeros(proj_cache_shape, dtype=dtype)
       elif self.self_attention_type == "average":
-        layer_cache["prev_g"] = tf.zeros([batch_size, 1, depth])
+        layer_cache["prev_g"] = tf.zeros([batch_size, 1, depth], dtype=dtype)
       cache["layer_{}".format(l)] = layer_cache
 
     return cache
@@ -274,9 +274,12 @@ class SelfAttentionDecoder(decoder.Decoder):
                      memory_sequence_length=None,
                      dtype=None,
                      return_alignment_history=False):
-    cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
+    if dtype is None:
+      dtype = memory.dtype
+    cache = self._init_cache(
+        memory, memory_sequence_length=memory_sequence_length, dtype=dtype)
     symbols_to_logits_fn = self._symbols_to_logits_fn(
-        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
+        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype)
 
     outputs, lengths, log_probs, cache = decoder.greedy_decode(
         symbols_to_logits_fn,
@@ -313,9 +316,12 @@ class SelfAttentionDecoder(decoder.Decoder):
                                 memory_sequence_length=None,
                                 dtype=None,
                                 return_alignment_history=False):
-    cache = self._init_cache(memory, memory_sequence_length=memory_sequence_length)
+    if dtype is None:
+      dtype = memory.dtype
+    cache = self._init_cache(
+        memory, memory_sequence_length=memory_sequence_length, dtype=dtype)
     symbols_to_logits_fn = self._symbols_to_logits_fn(
-        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype or memory.dtype)
+        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype)
 
     outputs, log_probs, cache = beam_search.beam_search(
         symbols_to_logits_fn,

@@ -39,7 +39,7 @@ matrix:
       script:
         - set -e
         - sphinx-build docs docs/build
-        - doctr deploy --built-docs docs/build .
+        - doctr deploy --build-tags --branch-whitelist --built-docs docs/build .
 before_install:
   - pip install tensorflow==$TF_VERSION
   - pip install -e .[tests]

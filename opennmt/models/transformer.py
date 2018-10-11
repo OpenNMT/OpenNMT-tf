@@ -6,6 +6,7 @@ from opennmt.models.sequence_to_sequence import SequenceToSequence, EmbeddingsSh
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
 from opennmt.layers.position import SinusoidalPositionEncoder
+from opennmt.utils.misc import merge_dict
 
 
 class Transformer(SequenceToSequence):
@@ -75,6 +76,7 @@ class Transformer(SequenceToSequence):
         position_encoder=position_encoder,
         self_attention_type=decoder_self_attention_type)
 
+    self._num_units = num_units
     super(Transformer, self).__init__(
         source_inputter,
         target_inputter,
@@ -84,6 +86,34 @@ class Transformer(SequenceToSequence):
         alignment_file_key=alignment_file_key,
         daisy_chain_variables=True,
         name=name)
+
+  def auto_config(self, num_devices=1):
+    config = super(Transformer, self).auto_config(num_devices=num_devices)
+    return merge_dict(config, {
+        "params": {
+            "average_loss_in_time": True,
+            "label_smoothing": 0.1,
+            "optimizer": "LazyAdamOptimizer",
+            "optimizer_params": {
+                "beta1": 0.9,
+                "beta2": 0.998
+            },
+            "learning_rate": 2.0,
+            "decay_type": "noam_decay",
+            "decay_rate": self._num_units,
+            "decay_step_duration": max(1, 8 // num_devices),
+            "decay_steps": 8000,
+            "start_decay_steps": 0
+        },
+        "train": {
+            "batch_size": 3072,
+            "batch_type": "tokens",
+            "maximum_features_length": 100,
+            "maximum_labels_length": 100,
+            "keep_checkpoint_max": 8,
+            "average_last_checkpoints": 8
+        }
+    })
 
   def _initializer(self, params):
     return tf.variance_scaling_initializer(

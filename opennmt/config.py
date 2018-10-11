@@ -9,6 +9,7 @@ import tensorflow as tf
 import yaml
 
 from opennmt.models import catalog
+from opennmt.utils.misc import merge_dict
 
 
 def load_model_module(path):
@@ -117,15 +118,7 @@ def load_config(config_paths, config=None):
   for config_path in config_paths:
     with tf.gfile.Open(config_path, mode="rb") as config_file:
       subconfig = yaml.load(config_file.read())
-
       # Add or update section in main configuration.
-      for section in subconfig:
-        if section in config:
-          if isinstance(config[section], dict):
-            config[section].update(subconfig[section])
-          else:
-            config[section] = subconfig[section]
-        else:
-          config[section] = subconfig[section]
+      merge_dict(config, subconfig)
 
   return config

@@ -10,7 +10,7 @@ def build_cell(num_layers,
                mode,
                dropout=0.0,
                residual_connections=False,
-               cell_class=tf.contrib.rnn.LSTMCell,
+               cell_class=tf.nn.rnn_cell.LSTMCell,
                attention_layers=None,
                attention_mechanisms=None):
   """Convenience function to build a multi-layer RNN cell.
@@ -28,7 +28,7 @@ def build_cell(num_layers,
       with the same length as :obj:`attention_layers`.
 
   Returns:
-    A ``tf.contrib.rnn.RNNCell``.
+    A ``tf.nn.rnn_cell.RNNCell``.
 
   Raises:
     ValueError: if :obj:`attention_layers` and :obj:`attention_mechanisms` do
@@ -51,15 +51,15 @@ def build_cell(num_layers,
           attention_mechanisms[attention_layers.index(l)],
           attention_layer_size=num_units)
     if mode == tf.estimator.ModeKeys.TRAIN and dropout > 0.0:
-      cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=1.0 - dropout)
+      cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=1.0 - dropout)
     if residual_connections and l > 0:
-      cell = tf.contrib.rnn.ResidualWrapper(cell)
+      cell = tf.nn.rnn_cell.ResidualWrapper(cell)
     cells.append(cell)
 
   if len(cells) == 1:
     return cells[0]
   else:
-    return tf.contrib.rnn.MultiRNNCell(cells)
+    return tf.nn.rnn_cell.MultiRNNCell(cells)
 
 def last_encoding_from_state(state):
   """Returns the last encoding vector from the state.
@@ -75,6 +75,6 @@ def last_encoding_from_state(state):
   """
   if isinstance(state, collections.Sequence):
     state = state[-1]
-  if isinstance(state, tf.contrib.rnn.LSTMStateTuple):
+  if isinstance(state, tf.nn.rnn_cell.LSTMStateTuple):
     return state.h
   return state
