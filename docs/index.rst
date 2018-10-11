@@ -6,6 +6,7 @@ Overview
 .. toctree::
    :maxdepth: 1
 
+   quickstart.md
    data.md
    tokenization.md
    configuration.md

@@ -64,41 +64,6 @@ Additional experimental models are available in the `config/models/` directory a
 * For more information about configuration files, see the [documentation](http://opennmt.net/OpenNMT-tf/configuration.html).
 * For more information about command line options, see the help flag `onmt-main -h`.
 
-## Quickstart
-
-Here is a minimal workflow to get you started in using OpenNMT-tf. This example uses a toy English-German dataset for machine translation.
-
-1\. Clone the repository to fetch the sample data and the predefined configurations:
-
-```
-git clone --depth 1 --branch r1 --single-branch https://github.com/OpenNMT/OpenNMT-tf.git
-cd OpenNMT-tf
-```
-
-2\. Build the word vocabularies:
-
-```
-onmt-build-vocab --size 50000 --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
-onmt-build-vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
-```
-
-3\. Train with preset parameters:
-
-```
-onmt-main train_and_eval --model_type NMTSmall --auto_config --config config/data/toy-ende.yml
-```
-
-4\. Translate a test file with the latest checkpoint:
-
-```
-onmt-main infer --model_type NMTSmall --auto_config --config config/data/toy-ende.yml \
-    --features_file data/toy-ende/src-test.txt
-```
-
-**Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
-
-*For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf) or the [WMT training scripts](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt).*
-
 ## Using as a library
 
 OpenNMT-tf also exposes well-defined and stable APIs. Here is an example using the library to encode a sequence using a self-attentional encoder:
