@@ -24,9 +24,26 @@ The user can either:
 
 ## Parameters
 
-Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference.
+Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference. It uses the following layout:
 
-*See the example configuration `config/sample.yml` to learn about available parameters.*
+```yaml
+model_dir: path_to_the_model_directory
+
+data:
+  # Data configuration (training and evaluation files, vocabularies, alignments, etc.)
+params:
+  # Training and inference hyperparameters (learning rate, optimizer, beam size, etc.)
+train:
+  # Training specific configuration (checkpoint frequency, number of training step, etc.)
+eval:
+  # Evaluation specific configuration (evaluation frequency, external evaluators.)
+infer:
+  # Inference specific configuration (output scores, alignments, etc.)
+score:
+  # Scoring specific configuration
+```
+
+For a complete list of available options, see [Reference: Configuration](configuration_reference.html).
 
 ### Automatic configuration
 

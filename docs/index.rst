@@ -14,3 +14,4 @@ Overview
    inference.md
    serving.md
    package/opennmt
+   configuration_reference.md
