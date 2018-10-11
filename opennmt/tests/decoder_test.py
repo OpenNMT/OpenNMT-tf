@@ -44,20 +44,20 @@ class DecoderTest(tf.test.TestCase):
       self.assertAlmostEqual(
           1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), sess.run(inv_sig_sample_prob))
 
-  def _testDecoderTraining(self, decoder, support_alignment_history=False):
+  def _testDecoderTraining(self, decoder, support_alignment_history=False, dtype=tf.float32):
     batch_size = 4
     vocab_size = 10
     time_dim = 5
     depth = 6
     inputs = tf.placeholder_with_default(
-        np.random.randn(batch_size, time_dim, depth).astype(np.float32),
+        np.random.randn(batch_size, time_dim, depth).astype(dtype.as_numpy_dtype()),
         shape=(None, None, depth))
     # NOTE: max(sequence_length) may be less than time_dim when num_gpus > 1
     sequence_length = [1, 3, 4, 2]
     memory_sequence_length = [3, 7, 5, 4]
     memory_time = max(memory_sequence_length)
     memory = tf.placeholder_with_default(
-        np.random.randn(batch_size, memory_time, depth).astype(np.float32),
+        np.random.randn(batch_size, memory_time, depth).astype(dtype.as_numpy_dtype()),
         shape=(None, None, depth))
     outputs, _, _, attention = decoder.decode(
         inputs,
@@ -66,6 +66,7 @@ class DecoderTest(tf.test.TestCase):
         memory=memory,
         memory_sequence_length=memory_sequence_length,
         return_alignment_history=True)
+    self.assertEqual(outputs.dtype, dtype)
     output_time_dim = tf.shape(outputs)[1]
     if support_alignment_history:
       self.assertIsNotNone(attention)
@@ -97,11 +98,16 @@ class DecoderTest(tf.test.TestCase):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoderTraining(decoder, support_alignment_history=True)
 
+  def testSelfAttentionDecoderFP16Training(self):
+    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
+    self._testDecoderTraining(decoder, support_alignment_history=True, dtype=tf.float16)
+
   def _testDecoderGeneric(self,
                           decoder,
                           with_beam_search=False,
                           with_alignment_history=False,
-                          support_alignment_history=True):
+                          support_alignment_history=True,
+                          dtype=tf.float32):
     batch_size = 4
     beam_width = 5
     num_hyps = beam_width if with_beam_search else 1
@@ -112,11 +118,11 @@ class DecoderTest(tf.test.TestCase):
     memory_sequence_length = [3, 7, 5, 4]
     memory_time = max(memory_sequence_length)
     memory =  tf.placeholder_with_default(
-        np.random.randn(batch_size, memory_time, depth).astype(np.float32),
+        np.random.randn(batch_size, memory_time, depth).astype(dtype.as_numpy_dtype()),
         shape=(None, None, depth))
     memory_sequence_length = tf.placeholder_with_default(memory_sequence_length, shape=[None])
     embedding =  tf.placeholder_with_default(
-        np.random.randn(vocab_size, depth).astype(np.float32),
+        np.random.randn(vocab_size, depth).astype(dtype.as_numpy_dtype()),
         shape=(vocab_size, depth))
 
     if with_beam_search:
@@ -148,6 +154,7 @@ class DecoderTest(tf.test.TestCase):
     state = outputs[1]
     lengths = outputs[2]
     log_probs = outputs[3]
+    self.assertEqual(log_probs.dtype, tf.float32)
 
     decode_time = tf.shape(ids)[-1]
 
@@ -174,31 +181,35 @@ class DecoderTest(tf.test.TestCase):
       self.assertAllEqual([batch_size, num_hyps], lengths.shape)
       self.assertAllEqual([batch_size, num_hyps], log_probs.shape)
 
-  def _testDecoder(self, decoder, support_alignment_history=True):
+  def _testDecoder(self, decoder, support_alignment_history=True, dtype=tf.float32):
     with tf.variable_scope(tf.get_variable_scope()):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=False,
           with_alignment_history=False,
-          support_alignment_history=support_alignment_history)
+          support_alignment_history=support_alignment_history,
+          dtype=dtype)
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=False,
           with_alignment_history=True,
-          support_alignment_history=support_alignment_history)
+          support_alignment_history=support_alignment_history,
+          dtype=dtype)
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=True,
           with_alignment_history=False,
-          support_alignment_history=support_alignment_history)
+          support_alignment_history=support_alignment_history,
+          dtype=dtype)
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=True,
           with_alignment_history=True,
-          support_alignment_history=support_alignment_history)
+          support_alignment_history=support_alignment_history,
+          dtype=dtype)
 
   def testRNNDecoder(self):
     decoder = decoders.RNNDecoder(2, 20)
@@ -215,6 +226,10 @@ class DecoderTest(tf.test.TestCase):
   def testSelfAttentionDecoder(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoder(decoder)
+
+  def testSelfAttentionDecoderFP16(self):
+    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
+    self._testDecoder(decoder, dtype=tf.float16)
 
 if __name__ == "__main__":
   tf.test.main()

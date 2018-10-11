@@ -5,23 +5,24 @@ from opennmt import encoders
 from opennmt.layers import reducer
 
 
-def _build_dummy_sequences(sequence_length, depth=5):
+def _build_dummy_sequences(sequence_length, depth=5, dtype=tf.float32):
   batch_size = len(sequence_length)
   return tf.placeholder_with_default(
       np.random.randn(
-          batch_size, max(sequence_length), depth).astype(np.float32),
+          batch_size, max(sequence_length), depth).astype(dtype.as_numpy_dtype()),
       shape=(None, None, depth))
 
 
 class EncoderTest(tf.test.TestCase):
 
-  def testSelfAttentionEncoder(self):
+  def _testSelfAttentionEncoder(self, dtype=tf.float32):
     sequence_length = [17, 21, 20]
-    inputs = _build_dummy_sequences(sequence_length, depth=10)
+    inputs = _build_dummy_sequences(sequence_length, depth=10, dtype=dtype)
     encoder = encoders.SelfAttentionEncoder(
         3, num_units=36, num_heads=4, ffn_inner_dim=52)
     outputs, state, encoded_length = encoder.encode(
         inputs, sequence_length=tf.constant(sequence_length))
+    self.assertEqual(outputs.dtype, dtype)
     self.assertEqual(3, len(state))
     for s in state:
       self.assertIsInstance(s, tf.Tensor)
@@ -30,6 +31,12 @@ class EncoderTest(tf.test.TestCase):
       outputs, encoded_length = sess.run([outputs, encoded_length])
       self.assertAllEqual([3, 21, 36], outputs.shape)
       self.assertAllEqual(sequence_length, encoded_length)
+
+  def testSelfAttentionEncoder(self):
+    self._testSelfAttentionEncoder(dtype=tf.float32)
+
+  def testSelfAttentionEncoderFP16(self):
+    self._testSelfAttentionEncoder(dtype=tf.float16)
 
   def testConvEncoder(self):
     sequence_length = [17, 21, 20]
