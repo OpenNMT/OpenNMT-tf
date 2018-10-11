@@ -166,7 +166,6 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.layers.reducer</span> <span class="k">import</span> <span class="n">SumReducer</span>
-<span class="kn">from</span> <span class="nn">opennmt.layers.common</span> <span class="k">import</span> <span class="n">embedding_lookup</span>
 
 
 <div class="viewcode-block" id="make_positions"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.make_positions">[docs]</a><span class="k">def</span> <span class="nf">make_positions</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -317,7 +316,7 @@
     <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span><span class="p">)</span>
     <span class="n">embeddings</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
         <span class="s2">&quot;w_embs&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">depth</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span></div></div>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="SinusoidalPositionEncoder"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.SinusoidalPositionEncoder">[docs]</a><span class="k">class</span> <span class="nc">SinusoidalPositionEncoder</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">):</span>

@@ -164,7 +164,6 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.layers.common</span> <span class="k">import</span> <span class="n">embedding_lookup</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.beam_search</span> <span class="k">import</span> <span class="n">get_state_shape_invariants</span>
 
 
@@ -201,7 +200,7 @@
   <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">embedding</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">embedding</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="build_output_layer"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.build_output_layer">[docs]</a><span class="k">def</span> <span class="nf">build_output_layer</span><span class="p">(</span><span class="n">num_units</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Builds the output projection layer.</span>
