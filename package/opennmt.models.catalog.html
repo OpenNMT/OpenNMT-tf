@@ -189,26 +189,42 @@
 <dd><p>Bases: <a class="reference internal" href="opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence" title="opennmt.models.sequence_to_sequence.SequenceToSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_to_sequence.SequenceToSequence</span></code></a></p>
 <p>Defines a model similar to the “Listen, Attend and Spell” model described
 in <a class="reference external" href="https://arxiv.org/abs/1508.01211">https://arxiv.org/abs/1508.01211</a>.</p>
+<dl class="method">
+<dt id="opennmt.models.catalog.ListenAttendSpell.auto_config">
+<code class="descname">auto_config</code><span class="sig-paren">(</span><em>num_devices=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/catalog.html#ListenAttendSpell.auto_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.catalog.ListenAttendSpell.auto_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns automatic configuration values specific to this model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num_devices</strong> – The number of devices used for the training.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A partial training configuration.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.models.catalog.NMTBig">
 <em class="property">class </em><code class="descclassname">opennmt.models.catalog.</code><code class="descname">NMTBig</code><a class="reference internal" href="../_modules/opennmt/models/catalog.html#NMTBig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.catalog.NMTBig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence" title="opennmt.models.sequence_to_sequence.SequenceToSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_to_sequence.SequenceToSequence</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.catalog._RNNBase</span></code></p>
 <p>Defines a bidirectional LSTM encoder-decoder model.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.models.catalog.NMTMedium">
 <em class="property">class </em><code class="descclassname">opennmt.models.catalog.</code><code class="descname">NMTMedium</code><a class="reference internal" href="../_modules/opennmt/models/catalog.html#NMTMedium"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.catalog.NMTMedium" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence" title="opennmt.models.sequence_to_sequence.SequenceToSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_to_sequence.SequenceToSequence</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.catalog._RNNBase</span></code></p>
 <p>Defines a medium-sized bidirectional LSTM encoder-decoder model.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.models.catalog.NMTSmall">
 <em class="property">class </em><code class="descclassname">opennmt.models.catalog.</code><code class="descname">NMTSmall</code><a class="reference internal" href="../_modules/opennmt/models/catalog.html#NMTSmall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.catalog.NMTSmall" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence" title="opennmt.models.sequence_to_sequence.SequenceToSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_to_sequence.SequenceToSequence</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.catalog._RNNBase</span></code></p>
 <p>Defines a small unidirectional LSTM encoder-decoder model.</p>
 </dd></dl>
 
@@ -217,6 +233,22 @@ in <a class="reference external" href="https://arxiv.org/abs/1508.01211">https:/
 <em class="property">class </em><code class="descclassname">opennmt.models.catalog.</code><code class="descname">SeqTagger</code><a class="reference internal" href="../_modules/opennmt/models/catalog.html#SeqTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.catalog.SeqTagger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger" title="opennmt.models.sequence_tagger.SequenceTagger"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_tagger.SequenceTagger</span></code></a></p>
 <p>Defines a bidirectional LSTM-CNNs-CRF as described in <a class="reference external" href="https://arxiv.org/abs/1603.01354">https://arxiv.org/abs/1603.01354</a>.</p>
+<dl class="method">
+<dt id="opennmt.models.catalog.SeqTagger.auto_config">
+<code class="descname">auto_config</code><span class="sig-paren">(</span><em>num_devices=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/catalog.html#SeqTagger.auto_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.catalog.SeqTagger.auto_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns automatic configuration values specific to this model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num_devices</strong> – The number of devices used for the training.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A partial training configuration.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">

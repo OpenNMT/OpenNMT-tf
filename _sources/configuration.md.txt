@@ -28,6 +28,23 @@ Parameters are described in separate YAML files. They define data files, optimiz
 
 *See the example configuration `config/sample.yml` to learn about available parameters.*
 
+### Automatic configuration
+
+Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the `--auto_config` flag:
+
+```bash
+onmt-main train_and_eval --model_type Transformer --config my_data.yml --auto_config
+```
+
+The user provided `my_data.yml` file will minimaly require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
+
+At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.
+
+**Note:** default training values usually assume GPUs with at least 8GB of memory and a large system memory:
+
+* If you encounter GPU out of memory issues, try overriding `batch_size` to a lower value.
+* If you encounter CPU out of memory issues, try overriding `sample_buffer_size` to a fix value.
+
 ### Multiple configuration files
 
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:

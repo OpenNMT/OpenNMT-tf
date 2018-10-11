@@ -196,9 +196,11 @@
   <span class="k">else</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">x</span></div>
 
-<div class="viewcode-block" id="classes_in_module"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.classes_in_module">[docs]</a><span class="k">def</span> <span class="nf">classes_in_module</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+<div class="viewcode-block" id="classes_in_module"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.classes_in_module">[docs]</a><span class="k">def</span> <span class="nf">classes_in_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">public_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns a generator over the classes defined in :obj:`module`.&quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="p">(</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)))</span></div>
+  <span class="k">return</span> <span class="p">(</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">symbol</span><span class="p">))</span>
+              <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">public_only</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">symbol</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))))</span></div>
 
 <div class="viewcode-block" id="get_third_party_dir"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.get_third_party_dir">[docs]</a><span class="k">def</span> <span class="nf">get_third_party_dir</span><span class="p">():</span>
   <span class="sd">&quot;&quot;&quot;Returns a path to the third_party directory.&quot;&quot;&quot;</span>
@@ -255,6 +257,22 @@
           <span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
       <span class="p">}</span></div>
 
+<div class="viewcode-block" id="merge_dict"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.merge_dict">[docs]</a><span class="k">def</span> <span class="nf">merge_dict</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span> <span class="n">dict2</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Merges :obj:`dict2` into :obj:`dict1`.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dict1: The base dictionary.</span>
+<span class="sd">    dict2: The dictionary to merge.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The merged dictionary :obj:`dict1`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dict2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">dict1</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+  <span class="k">return</span> <span class="n">dict1</span></div>
 
 <span class="c1"># The next 2 functions come with the following license and copyright:</span>
 

@@ -210,7 +210,7 @@
 
 <dl class="function">
 <dt id="opennmt.utils.misc.classes_in_module">
-<code class="descclassname">opennmt.utils.misc.</code><code class="descname">classes_in_module</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#classes_in_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.classes_in_module" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.misc.</code><code class="descname">classes_in_module</code><span class="sig-paren">(</span><em>module</em>, <em>public_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#classes_in_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.classes_in_module" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a generator over the classes defined in <code class="xref py py-obj docutils literal notranslate"><span class="pre">module</span></code>.</p>
 </dd></dl>
 
@@ -244,6 +244,27 @@ with <code class="xref py py-obj docutils literal notranslate"><span class="pre"
 <code class="descclassname">opennmt.utils.misc.</code><code class="descname">extract_batches</code><span class="sig-paren">(</span><em>tensors</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#extract_batches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.extract_batches" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a generator to iterate on each batch of a Numpy array or dict of
 Numpy arrays.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.misc.merge_dict">
+<code class="descclassname">opennmt.utils.misc.</code><code class="descname">merge_dict</code><span class="sig-paren">(</span><em>dict1</em>, <em>dict2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#merge_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.merge_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges <code class="xref py py-obj docutils literal notranslate"><span class="pre">dict2</span></code> into <code class="xref py py-obj docutils literal notranslate"><span class="pre">dict1</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dict1</strong> – The base dictionary.</li>
+<li><strong>dict2</strong> – The dictionary to merge.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The merged dictionary <code class="xref py py-obj docutils literal notranslate"><span class="pre">dict1</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">

@@ -207,7 +207,10 @@
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run type.&quot;</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--config&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of configuration files.&quot;</span><span class="p">)</span>
-  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model_type&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">classes_in_module</span><span class="p">(</span><span class="n">catalog</span><span class="p">)),</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--auto_config&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable automatic configuration values.&quot;</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model_type&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                      <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">classes_in_module</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">public_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Model type from the catalog.&quot;</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Custom model configuration file.&quot;</span><span class="p">)</span>
@@ -306,7 +309,8 @@
       <span class="n">config</span><span class="p">,</span>
       <span class="n">seed</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
       <span class="n">num_devices</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">num_gpus</span><span class="p">,</span>
-      <span class="n">session_config</span><span class="o">=</span><span class="n">session_config</span><span class="p">)</span>
+      <span class="n">session_config</span><span class="o">=</span><span class="n">session_config</span><span class="p">,</span>
+      <span class="n">auto_config</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">auto_config</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">==</span> <span class="s2">&quot;train_and_eval&quot;</span><span class="p">:</span>
     <span class="n">runner</span><span class="o">.</span><span class="n">train_and_evaluate</span><span class="p">()</span>

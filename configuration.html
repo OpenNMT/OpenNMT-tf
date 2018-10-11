@@ -98,6 +98,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-configuration">Automatic configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#multiple-configuration-files">Multiple configuration files</a></li>
 </ul>
 </li>
@@ -199,6 +200,20 @@
 <span id="parameters"></span><h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <p>Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference.</p>
 <p><em>See the example configuration <code class="docutils literal notranslate"><span class="pre">config/sample.yml</span></code> to learn about available parameters.</em></p>
+<div class="section" id="automatic-configuration">
+<span id="automatic-configuration"></span><h3>Automatic configuration<a class="headerlink" href="#automatic-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train_and_eval --model_type Transformer --config my_data.yml --auto_config
+</pre></div>
+</div>
+<p>The user provided <code class="docutils literal notranslate"><span class="pre">my_data.yml</span></code> file will minimaly require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.</p>
+<p>At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.</p>
+<p><strong>Note:</strong> default training values usually assume GPUs with at least 8GB of memory and a large system memory:</p>
+<ul class="simple">
+<li>If you encounter GPU out of memory issues, try overriding <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> to a lower value.</li>
+<li>If you encounter CPU out of memory issues, try overriding <code class="docutils literal notranslate"><span class="pre">sample_buffer_size</span></code> to a fix value.</li>
+</ul>
+</div>
 <div class="section" id="multiple-configuration-files">
 <span id="multiple-configuration-files"></span><h3>Multiple configuration files<a class="headerlink" href="#multiple-configuration-files" title="Permalink to this headline">¶</a></h3>
 <p>The command line accepts multiple configuration files so that some parts can be made reusable, e.g:</p>

@@ -168,6 +168,7 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="k">import</span> <span class="n">catalog</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">merge_dict</span>
 
 
 <div class="viewcode-block" id="load_model_module"><a class="viewcode-back" href="../../package/opennmt.config.html#opennmt.config.load_model_module">[docs]</a><span class="k">def</span> <span class="nf">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -276,16 +277,8 @@
   <span class="k">for</span> <span class="n">config_path</span> <span class="ow">in</span> <span class="n">config_paths</span><span class="p">:</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
       <span class="n">subconfig</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-
       <span class="c1"># Add or update section in main configuration.</span>
-      <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">subconfig</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-          <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">section</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">config</span><span class="p">[</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">subconfig</span><span class="p">[</span><span class="n">section</span><span class="p">])</span>
-          <span class="k">else</span><span class="p">:</span>
-            <span class="n">config</span><span class="p">[</span><span class="n">section</span><span class="p">]</span> <span class="o">=</span> <span class="n">subconfig</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">config</span><span class="p">[</span><span class="n">section</span><span class="p">]</span> <span class="o">=</span> <span class="n">subconfig</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+      <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">subconfig</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">config</span></div>
 </pre></div>

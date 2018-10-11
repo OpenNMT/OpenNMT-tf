@@ -189,6 +189,22 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for models.</p>
 <dl class="method">
+<dt id="opennmt.models.model.Model.auto_config">
+<code class="descname">auto_config</code><span class="sig-paren">(</span><em>num_devices=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.auto_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.auto_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns automatic configuration values specific to this model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num_devices</strong> – The number of devices used for the training.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A partial training configuration.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.models.model.Model.__call__">
 <code class="descname">__call__</code><span class="sig-paren">(</span><em>features</em>, <em>labels</em>, <em>params</em>, <em>mode</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls the model function.</p>

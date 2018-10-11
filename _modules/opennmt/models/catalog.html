@@ -162,6 +162,8 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">opennmt</span> <span class="k">as</span> <span class="nn">onmt</span>
 
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">merge_dict</span>
+
 
 <div class="viewcode-block" id="ListenAttendSpell"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.ListenAttendSpell">[docs]</a><span class="k">class</span> <span class="nc">ListenAttendSpell</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a model similar to the &quot;Listen, Attend and Spell&quot; model described</span>
@@ -186,9 +188,48 @@
             <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongMonotonicAttention</span><span class="p">,</span>
             <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
-<div class="viewcode-block" id="NMTBig"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.NMTBig">[docs]</a><span class="k">class</span> <span class="nc">NMTBig</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
+<div class="viewcode-block" id="ListenAttendSpell.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.ListenAttendSpell.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ListenAttendSpell</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;GradientDescentOptimizer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+            <span class="s2">&quot;clip_gradients&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+            <span class="s2">&quot;scheduled_sampling_type&quot;</span><span class="p">:</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scheduled_sampling_read_probability&quot;</span><span class="p">:</span> <span class="mf">0.9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+            <span class="s2">&quot;bucket_width&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+            <span class="s2">&quot;maximum_features_length&quot;</span><span class="p">:</span> <span class="mi">2450</span><span class="p">,</span>
+            <span class="s2">&quot;maximum_labels_length&quot;</span><span class="p">:</span> <span class="mi">330</span>
+        <span class="p">}</span>
+    <span class="p">})</span></div></div>
+
+<span class="k">class</span> <span class="nc">_RNNBase</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Base class for RNN based NMT models.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;AdamOptimizer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0002</span><span class="p">,</span>
+            <span class="s2">&quot;param_init&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">&quot;clip_gradients&quot;</span><span class="p">:</span> <span class="mf">5.0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+            <span class="s2">&quot;maximum_features_length&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+            <span class="s2">&quot;maximum_labels_length&quot;</span><span class="p">:</span> <span class="mi">80</span>
+        <span class="p">}</span>
+    <span class="p">})</span>
+
+<div class="viewcode-block" id="NMTBig"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.NMTBig">[docs]</a><span class="k">class</span> <span class="nc">NMTBig</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a bidirectional LSTM encoder-decoder model.&quot;&quot;&quot;</span>
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">NMTBig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -214,7 +255,7 @@
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="NMTMedium"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.NMTMedium">[docs]</a><span class="k">class</span> <span class="nc">NMTMedium</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
+<div class="viewcode-block" id="NMTMedium"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.NMTMedium">[docs]</a><span class="k">class</span> <span class="nc">NMTMedium</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a medium-sized bidirectional LSTM encoder-decoder model.&quot;&quot;&quot;</span>
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">NMTMedium</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -240,7 +281,7 @@
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="NMTSmall"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.NMTSmall">[docs]</a><span class="k">class</span> <span class="nc">NMTSmall</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
+<div class="viewcode-block" id="NMTSmall"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.NMTSmall">[docs]</a><span class="k">class</span> <span class="nc">NMTSmall</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a small unidirectional LSTM encoder-decoder model.&quot;&quot;&quot;</span>
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">NMTSmall</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -292,7 +333,19 @@
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="n">labels_vocabulary_file_key</span><span class="o">=</span><span class="s2">&quot;tags_vocabulary&quot;</span><span class="p">,</span>
-        <span class="n">crf_decoding</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="n">crf_decoding</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SeqTagger.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.SeqTagger.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SeqTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;AdamOptimizer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span>
+        <span class="p">}</span>
+    <span class="p">})</span></div></div>
 
 <div class="viewcode-block" id="Transformer"><a class="viewcode-back" href="../../../package/opennmt.models.catalog.html#opennmt.models.catalog.Transformer">[docs]</a><span class="k">class</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">onmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span>

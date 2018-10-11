@@ -173,26 +173,32 @@
 <p>Main library entrypoint.</p>
 <dl class="class">
 <dt id="opennmt.runner.Runner">
-<em class="property">class </em><code class="descclassname">opennmt.runner.</code><code class="descname">Runner</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.runner.</code><code class="descname">Runner</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em>, <em>auto_config=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for managing training, inference, and export. It is mostly a
 wrapper around <code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code>.</p>
 <dl class="method">
 <dt id="opennmt.runner.Runner.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em>, <em>auto_config=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the runner parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>model</strong> – A <a class="reference internal" href="opennmt.models.model.html#opennmt.models.model.Model" title="opennmt.models.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.model.Model</span></code></a> instance to run.</li>
 <li><strong>config</strong> – The run configuration.</li>
 <li><strong>seed</strong> – The random seed to set.</li>
 <li><strong>num_devices</strong> – The number of devices (GPUs) to use for training.</li>
 <li><strong>gpu_allow_growth</strong> – Allow GPU memory to grow dynamically.</li>
 <li><strong>session_config</strong> – <code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code> overrides.</li>
+<li><strong>auto_config</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, use automatic configuration values defined by
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code>.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">auto_config</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> but <code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code>
+does not define any automatic configuration values.</p>
 </td>
 </tr>
 </tbody>

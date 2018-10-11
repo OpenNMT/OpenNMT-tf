@@ -279,6 +279,22 @@ between devices for this model. Not compatible with RNN based models.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.models.sequence_to_sequence.SequenceToSequence.auto_config">
+<code class="descname">auto_config</code><span class="sig-paren">(</span><em>num_devices=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.auto_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_to_sequence.SequenceToSequence.auto_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns automatic configuration values specific to this model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num_devices</strong> – The number of devices used for the training.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A partial training configuration.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.models.sequence_to_sequence.SequenceToSequence.print_prediction">
 <code class="descname">print_prediction</code><span class="sig-paren">(</span><em>prediction</em>, <em>params=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.print_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_to_sequence.SequenceToSequence.print_prediction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the model prediction.</p>

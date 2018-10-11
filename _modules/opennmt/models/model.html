@@ -191,6 +191,18 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span> <span class="ow">or</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
 
+<div class="viewcode-block" id="Model.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns automatic configuration values specific to this model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_devices: The number of devices used for the training.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A partial training configuration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">num_devices</span>
+    <span class="k">return</span> <span class="p">{}</span></div>
+
 <div class="viewcode-block" id="Model.__call__"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calls the model function.</span>
 

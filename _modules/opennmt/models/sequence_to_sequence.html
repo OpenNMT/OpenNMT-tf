@@ -167,7 +167,7 @@
 
 <span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.losses</span> <span class="k">import</span> <span class="n">cross_entropy_sequence_loss</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">merge_dict</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.decoder</span> <span class="k">import</span> <span class="n">get_sampling_probability</span>
 
 
@@ -289,6 +289,19 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">add_process_hooks</span><span class="p">([</span><span class="n">shift_target_sequence</span><span class="p">])</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span> <span class="o">=</span> <span class="n">alignment_file_key</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SequenceToSequence.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;beam_width&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;length_penalty&quot;</span><span class="p">:</span> <span class="mf">0.6</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;sample_buffer_size&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;train_steps&quot;</span><span class="p">:</span> <span class="mi">500000</span>
+        <span class="p">}</span>
+    <span class="p">})</span></div>
 
   <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">assets</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">)</span>
