@@ -14,6 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [1.10.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.10.0) (2018-10-11)
+
+### New features
+
 * `--auto_config` flag to use automatic training configuration values (e.g. optimizer, learning rate, batch size). For compatible models, the automatic values aim to deliver solid performance out of the box.
 * Include all tokenization assets in exported models
 
