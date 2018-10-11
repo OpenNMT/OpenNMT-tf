@@ -13,5 +13,5 @@ Overview
    training.md
    inference.md
    serving.md
-   package/opennmt
    configuration_reference.md
+   package/opennmt
