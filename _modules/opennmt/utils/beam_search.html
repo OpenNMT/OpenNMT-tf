@@ -547,7 +547,7 @@
     <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">flat_logits</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="c1"># Convert logits to normalized log probs</span>
-    <span class="n">candidate_log_probs</span> <span class="o">=</span> <span class="n">_log_prob_from_logits</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
+    <span class="n">candidate_log_probs</span> <span class="o">=</span> <span class="n">_log_prob_from_logits</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">logits</span><span class="p">))</span>
 
     <span class="c1"># Multiply the probabilities by the current probabilities of the beam.</span>
     <span class="c1"># (batch_size, beam_size, vocab_size) + (batch_size, beam_size, 1)</span>
