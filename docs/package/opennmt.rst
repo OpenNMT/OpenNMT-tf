@@ -1,4 +1,4 @@
-opennmt package
+Reference: opennmt package
 ===============
 
 .. automodule:: opennmt
