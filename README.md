@@ -32,19 +32,6 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 * monitoring with [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard)
 * inference with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) and the [TensorFlow C++ API](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/cpp)
 
-## Requirements
-
-* Python (>= 2.7)
-* TensorFlow (>= 1.4)
-
-*(Some features may require newer TensorFlow versions, see the [changelog](CHANGELOG.md).)*
-
-## Installation
-
-```bash
-pip install OpenNMT-tf
-```
-
 ## Overview
 
 A minimal OpenNMT-tf run consists of 3 elements:

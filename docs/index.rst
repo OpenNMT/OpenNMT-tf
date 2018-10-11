@@ -1,12 +1,13 @@
-This portal provides an advanced documentation of OpenNMT-tf.
+This portal provides a complete documentation of OpenNMT-tf.
 
-Overview
-========
+Content
+=======
 
 .. toctree::
    :maxdepth: 1
 
    quickstart.md
+   installation.md
    data.md
    tokenization.md
    configuration.md
