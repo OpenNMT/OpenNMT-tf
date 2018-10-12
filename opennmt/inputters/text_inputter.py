@@ -236,15 +236,10 @@ class TextInputter(Inputter):
   def _process(self, data):
     """Tokenizes raw text."""
     data = super(TextInputter, self)._process(data)
-
     if "tokens" not in data:
-      text = data["raw"]
-      tokens = self.tokenizer.tokenize(text)
-      length = tf.shape(tokens)[0]
-
-      data = self.set_data_field(data, "tokens", tokens)
-      data = self.set_data_field(data, "length", length)
-
+      tokens = self.tokenizer.tokenize(data["raw"])
+      data["length"] = tf.shape(tokens)[0]
+      data["tokens"] = tokens
     return data
 
   @abc.abstractmethod
@@ -340,13 +335,8 @@ class WordEmbedder(TextInputter):
   def _process(self, data):
     """Converts words tokens to ids."""
     data = super(WordEmbedder, self)._process(data)
-
     if "ids" not in data:
-      tokens = data["tokens"]
-      ids = self.vocabulary.lookup(tokens)
-
-      data = self.set_data_field(data, "ids", ids)
-
+      data["ids"] = self.vocabulary.lookup(data["tokens"])
     return data
 
   def visualize(self, log_dir):
@@ -451,14 +441,9 @@ class CharEmbedder(TextInputter):
   def _process(self, data):
     """Converts words to characters."""
     data = super(CharEmbedder, self)._process(data)
-
     if "char_ids" not in data:
-      tokens = data["tokens"]
-      chars, _ = tokens_to_chars(tokens)
-      ids = self.vocabulary.lookup(chars)
-
-      data = self.set_data_field(data, "char_ids", ids)
-
+      chars, _ = tokens_to_chars(data["tokens"])
+      data["char_ids"] = self.vocabulary.lookup(chars)
     return data
 
   def visualize(self, log_dir):
