@@ -20,6 +20,8 @@ The user can either:
 * select a predefined model from the [catalog](package/opennmt.models.catalog.html) and use the `--model_type` command line option
 * **or** provide a custom configuration file that follows the template file `config/models/template.py` and use the `--model` command line option
 
+These arguments are optional when loading an existing checkpoint (e.g. for continuing the training or running inference).
+
 *See the predefined models definitions in the [catalog](_modules/opennmt/models/catalog.html). More experimental models and examples are also available in the `config/models/` directory. Contributions to add more model definitions are welcome.*
 
 ## Parameters

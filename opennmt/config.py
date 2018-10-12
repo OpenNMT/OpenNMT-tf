@@ -25,11 +25,27 @@ def load_model_module(path):
   module_name, _ = os.path.splitext(filename)
   sys.path.insert(0, os.path.abspath(dirname))
   module = import_module(module_name)
+  sys.path.pop(0)
 
   if not hasattr(module, "model"):
     raise ImportError("No model defined in {}".format(path))
 
   return module
+
+def load_model_from_file(path):
+  """Loads a model from a configuration file.
+
+  Args:
+    path: The relative path to the configuration file.
+
+  Returns:
+    A :class:`opennmt.models.model.Model` instance.
+  """
+  module = load_model_module(path)
+  model = module.model()
+  del sys.path_importer_cache[os.path.dirname(module.__file__)]
+  del sys.modules[module.__name__]
+  return model
 
 def load_model_from_catalog(name):
   """Loads a model from the catalog.
@@ -68,6 +84,9 @@ def load_model(model_dir,
   if model_file and model_name:
     raise ValueError("only one of model_file and model_name should be set")
   model_name_or_path = model_file or model_name
+  model_description_path = os.path.join(model_dir, "model_description.py")
+
+  # Also try to load the pickled model for backward compatibility.
   serial_model_file = os.path.join(model_dir, "model_description.pkl")
 
   if model_name_or_path:
@@ -79,26 +98,24 @@ def load_model(model_dir,
           "dropout.")
 
     if model_file:
-      model_config = load_model_module(model_file)
-      model = model_config.model()
+      model = load_model_from_file(model_file)
+      if serialize_model:
+        tf.gfile.Copy(model_file, model_description_path, overwrite=True)
     elif model_name:
       model = load_model_from_catalog(model_name)
-
-    if serialize_model:
-      try:
-        with tf.gfile.Open(serial_model_file, mode="wb") as serial_model:
-          pickle.dump(model, serial_model)
-      except RuntimeError:
-        # Ignore failure to serialize the model (e.g. the model contains an non
-        # serializable Boost Python module). Serialized model configuration
-        # is currently an undocumented feature that is planned for removal.
-        pass
-  elif not tf.gfile.Exists(serial_model_file):
-    raise RuntimeError("A model configuration is required.")
-  else:
+      if serialize_model:
+        with tf.gfile.Open(model_description_path, mode="w") as model_description_file:
+          model_description_file.write("from opennmt.models import catalog\n")
+          model_description_file.write("model = catalog.%s\n" % model_name)
+  elif tf.gfile.Exists(model_description_path):
+    tf.logging.info("Loading model description from %s", model_description_path)
+    model = load_model_from_file(model_description_path)
+  elif tf.gfile.Exists(serial_model_file):
     tf.logging.info("Loading serialized model description from %s", serial_model_file)
     with tf.gfile.Open(serial_model_file, mode="rb") as serial_model:
       model = pickle.load(serial_model)
+  else:
+    raise RuntimeError("A model configuration is required.")
 
   return model
 
