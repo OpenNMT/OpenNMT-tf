@@ -6,7 +6,16 @@ OpenNMT-tf ships the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer) a
 
 ## Configuration files
 
-YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. See the sample file `config/tokenization/sample.yml`.
+YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example:
+
+```yaml
+mode: aggressive
+joiner_annotate: true
+segment_numbers: true
+segment_alphabet_change: true
+```
+
+*For a complete list of available options, see the [Tokenizer documentation](https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md).*
 
 ## Offline usage
 
