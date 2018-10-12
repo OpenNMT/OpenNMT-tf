@@ -11,7 +11,7 @@ Some features added after the initial release may require newer TensorFlow versi
 
 ## Via pip (recommended)
 
-Each tagged version of the project are automatically pushed to [PyPi](https://pypi.org/project/OpenNMT-tf/). We recommend installing this package via `pip`:
+Each tagged version of the project is automatically pushed to [PyPi](https://pypi.org/project/OpenNMT-tf/). We recommend installing this package via `pip`:
 
 ```bash
 pip install OpenNMT-tf

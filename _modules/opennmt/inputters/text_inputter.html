@@ -398,15 +398,10 @@
   <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tokenizes raw text.&quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-      <span class="n">text</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">]</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-      <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-      <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_data_field</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;tokens&quot;</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
-      <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_data_field</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-
+      <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">])</span>
+      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tokens</span>
     <span class="k">return</span> <span class="n">data</span>
 
   <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -502,13 +497,8 @@
   <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Converts words tokens to ids.&quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="s2">&quot;ids&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span>
-      <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-
-      <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_data_field</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;ids&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
-
+      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">data</span>
 
 <div class="viewcode-block" id="WordEmbedder.visualize"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.visualize">[docs]</a>  <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>
@@ -613,14 +603,9 @@
   <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Converts words to characters.&quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="s2">&quot;char_ids&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span>
-      <span class="n">chars</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tokens_to_chars</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-      <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
-
-      <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_data_field</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;char_ids&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
-
+      <span class="n">chars</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tokens_to_chars</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
+      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;char_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span>
 
 <div class="viewcode-block" id="CharEmbedder.visualize"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.visualize">[docs]</a>  <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>

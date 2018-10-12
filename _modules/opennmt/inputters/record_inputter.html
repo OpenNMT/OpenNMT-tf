@@ -221,10 +221,8 @@
 
       <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
       <span class="n">tensor</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_depth</span><span class="p">])</span>
-      <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-      <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_data_field</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;tensor&quot;</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)</span>
-      <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_data_field</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tensor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span>
 
     <span class="k">return</span> <span class="n">data</span>
 
