@@ -212,6 +212,10 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </pre></div>
 </div>
 <p>This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag selects the best settings for this type of model. The training will regularly produce checkpoints in the <code class="docutils literal notranslate"><span class="pre">run/</span></code> directory.</p>
+<p>To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using <a class="reference external" href="https://www.tensorflow.org/guide/summaries_and_tensorboard">TensorBoard</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;run&quot;</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="step-3-translate">
 <span id="step-3-translate"></span><h2>Step 3: Translate<a class="headerlink" href="#step-3-translate" title="Permalink to this headline">¶</a></h2>
@@ -220,7 +224,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </div>
 <p>This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.</p>
 <p>For this toy dataset, do not expect any good translation results. Consider training on <a class="reference external" href="http://www.statmt.org/wmt16/translation-task.html">larger parallel datasets</a> instead.</p>
-<p><strong>This quickstart presents the most basic usage of the toolkit. For more advanced usages, read the next sections, explore the command lines options, or run the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt">WMT training scripts</a>.</strong></p>
+<p><strong>That’s it! You successfully went through a typical OpenNMT-tf workflow. However, this quickstart presents the most basic usage of the toolkit. For more advanced usages, read the next sections, explore the command lines options, or run the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt">WMT training scripts</a>.</strong></p>
 </div>
 </div>
 

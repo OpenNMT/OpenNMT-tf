@@ -2,7 +2,7 @@
 
 ## Monitoring
 
-OpenNMT-tf uses [TensorBoard](https://github.com/tensorflow/tensorboard) to log information during the training. Simply start `tensorboard` by setting the active log directory, e.g.:
+OpenNMT-tf uses [TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard) to log information during the training. Simply start `tensorboard` by setting the active log directory, e.g.:
 
 ```bash
 tensorboard --logdir="."

@@ -173,7 +173,14 @@
 <p><em>Note: the <code class="docutils literal notranslate"><span class="pre">pyonmttok</span></code> package is only supported on Linux as of now.</em></p>
 <div class="section" id="configuration-files">
 <span id="configuration-files"></span><h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
-<p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. See the sample file <code class="docutils literal notranslate"><span class="pre">config/tokenization/sample.yml</span></code>.</p>
+<p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">mode</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
+<span class="l l-Scalar l-Scalar-Plain">joiner_annotate</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="l l-Scalar l-Scalar-Plain">segment_numbers</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="l l-Scalar l-Scalar-Plain">segment_alphabet_change</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p><em>For a complete list of available options, see the <a class="reference external" href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>.</em></p>
 </div>
 <div class="section" id="offline-usage">
 <span id="offline-usage"></span><h2>Offline usage<a class="headerlink" href="#offline-usage" title="Permalink to this headline">¶</a></h2>
