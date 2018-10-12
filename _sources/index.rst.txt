@@ -8,9 +8,9 @@ Content
 
    quickstart.md
    installation.md
+   configuration.md
    data.md
    tokenization.md
-   configuration.md
    training.md
    inference.md
    serving.md
