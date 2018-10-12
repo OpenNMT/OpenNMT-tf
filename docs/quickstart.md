@@ -52,6 +52,12 @@ onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
 
 This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The `--auto_config` flag selects the best settings for this type of model. The training will regularly produce checkpoints in the `run/` directory.
 
+To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using [TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard):
+
+```bash
+tensorboard --logdir="run"
+```
+
 ## Step 3: Translate
 
 ```
@@ -62,4 +68,4 @@ This command can be executed as soon as a checkpoint is saved by the training; t
 
 For this toy dataset, do not expect any good translation results. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
 
-**This quickstart presents the most basic usage of the toolkit. For more advanced usages, read the next sections, explore the command lines options, or run the [WMT training scripts](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt).**
+**That's it! You successfully went through a typical OpenNMT-tf workflow. However, this quickstart presents the most basic usage of the toolkit. For more advanced usages, read the next sections, explore the command lines options, or run the [WMT training scripts](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt).**
