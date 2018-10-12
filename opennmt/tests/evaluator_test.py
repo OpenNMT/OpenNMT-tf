@@ -1,3 +1,5 @@
+import os
+
 import tensorflow as tf
 
 from opennmt.utils import evaluator
@@ -5,19 +7,31 @@ from opennmt.utils import evaluator
 
 class EvaluatorTest(tf.test.TestCase):
 
+  def _make_perfect_hypothesis_file(self):
+    ref_path = os.path.join(self.get_temp_dir(), "ref.txt")
+    hyp_path = os.path.join(self.get_temp_dir(), "hyp.txt")
+    with open(ref_path, "wb") as ref_file, open(hyp_path, "wb") as hyp_file:
+      text = b"Hello world !\nHow is it going ?\n"
+      ref_file.write(text)
+      hyp_file.write(text)
+    return ref_path, hyp_path
+
   def testBLEUEvaluator(self):
     bleu_evaluator = evaluator.BLEUEvaluator()
-    score = bleu_evaluator.score("data/toy-ende/tgt-val.txt", "data/toy-ende/tgt-val.txt")
+    ref_path, hyp_path = self._make_perfect_hypothesis_file()
+    score = bleu_evaluator.score(ref_path, hyp_path)
     self.assertEqual(100.0, score)
 
   def testBLEUDetokEvaluator(self):
     bleu_evaluator = evaluator.BLEUDetokEvaluator()
-    score = bleu_evaluator.score("data/toy-ende/tgt-val.txt", "data/toy-ende/tgt-val.txt")
+    ref_path, hyp_path = self._make_perfect_hypothesis_file()
+    score = bleu_evaluator.score(ref_path, hyp_path)
     self.assertEqual(100.0, score)
 
   def testROUGEEvaluator(self):
     rouge_evaluator = evaluator.ROUGEEvaluator()
-    score = rouge_evaluator.score("data/toy-ende/tgt-val.txt", "data/toy-ende/tgt-val.txt")
+    ref_path, hyp_path = self._make_perfect_hypothesis_file()
+    score = rouge_evaluator.score(ref_path, hyp_path)
     self.assertIsInstance(score, dict)
     self.assertIn("rouge-l", score)
     self.assertIn("rouge-1", score)
