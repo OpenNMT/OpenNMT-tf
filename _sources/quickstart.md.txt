@@ -61,7 +61,7 @@ tensorboard --logdir="run"
 ## Step 3: Translate
 
 ```
-onmt-main infer --model_type NMTSmall --auto_config --config data.yml --features_file src-test.txt
+onmt-main infer --auto_config --config data.yml --features_file src-test.txt
 ```
 
 This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.

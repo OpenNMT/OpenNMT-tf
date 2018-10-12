@@ -187,11 +187,27 @@
   <span class="n">module_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
   <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dirname</span><span class="p">))</span>
   <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+  <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;No model defined in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
   <span class="k">return</span> <span class="n">module</span></div>
+
+<div class="viewcode-block" id="load_model_from_file"><a class="viewcode-back" href="../../package/opennmt.config.html#opennmt.config.load_model_from_file">[docs]</a><span class="k">def</span> <span class="nf">load_model_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Loads a model from a configuration file.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    path: The relative path to the configuration file.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A :class:`opennmt.models.model.Model` instance.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">module</span> <span class="o">=</span> <span class="n">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+  <span class="n">model</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+  <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)]</span>
+  <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">model</span></div>
 
 <div class="viewcode-block" id="load_model_from_catalog"><a class="viewcode-back" href="../../package/opennmt.config.html#opennmt.config.load_model_from_catalog">[docs]</a><span class="k">def</span> <span class="nf">load_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Loads a model from the catalog.</span>
@@ -230,6 +246,9 @@
   <span class="k">if</span> <span class="n">model_file</span> <span class="ow">and</span> <span class="n">model_name</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;only one of model_file and model_name should be set&quot;</span><span class="p">)</span>
   <span class="n">model_name_or_path</span> <span class="o">=</span> <span class="n">model_file</span> <span class="ow">or</span> <span class="n">model_name</span>
+  <span class="n">model_description_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;model_description.py&quot;</span><span class="p">)</span>
+
+  <span class="c1"># Also try to load the pickled model for backward compatibility.</span>
   <span class="n">serial_model_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;model_description.pkl&quot;</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">model_name_or_path</span><span class="p">:</span>
@@ -241,26 +260,24 @@
           <span class="s2">&quot;dropout.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">model_file</span><span class="p">:</span>
-      <span class="n">model_config</span> <span class="o">=</span> <span class="n">load_model_module</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
-      <span class="n">model</span> <span class="o">=</span> <span class="n">model_config</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+      <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">model_name</span><span class="p">:</span>
       <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
-      <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">serial_model</span><span class="p">:</span>
-          <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">serial_model</span><span class="p">)</span>
-      <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
-        <span class="c1"># Ignore failure to serialize the model (e.g. the model contains an non</span>
-        <span class="c1"># serializable Boost Python module). Serialized model configuration</span>
-        <span class="c1"># is currently an undocumented feature that is planned for removal.</span>
-        <span class="k">pass</span>
-  <span class="k">elif</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A model configuration is required.&quot;</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_description_file</span><span class="p">:</span>
+          <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;from opennmt.models import catalog</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+          <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;model = catalog.</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_name</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">):</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading serialized model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">serial_model_file</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">serial_model</span><span class="p">:</span>
       <span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">serial_model</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A model configuration is required.&quot;</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">model</span></div>
 

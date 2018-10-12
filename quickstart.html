@@ -219,7 +219,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </div>
 <div class="section" id="step-3-translate">
 <span id="step-3-translate"></span><h2>Step 3: Translate<a class="headerlink" href="#step-3-translate" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="n">infer</span> <span class="o">--</span><span class="n">model_type</span> <span class="n">NMTSmall</span> <span class="o">--</span><span class="n">auto_config</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">features_file</span> <span class="n">src</span><span class="o">-</span><span class="n">test</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="n">infer</span> <span class="o">--</span><span class="n">auto_config</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">features_file</span> <span class="n">src</span><span class="o">-</span><span class="n">test</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.</p>
