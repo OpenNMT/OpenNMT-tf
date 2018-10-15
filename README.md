@@ -32,22 +32,11 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 * monitoring with [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard)
 * inference with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) and the [TensorFlow C++ API](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/cpp)
 
-## Requirements
+## Using as a command line tool
 
-* Python (>= 2.7)
-* TensorFlow (>= 1.4)
+OpenNMT-tf comes with several command line utilities to prepare data, train, and evaluate models.
 
-*(Some features may require newer TensorFlow versions, see the [changelog](CHANGELOG.md).)*
-
-## Installation
-
-```bash
-pip install OpenNMT-tf
-```
-
-## Overview
-
-A minimal OpenNMT-tf run consists of 3 elements:
+For all tasks involving a model execution, OpenNMT-tf uses a unique entrypoint: `onmt-main`. A typical OpenNMT-tf run consists of 3 elements:
 
 * the **run** type: `train_and_eval`, `train`, `eval`, `infer`, `export`, or `score`
 * the **model** type
@@ -59,45 +48,7 @@ that are passed to the main script:
 onmt-main <run_type> --model_type <model> --auto_config --config <config_file.yml>
 ```
 
-Additional experimental models are available in the `config/models/` directory and can be used with the option `--model <model_file.py>`.
-
-* For more information about configuration files, see the [documentation](http://opennmt.net/OpenNMT-tf/configuration.html).
-* For more information about command line options, see the help flag `onmt-main -h`.
-
-## Quickstart
-
-Here is a minimal workflow to get you started in using OpenNMT-tf. This example uses a toy English-German dataset for machine translation.
-
-1\. Clone the repository to fetch the sample data and the predefined configurations:
-
-```
-git clone --depth 1 --branch r1 --single-branch https://github.com/OpenNMT/OpenNMT-tf.git
-cd OpenNMT-tf
-```
-
-2\. Build the word vocabularies:
-
-```
-onmt-build-vocab --size 50000 --save_vocab data/toy-ende/src-vocab.txt data/toy-ende/src-train.txt
-onmt-build-vocab --size 50000 --save_vocab data/toy-ende/tgt-vocab.txt data/toy-ende/tgt-train.txt
-```
-
-3\. Train with preset parameters:
-
-```
-onmt-main train_and_eval --model_type NMTSmall --auto_config --config config/data/toy-ende.yml
-```
-
-4\. Translate a test file with the latest checkpoint:
-
-```
-onmt-main infer --model_type NMTSmall --auto_config --config config/data/toy-ende.yml \
-    --features_file data/toy-ende/src-test.txt
-```
-
-**Note:** do not expect any good translation results with this toy example. Consider training on [larger parallel datasets](http://www.statmt.org/wmt16/translation-task.html) instead.
-
-*For more advanced usages, see the [documentation](http://opennmt.net/OpenNMT-tf) or the [WMT training scripts](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt).*
+*For more information and examples on how to use OpenNMT-tf, please visit [our documentation](http://opennmt.net/OpenNMT-tf).*
 
 ## Using as a library
 

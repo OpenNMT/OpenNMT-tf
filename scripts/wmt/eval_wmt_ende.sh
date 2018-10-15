@@ -26,7 +26,6 @@ perl input-from-sgm.perl < $DATA_PATH/test/$testset-ref.$tl.sgm > data/$testset-
 
 if true; then
   onmt-main infer \
-            --model_type Transformer \
             --config config/wmt_ende.yml --auto_config \
             --checkpoint_path=$runconfig/avg \
             --features_file data/$testset-src.$sl \

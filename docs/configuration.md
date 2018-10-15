@@ -20,13 +20,32 @@ The user can either:
 * select a predefined model from the [catalog](package/opennmt.models.catalog.html) and use the `--model_type` command line option
 * **or** provide a custom configuration file that follows the template file `config/models/template.py` and use the `--model` command line option
 
+These arguments are optional when loading an existing checkpoint (e.g. for continuing the training or running inference).
+
 *See the predefined models definitions in the [catalog](_modules/opennmt/models/catalog.html). More experimental models and examples are also available in the `config/models/` directory. Contributions to add more model definitions are welcome.*
 
 ## Parameters
 
-Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference.
+Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference. It uses the following layout:
 
-*See the example configuration `config/sample.yml` to learn about available parameters.*
+```yaml
+model_dir: path_to_the_model_directory
+
+data:
+  # Data configuration (training and evaluation files, vocabularies, alignments, etc.)
+params:
+  # Training and inference hyperparameters (learning rate, optimizer, beam size, etc.)
+train:
+  # Training specific configuration (checkpoint frequency, number of training step, etc.)
+eval:
+  # Evaluation specific configuration (evaluation frequency, external evaluators.)
+infer:
+  # Inference specific configuration (output scores, alignments, etc.)
+score:
+  # Scoring specific configuration
+```
+
+For a complete list of available options, see [Reference: Configuration](configuration_reference.html).
 
 ### Automatic configuration
 

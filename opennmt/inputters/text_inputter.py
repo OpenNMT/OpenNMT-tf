@@ -33,18 +33,17 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
     num_oov_buckets: The number of additional unknown tokens.
   """
   # Copy vocabulary file to log_dir.
-  basename = os.path.basename(vocabulary_file)
+  basename = "%s.txt" % embedding_var.op.name.replace("/", "_")
   destination = os.path.join(log_dir, basename)
-  if vocabulary_file != destination:
-    tf.gfile.Copy(vocabulary_file, destination, overwrite=True)
+  tf.gfile.Copy(vocabulary_file, destination, overwrite=True)
 
-    # Append <unk> tokens.
-    with tf.gfile.Open(destination, mode="ab") as vocab:
-      if num_oov_buckets == 1:
-        vocab.write(b"<unk>\n")
-      else:
-        for i in range(num_oov_buckets):
-          vocab.write(tf.compat.as_bytes("<unk%d>\n" % i))
+  # Append <unk> tokens.
+  with tf.gfile.Open(destination, mode="ab") as vocab:
+    if num_oov_buckets == 1:
+      vocab.write(b"<unk>\n")
+    else:
+      for i in range(num_oov_buckets):
+        vocab.write(tf.compat.as_bytes("<unk%d>\n" % i))
 
   config = projector.ProjectorConfig()
 
@@ -236,15 +235,10 @@ class TextInputter(Inputter):
   def _process(self, data):
     """Tokenizes raw text."""
     data = super(TextInputter, self)._process(data)
-
     if "tokens" not in data:
-      text = data["raw"]
-      tokens = self.tokenizer.tokenize(text)
-      length = tf.shape(tokens)[0]
-
-      data = self.set_data_field(data, "tokens", tokens)
-      data = self.set_data_field(data, "length", length)
-
+      tokens = self.tokenizer.tokenize(data["raw"])
+      data["length"] = tf.shape(tokens)[0]
+      data["tokens"] = tokens
     return data
 
   @abc.abstractmethod
@@ -340,13 +334,8 @@ class WordEmbedder(TextInputter):
   def _process(self, data):
     """Converts words tokens to ids."""
     data = super(WordEmbedder, self)._process(data)
-
     if "ids" not in data:
-      tokens = data["tokens"]
-      ids = self.vocabulary.lookup(tokens)
-
-      data = self.set_data_field(data, "ids", ids)
-
+      data["ids"] = self.vocabulary.lookup(data["tokens"])
     return data
 
   def visualize(self, log_dir):
@@ -451,14 +440,9 @@ class CharEmbedder(TextInputter):
   def _process(self, data):
     """Converts words to characters."""
     data = super(CharEmbedder, self)._process(data)
-
     if "char_ids" not in data:
-      tokens = data["tokens"]
-      chars, _ = tokens_to_chars(tokens)
-      ids = self.vocabulary.lookup(chars)
-
-      data = self.set_data_field(data, "char_ids", ids)
-
+      chars, _ = tokens_to_chars(data["tokens"])
+      data["char_ids"] = self.vocabulary.lookup(chars)
     return data
 
   def visualize(self, log_dir):

@@ -50,7 +50,8 @@ def prefetch_element(buffer_size=None):
   Returns:
     A ``tf.data.Dataset`` transformation.
   """
-  if not hasattr(tf.contrib.data, "AUTOTUNE") and buffer_size is None:
+  support_auto_tuning = hasattr(tf.data, "experimental") or hasattr(tf.contrib.data, "AUTOTUNE")
+  if not support_auto_tuning and buffer_size is None:
     buffer_size = 1
   return lambda dataset: dataset.prefetch(buffer_size)
 
@@ -197,11 +198,16 @@ def batch_parallel_dataset(batch_size,
   if bucket_width is None:
     return _batch_func
 
+  if hasattr(tf.data, "experimental"):
+    group_by_window_fn = tf.data.experimental.group_by_window
+  else:
+    group_by_window_fn = tf.contrib.data.group_by_window
+
   if batch_type == "examples":
-    return tf.contrib.data.group_by_window(
+    return group_by_window_fn(
         _key_func, _reduce_func, window_size=batch_size)
   elif batch_type == "tokens":
-    return tf.contrib.data.group_by_window(
+    return group_by_window_fn(
         _key_func, _reduce_func, window_size_func=_window_size_func)
   else:
     raise ValueError(
