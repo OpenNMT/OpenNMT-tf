@@ -188,22 +188,21 @@ class SelfAttentionDecoder(decoder.Decoder):
             encoded = transformer.drop_and_add(
                 inputs, y, mode, dropout=self.dropout)
 
-        if memory is not None:
-          with tf.variable_scope("multi_head"):
-            context, last_attention = transformer.multi_head_attention(
-                self.num_heads,
-                transformer.norm(encoded),
-                memory,
-                mode,
-                mask=memory_mask,
-                cache=layer_cache,
-                dropout=self.attention_dropout,
-                return_attention=True)
-            context = transformer.drop_and_add(
-                encoded,
-                context,
-                mode,
-                dropout=self.dropout)
+        with tf.variable_scope("multi_head"):
+          context, last_attention = transformer.multi_head_attention(
+              self.num_heads,
+              transformer.norm(encoded),
+              memory,
+              mode,
+              mask=memory_mask,
+              cache=layer_cache,
+              dropout=self.attention_dropout,
+              return_attention=True)
+          context = transformer.drop_and_add(
+              encoded,
+              context,
+              mode,
+              dropout=self.dropout)
 
         with tf.variable_scope("ffn"):
           transformed = transformer.feed_forward(
