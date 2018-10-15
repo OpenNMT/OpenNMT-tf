@@ -17,6 +17,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * Fix possible error when loading checkpoints without `--model_type` or `--model` after updating to a newer OpenNMT-tf version. The saved model description is now more future-proof regarding model class updates.
+* Improve encoder/decoder states compatibility check
 
 ## [1.10.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.10.0) (2018-10-11)
 

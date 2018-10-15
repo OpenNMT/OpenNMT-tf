@@ -25,7 +25,11 @@ def assert_state_is_compatible(expected_state, state):
 
   for x, y in zip(expected_state_flat, state_flat):
     if tf.contrib.framework.is_tensor(x):
-      tf.contrib.framework.with_same_shape(x, y)
+      expected_depth = x.get_shape().as_list()[-1]
+      depth = y.get_shape().as_list()[-1]
+      if depth != expected_depth:
+        raise ValueError("Tensor %s in state has shape %s which is incompatible "
+                         "with the target shape %s" % (y.name, y.shape, x.shape))
 
 
 @six.add_metaclass(abc.ABCMeta)
