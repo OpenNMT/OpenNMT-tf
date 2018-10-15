@@ -34,14 +34,12 @@ def build_sequence_mask(sequence_length,
 
   Returns:
     A broadcastable ``tf.Tensor`` of type :obj:`dtype` and shape
-    ``[batch_size, num_heads, 1, max_length]``.
+    ``[batch_size, 1, 1, max_length]``.
   """
-  if num_heads is not None:
-    sequence_length = tile_sequence_length(sequence_length, num_heads)
   mask = tf.sequence_mask(sequence_length, maxlen=maximum_length, dtype=dtype)
   mask = tf.expand_dims(mask, axis=1)
   if num_heads is not None:
-    mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
+    mask = tf.expand_dims(mask, axis=1)
   return mask
 
 def _lower_triangle_mask(sequence_length, maximum_length=None, dtype=tf.float32):
@@ -66,16 +64,14 @@ def build_future_mask(sequence_length,
     dtype: The type of the mask tensor.
 
   Returns:
-    A ``tf.Tensor`` of type :obj:`dtype` and shape
-    ``[batch_size, num_heads, max_length, max_length]``.
+    A broadcastable ``tf.Tensor`` of type :obj:`dtype` and shape
+    ``[batch_size, 1, max_length, max_length]``.
   """
-  if num_heads is not None:
-    sequence_length = tile_sequence_length(sequence_length, num_heads)
   sequence_mask = tf.sequence_mask(sequence_length, maxlen=maximum_length, dtype=dtype)
   mask = _lower_triangle_mask(sequence_length, maximum_length=maximum_length, dtype=dtype)
   mask *= tf.expand_dims(sequence_mask, axis=1)
   if num_heads is not None:
-    mask = tf.reshape(mask, [-1, num_heads, tf.shape(mask)[1], tf.shape(mask)[2]])
+    mask = tf.expand_dims(mask, axis=1)
   return mask
 
 def cumulative_average_mask(sequence_length, maximum_length=None, dtype=tf.float32):

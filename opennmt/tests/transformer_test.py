@@ -26,10 +26,8 @@ class TransformerTest(tf.test.TestCase):
 
     with self.test_session() as sess:
       mask = sess.run(mask)
-      mask = np.reshape(mask, (len(length), num_heads, max(length)))
-      mask = np.transpose(mask, (1, 0, 2))
-      for b in range(len(length)):
-        self.assertAllEqual(expected, mask[b])
+      self.assertTupleEqual(mask.shape, (len(length), 1, 1, max(length)))
+      self.assertAllEqual(np.squeeze(mask), expected)
 
   def testBuildSequenceMaskWithMaxLen(self):
     num_heads = 4
@@ -45,10 +43,8 @@ class TransformerTest(tf.test.TestCase):
 
     with self.test_session() as sess:
       mask = sess.run(mask)
-      mask = np.reshape(mask, (len(length), num_heads, maximum_length))
-      mask = np.transpose(mask, (1, 0, 2))
-      for b in range(len(length)):
-        self.assertAllEqual(expected, mask[b])
+      self.assertTupleEqual(mask.shape, (len(length), 1, 1, maximum_length))
+      self.assertAllEqual(np.squeeze(mask), expected)
 
   def testBuildFutureMask(self):
     num_heads = 4
@@ -71,9 +67,8 @@ class TransformerTest(tf.test.TestCase):
 
     with self.test_session() as sess:
       mask = sess.run(mask)
-      mask = np.transpose(mask, (1, 0, 2, 3))
-      for b in range(len(length)):
-        self.assertAllEqual(expected, mask[b])
+      self.assertTupleEqual(mask.shape, (len(length), 1, max(length), max(length)))
+      self.assertAllEqual(np.squeeze(mask), expected)
 
   def testBuildFutureMaskWithMaxLen(self):
     num_heads = 4
@@ -101,9 +96,8 @@ class TransformerTest(tf.test.TestCase):
 
     with self.test_session() as sess:
       mask = sess.run(mask)
-      mask = np.transpose(mask, (1, 0, 2, 3))
-      for b in range(len(length)):
-        self.assertAllEqual(expected, mask[b])
+      self.assertTupleEqual(mask.shape, (len(length), 1, maximum_length, maximum_length))
+      self.assertAllEqual(np.squeeze(mask), expected)
 
   def testCumulativeAverageMask(self):
     sequence_length = [2, 3]
