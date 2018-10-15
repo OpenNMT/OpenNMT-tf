@@ -196,14 +196,12 @@
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A broadcastable ``tf.Tensor`` of type :obj:`dtype` and shape</span>
-<span class="sd">    ``[batch_size, num_heads, 1, max_length]``.</span>
+<span class="sd">    ``[batch_size, 1, 1, max_length]``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">num_heads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tile_sequence_length</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">)</span>
   <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">maximum_length</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
   <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">num_heads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mask</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mask</span><span class="p">)[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">mask</span></div>
 
 <span class="k">def</span> <span class="nf">_lower_triangle_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
@@ -228,16 +226,14 @@
 <span class="sd">    dtype: The type of the mask tensor.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    A ``tf.Tensor`` of type :obj:`dtype` and shape</span>
-<span class="sd">    ``[batch_size, num_heads, max_length, max_length]``.</span>
+<span class="sd">    A broadcastable ``tf.Tensor`` of type :obj:`dtype` and shape</span>
+<span class="sd">    ``[batch_size, 1, max_length, max_length]``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">num_heads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tile_sequence_length</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">)</span>
   <span class="n">sequence_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">maximum_length</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
   <span class="n">mask</span> <span class="o">=</span> <span class="n">_lower_triangle_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="o">=</span><span class="n">maximum_length</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
   <span class="n">mask</span> <span class="o">*=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sequence_mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">num_heads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mask</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mask</span><span class="p">)[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">mask</span></div>
 
 <div class="viewcode-block" id="cumulative_average_mask"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.cumulative_average_mask">[docs]</a><span class="k">def</span> <span class="nf">cumulative_average_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
