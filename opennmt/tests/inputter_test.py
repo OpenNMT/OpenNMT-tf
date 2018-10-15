@@ -25,8 +25,7 @@ class InputterTest(tf.test.TestCase):
     if not os.path.exists(log_dir):
       os.mkdir(log_dir)
 
-    def _create_embedding(name, vocab_filename, num_oov_buckets=1):
-      vocab_size = 10
+    def _create_embedding(name, vocab_filename, vocab_size=10, num_oov_buckets=1):
       vocab_file = os.path.join(self.get_temp_dir(), vocab_filename)
       with open(vocab_file, mode="wb") as vocab:
         for i in range(vocab_size):
@@ -39,7 +38,7 @@ class InputterTest(tf.test.TestCase):
           log_dir, embedding, vocab_file, num_oov_buckets=num_oov_buckets)
       projector_config = projector.ProjectorConfig()
       projector_config_path = os.path.join(log_dir, "projector_config.pbtxt")
-      vocab_file = os.path.join(log_dir, os.path.basename(vocab_file))
+      vocab_file = os.path.join(log_dir, "%s.txt" % embedding.op.name)
       self.assertTrue(os.path.exists(projector_config_path))
       self.assertTrue(os.path.exists(vocab_file))
       self.assertEqual(embedding.get_shape().as_list()[0], count_lines(vocab_file))
@@ -52,7 +51,7 @@ class InputterTest(tf.test.TestCase):
     projector_config = _visualize(src_embedding, src_vocab_file)
     self.assertEqual(1, len(projector_config.embeddings))
     self.assertEqual(src_embedding.name, projector_config.embeddings[0].tensor_name)
-    self.assertEqual("src_vocab.txt", projector_config.embeddings[0].metadata_path)
+    self.assertEqual("src_emb.txt", projector_config.embeddings[0].metadata_path)
 
     # Register a second embedding variable.
     tgt_embedding, tgt_vocab_file = _create_embedding(
@@ -60,15 +59,15 @@ class InputterTest(tf.test.TestCase):
     projector_config = _visualize(tgt_embedding, tgt_vocab_file, num_oov_buckets=2)
     self.assertEqual(2, len(projector_config.embeddings))
     self.assertEqual(tgt_embedding.name, projector_config.embeddings[1].tensor_name)
-    self.assertEqual("tgt_vocab.txt", projector_config.embeddings[1].metadata_path)
+    self.assertEqual("tgt_emb.txt", projector_config.embeddings[1].metadata_path)
 
-    # Update an existing embedding variable with another vocabulary path.
-    new_src_vocab_file = os.path.join(self.get_temp_dir(), "src_vocab_new.txt")
-    os.rename(src_vocab_file, new_src_vocab_file)
-    projector_config = _visualize(src_embedding, new_src_vocab_file)
+    # Update an existing variable.
+    tf.reset_default_graph()
+    src_embedding, src_vocab_file = _create_embedding("src_emb", "src_vocab.txt", vocab_size=20)
+    projector_config = _visualize(src_embedding, src_vocab_file)
     self.assertEqual(2, len(projector_config.embeddings))
     self.assertEqual(src_embedding.name, projector_config.embeddings[0].tensor_name)
-    self.assertEqual("src_vocab_new.txt", projector_config.embeddings[0].metadata_path)
+    self.assertEqual("src_emb.txt", projector_config.embeddings[0].metadata_path)
 
   def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
     expected_chars = [[tf.compat.as_bytes(c) for c in w] for w in expected_chars]

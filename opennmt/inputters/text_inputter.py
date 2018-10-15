@@ -33,18 +33,17 @@ def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_bucket
     num_oov_buckets: The number of additional unknown tokens.
   """
   # Copy vocabulary file to log_dir.
-  basename = os.path.basename(vocabulary_file)
+  basename = "%s.txt" % embedding_var.op.name.replace("/", "_")
   destination = os.path.join(log_dir, basename)
-  if vocabulary_file != destination:
-    tf.gfile.Copy(vocabulary_file, destination, overwrite=True)
+  tf.gfile.Copy(vocabulary_file, destination, overwrite=True)
 
-    # Append <unk> tokens.
-    with tf.gfile.Open(destination, mode="ab") as vocab:
-      if num_oov_buckets == 1:
-        vocab.write(b"<unk>\n")
-      else:
-        for i in range(num_oov_buckets):
-          vocab.write(tf.compat.as_bytes("<unk%d>\n" % i))
+  # Append <unk> tokens.
+  with tf.gfile.Open(destination, mode="ab") as vocab:
+    if num_oov_buckets == 1:
+      vocab.write(b"<unk>\n")
+    else:
+      for i in range(num_oov_buckets):
+        vocab.write(tf.compat.as_bytes("<unk%d>\n" % i))
 
   config = projector.ProjectorConfig()
 
