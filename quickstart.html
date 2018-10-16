@@ -94,6 +94,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#step-1-prepare-the-data">Step 1: Prepare the data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-2-train-the-model">Step 2: Train the model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-3-translate">Step 3: Translate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#going-further">Going further</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -211,8 +212,8 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="n">train_and_eval</span> <span class="o">--</span><span class="n">model_type</span> <span class="n">NMTSmall</span> <span class="o">--</span><span class="n">auto_config</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span>
 </pre></div>
 </div>
-<p>This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag selects the best settings for this type of model. The training will regularly produce checkpoints in the <code class="docutils literal notranslate"><span class="pre">run/</span></code> directory.</p>
-<p>To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using <a class="reference external" href="https://www.tensorflow.org/guide/summaries_and_tensorboard">TensorBoard</a>:</p>
+<p>This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag selects the best settings for this type of model.</p>
+<p>The training will regularly produce checkpoints in the <code class="docutils literal notranslate"><span class="pre">run/</span></code> directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using <a class="reference external" href="https://www.tensorflow.org/guide/summaries_and_tensorboard">TensorBoard</a>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;run&quot;</span>
 </pre></div>
 </div>
@@ -223,8 +224,19 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </pre></div>
 </div>
 <p>This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.</p>
-<p>For this toy dataset, do not expect any good translation results. Consider training on <a class="reference external" href="http://www.statmt.org/wmt16/translation-task.html">larger parallel datasets</a> instead.</p>
-<p><strong>That’s it! You successfully went through a typical OpenNMT-tf workflow. However, this quickstart presents the most basic usage of the toolkit. For more advanced usages, read the next sections, explore the command lines options, or run the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt">WMT training scripts</a>.</strong></p>
+<p><strong>That’s it! You successfully executed the 3 main steps to prepare, run, and evaluate an OpenNMT-tf training.</strong></p>
+</div>
+<div class="section" id="going-further">
+<span id="going-further"></span><h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
+<p>While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset and model are too small for this task.</p>
+<p>To go further, here are some pointers:</p>
+<ul class="simple">
+<li>Download larger training sets, for example from a <a class="reference external" href="http://www.statmt.org/wmt16/translation-task.html">WMT task</a></li>
+<li>Train a bigger model, like the <a class="reference external" href="https://arxiv.org/abs/1706.03762"><code class="docutils literal notranslate"><span class="pre">Transformer</span></code></a></li>
+<li>Run existing <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts">training recipes</a></li>
+<li>Discover the <a class="reference external" href="configuration_reference.html">configuration reference</a> to tune hyperparameters</li>
+<li>Explore the other sections to learn about advanced topics</li>
+</ul>
 </div>
 </div>
 
