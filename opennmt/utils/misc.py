@@ -13,21 +13,16 @@ import tensorflow as tf
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.
 
-  This function calls ``decode()`` depending on the output stream encoding.
-
   Args:
     str_as_bytes: The bytes to print.
     stream: The stream to print to (``sys.stdout`` if not set).
   """
-  encoding = None
-  if stream is not None:
-    encoding = stream.encoding
-  if encoding is None:
-    encoding = sys.getdefaultencoding()
-  text = str_as_bytes.decode(encoding) if encoding != "ascii" else str_as_bytes
-  print(text, file=stream)
-  if stream is not None:
-    stream.flush()
+  if stream is None:
+    stream = sys.stdout
+  write_buffer = stream.buffer if hasattr(stream, "buffer") else stream
+  write_buffer.write(str_as_bytes)
+  write_buffer.write(b"\n")
+  stream.flush()
 
 def item_or_tuple(x):
   """Returns :obj:`x` as a tuple or its single element."""
