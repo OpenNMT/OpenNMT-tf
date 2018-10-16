@@ -204,6 +204,8 @@ class SelfAttentionDecoder(decoder.Decoder):
                 context,
                 mode,
                 dropout=self.dropout)
+        else:
+          context = encoded
 
         with tf.variable_scope("ffn"):
           transformed = transformer.feed_forward(
@@ -219,10 +221,11 @@ class SelfAttentionDecoder(decoder.Decoder):
 
         inputs = transformed
 
-    # The first head of the last layer is returned.
-    first_head_attention = last_attention[:, 0]
-    if cache is not None and "attn" in cache:
-      cache["attn"] = tf.concat([cache["attn"], first_head_attention], 1)
+    if last_attention is not None:
+      # The first head of the last layer is returned.
+      first_head_attention = last_attention[:, 0]
+      if cache is not None and "attn" in cache:
+        cache["attn"] = tf.concat([cache["attn"], first_head_attention], 1)
 
     outputs = transformer.norm(inputs)
     return outputs, first_head_attention
