@@ -309,7 +309,7 @@ def inference_pipeline(dataset,
     A ``tf.data.Dataset``.
   """
   if process_fn is not None:
-    dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 1)
+    dataset = dataset.map(process_fn, num_parallel_calls=num_threads)
   dataset = dataset.apply(batch_parallel_dataset(batch_size))
   dataset = dataset.apply(prefetch_element(buffer_size=prefetch_buffer_size))
   return dataset
