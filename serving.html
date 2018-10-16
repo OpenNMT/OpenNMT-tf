@@ -97,7 +97,11 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Serving</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#exporting-savedmodel">Exporting SavedModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exporting-savedmodel">Exporting SavedModel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-export">Automatic export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#manual-export">Manual export</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#running-savedmodel">Running SavedModel</a></li>
 </ul>
 </li>
@@ -180,14 +184,27 @@
     └── variables.index
 </pre></div>
 </div>
+<div class="section" id="automatic-export">
+<span id="automatic-export"></span><h3>Automatic export<a class="headerlink" href="#automatic-export" title="Permalink to this headline">¶</a></h3>
 <p>In the <code class="docutils literal notranslate"><span class="pre">train_and_eval</span></code> run type, models can be automatically exported following one or several export schedules:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">last</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/latest</span></code> after each evaluation (default);</li>
 <li><code class="docutils literal notranslate"><span class="pre">final</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/final</span></code> at the end of the training;</li>
 <li><code class="docutils literal notranslate"><span class="pre">best</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/best</span></code> only if it achieves the best evaluation loss so far.</li>
 </ul>
-<p>Export schedules are set by the <code class="docutils literal notranslate"><span class="pre">exporters</span></code> field in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> section of the configuration file.</p>
-<p>Additionally, models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type. Manually exported models are located by default in <code class="docutils literal notranslate"><span class="pre">export/manual/</span></code> within the model directory; a custom destination can be configured with the command line option <code class="docutils literal notranslate"><span class="pre">--export_dir_base</span></code>.</p>
+<p>Export schedules are set by the <code class="docutils literal notranslate"><span class="pre">exporters</span></code> field in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> section of the configuration file, e.g.:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">eval</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">exporters</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">best</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="manual-export">
+<span id="manual-export"></span><h3>Manual export<a class="headerlink" href="#manual-export" title="Permalink to this headline">¶</a></h3>
+<p>Additionally, models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type. Manually exported models are located by default in <code class="docutils literal notranslate"><span class="pre">export/manual/</span></code> within the model directory; a custom destination can be configured with the command line option <code class="docutils literal notranslate"><span class="pre">--export_dir_base</span></code>, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="nb">export</span> --export_dir_base ~/my-models/ende --auto-config --config my_config.yml
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="running-savedmodel">
 <span id="running-savedmodel"></span><h2>Running SavedModel<a class="headerlink" href="#running-savedmodel" title="Permalink to this headline">¶</a></h2>

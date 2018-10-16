@@ -175,21 +175,16 @@
 <div class="viewcode-block" id="print_bytes"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.print_bytes">[docs]</a><span class="k">def</span> <span class="nf">print_bytes</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Prints a string viewed as bytes.</span>
 
-<span class="sd">  This function calls ``decode()`` depending on the output stream encoding.</span>
-
 <span class="sd">  Args:</span>
 <span class="sd">    str_as_bytes: The bytes to print.</span>
 <span class="sd">    stream: The stream to print to (``sys.stdout`` if not set).</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">encoding</span> <span class="o">=</span> <span class="kc">None</span>
-  <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">encoding</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">encoding</span>
-  <span class="k">if</span> <span class="n">encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">encoding</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getdefaultencoding</span><span class="p">()</span>
-  <span class="n">text</span> <span class="o">=</span> <span class="n">str_as_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span> <span class="o">!=</span> <span class="s2">&quot;ascii&quot;</span> <span class="k">else</span> <span class="n">str_as_bytes</span>
-  <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+  <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+  <span class="n">write_buffer</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">buffer</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="s2">&quot;buffer&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">stream</span>
+  <span class="n">write_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">)</span>
+  <span class="n">write_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="item_or_tuple"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.item_or_tuple">[docs]</a><span class="k">def</span> <span class="nf">item_or_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns :obj:`x` as a tuple or its single element.&quot;&quot;&quot;</span>
