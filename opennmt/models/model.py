@@ -108,10 +108,12 @@ class Model(object):
       """model_fn implementation."""
       if mode == tf.estimator.ModeKeys.TRAIN:
         counters = self._register_word_counters(features, labels)
-        counters_hook = hooks.CountersHook(
-            every_n_steps=config.save_summary_steps,
-            output_dir=config.model_dir,
-            counters=counters)
+        training_hooks = []
+        if config is not None:
+          training_hooks.append(hooks.CountersHook(
+              every_n_steps=config.save_summary_steps,
+              output_dir=config.model_dir,
+              counters=counters))
 
         features_shards = dispatcher.shard(features)
         labels_shards = dispatcher.shard(labels)
@@ -126,7 +128,7 @@ class Model(object):
             mode,
             loss=loss,
             train_op=train_op,
-            training_hooks=[counters_hook])
+            training_hooks=training_hooks)
       elif mode == tf.estimator.ModeKeys.EVAL:
         with tf.variable_scope(self.name):
           logits, predictions = self._build(features, labels, params, mode, config=config)
