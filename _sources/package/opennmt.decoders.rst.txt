@@ -1,5 +1,5 @@
-opennmt\.decoders package
-=========================
+opennmt.decoders package
+========================
 
 .. automodule:: opennmt.decoders
     :members:

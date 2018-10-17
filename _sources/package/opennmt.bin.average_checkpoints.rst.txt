@@ -1,5 +1,5 @@
-opennmt\.bin\.average\_checkpoints module
-=========================================
+opennmt.bin.average\_checkpoints module
+=======================================
 
 .. automodule:: opennmt.bin.average_checkpoints
     :members:

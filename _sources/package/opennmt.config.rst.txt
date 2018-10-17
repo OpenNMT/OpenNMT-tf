@@ -1,5 +1,5 @@
-opennmt\.config module
-======================
+opennmt.config module
+=====================
 
 .. automodule:: opennmt.config
     :members:

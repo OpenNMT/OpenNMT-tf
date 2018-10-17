@@ -1,5 +1,5 @@
-opennmt\.optimizers package
-===========================
+opennmt.optimizers package
+==========================
 
 .. automodule:: opennmt.optimizers
     :members:

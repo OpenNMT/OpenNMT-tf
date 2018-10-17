@@ -1,5 +1,5 @@
-opennmt\.utils\.decay module
-============================
+opennmt.utils.decay module
+==========================
 
 .. automodule:: opennmt.utils.decay
     :members:

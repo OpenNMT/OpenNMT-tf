@@ -1,5 +1,5 @@
-opennmt\.models package
-=======================
+opennmt.models package
+======================
 
 .. automodule:: opennmt.models
     :members:

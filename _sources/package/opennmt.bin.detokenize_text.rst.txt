@@ -1,5 +1,5 @@
-opennmt\.bin\.detokenize\_text module
-=====================================
+opennmt.bin.detokenize\_text module
+===================================
 
 .. automodule:: opennmt.bin.detokenize_text
     :members:

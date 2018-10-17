@@ -1,5 +1,5 @@
-opennmt\.utils package
-======================
+opennmt.utils package
+=====================
 
 .. automodule:: opennmt.utils
     :members:

@@ -1,5 +1,5 @@
-opennmt\.layers\.position module
-================================
+opennmt.layers.position module
+==============================
 
 .. automodule:: opennmt.layers.position
     :members:

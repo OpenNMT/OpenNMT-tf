@@ -1,5 +1,5 @@
-opennmt\.decoders\.rnn\_decoder module
-======================================
+opennmt.decoders.rnn\_decoder module
+====================================
 
 .. automodule:: opennmt.decoders.rnn_decoder
     :members:

@@ -1,5 +1,5 @@
-opennmt\.utils\.parallel module
-===============================
+opennmt.utils.parallel module
+=============================
 
 .. automodule:: opennmt.utils.parallel
     :members:

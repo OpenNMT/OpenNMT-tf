@@ -1,5 +1,5 @@
-opennmt\.utils\.hooks module
-============================
+opennmt.utils.hooks module
+==========================
 
 .. automodule:: opennmt.utils.hooks
     :members:
