@@ -32,7 +32,8 @@ def main():
                           args.tgt_vocab,
                           new_src_vocab=args.new_src_vocab,
                           new_tgt_vocab=args.new_tgt_vocab,
-                          mode=args.mode)
+                          mode=args.mode,
+                          session_config=tf.ConfigProto(device_count={"GPU": 0}))
 
 
 if __name__ == "__main__":
