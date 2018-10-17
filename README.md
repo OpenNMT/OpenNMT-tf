@@ -58,13 +58,11 @@ OpenNMT-tf also exposes well-defined and stable APIs. Here is an example using t
 import tensorflow as tf
 import opennmt as onmt
 
+tf.enable_eager_execution()
+
 # Build a random batch of input sequences.
+inputs = tf.random_uniform((3, 6, 256))
 sequence_length = [4, 6, 5]
-input_depth = 512
-inputs = tf.placeholder_with_default(
-    np.random.randn(
-        len(sequence_length), max(sequence_length), input_depth).astype(np.float32),
-    shape=(None, None, input_depth))
 
 # Encode with a self-attentional encoder.
 encoder = onmt.encoders.SelfAttentionEncoder(num_layers=4)
@@ -72,6 +70,8 @@ outputs, state, outputs_length = encoder.encode(
     inputs,
     sequence_length=sequence_length,
     mode=tf.estimator.ModeKeys.TRAIN)
+
+print(outputs)
 ```
 
 For more advanced examples, some online resources are using OpenNMT-tf as a library:
