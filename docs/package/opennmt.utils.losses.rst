@@ -1,5 +1,5 @@
-opennmt\.utils\.losses module
-=============================
+opennmt.utils.losses module
+===========================
 
 .. automodule:: opennmt.utils.losses
     :members:

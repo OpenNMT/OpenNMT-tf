@@ -1,5 +1,5 @@
-opennmt\.constants module
-=========================
+opennmt.constants module
+========================
 
 .. automodule:: opennmt.constants
     :members:

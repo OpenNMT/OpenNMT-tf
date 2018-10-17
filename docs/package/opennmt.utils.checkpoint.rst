@@ -1,5 +1,5 @@
-opennmt\.utils\.checkpoint module
-=================================
+opennmt.utils.checkpoint module
+===============================
 
 .. automodule:: opennmt.utils.checkpoint
     :members:

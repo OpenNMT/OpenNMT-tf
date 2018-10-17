@@ -1,5 +1,5 @@
-opennmt\.encoders\.encoder module
-=================================
+opennmt.encoders.encoder module
+===============================
 
 .. automodule:: opennmt.encoders.encoder
     :members:

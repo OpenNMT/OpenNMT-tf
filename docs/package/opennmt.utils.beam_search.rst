@@ -1,5 +1,5 @@
-opennmt\.utils\.beam\_search module
-===================================
+opennmt.utils.beam\_search module
+=================================
 
 .. automodule:: opennmt.utils.beam_search
     :members:

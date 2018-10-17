@@ -1,5 +1,5 @@
-opennmt\.layers package
-=======================
+opennmt.layers package
+======================
 
 .. automodule:: opennmt.layers
     :members:

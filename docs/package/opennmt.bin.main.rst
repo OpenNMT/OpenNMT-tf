@@ -1,5 +1,5 @@
-opennmt\.bin\.main module
-=========================
+opennmt.bin.main module
+=======================
 
 .. automodule:: opennmt.bin.main
     :members:

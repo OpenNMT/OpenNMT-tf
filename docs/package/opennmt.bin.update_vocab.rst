@@ -1,5 +1,5 @@
-opennmt\.bin\.update\_vocab module
-==================================
+opennmt.bin.update\_vocab module
+================================
 
 .. automodule:: opennmt.bin.update_vocab
     :members:

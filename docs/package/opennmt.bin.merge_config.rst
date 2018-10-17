@@ -1,5 +1,5 @@
-opennmt\.bin\.merge\_config module
-==================================
+opennmt.bin.merge\_config module
+================================
 
 .. automodule:: opennmt.bin.merge_config
     :members:

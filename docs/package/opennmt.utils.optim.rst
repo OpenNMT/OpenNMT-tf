@@ -1,5 +1,5 @@
-opennmt\.utils\.optim module
-============================
+opennmt.utils.optim module
+==========================
 
 .. automodule:: opennmt.utils.optim
     :members:

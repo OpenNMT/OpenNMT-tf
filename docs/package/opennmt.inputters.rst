@@ -1,5 +1,5 @@
-opennmt\.inputters package
-==========================
+opennmt.inputters package
+=========================
 
 .. automodule:: opennmt.inputters
     :members:

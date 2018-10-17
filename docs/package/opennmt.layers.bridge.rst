@@ -1,5 +1,5 @@
-opennmt\.layers\.bridge module
-==============================
+opennmt.layers.bridge module
+============================
 
 .. automodule:: opennmt.layers.bridge
     :members:

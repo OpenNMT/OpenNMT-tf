@@ -1,5 +1,5 @@
-opennmt\.models\.catalog module
-===============================
+opennmt.models.catalog module
+=============================
 
 .. automodule:: opennmt.models.catalog
     :members:
