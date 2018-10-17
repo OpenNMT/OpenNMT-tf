@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; OpenNMT-tf 1.10.1 documentation</title>
+  <title>opennmt.bin.convert_checkpoint module &mdash; OpenNMT-tf 1.10.1 documentation</title>
   
 
   
@@ -30,7 +30,9 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.bin.detokenize_text module" href="opennmt.bin.detokenize_text.html" />
+    <link rel="prev" title="opennmt.bin.build_vocab module" href="opennmt.bin.build_vocab.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -86,7 +88,7 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
@@ -96,7 +98,25 @@
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../package/opennmt.html">Reference: opennmt package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.bin.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -142,10 +162,16 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Overview: module code</li>
+          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.bin.html">opennmt.bin package</a> &raquo;</li>
+        
+      <li>opennmt.bin.convert_checkpoint module</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
         
       </li>
     
@@ -157,65 +183,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="abc.html">abc</a></li>
-<li><a href="opennmt/bin/ark_to_records.html">opennmt.bin.ark_to_records</a></li>
-<li><a href="opennmt/bin/average_checkpoints.html">opennmt.bin.average_checkpoints</a></li>
-<li><a href="opennmt/bin/build_vocab.html">opennmt.bin.build_vocab</a></li>
-<li><a href="opennmt/bin/convert_checkpoint.html">opennmt.bin.convert_checkpoint</a></li>
-<li><a href="opennmt/bin/detokenize_text.html">opennmt.bin.detokenize_text</a></li>
-<li><a href="opennmt/bin/main.html">opennmt.bin.main</a></li>
-<li><a href="opennmt/bin/merge_config.html">opennmt.bin.merge_config</a></li>
-<li><a href="opennmt/bin/tokenize_text.html">opennmt.bin.tokenize_text</a></li>
-<li><a href="opennmt/bin/update_vocab.html">opennmt.bin.update_vocab</a></li>
-<li><a href="opennmt/config.html">opennmt.config</a></li>
-<li><a href="opennmt/decoders/decoder.html">opennmt.decoders.decoder</a></li>
-<li><a href="opennmt/decoders/rnn_decoder.html">opennmt.decoders.rnn_decoder</a></li>
-<li><a href="opennmt/decoders/self_attention_decoder.html">opennmt.decoders.self_attention_decoder</a></li>
-<li><a href="opennmt/encoders/conv_encoder.html">opennmt.encoders.conv_encoder</a></li>
-<li><a href="opennmt/encoders/encoder.html">opennmt.encoders.encoder</a></li>
-<li><a href="opennmt/encoders/mean_encoder.html">opennmt.encoders.mean_encoder</a></li>
-<li><a href="opennmt/encoders/rnn_encoder.html">opennmt.encoders.rnn_encoder</a></li>
-<li><a href="opennmt/encoders/self_attention_encoder.html">opennmt.encoders.self_attention_encoder</a></li>
-<li><a href="opennmt/inputters/inputter.html">opennmt.inputters.inputter</a></li>
-<li><a href="opennmt/inputters/record_inputter.html">opennmt.inputters.record_inputter</a></li>
-<li><a href="opennmt/inputters/text_inputter.html">opennmt.inputters.text_inputter</a></li>
-<li><a href="opennmt/layers/bridge.html">opennmt.layers.bridge</a></li>
-<li><a href="opennmt/layers/common.html">opennmt.layers.common</a></li>
-<li><a href="opennmt/layers/position.html">opennmt.layers.position</a></li>
-<li><a href="opennmt/layers/reducer.html">opennmt.layers.reducer</a></li>
-<li><a href="opennmt/layers/transformer.html">opennmt.layers.transformer</a></li>
-<li><a href="opennmt/models/catalog.html">opennmt.models.catalog</a></li>
-<li><a href="opennmt/models/model.html">opennmt.models.model</a></li>
-<li><a href="opennmt/models/sequence_classifier.html">opennmt.models.sequence_classifier</a></li>
-<li><a href="opennmt/models/sequence_tagger.html">opennmt.models.sequence_tagger</a></li>
-<li><a href="opennmt/models/sequence_to_sequence.html">opennmt.models.sequence_to_sequence</a></li>
-<li><a href="opennmt/models/transformer.html">opennmt.models.transformer</a></li>
-<li><a href="opennmt/optimizers/adafactor.html">opennmt.optimizers.adafactor</a></li>
-<li><a href="opennmt/optimizers/mixed_precision_wrapper.html">opennmt.optimizers.mixed_precision_wrapper</a></li>
-<li><a href="opennmt/optimizers/multistep_adam.html">opennmt.optimizers.multistep_adam</a></li>
-<li><a href="opennmt/runner.html">opennmt.runner</a></li>
-<li><a href="opennmt/tokenizers.html">opennmt.tokenizers</a></li>
-<ul><li><a href="opennmt/tokenizers/opennmt_tokenizer.html">opennmt.tokenizers.opennmt_tokenizer</a></li>
-<li><a href="opennmt/tokenizers/tokenizer.html">opennmt.tokenizers.tokenizer</a></li>
-</ul><li><a href="opennmt/utils/beam_search.html">opennmt.utils.beam_search</a></li>
-<li><a href="opennmt/utils/cell.html">opennmt.utils.cell</a></li>
-<li><a href="opennmt/utils/checkpoint.html">opennmt.utils.checkpoint</a></li>
-<li><a href="opennmt/utils/data.html">opennmt.utils.data</a></li>
-<li><a href="opennmt/utils/decay.html">opennmt.utils.decay</a></li>
-<li><a href="opennmt/utils/evaluator.html">opennmt.utils.evaluator</a></li>
-<li><a href="opennmt/utils/hooks.html">opennmt.utils.hooks</a></li>
-<li><a href="opennmt/utils/losses.html">opennmt.utils.losses</a></li>
-<li><a href="opennmt/utils/misc.html">opennmt.utils.misc</a></li>
-<li><a href="opennmt/utils/optim.html">opennmt.utils.optim</a></li>
-<li><a href="opennmt/utils/parallel.html">opennmt.utils.parallel</a></li>
-<li><a href="opennmt/utils/vocab.html">opennmt.utils.vocab</a></li>
-</ul>
+  <div class="section" id="module-opennmt.bin.convert_checkpoint">
+<span id="opennmt-bin-convert-checkpoint-module"></span><h1>opennmt.bin.convert_checkpoint module<a class="headerlink" href="#module-opennmt.bin.convert_checkpoint" title="Permalink to this headline">¶</a></h1>
+<p>Script to convert checkpoint variables from one data type to another.</p>
+<dl class="function">
+<dt id="opennmt.bin.convert_checkpoint.main">
+<code class="descclassname">opennmt.bin.convert_checkpoint.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/bin/convert_checkpoint.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.bin.convert_checkpoint.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.bin.detokenize_text.html" class="btn btn-neutral float-right" title="opennmt.bin.detokenize_text module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.bin.build_vocab.html" class="btn btn-neutral" title="opennmt.bin.build_vocab module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

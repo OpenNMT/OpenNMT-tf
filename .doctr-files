@@ -4,6 +4,7 @@
 ./_modules/opennmt/bin/ark_to_records.html
 ./_modules/opennmt/bin/average_checkpoints.html
 ./_modules/opennmt/bin/build_vocab.html
+./_modules/opennmt/bin/convert_checkpoint.html
 ./_modules/opennmt/bin/detokenize_text.html
 ./_modules/opennmt/bin/main.html
 ./_modules/opennmt/bin/merge_config.html
@@ -62,6 +63,7 @@
 ./_sources/package/opennmt.bin.ark_to_records.rst.txt
 ./_sources/package/opennmt.bin.average_checkpoints.rst.txt
 ./_sources/package/opennmt.bin.build_vocab.rst.txt
+./_sources/package/opennmt.bin.convert_checkpoint.rst.txt
 ./_sources/package/opennmt.bin.detokenize_text.rst.txt
 ./_sources/package/opennmt.bin.main.rst.txt
 ./_sources/package/opennmt.bin.merge_config.rst.txt
@@ -200,6 +202,7 @@
 ./package/opennmt.bin.ark_to_records.html
 ./package/opennmt.bin.average_checkpoints.html
 ./package/opennmt.bin.build_vocab.html
+./package/opennmt.bin.convert_checkpoint.html
 ./package/opennmt.bin.detokenize_text.html
 ./package/opennmt.bin.html
 ./package/opennmt.bin.main.html
