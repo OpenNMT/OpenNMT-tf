@@ -14,6 +14,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* `onmt-convert-checkpoint` script to convert checkpoints from one data type to another (e.g. train with FP16 but export in FP32)
+
 ### Fixes and improvements
 
 * Fix error in `SelfAttentionDecoder` when `memory` is not defined (e.g. in LM tasks)
