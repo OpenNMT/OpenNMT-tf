@@ -222,9 +222,9 @@
 
 <span class="k">def</span> <span class="nf">_create_checkpoint_from_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">latest_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="c1"># The straightforward approach would be to create new variables using a</span>
-  <span class="c1"># constant_initializer. However, this would save the constant value in</span>
+  <span class="c1"># constant_initializer. However, this would save the constant value in the</span>
   <span class="c1"># checkpoint meta file which would increase its size dramatically. Instead, we</span>
-  <span class="c1"># create variablez with their default initializer but run an assignment op</span>
+  <span class="c1"># create variables with their default initializer but run an assignment op</span>
   <span class="c1"># that writes the new value. Inspired by:</span>
   <span class="c1"># github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/bin/t2t_avg_all.py</span>
   <span class="k">if</span> <span class="s2">&quot;global_step&quot;</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>

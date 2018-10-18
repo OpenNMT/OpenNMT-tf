@@ -171,6 +171,7 @@
 
 <span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="k">import</span> <span class="n">text_format</span>
 
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="k">import</span> <span class="n">catalog</span>
 <span class="kn">from</span> <span class="nn">opennmt.runner</span> <span class="k">import</span> <span class="n">Runner</span>
 <span class="kn">from</span> <span class="nn">opennmt.config</span> <span class="k">import</span> <span class="n">load_model</span><span class="p">,</span> <span class="n">load_config</span>
@@ -205,6 +206,7 @@
 
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../package/opennmt.bin.main.html#opennmt.bin.main.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
   <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;OpenNMT-tf </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">__version__</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span>
                       <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;train_and_eval&quot;</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">,</span> <span class="s2">&quot;infer&quot;</span><span class="p">,</span> <span class="s2">&quot;export&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">],</span>
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run type.&quot;</span><span class="p">)</span>
