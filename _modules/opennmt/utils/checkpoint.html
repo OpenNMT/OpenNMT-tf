@@ -216,22 +216,27 @@
       <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating variable </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
       <span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_update_vocabulary_variable</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">current_size</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
 
+<span class="k">def</span> <span class="nf">_variable_is_trainable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+  <span class="n">_</span> <span class="o">=</span> <span class="n">name</span>
+  <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>  <span class="c1"># Assume that int variables are not trainable.</span>
+
 <span class="k">def</span> <span class="nf">_create_checkpoint_from_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">latest_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="c1"># The straightforward approach would be to create new variables using a</span>
+  <span class="c1"># constant_initializer. However, this would save the constant value in</span>
+  <span class="c1"># checkpoint meta file which would increase its size dramatically. Instead, we</span>
+  <span class="c1"># create variablez with their default initializer but run an assignment op</span>
+  <span class="c1"># that writes the new value. Inspired by:</span>
+  <span class="c1"># github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/bin/t2t_avg_all.py</span>
   <span class="k">if</span> <span class="s2">&quot;global_step&quot;</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
     <span class="n">latest_step</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="s2">&quot;global_step&quot;</span><span class="p">]</span>
     <span class="k">del</span> <span class="n">variables</span><span class="p">[</span><span class="s2">&quot;global_step&quot;</span><span class="p">]</span>
-  <span class="n">tf_vars</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
-    <span class="n">trainable</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">dtype</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">as_dtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;words_per_sec&quot;</span><span class="p">):</span>
-      <span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
-      <span class="n">dtype</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span>  <span class="c1"># TODO: why is the dtype not correct for these variables?</span>
-    <span class="n">tf_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
-        <span class="n">name</span><span class="p">,</span>
-        <span class="n">shape</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
-        <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">))</span>
+  <span class="n">tf_vars</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
+          <span class="n">name</span><span class="p">,</span>
+          <span class="n">shape</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+          <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">as_dtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+          <span class="n">trainable</span><span class="o">=</span><span class="n">_variable_is_trainable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+      <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">)]</span>
   <span class="n">placeholders</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tf_vars</span><span class="p">]</span>
   <span class="n">assign_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tf_vars</span><span class="p">,</span> <span class="n">placeholders</span><span class="p">)]</span>
 
@@ -364,23 +369,6 @@
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if :obj:`output_dir` is the same as :obj:`model_dir`.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="c1"># This script is modified version of</span>
-  <span class="c1"># https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/bin/t2t_avg_all.py</span>
-  <span class="c1"># which comes with the following license and copyright notice:</span>
-
-  <span class="c1"># Copyright 2017 The Tensor2Tensor Authors.</span>
-  <span class="c1">#</span>
-  <span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-  <span class="c1"># you may not use this file except in compliance with the License.</span>
-  <span class="c1"># You may obtain a copy of the License at</span>
-  <span class="c1">#</span>
-  <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
-  <span class="c1">#</span>
-  <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-  <span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-  <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-  <span class="c1"># See the License for the specific language governing permissions and</span>
-  <span class="c1"># limitations under the License.</span>
   <span class="k">if</span> <span class="n">model_dir</span> <span class="o">==</span> <span class="n">output_dir</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model and output directory must be different&quot;</span><span class="p">)</span>
 
@@ -392,23 +380,23 @@
   <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Averaging </span><span class="si">%d</span><span class="s2"> checkpoints...&quot;</span> <span class="o">%</span> <span class="n">num_checkpoints</span><span class="p">)</span>
   <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Listing variables...&quot;</span><span class="p">)</span>
 
-  <span class="n">var_list</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">list_variables</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-  <span class="n">avg_values</span> <span class="o">=</span> <span class="p">{}</span>
-  <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;global_step&quot;</span><span class="p">):</span>
-      <span class="n">avg_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-
-  <span class="k">for</span> <span class="n">checkpoint_path</span> <span class="ow">in</span> <span class="n">checkpoints_path</span><span class="p">:</span>
+  <span class="n">new_variables</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">checkpoint_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">checkpoint_path</span><span class="p">)</span>
-    <span class="n">reader</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">avg_values</span><span class="p">:</span>
-      <span class="n">avg_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_checkpoints</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">get_checkpoint_variables</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">_variable_is_trainable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">scaled_value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">num_checkpoints</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">new_variables</span><span class="p">:</span>
+          <span class="n">new_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scaled_value</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">new_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaled_value</span>
+      <span class="k">elif</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">num_checkpoints</span><span class="p">:</span>  <span class="c1"># Take non trainable variables from the last checkpoint.</span>
+        <span class="n">new_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-  <span class="n">latest_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
   <span class="k">return</span> <span class="n">_create_checkpoint_from_variables</span><span class="p">(</span>
-      <span class="n">avg_values</span><span class="p">,</span>
+      <span class="n">new_variables</span><span class="p">,</span>
       <span class="n">output_dir</span><span class="p">,</span>
-      <span class="n">latest_step</span><span class="o">=</span><span class="n">latest_step</span><span class="p">,</span>
       <span class="n">session_config</span><span class="o">=</span><span class="n">session_config</span><span class="p">)</span></div>
 </pre></div>
 
