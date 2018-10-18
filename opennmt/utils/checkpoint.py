@@ -60,9 +60,9 @@ def _variable_is_trainable(name, value):
 
 def _create_checkpoint_from_variables(variables, output_dir, latest_step=None, session_config=None):
   # The straightforward approach would be to create new variables using a
-  # constant_initializer. However, this would save the constant value in
+  # constant_initializer. However, this would save the constant value in the
   # checkpoint meta file which would increase its size dramatically. Instead, we
-  # create variablez with their default initializer but run an assignment op
+  # create variables with their default initializer but run an assignment op
   # that writes the new value. Inspired by:
   # github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/bin/t2t_avg_all.py
   if "global_step" in variables:
