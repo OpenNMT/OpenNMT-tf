@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from google.protobuf import text_format
 
+from opennmt import __version__
 from opennmt.models import catalog
 from opennmt.runner import Runner
 from opennmt.config import load_model, load_config
@@ -43,6 +44,7 @@ def _prefix_paths(prefix, paths):
 
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  parser.add_argument("-v", "--version", action="version", version="OpenNMT-tf %s" % __version__)
   parser.add_argument("run",
                       choices=["train_and_eval", "train", "eval", "infer", "export", "score"],
                       help="Run type.")
