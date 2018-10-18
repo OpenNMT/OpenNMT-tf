@@ -78,13 +78,20 @@ class CheckpointTest(tf.test.TestCase):
     os.makedirs(model_dir)
     checkpoints = []
     checkpoints.append(self._generateCheckpoint(
-        model_dir, 10, {"x": np.zeros((2, 3), dtype=np.float32)}, last_checkpoints=checkpoints))
+        model_dir, 10,
+        {"x": np.zeros((2, 3), dtype=np.float32), "words_per_sec/features_init": np.int64(42)},
+        last_checkpoints=checkpoints))
     checkpoints.append(self._generateCheckpoint(
-        model_dir, 20, {"x": np.ones((2, 3), dtype=np.float32)}, last_checkpoints=checkpoints))
+        model_dir, 20,
+        {"x": np.ones((2, 3), dtype=np.float32), "words_per_sec/features_init": np.int64(89)},
+        last_checkpoints=checkpoints))
     avg_dir = os.path.join(model_dir, "avg")
     checkpoint.average_checkpoints(model_dir, avg_dir)
     avg_var = checkpoint.get_checkpoint_variables(avg_dir)
+    self.assertEqual(avg_var["global_step"].dtype, np.int64)
     self.assertEqual(avg_var["global_step"], 20)
+    self.assertEqual(avg_var["words_per_sec/features_init"].dtype, np.int64)
+    self.assertEqual(avg_var["words_per_sec/features_init"], 89)
     self.assertAllEqual(avg_var["x"], np.full((2, 3), 0.5, dtype=np.float32))
 
   def testCheckpointDTypeConversion(self):
