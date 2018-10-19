@@ -272,6 +272,8 @@
 
   <span class="c1"># Setup cluster if defined.</span>
   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">chief_host</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">!=</span> <span class="s2">&quot;train_and_eval&quot;</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Distributed training is only supported with the train_and_eval run type&quot;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CONFIG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
         <span class="s2">&quot;cluster&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;chief&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">chief_host</span><span class="p">],</span>
