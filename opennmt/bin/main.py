@@ -110,6 +110,8 @@ def main():
 
   # Setup cluster if defined.
   if args.chief_host:
+    if args.run != "train_and_eval":
+      raise ValueError("Distributed training is only supported with the train_and_eval run type")
     os.environ["TF_CONFIG"] = json.dumps({
         "cluster": {
             "chief": [args.chief_host],
