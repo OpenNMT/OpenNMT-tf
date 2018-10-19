@@ -15,6 +15,9 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### New features
 
 * `onmt-convert-checkpoint` script to convert checkpoints from one data type to another (e.g. train with FP16 but export in FP32)
+* Additional output options for the `score` run type:
+  * `with_token_level` to output the score of each token
+  * `with_alignments` to output the source-target alignments
 
 ### Fixes and improvements
 

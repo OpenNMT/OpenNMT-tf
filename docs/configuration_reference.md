@@ -196,4 +196,9 @@ score:
   num_threads: 1
   # (optional) The number of batches to prefetch asynchronously (default: 1).
   prefetch_buffer_size: 1
+
+  # (optional) Also report token-level cross entropy.
+  with_token_level: false
+  # (optional) Also output the alignments (can be: "null", "hard", default: "null").
+  with_alignments: null
 ```

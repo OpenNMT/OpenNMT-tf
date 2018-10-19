@@ -16,6 +16,7 @@ from google.protobuf import text_format
 
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils.evaluator import external_evaluation_fn
+from opennmt.utils.misc import format_translation_output
 
 
 # These options require a value but we can fallback to a default one.
@@ -378,20 +379,23 @@ class Runner(object):
     with tf.Graph().as_default() as g:
       tf.train.create_global_step(g)
       features, labels = input_fn()
+      labels["alignment"] = None  # Add alignment key to force the model to return attention.
       with tf.variable_scope(self._model.name):
-        logits, _ = self._model(
+        outputs, _ = self._model(
             features,
             labels,
             self._estimator.params,
             tf.estimator.ModeKeys.EVAL)
 
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-          logits=logits, labels=labels["ids_out"])
+          logits=outputs["logits"], labels=labels["ids_out"])
       weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
       masked_cross_entropy = cross_entropy * weights
       scores = (tf.reduce_sum(masked_cross_entropy, axis=1) /
                 tf.cast(labels["length"], cross_entropy.dtype))
       results = {
+          "attention": outputs["attention"],
+          "cross_entropy": cross_entropy,
           "score": scores,
           "tokens": labels["tokens"],
           "length": labels["length"] - 1  # For -1, see sequence_to_sequence.shift_target_sequence.
@@ -405,8 +409,17 @@ class Runner(object):
           for batch in misc.extract_batches(sess.run(results)):
             tokens = batch["tokens"][:batch["length"]]
             sentence = self._model.target_inputter.tokenizer.detokenize(tokens)
-            fmt = "%f ||| %s" % (batch["score"], sentence)
-            misc.print_bytes(tf.compat.as_bytes(fmt))
+            token_level_scores = None
+            if self._config["score"].get("with_token_level"):
+              token_level_scores = batch["cross_entropy"][:batch["length"]]
+            alignment_type = self._config["score"].get("with_alignments")
+            sentence = format_translation_output(
+                sentence,
+                score=batch["score"],
+                token_level_scores=token_level_scores,
+                attention=batch["attention"][:batch["length"]],
+                alignment_type=alignment_type)
+            misc.print_bytes(tf.compat.as_bytes(sentence))
 
 
 def _make_exporters(exporters_type, serving_input_fn, assets_extra=None):
