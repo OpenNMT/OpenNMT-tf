@@ -1,14 +1,13 @@
 """Standard sequence-to-sequence model."""
 
 import tensorflow as tf
-import numpy as np
 
 import opennmt.constants as constants
 import opennmt.inputters as inputters
 
 from opennmt.models.model import Model
 from opennmt.utils.losses import cross_entropy_sequence_loss
-from opennmt.utils.misc import print_bytes, merge_dict
+from opennmt.utils.misc import print_bytes, format_translation_output, merge_dict
 from opennmt.decoders.decoder import get_sampling_probability
 
 
@@ -352,14 +351,19 @@ class SequenceToSequence(Model):
       target_length = prediction["length"][i] - 1  # Ignore </s>.
       tokens = prediction["tokens"][i][:target_length]
       sentence = self.target_inputter.tokenizer.detokenize(tokens)
+      score = None
+      attention = None
+      alignment_type = None
       if params is not None and params.get("with_scores"):
-        sentence = "%f ||| %s" % (
-            prediction["log_probs"][i] / prediction["length"][i], sentence)
-      if params is not None and params.get("with_alignments") == "hard":
-        source_indices = np.argmax(prediction["alignment"][i][:target_length], axis=-1)
-        target_indices = range(target_length)
-        pairs = ("%d-%d" % (src, tgt) for src, tgt in zip(source_indices, target_indices))
-        sentence = "%s ||| %s" % (sentence, " ".join(pairs))
+        score = prediction["log_probs"][i] / prediction["length"][i]
+      if params is not None and params.get("with_alignments"):
+        attention = prediction["alignment"][i][:target_length]
+        alignment_type = params["with_alignments"]
+      sentence = format_translation_output(
+          sentence,
+          score=score,
+          attention=attention,
+          alignment_type=alignment_type)
       print_bytes(tf.compat.as_bytes(sentence), stream=stream)
 
 
