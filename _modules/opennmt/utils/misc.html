@@ -169,6 +169,7 @@
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
@@ -185,6 +186,37 @@
   <span class="n">write_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">)</span>
   <span class="n">write_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
   <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="format_translation_output"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.format_translation_output">[docs]</a><span class="k">def</span> <span class="nf">format_translation_output</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span>
+                              <span class="n">score</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">token_level_scores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">alignment_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Formats a translation output with possibly scores, alignments, etc., e.g:</span>
+
+<span class="sd">  1.123214 ||| Hello world ||| 0.30907777 0.030488174 ||| 0-0 1-1</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    sentence: The translation to output.</span>
+<span class="sd">    score: If set, attach the score.</span>
+<span class="sd">    token_level_scores: If set, attach the token level scores.</span>
+<span class="sd">    attention: The attention vector.</span>
+<span class="sd">    alignment_type: The type of alignments to format (can be: &quot;hard&quot;).</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">token_level_scores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">scores_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">token_level_scores</span><span class="p">)</span>
+    <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">scores_str</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alignment_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">alignment_type</span> <span class="o">==</span> <span class="s2">&quot;hard&quot;</span><span class="p">:</span>
+      <span class="n">source_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+      <span class="n">target_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">attention</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+      <span class="n">pairs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">tgt</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source_indices</span><span class="p">,</span> <span class="n">target_indices</span><span class="p">))</span>
+      <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid alignment type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">alignment_type</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">sentence</span></div>
 
 <div class="viewcode-block" id="item_or_tuple"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.item_or_tuple">[docs]</a><span class="k">def</span> <span class="nf">item_or_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns :obj:`x` as a tuple or its single element.&quot;&quot;&quot;</span>

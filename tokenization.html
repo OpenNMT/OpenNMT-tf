@@ -169,7 +169,11 @@
             
   <div class="section" id="tokenization">
 <span id="tokenization"></span><h1>Tokenization<a class="headerlink" href="#tokenization" title="Permalink to this headline">¶</a></h1>
-<p>OpenNMT-tf ships the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a> as a dependency to provide advanced tokenization behaviors, either offline or online.</p>
+<p>By default, OpenNMT-tf <strong>expects and generates tokenized text</strong>. The user is thus responsible to tokenize the input and detokenize the output. However, OpenNMT-tf provides tokenization tools based on the C++ OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a> that can be used in 2 ways:</p>
+<ul class="simple">
+<li><em>offline</em>: use the provided scripts to manually tokenize the text files before the execution and detokenize the output for evaluation</li>
+<li><em>online</em>: configure the execution to apply tokenization and detokenization on-the-fly</li>
+</ul>
 <p><em>Note: the <code class="docutils literal notranslate"><span class="pre">pyonmttok</span></code> package is only supported on Linux as of now.</em></p>
 <div class="section" id="configuration-files">
 <span id="configuration-files"></span><h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>

@@ -205,6 +205,28 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="opennmt.utils.misc.format_translation_output">
+<code class="descclassname">opennmt.utils.misc.</code><code class="descname">format_translation_output</code><span class="sig-paren">(</span><em>sentence</em>, <em>score=None</em>, <em>token_level_scores=None</em>, <em>attention=None</em>, <em>alignment_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#format_translation_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.format_translation_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a translation output with possibly scores, alignments, etc., e.g:</p>
+<p>1.123214 ||| Hello world ||| 0.30907777 0.030488174 ||| 0-0 1-1</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sentence</strong> – The translation to output.</li>
+<li><strong>score</strong> – If set, attach the score.</li>
+<li><strong>token_level_scores</strong> – If set, attach the token level scores.</li>
+<li><strong>attention</strong> – The attention vector.</li>
+<li><strong>alignment_type</strong> – The type of alignments to format (can be: “hard”).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="opennmt.utils.misc.item_or_tuple">
 <code class="descclassname">opennmt.utils.misc.</code><code class="descname">item_or_tuple</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#item_or_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.item_or_tuple" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code> as a tuple or its single element.</p>

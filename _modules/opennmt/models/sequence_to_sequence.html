@@ -163,14 +163,13 @@
 <span></span><span class="sd">&quot;&quot;&quot;Standard sequence-to-sequence model.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">opennmt.constants</span> <span class="k">as</span> <span class="nn">constants</span>
 <span class="kn">import</span> <span class="nn">opennmt.inputters</span> <span class="k">as</span> <span class="nn">inputters</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.losses</span> <span class="k">import</span> <span class="n">cross_entropy_sequence_loss</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">merge_dict</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">merge_dict</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.decoder</span> <span class="k">import</span> <span class="n">get_sampling_probability</span>
 
 
@@ -514,14 +513,19 @@
       <span class="n">target_length</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Ignore &lt;/s&gt;.</span>
       <span class="n">tokens</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][:</span><span class="n">target_length</span><span class="p">]</span>
       <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+      <span class="n">score</span> <span class="o">=</span> <span class="kc">None</span>
+      <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
+      <span class="n">alignment_type</span> <span class="o">=</span> <span class="kc">None</span>
       <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_scores&quot;</span><span class="p">):</span>
-        <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;log_probs&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">sentence</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_alignments&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;hard&quot;</span><span class="p">:</span>
-        <span class="n">source_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][:</span><span class="n">target_length</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">target_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_length</span><span class="p">)</span>
-        <span class="n">pairs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">tgt</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source_indices</span><span class="p">,</span> <span class="n">target_indices</span><span class="p">))</span>
-        <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;log_probs&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_alignments&quot;</span><span class="p">):</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][:</span><span class="n">target_length</span><span class="p">]</span>
+        <span class="n">alignment_type</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;with_alignments&quot;</span><span class="p">]</span>
+      <span class="n">sentence</span> <span class="o">=</span> <span class="n">format_translation_output</span><span class="p">(</span>
+          <span class="n">sentence</span><span class="p">,</span>
+          <span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
+          <span class="n">attention</span><span class="o">=</span><span class="n">attention</span><span class="p">,</span>
+          <span class="n">alignment_type</span><span class="o">=</span><span class="n">alignment_type</span><span class="p">)</span>
       <span class="n">print_bytes</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">sentence</span><span class="p">),</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
 
 
