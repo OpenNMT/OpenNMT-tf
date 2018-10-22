@@ -44,7 +44,7 @@ def format_translation_output(sentence,
   if score is not None:
     sentence = "%f ||| %s" % (score, sentence)
   if token_level_scores is not None:
-    scores_str = " ".join(str(f) for f in token_level_scores)
+    scores_str = " ".join("%f" % s for s in token_level_scores)
     sentence = "%s ||| %s" % (sentence, scores_str)
   if attention is not None and alignment_type is not None:
     if alignment_type == "hard":
