@@ -90,14 +90,7 @@ def count_lines(filename):
 
 def count_parameters():
   """Returns the total number of trainable parameters."""
-  total = 0
-  for variable in tf.trainable_variables():
-    shape = variable.get_shape()
-    count = 1
-    for dim in shape:
-      count *= dim.value
-    total += count
-  return total
+  return sum(variable.get_shape().num_elements() for variable in tf.trainable_variables())
 
 def extract_prefixed_keys(dictionary, prefix):
   """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
