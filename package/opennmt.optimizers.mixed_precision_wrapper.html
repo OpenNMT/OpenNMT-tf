@@ -204,7 +204,9 @@ given variable.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>loss</strong> – A Tensor containing the value to minimize.</li>
+<li><strong>loss</strong> – A Tensor containing the value to minimize or a callable taking
+no arguments which returns the value to minimize. When eager execution
+is enabled it must be a callable.</li>
 <li><strong>var_list</strong> – Optional list or tuple of <cite>tf.Variable</cite> to update to minimize
 <cite>loss</cite>.  Defaults to the list of variables collected in the graph
 under the key <cite>GraphKeys.TRAINABLE_VARIABLES</cite>.</li>
@@ -225,22 +227,16 @@ gradient can be <cite>None</cite>.</p>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
 <li><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – If <cite>var_list</cite> contains anything else than <cite>Variable</cite> objects.</li>
 <li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If some arguments are invalid.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code> – If called with eager execution enabled and if <cite>grad_loss</cite>
-is not <cite>None</cite> or <cite>loss</cite> is not callable.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code> – If called with eager execution enabled and <cite>loss</cite> is
+not callable.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
 <p>&#64;compatibility(eager)
-When eager execution is enabled, <cite>loss</cite> should be a Python function that
-takes elements of <cite>var_list</cite> as arguments and computes the value to be
-minimized. If <cite>var_list</cite> is None, <cite>loss</cite> should take no arguments.
-Gradient computation is done with respect to the elements of <cite>var_list</cite> if
-not None, else with respect to any trainable variables created during the
-execution of the <cite>loss</cite> function.
-<cite>gate_gradients</cite>, <cite>aggregation_method</cite>, <cite>colocate_gradients_with_ops</cite> and
-<cite>grad_loss</cite> are ignored when eager execution is enabled.
+When eager execution is enabled, <cite>gate_gradients</cite>, <cite>aggregation_method</cite>,
+and <cite>colocate_gradients_with_ops</cite> are ignored.
 &#64;end_compatibility</p>
 </dd></dl>
 
@@ -271,6 +267,7 @@ was not None, that operation also increments <cite>global_step</cite>.</p>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
 <li><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – If <cite>grads_and_vars</cite> is malformed.</li>
 <li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If none of the variables have gradients.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code> – If you should use <cite>_distributed_apply()</cite> instead.</li>
 </ul>
 </td>
 </tr>
