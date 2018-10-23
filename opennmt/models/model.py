@@ -135,7 +135,7 @@ class Model(object):
           loss = self._compute_loss(features, labels, logits, params, mode)
 
         loss = _extract_loss(loss)
-        eval_metric_ops = self._compute_metrics(features, labels, predictions)
+        eval_metric_ops = self._compute_metrics(features, labels, predictions)  # pylint: disable=assignment-from-none
         evaluation_hooks = []
         if predictions is not None and eval_prediction_hooks_fn is not None:
           evaluation_hooks.extend(eval_prediction_hooks_fn(predictions))
