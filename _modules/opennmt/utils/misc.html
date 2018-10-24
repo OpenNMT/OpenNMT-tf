@@ -252,14 +252,7 @@
 
 <div class="viewcode-block" id="count_parameters"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.count_parameters">[docs]</a><span class="k">def</span> <span class="nf">count_parameters</span><span class="p">():</span>
   <span class="sd">&quot;&quot;&quot;Returns the total number of trainable parameters.&quot;&quot;&quot;</span>
-  <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
-  <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">():</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">variable</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
-    <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">:</span>
-      <span class="n">count</span> <span class="o">*=</span> <span class="n">dim</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">total</span> <span class="o">+=</span> <span class="n">count</span>
-  <span class="k">return</span> <span class="n">total</span></div>
+  <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">num_elements</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="extract_prefixed_keys"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.extract_prefixed_keys">[docs]</a><span class="k">def</span> <span class="nf">extract_prefixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are prefixed</span>
