@@ -80,3 +80,11 @@ params:
 ```
 
 For more information about the implementation and get expert recommendation on how to maximize performance, see the [OpenSeq2Seq's documentation](https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html). Currently, mixed precision training requires Volta GPUs and the NVIDIA's TensorFlow Docker image.
+
+If you want to convert an existing checkpoint to FP16 from FP32 (or vice-versa), see the script `onmt-convert-checkpoint`. Typically, it is useful when you want to train using FP16 but still release a model in FP32, e.g.:
+
+```bash
+onmt-convert-checkpoint --model_dir ende-fp16/ --output_dir ende-fp32/ --target_dtype float32
+```
+
+The checkpoint generated in `ende-fp32/` can then be used in `infer` or `export` run types.

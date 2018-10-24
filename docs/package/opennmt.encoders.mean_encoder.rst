@@ -1,5 +1,5 @@
-opennmt\.encoders\.mean\_encoder module
-=======================================
+opennmt.encoders.mean\_encoder module
+=====================================
 
 .. automodule:: opennmt.encoders.mean_encoder
     :members:

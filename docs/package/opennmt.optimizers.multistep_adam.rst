@@ -1,5 +1,5 @@
-opennmt\.optimizers\.multistep\_adam module
-===========================================
+opennmt.optimizers.multistep\_adam module
+=========================================
 
 .. automodule:: opennmt.optimizers.multistep_adam
     :members:

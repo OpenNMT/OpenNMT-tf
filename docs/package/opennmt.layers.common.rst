@@ -1,5 +1,5 @@
-opennmt\.layers\.common module
-==============================
+opennmt.layers.common module
+============================
 
 .. automodule:: opennmt.layers.common
     :members:

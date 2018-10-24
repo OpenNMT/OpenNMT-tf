@@ -6,7 +6,7 @@ tests_require = [
 
 setup(
     name="OpenNMT-tf",
-    version="1.10.1",
+    version="1.11.0",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
@@ -55,6 +55,7 @@ setup(
             "onmt-ark-to-records=opennmt.bin.ark_to_records:main",
             "onmt-average-checkpoints=opennmt.bin.average_checkpoints:main",
             "onmt-build-vocab=opennmt.bin.build_vocab:main",
+            "onmt-convert-checkpoint=opennmt.bin.convert_checkpoint:main",
             "onmt-detokenize-text=opennmt.bin.detokenize_text:main",
             "onmt-main=opennmt.bin.main:main",
             "onmt-merge-config=opennmt.bin.merge_config:main",

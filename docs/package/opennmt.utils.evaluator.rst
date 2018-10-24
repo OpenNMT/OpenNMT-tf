@@ -1,5 +1,5 @@
-opennmt\.utils\.evaluator module
-================================
+opennmt.utils.evaluator module
+==============================
 
 .. automodule:: opennmt.utils.evaluator
     :members:

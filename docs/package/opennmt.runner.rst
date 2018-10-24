@@ -1,5 +1,5 @@
-opennmt\.runner module
-======================
+opennmt.runner module
+=====================
 
 .. automodule:: opennmt.runner
     :members:

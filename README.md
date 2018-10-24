@@ -32,7 +32,22 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 * monitoring with [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard)
 * inference with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) and the [TensorFlow C++ API](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/cpp)
 
-## Using as a command line tool
+## Usage
+
+OpenNMT-tf requires:
+
+* Python >= 2.7
+* TensorFlow >= 1.4
+
+We recommend installing it with `pip`:
+
+```bash
+pip install OpenNMT-tf
+```
+
+*See the [documentation](http://opennmt.net/OpenNMT-tf/installation.html) for more information.*
+
+### Command line
 
 OpenNMT-tf comes with several command line utilities to prepare data, train, and evaluate models.
 
@@ -50,7 +65,7 @@ onmt-main <run_type> --model_type <model> --auto_config --config <config_file.ym
 
 *For more information and examples on how to use OpenNMT-tf, please visit [our documentation](http://opennmt.net/OpenNMT-tf).*
 
-## Using as a library
+### Library
 
 OpenNMT-tf also exposes well-defined and stable APIs. Here is an example using the library to encode a sequence using a self-attentional encoder:
 
@@ -58,13 +73,11 @@ OpenNMT-tf also exposes well-defined and stable APIs. Here is an example using t
 import tensorflow as tf
 import opennmt as onmt
 
+tf.enable_eager_execution()
+
 # Build a random batch of input sequences.
+inputs = tf.random_uniform((3, 6, 256))
 sequence_length = [4, 6, 5]
-input_depth = 512
-inputs = tf.placeholder_with_default(
-    np.random.randn(
-        len(sequence_length), max(sequence_length), input_depth).astype(np.float32),
-    shape=(None, None, input_depth))
 
 # Encode with a self-attentional encoder.
 encoder = onmt.encoders.SelfAttentionEncoder(num_layers=4)
@@ -72,6 +85,8 @@ outputs, state, outputs_length = encoder.encode(
     inputs,
     sequence_length=sequence_length,
     mode=tf.estimator.ModeKeys.TRAIN)
+
+print(outputs)
 ```
 
 For more advanced examples, some online resources are using OpenNMT-tf as a library:

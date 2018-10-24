@@ -7,27 +7,54 @@ import sys
 import inspect
 import six
 
+import numpy as np
 import tensorflow as tf
 
 
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.
 
-  This function calls ``decode()`` depending on the output stream encoding.
-
   Args:
     str_as_bytes: The bytes to print.
     stream: The stream to print to (``sys.stdout`` if not set).
   """
-  encoding = None
-  if stream is not None:
-    encoding = stream.encoding
-  if encoding is None:
-    encoding = sys.getdefaultencoding()
-  text = str_as_bytes.decode(encoding) if encoding != "ascii" else str_as_bytes
-  print(text, file=stream)
-  if stream is not None:
-    stream.flush()
+  if stream is None:
+    stream = sys.stdout
+  write_buffer = stream.buffer if hasattr(stream, "buffer") else stream
+  write_buffer.write(str_as_bytes)
+  write_buffer.write(b"\n")
+  stream.flush()
+
+def format_translation_output(sentence,
+                              score=None,
+                              token_level_scores=None,
+                              attention=None,
+                              alignment_type=None):
+  """Formats a translation output with possibly scores, alignments, etc., e.g:
+
+  1.123214 ||| Hello world ||| 0.30907777 0.030488174 ||| 0-0 1-1
+
+  Args:
+    sentence: The translation to output.
+    score: If set, attach the score.
+    token_level_scores: If set, attach the token level scores.
+    attention: The attention vector.
+    alignment_type: The type of alignments to format (can be: "hard").
+  """
+  if score is not None:
+    sentence = "%f ||| %s" % (score, sentence)
+  if token_level_scores is not None:
+    scores_str = " ".join("%f" % s for s in token_level_scores)
+    sentence = "%s ||| %s" % (sentence, scores_str)
+  if attention is not None and alignment_type is not None:
+    if alignment_type == "hard":
+      source_indices = np.argmax(attention, axis=-1)
+      target_indices = range(attention.shape[0])
+      pairs = ("%d-%d" % (src, tgt) for src, tgt in zip(source_indices, target_indices))
+      sentence = "%s ||| %s" % (sentence, " ".join(pairs))
+    else:
+      raise ValueError("Invalid alignment type %s" % alignment_type)
+  return sentence
 
 def item_or_tuple(x):
   """Returns :obj:`x` as a tuple or its single element."""
@@ -63,14 +90,7 @@ def count_lines(filename):
 
 def count_parameters():
   """Returns the total number of trainable parameters."""
-  total = 0
-  for variable in tf.trainable_variables():
-    shape = variable.get_shape()
-    count = 1
-    for dim in shape:
-      count *= dim.value
-    total += count
-  return total
+  return sum(variable.get_shape().num_elements() for variable in tf.trainable_variables())
 
 def extract_prefixed_keys(dictionary, prefix):
   """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed

@@ -1,5 +1,5 @@
-opennmt\.utils\.vocab module
-============================
+opennmt.utils.vocab module
+==========================
 
 .. automodule:: opennmt.utils.vocab
     :members:

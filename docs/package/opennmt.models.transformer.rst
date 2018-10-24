@@ -1,5 +1,5 @@
-opennmt\.models\.transformer module
-===================================
+opennmt.models.transformer module
+=================================
 
 .. automodule:: opennmt.models.transformer
     :members:

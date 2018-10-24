@@ -1,5 +1,5 @@
-opennmt\.tokenizers\.opennmt\_tokenizer module
-==============================================
+opennmt.tokenizers.opennmt\_tokenizer module
+============================================
 
 .. automodule:: opennmt.tokenizers.opennmt_tokenizer
     :members:

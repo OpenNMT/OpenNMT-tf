@@ -1,5 +1,5 @@
-opennmt\.layers\.reducer module
-===============================
+opennmt.layers.reducer module
+=============================
 
 .. automodule:: opennmt.layers.reducer
     :members:

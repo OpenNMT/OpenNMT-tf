@@ -1,5 +1,5 @@
-opennmt\.inputters\.text\_inputter module
-=========================================
+opennmt.inputters.text\_inputter module
+=======================================
 
 .. automodule:: opennmt.inputters.text_inputter
     :members:

@@ -1,5 +1,5 @@
-opennmt\.utils\.adafactor module
-================================
+opennmt.utils.adafactor module
+==============================
 
 .. automodule:: opennmt.utils.adafactor
     :members:

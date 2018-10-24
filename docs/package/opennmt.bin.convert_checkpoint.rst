@@ -1,7 +1,7 @@
-opennmt.models.sequence\_tagger module
+opennmt.bin.convert\_checkpoint module
 ======================================
 
-.. automodule:: opennmt.models.sequence_tagger
+.. automodule:: opennmt.bin.convert_checkpoint
     :members:
     :undoc-members:
     :show-inheritance:

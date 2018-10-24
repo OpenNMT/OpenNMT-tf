@@ -1,6 +1,9 @@
 # Tokenization
 
-OpenNMT-tf ships the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer) as a dependency to provide advanced tokenization behaviors, either offline or online.
+By default, OpenNMT-tf **expects and generates tokenized text**. The user is thus responsible to tokenize the input and detokenize the output. However, OpenNMT-tf provides tokenization tools based on the C++ OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer) that can be used in 2 ways:
+
+* *offline*: use the provided scripts to manually tokenize the text files before the execution and detokenize the output for evaluation
+* *online*: configure the execution to apply tokenization and detokenization on-the-fly
 
 *Note: the `pyonmttok` package is only supported on Linux as of now.*
 

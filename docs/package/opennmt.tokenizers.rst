@@ -1,5 +1,5 @@
-opennmt\.tokenizers package
-===========================
+opennmt.tokenizers package
+==========================
 
 .. automodule:: opennmt.tokenizers
     :members:

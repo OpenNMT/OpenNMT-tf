@@ -54,25 +54,30 @@ def _update_vocabulary_variables(variables, current_vocab_path, new_vocab_path, 
       tf.logging.debug("Updating variable %s" % name)
       variables[name] = _update_vocabulary_variable(tensor, current_size, mapping)
 
-def _save_new_variables(variables, output_dir, base_checkpoint_path, session_config=None):
+def _variable_is_trainable(name, value):
+  _ = name
+  return value.dtype not in (np.int32, np.int64)  # Assume that int variables are not trainable.
+
+def _create_checkpoint_from_variables(variables, output_dir, latest_step=None, session_config=None):
+  # The straightforward approach would be to create new variables using a
+  # constant_initializer. However, this would save the constant value in the
+  # checkpoint meta file which would increase its size dramatically. Instead, we
+  # create variables with their default initializer but run an assignment op
+  # that writes the new value. Inspired by:
+  # github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/bin/t2t_avg_all.py
   if "global_step" in variables:
+    latest_step = variables["global_step"]
     del variables["global_step"]
-  tf_vars = []
-  for name, value in six.iteritems(variables):
-    trainable = True
-    dtype = tf.as_dtype(value.dtype)
-    if name.startswith("words_per_sec"):
-      trainable = False
-      dtype = tf.int64  # TODO: why is the dtype not correct for these variables?
-    tf_vars.append(tf.get_variable(
-        name,
-        shape=value.shape,
-        dtype=dtype,
-        trainable=trainable))
+  tf_vars = [
+      tf.get_variable(
+          name,
+          shape=value.shape,
+          dtype=tf.as_dtype(value.dtype),
+          trainable=_variable_is_trainable(name, value))
+      for name, value in six.iteritems(variables)]
   placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
   assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, placeholders)]
 
-  latest_step = int(base_checkpoint_path.split("-")[-1])
   out_base_file = os.path.join(output_dir, "model.ckpt")
   global_step = tf.get_variable(
       "global_step",
@@ -88,6 +93,52 @@ def _save_new_variables(variables, output_dir, base_checkpoint_path, session_con
     saver.save(sess, out_base_file, global_step=global_step)
 
   return output_dir
+
+def get_checkpoint_variables(checkpoint_path):
+  """Returns variables included in a checkpoint.
+
+  Args:
+    checkpoint_path: Path to the checkpoint.
+
+  Returns:
+    A dictionary mapping variables name to value.
+  """
+  reader = tf.train.load_checkpoint(checkpoint_path)
+  return {
+      name:reader.get_tensor(name)
+      for name in six.iterkeys(reader.get_variable_to_shape_map())}
+
+def convert_checkpoint(checkpoint_path,
+                       output_dir,
+                       source_dtype,
+                       target_type,
+                       session_config=None):
+  """Converts checkpoint variables from one dtype to another.
+
+  Args:
+    checkpoint_path: The path to the checkpoint to convert.
+    output_dir: The directory that will contain the converted checkpoint.
+    source_dtype: The data type to convert from.
+    target_dtype: The data type to convert to.
+    session_config: Optional configuration to use when creating the session.
+
+  Returns:
+    The path to the directory containing the converted checkpoint.
+
+  Raises:
+    ValueError: if :obj:`output_dir` points to the same directory as
+      :obj:`checkpoint_path`.
+  """
+  if os.path.dirname(checkpoint_path) == output_dir:
+    raise ValueError("Checkpoint and output directory must be different")
+  variables = get_checkpoint_variables(checkpoint_path)
+  for name, value in six.iteritems(variables):
+    if not name.startswith("optim") and tf.as_dtype(value.dtype) == source_dtype:
+      variables[name] = value.astype(target_type.as_numpy_dtype())
+  return _create_checkpoint_from_variables(
+      variables,
+      output_dir,
+      session_config=session_config)
 
 def update_vocab(model_dir,
                  output_dir,
@@ -130,17 +181,14 @@ def update_vocab(model_dir,
     return model_dir
   checkpoint_path = tf.train.latest_checkpoint(model_dir)
   tf.logging.info("Updating vocabulary related variables in checkpoint %s" % checkpoint_path)
-  reader = tf.train.load_checkpoint(checkpoint_path)
-  variable_map = reader.get_variable_to_shape_map()
-  variable_value = {name:reader.get_tensor(name) for name, _ in six.iteritems(variable_map)}
+  variable_value = get_checkpoint_variables(checkpoint_path)
   if new_src_vocab is not None:
     _update_vocabulary_variables(variable_value, current_src_vocab, new_src_vocab, "encoder", mode)
   if new_tgt_vocab is not None:
     _update_vocabulary_variables(variable_value, current_tgt_vocab, new_tgt_vocab, "decoder", mode)
-  return _save_new_variables(
+  return _create_checkpoint_from_variables(
       variable_value,
       output_dir,
-      checkpoint_path,
       session_config=session_config)
 
 
@@ -159,23 +207,6 @@ def average_checkpoints(model_dir, output_dir, max_count=8, session_config=None)
   Raises:
     ValueError: if :obj:`output_dir` is the same as :obj:`model_dir`.
   """
-  # This script is modified version of
-  # https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/bin/t2t_avg_all.py
-  # which comes with the following license and copyright notice:
-
-  # Copyright 2017 The Tensor2Tensor Authors.
-  #
-  # Licensed under the Apache License, Version 2.0 (the "License");
-  # you may not use this file except in compliance with the License.
-  # You may obtain a copy of the License at
-  #
-  #     http://www.apache.org/licenses/LICENSE-2.0
-  #
-  # Unless required by applicable law or agreed to in writing, software
-  # distributed under the License is distributed on an "AS IS" BASIS,
-  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  # See the License for the specific language governing permissions and
-  # limitations under the License.
   if model_dir == output_dir:
     raise ValueError("Model and output directory must be different")
 
@@ -187,20 +218,21 @@ def average_checkpoints(model_dir, output_dir, max_count=8, session_config=None)
   tf.logging.info("Averaging %d checkpoints..." % num_checkpoints)
   tf.logging.info("Listing variables...")
 
-  var_list = tf.train.list_variables(checkpoints_path[0])
-  avg_values = {}
-  for name, shape in var_list:
-    if not name.startswith("global_step"):
-      avg_values[name] = np.zeros(shape, dtype=np.float32)
-
-  for checkpoint_path in checkpoints_path:
+  new_variables = {}
+  for i, checkpoint_path in enumerate(checkpoints_path):
     tf.logging.info("Loading checkpoint %s" % checkpoint_path)
-    reader = tf.train.load_checkpoint(checkpoint_path)
-    for name in avg_values:
-      avg_values[name] += reader.get_tensor(name) / num_checkpoints
+    variables = get_checkpoint_variables(checkpoint_path)
+    for name, value in six.iteritems(variables):
+      if _variable_is_trainable(name, value):
+        scaled_value = value / num_checkpoints
+        if name in new_variables:
+          new_variables[name] += scaled_value
+        else:
+          new_variables[name] = scaled_value
+      elif i + 1 == num_checkpoints:  # Take non trainable variables from the last checkpoint.
+        new_variables[name] = value
 
-  return _save_new_variables(
-      avg_values,
+  return _create_checkpoint_from_variables(
+      new_variables,
       output_dir,
-      checkpoints_path[-1],
       session_config=session_config)
