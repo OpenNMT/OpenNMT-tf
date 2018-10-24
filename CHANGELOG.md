@@ -18,11 +18,14 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 * Additional output options for the `score` run type:
   * `with_token_level` to output the score of each token
   * `with_alignments` to output the source-target alignments
+* Display the package version by running `onmt-main -v`
 
 ### Fixes and improvements
 
 * Fix error in `SelfAttentionDecoder` when `memory` is not defined (e.g. in LM tasks)
 * Fix `UnicodeDecodeError` when printing predictions on the standard output in Docker containers
+* Force `onmt-update-vocab` script to run on CPU
+* Raise error if distributed training is configured but the `train_and_eval` run type is not used
 
 ## [1.10.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.10.1) (2018-10-15)
 
