@@ -330,12 +330,16 @@ class Runner(object):
       export_dir_base = os.path.join(self._estimator.model_dir, "export", "manual")
 
     kwargs = {}
-    if "strip_default_attrs" in fn_args(self._estimator.export_savedmodel):
-      # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
-      # with the behavior of tf.estimator.Exporter.
-      kwargs["strip_default_attrs"] = True
+    if hasattr(self._estimator, "export_saved_model"):
+      export_fn = self._estimator.export_saved_model
+    else:
+      export_fn = self._estimator.export_savedmodel
+      if "strip_default_attrs" in fn_args(self._estimator.export_savedmodel):
+        # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
+        # with the behavior of tf.estimator.Exporter.
+        kwargs["strip_default_attrs"] = True
 
-    return self._estimator.export_savedmodel(
+    return export_fn(
         export_dir_base,
         self._model.serving_input_fn(self._config["data"]),
         assets_extra=self._get_model_assets(),
