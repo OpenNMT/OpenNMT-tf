@@ -158,9 +158,12 @@ class Runner(object):
                 output_dir=save_path),
             predictions=predictions)]
 
-  def _build_train_spec(self):
+  def _build_train_spec(self, checkpoint_path):
     train_hooks = [
         hooks.LogParametersCountHook()]
+
+    if checkpoint_path is not None:
+      train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
 
     train_spec = tf.estimator.TrainSpec(
         input_fn=self._model.input_fn(
@@ -209,16 +212,28 @@ class Runner(object):
       tf.gfile.MakeDirs(generated_assets_path)
     return self._model.get_assets(self._config["data"], asset_dir=generated_assets_path)
 
-  def train_and_evaluate(self):
-    """Runs the training and evaluation loop."""
-    train_spec = self._build_train_spec()
+  def train_and_evaluate(self, checkpoint_path=None):
+    """Runs the training and evaluation loop.
+
+    Args:
+      checkpoint_path: The checkpoint path to load the model weights from it.
+    """
+    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    train_spec = self._build_train_spec(checkpoint_path)
     eval_spec = self._build_eval_spec()
     tf.estimator.train_and_evaluate(self._estimator, train_spec, eval_spec)
     self._maybe_average_checkpoints()
 
-  def train(self):
-    """Runs the training loop."""
-    train_spec = self._build_train_spec()
+  def train(self, checkpoint_path=None):
+    """Runs the training loop.
+
+    Args:
+      checkpoint_path: The checkpoint path to load the model weights from it.
+    """
+    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    train_spec = self._build_train_spec(checkpoint_path)
     self._estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
     self._maybe_average_checkpoints()
