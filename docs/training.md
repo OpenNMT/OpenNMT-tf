@@ -88,3 +88,30 @@ onmt-convert-checkpoint --model_dir ende-fp16/ --output_dir ende-fp32/ --target_
 ```
 
 The checkpoint generated in `ende-fp32/` can then be used in `infer` or `export` run types.
+
+## Retraining
+
+### Continuing from a stopped training
+
+This is the most common case of retrainings: the training was interrupted but should run longer. In that case, simply **launch the same command that you used for the initial training**, e.g.:
+
+```bash
+# Start the training.
+onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+
+# ... the training is interrupted or stopped ...
+
+# Continue from the latest checkpoint.
+onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+```
+
+**Note:** If the train was stopped because `train_steps` was reached, you should first increase this value before continuing.
+
+### Fine-tune an existing model
+
+Retraining can also be useful to fine-tune an existing model. For example in machine translation, it is faster to adapt a generic model to a specific domain compared to starting a training from scratch.
+
+OpenNMT-tf offers some features to make this process easier:
+
+* The script `onmt-update-vocab` can be used to change the word vocabularies contained in a checkpoint (e.g. to add a domain terminology)
+* The command line argument `--checkpoint_path` can be used to load the weights of an existing checkpoint while starting from a fresh training state (i.e. with new learning rate schedule and optimizer variables)
