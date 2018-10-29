@@ -320,9 +320,9 @@
       <span class="n">auto_config</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">auto_config</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">==</span> <span class="s2">&quot;train_and_eval&quot;</span><span class="p">:</span>
-    <span class="n">runner</span><span class="o">.</span><span class="n">train_and_evaluate</span><span class="p">()</span>
+    <span class="n">runner</span><span class="o">.</span><span class="n">train_and_evaluate</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">checkpoint_path</span><span class="p">)</span>
   <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
-    <span class="n">runner</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="n">runner</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">checkpoint_path</span><span class="p">)</span>
   <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">==</span> <span class="s2">&quot;eval&quot;</span><span class="p">:</span>
     <span class="n">runner</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">checkpoint_path</span><span class="p">)</span>
   <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">==</span> <span class="s2">&quot;infer&quot;</span><span class="p">:</span>

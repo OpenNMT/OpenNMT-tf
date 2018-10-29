@@ -493,6 +493,56 @@ Note the difference between <cite>end()</cite> and <cite>after_run()</cite> beha
 
 </dd></dl>
 
+<dl class="class">
+<dt id="opennmt.utils.hooks.LoadWeightsFromCheckpointHook">
+<em class="property">class </em><code class="descclassname">opennmt.utils.hooks.</code><code class="descname">LoadWeightsFromCheckpointHook</code><span class="sig-paren">(</span><em>checkpoint_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LoadWeightsFromCheckpointHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LoadWeightsFromCheckpointHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.training.session_run_hook.SessionRunHook</span></code></p>
+<p>“Hook that loads model variables from checkpoint before starting the training.</p>
+<dl class="method">
+<dt id="opennmt.utils.hooks.LoadWeightsFromCheckpointHook.begin">
+<code class="descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LoadWeightsFromCheckpointHook.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called once before using the session.</p>
+<p>When called, the default graph is the one that will be launched in the
+session.  The hook can modify the graph by adding new operations to it.
+After the <cite>begin()</cite> call the graph will be finalized and the other callbacks
+can not modify the graph anymore. Second call of <cite>begin()</cite> on the same
+graph, should not change the graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session">
+<code class="descname">after_create_session</code><span class="sig-paren">(</span><em>session</em>, <em>coord</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/hooks.html#LoadWeightsFromCheckpointHook.after_create_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when new TensorFlow session is created.</p>
+<p>This is called to signal the hooks that a new session has been created. This
+has two essential differences with the situation in which <cite>begin</cite> is called:</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>When this is called, the graph is finalized and ops can no longer be added</dt>
+<dd>to the graph.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>This method will also be called as a result of recovering a wrapped</dt>
+<dd>session, not only at the beginning of the overall session.</dd>
+</dl>
+</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>session</strong> – A TensorFlow Session that has been created.</li>
+<li><strong>coord</strong> – A Coordinator object which keeps track of all threads.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
