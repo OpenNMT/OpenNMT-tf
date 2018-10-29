@@ -163,7 +163,7 @@ class Runner(object):
         hooks.LogParametersCountHook()]
 
     if checkpoint_path is not None:
-      train_hooks.append(hooks.LoadCheckpointHook(checkpoint_path))
+      train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
 
     train_spec = tf.estimator.TrainSpec(
         input_fn=self._model.input_fn(

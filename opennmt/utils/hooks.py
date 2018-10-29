@@ -184,7 +184,7 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
     if self._post_evaluation_fn is not None:
       self._post_evaluation_fn(self._current_step, self._output_path)
 
-class LoadCheckpointHook(tf.train.SessionRunHook):
+class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
   """"Hook that loads model variables from checkpoint before starting the training."""
 
   def __init__(self, checkpoint_path):
@@ -192,21 +192,24 @@ class LoadCheckpointHook(tf.train.SessionRunHook):
 
   def begin(self):
     var_list = tf.train.list_variables(self.checkpoint_path)
-    self.values = {}
-    for name, shape in var_list:
+
+    names = []
+    for name, _ in var_list:
       if not name.startswith("optim"):
         if not name.startswith("global_step") and not name.startswith("words_per_sec"):
-          self.values[name] = np.zeros(shape)
+          names.append(name)
 
+    self.values = {}
     reader = tf.train.load_checkpoint(self.checkpoint_path)
-    for name in self.values:
+    for name in names:
       self.values[name] = reader.get_tensor(name)
 
     tf_vars = []
-    current_scope = tf.contrib.framework.get_name_scope()
+    current_scope = tf.get_variable_scope()
     with tf.variable_scope(current_scope, reuse=True):
       for name, value in six.iteritems(self.values):
         tf_vars.append(tf.get_variable(name, shape=value.shape))
+
     self.placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
     self.assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, self.placeholders)]
 
