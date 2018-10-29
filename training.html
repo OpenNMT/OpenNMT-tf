@@ -99,6 +99,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#replicated-training">Replicated training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#distributed-training">Distributed training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixed-precision-training">Mixed precision training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#retraining">Retraining</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#continuing-from-a-stopped-training">Continuing from a stopped training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fine-tune-an-existing-model">Fine-tune an existing model</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -241,6 +246,32 @@
 </pre></div>
 </div>
 <p>The checkpoint generated in <code class="docutils literal notranslate"><span class="pre">ende-fp32/</span></code> can then be used in <code class="docutils literal notranslate"><span class="pre">infer</span></code> or <code class="docutils literal notranslate"><span class="pre">export</span></code> run types.</p>
+</div>
+<div class="section" id="retraining">
+<span id="retraining"></span><h2>Retraining<a class="headerlink" href="#retraining" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="continuing-from-a-stopped-training">
+<span id="continuing-from-a-stopped-training"></span><h3>Continuing from a stopped training<a class="headerlink" href="#continuing-from-a-stopped-training" title="Permalink to this headline">¶</a></h3>
+<p>This is the most common case of retrainings: the training was interrupted but should run longer. In that case, simply <strong>launch the same command that you used for the initial training</strong>, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start the training.</span>
+onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+
+<span class="c1"># ... the training is interrupted or stopped ...</span>
+
+<span class="c1"># Continue from the latest checkpoint.</span>
+onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+</pre></div>
+</div>
+<p><strong>Note:</strong> If the train was stopped because <code class="docutils literal notranslate"><span class="pre">train_steps</span></code> was reached, you should first increase this value before continuing.</p>
+</div>
+<div class="section" id="fine-tune-an-existing-model">
+<span id="fine-tune-an-existing-model"></span><h3>Fine-tune an existing model<a class="headerlink" href="#fine-tune-an-existing-model" title="Permalink to this headline">¶</a></h3>
+<p>Retraining can also be useful to fine-tune an existing model. For example in machine translation, it is faster to adapt a generic model to a specific domain compared to starting a training from scratch.</p>
+<p>OpenNMT-tf offers some features to make this process easier:</p>
+<ul class="simple">
+<li>The script <code class="docutils literal notranslate"><span class="pre">onmt-update-vocab</span></code> can be used to change the word vocabularies contained in a checkpoint (e.g. to add a domain terminology)</li>
+<li>The command line argument <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> can be used to load the weights of an existing checkpoint while starting from a fresh training state (i.e. with new learning rate schedule and optimizer variables)</li>
+</ul>
+</div>
 </div>
 </div>
 
