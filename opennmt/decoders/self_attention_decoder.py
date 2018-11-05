@@ -62,25 +62,9 @@ class SelfAttentionDecoder(decoder.Decoder):
     """Returns the decoder output size."""
     return self.num_units
 
-  def _build_memory_mask(self, memory, memory_sequence_length=None):
-    if memory_sequence_length is None:
-      return None
-    else:
-      return transformer.build_sequence_mask(
-          memory_sequence_length,
-          num_heads=self.num_heads,
-          maximum_length=tf.shape(memory)[1])
-
-  def _init_cache(self, memory, memory_sequence_length=None, dtype=tf.float32):
-    batch_size = tf.shape(memory)[0]
-    memory_time = tf.shape(memory)[1]
-    depth = memory.get_shape().as_list()[-1]
-
+  def _init_cache(self, batch_size, memory_time, depth, dtype=tf.float32):
     cache = {
-        "attn": tf.zeros([batch_size, 0, memory_time], dtype=dtype),
-        "memory": memory,
-        "memory_mask": self._build_memory_mask(
-            memory, memory_sequence_length=memory_sequence_length)
+        "attn": tf.zeros([batch_size, 0, memory_time], dtype=dtype)
     }
 
     for l in range(self.num_layers):
@@ -128,12 +112,11 @@ class SelfAttentionDecoder(decoder.Decoder):
         decoder_mask = transformer.cumulative_average_mask(
             sequence_length, maximum_length=tf.shape(inputs)[1], dtype=inputs.dtype)
 
-    if memory is not None:
-      if cache is not None:
-        memory_mask = cache["memory_mask"]
-      elif memory_sequence_length is not None:
-        memory_mask = self._build_memory_mask(
-            memory, memory_sequence_length=memory_sequence_length)
+    if memory is not None and memory_sequence_length is not None:
+      memory_mask = transformer.build_sequence_mask(
+          memory_sequence_length,
+          num_heads=self.num_heads,
+          maximum_length=tf.shape(memory)[1])
 
     for l in range(self.num_layers):
       layer_name = "layer_{}".format(l)
@@ -252,12 +235,14 @@ class SelfAttentionDecoder(decoder.Decoder):
   def _step_fn(self,
                mode,
                batch_size,
+               beam_width=1,
                initial_state=None,
                memory=None,
                memory_sequence_length=None,
                dtype=None):
-    cache = self._init_cache(
-        memory, memory_sequence_length=memory_sequence_length, dtype=dtype)
+    memory_time = tf.shape(memory)[1]
+    depth = memory.get_shape().as_list()[-1]
+    cache = self._init_cache(batch_size, memory_time, depth, dtype=dtype)
     def _fn(step, inputs, cache, mode):
       inputs *= self.num_units**0.5
       inputs = tf.expand_dims(inputs, 1)
@@ -266,8 +251,8 @@ class SelfAttentionDecoder(decoder.Decoder):
           inputs,
           mode=mode,
           cache=cache,
-          memory=cache["memory"],
-          memory_sequence_length=None,
+          memory=memory,
+          memory_sequence_length=memory_sequence_length,
           step=step)
       outputs = tf.squeeze(outputs, axis=1)
       return outputs, cache

@@ -260,7 +260,7 @@ class Decoder(object):
       ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
       if :obj:`return_alignment_history` is ``True``.
     """
-    batch_size = tf.shape(start_tokens)[0] * beam_width
+    batch_size = tf.shape(start_tokens)[0]
     if dtype is None:
       if memory is None:
         raise ValueError("dtype argument is required when no memory is set")
@@ -270,9 +270,17 @@ class Decoder(object):
         raise ValueError("vocab_size must be known when the output_layer is not set")
       output_layer = build_output_layer(self.output_size, vocab_size, dtype=dtype)
 
+    if beam_width > 1:
+      if memory is not None:
+        memory = tf.contrib.seq2seq.tile_batch(memory, multiplier=beam_width)
+      if memory_sequence_length is not None:
+        memory_sequence_length = tf.contrib.seq2seq.tile_batch(
+            memory_sequence_length, multiplier=beam_width)
+
     step_fn, initial_state = self._step_fn(
         mode,
         batch_size,
+        beam_width=beam_width,
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
@@ -335,6 +343,7 @@ class Decoder(object):
   def _step_fn(self,
                mode,
                batch_size,
+               beam_width=1,
                initial_state=None,
                memory=None,
                memory_sequence_length=None,
@@ -344,6 +353,7 @@ class Decoder(object):
     Args:
       mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size.
+      beam_size: The beam width.
       initial_state: The initial state to start from as a (possibly nested tuple
         of...) tensors.
       memory: (optional) Memory values to query.
