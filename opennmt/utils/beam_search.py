@@ -103,9 +103,12 @@ def _expand_to_beam_size(tensor, beam_size):
 
 def get_state_shape_invariants(tensor):
   """Returns the shape of the tensor but sets middle dims to None."""
-  shape = tensor.shape.as_list()
-  for i in range(1, len(shape) - 1):
-    shape[i] = None
+  if isinstance(tensor, tf.TensorArray):
+    shape = None
+  else:
+    shape = tensor.shape.as_list()
+    for i in range(1, len(shape) - 1):
+      shape[i] = None
   return tf.TensorShape(shape)
 
 

@@ -5,7 +5,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils.beam_search import get_state_shape_invariants
+from opennmt.utils import beam_search
 
 
 def logits_to_cum_log_probs(logits, sequence_length):
@@ -159,7 +159,6 @@ class Decoder(object):
     """
     raise NotImplementedError()
 
-  @abc.abstractmethod
   def dynamic_decode(self,
                      embedding,
                      start_tokens,
@@ -200,9 +199,23 @@ class Decoder(object):
       ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
       if :obj:`return_alignment_history` is ``True``.
     """
-    raise NotImplementedError()
+    return Decoder.dynamic_decode_and_search(
+        self,
+        embedding,
+        start_tokens,
+        end_token,
+        vocab_size=vocab_size,
+        initial_state=initial_state,
+        output_layer=output_layer,
+        beam_width=1,
+        length_penalty=0.0,
+        maximum_iterations=maximum_iterations,
+        mode=mode,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length,
+        dtype=dtype,
+        return_alignment_history=return_alignment_history)
 
-  @abc.abstractmethod
   def dynamic_decode_and_search(self,
                                 embedding,
                                 start_tokens,
@@ -247,8 +260,129 @@ class Decoder(object):
       ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
       if :obj:`return_alignment_history` is ``True``.
     """
+    batch_size = tf.shape(start_tokens)[0] * beam_width
+    if dtype is None:
+      if memory is None:
+        raise ValueError("dtype argument is required when no memory is set")
+      dtype = memory.dtype
+    if output_layer is None:
+      if vocab_size is None:
+        raise ValueError("vocab_size must be known when the output_layer is not set")
+      output_layer = build_output_layer(self.output_size, vocab_size, dtype=dtype)
+
+    step_fn, initial_state = self._step_fn(
+        mode,
+        batch_size,
+        initial_state=initial_state,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length,
+        dtype=dtype)
+    if step_fn is None:
+      raise RuntimeError("This decoder does not define the decoding function _step_fn")
+    logits_fn = _symbols_to_logits_fn(embedding, step_fn, output_layer, mode)
+
+    if beam_width == 1:
+      outputs, lengths, log_probs, state = greedy_decode(
+          logits_fn,
+          start_tokens,
+          end_token,
+          decode_length=maximum_iterations,
+          state=initial_state,
+          return_state=True)
+    else:
+      outputs, log_probs, state = beam_search.beam_search(
+          logits_fn,
+          start_tokens,
+          beam_width,
+          maximum_iterations,
+          vocab_size,
+          length_penalty,
+          states=initial_state,
+          eos_id=end_token,
+          return_states=True)
+      lengths = tf.not_equal(outputs, 0)
+      lengths = tf.cast(lengths, tf.int32)
+      lengths = tf.reduce_sum(lengths, axis=-1) - 1  # Ignore </s>
+
+    attention = self.get_attention_from_state(state)
+    if beam_width == 1:
+      # Make shape consistent with beam search.
+      outputs = tf.expand_dims(outputs, 1)
+      lengths = tf.expand_dims(lengths, 1)
+      log_probs = tf.expand_dims(log_probs, 1)
+      if attention is not None:
+        attention = tf.expand_dims(attention, 1)
+
+    outputs = outputs[:, :, 1:]  # Ignore <s>.
+
+    if return_alignment_history:
+      return (outputs, state, lengths, log_probs, attention)
+    return (outputs, state, lengths, log_probs)
+
+  def get_attention_from_state(self, state):
+    """Extracts the attention vector from the decoder state.
+
+    Args:
+      state: The decoder state.
+
+    Returns:
+      The attention vector as a ``tf.Tensor``.
+    """
+    _ = state
+    return None
+
+  @abc.abstractmethod
+  def _step_fn(self,
+               mode,
+               batch_size,
+               initial_state=None,
+               memory=None,
+               memory_sequence_length=None,
+               dtype=None):
+    """Callable to run decoding steps.
+
+    Args:
+      mode: A ``tf.estimator.ModeKeys`` mode.
+      batch_size: The batch size.
+      initial_state: The initial state to start from as a (possibly nested tuple
+        of...) tensors.
+      memory: (optional) Memory values to query.
+      memory_sequence_length: (optional) Memory values length.
+      dtype: The data type.
+
+    Returns:
+      A callable with the signature
+      ``(step, inputs, state, mode)`` -> ```(outputs, state)``.
+    """
     raise NotImplementedError()
 
+
+def _symbols_to_logits_fn(embedding, step_fn, output_layer, mode):
+  """Returns a callable that transforms symbols into logits.
+
+  Args:
+    embedding: The embedding tensor or a callable that takes word ids.
+    step_fn: A callable with the signature
+      ``(step, inputs, state, mode)`` -> ```(outputs, state)``.
+    output_layer: Layer to apply to the output prior sampling.
+    mode: A ``tf.estimator.ModeKeys`` mode.
+
+  Returns:
+    A callable with the signature:
+    ``(ids, step, state)`` -> ```(logits, state)``.
+  """
+  embedding_fn = get_embedding_fn(embedding)
+  if output_layer is None:
+    if output_size is None or vocab_size is None or dtype is None:
+      raise ValueError("If output_layer is not set, the following should be set: "
+                       "output_size, vocab_size, dtype.")
+    output_layer = build_output_layer(output_size, vocab_size, dtype=dtype)
+  def _fn(ids, step, state):
+    inputs = embedding_fn(ids[:, -1])
+    outputs, state = step_fn(step, inputs, state, mode)
+    logits = output_layer(outputs)
+    return logits, state
+  return _fn
 
 def greedy_decode(symbols_to_logits_fn,
                   initial_ids,
@@ -288,18 +422,16 @@ def greedy_decode(symbols_to_logits_fn,
 
     logits, state = symbols_to_logits_fn(inputs, step, state)
     probs = tf.nn.log_softmax(tf.to_float(logits))
-    sample_ids = tf.argmax(probs, axis=-1)
+    sample_ids = tf.argmax(probs, axis=-1, output_type=inputs.dtype)
 
     # Accumulate log probabilities.
     sample_probs = tf.reduce_max(probs, axis=-1)
-    masked_probs = tf.squeeze(sample_probs, -1) * (1.0 - tf.cast(finished, sample_probs.dtype))
+    masked_probs = sample_probs * (1.0 - tf.cast(finished, sample_probs.dtype))
     log_probs = tf.add(log_probs, masked_probs)
 
-    next_inputs = tf.concat([inputs, tf.cast(sample_ids, inputs.dtype)], -1)
+    next_inputs = tf.concat([inputs, tf.expand_dims(sample_ids, 1)], -1)
     next_lengths = inputs_lengths
-    next_finished = tf.logical_or(
-        finished,
-        tf.equal(tf.squeeze(sample_ids, axis=[1]), end_id))
+    next_finished = tf.logical_or(finished, tf.equal(sample_ids, end_id))
     step = step + 1
 
     if decode_length is not None:
@@ -317,7 +449,8 @@ def greedy_decode(symbols_to_logits_fn,
           tf.TensorShape([None, None]),
           lengths.get_shape(),
           log_probs.get_shape(),
-          tf.contrib.framework.nest.map_structure(get_state_shape_invariants, state)),
+          tf.contrib.framework.nest.map_structure(
+              beam_search.get_state_shape_invariants, state)),
       parallel_iterations=1)
 
   if return_state:
