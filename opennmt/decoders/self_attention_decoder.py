@@ -92,6 +92,13 @@ class SelfAttentionDecoder(decoder.Decoder):
                             memory=None,
                             memory_sequence_length=None,
                             step=None):
+    inputs *= self.num_units**0.5
+    if self.position_encoder is not None:
+      if step is None:
+        inputs = self.position_encoder(inputs, sequence_length=sequence_length)
+      else:
+        inputs = self.position_encoder.apply_one(inputs, step + 1)
+
     inputs = tf.layers.dropout(
         inputs,
         rate=self.dropout,
@@ -213,10 +220,6 @@ class SelfAttentionDecoder(decoder.Decoder):
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
 
-    inputs *= self.num_units**0.5
-    if self.position_encoder is not None:
-      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
-
     outputs, attention = self._self_attention_stack(
         inputs,
         sequence_length=sequence_length,
@@ -242,10 +245,7 @@ class SelfAttentionDecoder(decoder.Decoder):
     depth = memory.get_shape().as_list()[-1]
     cache = self._init_cache(batch_size, depth, dtype=dtype)
     def _fn(step, inputs, cache, mode):
-      inputs *= self.num_units**0.5
       inputs = tf.expand_dims(inputs, 1)
-      if self.position_encoder is not None:
-        inputs = self.position_encoder.apply_one(inputs, step + 1)
       outputs, attention = self._self_attention_stack(
           inputs,
           mode=mode,
