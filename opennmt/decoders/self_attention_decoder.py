@@ -192,8 +192,6 @@ class SelfAttentionDecoder(decoder.Decoder):
     if last_attention is not None:
       # The first head of the last layer is returned.
       first_head_attention = last_attention[:, 0]
-      if cache is not None and "attn" in cache:
-        cache["attn"] = tf.concat([cache["attn"], first_head_attention], 1)
     else:
       first_head_attention = None
 
