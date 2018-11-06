@@ -62,6 +62,8 @@ def _merge_beam_dim(tensor):
   Returns:
     Reshaped tensor of shape [A*B, ...]
   """
+  if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
+    return tensor
   shape = _shape_list(tensor)
   shape[0] *= shape[1]  # batch -> batch * beam_size
   shape.pop(1)  # Remove beam dim
@@ -79,6 +81,8 @@ def _unmerge_beam_dim(tensor, batch_size, beam_size):
   Returns:
     Reshaped tensor of shape [batch_size, beam_size, ...]
   """
+  if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
+    return tensor
   shape = _shape_list(tensor)
   new_shape = [batch_size] + [beam_size] + shape[1:]
   return tf.reshape(tensor, new_shape)
@@ -94,11 +98,19 @@ def _expand_to_beam_size(tensor, beam_size):
   Returns:
     Tiled tensor [batch_size, beam_size, ...]
   """
+  if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
+    return tensor
   tensor = tf.expand_dims(tensor, axis=1)
   tile_dims = [1] * tensor.shape.ndims
   tile_dims[1] = beam_size
 
   return tf.tile(tensor, tile_dims)
+
+
+def _gather_state(params, indices, name=None):
+  if isinstance(params, tf.TensorArray) or params.shape.ndims < 1:
+    return params
+  return tf.gather_nd(params, indices, name=name)
 
 
 def get_state_shape_invariants(tensor):
@@ -199,7 +211,9 @@ def compute_topk_scores_and_seq(sequences, scores, scores_to_gather, flags,
   topk_gathered_scores = _gather(scores_to_gather, "_topk_scores")
   if states_to_gather:
     topk_gathered_states = nest.map_structure(
-        lambda state: _gather(state, "_topk_states"), states_to_gather)
+        lambda state: _gather_state(
+            state, top_coordinates, name=prefix + "_topk_states"),
+        states_to_gather)
   else:
     topk_gathered_states = states_to_gather
   return topk_seq, topk_gathered_scores, topk_flags, topk_gathered_states
@@ -433,7 +447,7 @@ def beam_search(symbols_to_logits_fn,
     topk_seq = tf.gather_nd(alive_seq, topk_coordinates)
     if states:
       states = nest.map_structure(
-          lambda state: tf.gather_nd(state, topk_coordinates), states)
+          lambda state: _gather_state(state, topk_coordinates), states)
 
     # Append the most probable alive
     topk_seq = tf.concat([topk_seq, tf.expand_dims(topk_ids, axis=2)], axis=2)
