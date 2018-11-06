@@ -160,8 +160,9 @@ class Decoder(object):
     raise NotImplementedError()
 
   @property
-  def support_attention_history(self):
-    """Returns ``True`` if this decoder can return the attention history."""
+  def support_alignment_history(self):
+    """Returns ``True`` if this decoder can return the attention as alignment
+    history."""
     return False
 
   def dynamic_decode(self,
@@ -296,13 +297,13 @@ class Decoder(object):
       raise RuntimeError("This decoder does not define the decoding function _step_fn")
 
     state = {"decoder": initial_state}
-    if self.support_attention_history:
+    if self.support_alignment_history:
       state["attention"] = tf.zeros([batch_size, 0, tf.shape(memory)[1]], dtype=dtype)
 
     def _symbols_to_logits_fn(ids, step, state):
       inputs = embedding_fn(ids[:, -1])
       returned_values = step_fn(step, inputs, state["decoder"], mode)
-      if self.support_attention_history:
+      if self.support_alignment_history:
         outputs, state["decoder"], attention = returned_values
         state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
       else:
@@ -371,7 +372,7 @@ class Decoder(object):
     Returns:
       A callable with the signature
       ``(step, inputs, state, mode)`` -> ``(outputs, state)`` or
-      ``(outputs, state, attention)`` if ``self.support_attention_history``.
+      ``(outputs, state, attention)`` if ``self.support_alignment_history``.
     """
     raise NotImplementedError()
 

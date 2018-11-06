@@ -68,7 +68,7 @@ class DecoderTest(tf.test.TestCase):
         return_alignment_history=True)
     self.assertEqual(outputs.dtype, dtype)
     output_time_dim = tf.shape(outputs)[1]
-    if decoder.support_attention_history:
+    if decoder.support_alignment_history:
       self.assertIsNotNone(attention)
     else:
       self.assertIsNone(attention)
@@ -78,7 +78,7 @@ class DecoderTest(tf.test.TestCase):
     with self.test_session() as sess:
       output_time_dim_val = sess.run(output_time_dim)
       self.assertEqual(time_dim, output_time_dim_val)
-      if decoder.support_attention_history:
+      if decoder.support_alignment_history:
         attention_val = sess.run(attention)
         self.assertAllEqual([batch_size, time_dim, memory_time], attention_val.shape)
 
@@ -161,7 +161,7 @@ class DecoderTest(tf.test.TestCase):
     else:
       self.assertEqual(5, len(outputs))
       alignment_history = outputs[4]
-      if decoder.support_attention_history:
+      if decoder.support_alignment_history:
         self.assertIsInstance(alignment_history, tf.Tensor)
         with self.test_session() as sess:
           alignment_history, decode_time = sess.run([alignment_history, decode_time])

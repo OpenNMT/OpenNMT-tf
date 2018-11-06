@@ -63,7 +63,7 @@ class SelfAttentionDecoder(decoder.Decoder):
     return self.num_units
 
   @property
-  def support_attention_history(self):
+  def support_alignment_history(self):
     return True
 
   def _init_cache(self, batch_size, depth, dtype=tf.float32):

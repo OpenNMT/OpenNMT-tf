@@ -175,7 +175,7 @@ class RNNDecoder(decoder.Decoder):
       # training.
       with tf.variable_scope("decoder"):
         outputs, state = cell(inputs, state)
-        if self.support_attention_history:
+        if self.support_alignment_history:
           return outputs, state, self._get_attention(state, step=step)
         return outputs, state
 
@@ -247,7 +247,7 @@ class AttentionalRNNDecoder(RNNDecoder):
     self.output_is_attention = output_is_attention
 
   @property
-  def support_attention_history(self):
+  def support_alignment_history(self):
     return True
 
   def _get_attention(self, state, step=None):
