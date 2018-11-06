@@ -66,11 +66,11 @@ class SelfAttentionDecoder(decoder.Decoder):
   def support_alignment_history(self):
     return True
 
-  def _init_cache(self, batch_size, depth, dtype=tf.float32):
+  def _init_cache(self, batch_size, dtype=tf.float32):
     cache = {}
 
     for l in range(self.num_layers):
-      proj_cache_shape = [batch_size, self.num_heads, 0, depth // self.num_heads]
+      proj_cache_shape = [batch_size, self.num_heads, 0, self.num_units // self.num_heads]
       layer_cache = {
           "memory_keys": tf.zeros(proj_cache_shape, dtype=dtype),
           "memory_values": tf.zeros(proj_cache_shape, dtype=dtype),
@@ -79,7 +79,7 @@ class SelfAttentionDecoder(decoder.Decoder):
         layer_cache["self_keys"] = tf.zeros(proj_cache_shape, dtype=dtype)
         layer_cache["self_values"] = tf.zeros(proj_cache_shape, dtype=dtype)
       elif self.self_attention_type == "average":
-        layer_cache["prev_g"] = tf.zeros([batch_size, 1, depth], dtype=dtype)
+        layer_cache["prev_g"] = tf.zeros([batch_size, 1, self.num_units], dtype=dtype)
       cache["layer_{}".format(l)] = layer_cache
 
     return cache
@@ -242,8 +242,7 @@ class SelfAttentionDecoder(decoder.Decoder):
                memory=None,
                memory_sequence_length=None,
                dtype=None):
-    depth = memory.get_shape().as_list()[-1]
-    cache = self._init_cache(batch_size, depth, dtype=dtype)
+    cache = self._init_cache(batch_size, dtype=dtype)
     def _fn(step, inputs, cache, mode):
       inputs = tf.expand_dims(inputs, 1)
       outputs, attention = self._self_attention_stack(
