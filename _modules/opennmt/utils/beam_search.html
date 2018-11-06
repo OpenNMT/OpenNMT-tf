@@ -224,6 +224,8 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    Reshaped tensor of shape [A*B, ...]</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tensor</span>
   <span class="n">shape</span> <span class="o">=</span> <span class="n">_shape_list</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
   <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># batch -&gt; batch * beam_size</span>
   <span class="n">shape</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Remove beam dim</span>
@@ -241,6 +243,8 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    Reshaped tensor of shape [batch_size, beam_size, ...]</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tensor</span>
   <span class="n">shape</span> <span class="o">=</span> <span class="n">_shape_list</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
   <span class="n">new_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">beam_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
   <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">)</span>
@@ -256,6 +260,8 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    Tiled tensor [batch_size, beam_size, ...]</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tensor</span>
   <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
   <span class="n">tile_dims</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
   <span class="n">tile_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">beam_size</span>
@@ -263,11 +269,20 @@
   <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tile_dims</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_gather_state</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">params</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="get_state_shape_invariants"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.get_state_shape_invariants">[docs]</a><span class="k">def</span> <span class="nf">get_state_shape_invariants</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the shape of the tensor but sets middle dims to None.&quot;&quot;&quot;</span>
-  <span class="n">shape</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
-  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-    <span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">):</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
   <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span></div>
 
 
@@ -358,7 +373,9 @@
   <span class="n">topk_gathered_scores</span> <span class="o">=</span> <span class="n">_gather</span><span class="p">(</span><span class="n">scores_to_gather</span><span class="p">,</span> <span class="s2">&quot;_topk_scores&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">states_to_gather</span><span class="p">:</span>
     <span class="n">topk_gathered_states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">_gather</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;_topk_states&quot;</span><span class="p">),</span> <span class="n">states_to_gather</span><span class="p">)</span>
+        <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">_gather_state</span><span class="p">(</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">top_coordinates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;_topk_states&quot;</span><span class="p">),</span>
+        <span class="n">states_to_gather</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="n">topk_gathered_states</span> <span class="o">=</span> <span class="n">states_to_gather</span>
   <span class="k">return</span> <span class="n">topk_seq</span><span class="p">,</span> <span class="n">topk_gathered_scores</span><span class="p">,</span> <span class="n">topk_flags</span><span class="p">,</span> <span class="n">topk_gathered_states</span></div>
@@ -373,7 +390,8 @@
                 <span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">eos_id</span><span class="o">=</span><span class="n">EOS_ID</span><span class="p">,</span>
                 <span class="n">stop_early</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">return_states</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="n">return_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">tile_states</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Beam search with length penalties.</span>
 
 <span class="sd">  Requires a function that can take the currently decoded symbols and return</span>
@@ -415,6 +433,7 @@
 <span class="sd">    eos_id: ID for end of sentence.</span>
 <span class="sd">    stop_early: a boolean - stop once best sequence is provably determined.</span>
 <span class="sd">    return_states: a boolean - return the update states dictionary.</span>
+<span class="sd">    tile_states: a boolean - internally tile the provided states.</span>
 <span class="sd">  Returns:</span>
 <span class="sd">    Tuple of</span>
 <span class="sd">    (decoded beams [batch_size, beam_size, decode_length]</span>
@@ -433,7 +452,10 @@
   <span class="n">alive_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">alive_seq</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># (batch_size, beam_size, 1)</span>
   <span class="k">if</span> <span class="n">states</span><span class="p">:</span>
     <span class="n">states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">_expand_to_beam_size</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">),</span> <span class="n">states</span><span class="p">)</span>
+        <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_expand_to_beam_size</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">tile_states</span>
+            <span class="k">else</span> <span class="n">_unmerge_beam_dim</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)),</span>
+        <span class="n">states</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="n">states</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -587,7 +609,7 @@
     <span class="n">topk_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">alive_seq</span><span class="p">,</span> <span class="n">topk_coordinates</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">states</span><span class="p">:</span>
       <span class="n">states</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
-          <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">topk_coordinates</span><span class="p">),</span> <span class="n">states</span><span class="p">)</span>
+          <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">_gather_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">topk_coordinates</span><span class="p">),</span> <span class="n">states</span><span class="p">)</span>
 
     <span class="c1"># Append the most probable alive</span>
     <span class="n">topk_seq</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">topk_seq</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">topk_ids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
