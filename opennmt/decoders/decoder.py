@@ -159,6 +159,11 @@ class Decoder(object):
     """
     raise NotImplementedError()
 
+  @property
+  def support_attention_history(self):
+    """Returns ``True`` if this decoder can return the attention history."""
+    return False
+
   def dynamic_decode(self,
                      embedding,
                      start_tokens,
@@ -260,7 +265,7 @@ class Decoder(object):
       ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
       if :obj:`return_alignment_history` is ``True``.
     """
-    batch_size = tf.shape(start_tokens)[0]
+    batch_size = tf.shape(start_tokens)[0] * beam_width
     if dtype is None:
       if memory is None:
         raise ValueError("dtype argument is required when no memory is set")
@@ -279,34 +284,49 @@ class Decoder(object):
         memory_sequence_length = tf.contrib.seq2seq.tile_batch(
             memory_sequence_length, multiplier=beam_width)
 
+    embedding_fn = get_embedding_fn(embedding)
     step_fn, initial_state = self._step_fn(
         mode,
-        batch_size * beam_width,
+        batch_size,
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
         dtype=dtype)
     if step_fn is None:
       raise RuntimeError("This decoder does not define the decoding function _step_fn")
-    logits_fn = _symbols_to_logits_fn(embedding, step_fn, output_layer, mode)
+
+    state = {"decoder": initial_state}
+    if self.support_attention_history:
+      state["attention"] = tf.zeros([batch_size, 0, tf.shape(memory)[1]], dtype=dtype)
+
+    def _symbols_to_logits_fn(ids, step, state):
+      inputs = embedding_fn(ids[:, -1])
+      returned_values = step_fn(step, inputs, state["decoder"], mode)
+      if self.support_attention_history:
+        outputs, state["decoder"], attention = returned_values
+        state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
+      else:
+        outputs, state["decoder"] = returned_values
+      logits = output_layer(outputs)
+      return logits, state
 
     if beam_width == 1:
       outputs, lengths, log_probs, state = greedy_decode(
-          logits_fn,
+          _symbols_to_logits_fn,
           start_tokens,
           end_token,
           decode_length=maximum_iterations,
-          state=initial_state,
+          state=state,
           return_state=True)
     else:
       outputs, log_probs, state = beam_search.beam_search(
-          logits_fn,
+          _symbols_to_logits_fn,
           start_tokens,
           beam_width,
           maximum_iterations,
           vocab_size,
           length_penalty,
-          states=initial_state,
+          states=state,
           eos_id=end_token,
           return_states=True,
           tile_states=False)
@@ -314,7 +334,7 @@ class Decoder(object):
       lengths = tf.cast(lengths, tf.int32)
       lengths = tf.reduce_sum(lengths, axis=-1) - 1  # Ignore </s>
 
-    attention = self.get_attention_from_state(state)
+    attention = state.get("attention")
     if beam_width == 1:
       # Make shape consistent with beam search.
       outputs = tf.expand_dims(outputs, 1)
@@ -326,20 +346,8 @@ class Decoder(object):
     outputs = outputs[:, :, 1:]  # Ignore <s>.
 
     if return_alignment_history:
-      return (outputs, state, lengths, log_probs, attention)
-    return (outputs, state, lengths, log_probs)
-
-  def get_attention_from_state(self, state):
-    """Extracts the attention vector from the decoder state.
-
-    Args:
-      state: The decoder state.
-
-    Returns:
-      The attention vector as a ``tf.Tensor``.
-    """
-    _ = state
-    return None
+      return (outputs, state["decoder"], lengths, log_probs, attention)
+    return (outputs, state["decoder"], lengths, log_probs)
 
   @abc.abstractmethod
   def _step_fn(self,
@@ -362,37 +370,11 @@ class Decoder(object):
 
     Returns:
       A callable with the signature
-      ``(step, inputs, state, mode)`` -> ```(outputs, state)``.
+      ``(step, inputs, state, mode)`` -> ``(outputs, state)`` or
+      ``(outputs, state, attention)`` if ``self.support_attention_history``.
     """
     raise NotImplementedError()
 
-
-def _symbols_to_logits_fn(embedding, step_fn, output_layer, mode):
-  """Returns a callable that transforms symbols into logits.
-
-  Args:
-    embedding: The embedding tensor or a callable that takes word ids.
-    step_fn: A callable with the signature
-      ``(step, inputs, state, mode)`` -> ```(outputs, state)``.
-    output_layer: Layer to apply to the output prior sampling.
-    mode: A ``tf.estimator.ModeKeys`` mode.
-
-  Returns:
-    A callable with the signature:
-    ``(ids, step, state)`` -> ```(logits, state)``.
-  """
-  embedding_fn = get_embedding_fn(embedding)
-  if output_layer is None:
-    if output_size is None or vocab_size is None or dtype is None:
-      raise ValueError("If output_layer is not set, the following should be set: "
-                       "output_size, vocab_size, dtype.")
-    output_layer = build_output_layer(output_size, vocab_size, dtype=dtype)
-  def _fn(ids, step, state):
-    inputs = embedding_fn(ids[:, -1])
-    outputs, state = step_fn(step, inputs, state, mode)
-    logits = output_layer(outputs)
-    return logits, state
-  return _fn
 
 def greedy_decode(symbols_to_logits_fn,
                   initial_ids,
