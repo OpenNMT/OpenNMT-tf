@@ -63,10 +63,8 @@ class RNNDecoder(decoder.Decoder):
                   initial_state=None,
                   memory=None,
                   memory_sequence_length=None,
-                  dtype=None,
-                  alignment_history=False):
+                  dtype=None):
     _ = memory_sequence_length
-    _ = alignment_history
 
     if memory is None and dtype is None:
       raise ValueError("dtype argument is required when memory is not set")
@@ -124,8 +122,7 @@ class RNNDecoder(decoder.Decoder):
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
-        dtype=inputs.dtype,
-        alignment_history=return_alignment_history)
+        dtype=inputs.dtype)
 
     if output_layer is None:
       output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
@@ -166,8 +163,7 @@ class RNNDecoder(decoder.Decoder):
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
-        dtype=dtype,
-        alignment_history=True)
+        dtype=dtype)
 
     def _fn(step, inputs, state, mode):
       _ = mode
@@ -265,8 +261,7 @@ class AttentionalRNNDecoder(RNNDecoder):
                   initial_state=None,
                   memory=None,
                   memory_sequence_length=None,
-                  dtype=None,
-                  alignment_history=False):
+                  dtype=None):
     attention_mechanism = _build_attention_mechanism(
         self.attention_mechanism_class,
         self.num_units,
@@ -284,7 +279,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         cell,
         attention_mechanism,
         attention_layer_size=self.num_units,
-        alignment_history=alignment_history,
+        alignment_history=True,
         output_attention=self.output_is_attention,
         initial_cell_state=initial_cell_state)
 
@@ -355,8 +350,7 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
                   initial_state=None,
                   memory=None,
                   memory_sequence_length=None,
-                  dtype=None,
-                  alignment_history=False):
+                  dtype=None):
     attention_mechanisms = [
         _build_attention_mechanism(
             attention_mechanism,
