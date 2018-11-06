@@ -247,13 +247,10 @@ class AttentionalRNNDecoder(RNNDecoder):
     return True
 
   def _get_attention(self, state, step=None):
-    if step is not None:
-      return state.alignment_history.read(step)
     alignment_history = state.alignment_history
-    if isinstance(alignment_history, tf.TensorArray):
-      alignment_history = alignment_history.stack()
-    alignment_history = tf.transpose(alignment_history, perm=[1, 0, 2])
-    return alignment_history
+    if step is not None:
+      return alignment_history.read(step)
+    return tf.transpose(alignment_history.stack(), perm=[1, 0, 2])
 
   def _build_cell(self,
                   mode,
