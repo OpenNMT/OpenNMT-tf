@@ -153,14 +153,13 @@ class RNNDecoder(decoder.Decoder):
   def _step_fn(self,
                mode,
                batch_size,
-               beam_width=1,
                initial_state=None,
                memory=None,
                memory_sequence_length=None,
                dtype=None):
     cell, initial_state = self._build_cell(
         mode,
-        batch_size * beam_width,
+        batch_size,
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,

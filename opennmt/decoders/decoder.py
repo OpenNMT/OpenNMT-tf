@@ -271,6 +271,8 @@ class Decoder(object):
       output_layer = build_output_layer(self.output_size, vocab_size, dtype=dtype)
 
     if beam_width > 1:
+      if initial_state is not None:
+        initial_state = tf.contrib.seq2seq.tile_batch(initial_state, multiplier=beam_width)
       if memory is not None:
         memory = tf.contrib.seq2seq.tile_batch(memory, multiplier=beam_width)
       if memory_sequence_length is not None:
@@ -279,8 +281,7 @@ class Decoder(object):
 
     step_fn, initial_state = self._step_fn(
         mode,
-        batch_size,
-        beam_width=beam_width,
+        batch_size * beam_width,
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
@@ -307,7 +308,8 @@ class Decoder(object):
           length_penalty,
           states=initial_state,
           eos_id=end_token,
-          return_states=True)
+          return_states=True,
+          tile_states=False)
       lengths = tf.not_equal(outputs, 0)
       lengths = tf.cast(lengths, tf.int32)
       lengths = tf.reduce_sum(lengths, axis=-1) - 1  # Ignore </s>
@@ -343,7 +345,6 @@ class Decoder(object):
   def _step_fn(self,
                mode,
                batch_size,
-               beam_width=1,
                initial_state=None,
                memory=None,
                memory_sequence_length=None,
@@ -353,7 +354,6 @@ class Decoder(object):
     Args:
       mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size.
-      beam_size: The beam width.
       initial_state: The initial state to start from as a (possibly nested tuple
         of...) tensors.
       memory: (optional) Memory values to query.

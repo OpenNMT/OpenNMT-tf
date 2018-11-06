@@ -235,7 +235,6 @@ class SelfAttentionDecoder(decoder.Decoder):
   def _step_fn(self,
                mode,
                batch_size,
-               beam_width=1,
                initial_state=None,
                memory=None,
                memory_sequence_length=None,

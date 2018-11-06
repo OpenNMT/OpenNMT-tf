@@ -214,7 +214,8 @@ def beam_search(symbols_to_logits_fn,
                 states=None,
                 eos_id=EOS_ID,
                 stop_early=True,
-                return_states=False):
+                return_states=False,
+                tile_states=True):
   """Beam search with length penalties.
 
   Requires a function that can take the currently decoded symbols and return
@@ -256,6 +257,7 @@ def beam_search(symbols_to_logits_fn,
     eos_id: ID for end of sentence.
     stop_early: a boolean - stop once best sequence is provably determined.
     return_states: a boolean - return the update states dictionary.
+    tile_states: a boolean - internally tile the provided states.
   Returns:
     Tuple of
     (decoded beams [batch_size, beam_size, decode_length]
@@ -274,7 +276,10 @@ def beam_search(symbols_to_logits_fn,
   alive_seq = tf.expand_dims(alive_seq, axis=2)  # (batch_size, beam_size, 1)
   if states:
     states = nest.map_structure(
-        lambda state: _expand_to_beam_size(state, beam_size), states)
+        lambda state: (
+            _expand_to_beam_size(state, beam_size) if tile_states
+            else _unmerge_beam_dim(state, batch_size, beam_size)),
+        states)
   else:
     states = {}
 
