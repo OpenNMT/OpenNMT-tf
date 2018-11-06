@@ -409,13 +409,10 @@
     <span class="k">return</span> <span class="kc">True</span>
 
   <span class="k">def</span> <span class="nf">_get_attention</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">state</span><span class="o">.</span><span class="n">alignment_history</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
     <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">alignment_history</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alignment_history</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">):</span>
-      <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">alignment_history</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
-    <span class="n">alignment_history</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">alignment_history</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">alignment_history</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">alignment_history</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">alignment_history</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
   <span class="k">def</span> <span class="nf">_build_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">mode</span><span class="p">,</span>
