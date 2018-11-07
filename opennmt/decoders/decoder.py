@@ -116,7 +116,6 @@ def get_sampling_probability(global_step,
 class Decoder(object):
   """Base class for decoders."""
 
-  @abc.abstractmethod
   def decode(self,
              inputs,
              sequence_length,
@@ -157,7 +156,30 @@ class Decoder(object):
       ``(outputs, state, sequence_length, alignment_history)``
       if :obj:`return_alignment_history` is ``True``.
     """
-    raise NotImplementedError()
+    _ = embedding
+    if sampling_probability is not None:
+      raise ValueError("Scheduled sampling is not supported by this decoder")
+
+    returned_values = self._decode_inputs(
+        inputs,
+        sequence_length,
+        initial_state=initial_state,
+        mode=mode,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
+
+    if self.support_alignment_history:
+      outputs, state, attention = returned_values
+    else:
+      outputs, state = returned_values
+      attention = None
+
+    if output_layer is None:
+      output_layer = build_output_layer(self.output_size, vocab_size, dtype=inputs.dtype)
+    logits = output_layer(outputs)
+    if return_alignment_history:
+      return (logits, state, tf.identity(sequence_length), attention)
+    return (logits, state, tf.identity(sequence_length))
 
   @property
   def support_alignment_history(self):
@@ -293,8 +315,6 @@ class Decoder(object):
         memory=memory,
         memory_sequence_length=memory_sequence_length,
         dtype=dtype)
-    if step_fn is None:
-      raise RuntimeError("This decoder does not define the decoding function _step_fn")
 
     state = {"decoder": initial_state}
     if self.support_alignment_history:
@@ -350,7 +370,29 @@ class Decoder(object):
       return (outputs, state["decoder"], lengths, log_probs, attention)
     return (outputs, state["decoder"], lengths, log_probs)
 
-  @abc.abstractmethod
+  def _decode_inputs(self,
+                     inputs,
+                     sequence_length,
+                     initial_state=None,
+                     mode=tf.estimator.ModeKeys.TRAIN,
+                     memory=None,
+                     memory_sequence_length=None):
+    """Decodes full inputs.
+
+    Args:
+      inputs: The input to decode of shape :math:`[B, T, ...]`.
+      sequence_length: The length of each input with shape :math:`[B]`.
+      initial_state: The initial state as a (possibly nested tuple of...) tensors.
+      mode: A ``tf.estimator.ModeKeys`` mode.
+      memory: (optional) Memory values to query.
+      memory_sequence_length: (optional) Memory values length.
+
+    Returns:
+      A tuple ``(outputs, state)`` or ``(outputs, state, attention)``
+      if ``self.support_alignment_history``.
+    """
+    raise NotImplementedError()
+
   def _step_fn(self,
                mode,
                batch_size,

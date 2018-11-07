@@ -205,35 +205,20 @@ class SelfAttentionDecoder(decoder.Decoder):
     outputs = transformer.norm(inputs)
     return outputs, first_head_attention
 
-  def decode(self,
-             inputs,
-             sequence_length,
-             vocab_size=None,
-             initial_state=None,
-             sampling_probability=None,
-             embedding=None,
-             output_layer=None,
-             mode=tf.estimator.ModeKeys.TRAIN,
-             memory=None,
-             memory_sequence_length=None,
-             return_alignment_history=False):
-    if sampling_probability is not None:
-      raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
-
+  def _decode_inputs(self,
+                     inputs,
+                     sequence_length,
+                     initial_state=None,
+                     mode=tf.estimator.ModeKeys.TRAIN,
+                     memory=None,
+                     memory_sequence_length=None):
     outputs, attention = self._self_attention_stack(
         inputs,
         sequence_length=sequence_length,
         mode=mode,
         memory=memory,
         memory_sequence_length=memory_sequence_length)
-
-    if output_layer is None:
-      output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
-    logits = output_layer(outputs)
-
-    if return_alignment_history:
-      return (logits, None, sequence_length, attention)
-    return (logits, None, sequence_length)
+    return outputs, None, attention
 
   def _step_fn(self,
                mode,

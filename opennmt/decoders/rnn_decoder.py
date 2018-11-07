@@ -1,3 +1,5 @@
+# pylint: disable=W0223
+
 """Define RNN-based decoders."""
 
 import inspect
