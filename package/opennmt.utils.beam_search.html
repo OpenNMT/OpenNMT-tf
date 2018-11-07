@@ -193,6 +193,27 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="opennmt.utils.beam_search.penalize_token">
+<code class="descclassname">opennmt.utils.beam_search.</code><code class="descname">penalize_token</code><span class="sig-paren">(</span><em>log_probs</em>, <em>token_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/beam_search.html#penalize_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.beam_search.penalize_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Penalize token probabilities.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>log_probs</strong> – The log probabilities. [batch_size, vocab_size]</li>
+<li><strong>token_id</strong> – The token to penalize.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The updated log probabilities.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="opennmt.utils.beam_search.compute_batch_indices">
 <code class="descclassname">opennmt.utils.beam_search.</code><code class="descname">compute_batch_indices</code><span class="sig-paren">(</span><em>batch_size</em>, <em>beam_size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/beam_search.html#compute_batch_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.beam_search.compute_batch_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the i’th coordinate that contains the batch index for gathers.</p>
@@ -273,7 +294,7 @@ topk_finished_flags[batch_size, beam_size])</p>
 
 <dl class="function">
 <dt id="opennmt.utils.beam_search.beam_search">
-<code class="descclassname">opennmt.utils.beam_search.</code><code class="descname">beam_search</code><span class="sig-paren">(</span><em>symbols_to_logits_fn</em>, <em>initial_ids</em>, <em>beam_size</em>, <em>decode_length</em>, <em>vocab_size</em>, <em>alpha</em>, <em>states=None</em>, <em>eos_id=1</em>, <em>stop_early=True</em>, <em>return_states=False</em>, <em>tile_states=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/beam_search.html#beam_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.beam_search.beam_search" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.beam_search.</code><code class="descname">beam_search</code><span class="sig-paren">(</span><em>symbols_to_logits_fn</em>, <em>initial_ids</em>, <em>beam_size</em>, <em>decode_length</em>, <em>vocab_size</em>, <em>alpha</em>, <em>states=None</em>, <em>eos_id=1</em>, <em>stop_early=True</em>, <em>return_states=False</em>, <em>tile_states=True</em>, <em>min_decode_length=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/beam_search.html#beam_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.beam_search.beam_search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Beam search with length penalties.</p>
 <p>Requires a function that can take the currently decoded symbols and return
 the logits for the next symbol. The implementation is inspired by
@@ -314,6 +335,7 @@ symbols_to_logits_fn</li>
 <li><strong>stop_early</strong> – a boolean - stop once best sequence is provably determined.</li>
 <li><strong>return_states</strong> – a boolean - return the update states dictionary.</li>
 <li><strong>tile_states</strong> – a boolean - internally tile the provided states.</li>
+<li><strong>min_decode_length</strong> – Minimum length of decoded hypotheses (EOS excluded).</li>
 </ul>
 </td>
 </tr>

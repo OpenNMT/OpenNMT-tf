@@ -295,6 +295,26 @@
   <span class="k">return</span> <span class="n">logits</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_logsumexp</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="penalize_token"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.penalize_token">[docs]</a><span class="k">def</span> <span class="nf">penalize_token</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">token_id</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Penalize token probabilities.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    log_probs: The log probabilities. [batch_size, vocab_size]</span>
+<span class="sd">    token_id: The token to penalize.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The updated log probabilities.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">log_probs</span><span class="p">)</span>
+  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="n">batch_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+  <span class="n">token_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">token_id</span><span class="p">)</span>
+  <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_ind</span><span class="p">,</span> <span class="n">token_ind</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">updates</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="o">-</span><span class="n">INF</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">log_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+  <span class="n">penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">scatter_nd</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">log_probs</span> <span class="o">+</span> <span class="n">penalty</span></div>
+
+
 <div class="viewcode-block" id="compute_batch_indices"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.compute_batch_indices">[docs]</a><span class="k">def</span> <span class="nf">compute_batch_indices</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Computes the i&#39;th coordinate that contains the batch index for gathers.</span>
 
@@ -391,7 +411,8 @@
                 <span class="n">eos_id</span><span class="o">=</span><span class="n">EOS_ID</span><span class="p">,</span>
                 <span class="n">stop_early</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">return_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">tile_states</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">tile_states</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">min_decode_length</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Beam search with length penalties.</span>
 
 <span class="sd">  Requires a function that can take the currently decoded symbols and return</span>
@@ -434,6 +455,7 @@
 <span class="sd">    stop_early: a boolean - stop once best sequence is provably determined.</span>
 <span class="sd">    return_states: a boolean - return the update states dictionary.</span>
 <span class="sd">    tile_states: a boolean - internally tile the provided states.</span>
+<span class="sd">    min_decode_length: Minimum length of decoded hypotheses (EOS excluded).</span>
 <span class="sd">  Returns:</span>
 <span class="sd">    Tuple of</span>
 <span class="sd">    (decoded beams [batch_size, beam_size, decode_length]</span>
@@ -577,6 +599,13 @@
     <span class="c1"># Multiply the probabilities by the current probabilities of the beam.</span>
     <span class="c1"># (batch_size, beam_size, vocab_size) + (batch_size, beam_size, 1)</span>
     <span class="n">log_probs</span> <span class="o">=</span> <span class="n">candidate_log_probs</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">min_decode_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+          <span class="n">i</span> <span class="o">&lt;</span> <span class="n">min_decode_length</span><span class="p">,</span>
+          <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_unmerge_beam_dim</span><span class="p">(</span>
+              <span class="n">penalize_token</span><span class="p">(</span><span class="n">_merge_beam_dim</span><span class="p">(</span><span class="n">log_probs</span><span class="p">),</span> <span class="n">eos_id</span><span class="p">),</span>
+              <span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">),</span>
+          <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">log_probs</span><span class="p">)</span>
 
     <span class="n">length_penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(((</span><span class="mf">5.</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mf">6.</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span>
 
