@@ -133,6 +133,26 @@ def _log_prob_from_logits(logits):
   return logits - tf.reduce_logsumexp(logits, axis=2, **kwargs)
 
 
+def penalize_token(log_probs, token_id):
+  """Penalize token probabilities.
+
+  Args:
+    log_probs: The log probabilities. [batch_size, vocab_size]
+    token_id: The token to penalize.
+
+  Returns:
+    The updated log probabilities.
+  """
+  shape = tf.shape(log_probs)
+  batch_size = shape[0]
+  batch_ind = tf.range(batch_size, dtype=tf.int32)
+  token_ind = tf.fill([batch_size], token_id)
+  indices = tf.stack([batch_ind, token_ind], axis=-1)
+  updates = tf.fill([batch_size], tf.constant(-INF, dtype=log_probs.dtype))
+  penalty = tf.scatter_nd(indices, updates, shape)
+  return log_probs + penalty
+
+
 def compute_batch_indices(batch_size, beam_size):
   """Computes the i'th coordinate that contains the batch index for gathers.
 
@@ -229,7 +249,8 @@ def beam_search(symbols_to_logits_fn,
                 eos_id=EOS_ID,
                 stop_early=True,
                 return_states=False,
-                tile_states=True):
+                tile_states=True,
+                min_decode_length=0):
   """Beam search with length penalties.
 
   Requires a function that can take the currently decoded symbols and return
@@ -272,6 +293,7 @@ def beam_search(symbols_to_logits_fn,
     stop_early: a boolean - stop once best sequence is provably determined.
     return_states: a boolean - return the update states dictionary.
     tile_states: a boolean - internally tile the provided states.
+    min_decode_length: Minimum length of decoded hypotheses (EOS excluded).
   Returns:
     Tuple of
     (decoded beams [batch_size, beam_size, decode_length]
@@ -415,6 +437,13 @@ def beam_search(symbols_to_logits_fn,
     # Multiply the probabilities by the current probabilities of the beam.
     # (batch_size, beam_size, vocab_size) + (batch_size, beam_size, 1)
     log_probs = candidate_log_probs + tf.expand_dims(alive_log_probs, axis=2)
+    if min_decode_length > 0:
+      log_probs = tf.cond(
+          i < min_decode_length,
+          true_fn=lambda: _unmerge_beam_dim(
+              penalize_token(_merge_beam_dim(log_probs), eos_id),
+              batch_size, beam_size),
+          false_fn=lambda: log_probs)
 
     length_penalty = tf.pow(((5. + tf.to_float(i + 1)) / 6.), alpha)
 

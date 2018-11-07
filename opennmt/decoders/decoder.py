@@ -195,6 +195,7 @@ class Decoder(object):
                      initial_state=None,
                      output_layer=None,
                      maximum_iterations=250,
+                     minimum_length=0,
                      mode=tf.estimator.ModeKeys.PREDICT,
                      memory=None,
                      memory_sequence_length=None,
@@ -214,6 +215,8 @@ class Decoder(object):
       output_layer: Optional layer to apply to the output prior sampling.
         Must be set if :obj:`vocab_size` is not set.
       maximum_iterations: The maximum number of decoding iterations.
+      minimum_length: The minimum length of decoded sequences (:obj:`end_token`
+        excluded).
       mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
@@ -238,6 +241,7 @@ class Decoder(object):
         beam_width=1,
         length_penalty=0.0,
         maximum_iterations=maximum_iterations,
+        minimum_length=minimum_length,
         mode=mode,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
@@ -254,6 +258,7 @@ class Decoder(object):
                                 beam_width=5,
                                 length_penalty=0.0,
                                 maximum_iterations=250,
+                                minimum_length=0,
                                 mode=tf.estimator.ModeKeys.PREDICT,
                                 memory=None,
                                 memory_sequence_length=None,
@@ -275,6 +280,8 @@ class Decoder(object):
       beam_width: The width of the beam.
       length_penalty: The length penalty weight during beam search.
       maximum_iterations: The maximum number of decoding iterations.
+      minimum_length: The minimum length of decoded sequences (:obj:`end_token`
+        excluded).
       mode: A ``tf.estimator.ModeKeys`` mode.
       memory: (optional) Memory values to query.
       memory_sequence_length: (optional) Memory values length.
@@ -338,7 +345,8 @@ class Decoder(object):
           end_token,
           decode_length=maximum_iterations,
           state=state,
-          return_state=True)
+          return_state=True,
+          min_decode_length=minimum_length)
     else:
       outputs, log_probs, state = beam_search.beam_search(
           _symbols_to_logits_fn,
@@ -350,7 +358,8 @@ class Decoder(object):
           states=state,
           eos_id=end_token,
           return_states=True,
-          tile_states=False)
+          tile_states=False,
+          min_decode_length=minimum_length)
       lengths = tf.not_equal(outputs, 0)
       lengths = tf.cast(lengths, tf.int32)
       lengths = tf.reduce_sum(lengths, axis=-1) - 1  # Ignore </s>
@@ -424,7 +433,8 @@ def greedy_decode(symbols_to_logits_fn,
                   end_id,
                   decode_length=None,
                   state=None,
-                  return_state=False):
+                  return_state=False,
+                  min_decode_length=0):
   """Greedily decodes from :obj:`initial_ids`.
 
   Args:
@@ -436,6 +446,7 @@ def greedy_decode(symbols_to_logits_fn,
     decode_length: Maximum number of steps to decode for.
     states: A dictionnary of (possibly nested) decoding states.
     return_state: If ``True``, also return the updated decoding states.
+    min_decode_length: Minimum length of decoded hypotheses (EOS excluded).
 
   Returns:
     A tuple with the decoded output, the decoded lengths, the log probabilities,
@@ -455,6 +466,11 @@ def greedy_decode(symbols_to_logits_fn,
   def _body(step, finished, inputs, lengths, log_probs, state):
     logits, state = symbols_to_logits_fn(inputs, step, state)
     probs = tf.nn.log_softmax(tf.to_float(logits))
+    if min_decode_length > 0:
+      probs = tf.cond(
+          step < min_decode_length,
+          true_fn=lambda: beam_search.penalize_token(probs, end_id),
+          false_fn=lambda: probs)
 
     # Sample best prediction.
     sample_ids = tf.argmax(probs, axis=-1, output_type=inputs.dtype)

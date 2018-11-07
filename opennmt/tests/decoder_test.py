@@ -5,6 +5,7 @@ import numpy as np
 
 from opennmt import decoders
 from opennmt.decoders import decoder
+from opennmt.utils import beam_search
 
 
 class DecoderTest(tf.test.TestCase):
@@ -219,6 +220,17 @@ class DecoderTest(tf.test.TestCase):
   def testSelfAttentionDecoderFP16(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoder(decoder, dtype=tf.float16)
+
+  def testPenalizeToken(self):
+    log_probs = tf.zeros([4, 6])
+    token_id = 1
+    log_probs = beam_search.penalize_token(log_probs, token_id)
+    with self.test_session() as sess:
+      log_probs = sess.run(log_probs)
+      self.assertTrue(np.all(log_probs[:, token_id] < 0))
+      non_penalized = np.delete(log_probs, 1, token_id)
+      self.assertEqual(np.sum(non_penalized), 0)
+
 
 if __name__ == "__main__":
   tf.test.main()
