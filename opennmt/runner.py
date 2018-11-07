@@ -155,12 +155,15 @@ class Runner(object):
             post_evaluation_fn=external_evaluation_fn(
                 self._config["eval"].get("external_evaluators"),
                 self._config["data"]["eval_labels_file"],
-                output_dir=self._config["model_dir"]),
+                output_dir=save_path),
             predictions=predictions)]
 
-  def _build_train_spec(self):
+  def _build_train_spec(self, checkpoint_path):
     train_hooks = [
         hooks.LogParametersCountHook()]
+
+    if checkpoint_path is not None:
+      train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
 
     train_spec = tf.estimator.TrainSpec(
         input_fn=self._model.input_fn(
@@ -209,16 +212,28 @@ class Runner(object):
       tf.gfile.MakeDirs(generated_assets_path)
     return self._model.get_assets(self._config["data"], asset_dir=generated_assets_path)
 
-  def train_and_evaluate(self):
-    """Runs the training and evaluation loop."""
-    train_spec = self._build_train_spec()
+  def train_and_evaluate(self, checkpoint_path=None):
+    """Runs the training and evaluation loop.
+
+    Args:
+      checkpoint_path: The checkpoint path to load the model weights from it.
+    """
+    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    train_spec = self._build_train_spec(checkpoint_path)
     eval_spec = self._build_eval_spec()
     tf.estimator.train_and_evaluate(self._estimator, train_spec, eval_spec)
     self._maybe_average_checkpoints()
 
-  def train(self):
-    """Runs the training loop."""
-    train_spec = self._build_train_spec()
+  def train(self, checkpoint_path=None):
+    """Runs the training loop.
+
+    Args:
+      checkpoint_path: The checkpoint path to load the model weights from it.
+    """
+    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    train_spec = self._build_train_spec(checkpoint_path)
     self._estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
     self._maybe_average_checkpoints()
@@ -330,12 +345,16 @@ class Runner(object):
       export_dir_base = os.path.join(self._estimator.model_dir, "export", "manual")
 
     kwargs = {}
-    if "strip_default_attrs" in fn_args(self._estimator.export_savedmodel):
-      # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
-      # with the behavior of tf.estimator.Exporter.
-      kwargs["strip_default_attrs"] = True
+    if hasattr(self._estimator, "export_saved_model"):
+      export_fn = self._estimator.export_saved_model
+    else:
+      export_fn = self._estimator.export_savedmodel
+      if "strip_default_attrs" in fn_args(self._estimator.export_savedmodel):
+        # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
+        # with the behavior of tf.estimator.Exporter.
+        kwargs["strip_default_attrs"] = True
 
-    return self._estimator.export_savedmodel(
+    return export_fn(
         export_dir_base,
         self._model.serving_input_fn(self._config["data"]),
         assets_extra=self._get_model_assets(),
@@ -391,8 +410,7 @@ class Runner(object):
           logits=outputs["logits"], labels=labels["ids_out"])
       weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
       masked_cross_entropy = cross_entropy * weights
-      scores = (tf.reduce_sum(masked_cross_entropy, axis=1) /
-                tf.cast(labels["length"], cross_entropy.dtype))
+      scores = tf.reduce_sum(masked_cross_entropy, axis=1)
       results = {
           "attention": outputs["attention"],
           "cross_entropy": cross_entropy,

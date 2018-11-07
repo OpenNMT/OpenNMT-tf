@@ -1,3 +1,5 @@
+# pylint: disable=W0223
+
 """Define RNN-based decoders."""
 
 import inspect
@@ -6,12 +8,12 @@ import tensorflow as tf
 
 from tensorflow.python.estimator.util import fn_args
 
-from opennmt.decoders.decoder import Decoder, logits_to_cum_log_probs, build_output_layer
+from opennmt.decoders import decoder
 from opennmt.utils.cell import build_cell
 from opennmt.layers.reducer import align_in_time
 
 
-class RNNDecoder(Decoder):
+class RNNDecoder(decoder.Decoder):
   """A basic RNN decoder."""
 
   def __init__(self,
@@ -41,6 +43,11 @@ class RNNDecoder(Decoder):
     self.dropout = dropout
     self.residual_connections = residual_connections
 
+  @property
+  def output_size(self):
+    """Returns the decoder output size."""
+    return self.num_units
+
   def _init_state(self, zero_state, initial_state=None):
     if initial_state is None:
       return zero_state
@@ -49,16 +56,17 @@ class RNNDecoder(Decoder):
     else:
       return self.bridge(initial_state, zero_state)
 
+  def _get_attention(self, state, step=None):  # pylint: disable=unused-argument
+    return None
+
   def _build_cell(self,
                   mode,
                   batch_size,
                   initial_state=None,
                   memory=None,
                   memory_sequence_length=None,
-                  dtype=None,
-                  alignment_history=False):
+                  dtype=None):
     _ = memory_sequence_length
-    _ = alignment_history
 
     if memory is None and dtype is None:
       raise ValueError("dtype argument is required when memory is not set")
@@ -116,19 +124,18 @@ class RNNDecoder(Decoder):
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
-        dtype=inputs.dtype,
-        alignment_history=return_alignment_history)
+        dtype=inputs.dtype)
 
     if output_layer is None:
-      output_layer = build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
+      output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
 
-    decoder = tf.contrib.seq2seq.BasicDecoder(
+    basic_decoder = tf.contrib.seq2seq.BasicDecoder(
         cell,
         helper,
         initial_state,
         output_layer=output_layer if not fused_projection else None)
 
-    outputs, state, length = tf.contrib.seq2seq.dynamic_decode(decoder)
+    outputs, state, length = tf.contrib.seq2seq.dynamic_decode(basic_decoder)
 
     if fused_projection and output_layer is not None:
       logits = output_layer(outputs.rnn_output)
@@ -139,152 +146,39 @@ class RNNDecoder(Decoder):
     logits = align_in_time(logits, inputs_len)
 
     if return_alignment_history:
-      alignment_history = _get_alignment_history(state)
+      alignment_history = self._get_attention(state)
       if alignment_history is not None:
         alignment_history = align_in_time(alignment_history, inputs_len)
       return (logits, state, length, alignment_history)
     return (logits, state, length)
 
-  def dynamic_decode(self,
-                     embedding,
-                     start_tokens,
-                     end_token,
-                     vocab_size=None,
-                     initial_state=None,
-                     output_layer=None,
-                     maximum_iterations=250,
-                     mode=tf.estimator.ModeKeys.PREDICT,
-                     memory=None,
-                     memory_sequence_length=None,
-                     dtype=None,
-                     return_alignment_history=False):
-    batch_size = tf.shape(start_tokens)[0]
-
-    helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(
-        embedding,
-        start_tokens,
-        end_token)
-
+  def _step_fn(self,
+               mode,
+               batch_size,
+               initial_state=None,
+               memory=None,
+               memory_sequence_length=None,
+               dtype=None):
     cell, initial_state = self._build_cell(
         mode,
         batch_size,
         initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
-        dtype=dtype,
-        alignment_history=return_alignment_history)
+        dtype=dtype)
 
-    if output_layer is None:
-      output_layer = build_output_layer(self.num_units, vocab_size, dtype=dtype or memory.dtype)
+    def _fn(step, inputs, state, mode):
+      _ = mode
+      # This scope is defined by tf.contrib.seq2seq.dynamic_decode during the
+      # training.
+      with tf.variable_scope("decoder"):
+        outputs, state = cell(inputs, state)
+        if self.support_alignment_history:
+          return outputs, state, self._get_attention(state, step=step)
+        return outputs, state
 
-    decoder = tf.contrib.seq2seq.BasicDecoder(
-        cell,
-        helper,
-        initial_state,
-        output_layer=output_layer)
+    return _fn, initial_state
 
-    outputs, state, length = tf.contrib.seq2seq.dynamic_decode(
-        decoder, maximum_iterations=maximum_iterations)
-
-    predicted_ids = outputs.sample_id
-    log_probs = logits_to_cum_log_probs(outputs.rnn_output, length)
-
-    # Make shape consistent with beam search.
-    predicted_ids = tf.expand_dims(predicted_ids, 1)
-    length = tf.expand_dims(length, 1)
-    log_probs = tf.expand_dims(log_probs, 1)
-
-    if return_alignment_history:
-      alignment_history = _get_alignment_history(state)
-      if alignment_history is not None:
-        alignment_history = tf.expand_dims(alignment_history, 1)
-      return (predicted_ids, state, length, log_probs, alignment_history)
-    return (predicted_ids, state, length, log_probs)
-
-  def dynamic_decode_and_search(self,
-                                embedding,
-                                start_tokens,
-                                end_token,
-                                vocab_size=None,
-                                initial_state=None,
-                                output_layer=None,
-                                beam_width=5,
-                                length_penalty=0.0,
-                                maximum_iterations=250,
-                                mode=tf.estimator.ModeKeys.PREDICT,
-                                memory=None,
-                                memory_sequence_length=None,
-                                dtype=None,
-                                return_alignment_history=False):
-    if (return_alignment_history and
-        "reorder_tensor_arrays" not in fn_args(tf.contrib.seq2seq.BeamSearchDecoder.__init__)):
-      tf.logging.warn("The current version of tf.contrib.seq2seq.BeamSearchDecoder "
-                      "does not support returning the alignment history. None will "
-                      "be returned instead. Consider upgrading TensorFlow.")
-      alignment_history = False
-    else:
-      alignment_history = return_alignment_history
-
-    batch_size = tf.shape(start_tokens)[0]
-
-    # Replicate batch `beam_width` times.
-    if initial_state is not None:
-      initial_state = tf.contrib.seq2seq.tile_batch(
-          initial_state, multiplier=beam_width)
-    if memory is not None:
-      memory = tf.contrib.seq2seq.tile_batch(
-          memory, multiplier=beam_width)
-    if memory_sequence_length is not None:
-      memory_sequence_length = tf.contrib.seq2seq.tile_batch(
-          memory_sequence_length, multiplier=beam_width)
-
-    cell, initial_state = self._build_cell(
-        mode,
-        batch_size * beam_width,
-        initial_state=initial_state,
-        memory=memory,
-        memory_sequence_length=memory_sequence_length,
-        dtype=dtype,
-        alignment_history=alignment_history)
-
-    if output_layer is None:
-      output_layer = build_output_layer(self.num_units, vocab_size, dtype=dtype or memory.dtype)
-
-    decoder = tf.contrib.seq2seq.BeamSearchDecoder(
-        cell,
-        embedding,
-        start_tokens,
-        end_token,
-        initial_state,
-        beam_width,
-        output_layer=output_layer,
-        length_penalty_weight=length_penalty)
-
-    outputs, beam_state, length = tf.contrib.seq2seq.dynamic_decode(
-        decoder, maximum_iterations=maximum_iterations)
-
-    predicted_ids = tf.transpose(outputs.predicted_ids, perm=[0, 2, 1])
-    log_probs = beam_state.log_probs
-    state = beam_state.cell_state
-
-    if return_alignment_history:
-      alignment_history = _get_alignment_history(state)
-      if alignment_history is not None:
-        alignment_history = tf.reshape(
-            alignment_history, [batch_size, beam_width, -1, tf.shape(memory)[1]])
-      return (predicted_ids, state, length, log_probs, alignment_history)
-    return (predicted_ids, state, length, log_probs)
-
-
-def _get_alignment_history(cell_state):
-  """Returns the alignment history from the cell state."""
-  if not hasattr(cell_state, "alignment_history") or cell_state.alignment_history == ():
-    return None
-  alignment_history = cell_state.alignment_history
-  if isinstance(alignment_history, tf.TensorArray):
-    alignment_history = alignment_history.stack()
-  alignment_history = tf.transpose(alignment_history, perm=[1, 0, 2])
-  return alignment_history
 
 def _build_attention_mechanism(attention_mechanism,
                                num_units,
@@ -350,14 +244,23 @@ class AttentionalRNNDecoder(RNNDecoder):
     self.attention_mechanism_class = attention_mechanism_class
     self.output_is_attention = output_is_attention
 
+  @property
+  def support_alignment_history(self):
+    return True
+
+  def _get_attention(self, state, step=None):
+    alignment_history = state.alignment_history
+    if step is not None:
+      return alignment_history.read(step)
+    return tf.transpose(alignment_history.stack(), perm=[1, 0, 2])
+
   def _build_cell(self,
                   mode,
                   batch_size,
                   initial_state=None,
                   memory=None,
                   memory_sequence_length=None,
-                  dtype=None,
-                  alignment_history=False):
+                  dtype=None):
     attention_mechanism = _build_attention_mechanism(
         self.attention_mechanism_class,
         self.num_units,
@@ -375,7 +278,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         cell,
         attention_mechanism,
         attention_layer_size=self.num_units,
-        alignment_history=alignment_history,
+        alignment_history=True,
         output_attention=self.output_is_attention,
         initial_cell_state=initial_cell_state)
 
@@ -446,8 +349,7 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
                   initial_state=None,
                   memory=None,
                   memory_sequence_length=None,
-                  dtype=None,
-                  alignment_history=False):
+                  dtype=None):
     attention_mechanisms = [
         _build_attention_mechanism(
             attention_mechanism,

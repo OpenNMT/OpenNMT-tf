@@ -29,18 +29,13 @@ def shift_target_sequence(inputter, data):
     the end token id. Additionally, the ``length`` is increased by 1
     to reflect the added token on both sequences.
   """
-  bos = tf.cast(tf.constant([constants.START_OF_SENTENCE_ID]), tf.int64)
-  eos = tf.cast(tf.constant([constants.END_OF_SENTENCE_ID]), tf.int64)
-
+  _ = inputter
   ids = data["ids"]
-  length = data["length"]
-
-  data = inputter.set_data_field(data, "ids_out", tf.concat([ids, eos], axis=0))
-  data = inputter.set_data_field(data, "ids", tf.concat([bos, ids], axis=0))
-
-  # Increment length accordingly.
-  inputter.set_data_field(data, "length", length + 1)
-
+  bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=ids.dtype)
+  eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=ids.dtype)
+  data["ids_out"] = tf.concat([ids, eos], axis=0)
+  data["ids"] = tf.concat([bos, ids], axis=0)
+  data["length"] += 1  # Increment length accordingly.
   return data
 
 def _maybe_reuse_embedding_fn(embedding_fn, scope=None):
@@ -240,6 +235,7 @@ class SequenceToSequence(Model):
         batch_size = tf.shape(encoder_sequence_length)[0]
         beam_width = params.get("beam_width", 1)
         maximum_iterations = params.get("maximum_iterations", 250)
+        minimum_length = params.get("minimum_decoding_length", 0)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
         end_token = constants.END_OF_SENTENCE_ID
 
@@ -251,6 +247,7 @@ class SequenceToSequence(Model):
               vocab_size=target_vocab_size,
               initial_state=encoder_state,
               maximum_iterations=maximum_iterations,
+              minimum_length=minimum_length,
               mode=mode,
               memory=encoder_outputs,
               memory_sequence_length=encoder_sequence_length,
@@ -268,6 +265,7 @@ class SequenceToSequence(Model):
                   beam_width=beam_width,
                   length_penalty=length_penalty,
                   maximum_iterations=maximum_iterations,
+                  minimum_length=minimum_length,
                   mode=mode,
                   memory=encoder_outputs,
                   memory_sequence_length=encoder_sequence_length,
@@ -355,7 +353,7 @@ class SequenceToSequence(Model):
       attention = None
       alignment_type = None
       if params is not None and params.get("with_scores"):
-        score = prediction["log_probs"][i] / prediction["length"][i]
+        score = prediction["log_probs"][i]
       if params is not None and params.get("with_alignments"):
         attention = prediction["alignment"][i][:target_length]
         alignment_type = params["with_alignments"]

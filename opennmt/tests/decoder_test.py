@@ -3,10 +3,9 @@ import math
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.python.estimator.util import fn_args
-
 from opennmt import decoders
 from opennmt.decoders import decoder
+from opennmt.utils import beam_search
 
 
 class DecoderTest(tf.test.TestCase):
@@ -44,7 +43,7 @@ class DecoderTest(tf.test.TestCase):
       self.assertAlmostEqual(
           1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), sess.run(inv_sig_sample_prob))
 
-  def _testDecoderTraining(self, decoder, support_alignment_history=False, dtype=tf.float32):
+  def _testDecoderTraining(self, decoder, dtype=tf.float32):
     batch_size = 4
     vocab_size = 10
     time_dim = 5
@@ -68,7 +67,7 @@ class DecoderTest(tf.test.TestCase):
         return_alignment_history=True)
     self.assertEqual(outputs.dtype, dtype)
     output_time_dim = tf.shape(outputs)[1]
-    if support_alignment_history:
+    if decoder.support_alignment_history:
       self.assertIsNotNone(attention)
     else:
       self.assertIsNone(attention)
@@ -78,7 +77,7 @@ class DecoderTest(tf.test.TestCase):
     with self.test_session() as sess:
       output_time_dim_val = sess.run(output_time_dim)
       self.assertEqual(time_dim, output_time_dim_val)
-      if support_alignment_history:
+      if decoder.support_alignment_history:
         attention_val = sess.run(attention)
         self.assertAllEqual([batch_size, time_dim, memory_time], attention_val.shape)
 
@@ -88,7 +87,7 @@ class DecoderTest(tf.test.TestCase):
 
   def testAttentionalRNNDecoderTraining(self):
     decoder = decoders.AttentionalRNNDecoder(2, 20)
-    self._testDecoderTraining(decoder, support_alignment_history=True)
+    self._testDecoderTraining(decoder)
 
   def testMultiAttentionalRNNDecoderTraining(self):
     decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
@@ -96,17 +95,16 @@ class DecoderTest(tf.test.TestCase):
 
   def testSelfAttentionDecoderTraining(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoderTraining(decoder, support_alignment_history=True)
+    self._testDecoderTraining(decoder)
 
   def testSelfAttentionDecoderFP16Training(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoderTraining(decoder, support_alignment_history=True, dtype=tf.float16)
+    self._testDecoderTraining(decoder, dtype=tf.float16)
 
   def _testDecoderGeneric(self,
                           decoder,
                           with_beam_search=False,
                           with_alignment_history=False,
-                          support_alignment_history=True,
                           dtype=tf.float32):
     batch_size = 4
     beam_width = 5
@@ -136,10 +134,6 @@ class DecoderTest(tf.test.TestCase):
     if with_beam_search:
       additional_kwargs["beam_width"] = beam_width
 
-    if (with_beam_search and with_alignment_history and "RNN" in decoder.__class__.__name__
-        and not "reorder_tensor_arrays" in fn_args(tf.contrib.seq2seq.BeamSearchDecoder.__init__)):
-      support_alignment_history = False
-
     outputs = decode_fn(
         embedding,
         start_tokens,
@@ -166,7 +160,7 @@ class DecoderTest(tf.test.TestCase):
     else:
       self.assertEqual(5, len(outputs))
       alignment_history = outputs[4]
-      if support_alignment_history:
+      if decoder.support_alignment_history:
         self.assertIsInstance(alignment_history, tf.Tensor)
         with self.test_session() as sess:
           alignment_history, decode_time = sess.run([alignment_history, decode_time])
@@ -181,39 +175,35 @@ class DecoderTest(tf.test.TestCase):
       self.assertAllEqual([batch_size, num_hyps], lengths.shape)
       self.assertAllEqual([batch_size, num_hyps], log_probs.shape)
 
-  def _testDecoder(self, decoder, support_alignment_history=True, dtype=tf.float32):
+  def _testDecoder(self, decoder, dtype=tf.float32):
     with tf.variable_scope(tf.get_variable_scope()):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=False,
           with_alignment_history=False,
-          support_alignment_history=support_alignment_history,
           dtype=dtype)
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=False,
           with_alignment_history=True,
-          support_alignment_history=support_alignment_history,
           dtype=dtype)
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=True,
           with_alignment_history=False,
-          support_alignment_history=support_alignment_history,
           dtype=dtype)
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       self._testDecoderGeneric(
           decoder,
           with_beam_search=True,
           with_alignment_history=True,
-          support_alignment_history=support_alignment_history,
           dtype=dtype)
 
   def testRNNDecoder(self):
     decoder = decoders.RNNDecoder(2, 20)
-    self._testDecoder(decoder, support_alignment_history=False)
+    self._testDecoder(decoder)
 
   def testAttentionalRNNDecoder(self):
     decoder = decoders.AttentionalRNNDecoder(2, 20)
@@ -221,7 +211,7 @@ class DecoderTest(tf.test.TestCase):
 
   def testMultiAttentionalRNNDecoder(self):
     decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
-    self._testDecoder(decoder, support_alignment_history=False)
+    self._testDecoder(decoder)
 
   def testSelfAttentionDecoder(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
@@ -230,6 +220,17 @@ class DecoderTest(tf.test.TestCase):
   def testSelfAttentionDecoderFP16(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoder(decoder, dtype=tf.float16)
+
+  def testPenalizeToken(self):
+    log_probs = tf.zeros([4, 6])
+    token_id = 1
+    log_probs = beam_search.penalize_token(log_probs, token_id)
+    with self.test_session() as sess:
+      log_probs = sess.run(log_probs)
+      self.assertTrue(np.all(log_probs[:, token_id] < 0))
+      non_penalized = np.delete(log_probs, 1, token_id)
+      self.assertEqual(np.sum(non_penalized), 0)
+
 
 if __name__ == "__main__":
   tf.test.main()

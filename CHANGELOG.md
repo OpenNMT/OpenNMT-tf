@@ -16,6 +16,19 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.12.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.12.0) (2018-11-07)
+
+### New features
+
+* The command line argument `--checkpoint_path` can be used to load the weights of an existing checkpoint while starting from a fresh training state (i.e. with new learning rate schedule and optimizer variables)
+* Parameter `minimum_decoding_length` to constrain the minimum length of decoded sequences
+
+### Fixes and improvements
+
+* Major refactoring of dynamic decoding internals: decoding loops are now shared between all decoders that should only implement a step function
+* Move event files of external evaluators to the `eval/` subdirectory
+* Report non normalized hypotheses score for clarity
+
 ## [1.11.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.11.0) (2018-10-24)
 
 ### New features

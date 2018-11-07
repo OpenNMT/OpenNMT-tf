@@ -4,7 +4,6 @@ import tensorflow as tf
 
 from opennmt.decoders import decoder
 from opennmt.layers import transformer
-from opennmt.utils import beam_search
 from opennmt.layers.position import SinusoidalPositionEncoder
 
 
@@ -58,29 +57,20 @@ class SelfAttentionDecoder(decoder.Decoder):
       tf.logging.warning("Support for average attention network is experimental "
                          "and may change in future versions.")
 
-  def _build_memory_mask(self, memory, memory_sequence_length=None):
-    if memory_sequence_length is None:
-      return None
-    else:
-      return transformer.build_sequence_mask(
-          memory_sequence_length,
-          num_heads=self.num_heads,
-          maximum_length=tf.shape(memory)[1])
+  @property
+  def output_size(self):
+    """Returns the decoder output size."""
+    return self.num_units
 
-  def _init_cache(self, memory, memory_sequence_length=None, dtype=tf.float32):
-    batch_size = tf.shape(memory)[0]
-    memory_time = tf.shape(memory)[1]
-    depth = memory.get_shape().as_list()[-1]
+  @property
+  def support_alignment_history(self):
+    return True
 
-    cache = {
-        "attn": tf.zeros([batch_size, 0, memory_time], dtype=dtype),
-        "memory": memory,
-        "memory_mask": self._build_memory_mask(
-            memory, memory_sequence_length=memory_sequence_length)
-    }
+  def _init_cache(self, batch_size, dtype=tf.float32):
+    cache = {}
 
     for l in range(self.num_layers):
-      proj_cache_shape = [batch_size, self.num_heads, 0, depth // self.num_heads]
+      proj_cache_shape = [batch_size, self.num_heads, 0, self.num_units // self.num_heads]
       layer_cache = {
           "memory_keys": tf.zeros(proj_cache_shape, dtype=dtype),
           "memory_values": tf.zeros(proj_cache_shape, dtype=dtype),
@@ -89,31 +79,10 @@ class SelfAttentionDecoder(decoder.Decoder):
         layer_cache["self_keys"] = tf.zeros(proj_cache_shape, dtype=dtype)
         layer_cache["self_values"] = tf.zeros(proj_cache_shape, dtype=dtype)
       elif self.self_attention_type == "average":
-        layer_cache["prev_g"] = tf.zeros([batch_size, 1, depth], dtype=dtype)
+        layer_cache["prev_g"] = tf.zeros([batch_size, 1, self.num_units], dtype=dtype)
       cache["layer_{}".format(l)] = layer_cache
 
     return cache
-
-  def _symbols_to_logits_fn(self, embedding, vocab_size, mode, output_layer=None, dtype=None):
-    embedding_fn = decoder.get_embedding_fn(embedding)
-    if output_layer is None:
-      output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=dtype)
-
-    def _impl(ids, step, cache):
-      inputs = embedding_fn(ids[:, -1:])
-      inputs *= self.num_units**0.5
-      inputs = self.position_encoder.apply_one(inputs, step + 1)
-      outputs, _ = self._self_attention_stack(
-          inputs,
-          mode=mode,
-          cache=cache,
-          memory=cache["memory"],
-          memory_sequence_length=None,
-          step=step)
-      logits = output_layer(outputs)
-      return logits, cache
-
-    return _impl
 
   def _self_attention_stack(self,
                             inputs,
@@ -123,6 +92,13 @@ class SelfAttentionDecoder(decoder.Decoder):
                             memory=None,
                             memory_sequence_length=None,
                             step=None):
+    inputs *= self.num_units**0.5
+    if self.position_encoder is not None:
+      if step is None:
+        inputs = self.position_encoder(inputs, sequence_length=sequence_length)
+      else:
+        inputs = self.position_encoder.apply_one(inputs, step + 1)
+
     inputs = tf.layers.dropout(
         inputs,
         rate=self.dropout,
@@ -145,12 +121,11 @@ class SelfAttentionDecoder(decoder.Decoder):
         decoder_mask = transformer.cumulative_average_mask(
             sequence_length, maximum_length=tf.shape(inputs)[1], dtype=inputs.dtype)
 
-    if memory is not None:
-      if cache is not None:
-        memory_mask = cache["memory_mask"]
-      elif memory_sequence_length is not None:
-        memory_mask = self._build_memory_mask(
-            memory, memory_sequence_length=memory_sequence_length)
+    if memory is not None and memory_sequence_length is not None:
+      memory_mask = transformer.build_sequence_mask(
+          memory_sequence_length,
+          num_heads=self.num_heads,
+          maximum_length=tf.shape(memory)[1])
 
     for l in range(self.num_layers):
       layer_name = "layer_{}".format(l)
@@ -224,126 +199,45 @@ class SelfAttentionDecoder(decoder.Decoder):
     if last_attention is not None:
       # The first head of the last layer is returned.
       first_head_attention = last_attention[:, 0]
-      if cache is not None and "attn" in cache:
-        cache["attn"] = tf.concat([cache["attn"], first_head_attention], 1)
     else:
       first_head_attention = None
 
     outputs = transformer.norm(inputs)
     return outputs, first_head_attention
 
-  def decode(self,
-             inputs,
-             sequence_length,
-             vocab_size=None,
-             initial_state=None,
-             sampling_probability=None,
-             embedding=None,
-             output_layer=None,
-             mode=tf.estimator.ModeKeys.TRAIN,
-             memory=None,
-             memory_sequence_length=None,
-             return_alignment_history=False):
-    if sampling_probability is not None:
-      raise ValueError("Scheduled sampling is not supported with SelfAttentionDecoder")
-
-    inputs *= self.num_units**0.5
-    if self.position_encoder is not None:
-      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
-
+  def _decode_inputs(self,
+                     inputs,
+                     sequence_length,
+                     initial_state=None,
+                     mode=tf.estimator.ModeKeys.TRAIN,
+                     memory=None,
+                     memory_sequence_length=None):
     outputs, attention = self._self_attention_stack(
         inputs,
         sequence_length=sequence_length,
         mode=mode,
         memory=memory,
         memory_sequence_length=memory_sequence_length)
+    return outputs, None, attention
 
-    if output_layer is None:
-      output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
-    logits = output_layer(outputs)
-
-    if return_alignment_history:
-      return (logits, None, sequence_length, attention)
-    return (logits, None, sequence_length)
-
-  def dynamic_decode(self,
-                     embedding,
-                     start_tokens,
-                     end_token,
-                     vocab_size=None,
-                     initial_state=None,
-                     output_layer=None,
-                     maximum_iterations=250,
-                     mode=tf.estimator.ModeKeys.PREDICT,
-                     memory=None,
-                     memory_sequence_length=None,
-                     dtype=None,
-                     return_alignment_history=False):
-    if dtype is None:
-      dtype = memory.dtype
-    cache = self._init_cache(
-        memory, memory_sequence_length=memory_sequence_length, dtype=dtype)
-    symbols_to_logits_fn = self._symbols_to_logits_fn(
-        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype)
-
-    outputs, lengths, log_probs, cache = decoder.greedy_decode(
-        symbols_to_logits_fn,
-        start_tokens,
-        end_token,
-        decode_length=maximum_iterations,
-        state=cache,
-        return_state=True)
-    outputs = tf.slice(outputs, [0, 1], [-1, -1]) # Ignore <s>.
-
-    # Make shape consistent with beam search.
-    outputs = tf.expand_dims(outputs, 1)
-    lengths = tf.expand_dims(lengths, 1)
-    log_probs = tf.expand_dims(log_probs, 1)
-
-    if return_alignment_history:
-      attention = tf.expand_dims(cache["attn"], 1)
-      return (outputs, None, lengths, log_probs, attention)
-    return (outputs, None, lengths, log_probs)
-
-
-  def dynamic_decode_and_search(self,
-                                embedding,
-                                start_tokens,
-                                end_token,
-                                vocab_size=None,
-                                initial_state=None,
-                                output_layer=None,
-                                beam_width=5,
-                                length_penalty=0.0,
-                                maximum_iterations=250,
-                                mode=tf.estimator.ModeKeys.PREDICT,
-                                memory=None,
-                                memory_sequence_length=None,
-                                dtype=None,
-                                return_alignment_history=False):
-    if dtype is None:
-      dtype = memory.dtype
-    cache = self._init_cache(
-        memory, memory_sequence_length=memory_sequence_length, dtype=dtype)
-    symbols_to_logits_fn = self._symbols_to_logits_fn(
-        embedding, vocab_size, mode, output_layer=output_layer, dtype=dtype)
-
-    outputs, log_probs, cache = beam_search.beam_search(
-        symbols_to_logits_fn,
-        start_tokens,
-        beam_width,
-        maximum_iterations,
-        vocab_size,
-        length_penalty,
-        states=cache,
-        eos_id=end_token,
-        return_states=True)
-    outputs = tf.slice(outputs, [0, 0, 1], [-1, -1, -1]) # Ignore <s>.
-
-    lengths = tf.not_equal(outputs, 0)
-    lengths = tf.cast(lengths, tf.int32)
-    lengths = tf.reduce_sum(lengths, axis=-1)
-
-    if return_alignment_history:
-      return (outputs, None, lengths, log_probs, cache["attn"])
-    return (outputs, None, lengths, log_probs)
+  def _step_fn(self,
+               mode,
+               batch_size,
+               initial_state=None,
+               memory=None,
+               memory_sequence_length=None,
+               dtype=None):
+    cache = self._init_cache(batch_size, dtype=dtype)
+    def _fn(step, inputs, cache, mode):
+      inputs = tf.expand_dims(inputs, 1)
+      outputs, attention = self._self_attention_stack(
+          inputs,
+          mode=mode,
+          cache=cache,
+          memory=memory,
+          memory_sequence_length=memory_sequence_length,
+          step=step)
+      outputs = tf.squeeze(outputs, axis=1)
+      attention = tf.squeeze(attention, axis=1)
+      return outputs, cache, attention
+    return _fn, cache

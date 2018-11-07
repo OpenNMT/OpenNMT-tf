@@ -62,6 +62,8 @@ def _merge_beam_dim(tensor):
   Returns:
     Reshaped tensor of shape [A*B, ...]
   """
+  if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
+    return tensor
   shape = _shape_list(tensor)
   shape[0] *= shape[1]  # batch -> batch * beam_size
   shape.pop(1)  # Remove beam dim
@@ -79,6 +81,8 @@ def _unmerge_beam_dim(tensor, batch_size, beam_size):
   Returns:
     Reshaped tensor of shape [batch_size, beam_size, ...]
   """
+  if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
+    return tensor
   shape = _shape_list(tensor)
   new_shape = [batch_size] + [beam_size] + shape[1:]
   return tf.reshape(tensor, new_shape)
@@ -94,6 +98,8 @@ def _expand_to_beam_size(tensor, beam_size):
   Returns:
     Tiled tensor [batch_size, beam_size, ...]
   """
+  if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
+    return tensor
   tensor = tf.expand_dims(tensor, axis=1)
   tile_dims = [1] * tensor.shape.ndims
   tile_dims[1] = beam_size
@@ -101,11 +107,20 @@ def _expand_to_beam_size(tensor, beam_size):
   return tf.tile(tensor, tile_dims)
 
 
+def _gather_state(params, indices, name=None):
+  if isinstance(params, tf.TensorArray) or params.shape.ndims < 1:
+    return params
+  return tf.gather_nd(params, indices, name=name)
+
+
 def get_state_shape_invariants(tensor):
   """Returns the shape of the tensor but sets middle dims to None."""
-  shape = tensor.shape.as_list()
-  for i in range(1, len(shape) - 1):
-    shape[i] = None
+  if isinstance(tensor, tf.TensorArray):
+    shape = None
+  else:
+    shape = tensor.shape.as_list()
+    for i in range(1, len(shape) - 1):
+      shape[i] = None
   return tf.TensorShape(shape)
 
 
@@ -116,6 +131,26 @@ def _log_prob_from_logits(logits):
   else:
     kwargs = {"keep_dims": True}
   return logits - tf.reduce_logsumexp(logits, axis=2, **kwargs)
+
+
+def penalize_token(log_probs, token_id):
+  """Penalize token probabilities.
+
+  Args:
+    log_probs: The log probabilities. [batch_size, vocab_size]
+    token_id: The token to penalize.
+
+  Returns:
+    The updated log probabilities.
+  """
+  shape = tf.shape(log_probs)
+  batch_size = shape[0]
+  batch_ind = tf.range(batch_size, dtype=tf.int32)
+  token_ind = tf.fill([batch_size], token_id)
+  indices = tf.stack([batch_ind, token_ind], axis=-1)
+  updates = tf.fill([batch_size], tf.constant(-INF, dtype=log_probs.dtype))
+  penalty = tf.scatter_nd(indices, updates, shape)
+  return log_probs + penalty
 
 
 def compute_batch_indices(batch_size, beam_size):
@@ -196,7 +231,9 @@ def compute_topk_scores_and_seq(sequences, scores, scores_to_gather, flags,
   topk_gathered_scores = _gather(scores_to_gather, "_topk_scores")
   if states_to_gather:
     topk_gathered_states = nest.map_structure(
-        lambda state: _gather(state, "_topk_states"), states_to_gather)
+        lambda state: _gather_state(
+            state, top_coordinates, name=prefix + "_topk_states"),
+        states_to_gather)
   else:
     topk_gathered_states = states_to_gather
   return topk_seq, topk_gathered_scores, topk_flags, topk_gathered_states
@@ -211,7 +248,9 @@ def beam_search(symbols_to_logits_fn,
                 states=None,
                 eos_id=EOS_ID,
                 stop_early=True,
-                return_states=False):
+                return_states=False,
+                tile_states=True,
+                min_decode_length=0):
   """Beam search with length penalties.
 
   Requires a function that can take the currently decoded symbols and return
@@ -253,6 +292,8 @@ def beam_search(symbols_to_logits_fn,
     eos_id: ID for end of sentence.
     stop_early: a boolean - stop once best sequence is provably determined.
     return_states: a boolean - return the update states dictionary.
+    tile_states: a boolean - internally tile the provided states.
+    min_decode_length: Minimum length of decoded hypotheses (EOS excluded).
   Returns:
     Tuple of
     (decoded beams [batch_size, beam_size, decode_length]
@@ -271,7 +312,10 @@ def beam_search(symbols_to_logits_fn,
   alive_seq = tf.expand_dims(alive_seq, axis=2)  # (batch_size, beam_size, 1)
   if states:
     states = nest.map_structure(
-        lambda state: _expand_to_beam_size(state, beam_size), states)
+        lambda state: (
+            _expand_to_beam_size(state, beam_size) if tile_states
+            else _unmerge_beam_dim(state, batch_size, beam_size)),
+        states)
   else:
     states = {}
 
@@ -393,6 +437,13 @@ def beam_search(symbols_to_logits_fn,
     # Multiply the probabilities by the current probabilities of the beam.
     # (batch_size, beam_size, vocab_size) + (batch_size, beam_size, 1)
     log_probs = candidate_log_probs + tf.expand_dims(alive_log_probs, axis=2)
+    if min_decode_length > 0:
+      log_probs = tf.cond(
+          i < min_decode_length,
+          true_fn=lambda: _unmerge_beam_dim(
+              penalize_token(_merge_beam_dim(log_probs), eos_id),
+              batch_size, beam_size),
+          false_fn=lambda: log_probs)
 
     length_penalty = tf.pow(((5. + tf.to_float(i + 1)) / 6.), alpha)
 
@@ -425,7 +476,7 @@ def beam_search(symbols_to_logits_fn,
     topk_seq = tf.gather_nd(alive_seq, topk_coordinates)
     if states:
       states = nest.map_structure(
-          lambda state: tf.gather_nd(state, topk_coordinates), states)
+          lambda state: _gather_state(state, topk_coordinates), states)
 
     # Append the most probable alive
     topk_seq = tf.concat([topk_seq, tf.expand_dims(topk_ids, axis=2)], axis=2)
