@@ -237,45 +237,6 @@ insensitive).</li>
 history.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.decode">
-<code class="descname">decode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>sampling_probability=None</em>, <em>embedding=None</em>, <em>output_layer=None</em>, <em>mode='train'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decodes a full input sequence.</p>
-<p>Usually used for training and evaluation where target sequences are known.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – The input to decode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
-<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
-<li><strong>vocab_size</strong> – The output vocabulary size. Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_layer</span></code>
-is not set.</li>
-<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
-<li><strong>sampling_probability</strong> – The probability of sampling categorically from
-the output ids instead of reading directly from the inputs.</li>
-<li><strong>embedding</strong> – The embedding tensor or a callable that takes word ids.
-Must be set when <code class="xref py py-obj docutils literal notranslate"><span class="pre">sampling_probability</span></code> is set.</li>
-<li><strong>output_layer</strong> – Optional layer to apply to the output prior sampling.
-Must be set if <code class="xref py py-obj docutils literal notranslate"><span class="pre">vocab_size</span></code> is not set.</li>
-<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
-<li><strong>memory</strong> – (optional) Memory values to query.</li>
-<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
-<li><strong>return_alignment_history</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also returns the alignment
-history from the attention layer (<code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned if
-unsupported by the decoder).</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code> or
-<code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length,</span> <span class="pre">alignment_history)</span></code>
-if <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_alignment_history</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </dd></dl>
 
 </div>

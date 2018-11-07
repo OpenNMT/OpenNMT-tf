@@ -367,35 +367,20 @@
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">first_head_attention</span>
 
-<div class="viewcode-block" id="SelfAttentionDecoder.decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.decode">[docs]</a>  <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-             <span class="n">inputs</span><span class="p">,</span>
-             <span class="n">sequence_length</span><span class="p">,</span>
-             <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">embedding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span>
-             <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">sampling_probability</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Scheduled sampling is not supported with SelfAttentionDecoder&quot;</span><span class="p">)</span>
-
+  <span class="k">def</span> <span class="nf">_decode_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">inputs</span><span class="p">,</span>
+                     <span class="n">sequence_length</span><span class="p">,</span>
+                     <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span>
+                     <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">outputs</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_self_attention_stack</span><span class="p">(</span>
         <span class="n">inputs</span><span class="p">,</span>
         <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span>
         <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
         <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
         <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">output_layer</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">build_output_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="n">logits</span> <span class="o">=</span> <span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">return_alignment_history</span><span class="p">:</span>
-      <span class="k">return</span> <span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">attention</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">attention</span>
 
   <span class="k">def</span> <span class="nf">_step_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">mode</span><span class="p">,</span>
