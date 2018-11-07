@@ -400,7 +400,7 @@ def greedy_decode(symbols_to_logits_fn,
     and the decoding states (if :obj:`return_state` is ``True``).
   """
   batch_size = tf.shape(initial_ids)[0]
-  finished = tf.tile([False], [batch_size])
+  finished = tf.zeros([batch_size], dtype=tf.bool)
   step = tf.constant(0)
   inputs = tf.expand_dims(initial_ids, 1)
   lengths = tf.zeros([batch_size], dtype=tf.int32)
@@ -411,26 +411,26 @@ def greedy_decode(symbols_to_logits_fn,
     return tf.logical_not(tf.reduce_all(finished))
 
   def _body(step, finished, inputs, lengths, log_probs, state):
-    inputs_lengths = tf.add(lengths, 1 - tf.cast(finished, lengths.dtype))
-
     logits, state = symbols_to_logits_fn(inputs, step, state)
     probs = tf.nn.log_softmax(tf.to_float(logits))
+
+    # Sample best prediction.
     sample_ids = tf.argmax(probs, axis=-1, output_type=inputs.dtype)
-
-    # Accumulate log probabilities.
     sample_probs = tf.reduce_max(probs, axis=-1)
+
+    # Don't update finished batches.
+    masked_lengths_inc = 1 - tf.cast(finished, lengths.dtype)
     masked_probs = sample_probs * (1.0 - tf.cast(finished, sample_probs.dtype))
-    log_probs = tf.add(log_probs, masked_probs)
 
-    next_inputs = tf.concat([inputs, tf.expand_dims(sample_ids, 1)], -1)
-    next_lengths = inputs_lengths
-    next_finished = tf.logical_or(finished, tf.equal(sample_ids, end_id))
     step = step + 1
-
+    inputs = tf.concat([inputs, tf.expand_dims(sample_ids, 1)], -1)
+    lengths += masked_lengths_inc
+    log_probs += masked_probs
+    finished = tf.logical_or(finished, tf.equal(sample_ids, end_id))
     if decode_length is not None:
-      next_finished = tf.logical_or(next_finished, step >= decode_length)
+      finished = tf.logical_or(finished, step >= decode_length)
 
-    return step, next_finished, next_inputs, next_lengths, log_probs, state
+    return step, finished, inputs, lengths, log_probs, state
 
   _, _, outputs, lengths, log_probs, state = tf.while_loop(
       _condition,
