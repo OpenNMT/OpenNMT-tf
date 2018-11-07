@@ -235,6 +235,7 @@ class SequenceToSequence(Model):
         batch_size = tf.shape(encoder_sequence_length)[0]
         beam_width = params.get("beam_width", 1)
         maximum_iterations = params.get("maximum_iterations", 250)
+        minimum_length = params.get("minimum_decoding_length", 0)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
         end_token = constants.END_OF_SENTENCE_ID
 
@@ -246,6 +247,7 @@ class SequenceToSequence(Model):
               vocab_size=target_vocab_size,
               initial_state=encoder_state,
               maximum_iterations=maximum_iterations,
+              minimum_length=minimum_length,
               mode=mode,
               memory=encoder_outputs,
               memory_sequence_length=encoder_sequence_length,
@@ -263,6 +265,7 @@ class SequenceToSequence(Model):
                   beam_width=beam_width,
                   length_penalty=length_penalty,
                   maximum_iterations=maximum_iterations,
+                  minimum_length=minimum_length,
                   mode=mode,
                   memory=encoder_outputs,
                   memory_sequence_length=encoder_sequence_length,
