@@ -410,8 +410,7 @@ class Runner(object):
           logits=outputs["logits"], labels=labels["ids_out"])
       weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
       masked_cross_entropy = cross_entropy * weights
-      scores = (tf.reduce_sum(masked_cross_entropy, axis=1) /
-                tf.cast(labels["length"], cross_entropy.dtype))
+      scores = tf.reduce_sum(masked_cross_entropy, axis=1)
       results = {
           "attention": outputs["attention"],
           "cross_entropy": cross_entropy,

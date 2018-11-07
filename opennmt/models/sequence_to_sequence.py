@@ -350,7 +350,7 @@ class SequenceToSequence(Model):
       attention = None
       alignment_type = None
       if params is not None and params.get("with_scores"):
-        score = prediction["log_probs"][i] / prediction["length"][i]
+        score = prediction["log_probs"][i]
       if params is not None and params.get("with_alignments"):
         attention = prediction["alignment"][i][:target_length]
         alignment_type = params["with_alignments"]
