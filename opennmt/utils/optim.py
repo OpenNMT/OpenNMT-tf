@@ -87,7 +87,12 @@ def get_optimizer_class(classname):
 
   return optimizer_class
 
-def optimize(loss, params, mixed_precision=False):
+def optimize(*args, **kwargs):
+  """Wrapper around ``optimize_loss`` for backward compatibility."""
+  update_op, _ = optimize_loss(*args, **kwargs)
+  return update_op
+
+def optimize_loss(loss, params, mixed_precision=False):
   """Minimizes the loss.
 
   Args:
@@ -97,7 +102,7 @@ def optimize(loss, params, mixed_precision=False):
       of the weights.
 
   Returns:
-    The loss minimization op.
+    The loss minimization op and a list of internal variables to initialize.
   """
   regularization = params.get("regularization")
   if regularization is not None:
@@ -142,7 +147,55 @@ def optimize(loss, params, mixed_precision=False):
       gradients = _clip_gradients_by_norm(gradients, float(params["clip_gradients"]))
       _summarize_gradients_norm("global_norm/clipped_gradient_norm", gradients)
 
-    return optimizer.apply_gradients(gradients, global_step=global_step)
+    return delayed_update(
+        optimizer,
+        gradients,
+        global_step,
+        accum_count=params.get("gradients_accum_steps", 1))
+
+def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
+  """Possibly delays the parameters update by first accumulating gradients.
+
+  Args:
+    optimizer: The optimizer.
+    grads_and_vars: List of (gradient, variable) pairs.
+    global_step: The current training step.
+    accum_count: The number of steps to accumulate gradients.
+
+  Returns:
+    An operation that conditionally applies the gradients and a list of internal
+    variables to initialize.
+  """
+  if accum_count == 1:
+    return optimizer.apply_gradients(grads_and_vars, global_step=global_step), []
+
+  accum_grads = []
+  accum_grads_and_vars = []
+  for grad, var in grads_and_vars:
+    accum_grad = tf.Variable(tf.zeros_like(grad), trainable=False, collections=[])
+    accum_grads.append(accum_grad)
+    accum_grads_and_vars.append((accum_grad, var))
+
+  def _accum_grads(accum_fn=tf.assign_add, apply_gradients=False):
+    update_ops = []
+    for accum_grad, (grad, _) in zip(accum_grads, grads_and_vars):
+      with tf.control_dependencies([grad]):
+        update_ops.append(accum_fn(accum_grad, grad))
+    with tf.control_dependencies(update_ops):
+      if apply_gradients:
+        return optimizer.apply_gradients(accum_grads_and_vars, global_step=global_step)
+      else:
+        with tf.control_dependencies([global_step.assign_add(1)]):
+          return tf.no_op()
+
+  update_op = tf.cond(
+      tf.equal((global_step + 1) % accum_count, 0),
+      true_fn=lambda: _accum_grads(apply_gradients=True),
+      false_fn=lambda: tf.cond(
+          tf.equal(global_step % accum_count, 0),
+          true_fn=lambda: _accum_grads(accum_fn=tf.assign),
+          false_fn=_accum_grads))
+  return update_op, accum_grads
 
 def regularization_penalty(regularization_type, scale, weights_list=None):
   """Computes the weights regularization penalty.

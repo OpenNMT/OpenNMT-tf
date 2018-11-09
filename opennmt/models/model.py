@@ -8,7 +8,7 @@ import six
 import tensorflow as tf
 
 from opennmt.utils import data, hooks
-from opennmt.utils.optim import optimize
+from opennmt.utils.optim import optimize_loss
 from opennmt.utils.misc import item_or_tuple
 from opennmt.utils.parallel import GraphDispatcher
 
@@ -123,7 +123,10 @@ class Model(object):
               _loss_op, features_shards, labels_shards, params, mode, config)
 
         loss = _extract_loss(losses_shards)
-        train_op = optimize(loss, params, mixed_precision=(self.dtype == tf.float16))
+        train_op, extra_variables = optimize_loss(
+            loss, params, mixed_precision=(self.dtype == tf.float16))
+        if extra_variables:
+          training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
         return tf.estimator.EstimatorSpec(
             mode,
             loss=loss,

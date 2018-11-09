@@ -29,6 +29,33 @@ class OptimTest(tf.test.TestCase):
     with self.assertRaises(ValueError):
       self._testRegularization("l3", 1e-4)
 
+  def testDelayedUpdate(self):
+    global_step = tf.Variable(0, trainable=False, dtype=tf.int64)
+    optimizer = tf.train.GradientDescentOptimizer(1.0)
+    gradient = tf.placeholder(tf.float32, shape=[2])
+    variable = tf.Variable([1.0, 2.0])
+    train_op, extra_variables = optim.delayed_update(
+        optimizer,
+        [(gradient, variable)],
+        global_step,
+        accum_count=3)
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+      sess.run(tf.variables_initializer(extra_variables))
+
+      def _check_step(grad, expected_variable, expected_step):
+        _, variable_value, step_value = sess.run(
+            [train_op, variable, global_step], feed_dict={gradient: grad})
+        self.assertAllEqual(variable_value, expected_variable)
+        self.assertAllEqual(step_value, expected_step)
+
+      _check_step([3.0, 3.0], [1.0, 2.0], 1)     # accum_grad = [3.0, 3.0]
+      _check_step([4.0, 1.0], [1.0, 2.0], 2)     # accum_grad = [7.0, 4.0]
+      _check_step([-1.0, 0.0], [-5.0, -2.0], 3)  # accum_grad = [6.0, 4.0], apply
+      _check_step([-3.0, 1.0], [-5.0, -2.0], 4)  # accum_grad = [-3.0, 1.0]
+      _check_step([0.0, -3.0], [-5.0, -2.0], 5)  # accum_grad = [-3.0, -2.0]
+      _check_step([2.0, -1.0], [-4.0, 1.0], 6)   # accum_grad = [-1.0, -3.0], apply
+
 
 if __name__ == "__main__":
   tf.test.main()
