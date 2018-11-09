@@ -352,6 +352,42 @@ output.</li>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="opennmt.decoders.rnn_decoder.RNMTPlusDecoder">
+<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">RNMTPlusDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>cell_class=&lt;class 'tensorflow.contrib.rnn.python.ops.rnn_cell.LayerNormBasicLSTMCell'&gt;</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNMTPlusDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNMTPlusDecoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.decoders.rnn_decoder.RNNDecoder" title="opennmt.decoders.rnn_decoder.RNNDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.rnn_decoder.RNNDecoder</span></code></a></p>
+<p>The RNMT+ decoder described in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
+<dl class="method">
+<dt id="opennmt.decoders.rnn_decoder.RNMTPlusDecoder.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>cell_class=&lt;class 'tensorflow.contrib.rnn.python.ops.rnn_cell.LayerNormBasicLSTMCell'&gt;</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNMTPlusDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNMTPlusDecoder.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the decoder parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_layers</strong> – The number of layers.</li>
+<li><strong>num_units</strong> – The number of units in each layer.</li>
+<li><strong>num_heads</strong> – The number of attention heads.</li>
+<li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
+argument and returning a cell.</li>
+<li><strong>dropout</strong> – The probability to drop units from the decoder input and in each
+layer output.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.decoders.rnn_decoder.RNMTPlusDecoder.output_size">
+<code class="descname">output_size</code><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNMTPlusDecoder.output_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the decoder output size.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
