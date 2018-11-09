@@ -291,15 +291,17 @@ def _reduce_rms(x):
   return tf.sqrt(tf.reduce_mean(tf.square(x)))
 
 
-def get_optimizer_from_params(optimizer_class, params):
+def get_optimizer_from_params(optimizer_class, params, learning_rate=None):
   """Get the Adafactor optimizer from user parameters.
 
   Args:
     optimizer_class: The AdafactorOptimizer class.
     params: A dictionary containing the user parameters for this optimizer.
+    learning_rate: Optional learning rate.
 
   Returns:
-    A callable that takes the learning rate as argument.
+    An Adafactor optimizer instance if :obj:`learning_rate` is set, otherwise a
+    callable that takes the learning rate as argument and return an instance.
   """
   params = copy.deepcopy(params)
 
@@ -315,7 +317,10 @@ def get_optimizer_from_params(optimizer_class, params):
   params.pop("memory_exponent", None)
   params.pop("beta2", None)
 
-  return lambda lr: optimizer_class(
+  optimizer_fn = lambda lr: optimizer_class(
       learning_rate=lr,
       decay_rate=decay_rate,
       **params)
+  if learning_rate is not None:
+    return optimizer_fn(learning_rate)
+  return optimizer_fn
