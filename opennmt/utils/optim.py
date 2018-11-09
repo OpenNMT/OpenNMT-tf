@@ -99,57 +99,50 @@ def optimize(loss, params, mixed_precision=False):
   Returns:
     The loss minimization op.
   """
-  global_step = tf.train.get_or_create_global_step()
-  decay_type = params.get("decay_type")
-
-  if decay_type is not None:
-    decay_fn = learning_rate_decay_fn(
-        decay_type,
-        params["decay_rate"],
-        params["decay_steps"],
-        decay_step_duration=params.get("decay_step_duration", 1),
-        staircase=params.get("staircase", True),
-        start_decay_steps=params.get("start_decay_steps", 0),
-        minimum_learning_rate=params.get("minimum_learning_rate", 0))
-  else:
-    decay_fn = None
-
-  learning_rate = float(params["learning_rate"])
-  clip_gradients = params.get("clip_gradients")
-  if clip_gradients is not None:
-    clip_gradients = float(clip_gradients)
-
-  optimizer_class = get_optimizer_class(params["optimizer"])
-  optimizer_params = params.get("optimizer_params", {})
-
-  if optimizer_class.__name__ == "AdafactorOptimizer":
-    optimizer = optimizers.get_adafactor_optimizer_from_params(optimizer_class, optimizer_params)
-  else:
-    optimizer = lambda lr: optimizer_class(lr, **optimizer_params)
-
-  if mixed_precision:
-    optimizer_fn = lambda lr: optimizers.MixedPrecisionOptimizerWrapper(
-        optimizer(lr), loss_scale=get_loss_scale_from_params(params))
-  else:
-    optimizer_fn = optimizer
-
   regularization = params.get("regularization")
   if regularization is not None:
     loss += regularization_penalty(regularization["type"], regularization["scale"])
 
-  return tf.contrib.layers.optimize_loss(
-      loss,
-      global_step,
-      learning_rate,
-      optimizer_fn,
-      clip_gradients=clip_gradients,
-      learning_rate_decay_fn=decay_fn,
-      name="optim",
-      summaries=[
-          "learning_rate",
-          "global_gradient_norm",
-      ],
-      colocate_gradients_with_ops=True)
+  global_step = tf.train.get_or_create_global_step()
+  with tf.variable_scope("optim"):
+    # Learning rate.
+    learning_rate = tf.get_variable(
+        "learning_rate",
+        [],
+        trainable=False,
+        initializer=tf.constant_initializer(float(params["learning_rate"])))
+    if "decay_type" in params:
+      decay_fn = learning_rate_decay_fn(
+          params["decay_type"],
+          params["decay_rate"],
+          params["decay_steps"],
+          decay_step_duration=params.get("decay_step_duration", 1),
+          staircase=params.get("staircase", True),
+          start_decay_steps=params.get("start_decay_steps", 0),
+          minimum_learning_rate=params.get("minimum_learning_rate", 0))
+      learning_rate = decay_fn(learning_rate, global_step)
+    tf.summary.scalar("learning_rate", learning_rate)
+
+    # Optimizer.
+    optimizer_class = get_optimizer_class(params["optimizer"])
+    optimizer_params = params.get("optimizer_params", {})
+    if optimizer_class.__name__ == "AdafactorOptimizer":
+      optimizer = optimizers.get_adafactor_optimizer_from_params(
+          optimizer_class, optimizer_params, learning_rate=learning_rate)
+    else:
+      optimizer = optimizer_class(learning_rate, **optimizer_params)
+    if mixed_precision:
+      optimizer = optimizers.MixedPrecisionOptimizerWrapper(
+          optimizer, loss_scale=get_loss_scale_from_params(params))
+
+    # Gradients.
+    gradients = optimizer.compute_gradients(loss, colocate_gradients_with_ops=True)
+    _summarize_gradients_norm("global_norm/gradient_norm", gradients)
+    if "clip_gradients" in params:
+      gradients = _clip_gradients_by_norm(gradients, float(params["clip_gradients"]))
+      _summarize_gradients_norm("global_norm/clipped_gradient_norm", gradients)
+
+    return optimizer.apply_gradients(gradients, global_step=global_step)
 
 def regularization_penalty(regularization_type, scale, weights_list=None):
   """Computes the weights regularization penalty.
@@ -187,3 +180,13 @@ def regularization_penalty(regularization_type, scale, weights_list=None):
     raise ValueError("invalid regularization type %s" % regularization_type)
 
   return tf.contrib.layers.apply_regularization(regularizer, weights_list=weights_list)
+
+def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
+  """Clips gradients by global norm."""
+  gradients, variables = zip(*grads_and_vars)
+  clipped_gradients, _ = tf.clip_by_global_norm(gradients, clip_gradients)
+  return list(zip(clipped_gradients, variables))
+
+def _summarize_gradients_norm(name, gradients):
+  """Summarizes global norm of gradients."""
+  tf.summary.scalar(name, tf.global_norm(list(zip(*gradients))[0]))
