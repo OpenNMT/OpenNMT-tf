@@ -93,6 +93,10 @@ class DecoderTest(tf.test.TestCase):
     decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
     self._testDecoderTraining(decoder)
 
+  def testRNMTPlusDecoderTraining(self):
+    decoder = decoders.RNMTPlusDecoder(2, 20, 4)
+    self._testDecoderTraining(decoder)
+
   def testSelfAttentionDecoderTraining(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoderTraining(decoder)
@@ -211,6 +215,10 @@ class DecoderTest(tf.test.TestCase):
 
   def testMultiAttentionalRNNDecoder(self):
     decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
+    self._testDecoder(decoder)
+
+  def testRNMTPlusDecoder(self):
+    decoder = decoders.RNMTPlusDecoder(2, 20, 4)
     self._testDecoder(decoder)
 
   def testSelfAttentionDecoder(self):
