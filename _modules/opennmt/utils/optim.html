@@ -261,57 +261,50 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    The loss minimization op.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_or_create_global_step</span><span class="p">()</span>
-  <span class="n">decay_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span>
-
-  <span class="k">if</span> <span class="n">decay_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">decay_fn</span> <span class="o">=</span> <span class="n">learning_rate_decay_fn</span><span class="p">(</span>
-        <span class="n">decay_type</span><span class="p">,</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_rate&quot;</span><span class="p">],</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_steps&quot;</span><span class="p">],</span>
-        <span class="n">decay_step_duration</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">staircase</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;staircase&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
-        <span class="n">start_decay_steps</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_decay_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_learning_rate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">decay_fn</span> <span class="o">=</span> <span class="kc">None</span>
-
-  <span class="n">learning_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">])</span>
-  <span class="n">clip_gradients</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">clip_gradients</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">clip_gradients</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_gradients</span><span class="p">)</span>
-
-  <span class="n">optimizer_class</span> <span class="o">=</span> <span class="n">get_optimizer_class</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">])</span>
-  <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
-
-  <span class="k">if</span> <span class="n">optimizer_class</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AdafactorOptimizer&quot;</span><span class="p">:</span>
-    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">get_adafactor_optimizer_from_params</span><span class="p">(</span><span class="n">optimizer_class</span><span class="p">,</span> <span class="n">optimizer_params</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">optimizer</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lr</span><span class="p">:</span> <span class="n">optimizer_class</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_params</span><span class="p">)</span>
-
-  <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
-    <span class="n">optimizer_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lr</span><span class="p">:</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">MixedPrecisionOptimizerWrapper</span><span class="p">(</span>
-        <span class="n">optimizer</span><span class="p">(</span><span class="n">lr</span><span class="p">),</span> <span class="n">loss_scale</span><span class="o">=</span><span class="n">get_loss_scale_from_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">optimizer_fn</span> <span class="o">=</span> <span class="n">optimizer</span>
-
   <span class="n">regularization</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regularization&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">regularization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">loss</span> <span class="o">+=</span> <span class="n">regularization_penalty</span><span class="p">(</span><span class="n">regularization</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">regularization</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">])</span>
 
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">optimize_loss</span><span class="p">(</span>
-      <span class="n">loss</span><span class="p">,</span>
-      <span class="n">global_step</span><span class="p">,</span>
-      <span class="n">learning_rate</span><span class="p">,</span>
-      <span class="n">optimizer_fn</span><span class="p">,</span>
-      <span class="n">clip_gradients</span><span class="o">=</span><span class="n">clip_gradients</span><span class="p">,</span>
-      <span class="n">learning_rate_decay_fn</span><span class="o">=</span><span class="n">decay_fn</span><span class="p">,</span>
-      <span class="n">name</span><span class="o">=</span><span class="s2">&quot;optim&quot;</span><span class="p">,</span>
-      <span class="n">summaries</span><span class="o">=</span><span class="p">[</span>
-          <span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span>
-          <span class="s2">&quot;global_gradient_norm&quot;</span><span class="p">,</span>
-      <span class="p">],</span>
-      <span class="n">colocate_gradients_with_ops</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+  <span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_or_create_global_step</span><span class="p">()</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;optim&quot;</span><span class="p">):</span>
+    <span class="c1"># Learning rate.</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
+        <span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span>
+        <span class="p">[],</span>
+        <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">])))</span>
+    <span class="k">if</span> <span class="s2">&quot;decay_type&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+      <span class="n">decay_fn</span> <span class="o">=</span> <span class="n">learning_rate_decay_fn</span><span class="p">(</span>
+          <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_type&quot;</span><span class="p">],</span>
+          <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_rate&quot;</span><span class="p">],</span>
+          <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_steps&quot;</span><span class="p">],</span>
+          <span class="n">decay_step_duration</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+          <span class="n">staircase</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;staircase&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+          <span class="n">start_decay_steps</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_decay_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+          <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_learning_rate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+      <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">decay_fn</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">)</span>
+
+    <span class="c1"># Optimizer.</span>
+    <span class="n">optimizer_class</span> <span class="o">=</span> <span class="n">get_optimizer_class</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">])</span>
+    <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="n">optimizer_class</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AdafactorOptimizer&quot;</span><span class="p">:</span>
+      <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">get_adafactor_optimizer_from_params</span><span class="p">(</span>
+          <span class="n">optimizer_class</span><span class="p">,</span> <span class="n">optimizer_params</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer_class</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_params</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
+      <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">MixedPrecisionOptimizerWrapper</span><span class="p">(</span>
+          <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_scale</span><span class="o">=</span><span class="n">get_loss_scale_from_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+
+    <span class="c1"># Gradients.</span>
+    <span class="n">gradients</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">compute_gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">colocate_gradients_with_ops</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;clip_gradients&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+      <span class="n">gradients</span> <span class="o">=</span> <span class="n">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">]))</span>
+      <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/clipped_gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="regularization_penalty"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.regularization_penalty">[docs]</a><span class="k">def</span> <span class="nf">regularization_penalty</span><span class="p">(</span><span class="n">regularization_type</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">weights_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Computes the weights regularization penalty.</span>
@@ -349,6 +342,16 @@
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid regularization type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">regularization_type</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">apply_regularization</span><span class="p">(</span><span class="n">regularizer</span><span class="p">,</span> <span class="n">weights_list</span><span class="o">=</span><span class="n">weights_list</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">clip_gradients</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Clips gradients by global norm.&quot;&quot;&quot;</span>
+  <span class="n">gradients</span><span class="p">,</span> <span class="n">variables</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">grads_and_vars</span><span class="p">)</span>
+  <span class="n">clipped_gradients</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">clip_by_global_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">clip_gradients</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">clipped_gradients</span><span class="p">,</span> <span class="n">variables</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">_summarize_gradients_norm</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">gradients</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Summarizes global norm of gradients.&quot;&quot;&quot;</span>
+  <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_norm</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">gradients</span><span class="p">))[</span><span class="mi">0</span><span class="p">]))</span>
 </pre></div>
 
            </div>

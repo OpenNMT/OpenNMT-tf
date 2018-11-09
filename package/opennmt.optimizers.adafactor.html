@@ -331,7 +331,7 @@ present or both absent.</p>
 
 <dl class="function">
 <dt id="opennmt.optimizers.adafactor.get_optimizer_from_params">
-<code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">get_optimizer_from_params</code><span class="sig-paren">(</span><em>optimizer_class</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#get_optimizer_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.get_optimizer_from_params" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">get_optimizer_from_params</code><span class="sig-paren">(</span><em>optimizer_class</em>, <em>params</em>, <em>learning_rate=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#get_optimizer_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.get_optimizer_from_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Adafactor optimizer from user parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -340,10 +340,12 @@ present or both absent.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>optimizer_class</strong> – The AdafactorOptimizer class.</li>
 <li><strong>params</strong> – A dictionary containing the user parameters for this optimizer.</li>
+<li><strong>learning_rate</strong> – Optional learning rate.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A callable that takes the learning rate as argument.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An Adafactor optimizer instance if <code class="xref py py-obj docutils literal notranslate"><span class="pre">learning_rate</span></code> is set, otherwise a
+callable that takes the learning rate as argument and return an instance.</p>
 </td>
 </tr>
 </tbody>

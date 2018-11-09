@@ -453,15 +453,17 @@
   <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
 
 
-<div class="viewcode-block" id="get_optimizer_from_params"><a class="viewcode-back" href="../../../package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.get_optimizer_from_params">[docs]</a><span class="k">def</span> <span class="nf">get_optimizer_from_params</span><span class="p">(</span><span class="n">optimizer_class</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="get_optimizer_from_params"><a class="viewcode-back" href="../../../package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.get_optimizer_from_params">[docs]</a><span class="k">def</span> <span class="nf">get_optimizer_from_params</span><span class="p">(</span><span class="n">optimizer_class</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Get the Adafactor optimizer from user parameters.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    optimizer_class: The AdafactorOptimizer class.</span>
 <span class="sd">    params: A dictionary containing the user parameters for this optimizer.</span>
+<span class="sd">    learning_rate: Optional learning rate.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    A callable that takes the learning rate as argument.</span>
+<span class="sd">    An Adafactor optimizer instance if :obj:`learning_rate` is set, otherwise a</span>
+<span class="sd">    callable that takes the learning rate as argument and return an instance.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
@@ -477,10 +479,13 @@
   <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;memory_exponent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
   <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;beta2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-  <span class="k">return</span> <span class="k">lambda</span> <span class="n">lr</span><span class="p">:</span> <span class="n">optimizer_class</span><span class="p">(</span>
+  <span class="n">optimizer_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lr</span><span class="p">:</span> <span class="n">optimizer_class</span><span class="p">(</span>
       <span class="n">learning_rate</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span>
       <span class="n">decay_rate</span><span class="o">=</span><span class="n">decay_rate</span><span class="p">,</span>
-      <span class="o">**</span><span class="n">params</span><span class="p">)</span></div>
+      <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">learning_rate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">optimizer_fn</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">optimizer_fn</span></div>
 </pre></div>
 
            </div>
