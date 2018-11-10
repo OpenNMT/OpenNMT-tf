@@ -111,7 +111,7 @@ def optimize(loss, params, mixed_precision=False):
         [],
         trainable=False,
         initializer=tf.constant_initializer(float(params["learning_rate"])))
-    if "decay_type" in params:
+    if params.get("decay_type") is not None:
       decay_fn = learning_rate_decay_fn(
           params["decay_type"],
           params["decay_rate"],
@@ -138,7 +138,7 @@ def optimize(loss, params, mixed_precision=False):
     # Gradients.
     gradients = optimizer.compute_gradients(loss, colocate_gradients_with_ops=True)
     _summarize_gradients_norm("global_norm/gradient_norm", gradients)
-    if "clip_gradients" in params:
+    if params.get("clip_gradients") is not None:
       gradients = _clip_gradients_by_norm(gradients, float(params["clip_gradients"]))
       _summarize_gradients_norm("global_norm/clipped_gradient_norm", gradients)
 
