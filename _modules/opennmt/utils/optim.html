@@ -273,7 +273,7 @@
         <span class="p">[],</span>
         <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">])))</span>
-    <span class="k">if</span> <span class="s2">&quot;decay_type&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">decay_fn</span> <span class="o">=</span> <span class="n">learning_rate_decay_fn</span><span class="p">(</span>
           <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_type&quot;</span><span class="p">],</span>
           <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_rate&quot;</span><span class="p">],</span>
@@ -300,7 +300,7 @@
     <span class="c1"># Gradients.</span>
     <span class="n">gradients</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">compute_gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">colocate_gradients_with_ops</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;clip_gradients&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">gradients</span> <span class="o">=</span> <span class="n">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">]))</span>
       <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/clipped_gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
 
