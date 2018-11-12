@@ -377,6 +377,28 @@
 <div class="viewcode-block" id="LoadWeightsFromCheckpointHook.after_create_session"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session">[docs]</a>  <span class="k">def</span> <span class="nf">after_create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">placeholders</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">assign_ops</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)):</span>
       <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span></div></div>
+
+
+<div class="viewcode-block" id="VariablesInitializerHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook">[docs]</a><span class="k">class</span> <span class="nc">VariablesInitializerHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Hook that initializes some variables in the current session. This is useful</span>
+<span class="sd">  when using internal variables (e.g. for value accumulation) that are not saved</span>
+<span class="sd">  in the checkpoints.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VariablesInitializerHook.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes this hook.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      variables: A list of variables to initialize.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span> <span class="o">=</span> <span class="n">variables</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="VariablesInitializerHook.begin"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.begin">[docs]</a>  <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">variables_initializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VariablesInitializerHook.after_create_session"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.after_create_session">[docs]</a>  <span class="k">def</span> <span class="nf">after_create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

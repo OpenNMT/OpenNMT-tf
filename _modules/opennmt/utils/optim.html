@@ -249,7 +249,12 @@
 
   <span class="k">return</span> <span class="n">optimizer_class</span></div>
 
-<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Wrapper around ``optimize_loss`` for backward compatibility.&quot;&quot;&quot;</span>
+  <span class="n">update_op</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">optimize_loss</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">update_op</span></div>
+
+<div class="viewcode-block" id="optimize_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize_loss">[docs]</a><span class="k">def</span> <span class="nf">optimize_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Minimizes the loss.</span>
 
 <span class="sd">  Args:</span>
@@ -259,7 +264,7 @@
 <span class="sd">      of the weights.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    The loss minimization op.</span>
+<span class="sd">    The loss minimization op and a list of internal variables to initialize.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">regularization</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regularization&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">regularization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -304,7 +309,55 @@
       <span class="n">gradients</span> <span class="o">=</span> <span class="n">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">]))</span>
       <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/clipped_gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">delayed_update</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="p">,</span>
+        <span class="n">gradients</span><span class="p">,</span>
+        <span class="n">global_step</span><span class="p">,</span>
+        <span class="n">accum_count</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gradients_accum_steps&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="delayed_update"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.delayed_update">[docs]</a><span class="k">def</span> <span class="nf">delayed_update</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="p">,</span> <span class="n">accum_count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Possibly delays the parameters update by first accumulating gradients.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    optimizer: The optimizer.</span>
+<span class="sd">    grads_and_vars: List of (gradient, variable) pairs.</span>
+<span class="sd">    global_step: The current training step.</span>
+<span class="sd">    accum_count: The number of steps to accumulate gradients.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    An operation that conditionally applies the gradients and a list of internal</span>
+<span class="sd">    variables to initialize.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">accum_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">),</span> <span class="p">[]</span>
+
+  <span class="n">accum_grads</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="n">accum_grads_and_vars</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">grads_and_vars</span><span class="p">:</span>
+    <span class="n">accum_grad</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">grad</span><span class="p">),</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collections</span><span class="o">=</span><span class="p">[])</span>
+    <span class="n">accum_grads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accum_grad</span><span class="p">)</span>
+    <span class="n">accum_grads_and_vars</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">accum_grad</span><span class="p">,</span> <span class="n">var</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">_accum_grads</span><span class="p">(</span><span class="n">accum_fn</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">assign_add</span><span class="p">,</span> <span class="n">apply_gradients</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">update_ops</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">accum_grad</span><span class="p">,</span> <span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">accum_grads</span><span class="p">,</span> <span class="n">grads_and_vars</span><span class="p">):</span>
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">grad</span><span class="p">]):</span>
+        <span class="n">update_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accum_fn</span><span class="p">(</span><span class="n">accum_grad</span><span class="p">,</span> <span class="n">grad</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">update_ops</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">apply_gradients</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">accum_grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">global_step</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="mi">1</span><span class="p">)]):</span>
+          <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">no_op</span><span class="p">()</span>
+
+  <span class="n">update_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">((</span><span class="n">global_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">accum_count</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+      <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_accum_grads</span><span class="p">(</span><span class="n">apply_gradients</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+      <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+          <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">global_step</span> <span class="o">%</span> <span class="n">accum_count</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+          <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_accum_grads</span><span class="p">(</span><span class="n">accum_fn</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">),</span>
+          <span class="n">false_fn</span><span class="o">=</span><span class="n">_accum_grads</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">update_op</span><span class="p">,</span> <span class="n">accum_grads</span></div>
 
 <div class="viewcode-block" id="regularization_penalty"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.regularization_penalty">[docs]</a><span class="k">def</span> <span class="nf">regularization_penalty</span><span class="p">(</span><span class="n">regularization_type</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">weights_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Computes the weights regularization penalty.</span>

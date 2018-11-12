@@ -170,7 +170,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">data</span><span class="p">,</span> <span class="n">hooks</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.optim</span> <span class="k">import</span> <span class="n">optimize</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.optim</span> <span class="k">import</span> <span class="n">optimize_loss</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">item_or_tuple</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.parallel</span> <span class="k">import</span> <span class="n">GraphDispatcher</span>
 
@@ -285,7 +285,10 @@
               <span class="n">_loss_op</span><span class="p">,</span> <span class="n">features_shards</span><span class="p">,</span> <span class="n">labels_shards</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
         <span class="n">loss</span> <span class="o">=</span> <span class="n">_extract_loss</span><span class="p">(</span><span class="n">losses_shards</span><span class="p">)</span>
-        <span class="n">train_op</span> <span class="o">=</span> <span class="n">optimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">float16</span><span class="p">))</span>
+        <span class="n">train_op</span><span class="p">,</span> <span class="n">extra_variables</span> <span class="o">=</span> <span class="n">optimize_loss</span><span class="p">(</span>
+            <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">float16</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">extra_variables</span><span class="p">:</span>
+          <span class="n">training_hooks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hooks</span><span class="o">.</span><span class="n">VariablesInitializerHook</span><span class="p">(</span><span class="n">extra_variables</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">EstimatorSpec</span><span class="p">(</span>
             <span class="n">mode</span><span class="p">,</span>
             <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>

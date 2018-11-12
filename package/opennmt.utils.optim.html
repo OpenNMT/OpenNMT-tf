@@ -238,7 +238,13 @@
 
 <dl class="function">
 <dt id="opennmt.utils.optim.optimize">
-<code class="descclassname">opennmt.utils.optim.</code><code class="descname">optimize</code><span class="sig-paren">(</span><em>loss</em>, <em>params</em>, <em>mixed_precision=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.optimize" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">optimize</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.optimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around <code class="docutils literal notranslate"><span class="pre">optimize_loss</span></code> for backward compatibility.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.optim.optimize_loss">
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">optimize_loss</code><span class="sig-paren">(</span><em>loss</em>, <em>params</em>, <em>mixed_precision=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#optimize_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.optimize_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimizes the loss.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -252,7 +258,31 @@ of the weights.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The loss minimization op.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The loss minimization op and a list of internal variables to initialize.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.optim.delayed_update">
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">delayed_update</code><span class="sig-paren">(</span><em>optimizer</em>, <em>grads_and_vars</em>, <em>global_step</em>, <em>accum_count=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#delayed_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.delayed_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Possibly delays the parameters update by first accumulating gradients.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>optimizer</strong> – The optimizer.</li>
+<li><strong>grads_and_vars</strong> – List of (gradient, variable) pairs.</li>
+<li><strong>global_step</strong> – The current training step.</li>
+<li><strong>accum_count</strong> – The number of steps to accumulate gradients.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An operation that conditionally applies the gradients and a list of internal
+variables to initialize.</p>
 </td>
 </tr>
 </tbody>
