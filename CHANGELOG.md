@@ -15,6 +15,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### New features
 
 * RNMT+ decoder
+* Parameter `gradients_accum_steps` to accumulate gradients and delay parameters update
 
 ### Fixes and improvements
 
