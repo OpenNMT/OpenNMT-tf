@@ -65,8 +65,8 @@ def get_optimizer_class(classname):
   """Returns the optimizer class.
 
   Args:
-    classname: The name of the optimizer class in ``tf.train`` or
-      ``tf.contrib.opt`` as a string.
+    classname: The name of the optimizer class in ``tf.train``,
+      ``tf.contrib.opt``, or ``opennmt.optimizers`` as a string.
 
   Returns:
     A class inheriting from ``tf.train.Optimizer``.
