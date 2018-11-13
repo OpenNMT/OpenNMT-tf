@@ -35,6 +35,43 @@ def learning_rate_decay_fn(decay_type,
   Raises:
     ValueError: if :obj:`decay_type` can not be resolved.
   """
+  decay_params = {
+      "decay_rate": decay_rate,
+      "decay_steps": decay_steps,
+      "staircase": staircase
+  }
+  return learning_rate_decay_fn_v2(
+      decay_type,
+      decay_params=decay_params,
+      decay_step_duration=decay_step_duration,
+      start_decay_step=start_decay_steps,
+      minimum_learning_rate=minimum_learning_rate)
+
+def learning_rate_decay_fn_v2(decay_type,
+                              decay_params=None,
+                              decay_step_duration=1,
+                              start_decay_step=0,
+                              minimum_learning_rate=0.0):
+  """Returns the learning rate decay function.
+
+  Args:
+    decay_type: The type of decay. A function from ``tf.train`` or
+      :mod:`opennmt.utils.decay` as a string.
+    decay_params: Additional parameters for the decay function.
+    decay_step_duration: The number of training steps that make 1 decay step.
+    start_decay_step: Start decay after this many steps.
+    minimum_learning_rate: Do not decay past this learning rate value.
+
+  Returns:
+    A function with signature
+    ``(learning_rate, global_step) -> decayed_learning_rate``.
+
+  Raises:
+    ValueError: if :obj:`decay_type` can not be resolved.
+  """
+  if decay_params is None:
+    decay_params = {}
+
   def _decay_fn(learning_rate, global_step):
     decay_op_name = None
 
@@ -46,18 +83,11 @@ def learning_rate_decay_fn(decay_type,
       raise ValueError("Unknown decay function: {}".format(decay_type))
 
     # Map the training step to a decay step.
-    step = tf.maximum(global_step - start_decay_steps, 0)
+    step = tf.maximum(global_step - start_decay_step, 0)
     step = tf.div(step, decay_step_duration)
 
-    decayed_learning_rate = decay_op_name(
-        learning_rate,
-        step,
-        decay_steps,
-        decay_rate,
-        staircase=staircase)
-    decayed_learning_rate = tf.maximum(decayed_learning_rate, minimum_learning_rate)
-
-    return decayed_learning_rate
+    learning_rate = decay_op_name(learning_rate, step, **decay_params)
+    return tf.maximum(learning_rate, minimum_learning_rate)
 
   return _decay_fn
 
@@ -117,13 +147,17 @@ def optimize_loss(loss, params, mixed_precision=False):
         trainable=False,
         initializer=tf.constant_initializer(float(params["learning_rate"])))
     if params.get("decay_type") is not None:
-      decay_fn = learning_rate_decay_fn(
+      decay_params = params.get("decay_params", {})
+      if "decay_rate" in params:
+        # Backward compatibility: fill params from previous options.
+        decay_params["decay_rate"] = params["decay_rate"]
+        decay_params["decay_steps"] = params["decay_steps"]
+        decay_params["staircase"] = params.get("staircase", True)
+      decay_fn = learning_rate_decay_fn_v2(
           params["decay_type"],
-          params["decay_rate"],
-          params["decay_steps"],
+          decay_params=decay_params,
           decay_step_duration=params.get("decay_step_duration", 1),
-          staircase=params.get("staircase", True),
-          start_decay_steps=params.get("start_decay_steps", 0),
+          start_decay_step=params.get("start_decay_steps", 0),
           minimum_learning_rate=params.get("minimum_learning_rate", 0))
       learning_rate = decay_fn(learning_rate, global_step)
     tf.summary.scalar("learning_rate", learning_rate)

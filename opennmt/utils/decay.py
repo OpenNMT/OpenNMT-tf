@@ -3,7 +3,7 @@
 import tensorflow as tf
 
 
-# All functions must have the same signature.
+# All functions must take the learning rate and the step as first arguments.
 
 def noam_decay(learning_rate,
                global_step,
@@ -28,14 +28,25 @@ def noam_decay(learning_rate,
   """
   _ = staircase
   _ = name
+  return noam_decay_v2(learning_rate, global_step, decay_rate, decay_steps)
 
-  scale = tf.cast(learning_rate, tf.float32)
-  step = tf.cast(global_step, tf.float32) + 1
-  hidden_size = tf.cast(decay_rate, tf.float32)
-  warmup_steps = tf.cast(decay_steps, tf.float32)
+def noam_decay_v2(scale, step, model_dim, warmup_steps):
+  """Defines the decay function described in https://arxiv.org/abs/1706.03762.
 
+  Args:
+    scale: The scale constant.
+    step: The current step.
+    model_dim: The model dimension.
+    warmup_steps: The number of warmup steps.
+
+  Returns:
+    The learning rate for the step :obj:`global_step`.
+  """
+  step = tf.cast(step + 1, tf.float32)
+  model_dim = tf.cast(model_dim, tf.float32)
+  warmup_steps = tf.cast(warmup_steps, tf.float32)
   return (scale
-          * tf.pow(hidden_size, -0.5)
+          * tf.pow(model_dim, -0.5)
           * tf.minimum(tf.pow(step, -0.5), step * tf.pow(warmup_steps, -1.5)))
 
 
@@ -63,9 +74,19 @@ def rsqrt_decay(learning_rate,
   _ = decay_rate
   _ = staircase
   _ = name
+  return rsqrt_decay_v2(learning_rate, global_step, decay_steps)
 
-  scale = tf.to_float(learning_rate)
-  step = tf.to_float(global_step)
-  warmup_steps = tf.to_float(decay_steps)
+def rsqrt_decay_v2(scale, step, warmup_steps):
+  """Decay based on the reciprocal of the step square root.
 
+  Args:
+    scale: The scale constant.
+    step: The current step.
+    warmup_steps: The number of warmup steps.
+
+  Returns:
+    The learning rate for the step :obj:`global_step`.
+  """
+  step = tf.cast(step, tf.float32)
+  warmup_steps = tf.cast(warmum_steps, tf.float32)
   return scale * tf.rsqrt(tf.maximum(step, warmup_steps))

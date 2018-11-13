@@ -101,11 +101,12 @@ class Transformer(SequenceToSequence):
             },
             "learning_rate": 2.0,
             "gradients_accum_steps": accum_steps,
-            "decay_type": "noam_decay",
-            "decay_rate": self._num_units,
             "decay_step_duration": accum_steps,
-            "decay_steps": 8000,
-            "start_decay_steps": 0
+            "decay_type": "noam_decay_v2",
+            "decay_params": {
+                "model_dim": self._num_units,
+                "warmup_steps": 8000
+            }
         },
         "train": {
             "batch_size": 3072,
