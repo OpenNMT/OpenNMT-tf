@@ -349,6 +349,11 @@
 <span class="sd">    history.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="kc">False</span>
 
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">support_multi_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder supports multiple source context.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
 <div class="viewcode-block" id="Decoder.dynamic_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.dynamic_decode">[docs]</a>  <span class="k">def</span> <span class="nf">dynamic_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                      <span class="n">embedding</span><span class="p">,</span>
                      <span class="n">start_tokens</span><span class="p">,</span>
@@ -461,7 +466,7 @@
     <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dtype argument is required when no memory is set&quot;</span><span class="p">)</span>
-      <span class="n">dtype</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">dtype</span>
+      <span class="n">dtype</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
     <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vocab_size must be known when the output_layer is not set&quot;</span><span class="p">)</span>
@@ -486,13 +491,13 @@
         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;decoder&quot;</span><span class="p">:</span> <span class="n">initial_state</span><span class="p">}</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
       <span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_symbols_to_logits_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
       <span class="n">inputs</span> <span class="o">=</span> <span class="n">embedding_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
       <span class="n">returned_values</span> <span class="o">=</span> <span class="n">step_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="p">)</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">:</span>
+      <span class="k">if</span> <span class="s2">&quot;attention&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
         <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">attention</span> <span class="o">=</span> <span class="n">returned_values</span>
         <span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>

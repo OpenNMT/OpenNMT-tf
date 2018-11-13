@@ -297,9 +297,11 @@ each encoder will encode its corresponding input in the sequence.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>encoders</strong> – A list of <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a>.</li>
 <li><strong>outputs_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
-outputs.</li>
+outputs. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults to
+<a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.JoinReducer" title="opennmt.layers.reducer.JoinReducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.JoinReducer</span></code></a>.</li>
 <li><strong>states_reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all
-states.</li>
+states. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults to
+<a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.JoinReducer" title="opennmt.layers.reducer.JoinReducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.JoinReducer</span></code></a>.</li>
 <li><strong>outputs_layer_fn</strong> – A callable or list of callables applied to the
 encoders outputs If it is a single callable, it is on each encoder
 output. Otherwise, the <code class="docutils literal notranslate"><span class="pre">i</span></code> th callable is applied on encoder <code class="docutils literal notranslate"><span class="pre">i</span></code>

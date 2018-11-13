@@ -268,9 +268,11 @@
 <span class="sd">    Args:</span>
 <span class="sd">      encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.</span>
 <span class="sd">      outputs_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all</span>
-<span class="sd">        outputs.</span>
+<span class="sd">        outputs. If ``None``, defaults to</span>
+<span class="sd">        :class:`opennmt.layers.reducer.JoinReducer`.</span>
 <span class="sd">      states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all</span>
-<span class="sd">        states.</span>
+<span class="sd">        states. If ``None``, defaults to</span>
+<span class="sd">        :class:`opennmt.layers.reducer.JoinReducer`.</span>
 <span class="sd">      outputs_layer_fn: A callable or list of callables applied to the</span>
 <span class="sd">        encoders outputs If it is a single callable, it is on each encoder</span>
 <span class="sd">        output. Otherwise, the ``i`` th callable is applied on encoder ``i``</span>
@@ -288,8 +290,8 @@
                        <span class="s2">&quot;expected </span><span class="si">%d</span><span class="s2"> layers but got </span><span class="si">%d</span><span class="s2">.&quot;</span>
                        <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs_layer_fn</span><span class="p">)))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="n">encoders</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">outputs_reducer</span> <span class="o">=</span> <span class="n">outputs_reducer</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span> <span class="o">=</span> <span class="n">states_reducer</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">outputs_reducer</span> <span class="o">=</span> <span class="n">outputs_reducer</span> <span class="k">if</span> <span class="n">outputs_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">JoinReducer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span> <span class="o">=</span> <span class="n">states_reducer</span> <span class="k">if</span> <span class="n">states_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">JoinReducer</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outputs_layer_fn</span> <span class="o">=</span> <span class="n">outputs_layer_fn</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">combined_output_layer_fn</span> <span class="o">=</span> <span class="n">combined_output_layer_fn</span></div>
 
