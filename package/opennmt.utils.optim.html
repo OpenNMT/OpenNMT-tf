@@ -305,8 +305,10 @@ of the weights.</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>optimizer</strong> – The optimizer.</li>
 <li><strong>grads_and_vars</strong> – List of (gradient, variable) pairs.</li>
-<li><strong>global_step</strong> – The current training step.</li>
-<li><strong>accum_count</strong> – The number of steps to accumulate gradients.</li>
+<li><strong>global_step</strong> – The training step that will be increased when the parameters
+are updated.</li>
+<li><strong>accum_count</strong> – The number of times to accumulate gradients, as a constant or
+a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
 </ul>
 </td>
 </tr>

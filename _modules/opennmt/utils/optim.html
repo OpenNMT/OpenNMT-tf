@@ -355,14 +355,16 @@
 <span class="sd">  Args:</span>
 <span class="sd">    optimizer: The optimizer.</span>
 <span class="sd">    grads_and_vars: List of (gradient, variable) pairs.</span>
-<span class="sd">    global_step: The current training step.</span>
-<span class="sd">    accum_count: The number of steps to accumulate gradients.</span>
+<span class="sd">    global_step: The training step that will be increased when the parameters</span>
+<span class="sd">      are updated.</span>
+<span class="sd">    accum_count: The number of times to accumulate gradients, as a constant or</span>
+<span class="sd">      a ``tf.Tensor``.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    An operation that conditionally applies the gradients and a list of internal</span>
 <span class="sd">    variables to initialize.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">accum_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">accum_count</span><span class="p">)</span> <span class="ow">and</span> <span class="n">accum_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">),</span> <span class="p">[]</span>
 
   <span class="n">model_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collections</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
