@@ -187,6 +187,11 @@ class Decoder(object):
     history."""
     return False
 
+  @property
+  def support_multi_source(self):
+    """Returns ``True`` if this decoder supports multiple source context."""
+    return False
+
   def dynamic_decode(self,
                      embedding,
                      start_tokens,
@@ -299,7 +304,7 @@ class Decoder(object):
     if dtype is None:
       if memory is None:
         raise ValueError("dtype argument is required when no memory is set")
-      dtype = memory.dtype
+      dtype = tf.contrib.framework.nest.flatten(memory)[0].dtype
     if output_layer is None:
       if vocab_size is None:
         raise ValueError("vocab_size must be known when the output_layer is not set")
@@ -324,13 +329,13 @@ class Decoder(object):
         dtype=dtype)
 
     state = {"decoder": initial_state}
-    if self.support_alignment_history:
+    if self.support_alignment_history and not isinstance(memory, (tuple, list)):
       state["attention"] = tf.zeros([batch_size, 0, tf.shape(memory)[1]], dtype=dtype)
 
     def _symbols_to_logits_fn(ids, step, state):
       inputs = embedding_fn(ids[:, -1])
       returned_values = step_fn(step, inputs, state["decoder"], mode)
-      if self.support_alignment_history:
+      if "attention" in state:
         outputs, state["decoder"], attention = returned_values
         state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
       else:
