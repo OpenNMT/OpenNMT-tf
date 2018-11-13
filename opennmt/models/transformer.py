@@ -89,7 +89,6 @@ class Transformer(SequenceToSequence):
 
   def auto_config(self, num_devices=1):
     config = super(Transformer, self).auto_config(num_devices=num_devices)
-    accum_steps = max(1, 8 // num_devices)
     return merge_dict(config, {
         "params": {
             "average_loss_in_time": True,
@@ -100,8 +99,7 @@ class Transformer(SequenceToSequence):
                 "beta2": 0.998
             },
             "learning_rate": 2.0,
-            "gradients_accum_steps": accum_steps,
-            "decay_step_duration": accum_steps,
+            "gradients_accum": max(1, 8 // num_devices),
             "decay_type": "noam_decay_v2",
             "decay_params": {
                 "model_dim": self._num_units,

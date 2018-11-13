@@ -36,9 +36,9 @@ params:
 
   # (optional) Maximum gradients norm (default: None).
   clip_gradients: 5.0
-  # (optional) Accumulate gradients for this many steps before applying them
-  # (default: 1).
-  gradients_accum_steps: 1
+  # (optional) 1 training step will process this many batches and accumulates
+  # their gradients (default: 1).
+  gradients_accum: 1
 
   # (optional) For mixed precision training, the loss scaling to apply (a constant value or
   # an automatic scaling algorithm: "backoff", "logmax", default: "backoff")
