@@ -205,7 +205,7 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
 
     tf_vars = []
     current_scope = tf.get_variable_scope()
-    with tf.variable_scope(current_scope, reuse=tf.AUTO_REUSE)):
+    with tf.variable_scope(current_scope, reuse=tf.AUTO_REUSE):
       for name, value in six.iteritems(self.values):
         tf_vars.append(tf.get_variable(name, shape=value.shape))
 
