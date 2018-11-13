@@ -194,13 +194,14 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
     optimizer: The optimizer.
     grads_and_vars: List of (gradient, variable) pairs.
     global_step: The current training step.
-    accum_count: The number of steps to accumulate gradients.
+    accum_count: The number of times to accumulate gradients, as a constant or
+      a ``tf.Tensor``.
 
   Returns:
     An operation that conditionally applies the gradients and a list of internal
     variables to initialize.
   """
-  if accum_count == 1:
+  if not tf.contrib.framework.is_tensor(accum_count) and accum_count == 1:
     return optimizer.apply_gradients(grads_and_vars, global_step=global_step), []
 
   model_step = tf.Variable(0, trainable=False, collections=[], dtype=tf.int64)
