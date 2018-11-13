@@ -226,7 +226,7 @@ class SelfAttentionDecoder(decoder.Decoder):
                initial_state=None,
                memory=None,
                memory_sequence_length=None,
-               dtype=None):
+               dtype=tf.float32):
     cache = self._init_cache(batch_size, dtype=dtype)
     def _fn(step, inputs, cache, mode):
       inputs = tf.expand_dims(inputs, 1)

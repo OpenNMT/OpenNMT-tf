@@ -413,7 +413,7 @@ class Decoder(object):
                initial_state=None,
                memory=None,
                memory_sequence_length=None,
-               dtype=None):
+               dtype=tf.float32):
     """Callable to run decoding steps.
 
     Args:

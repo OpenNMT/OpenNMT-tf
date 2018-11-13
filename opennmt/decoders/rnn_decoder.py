@@ -160,7 +160,7 @@ class RNNDecoder(decoder.Decoder):
                initial_state=None,
                memory=None,
                memory_sequence_length=None,
-               dtype=None):
+               dtype=tf.float32):
     cell, initial_state = self._build_cell(
         mode,
         batch_size,
