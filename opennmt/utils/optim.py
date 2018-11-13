@@ -193,7 +193,8 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
   Args:
     optimizer: The optimizer.
     grads_and_vars: List of (gradient, variable) pairs.
-    global_step: The current training step.
+    global_step: The training step that will be increased when the parameters
+      are updated.
     accum_count: The number of times to accumulate gradients, as a constant or
       a ``tf.Tensor``.
 
