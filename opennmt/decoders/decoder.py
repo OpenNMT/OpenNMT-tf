@@ -160,7 +160,7 @@ class Decoder(object):
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported by this decoder")
 
-    returned_values = self._decode_inputs(
+    returned_values = self.decode_from_inputs(
         inputs,
         sequence_length,
         initial_state=initial_state,
@@ -385,14 +385,14 @@ class Decoder(object):
       return (outputs, state["decoder"], lengths, log_probs, attention)
     return (outputs, state["decoder"], lengths, log_probs)
 
-  def _decode_inputs(self,
-                     inputs,
-                     sequence_length,
-                     initial_state=None,
-                     mode=tf.estimator.ModeKeys.TRAIN,
-                     memory=None,
-                     memory_sequence_length=None):
-    """Decodes full inputs.
+  def decode_from_inputs(self,
+                         inputs,
+                         sequence_length,
+                         initial_state=None,
+                         mode=tf.estimator.ModeKeys.TRAIN,
+                         memory=None,
+                         memory_sequence_length=None):
+    """Decodes from full inputs.
 
     Args:
       inputs: The input to decode of shape :math:`[B, T, ...]`.
