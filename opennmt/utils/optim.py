@@ -185,7 +185,7 @@ def optimize_loss(loss, params, mixed_precision=False):
         optimizer,
         gradients,
         global_step,
-        accum_count=params.get("gradients_accum_steps", 1))
+        accum_count=params.get("gradients_accum", 1))
 
 def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
   """Possibly delays the parameters update by first accumulating gradients.
@@ -203,6 +203,7 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
   if accum_count == 1:
     return optimizer.apply_gradients(grads_and_vars, global_step=global_step), []
 
+  model_step = tf.Variable(0, trainable=False, collections=[], dtype=tf.int64)
   accum_grads = []
   accum_grads_and_vars = []
   for grad, var in grads_and_vars:
@@ -211,7 +212,7 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
     accum_grads_and_vars.append((accum_grad, var))
 
   def _accum_grads(accum_fn=tf.assign_add, apply_gradients=False):
-    update_ops = []
+    update_ops = [model_step.assign_add(1)]
     for accum_grad, (grad, _) in zip(accum_grads, grads_and_vars):
       with tf.control_dependencies([grad]):
         update_ops.append(accum_fn(accum_grad, grad))
@@ -219,17 +220,17 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
       if apply_gradients:
         return optimizer.apply_gradients(accum_grads_and_vars, global_step=global_step)
       else:
-        with tf.control_dependencies([global_step.assign_add(1)]):
-          return tf.no_op()
+        return tf.no_op()
 
   update_op = tf.cond(
-      tf.equal((global_step + 1) % accum_count, 0),
+      tf.equal((model_step + 1) % accum_count, 0),
       true_fn=lambda: _accum_grads(apply_gradients=True),
       false_fn=lambda: tf.cond(
-          tf.equal(global_step % accum_count, 0),
+          tf.equal(model_step % accum_count, 0),
           true_fn=lambda: _accum_grads(accum_fn=tf.assign),
           false_fn=_accum_grads))
-  return update_op, accum_grads
+  extra_variables = accum_grads + [model_step]
+  return update_op, extra_variables
 
 def regularization_penalty(regularization_type, scale, weights_list=None):
   """Computes the weights regularization penalty.

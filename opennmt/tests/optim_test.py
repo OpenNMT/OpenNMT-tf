@@ -49,12 +49,12 @@ class OptimTest(tf.test.TestCase):
         self.assertAllEqual(variable_value, expected_variable)
         self.assertAllEqual(step_value, expected_step)
 
-      _check_step([3.0, 3.0], [1.0, 2.0], 1)     # accum_grad = [3.0, 3.0]
-      _check_step([4.0, 1.0], [1.0, 2.0], 2)     # accum_grad = [7.0, 4.0]
-      _check_step([-1.0, 0.0], [-5.0, -2.0], 3)  # accum_grad = [6.0, 4.0], apply
-      _check_step([-3.0, 1.0], [-5.0, -2.0], 4)  # accum_grad = [-3.0, 1.0]
-      _check_step([0.0, -3.0], [-5.0, -2.0], 5)  # accum_grad = [-3.0, -2.0]
-      _check_step([2.0, -1.0], [-4.0, 1.0], 6)   # accum_grad = [-1.0, -3.0], apply
+      _check_step([3.0, 3.0], [1.0, 2.0], 0)     # accum_grad = [3.0, 3.0]
+      _check_step([4.0, 1.0], [1.0, 2.0], 0)     # accum_grad = [7.0, 4.0]
+      _check_step([-1.0, 0.0], [-5.0, -2.0], 1)  # accum_grad = [6.0, 4.0], apply
+      _check_step([-3.0, 1.0], [-5.0, -2.0], 1)  # accum_grad = [-3.0, 1.0]
+      _check_step([0.0, -3.0], [-5.0, -2.0], 1)  # accum_grad = [-3.0, -2.0]
+      _check_step([2.0, -1.0], [-4.0, 1.0], 2)   # accum_grad = [-1.0, -3.0], apply
 
 
 if __name__ == "__main__":
