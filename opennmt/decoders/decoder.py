@@ -335,9 +335,10 @@ class Decoder(object):
     def _symbols_to_logits_fn(ids, step, state):
       inputs = embedding_fn(ids[:, -1])
       returned_values = step_fn(step, inputs, state["decoder"], mode)
-      if "attention" in state:
+      if self.support_alignment_history:
         outputs, state["decoder"], attention = returned_values
-        state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
+        if "attention" in state:
+          state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
       else:
         outputs, state["decoder"] = returned_values
       logits = output_layer(outputs)
