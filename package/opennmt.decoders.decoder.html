@@ -420,6 +420,60 @@ if <code class="xref py py-obj docutils literal notranslate"><span class="pre">r
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="opennmt.decoders.decoder.Decoder.decode_from_inputs">
+<code class="descname">decode_from_inputs</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length</em>, <em>initial_state=None</em>, <em>mode='train'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.decode_from_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.decode_from_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes from full inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The input to decode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</li>
+<li><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</li>
+<li><strong>initial_state</strong> – The initial state as a (possibly nested tuple of…) tensors.</li>
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state)</span></code> or <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">attention)</span></code>
+if <code class="docutils literal notranslate"><span class="pre">self.support_alignment_history</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.decoder.Decoder.step_fn">
+<code class="descname">step_fn</code><span class="sig-paren">(</span><em>mode</em>, <em>batch_size</em>, <em>initial_state=None</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.step_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.step_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callable to run decoding steps.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>batch_size</strong> – The batch size.</li>
+<li><strong>initial_state</strong> – The initial state to start from as a (possibly nested tuple
+of…) tensors.</li>
+<li><strong>memory</strong> – (optional) Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – (optional) Memory values length.</li>
+<li><strong>dtype</strong> – The data type.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A callable with the signature
+<code class="docutils literal notranslate"><span class="pre">(step,</span> <span class="pre">inputs,</span> <span class="pre">state,</span> <span class="pre">mode)</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">attention)</span></code> if <code class="docutils literal notranslate"><span class="pre">self.support_alignment_history</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">

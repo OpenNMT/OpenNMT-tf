@@ -322,7 +322,7 @@
     <span class="k">if</span> <span class="n">sampling_probability</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Scheduled sampling is not supported by this decoder&quot;</span><span class="p">)</span>
 
-    <span class="n">returned_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_inputs</span><span class="p">(</span>
+    <span class="n">returned_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_from_inputs</span><span class="p">(</span>
         <span class="n">inputs</span><span class="p">,</span>
         <span class="n">sequence_length</span><span class="p">,</span>
         <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
@@ -482,7 +482,7 @@
             <span class="n">memory_sequence_length</span><span class="p">,</span> <span class="n">multiplier</span><span class="o">=</span><span class="n">beam_width</span><span class="p">)</span>
 
     <span class="n">embedding_fn</span> <span class="o">=</span> <span class="n">get_embedding_fn</span><span class="p">(</span><span class="n">embedding</span><span class="p">)</span>
-    <span class="n">step_fn</span><span class="p">,</span> <span class="n">initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_fn</span><span class="p">(</span>
+    <span class="n">step_fn</span><span class="p">,</span> <span class="n">initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_fn</span><span class="p">(</span>
         <span class="n">mode</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="p">,</span>
         <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
@@ -497,9 +497,10 @@
     <span class="k">def</span> <span class="nf">_symbols_to_logits_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
       <span class="n">inputs</span> <span class="o">=</span> <span class="n">embedding_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
       <span class="n">returned_values</span> <span class="o">=</span> <span class="n">step_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="p">)</span>
-      <span class="k">if</span> <span class="s2">&quot;attention&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">:</span>
         <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">attention</span> <span class="o">=</span> <span class="n">returned_values</span>
-        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;attention&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+          <span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">returned_values</span>
       <span class="n">logits</span> <span class="o">=</span> <span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
@@ -546,14 +547,14 @@
       <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">attention</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_decode_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                     <span class="n">inputs</span><span class="p">,</span>
-                     <span class="n">sequence_length</span><span class="p">,</span>
-                     <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span>
-                     <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Decodes full inputs.</span>
+<div class="viewcode-block" id="Decoder.decode_from_inputs"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.decode_from_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">decode_from_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">inputs</span><span class="p">,</span>
+                         <span class="n">sequence_length</span><span class="p">,</span>
+                         <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span>
+                         <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decodes from full inputs.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      inputs: The input to decode of shape :math:`[B, T, ...]`.</span>
@@ -567,15 +568,15 @@
 <span class="sd">      A tuple ``(outputs, state)`` or ``(outputs, state, attention)``</span>
 <span class="sd">      if ``self.support_alignment_history``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-  <span class="k">def</span> <span class="nf">_step_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">mode</span><span class="p">,</span>
-               <span class="n">batch_size</span><span class="p">,</span>
-               <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Decoder.step_fn"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.step_fn">[docs]</a>  <span class="k">def</span> <span class="nf">step_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+              <span class="n">mode</span><span class="p">,</span>
+              <span class="n">batch_size</span><span class="p">,</span>
+              <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Callable to run decoding steps.</span>
 
 <span class="sd">    Args:</span>
@@ -592,7 +593,7 @@
 <span class="sd">      ``(step, inputs, state, mode)`` -&gt; ``(outputs, state)`` or</span>
 <span class="sd">      ``(outputs, state, attention)`` if ``self.support_alignment_history``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="greedy_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.greedy_decode">[docs]</a><span class="k">def</span> <span class="nf">greedy_decode</span><span class="p">(</span><span class="n">symbols_to_logits_fn</span><span class="p">,</span>
