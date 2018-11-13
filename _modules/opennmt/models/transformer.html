@@ -251,7 +251,6 @@
 
 <div class="viewcode-block" id="Transformer.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.transformer.html#opennmt.models.transformer.Transformer.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Transformer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
-    <span class="n">accum_steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span> <span class="o">//</span> <span class="n">num_devices</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
         <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;average_loss_in_time&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -262,8 +261,7 @@
                 <span class="s2">&quot;beta2&quot;</span><span class="p">:</span> <span class="mf">0.998</span>
             <span class="p">},</span>
             <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-            <span class="s2">&quot;gradients_accum_steps&quot;</span><span class="p">:</span> <span class="n">accum_steps</span><span class="p">,</span>
-            <span class="s2">&quot;decay_step_duration&quot;</span><span class="p">:</span> <span class="n">accum_steps</span><span class="p">,</span>
+            <span class="s2">&quot;gradients_accum&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span> <span class="o">//</span> <span class="n">num_devices</span><span class="p">),</span>
             <span class="s2">&quot;decay_type&quot;</span><span class="p">:</span> <span class="s2">&quot;noam_decay_v2&quot;</span><span class="p">,</span>
             <span class="s2">&quot;decay_params&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">&quot;model_dim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_units</span><span class="p">,</span>
