@@ -20,6 +20,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * In automatic configuration, the number of training steps is now scaled by the number of synchronous replicas
+* Learning rate decay configuration is improved to use more meaningful parameters name (see this [example configurations](https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/optim/adam_with_noam_decay.yml)).
 
 ## [1.12.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.12.0) (2018-11-07)
 
