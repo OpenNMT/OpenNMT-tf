@@ -220,13 +220,13 @@ class SelfAttentionDecoder(decoder.Decoder):
         memory_sequence_length=memory_sequence_length)
     return outputs, None, attention
 
-  def _step_fn(self,
-               mode,
-               batch_size,
-               initial_state=None,
-               memory=None,
-               memory_sequence_length=None,
-               dtype=tf.float32):
+  def step_fn(self,
+              mode,
+              batch_size,
+              initial_state=None,
+              memory=None,
+              memory_sequence_length=None,
+              dtype=tf.float32):
     cache = self._init_cache(batch_size, dtype=dtype)
     def _fn(step, inputs, cache, mode):
       inputs = tf.expand_dims(inputs, 1)

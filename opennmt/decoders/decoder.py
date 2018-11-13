@@ -320,7 +320,7 @@ class Decoder(object):
             memory_sequence_length, multiplier=beam_width)
 
     embedding_fn = get_embedding_fn(embedding)
-    step_fn, initial_state = self._step_fn(
+    step_fn, initial_state = self.step_fn(
         mode,
         batch_size,
         initial_state=initial_state,
@@ -408,13 +408,13 @@ class Decoder(object):
     """
     raise NotImplementedError()
 
-  def _step_fn(self,
-               mode,
-               batch_size,
-               initial_state=None,
-               memory=None,
-               memory_sequence_length=None,
-               dtype=tf.float32):
+  def step_fn(self,
+              mode,
+              batch_size,
+              initial_state=None,
+              memory=None,
+              memory_sequence_length=None,
+              dtype=tf.float32):
     """Callable to run decoding steps.
 
     Args:

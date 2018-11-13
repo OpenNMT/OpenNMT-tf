@@ -154,13 +154,13 @@ class RNNDecoder(decoder.Decoder):
       return (logits, state, length, alignment_history)
     return (logits, state, length)
 
-  def _step_fn(self,
-               mode,
-               batch_size,
-               initial_state=None,
-               memory=None,
-               memory_sequence_length=None,
-               dtype=tf.float32):
+  def step_fn(self,
+              mode,
+              batch_size,
+              initial_state=None,
+              memory=None,
+              memory_sequence_length=None,
+              dtype=tf.float32):
     cell, initial_state = self._build_cell(
         mode,
         batch_size,
