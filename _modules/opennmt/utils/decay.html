@@ -165,7 +165,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
-<span class="c1"># All functions must have the same signature.</span>
+<span class="c1"># All functions must take the learning rate and the step as first arguments.</span>
 
 <div class="viewcode-block" id="noam_decay"><a class="viewcode-back" href="../../../package/opennmt.utils.decay.html#opennmt.utils.decay.noam_decay">[docs]</a><span class="k">def</span> <span class="nf">noam_decay</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span>
                <span class="n">global_step</span><span class="p">,</span>
@@ -190,14 +190,25 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">_</span> <span class="o">=</span> <span class="n">staircase</span>
   <span class="n">_</span> <span class="o">=</span> <span class="n">name</span>
+  <span class="k">return</span> <span class="n">noam_decay_v2</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">global_step</span><span class="p">,</span> <span class="n">decay_rate</span><span class="p">,</span> <span class="n">decay_steps</span><span class="p">)</span></div>
 
-  <span class="n">scale</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-  <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-  <span class="n">hidden_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">decay_rate</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-  <span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">decay_steps</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<div class="viewcode-block" id="noam_decay_v2"><a class="viewcode-back" href="../../../package/opennmt.utils.decay.html#opennmt.utils.decay.noam_decay_v2">[docs]</a><span class="k">def</span> <span class="nf">noam_decay_v2</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">model_dim</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Defines the decay function described in https://arxiv.org/abs/1706.03762.</span>
 
+<span class="sd">  Args:</span>
+<span class="sd">    scale: The scale constant.</span>
+<span class="sd">    step: The current step.</span>
+<span class="sd">    model_dim: The model dimension.</span>
+<span class="sd">    warmup_steps: The number of warmup steps.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The learning rate for the step :obj:`global_step`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+  <span class="n">model_dim</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">model_dim</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+  <span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">warmup_steps</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
   <span class="k">return</span> <span class="p">(</span><span class="n">scale</span>
-          <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+          <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">model_dim</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
           <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">step</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">warmup_steps</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">)))</span></div>
 
 
@@ -225,11 +236,21 @@
   <span class="n">_</span> <span class="o">=</span> <span class="n">decay_rate</span>
   <span class="n">_</span> <span class="o">=</span> <span class="n">staircase</span>
   <span class="n">_</span> <span class="o">=</span> <span class="n">name</span>
+  <span class="k">return</span> <span class="n">rsqrt_decay_v2</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">global_step</span><span class="p">,</span> <span class="n">decay_steps</span><span class="p">)</span></div>
 
-  <span class="n">scale</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">)</span>
-  <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span>
-  <span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">decay_steps</span><span class="p">)</span>
+<div class="viewcode-block" id="rsqrt_decay_v2"><a class="viewcode-back" href="../../../package/opennmt.utils.decay.html#opennmt.utils.decay.rsqrt_decay_v2">[docs]</a><span class="k">def</span> <span class="nf">rsqrt_decay_v2</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Decay based on the reciprocal of the step square root.</span>
 
+<span class="sd">  Args:</span>
+<span class="sd">    scale: The scale constant.</span>
+<span class="sd">    step: The current step.</span>
+<span class="sd">    warmup_steps: The number of warmup steps.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The learning rate for the step :obj:`global_step`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+  <span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">warmum_steps</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">rsqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">))</span></div>
 </pre></div>
 

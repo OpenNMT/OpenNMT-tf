@@ -197,6 +197,43 @@
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if :obj:`decay_type` can not be resolved.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">decay_params</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;decay_rate&quot;</span><span class="p">:</span> <span class="n">decay_rate</span><span class="p">,</span>
+      <span class="s2">&quot;decay_steps&quot;</span><span class="p">:</span> <span class="n">decay_steps</span><span class="p">,</span>
+      <span class="s2">&quot;staircase&quot;</span><span class="p">:</span> <span class="n">staircase</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">learning_rate_decay_fn_v2</span><span class="p">(</span>
+      <span class="n">decay_type</span><span class="p">,</span>
+      <span class="n">decay_params</span><span class="o">=</span><span class="n">decay_params</span><span class="p">,</span>
+      <span class="n">decay_step_duration</span><span class="o">=</span><span class="n">decay_step_duration</span><span class="p">,</span>
+      <span class="n">start_decay_step</span><span class="o">=</span><span class="n">start_decay_steps</span><span class="p">,</span>
+      <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="n">minimum_learning_rate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="learning_rate_decay_fn_v2"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.learning_rate_decay_fn_v2">[docs]</a><span class="k">def</span> <span class="nf">learning_rate_decay_fn_v2</span><span class="p">(</span><span class="n">decay_type</span><span class="p">,</span>
+                              <span class="n">decay_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">decay_step_duration</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                              <span class="n">start_decay_step</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                              <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns the learning rate decay function.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    decay_type: The type of decay. A function from ``tf.train`` or</span>
+<span class="sd">      :mod:`opennmt.utils.decay` as a string.</span>
+<span class="sd">    decay_params: Additional parameters for the decay function.</span>
+<span class="sd">    decay_step_duration: The number of training steps that make 1 decay step.</span>
+<span class="sd">    start_decay_step: Start decay after this many steps.</span>
+<span class="sd">    minimum_learning_rate: Do not decay past this learning rate value.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A function with signature</span>
+<span class="sd">    ``(learning_rate, global_step) -&gt; decayed_learning_rate``.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`decay_type` can not be resolved.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">decay_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">decay_params</span> <span class="o">=</span> <span class="p">{}</span>
+
   <span class="k">def</span> <span class="nf">_decay_fn</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">global_step</span><span class="p">):</span>
     <span class="n">decay_op_name</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -208,18 +245,11 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown decay function: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">decay_type</span><span class="p">))</span>
 
     <span class="c1"># Map the training step to a decay step.</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">global_step</span> <span class="o">-</span> <span class="n">start_decay_steps</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">global_step</span> <span class="o">-</span> <span class="n">start_decay_step</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">decay_step_duration</span><span class="p">)</span>
 
-    <span class="n">decayed_learning_rate</span> <span class="o">=</span> <span class="n">decay_op_name</span><span class="p">(</span>
-        <span class="n">learning_rate</span><span class="p">,</span>
-        <span class="n">step</span><span class="p">,</span>
-        <span class="n">decay_steps</span><span class="p">,</span>
-        <span class="n">decay_rate</span><span class="p">,</span>
-        <span class="n">staircase</span><span class="o">=</span><span class="n">staircase</span><span class="p">)</span>
-    <span class="n">decayed_learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">decayed_learning_rate</span><span class="p">,</span> <span class="n">minimum_learning_rate</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">decayed_learning_rate</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">decay_op_name</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="o">**</span><span class="n">decay_params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">minimum_learning_rate</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">_decay_fn</span></div>
 
@@ -279,13 +309,17 @@
         <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">])))</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">decay_fn</span> <span class="o">=</span> <span class="n">learning_rate_decay_fn</span><span class="p">(</span>
+      <span class="n">decay_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+      <span class="k">if</span> <span class="s2">&quot;decay_rate&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="c1"># Backward compatibility: fill params from previous options.</span>
+        <span class="n">decay_params</span><span class="p">[</span><span class="s2">&quot;decay_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_rate&quot;</span><span class="p">]</span>
+        <span class="n">decay_params</span><span class="p">[</span><span class="s2">&quot;decay_steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_steps&quot;</span><span class="p">]</span>
+        <span class="n">decay_params</span><span class="p">[</span><span class="s2">&quot;staircase&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;staircase&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+      <span class="n">decay_fn</span> <span class="o">=</span> <span class="n">learning_rate_decay_fn_v2</span><span class="p">(</span>
           <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_type&quot;</span><span class="p">],</span>
-          <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_rate&quot;</span><span class="p">],</span>
-          <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_steps&quot;</span><span class="p">],</span>
+          <span class="n">decay_params</span><span class="o">=</span><span class="n">decay_params</span><span class="p">,</span>
           <span class="n">decay_step_duration</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-          <span class="n">staircase</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;staircase&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
-          <span class="n">start_decay_steps</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_decay_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+          <span class="n">start_decay_step</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_decay_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
           <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_learning_rate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
       <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">decay_fn</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">)</span>

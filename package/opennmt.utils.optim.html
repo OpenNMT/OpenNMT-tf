@@ -218,6 +218,35 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="opennmt.utils.optim.learning_rate_decay_fn_v2">
+<code class="descclassname">opennmt.utils.optim.</code><code class="descname">learning_rate_decay_fn_v2</code><span class="sig-paren">(</span><em>decay_type</em>, <em>decay_params=None</em>, <em>decay_step_duration=1</em>, <em>start_decay_step=0</em>, <em>minimum_learning_rate=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#learning_rate_decay_fn_v2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.learning_rate_decay_fn_v2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the learning rate decay function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>decay_type</strong> – The type of decay. A function from <code class="docutils literal notranslate"><span class="pre">tf.train</span></code> or
+<a class="reference internal" href="opennmt.utils.decay.html#module-opennmt.utils.decay" title="opennmt.utils.decay"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opennmt.utils.decay</span></code></a> as a string.</li>
+<li><strong>decay_params</strong> – Additional parameters for the decay function.</li>
+<li><strong>decay_step_duration</strong> – The number of training steps that make 1 decay step.</li>
+<li><strong>start_decay_step</strong> – Start decay after this many steps.</li>
+<li><strong>minimum_learning_rate</strong> – Do not decay past this learning rate value.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A function with signature
+<code class="docutils literal notranslate"><span class="pre">(learning_rate,</span> <span class="pre">global_step)</span> <span class="pre">-&gt;</span> <span class="pre">decayed_learning_rate</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">decay_type</span></code> can not be resolved.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="opennmt.utils.optim.get_optimizer_class">
 <code class="descclassname">opennmt.utils.optim.</code><code class="descname">get_optimizer_class</code><span class="sig-paren">(</span><em>classname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/optim.html#get_optimizer_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.optim.get_optimizer_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the optimizer class.</p>

@@ -213,6 +213,29 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="opennmt.utils.decay.noam_decay_v2">
+<code class="descclassname">opennmt.utils.decay.</code><code class="descname">noam_decay_v2</code><span class="sig-paren">(</span><em>scale</em>, <em>step</em>, <em>model_dim</em>, <em>warmup_steps</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decay.html#noam_decay_v2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decay.noam_decay_v2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the decay function described in <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>scale</strong> – The scale constant.</li>
+<li><strong>step</strong> – The current step.</li>
+<li><strong>model_dim</strong> – The model dimension.</li>
+<li><strong>warmup_steps</strong> – The number of warmup steps.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The learning rate for the step <code class="xref py py-obj docutils literal notranslate"><span class="pre">global_step</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="opennmt.utils.decay.rsqrt_decay">
 <code class="descclassname">opennmt.utils.decay.</code><code class="descname">rsqrt_decay</code><span class="sig-paren">(</span><em>learning_rate</em>, <em>global_step</em>, <em>decay_steps</em>, <em>decay_rate</em>, <em>staircase=False</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decay.html#rsqrt_decay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decay.rsqrt_decay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decay based on the reciprocal of the step square root.</p>
@@ -228,6 +251,28 @@
 <li><strong>decay_rate</strong> – Ignored.</li>
 <li><strong>staircase</strong> – Ignored.</li>
 <li><strong>name</strong> – Ignored.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The learning rate for the step <code class="xref py py-obj docutils literal notranslate"><span class="pre">global_step</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.decay.rsqrt_decay_v2">
+<code class="descclassname">opennmt.utils.decay.</code><code class="descname">rsqrt_decay_v2</code><span class="sig-paren">(</span><em>scale</em>, <em>step</em>, <em>warmup_steps</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decay.html#rsqrt_decay_v2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decay.rsqrt_decay_v2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decay based on the reciprocal of the step square root.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>scale</strong> – The scale constant.</li>
+<li><strong>step</strong> – The current step.</li>
+<li><strong>warmup_steps</strong> – The number of warmup steps.</li>
 </ul>
 </td>
 </tr>
