@@ -471,7 +471,7 @@ def greedy_decode(symbols_to_logits_fn,
 
   def _body(step, finished, inputs, lengths, log_probs, state):
     logits, state = symbols_to_logits_fn(inputs, step, state)
-    probs = tf.nn.log_softmax(tf.to_float(logits))
+    probs = tf.nn.log_softmax(tf.cast(logits, tf.float32))
     if min_decode_length > 0:
       probs = tf.cond(
           step < min_decode_length,
