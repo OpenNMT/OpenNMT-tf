@@ -464,6 +464,7 @@ def greedy_decode(symbols_to_logits_fn,
   inputs = tf.expand_dims(initial_ids, 1)
   lengths = tf.zeros([batch_size], dtype=tf.int32)
   log_probs = tf.zeros([batch_size])
+  batch_ids = tf.range(batch_size)
 
   def _condition(unused_step, finished, unused_inputs,
                  unused_lengths, unused_log_probs, unused_state):
@@ -480,7 +481,7 @@ def greedy_decode(symbols_to_logits_fn,
 
     # Sample best prediction.
     sample_ids = tf.argmax(probs, axis=-1, output_type=inputs.dtype)
-    sample_probs = tf.reduce_max(probs, axis=-1)
+    sample_probs = tf.gather_nd(probs, tf.stack([batch_ids, sample_ids], axis=-1))
 
     # Don't update finished batches.
     masked_lengths_inc = 1 - tf.cast(finished, lengths.dtype)
