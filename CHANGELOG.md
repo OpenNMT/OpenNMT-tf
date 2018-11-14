@@ -16,10 +16,14 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * RNMT+ decoder
 * Parameter `gradients_accum` to accumulate gradients and delay parameters update
+* Expose lower-level decoder APIs:
+  * `Decoder.step_fn`: returns a callable and an initial state to run step by step decoding
+  * `Decoder.decode_from_inputs`: decodes from full inputs (e.g. embeddings)
 
 ### Fixes and improvements
 
-* Learning rate decay configuration is improved to use more meaningful parameters name (see this [example configurations](https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/optim/adam_with_noam_decay.yml)).
+* Make learning rate decay configuration more generic: parameters can be set via a `decay_params` map which allows using more meaningful parameters name (see this [example configurations](https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/optim/adam_with_noam_decay.yml))
+* By default, auto-configured Transformer models will accumulate gradients to simulate a training with 8 synchronous replicas (e.g. if you train with 4 GPUs, the gradients of 2 consecutive steps will be accumulated)
 
 ## [1.12.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.12.0) (2018-11-07)
 
