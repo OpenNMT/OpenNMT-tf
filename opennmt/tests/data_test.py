@@ -95,8 +95,8 @@ class DataTest(tf.test.TestCase):
     labels_diff = tf.random_normal([num_examples], mean=0, stddev=3, seed=42)
     labels = features + labels_diff
 
-    features = tf.maximum(tf.to_int32(1), tf.to_int32(features))
-    labels = tf.maximum(tf.to_int32(1), tf.to_int32(labels))
+    features = tf.maximum(tf.cast(1, tf.int32), tf.cast(features, tf.int32))
+    labels = tf.maximum(tf.cast(1, tf.int32), tf.cast(labels, tf.int32))
 
     dataset = tf.data.Dataset.zip((
         tf.data.Dataset.from_tensor_slices(features),

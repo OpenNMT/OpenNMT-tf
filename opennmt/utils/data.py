@@ -181,7 +181,7 @@ def batch_parallel_dataset(batch_size,
       bucket_id = tf.maximum(bucket_id, features_length // bucket_width)
     if labels_length is not None:
       bucket_id = tf.maximum(bucket_id, labels_length // bucket_width)
-    return tf.to_int64(bucket_id)
+    return tf.cast(bucket_id, tf.int64)
 
   def _reduce_func(unused_key, dataset):
     return _batch_func(dataset)
@@ -193,7 +193,7 @@ def batch_parallel_dataset(batch_size,
     if batch_multiplier > 1:
       # Make the window size a multiple of batch_multiplier.
       size = size + batch_multiplier - size % batch_multiplier
-    return tf.to_int64(tf.maximum(size, batch_multiplier))
+    return tf.cast(tf.maximum(size, batch_multiplier), tf.int64)
 
   if bucket_width is None:
     return _batch_func
