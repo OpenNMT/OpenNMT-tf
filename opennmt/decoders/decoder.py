@@ -160,7 +160,7 @@ class Decoder(object):
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported by this decoder")
 
-    returned_values = self._decode_inputs(
+    returned_values = self.decode_from_inputs(
         inputs,
         sequence_length,
         initial_state=initial_state,
@@ -185,6 +185,11 @@ class Decoder(object):
   def support_alignment_history(self):
     """Returns ``True`` if this decoder can return the attention as alignment
     history."""
+    return False
+
+  @property
+  def support_multi_source(self):
+    """Returns ``True`` if this decoder supports multiple source context."""
     return False
 
   def dynamic_decode(self,
@@ -299,7 +304,7 @@ class Decoder(object):
     if dtype is None:
       if memory is None:
         raise ValueError("dtype argument is required when no memory is set")
-      dtype = memory.dtype
+      dtype = tf.contrib.framework.nest.flatten(memory)[0].dtype
     if output_layer is None:
       if vocab_size is None:
         raise ValueError("vocab_size must be known when the output_layer is not set")
@@ -315,7 +320,7 @@ class Decoder(object):
             memory_sequence_length, multiplier=beam_width)
 
     embedding_fn = get_embedding_fn(embedding)
-    step_fn, initial_state = self._step_fn(
+    step_fn, initial_state = self.step_fn(
         mode,
         batch_size,
         initial_state=initial_state,
@@ -324,7 +329,7 @@ class Decoder(object):
         dtype=dtype)
 
     state = {"decoder": initial_state}
-    if self.support_alignment_history:
+    if self.support_alignment_history and not isinstance(memory, (tuple, list)):
       state["attention"] = tf.zeros([batch_size, 0, tf.shape(memory)[1]], dtype=dtype)
 
     def _symbols_to_logits_fn(ids, step, state):
@@ -332,7 +337,8 @@ class Decoder(object):
       returned_values = step_fn(step, inputs, state["decoder"], mode)
       if self.support_alignment_history:
         outputs, state["decoder"], attention = returned_values
-        state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
+        if "attention" in state:
+          state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
       else:
         outputs, state["decoder"] = returned_values
       logits = output_layer(outputs)
@@ -379,14 +385,14 @@ class Decoder(object):
       return (outputs, state["decoder"], lengths, log_probs, attention)
     return (outputs, state["decoder"], lengths, log_probs)
 
-  def _decode_inputs(self,
-                     inputs,
-                     sequence_length,
-                     initial_state=None,
-                     mode=tf.estimator.ModeKeys.TRAIN,
-                     memory=None,
-                     memory_sequence_length=None):
-    """Decodes full inputs.
+  def decode_from_inputs(self,
+                         inputs,
+                         sequence_length,
+                         initial_state=None,
+                         mode=tf.estimator.ModeKeys.TRAIN,
+                         memory=None,
+                         memory_sequence_length=None):
+    """Decodes from full inputs.
 
     Args:
       inputs: The input to decode of shape :math:`[B, T, ...]`.
@@ -402,13 +408,13 @@ class Decoder(object):
     """
     raise NotImplementedError()
 
-  def _step_fn(self,
-               mode,
-               batch_size,
-               initial_state=None,
-               memory=None,
-               memory_sequence_length=None,
-               dtype=None):
+  def step_fn(self,
+              mode,
+              batch_size,
+              initial_state=None,
+              memory=None,
+              memory_sequence_length=None,
+              dtype=tf.float32):
     """Callable to run decoding steps.
 
     Args:

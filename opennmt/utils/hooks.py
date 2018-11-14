@@ -205,7 +205,8 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
 
     tf_vars = []
     current_scope = tf.get_variable_scope()
-    with tf.variable_scope(current_scope, reuse=True):
+    reuse = tf.AUTO_REUSE if hasattr(tf, "AUTO_REUSE") else True
+    with tf.variable_scope(current_scope, reuse=reuse):
       for name, value in six.iteritems(self.values):
         tf_vars.append(tf.get_variable(name, shape=value.shape))
 
@@ -215,3 +216,25 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
   def after_create_session(self, session, coord):
     for p, op, (_, value) in zip(self.placeholders, self.assign_ops, six.iteritems(self.values)):
       session.run(op, {p: value})
+
+
+class VariablesInitializerHook(tf.train.SessionRunHook):
+  """Hook that initializes some variables in the current session. This is useful
+  when using internal variables (e.g. for value accumulation) that are not saved
+  in the checkpoints.
+  """
+
+  def __init__(self, variables):
+    """Initializes this hook.
+
+    Args:
+      variables: A list of variables to initialize.
+    """
+    self._variables = variables
+    self._init_op = None
+
+  def begin(self):
+    self._init_op = tf.variables_initializer(self._variables)
+
+  def after_create_session(self, session, coord):
+    session.run(self._init_op)

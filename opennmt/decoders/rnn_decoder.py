@@ -11,6 +11,7 @@ from tensorflow.python.estimator.util import fn_args
 from opennmt.decoders import decoder
 from opennmt.utils.cell import build_cell
 from opennmt.layers.reducer import align_in_time
+from opennmt.layers.transformer import build_sequence_mask, multi_head_attention
 
 
 class RNNDecoder(decoder.Decoder):
@@ -127,7 +128,8 @@ class RNNDecoder(decoder.Decoder):
         dtype=inputs.dtype)
 
     if output_layer is None:
-      output_layer = decoder.build_output_layer(self.num_units, vocab_size, dtype=inputs.dtype)
+      output_layer = decoder.build_output_layer(
+          self.output_size, vocab_size, dtype=inputs.dtype)
 
     basic_decoder = tf.contrib.seq2seq.BasicDecoder(
         cell,
@@ -152,13 +154,13 @@ class RNNDecoder(decoder.Decoder):
       return (logits, state, length, alignment_history)
     return (logits, state, length)
 
-  def _step_fn(self,
-               mode,
-               batch_size,
-               initial_state=None,
-               memory=None,
-               memory_sequence_length=None,
-               dtype=None):
+  def step_fn(self,
+              mode,
+              batch_size,
+              initial_state=None,
+              memory=None,
+              memory_sequence_length=None,
+              dtype=tf.float32):
     cell, initial_state = self._build_cell(
         mode,
         batch_size,
@@ -371,3 +373,122 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
     initial_state = cell.zero_state(batch_size, memory.dtype)
 
     return cell, initial_state
+
+
+class RNMTPlusDecoder(RNNDecoder):
+  """The RNMT+ decoder described in https://arxiv.org/abs/1804.09849."""
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               num_heads,
+               cell_class=tf.contrib.rnn.LayerNormBasicLSTMCell,
+               dropout=0.3):
+    """Initializes the decoder parameters.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer.
+      num_heads: The number of attention heads.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
+        argument and returning a cell.
+      dropout: The probability to drop units from the decoder input and in each
+        layer output.
+    """
+    super(RNMTPlusDecoder, self).__init__(
+        num_layers,
+        num_units,
+        cell_class=cell_class,
+        dropout=dropout)
+    self.num_heads = num_heads
+
+  @property
+  def output_size(self):
+    """Returns the decoder output size."""
+    return self.num_units * 2
+
+  def _build_cell(self,
+                  mode,
+                  batch_size,
+                  initial_state=None,
+                  memory=None,
+                  memory_sequence_length=None,
+                  dtype=None):
+    cell = _RNMTPlusDecoderCell(
+        mode,
+        self.num_layers,
+        self.num_units,
+        self.num_heads,
+        memory,
+        memory_sequence_length,
+        cell_class=self.cell_class,
+        dropout=self.dropout)
+    return cell, cell.zero_state(batch_size, dtype)
+
+class _RNMTPlusDecoderCell(tf.nn.rnn_cell.RNNCell):
+
+  def __init__(self,
+               mode,
+               num_layers,
+               num_units,
+               num_heads,
+               memory,
+               memory_sequence_length,
+               cell_class=tf.contrib.rnn.LayerNormBasicLSTMCell,
+               dropout=0.3):
+    super(_RNMTPlusDecoderCell, self).__init__()
+    self._mode = mode
+    self._num_units = num_units
+    self._num_heads = num_heads
+    self._dropout = dropout
+    self._cells = [cell_class(num_units) for _ in range(num_layers)]
+    self._memory = memory
+    self._memory_mask = build_sequence_mask(
+        memory_sequence_length,
+        num_heads=self._num_heads,
+        maximum_length=tf.shape(memory)[1])
+
+  @property
+  def state_size(self):
+    return tuple(cell.state_size for cell in self._cells)
+
+  @property
+  def output_size(self):
+    return self._num_units * 2
+
+  def zero_state(self, batch_size, dtype):
+    with tf.name_scope("RNMTPlusDecoderCellZeroState", values=[batch_size]):
+      return tuple(cell.zero_state(batch_size, dtype) for cell in self._cells)
+
+  def __call__(self, inputs, state, scope=None):
+    inputs = tf.layers.dropout(
+        inputs, rate=self._dropout, training=self._mode == tf.estimator.ModeKeys.TRAIN)
+
+    new_states = []
+    with tf.variable_scope("rnn_0"):
+      last_outputs, state_0 = self._cells[0](inputs, state[0])
+      new_states.append(state_0)
+
+    with tf.variable_scope("multi_head_attention"):
+      context = multi_head_attention(
+          self._num_heads,
+          tf.expand_dims(last_outputs, 1),
+          self._memory,
+          self._mode,
+          mask=self._memory_mask,
+          dropout=self._dropout)
+      context = tf.squeeze(context, axis=1)
+
+    for i in range(1, len(self._cells)):
+      inputs = tf.concat([last_outputs, context], axis=-1)
+      with tf.variable_scope("rnn_%d" % i):
+        outputs, state_i = self._cells[i](inputs, state[i])
+        new_states.append(state_i)
+        outputs = tf.layers.dropout(
+            outputs, rate=self._dropout, training=self._mode == tf.estimator.ModeKeys.TRAIN)
+        if i >= 2:
+          outputs += last_outputs
+        last_outputs = outputs
+
+    final = tf.concat([last_outputs, context], -1)
+    return final, tuple(new_states)

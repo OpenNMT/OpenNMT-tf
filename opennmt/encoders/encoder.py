@@ -106,9 +106,11 @@ class ParallelEncoder(Encoder):
     Args:
       encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
       outputs_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
-        outputs.
+        outputs. If ``None``, defaults to
+        :class:`opennmt.layers.reducer.JoinReducer`.
       states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
-        states.
+        states. If ``None``, defaults to
+        :class:`opennmt.layers.reducer.JoinReducer`.
       outputs_layer_fn: A callable or list of callables applied to the
         encoders outputs If it is a single callable, it is on each encoder
         output. Otherwise, the ``i`` th callable is applied on encoder ``i``
@@ -126,8 +128,8 @@ class ParallelEncoder(Encoder):
                        "expected %d layers but got %d."
                        % (len(encoders), len(outputs_layer_fn)))
     self.encoders = encoders
-    self.outputs_reducer = outputs_reducer
-    self.states_reducer = states_reducer
+    self.outputs_reducer = outputs_reducer if outputs_reducer is not None else JoinReducer()
+    self.states_reducer = states_reducer if states_reducer is not None else JoinReducer()
     self.outputs_layer_fn = outputs_layer_fn
     self.combined_output_layer_fn = combined_output_layer_fn
 

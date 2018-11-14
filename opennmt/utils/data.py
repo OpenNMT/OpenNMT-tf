@@ -261,7 +261,7 @@ def training_pipeline(dataset,
   """
   if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
     if dataset_size is not None:
-      if shuffle_buffer_size < 0:
+      if shuffle_buffer_size < 0 or shuffle_buffer_size > dataset_size:
         shuffle_buffer_size = dataset_size
       elif shuffle_buffer_size < dataset_size:
         # When the sample buffer size is smaller than the dataset size, shard

@@ -205,13 +205,13 @@ class SelfAttentionDecoder(decoder.Decoder):
     outputs = transformer.norm(inputs)
     return outputs, first_head_attention
 
-  def _decode_inputs(self,
-                     inputs,
-                     sequence_length,
-                     initial_state=None,
-                     mode=tf.estimator.ModeKeys.TRAIN,
-                     memory=None,
-                     memory_sequence_length=None):
+  def decode_from_inputs(self,
+                         inputs,
+                         sequence_length,
+                         initial_state=None,
+                         mode=tf.estimator.ModeKeys.TRAIN,
+                         memory=None,
+                         memory_sequence_length=None):
     outputs, attention = self._self_attention_stack(
         inputs,
         sequence_length=sequence_length,
@@ -220,13 +220,13 @@ class SelfAttentionDecoder(decoder.Decoder):
         memory_sequence_length=memory_sequence_length)
     return outputs, None, attention
 
-  def _step_fn(self,
-               mode,
-               batch_size,
-               initial_state=None,
-               memory=None,
-               memory_sequence_length=None,
-               dtype=None):
+  def step_fn(self,
+              mode,
+              batch_size,
+              initial_state=None,
+              memory=None,
+              memory_sequence_length=None,
+              dtype=tf.float32):
     cache = self._init_cache(batch_size, dtype=dtype)
     def _fn(step, inputs, cache, mode):
       inputs = tf.expand_dims(inputs, 1)
