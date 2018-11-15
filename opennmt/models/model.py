@@ -151,6 +151,10 @@ class Model(object):
         with tf.variable_scope(self.name):
           _, predictions = self._build(features, labels, params, mode, config=config)
 
+        # Forward example index for reordering predictions.
+        if "index" in features:
+          predictions["index"] = features["index"]
+
         export_outputs = {}
         export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
             tf.estimator.export.PredictOutput(predictions))
@@ -406,7 +410,9 @@ class Model(object):
           batch_size,
           process_fn=process_fn,
           num_threads=num_threads,
-          prefetch_buffer_size=prefetch_buffer_size)
+          prefetch_buffer_size=prefetch_buffer_size,
+          bucket_width=bucket_width,
+          length_fn=self._get_features_length)
 
     iterator = dataset.make_initializable_iterator()
 

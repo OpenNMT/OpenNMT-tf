@@ -179,6 +179,12 @@ infer:
   # (optional) The batch size to use (default: 1).
   batch_size: 10
 
+  # (optional) The width of the length buckets to select batch candidates from.
+  # If set, the test data will be sorted by length to increase the translation
+  # efficiency. The predictions will still be outputted in order as they are
+  # available (default: 0).
+  bucket_width: 5
+
   # (optional) The number of threads to use for processing data in parallel (default: 1).
   num_threads: 1
   # (optional) The number of batches to prefetch asynchronously (default: 1).
