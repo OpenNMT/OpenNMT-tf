@@ -333,7 +333,9 @@ class Decoder(object):
       state["attention"] = tf.zeros([batch_size, 0, tf.shape(memory)[1]], dtype=dtype)
 
     def _symbols_to_logits_fn(ids, step, state):
-      inputs = embedding_fn(ids[:, -1])
+      if ids.shape.ndims == 2:
+        ids = ids[:, -1]
+      inputs = embedding_fn(ids)
       returned_values = step_fn(step, inputs, state["decoder"], mode)
       if self.support_alignment_history:
         outputs, state["decoder"], attention = returned_values
@@ -369,6 +371,7 @@ class Decoder(object):
       lengths = tf.not_equal(outputs, 0)
       lengths = tf.cast(lengths, tf.int32)
       lengths = tf.reduce_sum(lengths, axis=-1) - 1  # Ignore </s>
+      outputs = outputs[:, :, 1:]  # Ignore <s>.
 
     attention = state.get("attention")
     if beam_width == 1:
@@ -378,8 +381,6 @@ class Decoder(object):
       log_probs = tf.expand_dims(log_probs, 1)
       if attention is not None:
         attention = tf.expand_dims(attention, 1)
-
-    outputs = outputs[:, :, 1:]  # Ignore <s>.
 
     if return_alignment_history:
       return (outputs, state["decoder"], lengths, log_probs, attention)
@@ -449,7 +450,7 @@ def greedy_decode(symbols_to_logits_fn,
     initial_ids: Ids to start off the decoding, this will be the first thing
         handed to symbols_to_logits_fn.
     eos_id: ID for end of sentence.
-    decode_length: Maximum number of steps to decode for.
+    decode_length: Maximum number of steps to decode for (EOS included).
     states: A dictionnary of (possibly nested) decoding states.
     return_state: If ``True``, also return the updated decoding states.
     min_decode_length: Minimum length of decoded hypotheses (EOS excluded).
@@ -458,59 +459,57 @@ def greedy_decode(symbols_to_logits_fn,
     A tuple with the decoded output, the decoded lengths, the log probabilities,
     and the decoding states (if :obj:`return_state` is ``True``).
   """
-  batch_size = tf.shape(initial_ids)[0]
-  finished = tf.zeros([batch_size], dtype=tf.bool)
-  step = tf.constant(0)
-  inputs = tf.expand_dims(initial_ids, 1)
-  lengths = tf.zeros([batch_size], dtype=tf.int32)
-  log_probs = tf.zeros([batch_size])
-  batch_ids = tf.range(batch_size)
 
-  def _condition(unused_step, finished, unused_inputs,
-                 unused_lengths, unused_log_probs, unused_state):
+  def _condition(unused_step, finished, unused_inputs, unused_outputs,
+                 unused_lengths, unused_cum_log_probs, unused_state):
     return tf.logical_not(tf.reduce_all(finished))
 
-  def _body(step, finished, inputs, lengths, log_probs, state):
+  def _body(step, finished, inputs, outputs, lengths, cum_log_probs, state):
+    # Run next step.
     logits, state = symbols_to_logits_fn(inputs, step, state)
-    probs = tf.nn.log_softmax(tf.cast(logits, tf.float32))
+    log_probs = tf.nn.log_softmax(tf.cast(logits, tf.float32))
     if min_decode_length > 0:
-      probs = tf.cond(
+      log_probs = tf.cond(
           step < min_decode_length,
-          true_fn=lambda: beam_search.penalize_token(probs, end_id),
-          false_fn=lambda: probs)
+          true_fn=lambda: beam_search.penalize_token(log_probs, end_id),
+          false_fn=lambda: log_probs)
 
     # Sample best prediction.
-    sample_ids = tf.argmax(probs, axis=-1, output_type=inputs.dtype)
-    sample_probs = tf.gather_nd(probs, tf.stack([batch_ids, sample_ids], axis=-1))
+    sampled_log_probs, sampled_ids = tf.nn.top_k(log_probs, k=1)
+    sampled_log_probs = tf.squeeze(sampled_log_probs, axis=1)
+    sampled_ids = tf.squeeze(sampled_ids, axis=1)
+    outputs = outputs.write(step, sampled_ids)
 
     # Don't update finished batches.
-    masked_lengths_inc = 1 - tf.cast(finished, lengths.dtype)
-    masked_probs = sample_probs * (1.0 - tf.cast(finished, sample_probs.dtype))
+    lengths += 1 - tf.cast(finished, lengths.dtype)
+    cum_log_probs += sampled_log_probs * (1.0 - tf.cast(finished, sampled_log_probs.dtype))
+    finished = tf.logical_or(finished, tf.equal(sampled_ids, end_id))
+    return step + 1, finished, sampled_ids, outputs, lengths, cum_log_probs, state
 
-    step = step + 1
-    inputs = tf.concat([inputs, tf.expand_dims(sample_ids, 1)], -1)
-    lengths += masked_lengths_inc
-    log_probs += masked_probs
-    finished = tf.logical_or(finished, tf.equal(sample_ids, end_id))
-    if decode_length is not None:
-      finished = tf.logical_or(finished, step >= decode_length)
+  batch_size = tf.shape(initial_ids)[0]
+  step = tf.constant(0)
+  finished = tf.zeros([batch_size], dtype=tf.bool)
+  outputs = tf.TensorArray(initial_ids.dtype, size=0, dynamic_size=True)
+  lengths = tf.zeros([batch_size], dtype=tf.int32)
+  cum_log_probs = tf.zeros([batch_size], dtype=tf.float32)
 
-    return step, finished, inputs, lengths, log_probs, state
-
-  _, _, outputs, lengths, log_probs, state = tf.while_loop(
+  _, _, _, outputs, lengths, cum_log_probs, state = tf.while_loop(
       _condition,
       _body,
-      loop_vars=(step, finished, inputs, lengths, log_probs, state),
+      loop_vars=(step, finished, initial_ids, outputs, lengths, cum_log_probs, state),
       shape_invariants=(
-          tf.TensorShape([]),
+          step.get_shape(),
           finished.get_shape(),
-          tf.TensorShape([None, None]),
+          initial_ids.get_shape(),
+          tf.TensorShape(None),
           lengths.get_shape(),
-          log_probs.get_shape(),
+          cum_log_probs.get_shape(),
           tf.contrib.framework.nest.map_structure(
               beam_search.get_state_shape_invariants, state)),
-      parallel_iterations=1)
+      parallel_iterations=1,
+      maximum_iterations=decode_length)
 
+  outputs = tf.transpose(outputs.stack())
   if return_state:
-    return outputs, lengths, log_probs, state
-  return outputs, lengths, log_probs
+    return outputs, lengths, cum_log_probs, state
+  return outputs, lengths, cum_log_probs
