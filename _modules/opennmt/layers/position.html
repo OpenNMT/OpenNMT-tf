@@ -249,7 +249,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">      inputs: The inputs of shape :math:`[B, 1, D]`.</span>
-<span class="sd">      position: The position to encode.</span>
+<span class="sd">      position: The position to encode (1-indexed).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A ``tf.Tensor`` of shape :math:`[B, 1, D]` where :math:`D` depends on the</span>
@@ -257,9 +257,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">input_dim</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="n">position</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="n">position</span><span class="p">],</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">])</span>
-    <span class="n">position</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">([[</span><span class="n">position</span><span class="p">]],</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;position_encoding&quot;</span><span class="p">):</span>
       <span class="n">position_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
@@ -339,11 +337,8 @@
     <span class="n">inv_timescales</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="n">log_timescale_increment</span><span class="p">)</span>
     <span class="n">inv_timescales</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">inv_timescales</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">]),</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">scaled_time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inv_timescales</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
     <span class="n">encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">scaled_time</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">scaled_time</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">dtype</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
-      <span class="n">encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">encoding</span></div></div>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
