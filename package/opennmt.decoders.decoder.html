@@ -490,7 +490,7 @@ Shoud take [batch_size, decoded_ids] and return [batch_size, vocab_size].</li>
 <li><strong>initial_ids</strong> – Ids to start off the decoding, this will be the first thing
 handed to symbols_to_logits_fn.</li>
 <li><strong>eos_id</strong> – ID for end of sentence.</li>
-<li><strong>decode_length</strong> – Maximum number of steps to decode for.</li>
+<li><strong>decode_length</strong> – Maximum number of steps to decode for (EOS included).</li>
 <li><strong>states</strong> – A dictionnary of (possibly nested) decoding states.</li>
 <li><strong>return_state</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also return the updated decoding states.</li>
 <li><strong>min_decode_length</strong> – Minimum length of decoded hypotheses (EOS excluded).</li>

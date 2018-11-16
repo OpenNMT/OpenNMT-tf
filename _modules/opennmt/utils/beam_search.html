@@ -709,7 +709,7 @@
             <span class="n">finished_flags</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_is_finished</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">unused_alive_seq</span><span class="p">,</span> <span class="n">alive_log_probs</span><span class="p">,</span> <span class="n">unused_finished_seq</span><span class="p">,</span>
-                   <span class="n">finished_scores</span><span class="p">,</span> <span class="n">finished_in_finished</span><span class="p">,</span> <span class="n">unused_states</span><span class="p">):</span>
+                   <span class="n">finished_scores</span><span class="p">,</span> <span class="n">unused_finished_in_finished</span><span class="p">,</span> <span class="n">unused_states</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Checking termination condition.</span>
 
 <span class="sd">    We terminate when we decoded up to decode_length or the lowest scoring item</span>
@@ -721,30 +721,32 @@
 <span class="sd">      alive_log_probs: probabilities of the beams. [batch_size, beam_size]</span>
 <span class="sd">      finished_scores: scores for each of these sequences.</span>
 <span class="sd">        [batch_size, beam_size]</span>
-<span class="sd">      finished_in_finished: finished bools for each of these sequences.</span>
-<span class="sd">        [batch_size, beam_size]</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      Bool.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">stop_early</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">decode_length</span><span class="p">)</span>
     <span class="n">max_length_penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(((</span><span class="mf">5.</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">decode_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span> <span class="o">/</span> <span class="mf">6.</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span>
     <span class="c1"># The best possible score of the most likely alive sequence.</span>
     <span class="n">lower_bound_alive_scores</span> <span class="o">=</span> <span class="n">alive_log_probs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_length_penalty</span>
 
-    <span class="c1"># Now to compute the lowest score of a finished sequence in finished</span>
-    <span class="c1"># If the sequence isn&#39;t finished, we multiply it&#39;s score by 0. since</span>
-    <span class="c1"># scores are all -ve, taking the min will give us the score of the lowest</span>
-    <span class="c1"># finished item.</span>
-    <span class="n">lowest_score_of_finished_in_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">(</span>
-        <span class="n">finished_scores</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">finished_in_finished</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="c1"># If none of the sequences have finished, then the min will be 0 and</span>
-    <span class="c1"># we have to replace it by -ve INF if it is. The score of any seq in alive</span>
-    <span class="c1"># will be much higher than -ve INF and the termination condition will not</span>
-    <span class="c1"># be met.</span>
-    <span class="n">lowest_score_of_finished_in_finished</span> <span class="o">+=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_any</span><span class="p">(</span><span class="n">finished_in_finished</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span> <span class="o">*</span> <span class="o">-</span><span class="n">INF</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stop_early</span><span class="p">:</span>
+      <span class="c1"># by considering the min score (in the top N beams) we ensure that</span>
+      <span class="c1"># the decoder will keep decoding until there is at least one beam</span>
+      <span class="c1"># (in the top N) that can be improved (w.r.t. the alive beams).</span>
+      <span class="c1"># any unfinished beam will have score -INF - thus the min</span>
+      <span class="c1"># will always be -INF if there is at least one unfinished beam -</span>
+      <span class="c1"># which means the bound_is_met condition cannot be true in this case.</span>
+      <span class="n">lowest_score_of_finished_in_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">(</span><span class="n">finished_scores</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c1"># by taking the max score we only care about the the first beam;</span>
+      <span class="c1"># as soon as this first beam cannot be beaten from the alive beams</span>
+      <span class="c1"># the beam decoder can stop.</span>
+      <span class="c1"># similarly to the above, if the top beam is not completed, its</span>
+      <span class="c1"># finished_score is -INF, thus it will not activate the</span>
+      <span class="c1"># bound_is_met condition. (i.e., decoder will keep going on).</span>
+      <span class="c1"># note we need to find the max for every sequence eparately - so, we need</span>
+      <span class="c1"># to keep the batch dimension (see axis=1)</span>
+      <span class="n">lowest_score_of_finished_in_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">finished_scores</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">bound_is_met</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">lowest_score_of_finished_in_finished</span><span class="p">,</span>
