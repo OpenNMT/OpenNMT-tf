@@ -460,9 +460,12 @@ def greedy_decode(symbols_to_logits_fn,
     and the decoding states (if :obj:`return_state` is ``True``).
   """
 
-  def _condition(unused_step, finished, unused_inputs, unused_outputs,
+  def _condition(step, finished, unused_inputs, unused_outputs,
                  unused_lengths, unused_cum_log_probs, unused_state):
-    return tf.logical_not(tf.reduce_all(finished))
+    cond = tf.logical_not(tf.reduce_all(finished))
+    if decode_length is not None:
+      cond = tf.logical_and(cond, step < decode_length)
+    return cond
 
   def _body(step, finished, inputs, outputs, lengths, cum_log_probs, state):
     # Run next step.
@@ -506,8 +509,7 @@ def greedy_decode(symbols_to_logits_fn,
           cum_log_probs.get_shape(),
           tf.contrib.framework.nest.map_structure(
               beam_search.get_state_shape_invariants, state)),
-      parallel_iterations=1,
-      maximum_iterations=decode_length)
+      parallel_iterations=1)
 
   outputs = tf.transpose(outputs.stack())
   if return_state:
