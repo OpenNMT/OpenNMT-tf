@@ -354,7 +354,8 @@ class Decoder(object):
           decode_length=maximum_iterations,
           state=state,
           return_state=True,
-          min_decode_length=minimum_length)
+          min_decode_length=minimum_length,
+          last_step_as_input=True)
     else:
       outputs, log_probs, state = beam_search.beam_search(
           _symbols_to_logits_fn,
@@ -441,7 +442,8 @@ def greedy_decode(symbols_to_logits_fn,
                   decode_length=None,
                   state=None,
                   return_state=False,
-                  min_decode_length=0):
+                  min_decode_length=0,
+                  last_step_as_input=False):
   """Greedily decodes from :obj:`initial_ids`.
 
   Args:
@@ -454,6 +456,8 @@ def greedy_decode(symbols_to_logits_fn,
     states: A dictionnary of (possibly nested) decoding states.
     return_state: If ``True``, also return the updated decoding states.
     min_decode_length: Minimum length of decoded hypotheses (EOS excluded).
+    last_step_as_input: If ``True``, only feed the last predicted ids into
+      :obj:`symbols_to_logits_fn`.
 
   Returns:
     A tuple with the decoded output, the decoded lengths, the log probabilities,
@@ -487,7 +491,11 @@ def greedy_decode(symbols_to_logits_fn,
     lengths += 1 - tf.cast(finished, lengths.dtype)
     cum_log_probs += sampled_log_probs * (1.0 - tf.cast(finished, sampled_log_probs.dtype))
     finished = tf.logical_or(finished, tf.equal(sampled_ids, end_id))
-    return step + 1, finished, sampled_ids, outputs, lengths, cum_log_probs, state
+    if last_step_as_input:
+      next_inputs = sampled_ids
+    else:
+      next_inputs = tf.concat([inputs, tf.expand_dims(sampled_ids, 1)], axis=1)
+    return step + 1, finished, next_inputs, outputs, lengths, cum_log_probs, state
 
   batch_size = tf.shape(initial_ids)[0]
   step = tf.constant(0)
@@ -495,6 +503,8 @@ def greedy_decode(symbols_to_logits_fn,
   outputs = tf.TensorArray(initial_ids.dtype, size=0, dynamic_size=True)
   lengths = tf.zeros([batch_size], dtype=tf.int32)
   cum_log_probs = tf.zeros([batch_size], dtype=tf.float32)
+  if not last_step_as_input:
+    initial_ids = tf.expand_dims(initial_ids, 1)
 
   _, _, _, outputs, lengths, cum_log_probs, state = tf.while_loop(
       _condition,
@@ -503,7 +513,7 @@ def greedy_decode(symbols_to_logits_fn,
       shape_invariants=(
           step.get_shape(),
           finished.get_shape(),
-          initial_ids.get_shape(),
+          tf.TensorShape([None] if last_step_as_input else [None, None]),
           tf.TensorShape(None),
           lengths.get_shape(),
           cum_log_probs.get_shape(),
