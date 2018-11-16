@@ -29,6 +29,25 @@ class MiscTest(tf.test.TestCase):
             alignment_type="hard"),
         "hello world ||| 1-0 0-1")
 
+  def testEventOrderRestorer(self):
+    events = []
+    restorer = misc.OrderRestorer(
+        index_fn=lambda x: x[0],
+        callback_fn=lambda x: events.append(x))
+    restorer.push((2, "toto"))
+    restorer.push((1, "tata"))
+    restorer.push((3, "foo"))
+    restorer.push((0, "bar"))
+    restorer.push((4, "titi"))
+    with self.assertRaises(ValueError):
+      restorer.push((2, "invalid"))
+    self.assertEqual(len(events), 5)
+    self.assertTupleEqual(events[0], (0, "bar"))
+    self.assertTupleEqual(events[1], (1, "tata"))
+    self.assertTupleEqual(events[2], (2, "toto"))
+    self.assertTupleEqual(events[3], (3, "foo"))
+    self.assertTupleEqual(events[4], (4, "titi"))
+
 
 if __name__ == "__main__":
   tf.test.main()

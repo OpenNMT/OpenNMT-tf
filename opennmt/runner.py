@@ -16,7 +16,7 @@ from google.protobuf import text_format
 
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils.evaluator import external_evaluation_fn
-from opennmt.utils.misc import format_translation_output
+from opennmt.utils.misc import format_translation_output, OrderRestorer
 
 
 # These options require a value but we can fallback to a default one.
@@ -306,6 +306,7 @@ class Runner(object):
         self._config["infer"]["batch_size"],
         self._config["data"],
         features_file,
+        bucket_width=self._config["infer"]["bucket_width"],
         num_threads=self._config["infer"].get("num_threads"),
         prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"))
 
@@ -318,11 +319,22 @@ class Runner(object):
     if log_time:
       infer_hooks.append(hooks.LogPredictionTimeHook())
 
+    ordered_writer = None
+    write_fn = lambda prediction: (
+        self._model.print_prediction(prediction, params=self._config["infer"], stream=stream))
+
     for prediction in self._estimator.predict(
         input_fn=input_fn,
         checkpoint_path=checkpoint_path,
         hooks=infer_hooks):
-      self._model.print_prediction(prediction, params=self._config["infer"], stream=stream)
+      # If the index is part of the prediction, they may be out of order.
+      if "index" in prediction:
+        if ordered_writer is None:
+          ordered_writer = OrderRestorer(
+              index_fn=lambda prediction: prediction["index"], callback_fn=write_fn)
+        ordered_writer.push(prediction)
+      else:
+        write_fn(prediction)
 
     if predictions_file:
       stream.close()
