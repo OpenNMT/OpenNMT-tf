@@ -286,6 +286,28 @@ the features sequence(s). <code class="docutils literal notranslate"><span class
 </dd></dl>
 
 <dl class="function">
+<dt id="opennmt.utils.data.batch_dataset">
+<code class="descclassname">opennmt.utils.data.</code><code class="descname">batch_dataset</code><span class="sig-paren">(</span><em>batch_size</em>, <em>padded_shapes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#batch_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.batch_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transformation that batches a dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>batch_size</strong> – The batch size.</li>
+<li><strong>padded_shapes</strong> – The padded shapes for this dataset. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the shapes
+are automatically inferred from the dataset output shapes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> transformation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="opennmt.utils.data.batch_parallel_dataset">
 <code class="descclassname">opennmt.utils.data.</code><code class="descname">batch_parallel_dataset</code><span class="sig-paren">(</span><em>batch_size</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>padded_shapes=None</em>, <em>features_length_fn=None</em>, <em>labels_length_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#batch_parallel_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.batch_parallel_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that batches a parallel dataset.</p>
@@ -369,7 +391,7 @@ the features sequence(s). <code class="docutils literal notranslate"><span class
 
 <dl class="function">
 <dt id="opennmt.utils.data.inference_pipeline">
-<code class="descclassname">opennmt.utils.data.</code><code class="descname">inference_pipeline</code><span class="sig-paren">(</span><em>dataset</em>, <em>batch_size</em>, <em>process_fn=None</em>, <em>num_threads=None</em>, <em>prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#inference_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.inference_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.data.</code><code class="descname">inference_pipeline</code><span class="sig-paren">(</span><em>dataset</em>, <em>batch_size</em>, <em>process_fn=None</em>, <em>num_threads=None</em>, <em>prefetch_buffer_size=None</em>, <em>bucket_width=None</em>, <em>length_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#inference_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.inference_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines a complete inference data pipeline.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -383,6 +405,12 @@ the features sequence(s). <code class="docutils literal notranslate"><span class
 <li><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
 older versions.</li>
+<li><strong>bucket_width</strong> – The width of the length buckets to select batch candidates
+from. If set, this means the inference pipeline will be reordered based on
+the examples length, the application is then responsible to restore the
+predictions in order. An “index” key will be inserted in the examples
+dict.</li>
+<li><strong>length_fn</strong> – A callable mapping features to a sequence length.</li>
 </ul>
 </td>
 </tr>
