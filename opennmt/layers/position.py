@@ -87,7 +87,7 @@ class PositionEncoder(object):
 
     Args:
       inputs: The inputs of shape :math:`[B, 1, D]`.
-      position: The position to encode.
+      position: The position to encode (1-indexed).
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, 1, D]` where :math:`D` depends on the
@@ -95,9 +95,7 @@ class PositionEncoder(object):
     """
     batch_size = tf.shape(inputs)[0]
     input_dim = inputs.get_shape().as_list()[-1]
-
-    position = tf.tile([position], [batch_size])
-    position = tf.expand_dims(position, 1)
+    position = tf.tile([[position]], [batch_size, 1])
 
     with tf.variable_scope("position_encoding"):
       position_encoding = self.encode(position, input_dim, dtype=inputs.dtype)
@@ -177,8 +175,5 @@ class SinusoidalPositionEncoder(PositionEncoder):
     inv_timescales = tf.exp(tf.range(depth / 2, dtype=tf.float32) * -log_timescale_increment)
     inv_timescales = tf.reshape(tf.tile(inv_timescales, [batch_size]), [batch_size, -1])
     scaled_time = tf.expand_dims(positions, -1) * tf.expand_dims(inv_timescales, 1)
-
     encoding = tf.concat([tf.sin(scaled_time), tf.cos(scaled_time)], axis=2)
-    if dtype != tf.float32:
-      encoding = tf.cast(encoding, dtype)
-    return encoding
+    return tf.cast(encoding, dtype)
