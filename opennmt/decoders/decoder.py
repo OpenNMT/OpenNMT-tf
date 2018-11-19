@@ -305,10 +305,6 @@ class Decoder(object):
       if memory is None:
         raise ValueError("dtype argument is required when no memory is set")
       dtype = tf.contrib.framework.nest.flatten(memory)[0].dtype
-    if output_layer is None:
-      if vocab_size is None:
-        raise ValueError("vocab_size must be known when the output_layer is not set")
-      output_layer = build_output_layer(self.output_size, vocab_size, dtype=dtype)
 
     if beam_width > 1:
       if initial_state is not None:
@@ -327,6 +323,10 @@ class Decoder(object):
         memory=memory,
         memory_sequence_length=memory_sequence_length,
         dtype=dtype)
+    if output_layer is None:
+      if vocab_size is None:
+        raise ValueError("vocab_size must be known when the output_layer is not set")
+      output_layer = build_output_layer(self.output_size, vocab_size, dtype=dtype)
 
     state = {"decoder": initial_state}
     if self.support_alignment_history and not isinstance(memory, (tuple, list)):
