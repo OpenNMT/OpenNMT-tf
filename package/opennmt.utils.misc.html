@@ -291,6 +291,37 @@ Numpy arrays.</p>
 </table>
 </dd></dl>
 
+<dl class="class">
+<dt id="opennmt.utils.misc.OrderRestorer">
+<em class="property">class </em><code class="descclassname">opennmt.utils.misc.</code><code class="descname">OrderRestorer</code><span class="sig-paren">(</span><em>index_fn</em>, <em>callback_fn</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#OrderRestorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.OrderRestorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Helper class to restore out-of-order elements in order.</p>
+<dl class="method">
+<dt id="opennmt.utils.misc.OrderRestorer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>index_fn</em>, <em>callback_fn</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#OrderRestorer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.OrderRestorer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes this object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index_fn</strong> – A callable mapping an element to a unique index.</li>
+<li><strong>callback_fn</strong> – A callable taking an element that will be called in order.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.misc.OrderRestorer.push">
+<code class="descname">push</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#OrderRestorer.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.OrderRestorer.push" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push event <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="opennmt.utils.misc.add_dict_to_collection">
 <code class="descclassname">opennmt.utils.misc.</code><code class="descname">add_dict_to_collection</code><span class="sig-paren">(</span><em>collection_name</em>, <em>dict_</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#add_dict_to_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.add_dict_to_collection" title="Permalink to this definition">¶</a></dt>
