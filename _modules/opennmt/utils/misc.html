@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.13.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.13.1 documentation</title>
   
 
   
@@ -167,7 +167,6 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">heapq</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -298,40 +297,6 @@
       <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
   <span class="k">return</span> <span class="n">dict1</span></div>
 
-
-<div class="viewcode-block" id="OrderRestorer"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer">[docs]</a><span class="k">class</span> <span class="nc">OrderRestorer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Helper class to restore out-of-order elements in order.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="OrderRestorer.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_fn</span><span class="p">,</span> <span class="n">callback_fn</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes this object.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      index_fn: A callable mapping an element to a unique index.</span>
-<span class="sd">      callback_fn: A callable taking an element that will be called in order.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_index_fn</span> <span class="o">=</span> <span class="n">index_fn</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_callback_fn</span> <span class="o">=</span> <span class="n">callback_fn</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="o">=</span> <span class="p">[]</span></div>
-
-  <span class="k">def</span> <span class="nf">_try_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span><span class="p">:</span>
-      <span class="n">index</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">)</span>
-      <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_callback_fn</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span> <span class="o">+=</span> <span class="mi">1</span>
-
-<div class="viewcode-block" id="OrderRestorer.push"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer.push">[docs]</a>  <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Push event :obj:`x`.&quot;&quot;&quot;</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Event index </span><span class="si">%d</span><span class="s2"> was already notified&quot;</span> <span class="o">%</span> <span class="n">index</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
-    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_try_notify</span><span class="p">()</span></div></div>
-
-
 <span class="c1"># The next 2 functions come with the following license and copyright:</span>
 
 <span class="c1"># Copyright 2017 Google Inc.</span>
@@ -410,7 +375,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.13.0',
+              VERSION:'1.13.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

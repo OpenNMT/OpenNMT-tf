@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 1.13.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 1.13.1 documentation</title>
   
 
   
@@ -178,7 +178,7 @@
 
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">hooks</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="n">misc</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.evaluator</span> <span class="k">import</span> <span class="n">external_evaluation_fn</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">OrderRestorer</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">format_translation_output</span>
 
 
 <span class="c1"># These options require a value but we can fallback to a default one.</span>
@@ -468,7 +468,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">][</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span>
         <span class="n">features_file</span><span class="p">,</span>
-        <span class="n">bucket_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">][</span><span class="s2">&quot;bucket_width&quot;</span><span class="p">],</span>
         <span class="n">num_threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_threads&quot;</span><span class="p">),</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">))</span>
 
@@ -481,22 +480,11 @@
     <span class="k">if</span> <span class="n">log_time</span><span class="p">:</span>
       <span class="n">infer_hooks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hooks</span><span class="o">.</span><span class="n">LogPredictionTimeHook</span><span class="p">())</span>
 
-    <span class="n">ordered_writer</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">write_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">prediction</span><span class="p">:</span> <span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">print_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">],</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">))</span>
-
     <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
         <span class="n">input_fn</span><span class="o">=</span><span class="n">input_fn</span><span class="p">,</span>
         <span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span>
         <span class="n">hooks</span><span class="o">=</span><span class="n">infer_hooks</span><span class="p">):</span>
-      <span class="c1"># If the index is part of the prediction, they may be out of order.</span>
-      <span class="k">if</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">ordered_writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-          <span class="n">ordered_writer</span> <span class="o">=</span> <span class="n">OrderRestorer</span><span class="p">(</span>
-              <span class="n">index_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">prediction</span><span class="p">:</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">],</span> <span class="n">callback_fn</span><span class="o">=</span><span class="n">write_fn</span><span class="p">)</span>
-        <span class="n">ordered_writer</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">write_fn</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">print_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">],</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">predictions_file</span><span class="p">:</span>
       <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
@@ -673,7 +661,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../',
-              VERSION:'1.13.0',
+              VERSION:'1.13.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
