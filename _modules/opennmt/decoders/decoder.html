@@ -467,10 +467,6 @@
       <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dtype argument is required when no memory is set&quot;</span><span class="p">)</span>
       <span class="n">dtype</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
-    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vocab_size must be known when the output_layer is not set&quot;</span><span class="p">)</span>
-      <span class="n">output_layer</span> <span class="o">=</span> <span class="n">build_output_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">beam_width</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -489,6 +485,10 @@
         <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
         <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vocab_size must be known when the output_layer is not set&quot;</span><span class="p">)</span>
+      <span class="n">output_layer</span> <span class="o">=</span> <span class="n">build_output_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;decoder&quot;</span><span class="p">:</span> <span class="n">initial_state</span><span class="p">}</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
