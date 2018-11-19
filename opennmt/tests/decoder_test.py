@@ -1,4 +1,5 @@
 import math
+import os
 
 import tensorflow as tf
 import numpy as np
@@ -6,6 +7,7 @@ import numpy as np
 from opennmt import decoders
 from opennmt.decoders import decoder
 from opennmt.utils import beam_search
+from opennmt.layers import bridge
 
 
 class DecoderTest(tf.test.TestCase):
@@ -43,7 +45,7 @@ class DecoderTest(tf.test.TestCase):
       self.assertAlmostEqual(
           1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), sess.run(inv_sig_sample_prob))
 
-  def _testDecoderTraining(self, decoder, dtype=tf.float32):
+  def _testDecoderTraining(self, decoder, initial_state_fn=None, dtype=tf.float32):
     batch_size = 4
     vocab_size = 10
     time_dim = 5
@@ -58,10 +60,15 @@ class DecoderTest(tf.test.TestCase):
     memory = tf.placeholder_with_default(
         np.random.randn(batch_size, memory_time, depth).astype(dtype.as_numpy_dtype()),
         shape=(None, None, depth))
+    if initial_state_fn is not None:
+      initial_state = initial_state_fn(tf.shape(memory)[0], dtype)
+    else:
+      initial_state = None
     outputs, _, _, attention = decoder.decode(
         inputs,
         sequence_length,
         vocab_size=vocab_size,
+        initial_state=initial_state,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
         return_alignment_history=True)
@@ -72,44 +79,23 @@ class DecoderTest(tf.test.TestCase):
     else:
       self.assertIsNone(attention)
 
-    with self.test_session() as sess:
+    saver = tf.train.Saver(var_list=tf.global_variables())
+    with self.test_session(graph=tf.get_default_graph()) as sess:
       sess.run(tf.global_variables_initializer())
-    with self.test_session() as sess:
       output_time_dim_val = sess.run(output_time_dim)
       self.assertEqual(time_dim, output_time_dim_val)
       if decoder.support_alignment_history:
         attention_val = sess.run(attention)
         self.assertAllEqual([batch_size, time_dim, memory_time], attention_val.shape)
+      return saver.save(sess, os.path.join(self.get_temp_dir(), "model.ckpt"))
 
-  def testRNNDecoderTraining(self):
-    decoder = decoders.RNNDecoder(2, 20)
-    self._testDecoderTraining(decoder)
-
-  def testAttentionalRNNDecoderTraining(self):
-    decoder = decoders.AttentionalRNNDecoder(2, 20)
-    self._testDecoderTraining(decoder)
-
-  def testMultiAttentionalRNNDecoderTraining(self):
-    decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
-    self._testDecoderTraining(decoder)
-
-  def testRNMTPlusDecoderTraining(self):
-    decoder = decoders.RNMTPlusDecoder(2, 20, 4)
-    self._testDecoderTraining(decoder)
-
-  def testSelfAttentionDecoderTraining(self):
-    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoderTraining(decoder)
-
-  def testSelfAttentionDecoderFP16Training(self):
-    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoderTraining(decoder, dtype=tf.float16)
-
-  def _testDecoderGeneric(self,
-                          decoder,
-                          with_beam_search=False,
-                          with_alignment_history=False,
-                          dtype=tf.float32):
+  def _testDecoderInference(self,
+                            decoder,
+                            initial_state_fn=None,
+                            with_beam_search=False,
+                            with_alignment_history=False,
+                            dtype=tf.float32,
+                            checkpoint_path=None):
     batch_size = 4
     beam_width = 5
     num_hyps = beam_width if with_beam_search else 1
@@ -126,6 +112,10 @@ class DecoderTest(tf.test.TestCase):
     embedding =  tf.placeholder_with_default(
         np.random.randn(vocab_size, depth).astype(dtype.as_numpy_dtype()),
         shape=(vocab_size, depth))
+    if initial_state_fn is not None:
+      initial_state = initial_state_fn(tf.shape(memory)[0], dtype)
+    else:
+      initial_state = None
 
     if with_beam_search:
       decode_fn = decoder.dynamic_decode_and_search
@@ -143,6 +133,7 @@ class DecoderTest(tf.test.TestCase):
         start_tokens,
         end_token,
         vocab_size=vocab_size,
+        initial_state=initial_state,
         maximum_iterations=10,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
@@ -155,55 +146,71 @@ class DecoderTest(tf.test.TestCase):
     self.assertEqual(log_probs.dtype, tf.float32)
 
     decode_time = tf.shape(ids)[-1]
+    saver = tf.train.Saver(var_list=tf.global_variables())
 
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
+    with self.test_session(graph=tf.get_default_graph()) as sess:
+      if checkpoint_path is not None:
+        saver.restore(sess, checkpoint_path)
+      else:
+        sess.run(tf.global_variables_initializer())
 
-    if not with_alignment_history:
-      self.assertEqual(4, len(outputs))
-    else:
-      self.assertEqual(5, len(outputs))
-      alignment_history = outputs[4]
-      if decoder.support_alignment_history:
-        self.assertIsInstance(alignment_history, tf.Tensor)
-        with self.test_session() as sess:
+      if not with_alignment_history:
+        self.assertEqual(4, len(outputs))
+      else:
+        self.assertEqual(5, len(outputs))
+        alignment_history = outputs[4]
+        if decoder.support_alignment_history:
+          self.assertIsInstance(alignment_history, tf.Tensor)
           alignment_history, decode_time = sess.run([alignment_history, decode_time])
           self.assertAllEqual(
               [batch_size, num_hyps, decode_time, memory_time], alignment_history.shape)
-      else:
-        self.assertIsNone(alignment_history)
+        else:
+          self.assertIsNone(alignment_history)
 
-    with self.test_session() as sess:
       ids, lengths, log_probs = sess.run([ids, lengths, log_probs])
       self.assertAllEqual([batch_size, num_hyps], ids.shape[0:2])
       self.assertAllEqual([batch_size, num_hyps], lengths.shape)
       self.assertAllEqual([batch_size, num_hyps], log_probs.shape)
 
-  def _testDecoder(self, decoder, dtype=tf.float32):
-    with tf.variable_scope(tf.get_variable_scope()):
-      self._testDecoderGeneric(
+  def _testDecoder(self, decoder, initial_state_fn=None, dtype=tf.float32):
+    with tf.Graph().as_default() as g:
+      checkpoint_path = self._testDecoderTraining(
           decoder,
+          initial_state_fn=initial_state_fn,
+          dtype=dtype)
+
+    with tf.Graph().as_default() as g:
+      self._testDecoderInference(
+          decoder,
+          initial_state_fn=initial_state_fn,
           with_beam_search=False,
           with_alignment_history=False,
-          dtype=dtype)
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      self._testDecoderGeneric(
+          dtype=dtype,
+          checkpoint_path=checkpoint_path)
+    with tf.Graph().as_default() as g:
+      self._testDecoderInference(
           decoder,
+          initial_state_fn=initial_state_fn,
           with_beam_search=False,
           with_alignment_history=True,
-          dtype=dtype)
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      self._testDecoderGeneric(
+          dtype=dtype,
+          checkpoint_path=checkpoint_path)
+    with tf.Graph().as_default() as g:
+      self._testDecoderInference(
           decoder,
+          initial_state_fn=initial_state_fn,
           with_beam_search=True,
           with_alignment_history=False,
-          dtype=dtype)
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      self._testDecoderGeneric(
+          dtype=dtype,
+          checkpoint_path=checkpoint_path)
+    with tf.Graph().as_default() as g:
+      self._testDecoderInference(
           decoder,
+          initial_state_fn=initial_state_fn,
           with_beam_search=True,
           with_alignment_history=True,
-          dtype=dtype)
+          dtype=dtype,
+          checkpoint_path=checkpoint_path)
 
   def testRNNDecoder(self):
     decoder = decoders.RNNDecoder(2, 20)
@@ -212,6 +219,13 @@ class DecoderTest(tf.test.TestCase):
   def testAttentionalRNNDecoder(self):
     decoder = decoders.AttentionalRNNDecoder(2, 20)
     self._testDecoder(decoder)
+
+  def testAttentionalRNNDecoderWithDenseBridge(self):
+    decoder = decoders.AttentionalRNNDecoder(2, 36, bridge=bridge.DenseBridge())
+    encoder_cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.LSTMCell(5),
+                                                tf.nn.rnn_cell.LSTMCell(5)])
+    initial_state_fn = lambda batch_size, dtype: encoder_cell.zero_state(batch_size, dtype)
+    self._testDecoder(decoder, initial_state_fn=initial_state_fn)
 
   def testMultiAttentionalRNNDecoder(self):
     decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
