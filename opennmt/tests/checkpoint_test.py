@@ -20,18 +20,20 @@ class CheckpointTest(tf.test.TestCase):
     return vocab_file
 
   def testVocabMappingMerge(self):
-    old = self._saveVocab("old", [1, 2, 3, 4])
-    new = self._saveVocab("new", [1, 6, 3, 5, 7])
-    mapping = checkpoint._get_vocabulary_mapping(old, new, "merge")
+    old = self._saveVocab("old", ["1", "2", "3", "4"])
+    new = self._saveVocab("new", ["1", "6", "3", "5", "7"])
+    mapping, new_vocab = checkpoint._get_vocabulary_mapping(old, new, "merge")
     self.assertEqual(4 + 5 - 2 + 1, len(mapping))  # old + new - common + <unk>
     self.assertAllEqual([0, 1, 2, 3, -1, -1, -1, 4], mapping)
+    self.assertAllEqual(["1", "2", "3", "4", "6", "5", "7"], new_vocab.words)
 
   def testVocabMappingReplace(self):
-    old = self._saveVocab("old", [1, 2, 3, 4])
-    new = self._saveVocab("new", [1, 6, 5, 3, 7])
-    mapping = checkpoint._get_vocabulary_mapping(old, new, "replace")
+    old = self._saveVocab("old", ["1", "2", "3", "4"])
+    new = self._saveVocab("new", ["1", "6", "5", "3", "7"])
+    mapping, new_vocab = checkpoint._get_vocabulary_mapping(old, new, "replace")
     self.assertEqual(5 + 1, len(mapping))  # new + <unk>
     self.assertAllEqual([0, -1, -1, 2, -1, 4], mapping)
+    self.assertAllEqual(["1", "6", "5", "3", "7"], new_vocab.words)
 
   def testVocabVariableUpdate(self):
     mapping = [0, -1, -1, 2, -1, 4]
