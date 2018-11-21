@@ -178,11 +178,14 @@
   <span class="n">new_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="n">new_vocab_path</span><span class="p">)</span>
   <span class="n">mapping</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;merge&quot;</span><span class="p">:</span>
+    <span class="n">final_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="n">current_vocab_path</span><span class="p">)</span>
     <span class="n">mapping</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">current_vocab</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">new_word</span> <span class="ow">in</span> <span class="n">new_vocab</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">current_vocab</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">final_vocab</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span>
   <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;replace&quot;</span><span class="p">:</span>
+    <span class="n">final_vocab</span> <span class="o">=</span> <span class="n">new_vocab</span>
     <span class="k">for</span> <span class="n">new_word</span> <span class="ow">in</span> <span class="n">new_vocab</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
       <span class="n">idx</span> <span class="o">=</span> <span class="n">current_vocab</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -190,7 +193,7 @@
       <span class="k">else</span><span class="p">:</span>
         <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
   <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_vocab</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>  <span class="c1"># &lt;unk&gt; token is always the last entry.</span>
-  <span class="k">return</span> <span class="n">mapping</span>
+  <span class="k">return</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">final_vocab</span>
 
 <span class="k">def</span> <span class="nf">_update_vocabulary_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Creates a new variable, possibly copying previous entries based on mapping.&quot;&quot;&quot;</span>
@@ -208,9 +211,17 @@
   <span class="n">new_variable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">new_variable_t</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">new_variable</span>
 
-<span class="k">def</span> <span class="nf">_update_vocabulary_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">current_vocab_path</span><span class="p">,</span> <span class="n">new_vocab_path</span><span class="p">,</span> <span class="n">scope_name</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_update_vocabulary_variables</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span>
+                                 <span class="n">variables</span><span class="p">,</span>
+                                 <span class="n">current_vocab_path</span><span class="p">,</span>
+                                 <span class="n">new_vocab_path</span><span class="p">,</span>
+                                 <span class="n">scope_name</span><span class="p">,</span>
+                                 <span class="n">mode</span><span class="p">):</span>
   <span class="n">current_size</span> <span class="o">=</span> <span class="n">count_lines</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-  <span class="n">mapping</span> <span class="o">=</span> <span class="n">_get_vocabulary_mapping</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">,</span> <span class="n">new_vocab_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+  <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab</span> <span class="o">=</span> <span class="n">_get_vocabulary_mapping</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">,</span> <span class="n">new_vocab_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;merge&quot;</span><span class="p">:</span>
+    <span class="n">vocab_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">scope_name</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">new_vocab_path</span><span class="p">))</span>
+    <span class="n">vocab</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">vocab_name</span><span class="p">))</span>
   <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">scope_name</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">d</span> <span class="o">==</span> <span class="n">current_size</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating variable </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
@@ -317,7 +328,8 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">    model_dir: The directory containing checkpoints (the most recent will be loaded).</span>
-<span class="sd">    output_dir: The directory that will contain the converted checkpoint.</span>
+<span class="sd">    output_dir: The directory that will contain the converted checkpoint. In</span>
+<span class="sd">      ``merge`` mode, updated vocabularies will also be saved in the directory.</span>
 <span class="sd">    current_src_vocab: Path to the source vocabulary currently use in the model.</span>
 <span class="sd">    current_tgt_vocab: Path to the target vocabulary currently use in the model.</span>
 <span class="sd">    new_src_vocab: Path to the new source vocabulary to support.</span>
@@ -332,8 +344,9 @@
 <span class="sd">    The path to the directory containing the converted checkpoint.</span>
 
 <span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`output_dir` is the same as :obj:`model_dir` or if</span>
-<span class="sd">      :obj:`mode` is invalid.</span>
+<span class="sd">    ValueError: if :obj:`output_dir` is the same as :obj:`model_dir`, if</span>
+<span class="sd">      :obj:`mode` is invalid, or if no checkpoints are found in</span>
+<span class="sd">      :obj:`model_dir`.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">model_dir</span> <span class="o">==</span> <span class="n">output_dir</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model and output directory must be different&quot;</span><span class="p">)</span>
@@ -342,12 +355,18 @@
   <span class="k">if</span> <span class="n">new_src_vocab</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">new_tgt_vocab</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">model_dir</span>
   <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">checkpoint_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No checkpoint found in directory </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_dir</span><span class="p">)</span>
   <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating vocabulary related variables in checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">checkpoint_path</span><span class="p">)</span>
   <span class="n">variable_value</span> <span class="o">=</span> <span class="n">get_checkpoint_variables</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">new_src_vocab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">_update_vocabulary_variables</span><span class="p">(</span><span class="n">variable_value</span><span class="p">,</span> <span class="n">current_src_vocab</span><span class="p">,</span> <span class="n">new_src_vocab</span><span class="p">,</span> <span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="n">_update_vocabulary_variables</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="p">,</span> <span class="n">variable_value</span><span class="p">,</span> <span class="n">current_src_vocab</span><span class="p">,</span> <span class="n">new_src_vocab</span><span class="p">,</span> <span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">new_tgt_vocab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">_update_vocabulary_variables</span><span class="p">(</span><span class="n">variable_value</span><span class="p">,</span> <span class="n">current_tgt_vocab</span><span class="p">,</span> <span class="n">new_tgt_vocab</span><span class="p">,</span> <span class="s2">&quot;decoder&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="n">_update_vocabulary_variables</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="p">,</span> <span class="n">variable_value</span><span class="p">,</span> <span class="n">current_tgt_vocab</span><span class="p">,</span> <span class="n">new_tgt_vocab</span><span class="p">,</span> <span class="s2">&quot;decoder&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_create_checkpoint_from_variables</span><span class="p">(</span>
       <span class="n">variable_value</span><span class="p">,</span>
       <span class="n">output_dir</span><span class="p">,</span>

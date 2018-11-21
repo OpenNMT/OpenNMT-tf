@@ -242,7 +242,8 @@ weights.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>model_dir</strong> – The directory containing checkpoints (the most recent will be loaded).</li>
-<li><strong>output_dir</strong> – The directory that will contain the converted checkpoint.</li>
+<li><strong>output_dir</strong> – The directory that will contain the converted checkpoint. In
+<code class="docutils literal notranslate"><span class="pre">merge</span></code> mode, updated vocabularies will also be saved in the directory.</li>
 <li><strong>current_src_vocab</strong> – Path to the source vocabulary currently use in the model.</li>
 <li><strong>current_tgt_vocab</strong> – Path to the target vocabulary currently use in the model.</li>
 <li><strong>new_src_vocab</strong> – Path to the new source vocabulary to support.</li>
@@ -258,8 +259,9 @@ are kept in the converted checkpoint.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The path to the directory containing the converted checkpoint.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code> is the same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dir</span></code> or if
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code> is invalid.</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code> is the same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dir</span></code>, if
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code> is invalid, or if no checkpoints are found in
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dir</span></code>.</p>
 </td>
 </tr>
 </tbody>
