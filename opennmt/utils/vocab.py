@@ -78,8 +78,7 @@ class Vocab(object):
     """
     with open(path, "rb") as vocab:
       for token in vocab:
-        token = token.strip()
-        self.add(tf.compat.as_text(token))
+        self.add(tf.compat.as_text(token[:-1]))
 
   def add(self, token):
     """Adds a token or increases its frequency.
