@@ -191,6 +191,12 @@
 <em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">Inputter</code><span class="sig-paren">(</span><em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for inputters.</p>
+<dl class="attribute">
+<dt id="opennmt.inputters.inputter.Inputter.num_outputs">
+<code class="descname">num_outputs</code><a class="headerlink" href="#opennmt.inputters.inputter.Inputter.num_outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many parallel outputs does this inputter produce.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="opennmt.inputters.inputter.Inputter.add_process_hooks">
 <code class="descname">add_process_hooks</code><span class="sig-paren">(</span><em>hooks</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.add_process_hooks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter.add_process_hooks" title="Permalink to this definition">¶</a></dt>
@@ -418,9 +424,15 @@ the inputter.</li>
 
 <dl class="class">
 <dt id="opennmt.inputters.inputter.MultiInputter">
-<em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">MultiInputter</code><span class="sig-paren">(</span><em>inputters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">MultiInputter</code><span class="sig-paren">(</span><em>inputters</em>, <em>reducer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a></p>
 <p>An inputter that gathers multiple inputters.</p>
+<dl class="attribute">
+<dt id="opennmt.inputters.inputter.MultiInputter.num_outputs">
+<code class="descname">num_outputs</code><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.num_outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many parallel outputs does this inputter produce.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="opennmt.inputters.inputter.MultiInputter.make_dataset">
 <code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.make_dataset" title="Permalink to this definition">¶</a></dt>

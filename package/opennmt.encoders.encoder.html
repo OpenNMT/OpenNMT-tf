@@ -275,7 +275,7 @@ to the number of encoder transitions <code class="docutils literal notranslate">
 
 <dl class="class">
 <dt id="opennmt.encoders.encoder.ParallelEncoder">
-<em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">ParallelEncoder</code><span class="sig-paren">(</span><em>encoders</em>, <em>outputs_reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>outputs_layer_fn=None</em>, <em>combined_output_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.encoders.encoder.</code><code class="descname">ParallelEncoder</code><span class="sig-paren">(</span><em>encoders</em>, <em>outputs_reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>outputs_layer_fn=None</em>, <em>combined_output_layer_fn=None</em>, <em>share_parameters=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>An encoder that encodes its input with several encoders and reduces the
 outputs and states together. Additional layers can be applied on each encoder
@@ -288,7 +288,7 @@ each encoder will encode its corresponding input in the sequence.</p>
 <p>See for example “Multi-Columnn Encoder” in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
 <dl class="method">
 <dt id="opennmt.encoders.encoder.ParallelEncoder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>encoders</em>, <em>outputs_reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>outputs_layer_fn=None</em>, <em>combined_output_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>encoders</em>, <em>outputs_reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em>states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em>outputs_layer_fn=None</em>, <em>combined_output_layer_fn=None</em>, <em>share_parameters=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.encoder.ParallelEncoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the parameters of the encoder.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -308,6 +308,8 @@ output. Otherwise, the <code class="docutils literal notranslate"><span class="p
 output.</li>
 <li><strong>combined_output_layer_fn</strong> – A callable to apply on the combined output
 (i.e. the output of <code class="xref py py-obj docutils literal notranslate"><span class="pre">outputs_reducer</span></code>).</li>
+<li><strong>share_parameters</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, share parameters between the parallel
+encoders.</li>
 </ul>
 </td>
 </tr>

@@ -165,6 +165,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.models.sequence_to_sequence</span> <span class="k">import</span> <span class="n">SequenceToSequence</span><span class="p">,</span> <span class="n">EmbeddingsSharingLevel</span>
+<span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">ParallelEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.encoders.self_attention_encoder</span> <span class="k">import</span> <span class="n">SelfAttentionEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="k">import</span> <span class="n">SelfAttentionDecoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="k">import</span> <span class="n">SinusoidalPositionEncoder</span>
@@ -189,13 +190,15 @@
                <span class="n">position_encoder</span><span class="o">=</span><span class="n">SinusoidalPositionEncoder</span><span class="p">(),</span>
                <span class="n">decoder_self_attention_type</span><span class="o">=</span><span class="s2">&quot;scaled_dot&quot;</span><span class="p">,</span>
                <span class="n">share_embeddings</span><span class="o">=</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+               <span class="n">share_encoders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">alignment_file_key</span><span class="o">=</span><span class="s2">&quot;train_alignments&quot;</span><span class="p">,</span>
                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;transformer&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes a Transformer model.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      source_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process</span>
-<span class="sd">        the source data.</span>
+<span class="sd">        the source data. If this inputter returns parallel inputs, a multi</span>
+<span class="sd">        source Transformer architecture will be constructed.</span>
 <span class="sd">      target_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process</span>
 <span class="sd">        the target data. Currently, only the</span>
 <span class="sd">        :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.</span>
@@ -214,19 +217,31 @@
 <span class="sd">      share_embeddings: Level of embeddings sharing, see</span>
 <span class="sd">        :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`</span>
 <span class="sd">        for possible values.</span>
+<span class="sd">      share_encoders: In case of multi source architecture, whether to share the</span>
+<span class="sd">        separate encoders parameters or not.</span>
 <span class="sd">      alignment_file_key: The data configuration key of the training alignment</span>
 <span class="sd">        file to support guided alignment.</span>
 <span class="sd">      name: The name of this model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">encoder</span> <span class="o">=</span> <span class="n">SelfAttentionEncoder</span><span class="p">(</span>
-        <span class="n">num_layers</span><span class="p">,</span>
-        <span class="n">num_units</span><span class="o">=</span><span class="n">num_units</span><span class="p">,</span>
-        <span class="n">num_heads</span><span class="o">=</span><span class="n">num_heads</span><span class="p">,</span>
-        <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="n">ffn_inner_dim</span><span class="p">,</span>
-        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
-        <span class="n">relu_dropout</span><span class="o">=</span><span class="n">relu_dropout</span><span class="p">,</span>
-        <span class="n">position_encoder</span><span class="o">=</span><span class="n">position_encoder</span><span class="p">)</span>
+    <span class="n">encoders</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">SelfAttentionEncoder</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="n">num_units</span><span class="p">,</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="n">num_heads</span><span class="p">,</span>
+            <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="n">ffn_inner_dim</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
+            <span class="n">relu_dropout</span><span class="o">=</span><span class="n">relu_dropout</span><span class="p">,</span>
+            <span class="n">position_encoder</span><span class="o">=</span><span class="n">position_encoder</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">encoder</span> <span class="o">=</span> <span class="n">ParallelEncoder</span><span class="p">(</span>
+          <span class="n">encoders</span><span class="p">,</span>
+          <span class="n">outputs_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">states_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">share_parameters</span><span class="o">=</span><span class="n">share_encoders</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">encoder</span> <span class="o">=</span> <span class="n">encoders</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">decoder</span> <span class="o">=</span> <span class="n">SelfAttentionDecoder</span><span class="p">(</span>
         <span class="n">num_layers</span><span class="p">,</span>
         <span class="n">num_units</span><span class="o">=</span><span class="n">num_units</span><span class="p">,</span>

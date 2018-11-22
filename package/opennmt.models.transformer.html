@@ -188,13 +188,13 @@
 <p>Define the Google’s Transformer model.</p>
 <dl class="class">
 <dt id="opennmt.models.transformer.Transformer">
-<em class="property">class </em><code class="descclassname">opennmt.models.transformer.</code><code class="descname">Transformer</code><span class="sig-paren">(</span><em>source_inputter</em>, <em>target_inputter</em>, <em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>ffn_inner_dim</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>relu_dropout=0.1</em>, <em>position_encoder=&lt;opennmt.layers.position.SinusoidalPositionEncoder object&gt;</em>, <em>decoder_self_attention_type='scaled_dot'</em>, <em>share_embeddings=0</em>, <em>alignment_file_key='train_alignments'</em>, <em>name='transformer'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.transformer.Transformer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.models.transformer.</code><code class="descname">Transformer</code><span class="sig-paren">(</span><em>source_inputter</em>, <em>target_inputter</em>, <em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>ffn_inner_dim</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>relu_dropout=0.1</em>, <em>position_encoder=&lt;opennmt.layers.position.SinusoidalPositionEncoder object&gt;</em>, <em>decoder_self_attention_type='scaled_dot'</em>, <em>share_embeddings=0</em>, <em>share_encoders=False</em>, <em>alignment_file_key='train_alignments'</em>, <em>name='transformer'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.transformer.Transformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence" title="opennmt.models.sequence_to_sequence.SequenceToSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_to_sequence.SequenceToSequence</span></code></a></p>
 <p>Attention-based sequence-to-sequence model as described in
 <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
 <dl class="method">
 <dt id="opennmt.models.transformer.Transformer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>source_inputter</em>, <em>target_inputter</em>, <em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>ffn_inner_dim</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>relu_dropout=0.1</em>, <em>position_encoder=&lt;opennmt.layers.position.SinusoidalPositionEncoder object&gt;</em>, <em>decoder_self_attention_type='scaled_dot'</em>, <em>share_embeddings=0</em>, <em>alignment_file_key='train_alignments'</em>, <em>name='transformer'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.transformer.Transformer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>source_inputter</em>, <em>target_inputter</em>, <em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>ffn_inner_dim</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>relu_dropout=0.1</em>, <em>position_encoder=&lt;opennmt.layers.position.SinusoidalPositionEncoder object&gt;</em>, <em>decoder_self_attention_type='scaled_dot'</em>, <em>share_embeddings=0</em>, <em>share_encoders=False</em>, <em>alignment_file_key='train_alignments'</em>, <em>name='transformer'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.transformer.Transformer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes a Transformer model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -202,7 +202,8 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>source_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process
-the source data.</li>
+the source data. If this inputter returns parallel inputs, a multi
+source Transformer architecture will be constructed.</li>
 <li><strong>target_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a> to process
 the target data. Currently, only the
 <a class="reference internal" href="opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder" title="opennmt.inputters.text_inputter.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.text_inputter.WordEmbedder</span></code></a> is supported.</li>
@@ -221,6 +222,8 @@ apply on the inputs.</li>
 <li><strong>share_embeddings</strong> – Level of embeddings sharing, see
 <a class="reference internal" href="opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel" title="opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel</span></code></a>
 for possible values.</li>
+<li><strong>share_encoders</strong> – In case of multi source architecture, whether to share the
+separate encoders parameters or not.</li>
 <li><strong>alignment_file_key</strong> – The data configuration key of the training alignment
 file to support guided alignment.</li>
 <li><strong>name</strong> – The name of this model.</li>
