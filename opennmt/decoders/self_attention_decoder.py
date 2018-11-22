@@ -66,15 +66,21 @@ class SelfAttentionDecoder(decoder.Decoder):
   def support_alignment_history(self):
     return True
 
-  def _init_cache(self, batch_size, dtype=tf.float32):
+  @property
+  def support_multi_source(self):
+    return True
+
+  def _init_cache(self, batch_size, dtype=tf.float32, num_sources=1):
     cache = {}
 
     for l in range(self.num_layers):
       proj_cache_shape = [batch_size, self.num_heads, 0, self.num_units // self.num_heads]
-      layer_cache = {
-          "memory_keys": tf.zeros(proj_cache_shape, dtype=dtype),
-          "memory_values": tf.zeros(proj_cache_shape, dtype=dtype),
-      }
+      layer_cache = {}
+      layer_cache["memory"] = [
+          {
+              "memory_keys": tf.zeros(proj_cache_shape, dtype=dtype),
+              "memory_values": tf.zeros(proj_cache_shape, dtype=dtype)
+          } for _ in range(num_sources)]
       if self.self_attention_type == "scaled_dot":
         layer_cache["self_keys"] = tf.zeros(proj_cache_shape, dtype=dtype)
         layer_cache["self_values"] = tf.zeros(proj_cache_shape, dtype=dtype)
@@ -121,11 +127,15 @@ class SelfAttentionDecoder(decoder.Decoder):
         decoder_mask = transformer.cumulative_average_mask(
             sequence_length, maximum_length=tf.shape(inputs)[1], dtype=inputs.dtype)
 
-    if memory is not None and memory_sequence_length is not None:
-      memory_mask = transformer.build_sequence_mask(
-          memory_sequence_length,
-          num_heads=self.num_heads,
-          maximum_length=tf.shape(memory)[1])
+    if memory is not None and not tf.contrib.framework.nest.is_sequence(memory):
+      memory = (memory,)
+    if memory_sequence_length is not None:
+      if not tf.contrib.framework.nest.is_sequence(memory_sequence_length):
+        memory_sequence_length = (memory_sequence_length,)
+      memory_mask = [
+          transformer.build_sequence_mask(
+              length, num_heads=self.num_heads, maximum_length=tf.shape(m)[1])
+          for m, length in zip(memory, memory_sequence_length)]
 
     for l in range(self.num_layers):
       layer_name = "layer_{}".format(l)
@@ -142,7 +152,7 @@ class SelfAttentionDecoder(decoder.Decoder):
                 mask=decoder_mask,
                 cache=layer_cache,
                 dropout=self.attention_dropout)
-            encoded = transformer.drop_and_add(
+            last_context = transformer.drop_and_add(
                 inputs,
                 encoded,
                 mode,
@@ -160,36 +170,38 @@ class SelfAttentionDecoder(decoder.Decoder):
             z = tf.layers.dense(tf.concat([x, y], -1), self.num_units * 2)
             i, f = tf.split(z, 2, axis=-1)
             y = tf.sigmoid(i) * x + tf.sigmoid(f) * y
-            encoded = transformer.drop_and_add(
+            last_context = transformer.drop_and_add(
                 inputs, y, mode, dropout=self.dropout)
 
         if memory is not None:
-          with tf.variable_scope("multi_head"):
-            context, last_attention = transformer.multi_head_attention(
-                self.num_heads,
-                transformer.norm(encoded),
-                memory,
-                mode,
-                mask=memory_mask,
-                cache=layer_cache,
-                dropout=self.attention_dropout,
-                return_attention=True)
-            context = transformer.drop_and_add(
-                encoded,
-                context,
-                mode,
-                dropout=self.dropout)
-        else:
-          context = encoded
+          for i, (mem, mask) in enumerate(zip(memory, memory_mask)):
+            memory_cache = layer_cache["memory"][i] if layer_cache is not None else None
+            with tf.variable_scope("multi_head" if i == 0 else "multi_head_%d" % i):
+              context, last_attention = transformer.multi_head_attention(
+                  self.num_heads,
+                  transformer.norm(last_context),
+                  mem,
+                  mode,
+                  mask=mask,
+                  cache=memory_cache,
+                  dropout=self.attention_dropout,
+                  return_attention=True)
+              last_context = transformer.drop_and_add(
+                  last_context,
+                  context,
+                  mode,
+                  dropout=self.dropout)
+              if i > 0:  # Do not return attention in case of multi source.
+                last_attention = None
 
         with tf.variable_scope("ffn"):
           transformed = transformer.feed_forward(
-              transformer.norm(context),
+              transformer.norm(last_context),
               self.ffn_inner_dim,
               mode,
               dropout=self.relu_dropout)
           transformed = transformer.drop_and_add(
-              context,
+              last_context,
               transformed,
               mode,
               dropout=self.dropout)
@@ -227,7 +239,13 @@ class SelfAttentionDecoder(decoder.Decoder):
               memory=None,
               memory_sequence_length=None,
               dtype=tf.float32):
-    cache = self._init_cache(batch_size, dtype=dtype)
+    if memory is None:
+      num_sources = 0
+    elif tf.contrib.framework.nest.is_sequence(memory):
+      num_sources = len(memory)
+    else:
+      num_sources = 1
+    cache = self._init_cache(batch_size, dtype=dtype, num_sources=num_sources)
     def _fn(step, inputs, cache, mode):
       inputs = tf.expand_dims(inputs, 1)
       outputs, attention = self._self_attention_stack(
@@ -238,6 +256,7 @@ class SelfAttentionDecoder(decoder.Decoder):
           memory_sequence_length=memory_sequence_length,
           step=step)
       outputs = tf.squeeze(outputs, axis=1)
-      attention = tf.squeeze(attention, axis=1)
+      if attention is not None:
+        attention = tf.squeeze(attention, axis=1)
       return outputs, cache, attention
     return _fn, cache

@@ -159,6 +159,13 @@ class Decoder(object):
     _ = embedding
     if sampling_probability is not None:
       raise ValueError("Scheduled sampling is not supported by this decoder")
+    if (not self.support_multi_source
+        and memory is not None
+        and tf.contrib.framework.nest.is_sequence(memory)):
+      raise ValueError("Multiple source encodings are passed to this decoder "
+                       "but it does not support multi source context. You should "
+                       "instead configure your encoder to merge the different "
+                       "encodings.")
 
     returned_values = self.decode_from_inputs(
         inputs,
@@ -329,7 +336,7 @@ class Decoder(object):
       output_layer = build_output_layer(self.output_size, vocab_size, dtype=dtype)
 
     state = {"decoder": initial_state}
-    if self.support_alignment_history and not isinstance(memory, (tuple, list)):
+    if self.support_alignment_history and not tf.contrib.framework.nest.is_sequence(memory):
       state["attention"] = tf.zeros([batch_size, 0, tf.shape(memory)[1]], dtype=dtype)
 
     def _symbols_to_logits_fn(ids, step, state):

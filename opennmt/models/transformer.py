@@ -3,6 +3,7 @@
 import tensorflow as tf
 
 from opennmt.models.sequence_to_sequence import SequenceToSequence, EmbeddingsSharingLevel
+from opennmt.encoders.encoder import ParallelEncoder
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
 from opennmt.layers.position import SinusoidalPositionEncoder
@@ -27,13 +28,15 @@ class Transformer(SequenceToSequence):
                position_encoder=SinusoidalPositionEncoder(),
                decoder_self_attention_type="scaled_dot",
                share_embeddings=EmbeddingsSharingLevel.NONE,
+               share_encoders=False,
                alignment_file_key="train_alignments",
                name="transformer"):
     """Initializes a Transformer model.
 
     Args:
       source_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
-        the source data.
+        the source data. If this inputter returns parallel inputs, a multi
+        source Transformer architecture will be constructed.
       target_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
         the target data. Currently, only the
         :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.
@@ -52,19 +55,31 @@ class Transformer(SequenceToSequence):
       share_embeddings: Level of embeddings sharing, see
         :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
         for possible values.
+      share_encoders: In case of multi source architecture, whether to share the
+        separate encoders parameters or not.
       alignment_file_key: The data configuration key of the training alignment
         file to support guided alignment.
       name: The name of this model.
     """
-    encoder = SelfAttentionEncoder(
-        num_layers,
-        num_units=num_units,
-        num_heads=num_heads,
-        ffn_inner_dim=ffn_inner_dim,
-        dropout=dropout,
-        attention_dropout=attention_dropout,
-        relu_dropout=relu_dropout,
-        position_encoder=position_encoder)
+    encoders = [
+        SelfAttentionEncoder(
+            num_layers,
+            num_units=num_units,
+            num_heads=num_heads,
+            ffn_inner_dim=ffn_inner_dim,
+            dropout=dropout,
+            attention_dropout=attention_dropout,
+            relu_dropout=relu_dropout,
+            position_encoder=position_encoder)
+        for _ in range(source_inputter.num_outputs)]
+    if len(encoders) > 1:
+      encoder = ParallelEncoder(
+          encoders,
+          outputs_reducer=None,
+          states_reducer=None,
+          share_parameters=share_encoders)
+    else:
+      encoder = encoders[0]
     decoder = SelfAttentionDecoder(
         num_layers,
         num_units=num_units,
