@@ -505,7 +505,7 @@ class CharConvEmbedder(CharEmbedder):
         dropout=dropout,
         tokenizer=tokenizer,
         dtype=dtype)
-    self.num_outputs = num_outputs
+    self.output_size = num_outputs
     self.kernel_size = kernel_size
     self.stride = stride
     self.num_oov_buckets = 1
@@ -522,7 +522,7 @@ class CharConvEmbedder(CharEmbedder):
 
     outputs = tf.layers.conv1d(
         outputs,
-        self.num_outputs,
+        self.output_size,
         self.kernel_size,
         strides=self.stride)
 
@@ -530,7 +530,7 @@ class CharConvEmbedder(CharEmbedder):
     outputs = tf.reduce_max(outputs, axis=1)
 
     # Split batch and sequence timesteps dimensions.
-    outputs = tf.reshape(outputs, [-1, tf.shape(inputs)[1], self.num_outputs])
+    outputs = tf.reshape(outputs, [-1, tf.shape(inputs)[1], self.output_size])
 
     return outputs
 

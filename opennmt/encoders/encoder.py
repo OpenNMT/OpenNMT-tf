@@ -100,7 +100,8 @@ class ParallelEncoder(Encoder):
                outputs_reducer=ConcatReducer(axis=1),
                states_reducer=JoinReducer(),
                outputs_layer_fn=None,
-               combined_output_layer_fn=None):
+               combined_output_layer_fn=None,
+               share_parameters=False):
     """Initializes the parameters of the encoder.
 
     Args:
@@ -117,6 +118,8 @@ class ParallelEncoder(Encoder):
         output.
       combined_output_layer_fn: A callable to apply on the combined output
         (i.e. the output of :obj:`outputs_reducer`).
+      share_parameters: If ``True``, share parameters between the parallel
+        encoders.
 
     Raises:
       ValueError: if :obj:`outputs_layer_fn` is a list with a size not equal
@@ -132,6 +135,7 @@ class ParallelEncoder(Encoder):
     self.states_reducer = states_reducer if states_reducer is not None else JoinReducer()
     self.outputs_layer_fn = outputs_layer_fn
     self.combined_output_layer_fn = combined_output_layer_fn
+    self.share_parameters = share_parameters
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     all_outputs = []
@@ -142,7 +146,9 @@ class ParallelEncoder(Encoder):
       raise ValueError("ParallelEncoder expects as many inputs as parallel encoders")
 
     for i, encoder in enumerate(self.encoders):
-      with tf.variable_scope("encoder_{}".format(i)):
+      scope_name = "encoder_{}".format(i) if not self.share_parameters else "parallel_encoder"
+      reuse = self.share_parameters and i > 0
+      with tf.variable_scope(scope_name, reuse=reuse):
         if tf.contrib.framework.nest.is_sequence(inputs):
           encoder_inputs = inputs[i]
           length = sequence_length[i]

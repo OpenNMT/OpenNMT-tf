@@ -307,6 +307,7 @@ class InputterTest(tf.test.TestCase):
     parallel_inputter = inputter.ParallelInputter([
         text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10),
         text_inputter.WordEmbedder("vocabulary_file_2", embedding_size=5)])
+    self.assertEqual(parallel_inputter.num_outputs, 2)
     features, transformed = self._makeDataset(
         parallel_inputter,
         data_files,
@@ -349,6 +350,7 @@ class InputterTest(tf.test.TestCase):
         text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10),
         text_inputter.CharConvEmbedder("vocabulary_file_2", 10, 5)],
         reducer=reducer.ConcatReducer())
+    self.assertEqual(mixed_inputter.num_outputs, 1)
     features, transformed = self._makeDataset(
         mixed_inputter,
         data_file,
