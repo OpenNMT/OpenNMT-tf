@@ -5,7 +5,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.layers.reducer import ConcatReducer
+from opennmt.layers.reducer import ConcatReducer, JoinReducer
 from opennmt.utils.misc import extract_prefixed_keys
 
 
@@ -17,6 +17,11 @@ class Inputter(object):
     self.volatile = set()
     self.process_hooks = []
     self.dtype = dtype
+
+  @property
+  def num_outputs(self):
+    """How many parallel outputs does this inputter produce."""
+    return 1
 
   def add_process_hooks(self, hooks):
     """Adds processing hooks.
@@ -229,7 +234,7 @@ class Inputter(object):
 class MultiInputter(Inputter):
   """An inputter that gathers multiple inputters."""
 
-  def __init__(self, inputters):
+  def __init__(self, inputters, reducer=None):
     if not isinstance(inputters, list) or not inputters:
       raise ValueError("inputters must be a non empty list")
     dtype = inputters[0].dtype
@@ -238,6 +243,13 @@ class MultiInputter(Inputter):
         raise TypeError("All inputters must have the same dtype")
     super(MultiInputter, self).__init__(dtype=dtype)
     self.inputters = inputters
+    self.reducer = reducer
+
+  @property
+  def num_outputs(self):
+    if self.reducer is None or isinstance(self.reducer, JoinReducer):
+      return len(self.inputters)
+    return 1
 
   @abc.abstractmethod
   def make_dataset(self, data_file):
@@ -282,8 +294,7 @@ class ParallelInputter(MultiInputter):
       reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs. If
         set, parallel inputs are assumed to have the same length.
     """
-    super(ParallelInputter, self).__init__(inputters)
-    self.reducer = reducer
+    super(ParallelInputter, self).__init__(inputters, reducer=reducer)
 
   def get_length(self, data):
     lengths = []
@@ -370,8 +381,7 @@ class MixedInputter(MultiInputter):
       reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs.
       dropout: The probability to drop units in the merged inputs.
     """
-    super(MixedInputter, self).__init__(inputters)
-    self.reducer = reducer
+    super(MixedInputter, self).__init__(inputters, reducer=reducer)
     self.dropout = dropout
 
   def get_length(self, data):

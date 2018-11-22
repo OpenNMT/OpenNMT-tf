@@ -4,6 +4,9 @@ import tensorflow as tf
 import numpy as np
 
 
+def _experimental_data_namespace():
+  return tf.data.experimental if hasattr(tf.data, "experimental") else tf.contrib.data
+
 def get_padded_shapes(dataset):
   """Returns the padded shapes for ``tf.data.Dataset.padded_batch``.
 
@@ -124,6 +127,20 @@ def random_shard(shard_size, dataset_size):
 
   return _random_shard
 
+def batch_dataset(batch_size, padded_shapes=None):
+  """Transformation that batches a dataset.
+
+  Args:
+    batch_size: The batch size.
+    padded_shapes: The padded shapes for this dataset. If ``None``, the shapes
+      are automatically inferred from the dataset output shapes.
+
+  Returns:
+    A ``tf.data.Dataset`` transformation.
+  """
+  return lambda dataset: dataset.padded_batch(
+      batch_size, padded_shapes=padded_shapes or get_padded_shapes(dataset))
+
 def batch_parallel_dataset(batch_size,
                            batch_type="examples",
                            batch_multiplier=1,
@@ -165,11 +182,6 @@ def batch_parallel_dataset(batch_size,
   """
   batch_size = batch_size * batch_multiplier
 
-  def _batch_func(dataset):
-    return dataset.padded_batch(
-        batch_size,
-        padded_shapes=padded_shapes or get_padded_shapes(dataset))
-
   def _key_func(features, labels):
     features_length = features_length_fn(features) if features_length_fn is not None else None
     labels_length = labels_length_fn(labels) if labels_length_fn is not None else None
@@ -181,10 +193,10 @@ def batch_parallel_dataset(batch_size,
       bucket_id = tf.maximum(bucket_id, features_length // bucket_width)
     if labels_length is not None:
       bucket_id = tf.maximum(bucket_id, labels_length // bucket_width)
-    return tf.to_int64(bucket_id)
+    return tf.cast(bucket_id, tf.int64)
 
   def _reduce_func(unused_key, dataset):
-    return _batch_func(dataset)
+    return dataset.apply(batch_dataset(batch_size, padded_shapes=padded_shapes))
 
   def _window_size_func(key):
     if bucket_width > 1:
@@ -193,21 +205,16 @@ def batch_parallel_dataset(batch_size,
     if batch_multiplier > 1:
       # Make the window size a multiple of batch_multiplier.
       size = size + batch_multiplier - size % batch_multiplier
-    return tf.to_int64(tf.maximum(size, batch_multiplier))
+    return tf.cast(tf.maximum(size, batch_multiplier), tf.int64)
 
   if bucket_width is None:
-    return _batch_func
-
-  if hasattr(tf.data, "experimental"):
-    group_by_window_fn = tf.data.experimental.group_by_window
-  else:
-    group_by_window_fn = tf.contrib.data.group_by_window
+    return batch_dataset(batch_size, padded_shapes=padded_shapes)
 
   if batch_type == "examples":
-    return group_by_window_fn(
+    return _experimental_data_namespace().group_by_window(
         _key_func, _reduce_func, window_size=batch_size)
   elif batch_type == "tokens":
-    return group_by_window_fn(
+    return _experimental_data_namespace().group_by_window(
         _key_func, _reduce_func, window_size_func=_window_size_func)
   else:
     raise ValueError(
@@ -261,6 +268,7 @@ def training_pipeline(dataset,
   """
   if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
     if dataset_size is not None:
+      tf.logging.info("Training on %d examples", dataset_size)
       if shuffle_buffer_size < 0 or shuffle_buffer_size > dataset_size:
         shuffle_buffer_size = dataset_size
       elif shuffle_buffer_size < dataset_size:
@@ -293,7 +301,9 @@ def inference_pipeline(dataset,
                        batch_size,
                        process_fn=None,
                        num_threads=None,
-                       prefetch_buffer_size=None):
+                       prefetch_buffer_size=None,
+                       bucket_width=None,
+                       length_fn=None):
   """Defines a complete inference data pipeline.
 
   Args:
@@ -304,12 +314,43 @@ def inference_pipeline(dataset,
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
       older versions.
+    bucket_width: The width of the length buckets to select batch candidates
+      from. If set, this means the inference pipeline will be reordered based on
+      the examples length, the application is then responsible to restore the
+      predictions in order. An "index" key will be inserted in the examples
+      dict.
+    length_fn: A callable mapping features to a sequence length.
 
   Returns:
     A ``tf.data.Dataset``.
   """
+
+  def _inject_index(index, x):
+    x["index"] = index
+    return x
+
+  def _key_func(x):
+    length = tf.cast(length_fn(x), tf.int32)
+    bucket_id = tf.constant(0, dtype=tf.int32)
+    if not isinstance(length, list):
+      bucket_id = tf.maximum(bucket_id, length // bucket_width)
+    return tf.cast(bucket_id, tf.int64)
+
+  def _reduce_func(unused_key, dataset):
+    return dataset.apply(batch_dataset(batch_size))
+
   if process_fn is not None:
     dataset = dataset.map(process_fn, num_parallel_calls=num_threads)
-  dataset = dataset.apply(batch_parallel_dataset(batch_size))
+  if bucket_width is not None and bucket_width > 0:
+    if length_fn is None:
+      raise ValueError("length_fn is required when reordering by length")
+    if not isinstance(dataset.output_shapes, dict):
+      raise ValueError("Reordering by length expects dataset elements to be Python dicts")
+    dataset = dataset.apply(_experimental_data_namespace().enumerate_dataset())
+    dataset = dataset.map(_inject_index)
+    dataset = dataset.apply(_experimental_data_namespace().group_by_window(
+        _key_func, _reduce_func, window_size=batch_size))
+  else:
+    dataset = dataset.apply(batch_dataset(batch_size))
   dataset = dataset.apply(prefetch_element(buffer_size=prefetch_buffer_size))
   return dataset

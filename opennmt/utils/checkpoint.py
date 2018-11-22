@@ -16,11 +16,14 @@ def _get_vocabulary_mapping(current_vocab_path, new_vocab_path, mode):
   new_vocab = Vocab(from_file=new_vocab_path)
   mapping = []
   if mode == "merge":
+    final_vocab = Vocab(from_file=current_vocab_path)
     mapping = [i for i in range(current_vocab.size)]
     for new_word in new_vocab.words:
       if current_vocab.lookup(new_word) is None:
         mapping.append(-1)
+        final_vocab.add(new_word)
   elif mode == "replace":
+    final_vocab = new_vocab
     for new_word in new_vocab.words:
       idx = current_vocab.lookup(new_word)
       if idx is not None:
@@ -28,7 +31,7 @@ def _get_vocabulary_mapping(current_vocab_path, new_vocab_path, mode):
       else:
         mapping.append(-1)
   mapping.append(current_vocab.size)  # <unk> token is always the last entry.
-  return mapping
+  return mapping, final_vocab
 
 def _update_vocabulary_variable(variable, vocab_size, mapping):
   """Creates a new variable, possibly copying previous entries based on mapping."""
@@ -46,9 +49,17 @@ def _update_vocabulary_variable(variable, vocab_size, mapping):
   new_variable = np.transpose(new_variable_t, axes=perm)
   return new_variable
 
-def _update_vocabulary_variables(variables, current_vocab_path, new_vocab_path, scope_name, mode):
+def _update_vocabulary_variables(output_dir,
+                                 variables,
+                                 current_vocab_path,
+                                 new_vocab_path,
+                                 scope_name,
+                                 mode):
   current_size = count_lines(current_vocab_path) + 1
-  mapping = _get_vocabulary_mapping(current_vocab_path, new_vocab_path, mode)
+  mapping, vocab = _get_vocabulary_mapping(current_vocab_path, new_vocab_path, mode)
+  if mode == "merge":
+    vocab_name = "%s-%s-%s" % (scope_name, mode, os.path.basename(new_vocab_path))
+    vocab.serialize(os.path.join(output_dir, vocab_name))
   for name, tensor in six.iteritems(variables):
     if scope_name in name and any(d == current_size for d in tensor.shape):
       tf.logging.debug("Updating variable %s" % name)
@@ -155,7 +166,8 @@ def update_vocab(model_dir,
 
   Args:
     model_dir: The directory containing checkpoints (the most recent will be loaded).
-    output_dir: The directory that will contain the converted checkpoint.
+    output_dir: The directory that will contain the converted checkpoint. In
+      ``merge`` mode, updated vocabularies will also be saved in the directory.
     current_src_vocab: Path to the source vocabulary currently use in the model.
     current_tgt_vocab: Path to the target vocabulary currently use in the model.
     new_src_vocab: Path to the new source vocabulary to support.
@@ -170,8 +182,9 @@ def update_vocab(model_dir,
     The path to the directory containing the converted checkpoint.
 
   Raises:
-    ValueError: if :obj:`output_dir` is the same as :obj:`model_dir` or if
-      :obj:`mode` is invalid.
+    ValueError: if :obj:`output_dir` is the same as :obj:`model_dir`, if
+      :obj:`mode` is invalid, or if no checkpoints are found in
+      :obj:`model_dir`.
   """
   if model_dir == output_dir:
     raise ValueError("Model and output directory must be different")
@@ -180,12 +193,18 @@ def update_vocab(model_dir,
   if new_src_vocab is None and new_tgt_vocab is None:
     return model_dir
   checkpoint_path = tf.train.latest_checkpoint(model_dir)
+  if checkpoint_path is None:
+    raise ValueError("No checkpoint found in directory %s" % model_dir)
   tf.logging.info("Updating vocabulary related variables in checkpoint %s" % checkpoint_path)
   variable_value = get_checkpoint_variables(checkpoint_path)
+  if not tf.gfile.Exists(output_dir):
+    tf.gfile.MakeDirs(output_dir)
   if new_src_vocab is not None:
-    _update_vocabulary_variables(variable_value, current_src_vocab, new_src_vocab, "encoder", mode)
+    _update_vocabulary_variables(
+        output_dir, variable_value, current_src_vocab, new_src_vocab, "encoder", mode)
   if new_tgt_vocab is not None:
-    _update_vocabulary_variables(variable_value, current_tgt_vocab, new_tgt_vocab, "decoder", mode)
+    _update_vocabulary_variables(
+        output_dir, variable_value, current_tgt_vocab, new_tgt_vocab, "decoder", mode)
   return _create_checkpoint_from_variables(
       variable_value,
       output_dir,

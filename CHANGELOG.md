@@ -16,6 +16,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.14.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.14.0) (2018-11-22)
+
+### New features
+
+* Multi source Transformer architecture with serial attention layers (see the [example model configuration](https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/models/multi_source_transformer.py))
+* Inference now accepts the parameter `bucket_width`: if set, the data will be sorted by length to increase the translation efficiency. The predictions will still be outputted in order as they are available. (Enabled by default when using automatic configuration.)
+
+### Fixes and improvements
+
+* Improve greedy decoding speed (up to 50% faster)
+* When using `onmt-update-vocab` with the `merge` directive, updated vocabulary files will be saved in the output directory alongside the updated checkpoint
+
 ## [1.13.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.13.1) (2018-11-19)
 
 ### Fixes and improvements

@@ -357,7 +357,7 @@ def beam_search(symbols_to_logits_fn,
 
     # Set the scores of the unfinished seq in curr_seq to large negative
     # values
-    curr_scores += (1. - tf.to_float(curr_finished)) * -INF
+    curr_scores += (1. - tf.cast(curr_finished, tf.float32)) * -INF
     # concatenating the sequences and scores along beam axis
     curr_finished_seq = tf.concat([finished_seq, curr_seq], axis=1)
     curr_finished_scores = tf.concat([finished_scores, curr_scores], axis=1)
@@ -386,7 +386,7 @@ def beam_search(symbols_to_logits_fn,
     """
     # Set the scores of the finished seq in curr_seq to large negative
     # values
-    curr_scores += tf.to_float(curr_finished) * -INF
+    curr_scores += tf.cast(curr_finished, tf.float32) * -INF
     return compute_topk_scores_and_seq(curr_seq, curr_scores, curr_log_probs,
                                        curr_finished, beam_size, batch_size,
                                        "grow_alive", states)
@@ -432,7 +432,7 @@ def beam_search(symbols_to_logits_fn,
     logits = tf.reshape(flat_logits, [batch_size, beam_size, -1])
 
     # Convert logits to normalized log probs
-    candidate_log_probs = _log_prob_from_logits(tf.to_float(logits))
+    candidate_log_probs = _log_prob_from_logits(tf.cast(logits, tf.float32))
 
     # Multiply the probabilities by the current probabilities of the beam.
     # (batch_size, beam_size, vocab_size) + (batch_size, beam_size, 1)
@@ -445,7 +445,7 @@ def beam_search(symbols_to_logits_fn,
               batch_size, beam_size),
           false_fn=lambda: log_probs)
 
-    length_penalty = tf.pow(((5. + tf.to_float(i + 1)) / 6.), alpha)
+    length_penalty = tf.pow(((5. + tf.cast(i + 1, tf.float32)) / 6.), alpha)
 
     curr_scores = log_probs / length_penalty
     # Flatten out (beam_size, vocab_size) probs in to a list of possibilities
@@ -547,7 +547,7 @@ def beam_search(symbols_to_logits_fn,
             finished_flags, states)
 
   def _is_finished(i, unused_alive_seq, alive_log_probs, unused_finished_seq,
-                   finished_scores, finished_in_finished, unused_states):
+                   finished_scores, unused_finished_in_finished, unused_states):
     """Checking termination condition.
 
     We terminate when we decoded up to decode_length or the lowest scoring item
@@ -559,30 +559,32 @@ def beam_search(symbols_to_logits_fn,
       alive_log_probs: probabilities of the beams. [batch_size, beam_size]
       finished_scores: scores for each of these sequences.
         [batch_size, beam_size]
-      finished_in_finished: finished bools for each of these sequences.
-        [batch_size, beam_size]
 
     Returns:
       Bool.
     """
-    if not stop_early:
-      return tf.less(i, decode_length)
-    max_length_penalty = tf.pow(((5. + tf.to_float(decode_length)) / 6.), alpha)
+    max_length_penalty = tf.pow(((5. + tf.cast(decode_length, tf.float32)) / 6.), alpha)
     # The best possible score of the most likely alive sequence.
     lower_bound_alive_scores = alive_log_probs[:, 0] / max_length_penalty
 
-    # Now to compute the lowest score of a finished sequence in finished
-    # If the sequence isn't finished, we multiply it's score by 0. since
-    # scores are all -ve, taking the min will give us the score of the lowest
-    # finished item.
-    lowest_score_of_finished_in_finished = tf.reduce_min(
-        finished_scores * tf.to_float(finished_in_finished), axis=1)
-    # If none of the sequences have finished, then the min will be 0 and
-    # we have to replace it by -ve INF if it is. The score of any seq in alive
-    # will be much higher than -ve INF and the termination condition will not
-    # be met.
-    lowest_score_of_finished_in_finished += (
-        (1. - tf.to_float(tf.reduce_any(finished_in_finished, 1))) * -INF)
+    if not stop_early:
+      # by considering the min score (in the top N beams) we ensure that
+      # the decoder will keep decoding until there is at least one beam
+      # (in the top N) that can be improved (w.r.t. the alive beams).
+      # any unfinished beam will have score -INF - thus the min
+      # will always be -INF if there is at least one unfinished beam -
+      # which means the bound_is_met condition cannot be true in this case.
+      lowest_score_of_finished_in_finished = tf.reduce_min(finished_scores)
+    else:
+      # by taking the max score we only care about the the first beam;
+      # as soon as this first beam cannot be beaten from the alive beams
+      # the beam decoder can stop.
+      # similarly to the above, if the top beam is not completed, its
+      # finished_score is -INF, thus it will not activate the
+      # bound_is_met condition. (i.e., decoder will keep going on).
+      # note we need to find the max for every sequence eparately - so, we need
+      # to keep the batch dimension (see axis=1)
+      lowest_score_of_finished_in_finished = tf.reduce_max(finished_scores, axis=1)
 
     bound_is_met = tf.reduce_all(
         tf.greater(lowest_score_of_finished_in_finished,

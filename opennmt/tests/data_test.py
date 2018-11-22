@@ -95,8 +95,8 @@ class DataTest(tf.test.TestCase):
     labels_diff = tf.random_normal([num_examples], mean=0, stddev=3, seed=42)
     labels = features + labels_diff
 
-    features = tf.maximum(tf.to_int32(1), tf.to_int32(features))
-    labels = tf.maximum(tf.to_int32(1), tf.to_int32(labels))
+    features = tf.maximum(tf.cast(1, tf.int32), tf.cast(features, tf.int32))
+    labels = tf.maximum(tf.cast(1, tf.int32), tf.cast(labels, tf.int32))
 
     dataset = tf.data.Dataset.zip((
         tf.data.Dataset.from_tensor_slices(features),
@@ -143,6 +143,31 @@ class DataTest(tf.test.TestCase):
         max_length = max(list(features) + list(labels))
         self.assertGreaterEqual(256, batch_size * max_length)
     self._testBatchTrainDataset(_check_fn, 256, batch_type="tokens", bucket_width=1)
+
+  def testReorderInferDataset(self):
+    dataset = tf.data.Dataset.from_tensor_slices([8, 2, 5, 6, 7, 1, 3, 9])
+    dataset = dataset.map(lambda x: {"length": x})
+    dataset = data.inference_pipeline(
+        dataset, 3, bucket_width=3, length_fn=lambda x: x["length"])
+    iterator = dataset.make_one_shot_iterator()
+    next_element = iterator.get_next()
+
+    def _check_element(element, length, index):
+      self.assertAllEqual(element["length"], length)
+      self.assertAllEqual(element["index"], index)
+
+    with self.test_session() as sess:
+      elements = []
+      while True:
+        try:
+          elements.append(sess.run(next_element))
+        except tf.errors.OutOfRangeError:
+          break
+      self.assertEqual(len(elements), 4)
+      _check_element(elements[0], [8, 6, 7], [0, 3, 4])
+      _check_element(elements[1], [2, 1], [1, 5])
+      _check_element(elements[2], [5, 3], [2, 6])
+      _check_element(elements[3], [9], [7])
 
 
 if __name__ == "__main__":

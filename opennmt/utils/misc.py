@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import sys
 import inspect
+import heapq
 import six
 
 import numpy as np
@@ -134,6 +135,40 @@ def merge_dict(dict1, dict2):
     else:
       dict1[key] = value
   return dict1
+
+
+class OrderRestorer(object):
+  """Helper class to restore out-of-order elements in order."""
+
+  def __init__(self, index_fn, callback_fn):
+    """Initializes this object.
+
+    Args:
+      index_fn: A callable mapping an element to a unique index.
+      callback_fn: A callable taking an element that will be called in order.
+    """
+    self._index_fn = index_fn
+    self._callback_fn = callback_fn
+    self._next_index = 0
+    self._elements = {}
+    self._heap = []
+
+  def _try_notify(self):
+    while self._heap and self._heap[0] == self._next_index:
+      index = heapq.heappop(self._heap)
+      value = self._elements.pop(index)
+      self._callback_fn(value)
+      self._next_index += 1
+
+  def push(self, x):
+    """Push event :obj:`x`."""
+    index = self._index_fn(x)
+    if index < self._next_index:
+      raise ValueError("Event index %d was already notified" % index)
+    self._elements[index] = x
+    heapq.heappush(self._heap, index)
+    self._try_notify()
+
 
 # The next 2 functions come with the following license and copyright:
 

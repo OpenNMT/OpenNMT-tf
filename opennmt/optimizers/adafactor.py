@@ -266,7 +266,7 @@ def adafactor_decay_rate_adam(beta2):
   Returns:
     a scalar
   """
-  t = tf.to_float(tf.train.get_or_create_global_step()) + 1.0
+  t = tf.cast(tf.train.get_or_create_global_step(), tf.float32) + 1.0
   decay = beta2 * (1.0 - tf.pow(beta2, t - 1.0)) / (1.0 - tf.pow(beta2, t))
   # decay = tf.cond(tf.equal(t, 1.0), lambda: beta2, lambda: decay)
   return decay
@@ -284,7 +284,7 @@ def adafactor_decay_rate_pow(exponent):
 
 
 def _step_num():
-  return tf.to_float(tf.train.get_or_create_global_step())
+  return tf.cast(tf.train.get_or_create_global_step(), tf.float32)
 
 
 def _reduce_rms(x):
