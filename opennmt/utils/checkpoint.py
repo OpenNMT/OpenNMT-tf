@@ -197,8 +197,8 @@ def update_vocab(model_dir,
     raise ValueError("No checkpoint found in directory %s" % model_dir)
   tf.logging.info("Updating vocabulary related variables in checkpoint %s" % checkpoint_path)
   variable_value = get_checkpoint_variables(checkpoint_path)
-  if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+  if not tf.gfile.Exists(output_dir):
+    tf.gfile.MakeDirs(output_dir)
   if new_src_vocab is not None:
     _update_vocabulary_variables(
         output_dir, variable_value, current_src_vocab, new_src_vocab, "encoder", mode)
