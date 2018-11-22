@@ -7,7 +7,7 @@ See for example https://arxiv.org/pdf/1809.00188.pdf.
 import opennmt as onmt
 
 def model():
-  return onmt.models.SequenceToSequence(
+  return onmt.models.Transformer(
       source_inputter=onmt.inputters.ParallelInputter([
           onmt.inputters.WordEmbedder(
               vocabulary_file_key="source_vocabulary_1",
