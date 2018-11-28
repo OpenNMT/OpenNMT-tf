@@ -92,6 +92,9 @@ params:
   beam_width: 5
   # (optional) Length penaly weight to apply on hypotheses (default: 0).
   length_penalty: 0.2
+  # (optional) Sample predictions from the top K most likely tokens (requires
+  # beam_width to 1). If 0, sample from the full output distribution (default: 1).
+  sampling_topk: 1
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
   # (optional) Maximum decoding iterations before stopping (default: 250).

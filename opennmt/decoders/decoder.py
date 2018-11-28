@@ -212,7 +212,8 @@ class Decoder(object):
                      memory=None,
                      memory_sequence_length=None,
                      dtype=None,
-                     return_alignment_history=False):
+                     return_alignment_history=False,
+                     sample_from=1):
     """Decodes dynamically from :obj:`start_tokens` with greedy search.
 
     Usually used for inference.
@@ -236,6 +237,8 @@ class Decoder(object):
       return_alignment_history: If ``True``, also returns the alignment
         history from the attention layer (``None`` will be returned if
         unsupported by the decoder).
+      sample_from: Sample predictions from the :obj:`sample_from` most likely
+        tokens. If 0, sample from the full output distribution.
 
     Returns:
       A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
@@ -258,7 +261,8 @@ class Decoder(object):
         memory=memory,
         memory_sequence_length=memory_sequence_length,
         dtype=dtype,
-        return_alignment_history=return_alignment_history)
+        return_alignment_history=return_alignment_history,
+        sample_from=sample_from)
 
   def dynamic_decode_and_search(self,
                                 embedding,
@@ -275,7 +279,8 @@ class Decoder(object):
                                 memory=None,
                                 memory_sequence_length=None,
                                 dtype=None,
-                                return_alignment_history=False):
+                                return_alignment_history=False,
+                                sample_from=1):
     """Decodes dynamically from :obj:`start_tokens` with beam search.
 
     Usually used for inference.
@@ -301,12 +306,17 @@ class Decoder(object):
       return_alignment_history: If ``True``, also returns the alignment
         history from the attention layer (``None`` will be returned if
         unsupported by the decoder).
+      sample_from: Sample predictions from the :obj:`sample_from` most likely
+        tokens. If 0, sample from the full output distribution.
 
     Returns:
       A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
       ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
       if :obj:`return_alignment_history` is ``True``.
     """
+    if sample_from != 1 and beam_width > 1:
+      raise ValueError("Sampling decoding is not compatible with beam search, "
+                       "set beam_width to 1 instead.")
     batch_size = tf.shape(start_tokens)[0] * beam_width
     if dtype is None:
       if memory is None:
@@ -362,7 +372,8 @@ class Decoder(object):
           state=state,
           return_state=True,
           min_decode_length=minimum_length,
-          last_step_as_input=True)
+          last_step_as_input=True,
+          sample_from=sample_from)
     else:
       outputs, log_probs, state = beam_search.beam_search(
           _symbols_to_logits_fn,
@@ -450,7 +461,8 @@ def greedy_decode(symbols_to_logits_fn,
                   state=None,
                   return_state=False,
                   min_decode_length=0,
-                  last_step_as_input=False):
+                  last_step_as_input=False,
+                  sample_from=1):
   """Greedily decodes from :obj:`initial_ids`.
 
   Args:
@@ -465,11 +477,15 @@ def greedy_decode(symbols_to_logits_fn,
     min_decode_length: Minimum length of decoded hypotheses (EOS excluded).
     last_step_as_input: If ``True``, only feed the last predicted ids into
       :obj:`symbols_to_logits_fn`.
+    sample_from: Sample from the :obj:`sample_from` most likely tokens. If 0,
+      sample from the full output distribution.
 
   Returns:
     A tuple with the decoded output, the decoded lengths, the log probabilities,
     and the decoding states (if :obj:`return_state` is ``True``).
   """
+  batch_size = tf.shape(initial_ids)[0]
+  batch_ids = tf.range(batch_size, dtype=initial_ids.dtype)
 
   def _condition(step, finished, unused_inputs, unused_outputs,
                  unused_lengths, unused_cum_log_probs, unused_state):
@@ -488,10 +504,16 @@ def greedy_decode(symbols_to_logits_fn,
           true_fn=lambda: beam_search.penalize_token(log_probs, end_id),
           false_fn=lambda: log_probs)
 
-    # Sample best prediction.
-    sampled_log_probs, sampled_ids = tf.nn.top_k(log_probs, k=1)
-    sampled_log_probs = tf.squeeze(sampled_log_probs, axis=1)
-    sampled_ids = tf.squeeze(sampled_ids, axis=1)
+    if sample_from == 1:  # Sample best prediction.
+      sampled_ids = tf.argmax(log_probs, axis=-1, output_type=inputs.dtype)
+    elif sample_from == 0:  # Sample from the full output distribution.
+      sampled_ids = tf.distributions.Categorical(probs=tf.exp(log_probs)).sample()
+    else:  # Sample from the top K.
+      topk_log_probs, topk_ids = tf.nn.top_k(log_probs, k=sample_from)
+      topk_sampled_ids = tf.distributions.Categorical(logits=topk_log_probs).sample()
+      sampled_ids = tf.gather_nd(topk_ids, tf.stack([batch_ids, topk_sampled_ids], axis=-1))
+
+    sampled_log_probs = tf.gather_nd(log_probs, tf.stack([batch_ids, sampled_ids], axis=-1))
     outputs = outputs.write(step, sampled_ids)
 
     # Don't update finished batches.
@@ -504,7 +526,6 @@ def greedy_decode(symbols_to_logits_fn,
       next_inputs = tf.concat([inputs, tf.expand_dims(sampled_ids, 1)], axis=1)
     return step + 1, finished, next_inputs, outputs, lengths, cum_log_probs, state
 
-  batch_size = tf.shape(initial_ids)[0]
   step = tf.constant(0)
   finished = tf.zeros([batch_size], dtype=tf.bool)
   outputs = tf.TensorArray(initial_ids.dtype, size=0, dynamic_size=True)
