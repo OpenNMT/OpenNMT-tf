@@ -340,7 +340,7 @@ history.</p>
 
 <dl class="method">
 <dt id="opennmt.decoders.decoder.Decoder.dynamic_decode">
-<code class="descname">dynamic_decode</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>maximum_iterations=250</em>, <em>minimum_length=0</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dynamic_decode</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>maximum_iterations=250</em>, <em>minimum_length=0</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em>, <em>sample_from=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_tokens</span></code> with greedy search.</p>
 <p>Usually used for inference.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -366,6 +366,8 @@ excluded).</li>
 <li><strong>return_alignment_history</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also returns the alignment
 history from the attention layer (<code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned if
 unsupported by the decoder).</li>
+<li><strong>sample_from</strong> – Sample predictions from the <code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_from</span></code> most likely
+tokens. If 0, sample from the full output distribution.</li>
 </ul>
 </td>
 </tr>
@@ -380,7 +382,7 @@ if <code class="xref py py-obj docutils literal notranslate"><span class="pre">r
 
 <dl class="method">
 <dt id="opennmt.decoders.decoder.Decoder.dynamic_decode_and_search">
-<code class="descname">dynamic_decode_and_search</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>beam_width=5</em>, <em>length_penalty=0.0</em>, <em>maximum_iterations=250</em>, <em>minimum_length=0</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode_and_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode_and_search" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dynamic_decode_and_search</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>beam_width=5</em>, <em>length_penalty=0.0</em>, <em>maximum_iterations=250</em>, <em>minimum_length=0</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em>, <em>sample_from=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode_and_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode_and_search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_tokens</span></code> with beam search.</p>
 <p>Usually used for inference.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -408,6 +410,8 @@ excluded).</li>
 <li><strong>return_alignment_history</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also returns the alignment
 history from the attention layer (<code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned if
 unsupported by the decoder).</li>
+<li><strong>sample_from</strong> – Sample predictions from the <code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_from</span></code> most likely
+tokens. If 0, sample from the full output distribution.</li>
 </ul>
 </td>
 </tr>
@@ -478,7 +482,7 @@ of…) tensors.</li>
 
 <dl class="function">
 <dt id="opennmt.decoders.decoder.greedy_decode">
-<code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">greedy_decode</code><span class="sig-paren">(</span><em>symbols_to_logits_fn</em>, <em>initial_ids</em>, <em>end_id</em>, <em>decode_length=None</em>, <em>state=None</em>, <em>return_state=False</em>, <em>min_decode_length=0</em>, <em>last_step_as_input=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#greedy_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.greedy_decode" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.decoders.decoder.</code><code class="descname">greedy_decode</code><span class="sig-paren">(</span><em>symbols_to_logits_fn</em>, <em>initial_ids</em>, <em>end_id</em>, <em>decode_length=None</em>, <em>state=None</em>, <em>return_state=False</em>, <em>min_decode_length=0</em>, <em>last_step_as_input=False</em>, <em>sample_from=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#greedy_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.greedy_decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Greedily decodes from <code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_ids</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -496,6 +500,8 @@ handed to symbols_to_logits_fn.</li>
 <li><strong>min_decode_length</strong> – Minimum length of decoded hypotheses (EOS excluded).</li>
 <li><strong>last_step_as_input</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, only feed the last predicted ids into
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">symbols_to_logits_fn</span></code>.</li>
+<li><strong>sample_from</strong> – Sample from the <code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_from</span></code> most likely tokens. If 0,
+sample from the full output distribution.</li>
 </ul>
 </td>
 </tr>
