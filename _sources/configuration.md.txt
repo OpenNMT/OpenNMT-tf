@@ -62,7 +62,7 @@ At the start of the training, the configuration values actually used will be log
 **Note:** default training values usually assume GPUs with at least 8GB of memory and a large system memory:
 
 * If you encounter GPU out of memory issues, try overriding `batch_size` to a lower value.
-* If you encounter CPU out of memory issues, try overriding `sample_buffer_size` to a fix value.
+* If you encounter CPU out of memory issues, try overriding `sample_buffer_size` to a fixed value.
 
 ### Multiple configuration files
 
