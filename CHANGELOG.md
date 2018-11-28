@@ -18,6 +18,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+* Checkpoint utilities now save a relative path instead of absolute in the generated checkpoint state
+
 ## [1.14.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.14.1) (2018-11-28)
 
 ### Fixes and improvements
