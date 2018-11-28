@@ -330,11 +330,11 @@ def inference_pipeline(dataset,
     return x
 
   def _key_func(x):
-    length = tf.cast(length_fn(x), tf.int32)
-    bucket_id = tf.constant(0, dtype=tf.int32)
+    length = length_fn(x)
+    bucket_id = tf.constant(0, dtype=tf.int64)
     if not isinstance(length, list):
-      bucket_id = tf.maximum(bucket_id, length // bucket_width)
-    return tf.cast(bucket_id, tf.int64)
+      bucket_id = tf.maximum(bucket_id, tf.cast(length, bucket_id.dtype) // bucket_width)
+    return bucket_id
 
   def _reduce_func(unused_key, dataset):
     return dataset.apply(batch_dataset(batch_size))
