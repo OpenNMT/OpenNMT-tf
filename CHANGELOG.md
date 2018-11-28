@@ -16,6 +16,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+* Fix inference error when using parallel inputs and the parameter `bucket_width`
+
 ## [1.14.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.14.0) (2018-11-22)
 
 ### New features
