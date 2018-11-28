@@ -240,6 +240,7 @@ class SequenceToSequence(Model):
         beam_width = params.get("beam_width", 1)
         maximum_iterations = params.get("maximum_iterations", 250)
         minimum_length = params.get("minimum_decoding_length", 0)
+        sample_from = params.get("sampling_topk", 1)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
         end_token = constants.END_OF_SENTENCE_ID
 
@@ -256,7 +257,8 @@ class SequenceToSequence(Model):
               memory=encoder_outputs,
               memory_sequence_length=encoder_sequence_length,
               dtype=target_dtype,
-              return_alignment_history=True)
+              return_alignment_history=True,
+              sample_from=sample_from)
         else:
           length_penalty = params.get("length_penalty", 0)
           sampled_ids, _, sampled_length, log_probs, alignment = (
@@ -274,7 +276,8 @@ class SequenceToSequence(Model):
                   memory=encoder_outputs,
                   memory_sequence_length=encoder_sequence_length,
                   dtype=target_dtype,
-                  return_alignment_history=True))
+                  return_alignment_history=True,
+                  sample_from=sample_from))
 
       target_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
           self.target_inputter.vocabulary_file,
