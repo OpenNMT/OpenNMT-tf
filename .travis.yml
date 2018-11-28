@@ -41,7 +41,7 @@ matrix:
         - secure: "YoOVLtg7j03Il5IixovqClvANqQgO/D4idZ2JANmmj+Sea4iVTEIpd4WWLcis99yctY1Kh8aAeGKSFtHUB52+5N2ignewfAdHc3yPjsk8EngAtnhZfc9J40Inky/ogZSVRm4Wh+/3+zvN3VYKVB6hmOgfz9sBxfwBwOOLLliANnyHLo2j0a4GDhkIDy6IDGnl8yO8vMG6W83KVbmyS36Y6zNmMi26/uWTWMISrErrWc5BOAqWVsFvy5lZJDXQUbQ+nSBhprNWCVkZFtWd35EP3f6iVzaR09EfOwJTGKg1TmzmJr1OydNK/hrr/YVlb3byvDFmPPPz7dBu/yXmc26j/N6O5N8BQLqGv2JBNYpy8v4zV77uGjH+W0kXKHz4QAYuQHU40TjXFVa3ZEoWDNYM6T2lvZ+mAfoj9JgsAFQ9XZhmKH6al+5HnDzhohqxTVef32dIDY+mffNb0jofexVCu+ko1wCTjUh4KyzQKSncc4Dq4welYMbfIsLMaeyHdtz5hcJhUlseVbOu6rmLtaBVuYJ350paN4/rWD9svQ+ek53XrSUpiRRLO1VU7ErruralpG/DPyIZIzWKREqGoz1eBoOxjq+iytZqiLbeMwYP3BYmg+RvMzW6m1lpkAeAMMqsEYVj/IdTnTY7jxR1yaV0A7KpuON9pBTSjKy5Ci7cCE="
       install:
         - pip install -r docs/requirements.txt
-        - pip install doctr
+        - pip install git+git://github.com/drdoctr/doctr@1d7153975c9299fa066f896af6927d31f9907fdd
       script:
         - set -e
         - sphinx-build docs docs/build
