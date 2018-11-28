@@ -97,6 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Inference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#checkpoints-averaging">Checkpoints averaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sampling">Sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#n-best-list">N-best list</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scoring">Scoring</a></li>
 </ul>
@@ -192,6 +193,21 @@
   <span class="l l-Scalar l-Scalar-Plain">save_checkpoints_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
   <span class="c1"># (optional) How many checkpoints to keep on disk.</span>
   <span class="l l-Scalar l-Scalar-Plain">keep_checkpoint_max</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sampling">
+<span id="sampling"></span><h2>Sampling<a class="headerlink" href="#sampling" title="Permalink to this headline">¶</a></h2>
+<p>Sampling predictions from the output distribution can be an effective decoding strategy for back-translation, as described by <a class="reference external" href="https://arxiv.org/abs/1808.09381">Edunov et al. 2018</a>. To enable this feature, you should configure the parameter <code class="docutils literal notranslate"><span class="pre">sampling_topk</span></code>. Possible values are:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">k</span></code>, sample from the <code class="docutils literal notranslate"><span class="pre">k</span></code> most likely tokens</li>
+<li><code class="docutils literal notranslate"><span class="pre">0</span></code>, sample from the full output distribution</li>
+<li><code class="docutils literal notranslate"><span class="pre">1</span></code>, no sampling (default)</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">params</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">beam_width</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="l l-Scalar l-Scalar-Plain">sampling_topk</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
 </pre></div>
 </div>
 </div>
