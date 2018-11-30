@@ -209,7 +209,10 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
   accum_grads = []
   accum_grads_and_vars = []
   for grad, var in grads_and_vars:
-    accum_grad = tf.Variable(tf.zeros_like(grad), trainable=False, collections=[])
+    accum_grad = tf.Variable(
+        tf.zeros(var.shape, dtype=grad.dtype),
+        trainable=False,
+        collections=[])
     accum_grads.append(accum_grad)
     accum_grads_and_vars.append((accum_grad, var))
 
@@ -220,7 +223,12 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
         update_ops.append(accum_fn(accum_grad, grad))
     with tf.control_dependencies(update_ops):
       if apply_gradients:
-        return optimizer.apply_gradients(accum_grads_and_vars, global_step=global_step)
+        # Override the current name scope to create the optimizer slot variables
+        # in the same scope as if the optimizer was called outside of tf.cond.
+        # This is needed to ensure we can continue from a model trained without
+        # gradient accumulation (and vice-versa).
+        with tf.name_scope("%s/" % tf.get_variable_scope().name):
+          return optimizer.apply_gradients(accum_grads_and_vars, global_step=global_step)
       else:
         return tf.no_op()
 

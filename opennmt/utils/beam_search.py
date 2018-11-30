@@ -133,23 +133,19 @@ def _log_prob_from_logits(logits):
   return logits - tf.reduce_logsumexp(logits, axis=2, **kwargs)
 
 
-def penalize_token(log_probs, token_id):
+def penalize_token(log_probs, token_id, penalty=-INF):
   """Penalize token probabilities.
 
   Args:
     log_probs: The log probabilities. [batch_size, vocab_size]
     token_id: The token to penalize.
+    penalty: The constant to add to the log probabilities of :obj:`token_id`.
 
   Returns:
     The updated log probabilities.
   """
-  shape = tf.shape(log_probs)
-  batch_size = shape[0]
-  batch_ind = tf.range(batch_size, dtype=tf.int32)
-  token_ind = tf.fill([batch_size], token_id)
-  indices = tf.stack([batch_ind, token_ind], axis=-1)
-  updates = tf.fill([batch_size], tf.constant(-INF, dtype=log_probs.dtype))
-  penalty = tf.scatter_nd(indices, updates, shape)
+  depth = log_probs.get_shape().as_list()[-1]
+  penalty = tf.one_hot([token_id], depth, on_value=tf.cast(penalty, log_probs.dtype))
   return log_probs + penalty
 
 

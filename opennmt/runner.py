@@ -21,6 +21,7 @@ from opennmt.utils.misc import format_translation_output, OrderRestorer
 
 # These options require a value but we can fallback to a default one.
 _CONFIG_FALLBACK = {
+    "params": {},
     "train": {
         "batch_type": "examples",
         "bucket_width": 1,
@@ -32,6 +33,7 @@ _CONFIG_FALLBACK = {
         "exporters": "last"
     },
     "infer": {
+        "bucket_width": None,
         "batch_size": 16
     },
     "score": {

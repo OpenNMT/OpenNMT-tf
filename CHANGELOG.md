@@ -16,6 +16,19 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.15.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.15.0) (2018-11-30)
+
+### New features
+
+* Parameter `sampling_topk` to sample predictions from the output distribution (from [Edunov et al. 2018](https://arxiv.org/abs/1808.09381))
+
+### Fixes and improvements
+
+* Checkpoint utilities now save a relative path instead of absolute in the generated checkpoint state
+* Fix error on missing configuration fields that should be optional
+* Fix error on gradient accumulation in TensorFlow versions <= 1.9
+* Fix optimizer variable names mismatch introduced by gradient accumulation which prevented to continue from an existing checkpoint trained without
+
 ## [1.14.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.14.1) (2018-11-28)
 
 ### Fixes and improvements

@@ -94,7 +94,7 @@ def _create_checkpoint_from_variables(variables, output_dir, latest_step=None, s
       "global_step",
       initializer=tf.constant(latest_step, dtype=tf.int64),
       trainable=False)
-  saver = tf.train.Saver(tf.global_variables())
+  saver = tf.train.Saver(tf.global_variables(), save_relative_paths=True)
 
   with tf.Session(config=session_config) as sess:
     sess.run(tf.global_variables_initializer())

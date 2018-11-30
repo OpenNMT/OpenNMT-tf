@@ -33,6 +33,22 @@ train:
   keep_checkpoint_max: 10
 ```
 
+## Sampling
+
+Sampling predictions from the output distribution can be an effective decoding strategy for back-translation, as described by [Edunov et al. 2018](https://arxiv.org/abs/1808.09381). To enable this feature, you should configure the parameter `sampling_topk`. Possible values are:
+
+* `k`, sample from the `k` most likely tokens
+* `0`, sample from the full output distribution
+* `1`, no sampling (default)
+
+For example:
+
+```yaml
+params:
+  beam_width: 1
+  sampling_topk: 0
+```
+
 ## N-best list
 
 A n-best list can be generated for models using beam search. You can configure it in your configuration file:
