@@ -14,6 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [1.15.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.15.0) (2018-11-30)
+
+### New features
+
 * Parameter `sampling_topk` to sample predictions from the output distribution (from [Edunov et al. 2018](https://arxiv.org/abs/1808.09381))
 
 ### Fixes and improvements
