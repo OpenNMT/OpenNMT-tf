@@ -209,7 +209,10 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
   accum_grads = []
   accum_grads_and_vars = []
   for grad, var in grads_and_vars:
-    accum_grad = tf.Variable(tf.zeros_like(grad), trainable=False, collections=[])
+    accum_grad = tf.Variable(
+        tf.zeros(var.shape, dtype=grad.dtype),
+        trainable=False,
+        collections=[])
     accum_grads.append(accum_grad)
     accum_grads_and_vars.append((accum_grad, var))
 
