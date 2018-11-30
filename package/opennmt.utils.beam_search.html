@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.beam_search module &mdash; OpenNMT-tf 1.14.1 documentation</title>
+  <title>opennmt.utils.beam_search module &mdash; OpenNMT-tf 1.15.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.14
+                1.15
               </div>
             
           
@@ -194,7 +194,7 @@
 
 <dl class="function">
 <dt id="opennmt.utils.beam_search.penalize_token">
-<code class="descclassname">opennmt.utils.beam_search.</code><code class="descname">penalize_token</code><span class="sig-paren">(</span><em>log_probs</em>, <em>token_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/beam_search.html#penalize_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.beam_search.penalize_token" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.beam_search.</code><code class="descname">penalize_token</code><span class="sig-paren">(</span><em>log_probs</em>, <em>token_id</em>, <em>penalty=-10000000.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/beam_search.html#penalize_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.beam_search.penalize_token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Penalize token probabilities.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -203,6 +203,7 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>log_probs</strong> – The log probabilities. [batch_size, vocab_size]</li>
 <li><strong>token_id</strong> – The token to penalize.</li>
+<li><strong>penalty</strong> – The constant to add to the log probabilities of <code class="xref py py-obj docutils literal notranslate"><span class="pre">token_id</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -397,7 +398,7 @@ symbols_to_logits_fn</li>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.14.1',
+              VERSION:'1.15.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

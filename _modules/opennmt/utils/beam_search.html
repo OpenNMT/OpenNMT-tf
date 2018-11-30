@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.beam_search &mdash; OpenNMT-tf 1.14.1 documentation</title>
+  <title>opennmt.utils.beam_search &mdash; OpenNMT-tf 1.15.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.14
+                1.15
               </div>
             
           
@@ -295,23 +295,19 @@
   <span class="k">return</span> <span class="n">logits</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_logsumexp</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="penalize_token"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.penalize_token">[docs]</a><span class="k">def</span> <span class="nf">penalize_token</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">token_id</span><span class="p">):</span>
+<div class="viewcode-block" id="penalize_token"><a class="viewcode-back" href="../../../package/opennmt.utils.beam_search.html#opennmt.utils.beam_search.penalize_token">[docs]</a><span class="k">def</span> <span class="nf">penalize_token</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">token_id</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=-</span><span class="n">INF</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Penalize token probabilities.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    log_probs: The log probabilities. [batch_size, vocab_size]</span>
 <span class="sd">    token_id: The token to penalize.</span>
+<span class="sd">    penalty: The constant to add to the log probabilities of :obj:`token_id`.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    The updated log probabilities.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">log_probs</span><span class="p">)</span>
-  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">batch_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-  <span class="n">token_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">token_id</span><span class="p">)</span>
-  <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_ind</span><span class="p">,</span> <span class="n">token_ind</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-  <span class="n">updates</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="o">-</span><span class="n">INF</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">log_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
-  <span class="n">penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">scatter_nd</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+  <span class="n">depth</span> <span class="o">=</span> <span class="n">log_probs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">([</span><span class="n">token_id</span><span class="p">],</span> <span class="n">depth</span><span class="p">,</span> <span class="n">on_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">penalty</span><span class="p">,</span> <span class="n">log_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
   <span class="k">return</span> <span class="n">log_probs</span> <span class="o">+</span> <span class="n">penalty</span></div>
 
 
@@ -824,7 +820,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.14.1',
+              VERSION:'1.15.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

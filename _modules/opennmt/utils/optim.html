@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.14.1 documentation</title>
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.15.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.14
+                1.15
               </div>
             
           
@@ -371,7 +371,10 @@
   <span class="n">accum_grads</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="n">accum_grads_and_vars</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="k">for</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">grads_and_vars</span><span class="p">:</span>
-    <span class="n">accum_grad</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">grad</span><span class="p">),</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collections</span><span class="o">=</span><span class="p">[])</span>
+    <span class="n">accum_grad</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">grad</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+        <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">collections</span><span class="o">=</span><span class="p">[])</span>
     <span class="n">accum_grads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accum_grad</span><span class="p">)</span>
     <span class="n">accum_grads_and_vars</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">accum_grad</span><span class="p">,</span> <span class="n">var</span><span class="p">))</span>
 
@@ -382,7 +385,12 @@
         <span class="n">update_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accum_fn</span><span class="p">(</span><span class="n">accum_grad</span><span class="p">,</span> <span class="n">grad</span><span class="p">))</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">update_ops</span><span class="p">):</span>
       <span class="k">if</span> <span class="n">apply_gradients</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">accum_grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
+        <span class="c1"># Override the current name scope to create the optimizer slot variables</span>
+        <span class="c1"># in the same scope as if the optimizer was called outside of tf.cond.</span>
+        <span class="c1"># This is needed to ensure we can continue from a model trained without</span>
+        <span class="c1"># gradient accumulation (and vice-versa).</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/&quot;</span> <span class="o">%</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">accum_grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">no_op</span><span class="p">()</span>
 
@@ -477,7 +485,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.14.1',
+              VERSION:'1.15.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
