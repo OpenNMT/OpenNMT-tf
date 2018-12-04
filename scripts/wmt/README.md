@@ -1,6 +1,6 @@
 # Steps to train a Transformer model on the WMT English-German dataset
 
-This tutorial outlines the steps required to train a transformer model (originally introduced [here](https://arxiv.org/abs/1706.03762)) on the WMT English-German dataset.
+This tutorial outlines the steps required to train a Transformer model (originally introduced [here](https://arxiv.org/abs/1706.03762)) on the WMT English-German dataset.
 
 This model achieved the following scores:
 
@@ -16,13 +16,13 @@ This model achieved the following scores:
 
 ## Steps
 
-The following instructions are for replicating the result from scratch; skip the bottom for a "Lazy run" using pre-calculated components.
+The following instructions are for replicating the result from scratch; skip to the bottom for a "Lazy run" using pre-calculated components.
 
 ### Installing SentencePiece
 
-NMT models perform better if words are represented sub-words, since this helps the out-of-vocabulary problem. [SentencePiece](https://arxiv.org/pdf/1808.06226.pdf) is a powerful end-to-end tokenizer that allows the learning of subword units from raw data. [We will install SentencePiece from source](https://github.com/google/sentencepiece#c-from-source) rather than via `pip install`, since the `spm_train` command used for training a SentencePiece model is not installed via pip but has to be built from the C++.
+NMT models perform better if words are represented as sub-words, since this helps the out-of-vocabulary problem. [SentencePiece](https://arxiv.org/pdf/1808.06226.pdf) is a powerful end-to-end tokenizer that allows the learning of subword units from raw data. [We will install SentencePiece from source](https://github.com/google/sentencepiece#c-from-source) rather than via `pip install`, since the `spm_train` command used for training a SentencePiece model is not installed via pip but has to be built from the C++.
 
-Installation instructions are available [here](https://github.com/google/sentencepiece#c-from-source) but an example is reproduced below (for a Tensorflow Docker container built from latest-gpu-py3 image, running ubuntu 16.04; Tensorflow Docker images are [here](https://hub.docker.com/r/tensorflow/tensorflow/), a beginner's tutorial on Docker and containerisation is [here](https://docker-curriculum.com/))
+Installation instructions are available [here](https://github.com/google/sentencepiece#c-from-source) but an example is reproduced below (for a TensorFlow Docker container built from latest-gpu-py3 image, running Ubuntu 16.04; TensorFlow Docker images are [here](https://hub.docker.com/r/tensorflow/tensorflow/), a beginner's tutorial on Docker and containerisation is [here](https://docker-curriculum.com/))
 
 ```bash
 apt-get install cmake pkg-config libprotobuf9v5 protobuf-compiler libprotobuf-dev libgoogle-perftools-dev
@@ -55,7 +55,7 @@ Run these steps using the command:
 where `raw_data` is the name of the folder that the raw parallel datasets will be downloaded into.
 
 
-### Training the transformer model
+### Training the Transformer model
 
 Now that the train/valid/test files have been generated, kick off a training run using the following command. We recommend training on 4 GPUs to get the best performance.
 
@@ -73,33 +73,33 @@ CUDA_VISIBLE_DEVICES=0 ./run_wmt_ende_1gpu.sh
 ```
 
 The training logs printed to STDOUT include the values:
-+ `words_per_sec/features`: number of input words processed per second (where features = words in the training set)
-+ `words_per_sec/labels`: number of output words processed per second (where labels = correct words in the target language train file)
-+ `global_step/sec`: number of gradient updates/# batches processed per second. `global step` is a Tensorflow variable that counts the number of batches seen by the model.
++ `words_per_sec/features`: number of source tokens processed per second
++ `words_per_sec/labels`: number of target tokens processed per second
++ `global_step/sec`: number of parameter updates. `global step` is a TensorFlow variable that is incremented each time the gradients are applied.
 
 The reported values are the averages since the last printed output (not a rolling average).
 
-### Monitoring model training using Tensorboard
+### Monitoring model training using TensorBoard
 
-You can launch Tensorboard training monitoring by specifying where the logs are being written to (in this case, to a folder called `wmt_ende_transformer`). For example:
+You can launch TensorBoard training monitoring by specifying where the logs are being written to (in this case, to a folder called `wmt_ende_transformer`). For example:
 
 `tensorboard --logdir="/path/to/wmt_ende_transformer" --port=6006`
 
-You can then open a browser and go to `<IP address>:6006` (e.g. http://127.0.0.1:6006/ if running on your local machine) to see Tensorboard graphs of gradients, loss, BLEU, learning rate, etc. over time as training proceeds. For an introduction to using Tensorboard, see this [video](https://www.youtube.com/watch?v=eBbEDRsCmv4) or this [post](https://www.datacamp.com/community/tutorials/tensorboard-tutorial).
+You can then open a browser and go to `<IP address>:6006` (e.g. http://127.0.0.1:6006/ if running on your local machine) to see TensorBoard graphs of gradients, loss, BLEU, learning rate, etc. over time as training proceeds. For an introduction to using TensorBoard, see this [video](https://www.youtube.com/watch?v=eBbEDRsCmv4) or this [post](https://www.datacamp.com/community/tutorials/tensorboard-tutorial).
 
 If you are using NVIDIA GPUs, you can monitor card usage during training using `watch -n 0.5 nvidia-smi`.
 
-If you are using a Docker container, you can launch a Tensorboard run from outside the container using:
+If you are using a Docker container, you can launch a TensorBoard run from outside the container using:
 
 `docker exec <CONTAINER ID> tensorboard --logdir="path/to/wmt_ende_transformer" --port=6006`
 
 Note that for this to work, you need to have exposed the port when you create your Docker container ([simple example](https://briancaffey.github.io/2017/11/20/using-tensorflow-and-tensor-board-with-docker.html)).
 
-### Translation using a trained model 
+### Translation using a trained model
 
 You can run the following script to perform inference on the test set using a trained model. The script calls `onmt-main infer`. Normally, the latest checkpoint is used for inference by default, but [we recommend averaging the parameters of several checkpoints](http://opennmt.net/OpenNMT-tf/inference.html#checkpoints-averaging), which usually boosts model performance.
 
-To average the last 5 checkpoints:
+If training is left to run until completion, checkpoint averaging is automatically run. To average the last 5 checkpoints manually, the command is:
 
 ```bash
 onmt-average-checkpoints --model_dir wmt_ende_transformer --output_dir wmt_ende_transformer/avg --max_count 5

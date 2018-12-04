@@ -41,17 +41,17 @@ tl=de
 # Download the default datasets into the $DATA_PATH; mkdir if it doesn't exist
 mkdir -p $DATA_PATH
 cd $DATA_PATH
-#
-# echo "Downloading and extracting Commoncrawl data (919 MB) for training..."
-# wget --trust-server-names http://www.statmt.org/wmt13/training-parallel-commoncrawl.tgz
-# tar zxvf training-parallel-commoncrawl.tgz
-# ls | grep -v 'commoncrawl.de-en.[de,en]' | xargs rm
-#
-# echo "Downloading and extracting Europarl data (658 MB) for training..."
-# wget --trust-server-names http://www.statmt.org/wmt13/training-parallel-europarl-v7.tgz
-# tar zxvf training-parallel-europarl-v7.tgz
-# cd training && ls | grep -v 'europarl-v7.de-en.[de,en]' | xargs rm
-# cd .. && mv training/europarl* . && rm -r training training-parallel-europarl-v7.tgz
+
+echo "Downloading and extracting Commoncrawl data (919 MB) for training..."
+wget --trust-server-names http://www.statmt.org/wmt13/training-parallel-commoncrawl.tgz
+tar zxvf training-parallel-commoncrawl.tgz
+ls | grep -v 'commoncrawl.de-en.[de,en]' | xargs rm
+
+echo "Downloading and extracting Europarl data (658 MB) for training..."
+wget --trust-server-names http://www.statmt.org/wmt13/training-parallel-europarl-v7.tgz
+tar zxvf training-parallel-europarl-v7.tgz
+cd training && ls | grep -v 'europarl-v7.de-en.[de,en]' | xargs rm
+cd .. && mv training/europarl* . && rm -r training training-parallel-europarl-v7.tgz
 
 echo "Downloading and extracting News Commentary data (76 MB) for training..."
 wget --trust-server-names http://data.statmt.org/wmt16/translation-task/training-parallel-nc-v11.tgz
