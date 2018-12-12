@@ -214,7 +214,7 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
     self.assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, self.placeholders)]
 
   def after_create_session(self, session, coord):
-    for p, op, (_, value) in zip(self.placeholders, self.assign_ops, six.iteritems(self.values)):
+    for p, op, value in zip(self.placeholders, self.assign_ops, six.itervalues(self.values)):
       session.run(op, {p: value})
 
 
