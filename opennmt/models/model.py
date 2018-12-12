@@ -494,6 +494,11 @@ class Model(object):
   def _serving_input_fn_impl(self, metadata):
     """See ``serving_input_fn``."""
     self._initialize(metadata)
+    # This is a hack for SequenceRecordInputter that currently infers the input
+    # depth from the data files.
+    # TODO: This method should not require the training data.
+    if self.features_inputter is not None and "train_features_file" in metadata:
+      _ = self.features_inputter.make_dataset(metadata["train_features_file"])
     return self._get_serving_input_receiver()
 
   def serving_input_fn(self, metadata):
