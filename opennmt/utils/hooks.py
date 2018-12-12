@@ -208,7 +208,7 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
     reuse = tf.AUTO_REUSE if hasattr(tf, "AUTO_REUSE") else True
     with tf.variable_scope(current_scope, reuse=reuse):
       for name, value in six.iteritems(self.values):
-        tf_vars.append(tf.get_variable(name, shape=value.shape))
+        tf_vars.append(tf.get_variable(name, shape=value.shape, dtype=tf.as_dtype(value.dtype)))
 
     self.placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
     self.assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, self.placeholders)]
