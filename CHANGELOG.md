@@ -14,6 +14,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* `rnmtplus_decay` learning rate decay function described in [Chen et al. 2018](https://arxiv.org/abs/1804.09849)
+
 ### Fixes and improvements
 
 ## [1.15.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.15.0) (2018-11-30)

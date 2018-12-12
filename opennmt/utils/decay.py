@@ -90,3 +90,32 @@ def rsqrt_decay_v2(scale, step, warmup_steps):
   step = tf.cast(step, tf.float32)
   warmup_steps = tf.cast(warmum_steps, tf.float32)
   return scale * tf.rsqrt(tf.maximum(step, warmup_steps))
+
+
+def rnmtplus_decay(scale,
+                   step,
+                   num_replicas,
+                   warmup_steps=500,
+                   start_step=600000,
+                   end_step=1200000):
+  """Defines the decay function described in https://arxiv.org/abs/1804.09849.
+
+  Args:
+    scale: The scale constant.
+    step: The current step.
+    num_replicas: The number of concurrent model replicas.
+    warmup_steps: The number of warmup steps.
+    start_step: The start step of the exponential decay.
+    end_step: The end step of the exponential decay.
+
+  Returns:
+    The learning rate for the step :obj:`step`.
+  """
+  t = tf.cast(step, tf.float32)
+  n = tf.cast(num_replicas, tf.float32)
+  p = tf.cast(warmup_steps, tf.float32)
+  s = tf.cast(start_step, tf.float32)
+  e = tf.cast(end_step, tf.float32)
+  return scale * tf.minimum(
+      tf.minimum(1 + (t * (n - 1)) / (n * p), n),
+      n * tf.pow(2 * n, (s - n * t) / (e - s)))
