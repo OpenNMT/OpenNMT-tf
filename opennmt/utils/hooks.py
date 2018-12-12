@@ -183,6 +183,7 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
     if self._post_evaluation_fn is not None:
       self._post_evaluation_fn(self._current_step, self._output_path)
 
+
 class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
   """"Hook that loads model variables from checkpoint before starting the training."""
 
@@ -194,9 +195,10 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
 
     names = []
     for name, _ in var_list:
-      if not name.startswith("optim"):
-        if not name.startswith("global_step") and not name.startswith("words_per_sec"):
-          names.append(name)
+      if (not name.startswith("optim"):
+          and not name.startswith("global_step")
+          and not name.startswith("words_per_sec")):
+        names.append(name)
 
     self.values = {}
     reader = tf.train.load_checkpoint(self.checkpoint_path)
