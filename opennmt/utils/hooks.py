@@ -195,7 +195,7 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
 
     names = []
     for name, _ in var_list:
-      if (not name.startswith("optim"):
+      if (not name.startswith("optim")
           and not name.startswith("global_step")
           and not name.startswith("words_per_sec")):
         names.append(name)
