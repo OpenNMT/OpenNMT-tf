@@ -123,9 +123,11 @@ class Runner(object):
 
     if "train" in self._config:
       if "save_summary_steps" in self._config["train"]:
+        accum = self._config["params"].get("gradients_accum", 1)
+        summary_steps = self._config["train"]["save_summary_steps"]
         run_config = run_config.replace(
-            save_summary_steps=self._config["train"]["save_summary_steps"],
-            log_step_count_steps=self._config["train"]["save_summary_steps"])
+            save_summary_steps=summary_steps,
+            log_step_count_steps=accum * summary_steps)
       if "save_checkpoints_steps" in self._config["train"]:
         run_config = run_config.replace(
             save_checkpoints_secs=None,
