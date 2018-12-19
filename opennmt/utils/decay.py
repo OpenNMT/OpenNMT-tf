@@ -88,7 +88,7 @@ def rsqrt_decay_v2(scale, step, warmup_steps):
     The learning rate for the step :obj:`global_step`.
   """
   step = tf.cast(step, tf.float32)
-  warmup_steps = tf.cast(warmum_steps, tf.float32)
+  warmup_steps = tf.cast(warmup_steps, tf.float32)
   return scale * tf.rsqrt(tf.maximum(step, warmup_steps))
 
 
