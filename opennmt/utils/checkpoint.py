@@ -98,7 +98,7 @@ def _create_checkpoint_from_variables(variables, output_dir, latest_step=None, s
 
   with tf.Session(config=session_config) as sess:
     sess.run(tf.global_variables_initializer())
-    for p, assign_op, (name, value) in zip(placeholders, assign_ops, six.iteritems(variables)):
+    for p, assign_op, value in zip(placeholders, assign_ops, six.itervalues(variables)):
       sess.run(assign_op, {p: value})
     tf.logging.info("Saving new checkpoint to %s" % output_dir)
     saver.save(sess, out_base_file, global_step=global_step)

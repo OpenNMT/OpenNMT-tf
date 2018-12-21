@@ -17,6 +17,7 @@ from google.protobuf import text_format
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils.evaluator import external_evaluation_fn
 from opennmt.utils.misc import format_translation_output, OrderRestorer
+from opennmt.utils.parallel import get_devices
 
 
 # These options require a value but we can fallback to a default one.
@@ -114,18 +115,16 @@ class Runner(object):
         session_config=session_config,
         tf_random_seed=seed)
 
-    # Create a first session to enforce GPU options.
-    # See https://github.com/OpenNMT/OpenNMT-tf/issues/80.
-    _ = tf.Session(config=session_config)
-
     np.random.seed(seed)
     random.seed(seed)
 
     if "train" in self._config:
       if "save_summary_steps" in self._config["train"]:
+        accum = self._config["params"].get("gradients_accum", 1)
+        summary_steps = self._config["train"]["save_summary_steps"]
         run_config = run_config.replace(
-            save_summary_steps=self._config["train"]["save_summary_steps"],
-            log_step_count_steps=self._config["train"]["save_summary_steps"])
+            save_summary_steps=summary_steps,
+            log_step_count_steps=accum * summary_steps)
       if "save_checkpoints_steps" in self._config["train"]:
         run_config = run_config.replace(
             save_checkpoints_secs=None,
@@ -134,10 +133,11 @@ class Runner(object):
         run_config = run_config.replace(
             keep_checkpoint_max=self._config["train"]["keep_checkpoint_max"])
 
+    devices = get_devices(num_devices=num_devices, session_config=session_config)
     self._estimator = tf.estimator.Estimator(
         self._model.model_fn(
-            num_devices=self._num_devices,
-            eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn()),
+            eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
+            devices=devices),
         config=run_config,
         params=self._config["params"])
 

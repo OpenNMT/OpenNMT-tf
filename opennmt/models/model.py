@@ -59,7 +59,7 @@ class Model(object):
     """
     return self._build(features, labels, params, mode, config=config)
 
-  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None):
+  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None):
     """Returns the model function.
 
     Args:
@@ -67,13 +67,16 @@ class Model(object):
       eval_prediction_hooks_fn: A callable that takes the model predictions
         during evaluation and return an iterable of evaluation hooks (e.g. for
         saving predictions on disk, running external evaluators, etc.).
+      devices: The list of devices used for training, if known.
 
     See Also:
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       arguments and the returned value.
     """
     dispatcher = GraphDispatcher(
-        num_devices, daisy_chain_variables=self.daisy_chain_variables)
+        num_devices=num_devices,
+        daisy_chain_variables=self.daisy_chain_variables,
+        devices=devices)
 
     def _loss_op(features, labels, params, mode, config):
       """Single callable to compute the loss."""
@@ -494,6 +497,11 @@ class Model(object):
   def _serving_input_fn_impl(self, metadata):
     """See ``serving_input_fn``."""
     self._initialize(metadata)
+    # This is a hack for SequenceRecordInputter that currently infers the input
+    # depth from the data files.
+    # TODO: This method should not require the training data.
+    if self.features_inputter is not None and "train_features_file" in metadata:
+      _ = self.features_inputter.make_dataset(metadata["train_features_file"])
     return self._get_serving_input_receiver()
 
   def serving_input_fn(self, metadata):

@@ -183,6 +183,7 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
     if self._post_evaluation_fn is not None:
       self._post_evaluation_fn(self._current_step, self._output_path)
 
+
 class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
   """"Hook that loads model variables from checkpoint before starting the training."""
 
@@ -194,9 +195,10 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
 
     names = []
     for name, _ in var_list:
-      if not name.startswith("optim"):
-        if not name.startswith("global_step") and not name.startswith("words_per_sec"):
-          names.append(name)
+      if (not name.startswith("optim")
+          and not name.startswith("global_step")
+          and not name.startswith("words_per_sec")):
+        names.append(name)
 
     self.values = {}
     reader = tf.train.load_checkpoint(self.checkpoint_path)
@@ -208,13 +210,13 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
     reuse = tf.AUTO_REUSE if hasattr(tf, "AUTO_REUSE") else True
     with tf.variable_scope(current_scope, reuse=reuse):
       for name, value in six.iteritems(self.values):
-        tf_vars.append(tf.get_variable(name, shape=value.shape))
+        tf_vars.append(tf.get_variable(name, shape=value.shape, dtype=tf.as_dtype(value.dtype)))
 
     self.placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
     self.assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, self.placeholders)]
 
   def after_create_session(self, session, coord):
-    for p, op, (_, value) in zip(self.placeholders, self.assign_ops, six.iteritems(self.values)):
+    for p, op, value in zip(self.placeholders, self.assign_ops, six.itervalues(self.values)):
       session.run(op, {p: value})
 
 

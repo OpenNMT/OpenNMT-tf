@@ -16,6 +16,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.16.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.16.0) (2018-12-21)
+
+### New features
+
+* `rnmtplus_decay` learning rate decay function described in [Chen et al. 2018](https://arxiv.org/abs/1804.09849)
+
+### Fixes and improvements
+
+* Fix error when exporting models containing a `SequenceRecordInputter`
+* Fix error when using `rsqrt_decay`
+* Step logging should respect `save_summary_steps` even when gradients accumulation is used
+
 ## [1.15.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.15.0) (2018-11-30)
 
 ### New features

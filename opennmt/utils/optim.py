@@ -266,18 +266,19 @@ def regularization_penalty(regularization_type, scale, weights_list=None):
 
   regularization_type = regularization_type.lower()
   if regularization_type == "l1":
-    regularizer = tf.contrib.layers.l1_regularizer(float(scale))
+    regularizer = tf.keras.regularizers.l1(l=float(scale))
   elif regularization_type == "l2":
-    regularizer = tf.contrib.layers.l2_regularizer(float(scale))
+    regularizer = tf.keras.regularizers.l2(l=float(scale))
   elif regularization_type == "l1_l2":
     if not isinstance(scale, collections.Sequence) or len(scale) != 2:
       raise ValueError("l1_l2 regularization requires 2 scale values")
-    regularizer = tf.contrib.layers.l1_l2_regularizer(
-        scale_l1=float(scale[0]), scale_l2=float(scale[1]))
+    regularizer = tf.keras.regularizers.l1_l2(
+        l1=float(scale[0]), l2=float(scale[1]))
   else:
     raise ValueError("invalid regularization type %s" % regularization_type)
 
-  return tf.contrib.layers.apply_regularization(regularizer, weights_list=weights_list)
+  penalty = tf.add_n([regularizer(w) for w in weights_list])
+  return penalty
 
 def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
   """Clips gradients by global norm."""
