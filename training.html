@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -229,15 +229,15 @@
 </pre></div>
 </div>
 <p>Additional training configurations are available to tune the loss scaling algorithm:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">params</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
   <span class="c1"># (optional) For mixed precision training, the loss scaling to apply (a constant value or</span>
   <span class="c1"># an automatic scaling algorithm: &quot;backoff&quot;, &quot;logmax&quot;, default: &quot;backoff&quot;)</span>
-  <span class="l l-Scalar l-Scalar-Plain">loss_scale</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backoff</span>
+  <span class="nt">loss_scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">backoff</span>
   <span class="c1"># (optional) For mixed precision training, the additional parameters to pass the loss scale</span>
   <span class="c1"># (see the source file opennmt/optimizers/mixed_precision_wrapper.py).</span>
-  <span class="l l-Scalar l-Scalar-Plain">loss_scale_params</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">scale_min</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
-    <span class="l l-Scalar l-Scalar-Plain">step_factor</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+  <span class="nt">loss_scale_params</span><span class="p">:</span>
+    <span class="nt">scale_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+    <span class="nt">step_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
 </pre></div>
 </div>
 <p>For more information about the implementation and get expert recommendation on how to maximize performance, see the <a class="reference external" href="https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html">OpenSeq2Seq’s documentation</a>. Currently, mixed precision training requires Volta GPUs and the NVIDIA’s TensorFlow Docker image.</p>
@@ -318,7 +318,7 @@ onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

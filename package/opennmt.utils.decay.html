@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decay module &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.utils.decay module &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -283,6 +283,31 @@
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="opennmt.utils.decay.rnmtplus_decay">
+<code class="descclassname">opennmt.utils.decay.</code><code class="descname">rnmtplus_decay</code><span class="sig-paren">(</span><em>scale</em>, <em>step</em>, <em>num_replicas</em>, <em>warmup_steps=500</em>, <em>start_step=600000</em>, <em>end_step=1200000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decay.html#rnmtplus_decay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decay.rnmtplus_decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the decay function described in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>scale</strong> – The scale constant.</li>
+<li><strong>step</strong> – The current step.</li>
+<li><strong>num_replicas</strong> – The number of concurrent model replicas.</li>
+<li><strong>warmup_steps</strong> – The number of warmup steps.</li>
+<li><strong>start_step</strong> – The start step of the exponential decay.</li>
+<li><strong>end_step</strong> – The end step of the exponential decay.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The learning rate for the step <code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -328,7 +353,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.parallel module &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.utils.parallel module &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -188,13 +188,13 @@
 <p>Utilities to run execution in parallel.</p>
 <dl class="class">
 <dt id="opennmt.utils.parallel.GraphDispatcher">
-<em class="property">class </em><code class="descclassname">opennmt.utils.parallel.</code><code class="descname">GraphDispatcher</code><span class="sig-paren">(</span><em>num_devices</em>, <em>daisy_chain_variables=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/parallel.html#GraphDispatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.parallel.GraphDispatcher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.utils.parallel.</code><code class="descname">GraphDispatcher</code><span class="sig-paren">(</span><em>num_devices=None</em>, <em>daisy_chain_variables=True</em>, <em>devices=None</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/parallel.html#GraphDispatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.parallel.GraphDispatcher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Helper class to replicate graph parts on multiple devices and dispatch
 sharded batches.</p>
 <dl class="method">
 <dt id="opennmt.utils.parallel.GraphDispatcher.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_devices</em>, <em>daisy_chain_variables=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/parallel.html#GraphDispatcher.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.parallel.GraphDispatcher.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_devices=None</em>, <em>daisy_chain_variables=True</em>, <em>devices=None</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/parallel.html#GraphDispatcher.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.parallel.GraphDispatcher.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the dispatcher.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -204,6 +204,9 @@ sharded batches.</p>
 <li><strong>num_devices</strong> – The number of devices to dispatch on.</li>
 <li><strong>daisy_chain_variables</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, variables are copied in a daisy chain
 fashion between devices (credits to Tensor2Tensor).</li>
+<li><strong>devices</strong> – List of devices to use (takes priority over <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_devices</span></code>).</li>
+<li><strong>session_config</strong> – Session configuration to use when querying available
+devices.</li>
 </ul>
 </td>
 </tr>
@@ -281,6 +284,32 @@ devices used for dispatching.</p>
 <dd><p>Split data into shards.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="opennmt.utils.parallel.get_devices">
+<code class="descclassname">opennmt.utils.parallel.</code><code class="descname">get_devices</code><span class="sig-paren">(</span><em>num_devices=None</em>, <em>session_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/parallel.html#get_devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.parallel.get_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns available devices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_devices</strong> – The number of devices to get.</li>
+<li><strong>session_config</strong> – An optional session configuration to use when querying
+available devices.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of devices.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_devices</span></code> is set but the number of visible devices
+is lower than it.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -326,7 +355,7 @@ devices used for dispatching.</p>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

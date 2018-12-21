@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -221,7 +221,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.model_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.model_fn">[docs]</a>  <span class="k">def</span> <span class="nf">model_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">eval_prediction_hooks_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.model_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.model_fn">[docs]</a>  <span class="k">def</span> <span class="nf">model_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">eval_prediction_hooks_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the model function.</span>
 
 <span class="sd">    Args:</span>
@@ -229,13 +229,16 @@
 <span class="sd">      eval_prediction_hooks_fn: A callable that takes the model predictions</span>
 <span class="sd">        during evaluation and return an iterable of evaluation hooks (e.g. for</span>
 <span class="sd">        saving predictions on disk, running external evaluators, etc.).</span>
+<span class="sd">      devices: The list of devices used for training, if known.</span>
 
 <span class="sd">    See Also:</span>
 <span class="sd">      ``tf.estimator.Estimator`` &#39;s ``model_fn`` argument for more details about</span>
 <span class="sd">      arguments and the returned value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dispatcher</span> <span class="o">=</span> <span class="n">GraphDispatcher</span><span class="p">(</span>
-        <span class="n">num_devices</span><span class="p">,</span> <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">daisy_chain_variables</span><span class="p">)</span>
+        <span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span>
+        <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">daisy_chain_variables</span><span class="p">,</span>
+        <span class="n">devices</span><span class="o">=</span><span class="n">devices</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_loss_op</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;Single callable to compute the loss.&quot;&quot;&quot;</span>
@@ -656,6 +659,11 @@
   <span class="k">def</span> <span class="nf">_serving_input_fn_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;See ``serving_input_fn``.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+    <span class="c1"># This is a hack for SequenceRecordInputter that currently infers the input</span>
+    <span class="c1"># depth from the data files.</span>
+    <span class="c1"># TODO: This method should not require the training data.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;train_features_file&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+      <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;train_features_file&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_serving_input_receiver</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Model.serving_input_fn"><a class="viewcode-back" href="../../../package/opennmt.models.model.html#opennmt.models.model.Model.serving_input_fn">[docs]</a>  <span class="k">def</span> <span class="nf">serving_input_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
@@ -730,7 +738,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

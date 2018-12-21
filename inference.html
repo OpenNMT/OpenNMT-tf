@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Inference &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>Inference &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -188,11 +188,11 @@
 </pre></div>
 </div>
 <p>To control the saving of checkpoints during the training, configure the following options in your configuration file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">train</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span>
   <span class="c1"># (optional) Save a checkpoint every this many steps.</span>
-  <span class="l l-Scalar l-Scalar-Plain">save_checkpoints_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+  <span class="nt">save_checkpoints_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
   <span class="c1"># (optional) How many checkpoints to keep on disk.</span>
-  <span class="l l-Scalar l-Scalar-Plain">keep_checkpoint_max</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+  <span class="nt">keep_checkpoint_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
 </pre></div>
 </div>
 </div>
@@ -205,17 +205,17 @@
 <li><code class="docutils literal notranslate"><span class="pre">1</span></code>, no sampling (default)</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">params</span><span class="p p-Indicator">:</span>
-  <span class="l l-Scalar l-Scalar-Plain">beam_width</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-  <span class="l l-Scalar l-Scalar-Plain">sampling_topk</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
+  <span class="nt">beam_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">sampling_topk</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="n-best-list">
 <span id="n-best-list"></span><h2>N-best list<a class="headerlink" href="#n-best-list" title="Permalink to this headline">¶</a></h2>
 <p>A n-best list can be generated for models using beam search. You can configure it in your configuration file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">infer</span><span class="p p-Indicator">:</span>
-  <span class="l l-Scalar l-Scalar-Plain">n_best</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">infer</span><span class="p">:</span>
+  <span class="nt">n_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
 </pre></div>
 </div>
 <p>With this option, each input line will simply generate N consecutive lines in the output, ordered from best to worst.</p>
@@ -287,7 +287,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

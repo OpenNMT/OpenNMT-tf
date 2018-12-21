@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers.adafactor &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.optimizers.adafactor &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -177,8 +177,6 @@
 <span class="c1">#</span>
 <span class="c1"># Changes:</span>
 <span class="c1"># * prefix private functions with _</span>
-<span class="c1"># * rename var to handle in _resource_apply_dense</span>
-<span class="c1"># * override _resource_apply_sparse method</span>
 <span class="c1"># * add get_optimizer_from_params function</span>
 
 <span class="sd">&quot;&quot;&quot;Optimization.&quot;&quot;&quot;</span>
@@ -196,15 +194,17 @@
 <div class="viewcode-block" id="AdafactorOptimizer"><a class="viewcode-back" href="../../../package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.AdafactorOptimizer">[docs]</a><span class="k">class</span> <span class="nc">AdafactorOptimizer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Optimizer that implements the Adafactor algorithm.</span>
 
-<span class="sd">  Adafactor is described in TODO(noam): post paper to arxiv.</span>
+<span class="sd">  Adafactor is described in https://arxiv.org/abs/1804.04235.</span>
 
 <span class="sd">  Adafactor is most similar to Adam (Kingma and Ba), the major differences are:</span>
 
 <span class="sd">  1. For a two-dimensional AxB weight matrix, Adafactor uses only A+B auxiliary</span>
 <span class="sd">     parameters to maintain the second-moment estimator, instead of AB.</span>
-<span class="sd">     This is advantagous on memory-limited systems.  In addition, beta1</span>
+<span class="sd">     This is advantageous on memory-limited systems.  In addition, beta1</span>
 <span class="sd">     (momentum) is set to zero by default, saving an additional auxiliary</span>
-<span class="sd">     parameter per weight.</span>
+<span class="sd">     parameter per weight.  Variables with &gt;=3 dimensions are treated as</span>
+<span class="sd">     collections of two-dimensional matrices - factorization is over the final</span>
+<span class="sd">     two dimensions.</span>
 
 <span class="sd">  2. Adafactor incorporates &quot;update-clipping&quot; - a scale-invariant analog of</span>
 <span class="sd">     gradient clipping.  This adds stability</span>
@@ -222,7 +222,7 @@
 
 <span class="sd">    absolute_update_scale := relative_update_scale * parameter_scale</span>
 <span class="sd">    relative_update_scale := min((step_num + 1)**-0.5, 1e-2)</span>
-<span class="sd">    parameter_scale := max(rms(var)), 1e-3)</span>
+<span class="sd">    parameter_scale := max(rms(var)), epsilon2)</span>
 <span class="sd">    clip(x) := x / max(1.0, rms(x))</span>
 <span class="sd">    grad_scale := tf.sqrt(v)   (v is the second-moment estimator)</span>
 
@@ -232,21 +232,24 @@
 <span class="sd">  if var is 2-dimensional:</span>
 <span class="sd">    v_r &lt;- zeros([num_rows])</span>
 <span class="sd">    v_c &lt;- zeros([num_cols])</span>
-<span class="sd">  else:</span>
+<span class="sd">  if var is 0-dimensional or 1-dimensional:</span>
 <span class="sd">    v &lt;- zeros(shape(var))</span>
 <span class="sd">  ```</span>
 
 <span class="sd">  The update rule is as follows:</span>
 <span class="sd">  ```</span>
 <span class="sd">  decay_rate = 1 - (step_num + 1) ^ -0.8</span>
-<span class="sd">  grad_squared = tf.square(grad) + epsilon</span>
+<span class="sd">  grad_squared = tf.square(grad) + epsilon1</span>
 <span class="sd">  if var is 2-dimensional:</span>
 <span class="sd">    v_r &lt;- decay_rate * v_r + (1 - decay_rate) * reduce_mean(grad_squared, 1)</span>
 <span class="sd">    v_c &lt;- decay_rate * v_c + (1 - decay_rate) * reduce_mean(grad_squared, 0)</span>
 <span class="sd">    v = outer_prod(v_r, v_c) / reduce_mean(v_r)</span>
-<span class="sd">  else:</span>
+<span class="sd">  if var is 0-dimensional or 1-dimensional:</span>
 <span class="sd">    v &lt;- decay_rate * v + (1 - decay_rate) * grad_squared</span>
 <span class="sd">  ```</span>
+
+<span class="sd">  For variables with &gt;=3 dimensions, we factorize the second-moment accumulator</span>
+<span class="sd">  over the final 2 dimensions.  See the code for details.</span>
 
 
 <span class="sd">  Several parts of this algorithm are configurable from the initializer.</span>
@@ -265,8 +268,6 @@
 <span class="sd">    factored: whether to factor the second-moment estimator.  True means</span>
 <span class="sd">      less memory usage.</span>
 
-<span class="sd">  TODO(noam): we should also apply the 2d logic to the two final dimensions.</span>
-<span class="sd">    of &gt;2d convolutional kernels.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AdafactorOptimizer.__init__"><a class="viewcode-back" href="../../../package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.AdafactorOptimizer.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -277,7 +278,9 @@
                <span class="n">clipping_threshold</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                <span class="n">factored</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-               <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Adafactor&quot;</span><span class="p">):</span>
+               <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Adafactor&quot;</span><span class="p">,</span>
+               <span class="n">epsilon1</span><span class="o">=</span><span class="mf">1e-30</span><span class="p">,</span>
+               <span class="n">epsilon2</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Construct a new Adafactor optimizer.</span>
 
 <span class="sd">    See class comment.</span>
@@ -293,6 +296,8 @@
 <span class="sd">      use_locking: If True use locks for update operations.</span>
 <span class="sd">      name: Optional name for the operations created when applying gradients.</span>
 <span class="sd">        Defaults to &quot;AdafactorOptimizer&quot;.</span>
+<span class="sd">      epsilon1: Regularization constant for squared gradient.</span>
+<span class="sd">      epsilon2: Regularization constant for parameter scale.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      ValueError: if absolute_update_scale and relative_update_scale_fn are both</span>
@@ -308,7 +313,9 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_decay_rate</span> <span class="o">=</span> <span class="n">decay_rate</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span> <span class="o">=</span> <span class="n">beta1</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_clipping_threshold</span> <span class="o">=</span> <span class="n">clipping_threshold</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_factored</span> <span class="o">=</span> <span class="n">factored</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_factored</span> <span class="o">=</span> <span class="n">factored</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon1</span> <span class="o">=</span> <span class="n">epsilon1</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon2</span> <span class="o">=</span> <span class="n">epsilon2</span></div>
 
   <span class="k">def</span> <span class="nf">_should_use_factored_second_moment_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Should we use a factored second moment estimator.</span>
@@ -320,7 +327,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      a boolean</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_factored</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_factored</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span>
 
   <span class="k">def</span> <span class="nf">_create_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_list</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
@@ -328,18 +335,24 @@
       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zeros_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_use_factored_second_moment_estimate</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-        <span class="n">r_val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="n">c_val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">r_val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">c_val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_make_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">r_val</span><span class="p">,</span> <span class="s2">&quot;vr&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_make_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">c_val</span><span class="p">,</span> <span class="s2">&quot;vc&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_zeros_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="n">v_val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_make_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">v_val</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_apply_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_apply_dense</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_apply_sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_dense</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">grad</span><span class="p">),</span> <span class="n">var</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_resource_apply_sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_apply_dense</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">handle</span><span class="p">))),</span>
+        <span class="n">handle</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_parameter_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Estimate the scale of the parameters from the current values.</span>
@@ -355,15 +368,18 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      a Scalar</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">_reduce_rms</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> <span class="mf">0.001</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">_reduce_rms</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon2</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_resource_apply_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">handle</span><span class="p">):</span>
-    <span class="n">grad_squared</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-30</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">handle</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">grad_squared</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon1</span>
     <span class="n">grad_squared_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grad_squared</span><span class="p">)</span>
     <span class="n">decay_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decay_rate</span>
     <span class="n">update_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span>
+    <span class="n">old_val</span> <span class="o">=</span> <span class="n">var</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiply_by_parameter_scale</span><span class="p">:</span>
-      <span class="n">update_scale</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameter_scale</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+      <span class="n">update_scale</span> <span class="o">*=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameter_scale</span><span class="p">(</span><span class="n">old_val</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="c1"># HACK: Make things dependent on grad.</span>
     <span class="c1"># This confounds the XLA rewriter and keeps it from fusing computations</span>
     <span class="c1"># across different variables.  This fusion is a bad for HBM usage, since</span>
@@ -372,24 +388,24 @@
     <span class="n">update_scale</span> <span class="o">+=</span> <span class="n">grad_squared_mean</span> <span class="o">*</span> <span class="mf">1e-30</span>
     <span class="c1"># END HACK</span>
     <span class="n">mixing_rate</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">decay_rate</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
     <span class="n">updates</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_use_factored_second_moment_estimate</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-      <span class="n">grad_squared_row_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grad_squared</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-      <span class="n">grad_squared_col_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grad_squared</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-      <span class="n">vr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;vr&quot;</span><span class="p">)</span>
+      <span class="n">grad_squared_row_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grad_squared</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+      <span class="n">grad_squared_col_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grad_squared</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+      <span class="n">vr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;vr&quot;</span><span class="p">)</span>
       <span class="n">new_vr</span> <span class="o">=</span> <span class="p">(</span><span class="n">decay_rate</span> <span class="o">*</span> <span class="n">vr</span> <span class="o">+</span> <span class="n">mixing_rate</span> <span class="o">*</span> <span class="n">grad_squared_row_mean</span><span class="p">)</span>
-      <span class="n">vc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;vc&quot;</span><span class="p">)</span>
+      <span class="n">vc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;vc&quot;</span><span class="p">)</span>
       <span class="n">new_vc</span> <span class="o">=</span> <span class="p">(</span><span class="n">decay_rate</span> <span class="o">*</span> <span class="n">vc</span> <span class="o">+</span> <span class="n">mixing_rate</span> <span class="o">*</span> <span class="n">grad_squared_col_mean</span><span class="p">)</span>
       <span class="n">vr_update</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">vr</span><span class="p">,</span> <span class="n">new_vr</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
       <span class="n">vc_update</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span> <span class="n">new_vc</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
       <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="n">vr_update</span><span class="p">,</span> <span class="n">vc_update</span><span class="p">]</span>
-      <span class="n">long_term_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">new_vr</span><span class="p">)</span>
+      <span class="n">long_term_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">new_vr</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
       <span class="n">r_factor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">rsqrt</span><span class="p">(</span><span class="n">new_vr</span> <span class="o">/</span> <span class="n">long_term_mean</span><span class="p">)</span>
       <span class="n">c_factor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">rsqrt</span><span class="p">(</span><span class="n">new_vc</span><span class="p">)</span>
-      <span class="n">x</span> <span class="o">=</span> <span class="n">grad</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">r_factor</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">c_factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="n">grad</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">r_factor</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">c_factor</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">)</span>
+      <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">)</span>
       <span class="n">new_v</span> <span class="o">=</span> <span class="n">decay_rate</span> <span class="o">*</span> <span class="n">v</span> <span class="o">+</span> <span class="n">mixing_rate</span> <span class="o">*</span> <span class="n">grad_squared</span>
       <span class="n">v_update</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
       <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="n">v_update</span><span class="p">]</span>
@@ -399,16 +415,15 @@
       <span class="n">x</span> <span class="o">/=</span> <span class="n">clipping_denom</span>
     <span class="n">subtrahend</span> <span class="o">=</span> <span class="n">update_scale</span> <span class="o">*</span> <span class="n">x</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span><span class="p">:</span>
-      <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span>
-      <span class="n">new_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">subtrahend</span>
-      <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">new_m</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">))</span>
+      <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span>
+      <span class="n">new_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">subtrahend</span>
       <span class="n">subtrahend</span> <span class="o">=</span> <span class="n">new_m</span>
-    <span class="n">var_update</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign_sub</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">subtrahend</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+      <span class="n">new_m</span> <span class="o">=</span> <span class="n">common_layers</span><span class="o">.</span><span class="n">cast_like</span><span class="p">(</span><span class="n">new_m</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+      <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">new_m</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">))</span>
+    <span class="n">new_val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">old_val</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-</span> <span class="n">subtrahend</span>
+    <span class="n">var_update</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">new_val</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
     <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="n">var_update</span><span class="p">]</span> <span class="o">+</span> <span class="n">updates</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="o">*</span><span class="n">updates</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">_resource_apply_sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
   <span class="k">def</span> <span class="nf">_decay_rate_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">adafactor_decay_rate_pow</span><span class="p">(</span><span class="mf">0.8</span><span class="p">)</span>
@@ -521,7 +536,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

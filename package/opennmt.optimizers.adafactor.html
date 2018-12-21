@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers.adafactor module &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.optimizers.adafactor module &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -188,17 +188,19 @@
 <p>Optimization.</p>
 <dl class="class">
 <dt id="opennmt.optimizers.adafactor.AdafactorOptimizer">
-<em class="property">class </em><code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">AdafactorOptimizer</code><span class="sig-paren">(</span><em>multiply_by_parameter_scale=True</em>, <em>learning_rate=None</em>, <em>decay_rate=None</em>, <em>beta1=0.0</em>, <em>clipping_threshold=1.0</em>, <em>factored=True</em>, <em>use_locking=False</em>, <em>name='Adafactor'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#AdafactorOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.AdafactorOptimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.optimizers.adafactor.</code><code class="descname">AdafactorOptimizer</code><span class="sig-paren">(</span><em>multiply_by_parameter_scale=True</em>, <em>learning_rate=None</em>, <em>decay_rate=None</em>, <em>beta1=0.0</em>, <em>clipping_threshold=1.0</em>, <em>factored=True</em>, <em>use_locking=False</em>, <em>name='Adafactor'</em>, <em>epsilon1=1e-30</em>, <em>epsilon2=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#AdafactorOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.AdafactorOptimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.training.optimizer.Optimizer</span></code></p>
 <p>Optimizer that implements the Adafactor algorithm.</p>
-<p>Adafactor is described in TODO(noam): post paper to arxiv.</p>
+<p>Adafactor is described in <a class="reference external" href="https://arxiv.org/abs/1804.04235">https://arxiv.org/abs/1804.04235</a>.</p>
 <p>Adafactor is most similar to Adam (Kingma and Ba), the major differences are:</p>
 <ol class="arabic simple">
 <li>For a two-dimensional AxB weight matrix, Adafactor uses only A+B auxiliary
 parameters to maintain the second-moment estimator, instead of AB.
-This is advantagous on memory-limited systems.  In addition, beta1
+This is advantageous on memory-limited systems.  In addition, beta1
 (momentum) is set to zero by default, saving an additional auxiliary
-parameter per weight.</li>
+parameter per weight.  Variables with &gt;=3 dimensions are treated as
+collections of two-dimensional matrices - factorization is over the final
+two dimensions.</li>
 <li>Adafactor incorporates “update-clipping” - a scale-invariant analog of
 gradient clipping.  This adds stability</li>
 <li>Adafactor does not require an external “learning rate”.  By default, it
@@ -212,7 +214,7 @@ for most applications.</li>
 <blockquote>
 <div>absolute_update_scale := relative_update_scale * parameter_scale
 relative_update_scale := min((step_num + 1)**-0.5, 1e-2)
-parameter_scale := max(rms(var)), 1e-3)
+parameter_scale := max(rms(var)), epsilon2)
 clip(x) := x / max(1.0, rms(x))
 grad_scale := tf.sqrt(v)   (v is the second-moment estimator)</div></blockquote>
 <p>The second-moment estimator v is maintained in a manner similar to Adam:
@@ -223,24 +225,26 @@ if var is 2-dimensional:</p>
 <div>v_r &lt;- zeros([num_rows])
 v_c &lt;- zeros([num_cols])</div></blockquote>
 <dl class="docutils">
-<dt>else:</dt>
+<dt>if var is 0-dimensional or 1-dimensional:</dt>
 <dd>v &lt;- zeros(shape(var))</dd>
 </dl>
 <p><a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a></p>
 <p>The update rule is as follows:
 <a href="#id7"><span class="problematic" id="id8">``</span></a>`
 decay_rate = 1 - (step_num + 1) ^ -0.8
-grad_squared = tf.square(grad) + epsilon
+grad_squared = tf.square(grad) + epsilon1
 if var is 2-dimensional:</p>
 <blockquote>
 <div>v_r &lt;- decay_rate * v_r + (1 - decay_rate) * reduce_mean(grad_squared, 1)
 v_c &lt;- decay_rate * v_c + (1 - decay_rate) * reduce_mean(grad_squared, 0)
 v = outer_prod(v_r, v_c) / reduce_mean(v_r)</div></blockquote>
 <dl class="docutils">
-<dt>else:</dt>
+<dt>if var is 0-dimensional or 1-dimensional:</dt>
 <dd>v &lt;- decay_rate * v + (1 - decay_rate) * grad_squared</dd>
 </dl>
 <p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a></p>
+<p>For variables with &gt;=3 dimensions, we factorize the second-moment accumulator
+over the final 2 dimensions.  See the code for details.</p>
 <p>Several parts of this algorithm are configurable from the initializer.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -260,13 +264,9 @@ factored: whether to factor the second-moment estimator.  True means</p>
 <blockquote>
 <div>less memory usage.</div></blockquote>
 </div></blockquote>
-<dl class="docutils">
-<dt>TODO(noam): we should also apply the 2d logic to the two final dimensions.</dt>
-<dd>of &gt;2d convolutional kernels.</dd>
-</dl>
 <dl class="method">
 <dt id="opennmt.optimizers.adafactor.AdafactorOptimizer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>multiply_by_parameter_scale=True</em>, <em>learning_rate=None</em>, <em>decay_rate=None</em>, <em>beta1=0.0</em>, <em>clipping_threshold=1.0</em>, <em>factored=True</em>, <em>use_locking=False</em>, <em>name='Adafactor'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#AdafactorOptimizer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.AdafactorOptimizer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>multiply_by_parameter_scale=True</em>, <em>learning_rate=None</em>, <em>decay_rate=None</em>, <em>beta1=0.0</em>, <em>clipping_threshold=1.0</em>, <em>factored=True</em>, <em>use_locking=False</em>, <em>name='Adafactor'</em>, <em>epsilon1=1e-30</em>, <em>epsilon2=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/optimizers/adafactor.html#AdafactorOptimizer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.optimizers.adafactor.AdafactorOptimizer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a new Adafactor optimizer.</p>
 <p>See class comment.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -284,6 +284,8 @@ for 2d variables</li>
 <li><strong>use_locking</strong> – If True use locks for update operations.</li>
 <li><strong>name</strong> – Optional name for the operations created when applying gradients.
 Defaults to “AdafactorOptimizer”.</li>
+<li><strong>epsilon1</strong> – Regularization constant for squared gradient.</li>
+<li><strong>epsilon2</strong> – Regularization constant for parameter scale.</li>
 </ul>
 </td>
 </tr>
@@ -397,7 +399,7 @@ callable that takes the learning rate as argument and return an instance.</p>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

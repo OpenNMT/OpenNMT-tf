@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>Quickstart &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -195,15 +195,15 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </pre></div>
 </div>
 <p>Then, the data files should be declared in a <strong>YAML configuration file</strong>, let’s name it <code class="docutils literal notranslate"><span class="pre">data.yml</span></code>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">model_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">run/</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">run/</span>
 
-<span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
-  <span class="l l-Scalar l-Scalar-Plain">train_features_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">src-train.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">train_labels_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt-train.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">eval_features_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">src-val.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">eval_labels_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt-val.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">source_words_vocabulary</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">src-vocab.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">target_words_vocabulary</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt-vocab.txt</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src-train.txt</span>
+  <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt-train.txt</span>
+  <span class="nt">eval_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src-val.txt</span>
+  <span class="nt">eval_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt-val.txt</span>
+  <span class="nt">source_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src-vocab.txt</span>
+  <span class="nt">target_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt-vocab.txt</span>
 </pre></div>
 </div>
 </div>
@@ -283,7 +283,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -179,6 +179,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">hooks</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="n">misc</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.evaluator</span> <span class="k">import</span> <span class="n">external_evaluation_fn</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">OrderRestorer</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.parallel</span> <span class="k">import</span> <span class="n">get_devices</span>
 
 
 <span class="c1"># These options require a value but we can fallback to a default one.</span>
@@ -276,18 +277,16 @@
         <span class="n">session_config</span><span class="o">=</span><span class="n">session_config</span><span class="p">,</span>
         <span class="n">tf_random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 
-    <span class="c1"># Create a first session to enforce GPU options.</span>
-    <span class="c1"># See https://github.com/OpenNMT/OpenNMT-tf/issues/80.</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">session_config</span><span class="p">)</span>
-
     <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;train&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">:</span>
       <span class="k">if</span> <span class="s2">&quot;save_summary_steps&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]:</span>
+        <span class="n">accum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gradients_accum&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">summary_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;save_summary_steps&quot;</span><span class="p">]</span>
         <span class="n">run_config</span> <span class="o">=</span> <span class="n">run_config</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="n">save_summary_steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;save_summary_steps&quot;</span><span class="p">],</span>
-            <span class="n">log_step_count_steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;save_summary_steps&quot;</span><span class="p">])</span>
+            <span class="n">save_summary_steps</span><span class="o">=</span><span class="n">summary_steps</span><span class="p">,</span>
+            <span class="n">log_step_count_steps</span><span class="o">=</span><span class="n">accum</span> <span class="o">*</span> <span class="n">summary_steps</span><span class="p">)</span>
       <span class="k">if</span> <span class="s2">&quot;save_checkpoints_steps&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]:</span>
         <span class="n">run_config</span> <span class="o">=</span> <span class="n">run_config</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
             <span class="n">save_checkpoints_secs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -296,10 +295,11 @@
         <span class="n">run_config</span> <span class="o">=</span> <span class="n">run_config</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
             <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">])</span>
 
+    <span class="n">devices</span> <span class="o">=</span> <span class="n">get_devices</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span> <span class="n">session_config</span><span class="o">=</span><span class="n">session_config</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">Estimator</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">model_fn</span><span class="p">(</span>
-            <span class="n">num_devices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_devices</span><span class="p">,</span>
-            <span class="n">eval_prediction_hooks_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_prediction_hooks_fn</span><span class="p">()),</span>
+            <span class="n">eval_prediction_hooks_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_prediction_hooks_fn</span><span class="p">(),</span>
+            <span class="n">devices</span><span class="o">=</span><span class="n">devices</span><span class="p">),</span>
         <span class="n">config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
         <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span></div>
 
@@ -675,7 +675,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Configuration &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>Configuration &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -203,19 +203,19 @@
 <div class="section" id="parameters">
 <span id="parameters"></span><h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <p>Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference. It uses the following layout:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">model_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">path_to_the_model_directory</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">path_to_the_model_directory</span>
 
-<span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
+<span class="nt">data</span><span class="p">:</span>
   <span class="c1"># Data configuration (training and evaluation files, vocabularies, alignments, etc.)</span>
-<span class="l l-Scalar l-Scalar-Plain">params</span><span class="p p-Indicator">:</span>
+<span class="nt">params</span><span class="p">:</span>
   <span class="c1"># Training and inference hyperparameters (learning rate, optimizer, beam size, etc.)</span>
-<span class="l l-Scalar l-Scalar-Plain">train</span><span class="p p-Indicator">:</span>
+<span class="nt">train</span><span class="p">:</span>
   <span class="c1"># Training specific configuration (checkpoint frequency, number of training step, etc.)</span>
-<span class="l l-Scalar l-Scalar-Plain">eval</span><span class="p p-Indicator">:</span>
+<span class="nt">eval</span><span class="p">:</span>
   <span class="c1"># Evaluation specific configuration (evaluation frequency, external evaluators.)</span>
-<span class="l l-Scalar l-Scalar-Plain">infer</span><span class="p p-Indicator">:</span>
+<span class="nt">infer</span><span class="p">:</span>
   <span class="c1"># Inference specific configuration (output scores, alignments, etc.)</span>
-<span class="l l-Scalar l-Scalar-Plain">score</span><span class="p p-Indicator">:</span>
+<span class="nt">score</span><span class="p">:</span>
   <span class="c1"># Scoring specific configuration</span>
 </pre></div>
 </div>
@@ -309,7 +309,7 @@ gpu_options {
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

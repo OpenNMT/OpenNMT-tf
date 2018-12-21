@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference: Configuration &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>Reference: Configuration &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -164,219 +164,219 @@
   <div class="section" id="reference-configuration">
 <span id="reference-configuration"></span><h1>Reference: Configuration<a class="headerlink" href="#reference-configuration" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># The directory where models and summaries will be saved. It is created if it does not exist.</span>
-<span class="l l-Scalar l-Scalar-Plain">model_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">toy-ende</span>
+<span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">toy-ende</span>
 
-<span class="l l-Scalar l-Scalar-Plain">data</span><span class="p p-Indicator">:</span>
+<span class="nt">data</span><span class="p">:</span>
   <span class="c1"># (required for train_and_eval and train run types).</span>
-  <span class="l l-Scalar l-Scalar-Plain">train_features_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-train.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">train_labels_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-train.txt</span>
+  <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-train.txt</span>
+  <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-train.txt</span>
 
   <span class="c1"># (optional) Pharaoh alignments of the training files.</span>
-  <span class="l l-Scalar l-Scalar-Plain">train_alignments</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/alignments-train.txt</span>
+  <span class="nt">train_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/alignments-train.txt</span>
 
   <span class="c1"># (required for train_end_eval and eval run types).</span>
-  <span class="l l-Scalar l-Scalar-Plain">eval_features_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-val.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">eval_labels_file</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-val.txt</span>
+  <span class="nt">eval_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-val.txt</span>
+  <span class="nt">eval_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-val.txt</span>
 
   <span class="c1"># (optional) Models may require additional resource files (e.g. vocabularies).</span>
-  <span class="l l-Scalar l-Scalar-Plain">source_words_vocabulary</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-vocab.txt</span>
-  <span class="l l-Scalar l-Scalar-Plain">target_words_vocabulary</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-vocab.txt</span>
+  <span class="nt">source_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-vocab.txt</span>
+  <span class="nt">target_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-vocab.txt</span>
 
 
 <span class="c1"># Model and optimization parameters.</span>
-<span class="l l-Scalar l-Scalar-Plain">params</span><span class="p p-Indicator">:</span>
+<span class="nt">params</span><span class="p">:</span>
   <span class="c1"># The optimizer class name in tf.train, tf.contrib.opt, or opennmt.optimizers.</span>
-  <span class="l l-Scalar l-Scalar-Plain">optimizer</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">AdamOptimizer</span>
+  <span class="nt">optimizer</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AdamOptimizer</span>
   <span class="c1"># (optional) Additional optimizer parameters as defined in their documentation.</span>
-  <span class="l l-Scalar l-Scalar-Plain">optimizer_params</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">beta1</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8</span>
-    <span class="l l-Scalar l-Scalar-Plain">beta2</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.998</span>
-  <span class="l l-Scalar l-Scalar-Plain">learning_rate</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+  <span class="nt">optimizer_params</span><span class="p">:</span>
+    <span class="nt">beta1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8</span>
+    <span class="nt">beta2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.998</span>
+  <span class="nt">learning_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
 
   <span class="c1"># (optional) Global parameter initialization [-param_init, param_init].</span>
-  <span class="l l-Scalar l-Scalar-Plain">param_init</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
+  <span class="nt">param_init</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
 
   <span class="c1"># (optional) Maximum gradients norm (default: None).</span>
-  <span class="l l-Scalar l-Scalar-Plain">clip_gradients</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
+  <span class="nt">clip_gradients</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
   <span class="c1"># (optional) 1 training step will process this many batches and accumulates</span>
   <span class="c1"># their gradients (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">gradients_accum</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">gradients_accum</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) For mixed precision training, the loss scaling to apply (a constant value or</span>
   <span class="c1"># an automatic scaling algorithm: &quot;backoff&quot;, &quot;logmax&quot;, default: &quot;backoff&quot;)</span>
-  <span class="l l-Scalar l-Scalar-Plain">loss_scale</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backoff</span>
+  <span class="nt">loss_scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">backoff</span>
   <span class="c1"># (optional) For mixed precision training, the additional parameters to pass the loss scale</span>
   <span class="c1"># (see the source file opennmt/optimizers/mixed_precision_wrapper.py).</span>
-  <span class="l l-Scalar l-Scalar-Plain">loss_scale_params</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">scale_min</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
-    <span class="l l-Scalar l-Scalar-Plain">step_factor</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+  <span class="nt">loss_scale_params</span><span class="p">:</span>
+    <span class="nt">scale_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+    <span class="nt">step_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
 
   <span class="c1"># (optional) Weights regularization penalty (default: null).</span>
-  <span class="l l-Scalar l-Scalar-Plain">regularization</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">l2</span>  <span class="c1"># can be &quot;l1&quot;, &quot;l2&quot;, &quot;l1_l2&quot; (case-insensitive).</span>
-    <span class="l l-Scalar l-Scalar-Plain">scale</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-4</span>  <span class="c1"># if using &quot;l1_l2&quot; regularization, this should be a YAML list.</span>
+  <span class="nt">regularization</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">l2</span>  <span class="c1"># can be &quot;l1&quot;, &quot;l2&quot;, &quot;l1_l2&quot; (case-insensitive).</span>
+    <span class="nt">scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-4</span>  <span class="c1"># if using &quot;l1_l2&quot; regularization, this should be a YAML list.</span>
 
   <span class="c1"># (optional) Average loss in the time dimension in addition to the batch dimension (default: False).</span>
-  <span class="l l-Scalar l-Scalar-Plain">average_loss_in_time</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">average_loss_in_time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) The type of learning rate decay (default: None). See:</span>
   <span class="c1">#  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate</span>
   <span class="c1">#  * opennmt/utils/decay.py</span>
   <span class="c1"># This value may change the semantics of other decay options. See the documentation or the code.</span>
-  <span class="l l-Scalar l-Scalar-Plain">decay_type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">exponential_decay</span>
+  <span class="nt">decay_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">exponential_decay</span>
   <span class="c1"># (optional unless decay_type is set) The learning rate decay rate.</span>
-  <span class="l l-Scalar l-Scalar-Plain">decay_rate</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.7</span>
+  <span class="nt">decay_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.7</span>
   <span class="c1"># (optional unless decay_type is set) Decay every this many steps.</span>
-  <span class="l l-Scalar l-Scalar-Plain">decay_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>
+  <span class="nt">decay_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>
   <span class="c1"># (optional) The number of training steps that make 1 decay step (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">decay_step_duration</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">decay_step_duration</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) If true, the learning rate is decayed in a staircase fashion (default: True).</span>
-  <span class="l l-Scalar l-Scalar-Plain">staircase</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">staircase</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
   <span class="c1"># (optional) After how many steps to start the decay (default: 0).</span>
-  <span class="l l-Scalar l-Scalar-Plain">start_decay_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">50000</span>
+  <span class="nt">start_decay_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50000</span>
 
   <span class="c1"># (optional) Stop decay when this learning rate value is reached (default: 0).</span>
-  <span class="l l-Scalar l-Scalar-Plain">minimum_learning_rate</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0001</span>
+  <span class="nt">minimum_learning_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0001</span>
 
   <span class="c1"># (optional) Type of scheduled sampling (can be &quot;constant&quot;, &quot;linear&quot;, &quot;exponential&quot;,</span>
   <span class="c1"># or &quot;inverse_sigmoid&quot;, default: &quot;constant&quot;).</span>
-  <span class="l l-Scalar l-Scalar-Plain">scheduled_sampling_type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">constant</span>
+  <span class="nt">scheduled_sampling_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">constant</span>
   <span class="c1"># (optional) Probability to read directly from the inputs instead of sampling categorically</span>
   <span class="c1"># from the output ids (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">scheduled_sampling_read_probability</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">scheduled_sampling_read_probability</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional unless scheduled_sampling_type is set) The constant k of the schedule.</span>
-  <span class="l l-Scalar l-Scalar-Plain">scheduled_sampling_k</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+  <span class="nt">scheduled_sampling_k</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
 
   <span class="c1"># (optional) The label smoothing value.</span>
-  <span class="l l-Scalar l-Scalar-Plain">label_smoothing</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
+  <span class="nt">label_smoothing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
 
   <span class="c1"># (optional) Width of the beam search (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">beam_width</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+  <span class="nt">beam_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
   <span class="c1"># (optional) Length penaly weight to apply on hypotheses (default: 0).</span>
-  <span class="l l-Scalar l-Scalar-Plain">length_penalty</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>
+  <span class="nt">length_penalty</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>
   <span class="c1"># (optional) Sample predictions from the top K most likely tokens (requires</span>
   <span class="c1"># beam_width to 1). If 0, sample from the full output distribution (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">sampling_topk</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">sampling_topk</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) Minimum length of decoded sequences, end token excluded (default: 0).</span>
-  <span class="l l-Scalar l-Scalar-Plain">minimum_decoding_length</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+  <span class="nt">minimum_decoding_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
   <span class="c1"># (optional) Maximum decoding iterations before stopping (default: 250).</span>
-  <span class="l l-Scalar l-Scalar-Plain">maximum_iterations</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">200</span>
+  <span class="nt">maximum_iterations</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200</span>
 
   <span class="c1"># (optional) Replace unknown target tokens by the original source token with the</span>
   <span class="c1"># highest attention (default: false).</span>
-  <span class="l l-Scalar l-Scalar-Plain">replace_unknown_target</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">replace_unknown_target</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) The type of guided alignment cost to compute (can be: &quot;null&quot;, &quot;ce&quot;, &quot;mse&quot;,</span>
   <span class="c1"># default: &quot;null&quot;).</span>
-  <span class="l l-Scalar l-Scalar-Plain">guided_alignment_type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">guided_alignment_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
   <span class="c1"># (optional) The weight of the guided alignment cost (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">guided_alignment_weight</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">guided_alignment_weight</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
 
 <span class="c1"># Training options.</span>
-<span class="l l-Scalar l-Scalar-Plain">train</span><span class="p p-Indicator">:</span>
-  <span class="l l-Scalar l-Scalar-Plain">batch_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="nt">train</span><span class="p">:</span>
+  <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
   <span class="c1"># (optional) Batch size is the number of &quot;examples&quot; or &quot;tokens&quot; (default: &quot;examples&quot;).</span>
-  <span class="l l-Scalar l-Scalar-Plain">batch_type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">examples</span>
+  <span class="nt">batch_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">examples</span>
 
   <span class="c1"># (optional) Save a checkpoint every this many steps.</span>
-  <span class="l l-Scalar l-Scalar-Plain">save_checkpoints_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+  <span class="nt">save_checkpoints_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
   <span class="c1"># (optional) How many checkpoints to keep on disk.</span>
-  <span class="l l-Scalar l-Scalar-Plain">keep_checkpoint_max</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+  <span class="nt">keep_checkpoint_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
 
   <span class="c1"># (optional) Save summaries every this many steps.</span>
-  <span class="l l-Scalar l-Scalar-Plain">save_summary_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
+  <span class="nt">save_summary_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
 
   <span class="c1"># (optional) Train for this many steps. If not set, train forever.</span>
-  <span class="l l-Scalar l-Scalar-Plain">train_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1000000</span>
+  <span class="nt">train_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000000</span>
   <span class="c1"># (optional) If true, makes a single pass over the training data (default: false).</span>
-  <span class="l l-Scalar l-Scalar-Plain">single_pass</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">single_pass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) The maximum length of feature sequences during training (default: None).</span>
-  <span class="l l-Scalar l-Scalar-Plain">maximum_features_length</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
+  <span class="nt">maximum_features_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
   <span class="c1"># (optional) The maximum length of label sequences during training (default: None).</span>
-  <span class="l l-Scalar l-Scalar-Plain">maximum_labels_length</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
+  <span class="nt">maximum_labels_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
 
   <span class="c1"># (optional) The width of the length buckets to select batch candidates from (default: 5).</span>
-  <span class="l l-Scalar l-Scalar-Plain">bucket_width</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+  <span class="nt">bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
 
   <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 4).</span>
-  <span class="l l-Scalar l-Scalar-Plain">num_threads</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
   <span class="c1"># (optional) The number of batches to prefetch asynchronously. If not set, use an</span>
   <span class="c1"># automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).</span>
-  <span class="l l-Scalar l-Scalar-Plain">prefetch_buffer_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 
   <span class="c1"># (optional) The number of elements from which to sample during shuffling (default: 500000).</span>
   <span class="c1"># Set 0 or null to disable shuffling, -1 to match the number of training examples.</span>
-  <span class="l l-Scalar l-Scalar-Plain">sample_buffer_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">500000</span>
+  <span class="nt">sample_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500000</span>
 
   <span class="c1"># (optional) Number of checkpoints to average at the end of the training to the directory</span>
   <span class="c1"># model_dir/avg (default: 0).</span>
-  <span class="l l-Scalar l-Scalar-Plain">average_last_checkpoints</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+  <span class="nt">average_last_checkpoints</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
 
 
 <span class="c1"># (optional) Evaluation options.</span>
-<span class="l l-Scalar l-Scalar-Plain">eval</span><span class="p p-Indicator">:</span>
+<span class="nt">eval</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 32).</span>
-  <span class="l l-Scalar l-Scalar-Plain">batch_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
+  <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
 
   <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">num_threads</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">prefetch_buffer_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) Evaluate every this many seconds (default: 18000).</span>
-  <span class="l l-Scalar l-Scalar-Plain">eval_delay</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">7200</span>
+  <span class="nt">eval_delay</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">7200</span>
 
   <span class="c1"># (optional) Save evaluation predictions in model_dir/eval/.</span>
-  <span class="l l-Scalar l-Scalar-Plain">save_eval_predictions</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">save_eval_predictions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.</span>
   <span class="c1"># Available evaluators: BLEU, BLEU-detok, ROUGE</span>
-  <span class="l l-Scalar l-Scalar-Plain">external_evaluators</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">BLEU</span>
+  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">BLEU</span>
 
   <span class="c1"># (optional) Model exporter(s) to use during the training and evaluation loop:</span>
   <span class="c1"># last, final, best, or null (default: last).</span>
-  <span class="l l-Scalar l-Scalar-Plain">exporters</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">last</span>
+  <span class="nt">exporters</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">last</span>
 
 
 <span class="c1"># (optional) Inference options.</span>
-<span class="l l-Scalar l-Scalar-Plain">infer</span><span class="p p-Indicator">:</span>
+<span class="nt">infer</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">batch_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+  <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
 
   <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
   <span class="c1"># If set, the test data will be sorted by length to increase the translation</span>
   <span class="c1"># efficiency. The predictions will still be outputted in order as they are</span>
   <span class="c1"># available (default: 0).</span>
-  <span class="l l-Scalar l-Scalar-Plain">bucket_width</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+  <span class="nt">bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
 
   <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">num_threads</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">prefetch_buffer_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) For compatible models, the number of hypotheses to output (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">n_best</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">n_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) For compatible models, also output the score (default: false).</span>
-  <span class="l l-Scalar l-Scalar-Plain">with_scores</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">with_scores</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) For compatible models, also output the alignments (can be: &quot;null&quot;, &quot;hard&quot;,</span>
   <span class="c1"># default: &quot;null&quot;).</span>
-  <span class="l l-Scalar l-Scalar-Plain">with_alignments</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">with_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 
 
 <span class="c1"># (optional) Scoring options.</span>
-<span class="l l-Scalar l-Scalar-Plain">score</span><span class="p p-Indicator">:</span>
+<span class="nt">score</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 64).</span>
-  <span class="l l-Scalar l-Scalar-Plain">batch_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
+  <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
   <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">num_threads</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="l l-Scalar l-Scalar-Plain">prefetch_buffer_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) Also report token-level cross entropy.</span>
-  <span class="l l-Scalar l-Scalar-Plain">with_token_level</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">with_token_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Also output the alignments (can be: &quot;null&quot;, &quot;hard&quot;, default: &quot;null&quot;).</span>
-  <span class="l l-Scalar l-Scalar-Plain">with_alignments</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">with_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 </pre></div>
 </div>
 </div>
@@ -424,7 +424,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

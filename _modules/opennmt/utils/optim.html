@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -428,18 +428,19 @@
 
   <span class="n">regularization_type</span> <span class="o">=</span> <span class="n">regularization_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
   <span class="k">if</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
-    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">l1_regularizer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
   <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
-    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">l2_regularizer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l2</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
   <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1_l2&quot;</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;l1_l2 regularization requires 2 scale values&quot;</span><span class="p">)</span>
-    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">l1_l2_regularizer</span><span class="p">(</span>
-        <span class="n">scale_l1</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">scale_l2</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l1_l2</span><span class="p">(</span>
+        <span class="n">l1</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">l2</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid regularization type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">regularization_type</span><span class="p">)</span>
 
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">apply_regularization</span><span class="p">(</span><span class="n">regularizer</span><span class="p">,</span> <span class="n">weights_list</span><span class="o">=</span><span class="n">weights_list</span><span class="p">)</span></div>
+  <span class="n">penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">([</span><span class="n">regularizer</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights_list</span><span class="p">])</span>
+  <span class="k">return</span> <span class="n">penalty</span></div>
 
 <span class="k">def</span> <span class="nf">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">clip_gradients</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Clips gradients by global norm.&quot;&quot;&quot;</span>
@@ -485,7 +486,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

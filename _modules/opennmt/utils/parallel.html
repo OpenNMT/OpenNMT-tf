@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.parallel &mdash; OpenNMT-tf 1.15.0 documentation</title>
+  <title>opennmt.utils.parallel &mdash; OpenNMT-tf 1.16.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.15
+                1.16
               </div>
             
           
@@ -167,6 +167,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">tensorflow.python.client</span> <span class="k">import</span> <span class="n">device_lib</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.estimator.util</span> <span class="k">import</span> <span class="n">fn_args</span>
 
 
 <div class="viewcode-block" id="GraphDispatcher"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher">[docs]</a><span class="k">class</span> <span class="nc">GraphDispatcher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -174,30 +175,33 @@
 <span class="sd">  sharded batches.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="GraphDispatcher.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="p">,</span> <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphDispatcher.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_devices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">devices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">session_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the dispatcher.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      num_devices: The number of devices to dispatch on.</span>
 <span class="sd">      daisy_chain_variables: If ``True``, variables are copied in a daisy chain</span>
 <span class="sd">        fashion between devices (credits to Tensor2Tensor).</span>
+<span class="sd">      devices: List of devices to use (takes priority over :obj:`num_devices`).</span>
+<span class="sd">      session_config: Session configuration to use when querying available</span>
+<span class="sd">        devices.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      ValueError: if the number of visible devices is lower than</span>
 <span class="sd">        :obj:`num_devices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">devices</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">device_lib</span><span class="o">.</span><span class="n">list_local_devices</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">device_type</span> <span class="o">==</span> <span class="s2">&quot;GPU&quot;</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_daisy_chain_variables</span> <span class="o">=</span> <span class="n">daisy_chain_variables</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">devices</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="mi">1</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_devices</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only </span><span class="si">%d</span><span class="s2"> devices are visible but </span><span class="si">%d</span><span class="s2"> were requested&quot;</span>
-                       <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">),</span> <span class="n">num_devices</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">devices</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">devices</span>
+    <span class="k">elif</span> <span class="n">num_devices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">get_devices</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span> <span class="n">session_config</span><span class="o">=</span><span class="n">session_config</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="n">num_devices</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">devices</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">]</span></div>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_daisy_chain_variables</span> <span class="o">=</span> <span class="n">daisy_chain_variables</span></div>
 
 <div class="viewcode-block" id="GraphDispatcher.shard"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.shard">[docs]</a>  <span class="k">def</span> <span class="nf">shard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Shards a structure of ``tf.Tensor`` for dispatching.</span>
@@ -340,6 +344,38 @@
       <span class="n">data_shards</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_shards</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">data_shards</span></div>
+
+<div class="viewcode-block" id="get_devices"><a class="viewcode-back" href="../../../package/opennmt.utils.parallel.html#opennmt.utils.parallel.get_devices">[docs]</a><span class="k">def</span> <span class="nf">get_devices</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns available devices.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    num_devices: The number of devices to get.</span>
+<span class="sd">    session_config: An optional session configuration to use when querying</span>
+<span class="sd">      available devices.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A list of devices.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`num_devices` is set but the number of visible devices</span>
+<span class="sd">      is lower than it.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">if</span> <span class="s2">&quot;session_config&quot;</span> <span class="ow">in</span> <span class="n">fn_args</span><span class="p">(</span><span class="n">device_lib</span><span class="o">.</span><span class="n">list_local_devices</span><span class="p">):</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;session_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_config</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Create a first session to enforce config, otherwise list_local_devices()</span>
+    <span class="c1"># will run some initialization with default options.</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">session_config</span><span class="p">)</span>
+  <span class="n">devices</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">device_lib</span><span class="o">.</span><span class="n">list_local_devices</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">device_type</span> <span class="o">==</span> <span class="s2">&quot;GPU&quot;</span><span class="p">]</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">devices</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+  <span class="k">elif</span> <span class="n">num_devices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">devices</span>
+  <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_devices</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only </span><span class="si">%d</span><span class="s2"> devices are visible but </span><span class="si">%d</span><span class="s2"> were requested&quot;</span>
+                     <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">),</span> <span class="n">num_devices</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">devices</span><span class="p">[:</span><span class="n">num_devices</span><span class="p">]</span></div>
 </pre></div>
 
            </div>
@@ -375,7 +411,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.15.0',
+              VERSION:'1.16.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
