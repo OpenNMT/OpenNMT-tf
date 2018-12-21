@@ -5,6 +5,7 @@ import six
 import tensorflow as tf
 
 from tensorflow.python.client import device_lib
+from tensorflow.python.estimator.util import fn_args
 
 
 class GraphDispatcher(object):
@@ -12,30 +13,33 @@ class GraphDispatcher(object):
   sharded batches.
   """
 
-  def __init__(self, num_devices, daisy_chain_variables=True):
+  def __init__(self,
+               num_devices=None,
+               daisy_chain_variables=True,
+               devices=None,
+               session_config=None):
     """Initializes the dispatcher.
 
     Args:
       num_devices: The number of devices to dispatch on.
       daisy_chain_variables: If ``True``, variables are copied in a daisy chain
         fashion between devices (credits to Tensor2Tensor).
+      devices: List of devices to use (takes priority over :obj:`num_devices`).
+      session_config: Session configuration to use when querying available
+        devices.
 
     Raises:
       ValueError: if the number of visible devices is lower than
         :obj:`num_devices`.
     """
-    devices = [x.name for x in device_lib.list_local_devices() if x.device_type == "GPU"]
-    self._daisy_chain_variables = daisy_chain_variables
-
-    if not devices:
-      self._n = 1
-      self._devices = [None]
-    elif len(devices) < num_devices:
-      raise ValueError("Only %d devices are visible but %d were requested"
-                       % (len(devices), num_devices))
+    if devices:
+      self._devices = devices
+    elif num_devices is not None:
+      self._devices = get_devices(num_devices=num_devices, session_config=session_config)
     else:
-      self._n = num_devices
-      self._devices = devices[:self._n]
+      self._devices = [None]
+    self._n = len(self._devices)
+    self._daisy_chain_variables = daisy_chain_variables
 
   def shard(self, data):
     """Shards a structure of ``tf.Tensor`` for dispatching.
@@ -178,3 +182,35 @@ def split_batch(data, num_shards):
       data_shards = tf.split(data, num_shards)
 
   return data_shards
+
+def get_devices(num_devices=None, session_config=None):
+  """Returns available devices.
+
+  Args:
+    num_devices: The number of devices to get.
+    session_config: An optional session configuration to use when querying
+      available devices.
+
+  Returns:
+    A list of devices.
+
+  Raises:
+    ValueError: if :obj:`num_devices` is set but the number of visible devices
+      is lower than it.
+  """
+  kwargs = {}
+  if "session_config" in fn_args(device_lib.list_local_devices):
+    kwargs["session_config"] = session_config
+  else:
+    # Create a first session to enforce config, otherwise list_local_devices()
+    # will run some initialization with default options.
+    _ = tf.Session(config=session_config)
+  devices = [x.name for x in device_lib.list_local_devices(**kwargs) if x.device_type == "GPU"]
+  if not devices:
+    return [None]
+  elif num_devices is None:
+    return devices
+  elif len(devices) < num_devices:
+    raise ValueError("Only %d devices are visible but %d were requested"
+                     % (len(devices), num_devices))
+  return devices[:num_devices]
