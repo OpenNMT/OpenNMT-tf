@@ -130,10 +130,10 @@ class Runner(object):
         save_summary_steps=summary_steps,
         session_config=self._session_config,
         log_step_count_steps=params.get("gradients_accum", 1) * summary_steps)
-    if "save_checkpoints_steps" in train_config:
+    if "save_checkpoints_steps" in train_config or "save_checkpoints_secs" in train_config:
       run_config = run_config.replace(
-          save_checkpoints_secs=None,
-          save_checkpoints_steps=train_config["save_checkpoints_steps"])
+          save_checkpoints_secs=train_config.get("save_checkpoints_secs"),
+          save_checkpoints_steps=train_config.get("save_checkpoints_steps"))
     if "keep_checkpoint_max" in train_config:
       run_config = run_config.replace(
           keep_checkpoint_max=train_config["keep_checkpoint_max"])
