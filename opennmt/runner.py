@@ -27,6 +27,7 @@ _CONFIG_FALLBACK = {
         "batch_type": "examples",
         "bucket_width": 1,
         "sample_buffer_size": 500000,
+        "save_summary_steps": 100
     },
     "eval": {
         "batch_size": 32,

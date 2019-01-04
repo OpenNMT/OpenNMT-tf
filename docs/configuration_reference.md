@@ -122,7 +122,7 @@ train:
   # (optional) How many checkpoints to keep on disk.
   keep_checkpoint_max: 3
 
-  # (optional) Save summaries every this many steps.
+  # (optional) Dump summaries and logs every this many steps (default: 100).
   save_summary_steps: 100
 
   # (optional) Train for this many steps. If not set, train forever.
