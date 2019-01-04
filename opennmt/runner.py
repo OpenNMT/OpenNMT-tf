@@ -6,6 +6,9 @@ import io
 import os
 import sys
 import random
+import math
+import subprocess
+import yaml
 
 import numpy as np
 import tensorflow as tf
@@ -164,6 +167,32 @@ class Runner(object):
                 output_dir=save_path),
             predictions=predictions)]
 
+  def _finalize_training_parameters(self):
+    train_config = self._config["train"]
+    batch_size = train_config.get("batch_size")
+
+    # Auto tune batch size.
+    if batch_size is None or batch_size == 0:
+      if train_config["batch_type"] == "examples":
+        raise ValueError("Batch size autotuning is only supported for the \"tokens\" batch type")
+      max_batch_size = 16384
+      if train_config.get("effective_batch_size") is not None:
+        max_batch_size = min(max_batch_size, train_config["effective_batch_size"])
+      train_config["batch_size"] = _auto_tune_batch_size(
+          self._config,
+          max_batch_size=max_batch_size,
+          num_devices=self._num_devices)
+
+    # Set gradients accumulation based on the requested effective batch size.
+    if train_config.get("effective_batch_size") is not None:
+      self._config["params"]["gradients_accum"] = _count_batch_accum(
+          train_config["batch_size"],
+          train_config["effective_batch_size"],
+          num_replicas=self._num_devices)
+      tf.logging.info("Accumulate gradients of %d iterations to reach effective batch size of %d",
+                      self._config["params"]["gradients_accum"],
+                      train_config["effective_batch_size"])
+
   def _build_train_spec(self, checkpoint_path):
     train_hooks = [
         hooks.LogParametersCountHook()]
@@ -226,6 +255,7 @@ class Runner(object):
     """
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    self._finalize_training_parameters()
     train_spec = self._build_train_spec(checkpoint_path)
     eval_spec = self._build_eval_spec()
     estimator = self._make_estimator()
@@ -240,6 +270,7 @@ class Runner(object):
     """
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    self._finalize_training_parameters()
     train_spec = self._build_train_spec(checkpoint_path)
     estimator = self._make_estimator()
     estimator.train(
@@ -488,3 +519,97 @@ def _make_exporters(exporters_type, serving_input_fn, assets_extra=None):
   if len(exporters) == 1:
     return exporters[0]
   return exporters
+
+def _count_batch_accum(batch_size, target_batch_size, num_replicas=1):
+  """Given the current batch size, the number of replicas, and the requested
+  effective batch size, returns the number of gradients to accumulate.
+  """
+  return int(math.ceil(float(target_batch_size) / (batch_size * num_replicas)))
+
+def _auto_tune_batch_size(config,
+                          min_batch_size=1024,
+                          max_batch_size=16384,
+                          min_range=256,
+                          sample_iterations=5,
+                          num_devices=1,
+                          gpu_memory_fraction=0.9):
+  """Find the largest token-based batch size that can be used with this
+  configuration.
+
+  This function runs some training iterations and uses out-of-memory errors as
+  search conditions. A binary search is used to converge to a suitable batch
+  size.
+
+  We prefer to run the iterations in a different process so that it does not
+  alter the current context (OOM may not be safe to recover from, see for
+  example https://stackoverflow.com/q/53820713/2529808).
+
+  Args:
+    config: The training configuration.
+    min_batch_size: The smallest batch size to consider.
+    max_batch_size: The largest batch size to consider.
+    min_range: Continue searching while the difference between
+      :obj:`max_batch_size` and :obj:`min_batch_size` is larger than this value.
+    sample_iterations: The number of training iterations.
+    num_devices: The number of devices to use.
+    gpu_memory_fraction: Fraction of the GPU memory to use.
+
+  Returns:
+    The autotuned batch size.
+  """
+  config = copy.deepcopy(config)
+  config["train"]["save_checkpoints_steps"] = None
+  config["train"]["average_last_checkpoints"] = 0
+  config["train"]["train_steps"] = sample_iterations
+  config_path = os.path.join(config["model_dir"], "batch_size_autotuner.yml")
+
+  # Define the TensorFlow session config, if needed.
+  session_config_path = None
+  if gpu_memory_fraction < 1:
+    session_config = tf.ConfigProto(
+        gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction))
+    session_config_path = os.path.join(config["model_dir"], "batch_size_autotuner.proto")
+    with tf.gfile.Open(session_config_path, mode="w") as session_config_file:
+      session_config_file.write(text_format.MessageToString(session_config))
+
+  args = [
+      "python", "-m", "opennmt.bin.main", "train",
+      "--config", config_path, "--num_gpus", str(num_devices)]
+  if session_config_path is not None:
+    args += ["--session_config", session_config_path]
+
+  tf.logging.info("Searching the largest batch size between %d and %d with a precision of %d...",
+                  min_batch_size, max_batch_size, min_range)
+
+  while max_batch_size - min_batch_size > min_range:
+    batch_size = (max_batch_size + min_batch_size) // 2
+
+    # Update configuration with current batch size and adjusted gradients
+    # accumulation.
+    config["train"]["batch_size"] = batch_size
+    if config["train"].get("effective_batch_size") is not None:
+      config["params"]["gradients_accum"] = _count_batch_accum(
+          batch_size, config["train"]["effective_batch_size"], num_replicas=num_devices)
+    with tf.gfile.Open(config_path, mode="wb") as config_file:
+      yaml.dump(config, config_file)
+
+    tf.logging.info("Trying training with batch size %d...", batch_size)
+    with open(os.devnull, "w") as devnull:
+      process = subprocess.Popen(args, stdout=devnull, stderr=devnull)
+      exit_code = process.wait()
+
+    if exit_code != 0:
+      tf.logging.info("... failed.")
+      max_batch_size = batch_size - 1
+    else:
+      tf.logging.info(
+          "... succeeded, continue until the search range is smaller than %d.", min_range)
+      min_batch_size = batch_size
+
+  tf.logging.info("Batch size auto tuned to %d.", min_batch_size)
+
+  # Cleanup temporary files.
+  os.remove(config_path)
+  if session_config_path is not None:
+    os.remove(session_config_path)
+  return min_batch_size

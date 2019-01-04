@@ -113,9 +113,14 @@ params:
 
 # Training options.
 train:
+  # (optional when batch_type=tokens) If not set, the training will search the largest
+  # possible batch size.
   batch_size: 64
   # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
   batch_type: examples
+  # (optional) Tune gradient accumulation to train with at least this effective batch size
+  # (default: None).
+  effective_batch_size: 25000
 
   # (optional) Save a checkpoint every this many steps.
   save_checkpoints_steps: 5000

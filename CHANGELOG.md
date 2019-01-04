@@ -14,6 +14,9 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Experimental batch size autotuning: automatically find the largest supported batch size based on the current configuration and available memory (for token-based batch type only)
+* `effective_batch_size` training parameter to automatically configure gradients accumulation based on the current batch size and the number of training replicas
+
 ### Fixes and improvements
 
 ## [1.16.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.16.0) (2018-12-21)
