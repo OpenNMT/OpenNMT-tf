@@ -120,25 +120,23 @@ class Runner(object):
     random.seed(seed)
 
   def _make_estimator(self):
+    params = self._config["params"]
+    train_config = self._config["train"]
+    summary_steps = train_config["save_summary_steps"]
+
     run_config = tf.estimator.RunConfig(
         model_dir=self._config["model_dir"],
+        tf_random_seed=self._seed,
+        save_summary_steps=summary_steps,
         session_config=self._session_config,
-        tf_random_seed=self._seed)
-
-    if "train" in self._config:
-      if "save_summary_steps" in self._config["train"]:
-        accum = self._config["params"].get("gradients_accum", 1)
-        summary_steps = self._config["train"]["save_summary_steps"]
-        run_config = run_config.replace(
-            save_summary_steps=summary_steps,
-            log_step_count_steps=accum * summary_steps)
-      if "save_checkpoints_steps" in self._config["train"]:
-        run_config = run_config.replace(
-            save_checkpoints_secs=None,
-            save_checkpoints_steps=self._config["train"]["save_checkpoints_steps"])
-      if "keep_checkpoint_max" in self._config["train"]:
-        run_config = run_config.replace(
-            keep_checkpoint_max=self._config["train"]["keep_checkpoint_max"])
+        log_step_count_steps=params.get("gradients_accum", 1) * summary_steps)
+    if "save_checkpoints_steps" in train_config:
+      run_config = run_config.replace(
+          save_checkpoints_secs=None,
+          save_checkpoints_steps=train_config["save_checkpoints_steps"])
+    if "keep_checkpoint_max" in train_config:
+      run_config = run_config.replace(
+          keep_checkpoint_max=train_config["keep_checkpoint_max"])
 
     devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
     return tf.estimator.Estimator(
@@ -146,11 +144,9 @@ class Runner(object):
             eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
             devices=devices),
         config=run_config,
-        params=self._config["params"])
+        params=params)
 
   def _make_eval_prediction_hooks_fn(self):
-    if "eval" not in self._config:
-      self._config["eval"] = {}
     if (not self._config["eval"].get("save_eval_predictions", False)
         and self._config["eval"].get("external_evaluators") is None):
       return None
@@ -221,9 +217,6 @@ class Runner(object):
     return train_spec
 
   def _build_eval_spec(self):
-    if "eval" not in self._config:
-      self._config["eval"] = {}
-
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self._model.input_fn(
             tf.estimator.ModeKeys.EVAL,
@@ -337,8 +330,6 @@ class Runner(object):
       log_time: If ``True``, several time metrics will be printed in the logs at
         the end of the inference loop.
     """
-    if "infer" not in self._config:
-      self._config["infer"] = {}
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
 
@@ -439,8 +430,6 @@ class Runner(object):
     if checkpoint_path is None:
       raise ValueError("could not find a trained model in %s" % self._config["model_dir"])
 
-    if "score" not in self._config:
-      self._config["score"] = {}
     input_fn = self._model.input_fn(
         tf.estimator.ModeKeys.EVAL,
         self._config["score"]["batch_size"],
