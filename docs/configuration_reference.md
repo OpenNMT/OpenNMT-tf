@@ -34,7 +34,7 @@ params:
   # (optional) Global parameter initialization [-param_init, param_init].
   param_init: 0.1
 
-  # (optional) Maximum gradients norm (default: None).
+  # (optional) Maximum gradients norm (default: null).
   clip_gradients: 5.0
   # (optional) 1 training step will process this many batches and accumulates
   # their gradients (default: 1).
@@ -57,7 +57,7 @@ params:
   # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
   average_loss_in_time: false
 
-  # (optional) The type of learning rate decay (default: None). See:
+  # (optional) The type of learning rate decay (default: null). See:
   #  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate
   #  * opennmt/utils/decay.py
   # This value may change the semantics of other decay options. See the documentation or the code.
@@ -119,7 +119,7 @@ train:
   # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
   batch_type: examples
   # (optional) Tune gradient accumulation to train with at least this effective batch size
-  # (default: None).
+  # (default: null).
   effective_batch_size: 25000
 
   # (optional) Save a checkpoint every this many steps.
@@ -135,9 +135,9 @@ train:
   # (optional) If true, makes a single pass over the training data (default: false).
   single_pass: false
 
-  # (optional) The maximum length of feature sequences during training (default: None).
+  # (optional) The maximum length of feature sequences during training (default: null).
   maximum_features_length: 70
-  # (optional) The maximum length of label sequences during training (default: None).
+  # (optional) The maximum length of label sequences during training (default: null).
   maximum_labels_length: 70
 
   # (optional) The width of the length buckets to select batch candidates from (default: 5).
