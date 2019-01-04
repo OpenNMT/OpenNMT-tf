@@ -73,6 +73,7 @@ class Runner(object):
     """
     self._model = model
     self._num_devices = num_devices
+    self._seed = seed
 
     # Configuration priority: user config > auto config > default config.
     self._config = copy.deepcopy(_CONFIG_FALLBACK)
@@ -109,14 +110,16 @@ class Runner(object):
 
     if session_config is not None:
       session_config_base.MergeFrom(session_config)
-    session_config = session_config_base
-    run_config = tf.estimator.RunConfig(
-        model_dir=self._config["model_dir"],
-        session_config=session_config,
-        tf_random_seed=seed)
+    self._session_config = session_config_base
 
     np.random.seed(seed)
     random.seed(seed)
+
+  def _make_estimator(self):
+    run_config = tf.estimator.RunConfig(
+        model_dir=self._config["model_dir"],
+        session_config=self._session_config,
+        tf_random_seed=self._seed)
 
     if "train" in self._config:
       if "save_summary_steps" in self._config["train"]:
@@ -133,8 +136,8 @@ class Runner(object):
         run_config = run_config.replace(
             keep_checkpoint_max=self._config["train"]["keep_checkpoint_max"])
 
-    devices = get_devices(num_devices=num_devices, session_config=session_config)
-    self._estimator = tf.estimator.Estimator(
+    devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
+    return tf.estimator.Estimator(
         self._model.model_fn(
             eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
             devices=devices),
@@ -209,7 +212,7 @@ class Runner(object):
     return eval_spec
 
   def _get_model_assets(self):
-    generated_assets_path = os.path.join(self._estimator.model_dir, "assets")
+    generated_assets_path = os.path.join(self._config["model_dir"], "assets")
     if not tf.gfile.Exists(generated_assets_path):
       tf.gfile.MakeDirs(generated_assets_path)
     return self._model.get_assets(self._config["data"], asset_dir=generated_assets_path)
@@ -224,8 +227,9 @@ class Runner(object):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     train_spec = self._build_train_spec(checkpoint_path)
     eval_spec = self._build_eval_spec()
-    tf.estimator.train_and_evaluate(self._estimator, train_spec, eval_spec)
-    self._maybe_average_checkpoints()
+    estimator = self._make_estimator()
+    tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+    self._maybe_average_checkpoints(estimator)
 
   def train(self, checkpoint_path=None):
     """Runs the training loop.
@@ -236,23 +240,26 @@ class Runner(object):
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     train_spec = self._build_train_spec(checkpoint_path)
-    self._estimator.train(
+    estimator = self._make_estimator()
+    estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
-    self._maybe_average_checkpoints()
+    self._maybe_average_checkpoints(estimator)
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation."""
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     eval_spec = self._build_eval_spec()
-    self._estimator.evaluate(
+    estimator = self._make_estimator()
+    estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
 
-  def _maybe_average_checkpoints(self, avg_subdirectory="avg"):
+  def _maybe_average_checkpoints(self, estimator, avg_subdirectory="avg"):
     """Averages checkpoints if enabled in the training configuration and if the
     current training instance is the chief.
 
     Args:
+      estimator: The ``tf.estimator.Estimator`` instance used for the training.
       avg_subdirectory: The directory within the model directory that will
         contain the averaged checkpoint.
 
@@ -261,9 +268,9 @@ class Runner(object):
       if no checkpoints were averaged.
     """
     average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
-    if average_last_checkpoints > 0 and self._estimator.config.is_chief:
+    if average_last_checkpoints > 0 and estimator.config.is_chief:
       return self.average_checkpoints(
-          os.path.join(self._estimator.model_dir, avg_subdirectory),
+          os.path.join(estimator.model_dir, avg_subdirectory),
           max_count=average_last_checkpoints)
     return None
 
@@ -278,10 +285,10 @@ class Runner(object):
       The path to the directory containing the averaged checkpoint.
     """
     return checkpoint.average_checkpoints(
-        self._estimator.model_dir,
+        self._config["model_dir"],
         output_dir,
         max_count=max_count,
-        session_config=self._estimator.config.session_config)
+        session_config=self._session_config)
 
   def infer(self,
             features_file,
@@ -325,7 +332,8 @@ class Runner(object):
     write_fn = lambda prediction: (
         self._model.print_prediction(prediction, params=self._config["infer"], stream=stream))
 
-    for prediction in self._estimator.predict(
+    estimator = self._make_estimator()
+    for prediction in estimator.predict(
         input_fn=input_fn,
         checkpoint_path=checkpoint_path,
         hooks=infer_hooks):
@@ -353,17 +361,18 @@ class Runner(object):
     Returns:
       The string path to the exported directory.
     """
+    estimator = self._make_estimator()
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if export_dir_base is None:
-      export_dir_base = os.path.join(self._estimator.model_dir, "export", "manual")
+      export_dir_base = os.path.join(estimator.model_dir, "export", "manual")
 
     kwargs = {}
-    if hasattr(self._estimator, "export_saved_model"):
-      export_fn = self._estimator.export_saved_model
+    if hasattr(estimator, "export_saved_model"):
+      export_fn = estimator.export_saved_model
     else:
-      export_fn = self._estimator.export_savedmodel
-      if "strip_default_attrs" in fn_args(self._estimator.export_savedmodel):
+      export_fn = estimator.export_savedmodel
+      if "strip_default_attrs" in fn_args(estimator.export_savedmodel):
         # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
         # with the behavior of tf.estimator.Exporter.
         kwargs["strip_default_attrs"] = True
@@ -392,11 +401,11 @@ class Runner(object):
       raise ValueError("scoring only works for sequence to sequence models")
 
     if checkpoint_path is None:
-      checkpoint_path = tf.train.latest_checkpoint(self._estimator.model_dir)
+      checkpoint_path = tf.train.latest_checkpoint(self._config["model_dir"])
     elif tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if checkpoint_path is None:
-      raise ValueError("could not find a trained model in %s" % self._estimator.model_dir)
+      raise ValueError("could not find a trained model in %s" % self._config["model_dir"])
 
     if "score" not in self._config:
       self._config["score"] = {}
@@ -417,7 +426,7 @@ class Runner(object):
         outputs, _ = self._model(
             features,
             labels,
-            self._estimator.params,
+            self._config["params"],
             tf.estimator.ModeKeys.EVAL)
 
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
@@ -436,7 +445,7 @@ class Runner(object):
       with tf.train.MonitoredSession(
           session_creator=tf.train.ChiefSessionCreator(
               checkpoint_filename_with_path=checkpoint_path,
-              config=self._estimator.config.session_config)) as sess:
+              config=self._session_config)) as sess:
         while not sess.should_stop():
           for batch in misc.extract_batches(sess.run(results)):
             tokens = batch["tokens"][:batch["length"]]
