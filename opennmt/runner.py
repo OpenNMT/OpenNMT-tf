@@ -35,7 +35,7 @@ _CONFIG_FALLBACK = {
     "eval": {
         "batch_size": 32,
         "eval_delay": 18000,
-        "exporters": "last"
+        "exporters": "best" if hasattr(tf.estimator, "BestExporter") else "last"
     },
     "infer": {
         "bucket_width": None,

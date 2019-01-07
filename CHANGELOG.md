@@ -21,6 +21,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+* Change default model exporter to ["best"](https://www.tensorflow.org/api_docs/python/tf/estimator/BestExporter) for compatible TensorFlow versions
+
 ## [1.16.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.16.0) (2018-12-21)
 
 ### New features
