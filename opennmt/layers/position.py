@@ -48,9 +48,12 @@ class PositionEncoder(object):
   def __init__(self, reducer=SumReducer()):
     self.reducer = reducer
 
-  def __call__(self, inputs, sequence_length=None):
+  def __call__(self, inputs, sequence_length=None, position=None):
     """Shortcut for `apply`."""
-    return self.apply(inputs, sequence_length=sequence_length)
+    if position is None:
+      return self.apply(inputs, sequence_length=sequence_length)
+    else:
+      return self.apply_one(inputs, position)
 
   def apply(self, inputs, sequence_length=None):
     """Apply position encoding to inputs.
@@ -64,20 +67,16 @@ class PositionEncoder(object):
       A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the
       :attr:`reducer`.
     """
+    _ = sequence_length
+
+    batch_size = tf.shape(inputs)[0]
     timesteps = tf.shape(inputs)[1]
-
-    if sequence_length is None:
-      batch_size = tf.shape(inputs)[0]
-      sequence_length = tf.fill([batch_size], timesteps)
-
     input_dim = inputs.get_shape().as_list()[-1]
 
     with tf.variable_scope("position_encoding"):
-      position_encoding = self.encode_sequence(
-          sequence_length,
-          input_dim,
-          maximum_length=timesteps,
-          dtype=inputs.dtype)
+      positions = tf.range(timesteps) + 1
+      position_encoding = self.encode([positions], input_dim, dtype=inputs.dtype)
+      position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
       return self.reducer.reduce([inputs, position_encoding])
 
   def apply_one(self, inputs, position):
@@ -95,10 +94,10 @@ class PositionEncoder(object):
     """
     batch_size = tf.shape(inputs)[0]
     input_dim = inputs.get_shape().as_list()[-1]
-    position = tf.tile([[position]], [batch_size, 1])
 
     with tf.variable_scope("position_encoding"):
-      position_encoding = self.encode(position, input_dim, dtype=inputs.dtype)
+      position_encoding = self.encode([[position]], input_dim, dtype=inputs.dtype)
+      position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
       return self.reducer.reduce([inputs, position_encoding])
 
   @abc.abstractmethod

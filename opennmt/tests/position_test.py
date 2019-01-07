@@ -45,8 +45,8 @@ class PositionTest(tf.test.TestCase):
     with self.test_session() as sess:
       outputs = sess.run(outputs)
       self.assertAllEqual(outputs, [
-        [[1, 1, 1], [2, 2, 2], [0, 0, 0], [0, 0, 0]],
-        [[1, 1, 1], [2, 2, 2], [3, 3, 3], [0, 0, 0]]
+        [[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]],
+        [[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]
       ])
 
   def testApplyPositionEncodingWithoutSequenceLength(self):
