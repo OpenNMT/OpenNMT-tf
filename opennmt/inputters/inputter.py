@@ -357,13 +357,13 @@ class ParallelInputter(MultiInputter):
         sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
         transformed.append(inputter._transform_data(sub_data, mode))  # pylint: disable=protected-access
     if self.reducer is not None:
-      transformed = self.reducer.reduce(transformed)
+      transformed = self.reducer(transformed)
     return transformed
 
   def transform(self, inputs, mode):
     transformed = super(ParallelInputter, self).transform(inputs, mode)
     if self.reducer is not None:
-      transformed = self.reducer.reduce(transformed)
+      transformed = self.reducer(transformed)
     return transformed
 
 
@@ -413,7 +413,7 @@ class MixedInputter(MultiInputter):
     for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
         transformed.append(inputter._transform_data(data, mode))  # pylint: disable=protected-access
-    outputs = self.reducer.reduce(transformed)
+    outputs = self.reducer(transformed)
     outputs = tf.layers.dropout(
         outputs,
         rate=self.dropout,
@@ -422,7 +422,7 @@ class MixedInputter(MultiInputter):
 
   def transform(self, inputs, mode):
     transformed = super(MixedInputter, self).transform(inputs, mode)
-    outputs = self.reducer.reduce(transformed)
+    outputs = self.reducer(transformed)
     outputs = tf.layers.dropout(
         outputs,
         rate=self.dropout,

@@ -188,7 +188,7 @@ class RNMTPlusEncoder(Encoder):
 
     with tf.variable_scope("projection"):
       projected = tf.layers.dense(inputs, self._num_units)
-    state = JoinReducer().reduce(states)
+    state = JoinReducer()(states)
     return (projected, state, sequence_length)
 
 
@@ -237,7 +237,7 @@ class GoogleRNNEncoder(Encoder):
         sequence_length=sequence_length,
         mode=mode)
 
-    encoder_state = JoinReducer().reduce([bidirectional_state, unidirectional_state])
+    encoder_state = JoinReducer()([bidirectional_state, unidirectional_state])
 
     return (encoder_outputs, encoder_state, sequence_length)
 
@@ -310,5 +310,5 @@ class PyramidalRNNEncoder(Encoder):
 
     return (
         outputs,
-        self.state_reducer.reduce(encoder_state),
+        self.state_reducer(encoder_state),
         sequence_length)

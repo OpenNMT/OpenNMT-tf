@@ -77,7 +77,7 @@ class SequentialEncoder(Encoder):
 
     return (
         inputs,
-        self.states_reducer.reduce(encoder_state),
+        self.states_reducer(encoder_state),
         sequence_length)
 
 
@@ -171,10 +171,10 @@ class ParallelEncoder(Encoder):
         all_states.append(state)
         all_sequence_lengths.append(length)
 
-    outputs, sequence_length = self.outputs_reducer.reduce_sequence(
-        all_outputs, all_sequence_lengths)
+    outputs, sequence_length = self.outputs_reducer(
+        all_outputs, sequence_length=all_sequence_lengths)
 
     if self.combined_output_layer_fn is not None:
       outputs = self.combined_output_layer_fn(outputs)
 
-    return (outputs, self.states_reducer.reduce(all_states), sequence_length)
+    return (outputs, self.states_reducer(all_states), sequence_length)

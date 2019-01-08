@@ -74,7 +74,7 @@ class PositionEncoder(object):
         positions = [position]
       position_encoding = self.encode([positions], input_dim, dtype=inputs.dtype)
       position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
-      return self.reducer.reduce([inputs, position_encoding])
+      return self.reducer([inputs, position_encoding])
 
   def apply(self, inputs, sequence_length=None):
     """Shortcut for ``__call__``."""

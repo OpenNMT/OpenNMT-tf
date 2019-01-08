@@ -107,36 +107,37 @@ class Reducer(object):
 
       flat = []
       for x_i, y_i in zip(x_flat, y_flat):
-        flat.append(self.reduce([x_i, y_i]))
+        flat.append(self([x_i, y_i]))
 
       return tf.contrib.framework.nest.pack_sequence_as(x, flat)
     else:
-      return self.reduce([x, y])
+      return self([x, y])
 
-  @abc.abstractmethod
-  def reduce(self, inputs):
+  def __call__(self, inputs, sequence_length=None):
     """Reduces all input elements.
 
     Args:
       inputs: A list of ``tf.Tensor``.
+      sequence_length: The length of each input, if reducing sequences.
 
     Returns:
-      A reduced ``tf.Tensor``.
+      If :obj:`sequence_length` is set, a tuple
+      ``(reduced_input, reduced_length)``, otherwise a reduced ``tf.Tensor``
+      only.
     """
+    if sequence_length is None:
+      return self.reduce(inputs)
+    else:
+      return self.reduce_sequence(inputs, sequence_lengths=sequence_length)
+
+  @abc.abstractmethod
+  def reduce(self, inputs):
+    """Shortcut for ``__call__``."""
     raise NotImplementedError()
 
   @abc.abstractmethod
   def reduce_sequence(self, inputs, sequence_lengths):
-    """Reduces all input sequences.
-
-    Args:
-      inputs: A list of ``tf.Tensor``.
-      sequence_lengths: The length of each input sequence.
-
-    Returns:
-      A tuple ``(reduced_input, reduced_length)`` with the reduced ``tf.Tensor``
-      and sequence length.
-    """
+    """Shortcut for ``__call__``."""
     raise NotImplementedError()
 
 
