@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference: Configuration &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>Reference: Configuration &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -162,7 +162,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="reference-configuration">
-<span id="reference-configuration"></span><h1>Reference: Configuration<a class="headerlink" href="#reference-configuration" title="Permalink to this headline">¶</a></h1>
+<h1>Reference: Configuration<a class="headerlink" href="#reference-configuration" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># The directory where models and summaries will be saved. It is created if it does not exist.</span>
 <span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">toy-ende</span>
 
@@ -196,7 +196,7 @@
   <span class="c1"># (optional) Global parameter initialization [-param_init, param_init].</span>
   <span class="nt">param_init</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
 
-  <span class="c1"># (optional) Maximum gradients norm (default: None).</span>
+  <span class="c1"># (optional) Maximum gradients norm (default: null).</span>
   <span class="nt">clip_gradients</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
   <span class="c1"># (optional) 1 training step will process this many batches and accumulates</span>
   <span class="c1"># their gradients (default: 1).</span>
@@ -219,7 +219,7 @@
   <span class="c1"># (optional) Average loss in the time dimension in addition to the batch dimension (default: False).</span>
   <span class="nt">average_loss_in_time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
-  <span class="c1"># (optional) The type of learning rate decay (default: None). See:</span>
+  <span class="c1"># (optional) The type of learning rate decay (default: null). See:</span>
   <span class="c1">#  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate</span>
   <span class="c1">#  * opennmt/utils/decay.py</span>
   <span class="c1"># This value may change the semantics of other decay options. See the documentation or the code.</span>
@@ -275,16 +275,25 @@
 
 <span class="c1"># Training options.</span>
 <span class="nt">train</span><span class="p">:</span>
+  <span class="c1"># (optional when batch_type=tokens) If not set, the training will search the largest</span>
+  <span class="c1"># possible batch size.</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
   <span class="c1"># (optional) Batch size is the number of &quot;examples&quot; or &quot;tokens&quot; (default: &quot;examples&quot;).</span>
   <span class="nt">batch_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">examples</span>
+  <span class="c1"># (optional) Tune gradient accumulation to train with at least this effective batch size</span>
+  <span class="c1"># (default: null).</span>
+  <span class="nt">effective_batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25000</span>
 
-  <span class="c1"># (optional) Save a checkpoint every this many steps.</span>
-  <span class="nt">save_checkpoints_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+  <span class="c1"># (optional) Save a checkpoint every this many steps (default: null). Can not be</span>
+  <span class="c1"># specified with save_checkpoints_secs.</span>
+  <span class="nt">save_checkpoints_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="c1"># (optional) Save a checkpoint every this many seconds (default: 600). Can not be</span>
+  <span class="c1"># specified with save_checkpoints_steps.</span>
+  <span class="nt">save_checkpoints_secs</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">600</span>
   <span class="c1"># (optional) How many checkpoints to keep on disk.</span>
   <span class="nt">keep_checkpoint_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
 
-  <span class="c1"># (optional) Save summaries every this many steps.</span>
+  <span class="c1"># (optional) Dump summaries and logs every this many steps (default: 100).</span>
   <span class="nt">save_summary_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
 
   <span class="c1"># (optional) Train for this many steps. If not set, train forever.</span>
@@ -292,9 +301,9 @@
   <span class="c1"># (optional) If true, makes a single pass over the training data (default: false).</span>
   <span class="nt">single_pass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
-  <span class="c1"># (optional) The maximum length of feature sequences during training (default: None).</span>
+  <span class="c1"># (optional) The maximum length of feature sequences during training (default: null).</span>
   <span class="nt">maximum_features_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
-  <span class="c1"># (optional) The maximum length of label sequences during training (default: None).</span>
+  <span class="c1"># (optional) The maximum length of label sequences during training (default: null).</span>
   <span class="nt">maximum_labels_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
 
   <span class="c1"># (optional) The width of the length buckets to select batch candidates from (default: 5).</span>
@@ -424,7 +433,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

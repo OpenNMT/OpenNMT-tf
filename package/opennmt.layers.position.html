@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.position module &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>opennmt.layers.position module &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -217,13 +217,7 @@ is the maximum of <code class="xref py py-obj docutils literal notranslate"><spa
 <p>Base class for position encoders.</p>
 <dl class="method">
 <dt id="opennmt.layers.position.PositionEncoder.__call__">
-<code class="descname">__call__</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEncoder.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shortcut for <cite>apply</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.layers.position.PositionEncoder.apply">
-<code class="descname">apply</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEncoder.apply" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>position=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEncoder.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply position encoding to inputs.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -233,6 +227,7 @@ is the maximum of <code class="xref py py-obj docutils literal notranslate"><spa
 <li><strong>inputs</strong> – The inputs of shape <span class="math notranslate nohighlight">\([B, T, D]\)</span>.</li>
 <li><strong>sequence_length</strong> – The length of each sequence of shape <span class="math notranslate nohighlight">\([B]\)</span>.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code>, sequences are assumed to have the same length.</li>
+<li><strong>position</strong> – If known, the position to encode (1-indexed).</li>
 </ul>
 </td>
 </tr>
@@ -245,26 +240,15 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.layers.position.PositionEncoder.apply">
+<code class="descname">apply</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEncoder.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut for <code class="docutils literal notranslate"><span class="pre">__call__</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.layers.position.PositionEncoder.apply_one">
 <code class="descname">apply_one</code><span class="sig-paren">(</span><em>inputs</em>, <em>position</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.apply_one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEncoder.apply_one" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply position encoding to one input.</p>
-<p>This is usually used during dynamic decoding.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – The inputs of shape <span class="math notranslate nohighlight">\([B, 1, D]\)</span>.</li>
-<li><strong>position</strong> – The position to encode (1-indexed).</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([B, 1, D]\)</span> where <span class="math notranslate nohighlight">\(D\)</span> depends on the
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">reducer</span></code>.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Shortcut for <code class="docutils literal notranslate"><span class="pre">__call__</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -439,7 +423,7 @@ position encodings.</li>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

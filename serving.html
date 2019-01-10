@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -170,9 +170,9 @@
            <div itemprop="articleBody">
             
   <div class="section" id="serving">
-<span id="serving"></span><h1>Serving<a class="headerlink" href="#serving" title="Permalink to this headline">¶</a></h1>
+<h1>Serving<a class="headerlink" href="#serving" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="exporting-savedmodel">
-<span id="exporting-savedmodel"></span><h2>Exporting SavedModel<a class="headerlink" href="#exporting-savedmodel" title="Permalink to this headline">¶</a></h2>
+<h2>Exporting SavedModel<a class="headerlink" href="#exporting-savedmodel" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf periodically exports models for inference in other environments, for example with <a class="reference external" href="https://www.tensorflow.org/serving/">TensorFlow Serving</a>. A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>toy-ende/export/latest/1507109306/
 ├── assets
@@ -185,7 +185,7 @@
 </pre></div>
 </div>
 <div class="section" id="automatic-export">
-<span id="automatic-export"></span><h3>Automatic export<a class="headerlink" href="#automatic-export" title="Permalink to this headline">¶</a></h3>
+<h3>Automatic export<a class="headerlink" href="#automatic-export" title="Permalink to this headline">¶</a></h3>
 <p>In the <code class="docutils literal notranslate"><span class="pre">train_and_eval</span></code> run type, models can be automatically exported following one or several export schedules:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">last</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/latest</span></code> after each evaluation (default);</li>
@@ -199,7 +199,7 @@
 </div>
 </div>
 <div class="section" id="manual-export">
-<span id="manual-export"></span><h3>Manual export<a class="headerlink" href="#manual-export" title="Permalink to this headline">¶</a></h3>
+<h3>Manual export<a class="headerlink" href="#manual-export" title="Permalink to this headline">¶</a></h3>
 <p>Additionally, models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type. Manually exported models are located by default in <code class="docutils literal notranslate"><span class="pre">export/manual/</span></code> within the model directory; a custom destination can be configured with the command line option <code class="docutils literal notranslate"><span class="pre">--export_dir_base</span></code>, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="nb">export</span> --export_dir_base ~/my-models/ende --auto-config --config my_config.yml
 </pre></div>
@@ -207,7 +207,7 @@
 </div>
 </div>
 <div class="section" id="running-savedmodel">
-<span id="running-savedmodel"></span><h2>Running SavedModel<a class="headerlink" href="#running-savedmodel" title="Permalink to this headline">¶</a></h2>
+<h2>Running SavedModel<a class="headerlink" href="#running-savedmodel" title="Permalink to this headline">¶</a></h2>
 <p>When using an exported model, you need to know the input and output nodes of your model. You can use the <a class="reference external" href="https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel"><code class="docutils literal notranslate"><span class="pre">saved_model_cli</span></code></a> script provided by TensorFlow for inspection, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli show --dir toy-ende/export/latest/1507109306/ <span class="se">\</span>
     --tag_set serve --signature_def serving_default
@@ -265,7 +265,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

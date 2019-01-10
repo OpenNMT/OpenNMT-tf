@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers.adafactor &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>opennmt.optimizers.adafactor &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -443,7 +443,7 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    a scalar</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_or_create_global_step</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span>
+  <span class="n">t</span> <span class="o">=</span> <span class="n">_step_num</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1.0</span>
   <span class="n">decay</span> <span class="o">=</span> <span class="n">beta2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">beta2</span><span class="p">,</span> <span class="n">t</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">beta2</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
   <span class="c1"># decay = tf.cond(tf.equal(t, 1.0), lambda: beta2, lambda: decay)</span>
   <span class="k">return</span> <span class="n">decay</span></div>
@@ -536,7 +536,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

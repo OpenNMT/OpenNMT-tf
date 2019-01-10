@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Inference &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>Inference &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -168,9 +168,9 @@
            <div itemprop="articleBody">
             
   <div class="section" id="inference">
-<span id="inference"></span><h1>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h1>
+<h1>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="checkpoints-averaging">
-<span id="checkpoints-averaging"></span><h2>Checkpoints averaging<a class="headerlink" href="#checkpoints-averaging" title="Permalink to this headline">¶</a></h2>
+<h2>Checkpoints averaging<a class="headerlink" href="#checkpoints-averaging" title="Permalink to this headline">¶</a></h2>
 <p>The script <code class="docutils literal notranslate"><span class="pre">onmt-average-checkpoints</span></code> can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-average-checkpoints <span class="se">\</span>
     --model_dir run/baseline-enfr <span class="se">\</span>
@@ -197,7 +197,7 @@
 </div>
 </div>
 <div class="section" id="sampling">
-<span id="sampling"></span><h2>Sampling<a class="headerlink" href="#sampling" title="Permalink to this headline">¶</a></h2>
+<h2>Sampling<a class="headerlink" href="#sampling" title="Permalink to this headline">¶</a></h2>
 <p>Sampling predictions from the output distribution can be an effective decoding strategy for back-translation, as described by <a class="reference external" href="https://arxiv.org/abs/1808.09381">Edunov et al. 2018</a>. To enable this feature, you should configure the parameter <code class="docutils literal notranslate"><span class="pre">sampling_topk</span></code>. Possible values are:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">k</span></code>, sample from the <code class="docutils literal notranslate"><span class="pre">k</span></code> most likely tokens</li>
@@ -212,7 +212,7 @@
 </div>
 </div>
 <div class="section" id="n-best-list">
-<span id="n-best-list"></span><h2>N-best list<a class="headerlink" href="#n-best-list" title="Permalink to this headline">¶</a></h2>
+<h2>N-best list<a class="headerlink" href="#n-best-list" title="Permalink to this headline">¶</a></h2>
 <p>A n-best list can be generated for models using beam search. You can configure it in your configuration file:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">infer</span><span class="p">:</span>
   <span class="nt">n_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
@@ -222,7 +222,7 @@
 <p><em>Note that N can not be greater than the configured <code class="docutils literal notranslate"><span class="pre">beam_width</span></code>.</em></p>
 </div>
 <div class="section" id="scoring">
-<span id="scoring"></span><h2>Scoring<a class="headerlink" href="#scoring" title="Permalink to this headline">¶</a></h2>
+<h2>Scoring<a class="headerlink" href="#scoring" title="Permalink to this headline">¶</a></h2>
 <p>The main OpenNMT-tf script can also be used to score existing translations via the <code class="docutils literal notranslate"><span class="pre">score</span></code> run type. It requires 2 command line options to be set:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">--features_file</span></code>, the input labels;</li>
@@ -287,7 +287,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>Quickstart &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -169,10 +169,10 @@
            <div itemprop="articleBody">
             
   <div class="section" id="quickstart">
-<span id="quickstart"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
 <p>This page presents a minimal workflow to get you started in using OpenNMT-tf.</p>
 <div class="section" id="step-0-install-opennmt-tf">
-<span id="step-0-install-opennmt-tf"></span><h2>Step 0: Install OpenNMT-tf<a class="headerlink" href="#step-0-install-opennmt-tf" title="Permalink to this headline">¶</a></h2>
+<h2>Step 0: Install OpenNMT-tf<a class="headerlink" href="#step-0-install-opennmt-tf" title="Permalink to this headline">¶</a></h2>
 <p>We recommend using <a class="reference external" href="https://virtualenv.pypa.io/en/stable/"><code class="docutils literal notranslate"><span class="pre">virtualenv</span></code></a> to setup and configure the environment for this quickstart:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>virtualenv pyenv
 <span class="nb">source</span> pyenv/bin/activate
@@ -182,7 +182,7 @@ pip install OpenNMT-tf
 </div>
 </div>
 <div class="section" id="step-1-prepare-the-data">
-<span id="step-1-prepare-the-data"></span><h2>Step 1: Prepare the data<a class="headerlink" href="#step-1-prepare-the-data" title="Permalink to this headline">¶</a></h2>
+<h2>Step 1: Prepare the data<a class="headerlink" href="#step-1-prepare-the-data" title="Permalink to this headline">¶</a></h2>
 <p>To get started, we propose to download a toy English-German dataset for machine translation containing 10k tokenized sentences:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://s3.amazonaws.com/opennmt-trainingdata/toy-ende.tar.gz
 tar xf toy-ende.tar.gz
@@ -208,7 +208,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </div>
 </div>
 <div class="section" id="step-2-train-the-model">
-<span id="step-2-train-the-model"></span><h2>Step 2: Train the model<a class="headerlink" href="#step-2-train-the-model" title="Permalink to this headline">¶</a></h2>
+<h2>Step 2: Train the model<a class="headerlink" href="#step-2-train-the-model" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="n">train_and_eval</span> <span class="o">--</span><span class="n">model_type</span> <span class="n">NMTSmall</span> <span class="o">--</span><span class="n">auto_config</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span>
 </pre></div>
 </div>
@@ -219,7 +219,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </div>
 </div>
 <div class="section" id="step-3-translate">
-<span id="step-3-translate"></span><h2>Step 3: Translate<a class="headerlink" href="#step-3-translate" title="Permalink to this headline">¶</a></h2>
+<h2>Step 3: Translate<a class="headerlink" href="#step-3-translate" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="n">infer</span> <span class="o">--</span><span class="n">auto_config</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">features_file</span> <span class="n">src</span><span class="o">-</span><span class="n">test</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
@@ -227,7 +227,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 <p><strong>That’s it! You successfully executed the 3 main steps to prepare, run, and evaluate an OpenNMT-tf training.</strong></p>
 </div>
 <div class="section" id="going-further">
-<span id="going-further"></span><h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
+<h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
 <p>While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset and model are too small for this task.</p>
 <p>To go further, here are some pointers:</p>
 <ul class="simple">
@@ -283,7 +283,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

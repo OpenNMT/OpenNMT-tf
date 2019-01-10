@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.bridge &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>opennmt.layers.bridge &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -198,7 +198,8 @@
 <span class="k">class</span> <span class="nc">Bridge</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for bridges.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Bridge.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.bridge.html#opennmt.layers.bridge.Bridge.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
+<div class="viewcode-block" id="Bridge.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.bridge.html#opennmt.layers.bridge.Bridge.__call__">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
 
 <span class="sd">    Args:</span>
@@ -208,17 +209,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      The decoder initial state.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">)</span></div>
-
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="CopyBridge"><a class="viewcode-back" href="../../../package/opennmt.layers.bridge.html#opennmt.layers.bridge.CopyBridge">[docs]</a><span class="k">class</span> <span class="nc">CopyBridge</span><span class="p">(</span><span class="n">Bridge</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A bridge that passes the encoder state as is.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
     <span class="n">assert_state_is_compatible</span><span class="p">(</span><span class="n">decoder_zero_state</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">encoder_state</span></div>
 
@@ -226,7 +223,7 @@
 <div class="viewcode-block" id="ZeroBridge"><a class="viewcode-back" href="../../../package/opennmt.layers.bridge.html#opennmt.layers.bridge.ZeroBridge">[docs]</a><span class="k">class</span> <span class="nc">ZeroBridge</span><span class="p">(</span><span class="n">Bridge</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A bridge that does not pass information from the encoder.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
     <span class="c1"># Simply return the default decoder state.</span>
     <span class="k">return</span> <span class="n">decoder_zero_state</span></div>
 
@@ -245,7 +242,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activation</span></div>
 
-  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
     <span class="c1"># Flattened states.</span>
     <span class="n">encoder_state_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">encoder_state</span><span class="p">)</span>
     <span class="n">decoder_state_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">decoder_zero_state</span><span class="p">)</span>
@@ -306,7 +303,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

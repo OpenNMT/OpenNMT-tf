@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Configuration &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>Configuration &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -175,11 +175,11 @@
            <div itemprop="articleBody">
             
   <div class="section" id="configuration">
-<span id="configuration"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="model">
-<span id="model"></span><h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
+<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="definition">
-<span id="definition"></span><h3>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
 <p>Models are defined from the code to allow a high level of modeling freedom. They are <code class="docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code> instances that use <a class="reference external" href="package/opennmt.html">available</a> or user-defined modules. Some of these modules are defined to contain other modules and can be used to design complex architectures:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></li>
@@ -190,7 +190,7 @@
 <p>For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).</p>
 </div>
 <div class="section" id="usage">
-<span id="usage"></span><h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <p>The user can either:</p>
 <ul class="simple">
 <li>select a predefined model from the <a class="reference external" href="package/opennmt.models.catalog.html">catalog</a> and use the <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> command line option</li>
@@ -201,7 +201,7 @@
 </div>
 </div>
 <div class="section" id="parameters">
-<span id="parameters"></span><h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <p>Parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference. It uses the following layout:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">path_to_the_model_directory</span>
 
@@ -221,7 +221,7 @@
 </div>
 <p>For a complete list of available options, see <a class="reference external" href="configuration_reference.html">Reference: Configuration</a>.</p>
 <div class="section" id="automatic-configuration">
-<span id="automatic-configuration"></span><h3>Automatic configuration<a class="headerlink" href="#automatic-configuration" title="Permalink to this headline">¶</a></h3>
+<h3>Automatic configuration<a class="headerlink" href="#automatic-configuration" title="Permalink to this headline">¶</a></h3>
 <p>Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train_and_eval --model_type Transformer --config my_data.yml --auto_config
 </pre></div>
@@ -235,7 +235,7 @@
 </ul>
 </div>
 <div class="section" id="multiple-configuration-files">
-<span id="multiple-configuration-files"></span><h3>Multiple configuration files<a class="headerlink" href="#multiple-configuration-files" title="Permalink to this headline">¶</a></h3>
+<h3>Multiple configuration files<a class="headerlink" href="#multiple-configuration-files" title="Permalink to this headline">¶</a></h3>
 <p>The command line accepts multiple configuration files so that some parts can be made reusable, e.g:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
     config/data/toy-ende.yml
@@ -250,7 +250,7 @@
 </div>
 </div>
 <div class="section" id="tensorflow-session">
-<span id="tensorflow-session"></span><h2>TensorFlow session<a class="headerlink" href="#tensorflow-session" title="Permalink to this headline">¶</a></h2>
+<h2>TensorFlow session<a class="headerlink" href="#tensorflow-session" title="Permalink to this headline">¶</a></h2>
 <p>The command line option <code class="docutils literal notranslate"><span class="pre">--session_config</span></code> can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code></a> message serialized in text format.</p>
 <p>Here is an example to enable the <code class="docutils literal notranslate"><span class="pre">allow_growth</span></code> GPU option:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ cat config/session_config.txt
@@ -309,7 +309,7 @@ gpu_options {
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

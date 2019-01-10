@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -173,9 +173,9 @@
            <div itemprop="articleBody">
             
   <div class="section" id="training">
-<span id="training"></span><h1>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h1>
+<h1>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="monitoring">
-<span id="monitoring"></span><h2>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h2>
+<h2>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf uses <a class="reference external" href="https://www.tensorflow.org/guide/summaries_and_tensorboard">TensorBoard</a> to log information during the training. Simply start <code class="docutils literal notranslate"><span class="pre">tensorboard</span></code> by setting the active log directory, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;.&quot;</span>
 </pre></div>
@@ -192,7 +192,7 @@
 </ul>
 </div>
 <div class="section" id="replicated-training">
-<span id="replicated-training"></span><h2>Replicated training<a class="headerlink" href="#replicated-training" title="Permalink to this headline">¶</a></h2>
+<h2>Replicated training<a class="headerlink" href="#replicated-training" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf training can make use of multiple GPUs with <em>in-graph replication</em>. In this mode, the main section of the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of used GPUs.</p>
 <p>For example, if your machine has 4 GPUs, simply add the <code class="docutils literal notranslate"><span class="pre">--num_gpus</span></code> option:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train <span class="o">[</span>...<span class="o">]</span> --num_gpus <span class="m">4</span>
@@ -201,7 +201,7 @@
 <p>Note that evaluation and inference will run on a single device.</p>
 </div>
 <div class="section" id="distributed-training">
-<span id="distributed-training"></span><h2>Distributed training<a class="headerlink" href="#distributed-training" title="Permalink to this headline">¶</a></h2>
+<h2>Distributed training<a class="headerlink" href="#distributed-training" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf also supports asynchronous distributed training with <em>between-graph replication</em>. In this mode, each graph replica processes a batch independently, compute the gradients, and asynchronously update a shared set of parameters.</p>
 <p>To enable distributed training, the user should use the <code class="docutils literal notranslate"><span class="pre">train_and_eval</span></code> run type and set on the command line:</p>
 <ul class="simple">
@@ -223,7 +223,7 @@
 <p><strong>Note:</strong> distributed training will also split the training directory <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> accross the instances. This could impact features that restore checkpoints like inference, manual export, or checkpoint averaging. The recommend approach to properly support these features while running distributed training is to store the <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> on a shared filesystem, e.g. by using <a class="reference external" href="https://www.tensorflow.org/deploy/hadoop">HDFS</a>.</p>
 </div>
 <div class="section" id="mixed-precision-training">
-<span id="mixed-precision-training"></span><h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline">¶</a></h2>
+<h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline">¶</a></h2>
 <p>Thanks to <a class="reference external" href="https://github.com/NVIDIA/OpenSeq2Seq">work from NVIDIA</a>, OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the <a class="reference external" href="package/opennmt.inputters.inputter.html">inputters</a> is defined to be <code class="docutils literal notranslate"><span class="pre">tf.float16</span></code>. See for example the predefined model <code class="docutils literal notranslate"><span class="pre">TransformerFP16</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train <span class="o">[</span>...<span class="o">]</span> --model_type TransformerFP16
 </pre></div>
@@ -248,9 +248,9 @@
 <p>The checkpoint generated in <code class="docutils literal notranslate"><span class="pre">ende-fp32/</span></code> can then be used in <code class="docutils literal notranslate"><span class="pre">infer</span></code> or <code class="docutils literal notranslate"><span class="pre">export</span></code> run types.</p>
 </div>
 <div class="section" id="retraining">
-<span id="retraining"></span><h2>Retraining<a class="headerlink" href="#retraining" title="Permalink to this headline">¶</a></h2>
+<h2>Retraining<a class="headerlink" href="#retraining" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="continuing-from-a-stopped-training">
-<span id="continuing-from-a-stopped-training"></span><h3>Continuing from a stopped training<a class="headerlink" href="#continuing-from-a-stopped-training" title="Permalink to this headline">¶</a></h3>
+<h3>Continuing from a stopped training<a class="headerlink" href="#continuing-from-a-stopped-training" title="Permalink to this headline">¶</a></h3>
 <p>This is the most common case of retrainings: the training was interrupted but should run longer. In that case, simply <strong>launch the same command that you used for the initial training</strong>, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start the training.</span>
 onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
@@ -264,7 +264,7 @@ onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
 <p><strong>Note:</strong> If the train was stopped because <code class="docutils literal notranslate"><span class="pre">train_steps</span></code> was reached, you should first increase this value before continuing.</p>
 </div>
 <div class="section" id="fine-tune-an-existing-model">
-<span id="fine-tune-an-existing-model"></span><h3>Fine-tune an existing model<a class="headerlink" href="#fine-tune-an-existing-model" title="Permalink to this headline">¶</a></h3>
+<h3>Fine-tune an existing model<a class="headerlink" href="#fine-tune-an-existing-model" title="Permalink to this headline">¶</a></h3>
 <p>Retraining can also be useful to fine-tune an existing model. For example in machine translation, it is faster to adapt a generic model to a specific domain compared to starting a training from scratch.</p>
 <p>OpenNMT-tf offers some features to make this process easier:</p>
 <ul class="simple">
@@ -318,7 +318,7 @@ onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

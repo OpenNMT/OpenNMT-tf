@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.position &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>opennmt.layers.position &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -210,58 +210,41 @@
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">()):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span>
 
-<div class="viewcode-block" id="PositionEncoder.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Shortcut for `apply`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PositionEncoder.apply"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.apply">[docs]</a>  <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PositionEncoder.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Apply position encoding to inputs.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      inputs: The inputs of shape :math:`[B, T, D]`.</span>
 <span class="sd">      sequence_length: The length of each sequence of shape :math:`[B]`.</span>
 <span class="sd">        If ``None``, sequences are assumed to have the same length.</span>
+<span class="sd">      position: If known, the position to encode (1-indexed).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the</span>
 <span class="sd">      :attr:`reducer`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">sequence_length</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">timesteps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">timesteps</span><span class="p">)</span>
-
     <span class="n">input_dim</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;position_encoding&quot;</span><span class="p">):</span>
-      <span class="n">position_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_sequence</span><span class="p">(</span>
-          <span class="n">sequence_length</span><span class="p">,</span>
-          <span class="n">input_dim</span><span class="p">,</span>
-          <span class="n">maximum_length</span><span class="o">=</span><span class="n">timesteps</span><span class="p">,</span>
-          <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span><span class="o">.</span><span class="n">reduce</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">position_encoding</span><span class="p">])</span></div>
+      <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">position</span><span class="p">]</span>
+      <span class="n">position_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">([</span><span class="n">positions</span><span class="p">],</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">position_encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">position_encoding</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">position_encoding</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="PositionEncoder.apply"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.apply">[docs]</a>  <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Shortcut for ``__call__``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PositionEncoder.apply_one"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.apply_one">[docs]</a>  <span class="k">def</span> <span class="nf">apply_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Apply position encoding to one input.</span>
-
-<span class="sd">    This is usually used during dynamic decoding.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      inputs: The inputs of shape :math:`[B, 1, D]`.</span>
-<span class="sd">      position: The position to encode (1-indexed).</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      A ``tf.Tensor`` of shape :math:`[B, 1, D]` where :math:`D` depends on the</span>
-<span class="sd">      :attr:`reducer`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">input_dim</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">position</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">([[</span><span class="n">position</span><span class="p">]],</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;position_encoding&quot;</span><span class="p">):</span>
-      <span class="n">position_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span><span class="o">.</span><span class="n">reduce</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">position_encoding</span><span class="p">])</span></div>
+    <span class="sd">&quot;&quot;&quot;Shortcut for ``__call__``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PositionEncoder.encode"><a class="viewcode-back" href="../../../package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.encode">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
   <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
@@ -374,7 +357,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

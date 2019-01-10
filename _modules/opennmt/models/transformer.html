@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 1.16.0 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 1.17.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.16
+                1.17
               </div>
             
           
@@ -276,7 +276,6 @@
                 <span class="s2">&quot;beta2&quot;</span><span class="p">:</span> <span class="mf">0.998</span>
             <span class="p">},</span>
             <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-            <span class="s2">&quot;gradients_accum&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span> <span class="o">//</span> <span class="n">num_devices</span><span class="p">),</span>
             <span class="s2">&quot;decay_type&quot;</span><span class="p">:</span> <span class="s2">&quot;noam_decay_v2&quot;</span><span class="p">,</span>
             <span class="s2">&quot;decay_params&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">&quot;model_dim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_units</span><span class="p">,</span>
@@ -284,6 +283,7 @@
             <span class="p">}</span>
         <span class="p">},</span>
         <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;effective_batch_size&quot;</span><span class="p">:</span> <span class="mi">25000</span><span class="p">,</span>
             <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">3072</span><span class="p">,</span>
             <span class="s2">&quot;batch_type&quot;</span><span class="p">:</span> <span class="s2">&quot;tokens&quot;</span><span class="p">,</span>
             <span class="s2">&quot;maximum_features_length&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
@@ -331,7 +331,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.16.0',
+              VERSION:'1.17.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
