@@ -100,10 +100,7 @@ class SelfAttentionDecoder(decoder.Decoder):
                             step=None):
     inputs *= self.num_units**0.5
     if self.position_encoder is not None:
-      if step is None:
-        inputs = self.position_encoder(inputs, sequence_length=sequence_length)
-      else:
-        inputs = self.position_encoder.apply_one(inputs, step + 1)
+      inputs = self.position_encoder(inputs, position=step + 1 if step is not None else None)
 
     inputs = tf.layers.dropout(
         inputs,

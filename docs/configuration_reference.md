@@ -34,7 +34,7 @@ params:
   # (optional) Global parameter initialization [-param_init, param_init].
   param_init: 0.1
 
-  # (optional) Maximum gradients norm (default: None).
+  # (optional) Maximum gradients norm (default: null).
   clip_gradients: 5.0
   # (optional) 1 training step will process this many batches and accumulates
   # their gradients (default: 1).
@@ -57,7 +57,7 @@ params:
   # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
   average_loss_in_time: false
 
-  # (optional) The type of learning rate decay (default: None). See:
+  # (optional) The type of learning rate decay (default: null). See:
   #  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate
   #  * opennmt/utils/decay.py
   # This value may change the semantics of other decay options. See the documentation or the code.
@@ -113,16 +113,25 @@ params:
 
 # Training options.
 train:
+  # (optional when batch_type=tokens) If not set, the training will search the largest
+  # possible batch size.
   batch_size: 64
   # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
   batch_type: examples
+  # (optional) Tune gradient accumulation to train with at least this effective batch size
+  # (default: null).
+  effective_batch_size: 25000
 
-  # (optional) Save a checkpoint every this many steps.
-  save_checkpoints_steps: 5000
+  # (optional) Save a checkpoint every this many steps (default: null). Can not be
+  # specified with save_checkpoints_secs.
+  save_checkpoints_steps: null
+  # (optional) Save a checkpoint every this many seconds (default: 600). Can not be
+  # specified with save_checkpoints_steps.
+  save_checkpoints_secs: 600
   # (optional) How many checkpoints to keep on disk.
   keep_checkpoint_max: 3
 
-  # (optional) Save summaries every this many steps.
+  # (optional) Dump summaries and logs every this many steps (default: 100).
   save_summary_steps: 100
 
   # (optional) Train for this many steps. If not set, train forever.
@@ -130,9 +139,9 @@ train:
   # (optional) If true, makes a single pass over the training data (default: false).
   single_pass: false
 
-  # (optional) The maximum length of feature sequences during training (default: None).
+  # (optional) The maximum length of feature sequences during training (default: null).
   maximum_features_length: 70
-  # (optional) The maximum length of label sequences during training (default: None).
+  # (optional) The maximum length of label sequences during training (default: null).
   maximum_labels_length: 70
 
   # (optional) The width of the length buckets to select batch candidates from (default: 5).

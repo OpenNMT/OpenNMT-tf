@@ -122,7 +122,7 @@ def optimize(*args, **kwargs):
   update_op, _ = optimize_loss(*args, **kwargs)
   return update_op
 
-def optimize_loss(loss, params, mixed_precision=False):
+def optimize_loss(loss, params, mixed_precision=False, var_list=None):
   """Minimizes the loss.
 
   Args:
@@ -130,13 +130,15 @@ def optimize_loss(loss, params, mixed_precision=False):
     params: A dictionary of hyperparameters.
     mixed_precision: If ``True``, wraps the optimizer to maintain a float32 copy
       of the weights.
+    var_list: The variables to update.
 
   Returns:
     The loss minimization op and a list of internal variables to initialize.
   """
   regularization = params.get("regularization")
   if regularization is not None:
-    loss += regularization_penalty(regularization["type"], regularization["scale"])
+    loss += regularization_penalty(
+        regularization["type"], regularization["scale"], weights_list=var_list)
 
   global_step = tf.train.get_or_create_global_step()
   with tf.variable_scope("optim"):
@@ -175,7 +177,8 @@ def optimize_loss(loss, params, mixed_precision=False):
           optimizer, loss_scale=get_loss_scale_from_params(params))
 
     # Gradients.
-    gradients = optimizer.compute_gradients(loss, colocate_gradients_with_ops=True)
+    gradients = optimizer.compute_gradients(
+        loss, var_list=var_list, colocate_gradients_with_ops=True)
     _summarize_gradients_norm("global_norm/gradient_norm", gradients)
     if params.get("clip_gradients") is not None:
       gradients = _clip_gradients_by_norm(gradients, float(params["clip_gradients"]))
@@ -262,7 +265,8 @@ def regularization_penalty(regularization_type, scale, weights_list=None):
   def _is_bias(variable):
     return len(variable.shape.as_list()) == 1 and variable.name.endswith("bias:0")
   if weights_list is None:
-    weights_list = [v for v in tf.trainable_variables() if not _is_bias(v)]
+    weights_list = tf.trainable_variables()
+  weights_list = list(filter(lambda v: not _is_bias(v), weights_list))
 
   regularization_type = regularization_type.lower()
   if regularization_type == "l1":

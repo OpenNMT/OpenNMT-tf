@@ -35,7 +35,7 @@ class ConvEncoder(Encoder):
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     if self.position_encoder is not None:
-      inputs = self.position_encoder(inputs, sequence_length=sequence_length)
+      inputs = self.position_encoder(inputs)
 
     # Apply dropout to inputs.
     inputs = tf.layers.dropout(

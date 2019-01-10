@@ -114,7 +114,6 @@ class Transformer(SequenceToSequence):
                 "beta2": 0.998
             },
             "learning_rate": 2.0,
-            "gradients_accum": max(1, 8 // num_devices),
             "decay_type": "noam_decay_v2",
             "decay_params": {
                 "model_dim": self._num_units,
@@ -122,6 +121,7 @@ class Transformer(SequenceToSequence):
             }
         },
         "train": {
+            "effective_batch_size": 25000,
             "batch_size": 3072,
             "batch_type": "tokens",
             "maximum_features_length": 100,

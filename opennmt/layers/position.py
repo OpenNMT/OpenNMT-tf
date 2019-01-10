@@ -48,58 +48,41 @@ class PositionEncoder(object):
   def __init__(self, reducer=SumReducer()):
     self.reducer = reducer
 
-  def __call__(self, inputs, sequence_length=None):
-    """Shortcut for `apply`."""
-    return self.apply(inputs, sequence_length=sequence_length)
-
-  def apply(self, inputs, sequence_length=None):
+  def __call__(self, inputs, sequence_length=None, position=None):
     """Apply position encoding to inputs.
 
     Args:
       inputs: The inputs of shape :math:`[B, T, D]`.
       sequence_length: The length of each sequence of shape :math:`[B]`.
         If ``None``, sequences are assumed to have the same length.
+      position: If known, the position to encode (1-indexed).
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the
       :attr:`reducer`.
     """
+    _ = sequence_length
+
+    batch_size = tf.shape(inputs)[0]
     timesteps = tf.shape(inputs)[1]
-
-    if sequence_length is None:
-      batch_size = tf.shape(inputs)[0]
-      sequence_length = tf.fill([batch_size], timesteps)
-
     input_dim = inputs.get_shape().as_list()[-1]
 
     with tf.variable_scope("position_encoding"):
-      position_encoding = self.encode_sequence(
-          sequence_length,
-          input_dim,
-          maximum_length=timesteps,
-          dtype=inputs.dtype)
-      return self.reducer.reduce([inputs, position_encoding])
+      if position is None:
+        positions = tf.range(timesteps) + 1
+      else:
+        positions = [position]
+      position_encoding = self.encode([positions], input_dim, dtype=inputs.dtype)
+      position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
+      return self.reducer([inputs, position_encoding])
+
+  def apply(self, inputs, sequence_length=None):
+    """Shortcut for ``__call__``."""
+    return self(inputs, sequence_length=sequence_length)
 
   def apply_one(self, inputs, position):
-    """Apply position encoding to one input.
-
-    This is usually used during dynamic decoding.
-
-    Args:
-      inputs: The inputs of shape :math:`[B, 1, D]`.
-      position: The position to encode (1-indexed).
-
-    Returns:
-      A ``tf.Tensor`` of shape :math:`[B, 1, D]` where :math:`D` depends on the
-      :attr:`reducer`.
-    """
-    batch_size = tf.shape(inputs)[0]
-    input_dim = inputs.get_shape().as_list()[-1]
-    position = tf.tile([[position]], [batch_size, 1])
-
-    with tf.variable_scope("position_encoding"):
-      position_encoding = self.encode(position, input_dim, dtype=inputs.dtype)
-      return self.reducer.reduce([inputs, position_encoding])
+    """Shortcut for ``__call__``."""
+    return self(inputs, position=position)
 
   @abc.abstractmethod
   def encode(self, positions, depth, dtype=tf.float32):

@@ -16,6 +16,19 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.17.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.17.0) (2019-01-10)
+
+### New features
+
+* Experimental batch size autotuning: automatically find the largest supported batch size based on the current configuration and available memory (for token-based batch type only)
+* `effective_batch_size` training parameter to automatically configure gradients accumulation based on the current batch size and the number of training replicas
+* Add `var_list` argument to the `optimize_loss` function
+* `save_checkpoints_secs` training parameter as an alternative to `save_checkpoints_steps`
+
+### Fixes and improvements
+
+* Change default model exporter to ["best"](https://www.tensorflow.org/api_docs/python/tf/estimator/BestExporter) for compatible TensorFlow versions
+
 ## [1.16.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.16.0) (2018-12-21)
 
 ### New features

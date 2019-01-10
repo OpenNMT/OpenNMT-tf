@@ -36,6 +36,7 @@ def assert_state_is_compatible(expected_state, state):
 class Bridge(object):
   """Base class for bridges."""
 
+  @abc.abstractmethod
   def __call__(self, encoder_state, decoder_zero_state):
     """Returns the initial decoder state.
 
@@ -46,17 +47,13 @@ class Bridge(object):
     Returns:
       The decoder initial state.
     """
-    return self._build(encoder_state, decoder_zero_state)
-
-  @abc.abstractmethod
-  def _build(self, encoder_state, decoder_zero_state):
     raise NotImplementedError()
 
 
 class CopyBridge(Bridge):
   """A bridge that passes the encoder state as is."""
 
-  def _build(self, encoder_state, decoder_zero_state):
+  def __call__(self, encoder_state, decoder_zero_state):
     assert_state_is_compatible(decoder_zero_state, encoder_state)
     return encoder_state
 
@@ -64,7 +61,7 @@ class CopyBridge(Bridge):
 class ZeroBridge(Bridge):
   """A bridge that does not pass information from the encoder."""
 
-  def _build(self, encoder_state, decoder_zero_state):
+  def __call__(self, encoder_state, decoder_zero_state):
     # Simply return the default decoder state.
     return decoder_zero_state
 
@@ -83,7 +80,7 @@ class DenseBridge(Bridge):
     """
     self.activation = activation
 
-  def _build(self, encoder_state, decoder_zero_state):
+  def __call__(self, encoder_state, decoder_zero_state):
     # Flattened states.
     encoder_state_flat = tf.contrib.framework.nest.flatten(encoder_state)
     decoder_state_flat = tf.contrib.framework.nest.flatten(decoder_zero_state)

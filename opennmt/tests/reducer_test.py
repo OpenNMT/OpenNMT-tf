@@ -187,7 +187,7 @@ class ReducerTest(tf.test.TestCase):
     length_a = [1, 3, 2]
     length_b = [4, 2, 2]
 
-    reduced, length = reducer.MultiplyReducer().reduce_sequence(
+    reduced, length = reducer.MultiplyReducer()(
         [tf.constant(a, dtype=tf.float32), tf.constant(b, dtype=tf.float32)],
         [tf.constant(length_a), tf.constant(length_b)])
 
@@ -212,7 +212,7 @@ class ReducerTest(tf.test.TestCase):
     length_a = [1, 3, 2]
     length_b = [4, 2, 2]
 
-    reduced, length = reducer.MultiplyReducer().reduce_sequence(
+    reduced, length = reducer.MultiplyReducer()(
         [tf.constant(a, dtype=tf.float32), tf.constant(b, dtype=tf.float32)],
         [tf.constant(length_a), tf.constant(length_b)])
 
@@ -237,7 +237,7 @@ class ReducerTest(tf.test.TestCase):
     length_a = [1, 3, 2]
     length_b = [4, 2, 2]
 
-    reduced, length = reducer.ConcatReducer().reduce_sequence(
+    reduced, length = reducer.ConcatReducer()(
         [tf.constant(a, dtype=tf.float32), tf.constant(b, dtype=tf.float32)],
         [tf.constant(length_a), tf.constant(length_b)])
 
@@ -264,7 +264,7 @@ class ReducerTest(tf.test.TestCase):
     length_a = [1, 3, 2]
     length_b = [4, 2, 2]
 
-    reduced, length = reducer.ConcatReducer(axis=1).reduce_sequence(
+    reduced, length = reducer.ConcatReducer(axis=1)(
         [tf.constant(a, dtype=tf.float32), tf.constant(b, dtype=tf.float32)],
         [tf.constant(length_a), tf.constant(length_b)])
 
@@ -291,7 +291,7 @@ class ReducerTest(tf.test.TestCase):
     length_a = [1, 3, 2]
     length_b = [4, 2, 2]
 
-    reduced, length = reducer.ConcatReducer(axis=1).reduce_sequence(
+    reduced, length = reducer.ConcatReducer(axis=1)(
         [tf.constant(a, dtype=tf.float32), tf.constant(b, dtype=tf.float32)],
         [tf.constant(length_a), tf.constant(length_b)])
 
@@ -303,14 +303,14 @@ class ReducerTest(tf.test.TestCase):
       self.assertAllEqual([5, 5, 4], length)
 
   def testJoinReducer(self):
-    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer().reduce([1, 2, 3]))
-    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer().reduce([(1,), (2,), (3,)]))
-    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer().reduce([1, (2, 3)]))
+    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer()([1, 2, 3]))
+    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer()([(1,), (2,), (3,)]))
+    self.assertTupleEqual((1, 2, 3), reducer.JoinReducer()([1, (2, 3)]))
 
     # Named tuples should not be unpacked.
     State = collections.namedtuple("State", ["h", "c"])
     self.assertTupleEqual((State(h=1, c=2), State(h=3, c=4), State(h=5, c=6)),
-                          reducer.JoinReducer().reduce([
+                          reducer.JoinReducer()([
                               State(h=1, c=2), (State(h=3, c=4), State(h=5, c=6))]))
 
 
