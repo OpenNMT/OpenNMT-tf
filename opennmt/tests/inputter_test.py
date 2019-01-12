@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import io
 import os
 import six
 
@@ -42,7 +41,7 @@ class InputterTest(tf.test.TestCase):
       self.assertTrue(os.path.exists(projector_config_path))
       self.assertTrue(os.path.exists(vocab_file))
       self.assertEqual(embedding.get_shape().as_list()[0], count_lines(vocab_file))
-      with io.open(projector_config_path, encoding="utf-8") as projector_config_file:
+      with open(projector_config_path) as projector_config_file:
         text_format.Merge(projector_config_file.read(), projector_config)
       return projector_config
 
@@ -90,19 +89,26 @@ class InputterTest(tf.test.TestCase):
         [["J", "u", "s", "t"], ["a", PAD, PAD, PAD], ["测", "试", PAD, PAD]],
         [4, 1, 2])
 
-  def testPretrainedEmbeddingsLoading(self):
-    embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
+  def _makeTextFile(self, name, lines):
+    path = os.path.join(self.get_temp_dir(), name)
+    with open(path, "w") as f:
+      for line in lines:
+        f.write("%s\n" % line)
+    return path
 
-    with io.open(embedding_file, encoding="utf-8", mode="w") as embedding:
-      embedding.write(u"toto 1 1\n"
-                      u"titi 2 2\n"
-                      u"tata 3 3\n")
-    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
-      vocab.write(u"Toto\n"
-                  u"tOTO\n"
-                  u"tata\n"
-                  u"tete\n")
+  def _makeEmbeddingsFile(self, vectors, name="embedding", header=False):
+    path = os.path.join(self.get_temp_dir(), name)
+    with open(path, "w") as embs:
+      if header:
+        embs.write("%d %d\n" % (len(vectors), len(vectors[0][1])))
+      for word, vector in vectors:
+        embs.write("%s %s\n" % (word, " ".join(str(v) for v in vector)))
+    return path
+
+  def testPretrainedEmbeddingsLoading(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["Toto", "tOTO", "tata", "tete"])
+    embedding_file = self._makeEmbeddingsFile(
+        [("toto", [1, 1]), ("titi", [2, 2]), ("tata", [3, 3])])
 
     embeddings = text_inputter.load_pretrained_embeddings(
         embedding_file,
@@ -125,19 +131,9 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([3, 3], embeddings[2])
 
   def testPretrainedEmbeddingsWithHeaderLoading(self):
-    embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-
-    with io.open(embedding_file, encoding="utf-8", mode="w") as embedding:
-      embedding.write(u"3 2\n"
-                      u"toto 1 1\n"
-                      u"titi 2 2\n"
-                      u"tata 3 3\n")
-    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
-      vocab.write(u"Toto\n"
-                  u"tOTO\n"
-                  u"tata\n"
-                  u"tete\n")
+    vocab_file = self._makeTextFile("vocab.txt", ["Toto", "tOTO", "tata", "tete"])
+    embedding_file = self._makeEmbeddingsFile(
+        [("toto", [1, 1]), ("titi", [2, 2]), ("tata", [3, 3])], header=True)
 
     embeddings = text_inputter.load_pretrained_embeddings(
         embedding_file,
@@ -174,16 +170,8 @@ class InputterTest(tf.test.TestCase):
     return next_element, transformed
 
   def testWordEmbedder(self):
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-    data_file = os.path.join(self.get_temp_dir(), "data.txt")
-
-    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
-      vocab.write(u"the\n"
-                  u"world\n"
-                  u"hello\n"
-                  u"toto\n")
-    with io.open(data_file, encoding="utf-8", mode="w") as data:
-      data.write(u"hello world !\n")
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
 
     embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
     features, transformed = self._makeDataset(
@@ -201,21 +189,10 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 10], transformed.shape)
 
   def testWordEmbedderWithPretrainedEmbeddings(self):
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-    data_file = os.path.join(self.get_temp_dir(), "data.txt")
-    embedding_file = os.path.join(self.get_temp_dir(), "embedding.txt")
-
-    with io.open(embedding_file, encoding="utf-8", mode="w") as embedding:
-      embedding.write(u"hello 1 1\n"
-                      u"world 2 2\n"
-                      u"toto 3 3\n")
-    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
-      vocab.write(u"the\n"
-                  u"world\n"
-                  u"hello\n"
-                  u"toto\n")
-    with io.open(data_file, encoding="utf-8", mode="w") as data:
-      data.write(u"hello world !\n")
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    embedding_file = self._makeEmbeddingsFile(
+        [("hello", [1, 1]), ("world", [2, 2]), ("toto", [3, 3])])
 
     embedder = text_inputter.WordEmbedder(
         "vocabulary_file",
@@ -235,17 +212,8 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([2, 2], transformed[0][1])
 
   def testCharConvEmbedder(self):
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-    data_file = os.path.join(self.get_temp_dir(), "data.txt")
-
-    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
-      vocab.write(u"h\n"
-                  u"e\n"
-                  u"l\n"
-                  u"w\n"
-                  u"o\n")
-    with io.open(data_file, encoding="utf-8", mode="w") as data:
-      data.write(u"hello world !\n")
+    vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
 
     embedder = text_inputter.CharConvEmbedder("vocabulary_file", 10, 5)
     features, transformed = self._makeDataset(
@@ -265,17 +233,8 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 5], transformed.shape)
 
   def testCharRNNEmbedder(self):
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-    data_file = os.path.join(self.get_temp_dir(), "data.txt")
-
-    with open(vocab_file, "w") as vocab:
-      vocab.write("h\n"
-                  "e\n"
-                  "l\n"
-                  "w\n"
-                  "o\n")
-    with open(data_file, "w") as data:
-      data.write("hello world !\n")
+    vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
 
     embedder = text_inputter.CharRNNEmbedder("vocabulary_file", 10, 5)
     features, transformed = self._makeDataset(
@@ -291,16 +250,8 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 5], transformed.shape)
 
   def testParallelInputter(self):
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-    data_file = os.path.join(self.get_temp_dir(), "data.txt")
-
-    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
-      vocab.write(u"the\n"
-                  u"world\n"
-                  u"hello\n"
-                  u"toto\n")
-    with io.open(data_file, encoding="utf-8", mode="w") as data:
-      data.write(u"hello world !\n")
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
 
     data_files = [data_file, data_file]
 
@@ -328,23 +279,9 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 5], transformed[1].shape)
 
   def testMixedInputter(self):
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-    vocab_alt_file = os.path.join(self.get_temp_dir(), "vocab_alt.txt")
-    data_file = os.path.join(self.get_temp_dir(), "data.txt")
-
-    with io.open(vocab_file, encoding="utf-8", mode="w") as vocab:
-      vocab.write(u"the\n"
-                  u"world\n"
-                  u"hello\n"
-                  u"toto\n")
-    with io.open(vocab_alt_file, encoding="utf-8", mode="w") as vocab_alt:
-      vocab_alt.write(u"h\n"
-                      u"e\n"
-                      u"l\n"
-                      u"w\n"
-                      u"o\n")
-    with io.open(data_file, encoding="utf-8", mode="w") as data:
-      data.write(u"hello world !\n")
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    vocab_alt_file = self._makeTextFile("vocab_alt.txt", ["h", "e", "l", "w", "o"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
 
     mixed_inputter = inputter.MixedInputter([
         text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10),
