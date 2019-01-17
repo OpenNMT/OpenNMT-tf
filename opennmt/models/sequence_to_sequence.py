@@ -161,7 +161,7 @@ class SequenceToSequence(Model):
       alignments = alignment_matrix_from_pharaoh(
           alignment_line,
           self._get_features_length(features),
-          self._get_labels_length(labels))
+          self._get_labels_length(labels) - 1)  # Ignore special token.
       labels["alignment"] = alignments
       return features, labels
 
@@ -337,10 +337,11 @@ class SequenceToSequence(Model):
           tf.logging.warning("This model did not return attention vectors; "
                              "guided alignment will not be applied")
         else:
+          # Note: the first decoder input is <s> for which we don't want any alignment.
           loss += guided_alignment_cost(
-              attention,
+              attention[:, 1:],
               gold_alignments,
-              labels_lengths,
+              labels_lengths - 1,
               guided_alignment_type,
               guided_alignment_weight=params.get("guided_alignment_weight", 1))
     return loss, loss_normalizer, loss_token_normalizer
@@ -380,8 +381,8 @@ def alignment_matrix_from_pharaoh(alignment_line,
 
   Args:
     alignment_line: A string ``tf.Tensor`` in the Pharaoh format.
-    source_length: The length of the source sentence.
-    target_length The length of the target sentence.
+    source_length: The length of the source sentence, without special symbols.
+    target_length The length of the target sentence, without special symbols.
     dtype: The output matrix dtype. Defaults to ``tf.float32`` for convenience
       when computing the guided alignment loss.
 
