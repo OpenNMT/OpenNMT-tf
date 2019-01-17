@@ -180,7 +180,7 @@ class DecoderTest(tf.test.TestCase):
           alignment_history, decode_time, memory_time = sess.run(
               [alignment_history, tf.shape(ids)[-1], tf.shape(memory)[1]])
           self.assertAllEqual(
-              [batch_size, num_hyps, decode_time, memory_time], alignment_history.shape)
+              [batch_size, num_hyps, decode_time - 1, memory_time], alignment_history.shape)
         else:
           self.assertIsNone(alignment_history)
 

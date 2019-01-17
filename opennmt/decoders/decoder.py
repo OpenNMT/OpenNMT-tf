@@ -400,6 +400,8 @@ class Decoder(object):
       log_probs = tf.expand_dims(log_probs, 1)
       if attention is not None:
         attention = tf.expand_dims(attention, 1)
+    if attention is not None:
+      attention = attention[:, :, 1:]  # Ignore attention for <s>.
 
     if return_alignment_history:
       return (outputs, state["decoder"], lengths, log_probs, attention)
