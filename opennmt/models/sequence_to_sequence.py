@@ -146,8 +146,6 @@ class SequenceToSequence(Model):
     assets = super(SequenceToSequence, self)._initialize(metadata, asset_dir=asset_dir)
     if self.alignment_file_key is not None and self.alignment_file_key in metadata:
       self.alignment_file = metadata[self.alignment_file_key]
-      tf.logging.info(
-          "Training with guided alignment using alignments from %s", self.alignment_file)
     return assets
 
   def _augment_parallel_dataset(self, dataset, process_fn, mode=None):
@@ -161,7 +159,7 @@ class SequenceToSequence(Model):
       alignments = alignment_matrix_from_pharaoh(
           alignment_line,
           self._get_features_length(features),
-          self._get_labels_length(labels))
+          self._get_labels_length(labels) - 1)  # Ignore special token.
       labels["alignment"] = alignments
       return features, labels
 
@@ -337,10 +335,11 @@ class SequenceToSequence(Model):
           tf.logging.warning("This model did not return attention vectors; "
                              "guided alignment will not be applied")
         else:
+          # Note: the first decoder input is <s> for which we don't want any alignment.
           loss += guided_alignment_cost(
-              attention,
+              attention[:, 1:],
               gold_alignments,
-              labels_lengths,
+              labels_lengths - 1,
               guided_alignment_type,
               guided_alignment_weight=params.get("guided_alignment_weight", 1))
     return loss, loss_normalizer, loss_token_normalizer
@@ -380,8 +379,8 @@ def alignment_matrix_from_pharaoh(alignment_line,
 
   Args:
     alignment_line: A string ``tf.Tensor`` in the Pharaoh format.
-    source_length: The length of the source sentence.
-    target_length The length of the target sentence.
+    source_length: The length of the source sentence, without special symbols.
+    target_length The length of the target sentence, without special symbols.
     dtype: The output matrix dtype. Defaults to ``tf.float32`` for convenience
       when computing the guided alignment loss.
 
@@ -394,13 +393,13 @@ def alignment_matrix_from_pharaoh(alignment_line,
   align_pairs_flat_str = tf.string_split(align_pairs_str, delimiter="-").values
   align_pairs_flat = tf.string_to_number(align_pairs_flat_str, out_type=tf.int32)
   sparse_indices = tf.reshape(align_pairs_flat, [-1, 2])
-  sparse_values = tf.ones([tf.shape(sparse_indices)[0]])
+  sparse_values = tf.ones([tf.shape(sparse_indices)[0]], dtype=dtype)
   alignment_matrix = tf.sparse_to_dense(
       sparse_indices,
       [source_length, target_length],
       sparse_values,
       validate_indices=False)
-  return tf.cast(tf.transpose(alignment_matrix), dtype)
+  return tf.transpose(alignment_matrix)
 
 def guided_alignment_cost(attention_probs,
                           gold_alignment,

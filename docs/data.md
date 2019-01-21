@@ -54,9 +54,10 @@ This file should then be added in the data configuration:
 ```yaml
 data:
   train_alignments: train-alignment.txt
-```
 
-and a guided alignment type should be set in the training configuration.
+params:
+  guided_alignment_type: ce
+```
 
 ## Data location
 

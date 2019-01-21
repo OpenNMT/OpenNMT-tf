@@ -256,7 +256,7 @@ class AdafactorOptimizer(tf.train.Optimizer):
       m = self.get_slot(var, "m")
       new_m = self._beta1 * tf.cast(m, tf.float32) + (1.0 - self._beta1) * subtrahend
       subtrahend = new_m
-      new_m = common_layers.cast_like(new_m, var)
+      new_m = tf.cast(new_m, var.dtype)
       updates.append(tf.assign(m, new_m, use_locking=self._use_locking))
     new_val = tf.cast(old_val, tf.float32) - subtrahend
     var_update = tf.assign(var, new_val, use_locking=self._use_locking)
