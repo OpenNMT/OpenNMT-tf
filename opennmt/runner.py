@@ -1,7 +1,6 @@
 """Main library entrypoint."""
 
 import copy
-import json
 import io
 import os
 import sys
@@ -88,7 +87,7 @@ class Runner(object):
       misc.merge_dict(self._config, model_config)
     misc.merge_dict(self._config, config)
     tf.logging.info(
-        "Using parameters: %s", json.dumps(self._config, indent=2, sort_keys=True))
+        "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
 
     session_config_base = tf.ConfigProto(
         allow_soft_placement=True,
