@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence module &mdash; OpenNMT-tf 1.17.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence module &mdash; OpenNMT-tf 1.17.1 documentation</title>
   
 
   
@@ -328,8 +328,8 @@ between devices for this model. Not compatible with RNN based models.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>alignment_line</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> in the Pharaoh format.</li>
-<li><strong>source_length</strong> – The length of the source sentence.</li>
-<li><strong>The length of the target sentence.</strong> (<em>target_length</em>) – </li>
+<li><strong>source_length</strong> – The length of the source sentence, without special symbols.</li>
+<li><strong>The length of the target sentence</strong><strong>, </strong><strong>without special symbols.</strong> (<em>target_length</em>) – </li>
 <li><strong>dtype</strong> – The output matrix dtype. Defaults to <code class="docutils literal notranslate"><span class="pre">tf.float32</span></code> for convenience
 when computing the guided alignment loss.</li>
 </ul>
@@ -464,7 +464,7 @@ token.</p>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.17.0',
+              VERSION:'1.17.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

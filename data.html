@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data &mdash; OpenNMT-tf 1.17.0 documentation</title>
+  <title>Data &mdash; OpenNMT-tf 1.17.1 documentation</title>
   
 
   
@@ -217,9 +217,11 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 <p>This file should then be added in the data configuration:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
   <span class="nt">train_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">train-alignment.txt</span>
+
+<span class="nt">params</span><span class="p">:</span>
+  <span class="nt">guided_alignment_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ce</span>
 </pre></div>
 </div>
-<p>and a guided alignment type should be set in the training configuration.</p>
 </div>
 </div>
 <div class="section" id="data-location">
@@ -297,7 +299,7 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.17.0',
+              VERSION:'1.17.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
