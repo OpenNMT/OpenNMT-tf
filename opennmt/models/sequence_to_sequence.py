@@ -146,8 +146,6 @@ class SequenceToSequence(Model):
     assets = super(SequenceToSequence, self)._initialize(metadata, asset_dir=asset_dir)
     if self.alignment_file_key is not None and self.alignment_file_key in metadata:
       self.alignment_file = metadata[self.alignment_file_key]
-      tf.logging.info(
-          "Training with guided alignment using alignments from %s", self.alignment_file)
     return assets
 
   def _augment_parallel_dataset(self, dataset, process_fn, mode=None):
