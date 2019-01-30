@@ -147,7 +147,8 @@ def batch_parallel_dataset(batch_size,
                            bucket_width=None,
                            padded_shapes=None,
                            features_length_fn=None,
-                           labels_length_fn=None):
+                           labels_length_fn=None,
+                           batch_size_multiple=1):
   """Transformation that batches a parallel dataset.
 
   This implements an example-based and a token-based batching strategy
@@ -173,6 +174,8 @@ def batch_parallel_dataset(batch_size,
       are automatically inferred from the dataset output shapes.
     features_length_fn: A callable mapping features to a sequence length.
     labels_length_fn: A callable mapping labels to a sequence length.
+    batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
+      result batch size is a multiple of this value.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
@@ -202,10 +205,10 @@ def batch_parallel_dataset(batch_size,
     if bucket_width > 1:
       key += 1  # For bucket_width == 1, key 0 is unassigned.
     size = batch_size // (key * bucket_width)
-    if batch_multiplier > 1:
-      # Make the window size a multiple of batch_multiplier.
-      size = size + batch_multiplier - size % batch_multiplier
-    return tf.cast(tf.maximum(size, batch_multiplier), tf.int64)
+    required_multiple = batch_multiplier * batch_size_multiple
+    if required_multiple > 1:
+      size = size + required_multiple - size % required_multiple
+    return tf.cast(tf.maximum(size, required_multiple), tf.int64)
 
   if bucket_width is None:
     return batch_dataset(batch_size, padded_shapes=padded_shapes)
@@ -235,7 +238,8 @@ def training_pipeline(dataset,
                       maximum_features_length=None,
                       maximum_labels_length=None,
                       features_length_fn=None,
-                      labels_length_fn=None):
+                      labels_length_fn=None,
+                      batch_size_multiple=1):
   """Defines a complete training data pipeline.
 
   Args:
@@ -262,6 +266,8 @@ def training_pipeline(dataset,
       ``None`` to not constrain the length.
     features_length_fn: A callable mapping features to a sequence length.
     labels_length_fn: A callable mapping labels to a sequence length.
+    batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
+      result batch size is a multiple of this value.
 
   Returns:
     A ``tf.data.Dataset``.
@@ -290,7 +296,8 @@ def training_pipeline(dataset,
       batch_multiplier=batch_multiplier,
       bucket_width=bucket_width,
       features_length_fn=features_length_fn,
-      labels_length_fn=labels_length_fn))
+      labels_length_fn=labels_length_fn,
+      batch_size_multiple=batch_size_multiple))
   dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
   if not single_pass:
     dataset = dataset.repeat()
