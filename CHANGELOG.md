@@ -14,6 +14,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Argument `--size_multiple` to the `onmt-build-vocab` script to constrain the vocabulary size used during the training
+
 ### Fixes and improvements
 
 * Improve TransformerFP16 training speed by making the batch size a multiple of 8

@@ -154,3 +154,20 @@ class Vocab(object):
       new_vocab._frequency.append(frequency)  # pylint: disable=protected-access
 
     return new_vocab
+
+  def pad_to_multiple(self, multiple, num_oov_buckets=1):
+    """Pads the vocabulary size to a multiple value.
+
+    More specically, this method ensures that:
+
+        ``(vocab_size + num_oov_buckets) % multiple == 0``
+
+    Args:
+      multiple: The multiple value.
+      num_oov_buckets: The number of OOV buckets added during the training.
+        Usually just 1 for the `<unk>` token.
+    """
+    i = 0
+    while (self.size + num_oov_buckets) % multiple != 0:
+      self.add("averyunlikelytoken%d" % i)
+      i += 1
