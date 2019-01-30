@@ -22,6 +22,10 @@ def main():
       "--size", type=int, default=0,
       help="Maximum vocabulary size. If = 0, do not limit vocabulary.")
   parser.add_argument(
+      "--size_multiple", type=int, default=1,
+      help=("Ensure that the vocabulary size + 1 is a multiple of this value "
+            "(+ 1 represents the <unk> token that will be added during the training."))
+  parser.add_argument(
       "--without_sequence_tokens", default=False, action="store_true",
       help="If set, do not add special sequence tokens (start, end) in the vocabulary.")
   tokenizers.add_command_line_arguments(parser)
@@ -38,6 +42,7 @@ def main():
   for data_file in args.data:
     vocab.add_from_text(data_file, tokenizer=tokenizer)
   vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)
+  vocab.pad_to_multiple(args.size_multiple, num_oov_buckets=1)
   vocab.serialize(args.save_vocab)
 
 
