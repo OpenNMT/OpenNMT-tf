@@ -15,7 +15,7 @@ env:
     - TF_VERSION="1.11.*"
     - TF_VERSION="$LATEST_TF_VERSION"
 before_install:
-  - pip install pandas tensorflow==$TF_VERSION
+  - pip install tensorflow==$TF_VERSION
   - pip install -e .[tests]
 script:
   - nose2
