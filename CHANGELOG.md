@@ -19,7 +19,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
-* Improve TransformerFP16 training speed by making the batch size a multiple of 8
+* Improve FP16 training speed by making the batch size a multiple of 8
 * In training logs, dump final run configuration in YAML format instead of JSON
 
 ## [1.17.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.17.1) (2019-01-21)
