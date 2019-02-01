@@ -14,6 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [1.18.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.18.0) (2019-02-01)
+
+### New features
+
 * Argument `--size_multiple` to the `onmt-build-vocab` script to constrain the vocabulary size used during the training
 * `TransformerBigFP16` in model catalog
 
