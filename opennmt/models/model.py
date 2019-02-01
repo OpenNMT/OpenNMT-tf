@@ -391,6 +391,9 @@ class Model(object):
       dataset, process_fn = self._augment_parallel_dataset(dataset, process_fn, mode=mode)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
+      batch_size_multiple = 1
+      if batch_type == "tokens" and self.dtype == tf.float16:
+        batch_size_multiple = 8
       dataset = data.training_pipeline(
           dataset,
           batch_size,
@@ -406,7 +409,8 @@ class Model(object):
           maximum_features_length=maximum_features_length,
           maximum_labels_length=maximum_labels_length,
           features_length_fn=self._get_features_length,
-          labels_length_fn=self._get_labels_length)
+          labels_length_fn=self._get_labels_length,
+          batch_size_multiple=batch_size_multiple)
     else:
       dataset = data.inference_pipeline(
           dataset,

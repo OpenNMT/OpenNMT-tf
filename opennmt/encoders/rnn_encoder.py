@@ -285,7 +285,7 @@ class PyramidalRNNEncoder(Encoder):
         total_reduction_factor = pow(self.reduction_factor, len(self.layers) - 1)
 
         current_length = tf.shape(inputs)[1]
-        factor = tf.divide(tf.cast(current_length, tf.float32), total_reduction_factor)
+        factor = tf.cast(current_length, tf.float32) / total_reduction_factor
         new_length = tf.cast(tf.ceil(factor), tf.int32) * total_reduction_factor
         inputs = pad_in_time(inputs, new_length - current_length)
 
@@ -297,7 +297,7 @@ class PyramidalRNNEncoder(Encoder):
             inputs,
             [tf.shape(inputs)[0], -1, input_depth * self.reduction_factor])
         if sequence_length is not None:
-          sequence_length = tf.div(sequence_length, self.reduction_factor)
+          sequence_length //= self.reduction_factor
 
       with tf.variable_scope("layer_{}".format(layer_index)):
         outputs, state, sequence_length = layer.encode(

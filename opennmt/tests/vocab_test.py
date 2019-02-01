@@ -71,6 +71,24 @@ class VocabTest(tf.test.TestCase):
     self.assertEqual(vocab1.size, vocab2.size)
     self.assertEqual(vocab1.lookup("titi"), vocab2.lookup("titi"))
 
+  def testVocabPadding(self):
+    vocab = Vocab()
+    vocab.add("toto")
+    vocab.add("titi")
+    vocab.add("tata")
+    self.assertEqual(vocab.size, 3)
+    vocab.pad_to_multiple(6, num_oov_buckets=1)
+    self.assertEqual(vocab.size, 6 - 1)
+
+  def testVocabNoPadding(self):
+    vocab = Vocab()
+    vocab.add("toto")
+    vocab.add("titi")
+    vocab.add("tata")
+    self.assertEqual(vocab.size, 3)
+    vocab.pad_to_multiple(4, num_oov_buckets=1)
+    self.assertEqual(vocab.size, 3)
+
 
 if __name__ == "__main__":
   tf.test.main()

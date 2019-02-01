@@ -59,10 +59,10 @@ For more details, see the documentation of [`tf.estimator.train_and_evaluate`](h
 
 ## Mixed precision training
 
-Thanks to [work from NVIDIA](https://github.com/NVIDIA/OpenSeq2Seq), OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the [inputters](package/opennmt.inputters.inputter.html) is defined to be `tf.float16`. See for example the predefined model `TransformerFP16`:
+Thanks to [work from NVIDIA](https://github.com/NVIDIA/OpenSeq2Seq), OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the [inputters](package/opennmt.inputters.inputter.html) is defined to be `tf.float16`. See for example the predefined model `TransformerFP16`, which is up to [1.8x faster](https://github.com/OpenNMT/OpenNMT-tf/pull/211#issuecomment-455605090) than the FP32 version on compatible hardware:
 
 ```bash
-onmt-main train [...] --model_type TransformerFP16
+onmt-main train_and_eval --model_type TransformerFP16 --auto_config --config data.yml
 ```
 
 Additional training configurations are available to tune the loss scaling algorithm:
@@ -79,7 +79,19 @@ params:
     step_factor: 2.0
 ```
 
-For more information about the implementation and get expert recommendation on how to maximize performance, see the [OpenSeq2Seq's documentation](https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html). Currently, mixed precision training requires Volta GPUs and the NVIDIA's TensorFlow Docker image.
+### Maximizing the FP16 performance
+
+Some extra steps may be required to ensure good FP16 performance:
+
+* Mixed precision training requires at least Volta GPUs and CUDA 9.1. As TensorFlow versions 1.5 to 1.12 are shipped with CUDA 9.0, you should instead:
+  * install TensorFlow 1.13 or higher
+  * use NVIDIA's [TensorFlow Docker image](https://docs.nvidia.com/deeplearning/dgx/tensorflow-release-notes/running.html)
+  * compile TensorFlow manually
+* Tensor Cores require the input dimensions to be a multiple of 8. You may need to tune your vocabulary size using `--size_multiple 8` on `onmt-build-vocab` which will ensure that `(vocab_size + 1) % 8 == 0` (+ 1 is the `<unk>` token that is automatically added during the training).
+
+For more information about the implementation and get additional expert recommendation on how to maximize performance, see the [OpenSeq2Seq's documentation](https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html).
+
+### Converting between FP32 and FP16
 
 If you want to convert an existing checkpoint to FP16 from FP32 (or vice-versa), see the script `onmt-convert-checkpoint`. Typically, it is useful when you want to train using FP16 but still release a model in FP32, e.g.:
 

@@ -126,6 +126,17 @@ class DataTest(tf.test.TestCase):
       self.assertEqual(30, features.shape[0])
     self._testBatchTrainDataset(_check_fn, 10, batch_multiplier=3)
 
+  def testBatchTrainDatasetMultiple(self):
+    def _check_fn(sess, next_element):
+      features, labels = sess.run(next_element)
+      self.assertEqual(features.shape[0] % 3, 0)
+    self._testBatchTrainDataset(
+        _check_fn,
+        1024,
+        batch_type="tokens",
+        batch_size_multiple=3,
+        bucket_width=10)
+
   def testBatchTrainDatasetBucket(self):
     def _check_fn(sess, next_element):
       for _ in range(20):

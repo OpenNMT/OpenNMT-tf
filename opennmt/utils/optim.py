@@ -84,7 +84,7 @@ def learning_rate_decay_fn_v2(decay_type,
 
     # Map the training step to a decay step.
     step = tf.maximum(global_step - start_decay_step, 0)
-    step = tf.div(step, decay_step_duration)
+    step //= decay_step_duration
 
     learning_rate = decay_op_name(learning_rate, step, **decay_params)
     return tf.maximum(learning_rate, minimum_learning_rate)

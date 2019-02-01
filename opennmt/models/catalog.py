@@ -236,14 +236,16 @@ class TransformerAAN(onmt.models.Transformer):
 
 class TransformerBig(onmt.models.Transformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
-  def __init__(self):
+  def __init__(self, dtype=tf.float32):
     super(TransformerBig, self).__init__(
         source_inputter=onmt.inputters.WordEmbedder(
             vocabulary_file_key="source_words_vocabulary",
-            embedding_size=1024),
+            embedding_size=1024,
+            dtype=dtype),
         target_inputter=onmt.inputters.WordEmbedder(
             vocabulary_file_key="target_words_vocabulary",
-            embedding_size=1024),
+            embedding_size=1024,
+            dtype=dtype),
         num_layers=6,
         num_units=1024,
         num_heads=16,
@@ -251,3 +253,8 @@ class TransformerBig(onmt.models.Transformer):
         dropout=0.3,
         attention_dropout=0.1,
         relu_dropout=0.1)
+
+class TransformerBigFP16(TransformerBig):
+  """Defines a large Transformer model that uses half-precision floating points."""
+  def __init__(self):
+    super(TransformerBigFP16, self).__init__(dtype=tf.float16)

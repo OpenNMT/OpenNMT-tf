@@ -22,23 +22,9 @@ The following instructions are for replicating the result from scratch; skip to 
 
 NMT models perform better if words are represented as sub-words, since this helps the out-of-vocabulary problem. [SentencePiece](https://arxiv.org/pdf/1808.06226.pdf) is a powerful end-to-end tokenizer that allows the learning of subword units from raw data. [We will install SentencePiece from source](https://github.com/google/sentencepiece#c-from-source) rather than via `pip install`, since the `spm_train` command used for training a SentencePiece model is not installed via pip but has to be built from the C++.
 
-Installation instructions are available [here](https://github.com/google/sentencepiece#c-from-source) but an example is reproduced below (for a TensorFlow Docker container built from latest-gpu-py3 image, running Ubuntu 16.04; TensorFlow Docker images are [here](https://hub.docker.com/r/tensorflow/tensorflow/), a beginner's tutorial on Docker and containerisation is [here](https://docker-curriculum.com/))
-
-```bash
-apt-get install cmake pkg-config libprotobuf9v5 protobuf-compiler libprotobuf-dev libgoogle-perftools-dev
-apt-get install libprotobuf9v5
-git clone https://github.com/google/sentencepiece.git
-cd sentencepiece
-mkdir build
-cd build
-cmake ..
-make -j $(nproc)
-make install
-ldconfig -v
-```
+Installation instructions are available [here](https://github.com/google/sentencepiece#c-from-source). (For a TensorFlow Docker container built from latest-gpu-py3 image, running Ubuntu 16.04; TensorFlow Docker images are [here](https://hub.docker.com/r/tensorflow/tensorflow/), a beginner's tutorial on Docker and containerisation is [here](https://docker-curriculum.com/).)
 
 If you installed SentencePiece in a custom location, change the `SP_PATH` variable in the scripts.
-
 
 ### Data loading and preparation with SentencePiece
 
