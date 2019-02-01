@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 1.17.1 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 1.18.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.17
+                1.18
               </div>
             
           
@@ -553,6 +553,9 @@
       <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_parallel_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
+      <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="mi">1</span>
+      <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">float16</span><span class="p">:</span>
+        <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="mi">8</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">training_pipeline</span><span class="p">(</span>
           <span class="n">dataset</span><span class="p">,</span>
           <span class="n">batch_size</span><span class="p">,</span>
@@ -568,7 +571,8 @@
           <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
           <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
           <span class="n">features_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features_length</span><span class="p">,</span>
-          <span class="n">labels_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">)</span>
+          <span class="n">labels_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">,</span>
+          <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span>
           <span class="n">dataset</span><span class="p">,</span>
@@ -738,7 +742,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.17.1',
+              VERSION:'1.18.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.vocab module &mdash; OpenNMT-tf 1.17.1 documentation</title>
+  <title>opennmt.utils.vocab module &mdash; OpenNMT-tf 1.18.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.17
+                1.18
               </div>
             
           
@@ -323,6 +323,28 @@
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="opennmt.utils.vocab.Vocab.pad_to_multiple">
+<code class="descname">pad_to_multiple</code><span class="sig-paren">(</span><em>multiple</em>, <em>num_oov_buckets=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/vocab.html#Vocab.pad_to_multiple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.vocab.Vocab.pad_to_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pads the vocabulary size to a multiple value.</p>
+<p>More specically, this method ensures that:</p>
+<blockquote>
+<div><code class="docutils literal notranslate"><span class="pre">(vocab_size</span> <span class="pre">+</span> <span class="pre">num_oov_buckets)</span> <span class="pre">%</span> <span class="pre">multiple</span> <span class="pre">==</span> <span class="pre">0</span></code></div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>multiple</strong> – The multiple value.</li>
+<li><strong>num_oov_buckets</strong> – The number of OOV buckets added during the training.
+Usually just 1 for the <cite>&lt;unk&gt;</cite> token.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -370,7 +392,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.17.1',
+              VERSION:'1.18.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

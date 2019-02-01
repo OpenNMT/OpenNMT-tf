@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.vocab &mdash; OpenNMT-tf 1.17.1 documentation</title>
+  <title>opennmt.utils.vocab &mdash; OpenNMT-tf 1.18.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.17
+                1.18
               </div>
             
           
@@ -315,7 +315,24 @@
       <span class="n">new_vocab</span><span class="o">.</span><span class="n">_id_to_token</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
       <span class="n">new_vocab</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
 
-    <span class="k">return</span> <span class="n">new_vocab</span></div></div>
+    <span class="k">return</span> <span class="n">new_vocab</span></div>
+
+<div class="viewcode-block" id="Vocab.pad_to_multiple"><a class="viewcode-back" href="../../../package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.pad_to_multiple">[docs]</a>  <span class="k">def</span> <span class="nf">pad_to_multiple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiple</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pads the vocabulary size to a multiple value.</span>
+
+<span class="sd">    More specically, this method ensures that:</span>
+
+<span class="sd">        ``(vocab_size + num_oov_buckets) % multiple == 0``</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      multiple: The multiple value.</span>
+<span class="sd">      num_oov_buckets: The number of OOV buckets added during the training.</span>
+<span class="sd">        Usually just 1 for the `&lt;unk&gt;` token.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">num_oov_buckets</span><span class="p">)</span> <span class="o">%</span> <span class="n">multiple</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;averyunlikelytoken</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
 </pre></div>
 
            </div>
@@ -351,7 +368,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.17.1',
+              VERSION:'1.18.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.17.1 documentation</title>
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.18.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.17
+                1.18
               </div>
             
           
@@ -246,7 +246,7 @@
 
     <span class="c1"># Map the training step to a decay step.</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">global_step</span> <span class="o">-</span> <span class="n">start_decay_step</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">decay_step_duration</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">//=</span> <span class="n">decay_step_duration</span>
 
     <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">decay_op_name</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="o">**</span><span class="n">decay_params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">minimum_learning_rate</span><span class="p">)</span>
@@ -490,7 +490,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.17.1',
+              VERSION:'1.18.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

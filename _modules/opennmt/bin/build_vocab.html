@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.bin.build_vocab &mdash; OpenNMT-tf 1.17.1 documentation</title>
+  <title>opennmt.bin.build_vocab &mdash; OpenNMT-tf 1.18.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.17
+                1.18
               </div>
             
           
@@ -184,6 +184,10 @@
       <span class="s2">&quot;--size&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum vocabulary size. If = 0, do not limit vocabulary.&quot;</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+      <span class="s2">&quot;--size_multiple&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Ensure that the vocabulary size + 1 is a multiple of this value &quot;</span>
+            <span class="s2">&quot;(+ 1 represents the &lt;unk&gt; token that will be added during the training.&quot;</span><span class="p">))</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
       <span class="s2">&quot;--without_sequence_tokens&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If set, do not add special sequence tokens (start, end) in the vocabulary.&quot;</span><span class="p">)</span>
   <span class="n">tokenizers</span><span class="o">.</span><span class="n">add_command_line_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
@@ -200,6 +204,7 @@
   <span class="k">for</span> <span class="n">data_file</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
     <span class="n">vocab</span><span class="o">.</span><span class="n">add_from_text</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">)</span>
   <span class="n">vocab</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">prune</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">min_frequency</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">min_frequency</span><span class="p">)</span>
+  <span class="n">vocab</span><span class="o">.</span><span class="n">pad_to_multiple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">size_multiple</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
   <span class="n">vocab</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">save_vocab</span><span class="p">)</span></div>
 
 
@@ -240,7 +245,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.17.1',
+              VERSION:'1.18.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

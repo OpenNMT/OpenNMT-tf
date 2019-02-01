@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training &mdash; OpenNMT-tf 1.17.1 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 1.18.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.17
+                1.18
               </div>
             
           
@@ -98,7 +98,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#monitoring">Monitoring</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#replicated-training">Replicated training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#distributed-training">Distributed training</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mixed-precision-training">Mixed precision training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixed-precision-training">Mixed precision training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#maximizing-the-fp16-performance">Maximizing the FP16 performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#converting-between-fp32-and-fp16">Converting between FP32 and FP16</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#retraining">Retraining</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#continuing-from-a-stopped-training">Continuing from a stopped training</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fine-tune-an-existing-model">Fine-tune an existing model</a></li>
@@ -224,8 +228,8 @@
 </div>
 <div class="section" id="mixed-precision-training">
 <h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline">¶</a></h2>
-<p>Thanks to <a class="reference external" href="https://github.com/NVIDIA/OpenSeq2Seq">work from NVIDIA</a>, OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the <a class="reference external" href="package/opennmt.inputters.inputter.html">inputters</a> is defined to be <code class="docutils literal notranslate"><span class="pre">tf.float16</span></code>. See for example the predefined model <code class="docutils literal notranslate"><span class="pre">TransformerFP16</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train <span class="o">[</span>...<span class="o">]</span> --model_type TransformerFP16
+<p>Thanks to <a class="reference external" href="https://github.com/NVIDIA/OpenSeq2Seq">work from NVIDIA</a>, OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the <a class="reference external" href="package/opennmt.inputters.inputter.html">inputters</a> is defined to be <code class="docutils literal notranslate"><span class="pre">tf.float16</span></code>. See for example the predefined model <code class="docutils literal notranslate"><span class="pre">TransformerFP16</span></code>, which is up to <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/pull/211#issuecomment-455605090">1.8x faster</a> than the FP32 version on compatible hardware:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train_and_eval --model_type TransformerFP16 --auto_config --config data.yml
 </pre></div>
 </div>
 <p>Additional training configurations are available to tune the loss scaling algorithm:</p>
@@ -240,12 +244,28 @@
     <span class="nt">step_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
 </pre></div>
 </div>
-<p>For more information about the implementation and get expert recommendation on how to maximize performance, see the <a class="reference external" href="https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html">OpenSeq2Seq’s documentation</a>. Currently, mixed precision training requires Volta GPUs and the NVIDIA’s TensorFlow Docker image.</p>
+<div class="section" id="maximizing-the-fp16-performance">
+<h3>Maximizing the FP16 performance<a class="headerlink" href="#maximizing-the-fp16-performance" title="Permalink to this headline">¶</a></h3>
+<p>Some extra steps may be required to ensure good FP16 performance:</p>
+<ul class="simple">
+<li>Mixed precision training requires at least Volta GPUs and CUDA 9.1. As TensorFlow versions 1.5 to 1.12 are shipped with CUDA 9.0, you should instead:<ul>
+<li>install TensorFlow 1.13 or higher</li>
+<li>use NVIDIA’s <a class="reference external" href="https://docs.nvidia.com/deeplearning/dgx/tensorflow-release-notes/running.html">TensorFlow Docker image</a></li>
+<li>compile TensorFlow manually</li>
+</ul>
+</li>
+<li>Tensor Cores require the input dimensions to be a multiple of 8. You may need to tune your vocabulary size using <code class="docutils literal notranslate"><span class="pre">--size_multiple</span> <span class="pre">8</span></code> on <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> which will ensure that <code class="docutils literal notranslate"><span class="pre">(vocab_size</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">%</span> <span class="pre">8</span> <span class="pre">==</span> <span class="pre">0</span></code> (+ 1 is the <code class="docutils literal notranslate"><span class="pre">&lt;unk&gt;</span></code> token that is automatically added during the training).</li>
+</ul>
+<p>For more information about the implementation and get additional expert recommendation on how to maximize performance, see the <a class="reference external" href="https://nvidia.github.io/OpenSeq2Seq/html/mixed-precision.html">OpenSeq2Seq’s documentation</a>.</p>
+</div>
+<div class="section" id="converting-between-fp32-and-fp16">
+<h3>Converting between FP32 and FP16<a class="headerlink" href="#converting-between-fp32-and-fp16" title="Permalink to this headline">¶</a></h3>
 <p>If you want to convert an existing checkpoint to FP16 from FP32 (or vice-versa), see the script <code class="docutils literal notranslate"><span class="pre">onmt-convert-checkpoint</span></code>. Typically, it is useful when you want to train using FP16 but still release a model in FP32, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-convert-checkpoint --model_dir ende-fp16/ --output_dir ende-fp32/ --target_dtype float32
 </pre></div>
 </div>
 <p>The checkpoint generated in <code class="docutils literal notranslate"><span class="pre">ende-fp32/</span></code> can then be used in <code class="docutils literal notranslate"><span class="pre">infer</span></code> or <code class="docutils literal notranslate"><span class="pre">export</span></code> run types.</p>
+</div>
 </div>
 <div class="section" id="retraining">
 <h2>Retraining<a class="headerlink" href="#retraining" title="Permalink to this headline">¶</a></h2>
@@ -318,7 +338,7 @@ onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.17.1',
+              VERSION:'1.18.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.data module &mdash; OpenNMT-tf 1.17.1 documentation</title>
+  <title>opennmt.utils.data module &mdash; OpenNMT-tf 1.18.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.17
+                1.18
               </div>
             
           
@@ -309,7 +309,7 @@ are automatically inferred from the dataset output shapes.</li>
 
 <dl class="function">
 <dt id="opennmt.utils.data.batch_parallel_dataset">
-<code class="descclassname">opennmt.utils.data.</code><code class="descname">batch_parallel_dataset</code><span class="sig-paren">(</span><em>batch_size</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>padded_shapes=None</em>, <em>features_length_fn=None</em>, <em>labels_length_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#batch_parallel_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.batch_parallel_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.data.</code><code class="descname">batch_parallel_dataset</code><span class="sig-paren">(</span><em>batch_size</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>padded_shapes=None</em>, <em>features_length_fn=None</em>, <em>labels_length_fn=None</em>, <em>batch_size_multiple=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#batch_parallel_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.batch_parallel_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that batches a parallel dataset.</p>
 <p>This implements an example-based and a token-based batching strategy
 with optional bucketing of sequences.</p>
@@ -334,6 +334,8 @@ replicated graph parts.</li>
 are automatically inferred from the dataset output shapes.</li>
 <li><strong>features_length_fn</strong> – A callable mapping features to a sequence length.</li>
 <li><strong>labels_length_fn</strong> – A callable mapping labels to a sequence length.</li>
+<li><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
+result batch size is a multiple of this value.</li>
 </ul>
 </td>
 </tr>
@@ -349,7 +351,7 @@ are automatically inferred from the dataset output shapes.</li>
 
 <dl class="function">
 <dt id="opennmt.utils.data.training_pipeline">
-<code class="descclassname">opennmt.utils.data.</code><code class="descname">training_pipeline</code><span class="sig-paren">(</span><em>dataset</em>, <em>batch_size</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>process_fn=None</em>, <em>num_threads=None</em>, <em>shuffle_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>dataset_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em>, <em>features_length_fn=None</em>, <em>labels_length_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#training_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.training_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.data.</code><code class="descname">training_pipeline</code><span class="sig-paren">(</span><em>dataset</em>, <em>batch_size</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>process_fn=None</em>, <em>num_threads=None</em>, <em>shuffle_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>dataset_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em>, <em>features_length_fn=None</em>, <em>labels_length_fn=None</em>, <em>batch_size_multiple=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#training_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.training_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines a complete training data pipeline.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -379,6 +381,8 @@ the features sequence(s). <code class="docutils literal notranslate"><span class
 <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</li>
 <li><strong>features_length_fn</strong> – A callable mapping features to a sequence length.</li>
 <li><strong>labels_length_fn</strong> – A callable mapping labels to a sequence length.</li>
+<li><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
+result batch size is a multiple of this value.</li>
 </ul>
 </td>
 </tr>
@@ -466,7 +470,7 @@ dict.</li>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.17.1',
+              VERSION:'1.18.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
