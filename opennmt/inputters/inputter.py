@@ -263,7 +263,7 @@ class MultiInputter(Inputter):
     assets = {}
     for i, inputter in enumerate(self.inputters):
       assets.update(inputter.initialize(
-          metadata, asset_dir=asset_dir, asset_prefix="%s%d_" % (asset_prefix, i)))
+          metadata, asset_dir=asset_dir, asset_prefix="%s%d_" % (asset_prefix, i + 1)))
     return assets
 
   def visualize(self, log_dir):
