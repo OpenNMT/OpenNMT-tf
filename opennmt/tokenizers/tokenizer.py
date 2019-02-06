@@ -275,7 +275,7 @@ class CharacterTokenizer(Tokenizer):
       return super(CharacterTokenizer, self)._tokenize_tensor(text)
 
   def _detokenize_tensor(self, tokens):
-    if tf_supports("strings.regex_replace"):
+    if tf_supports("strings.reduce_join"):
       text = tf.strings.reduce_join(tokens, axis=0)
       return tf.strings.regex_replace(text, "▁", " ")
     else:
