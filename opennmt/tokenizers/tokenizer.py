@@ -176,7 +176,9 @@ class Tokenizer(object):
         string = tf.compat.as_text(string_t.numpy())
         tokens = self._tokenize_string(string)
         return tf.constant(tokens)
-      return tf.py_function(_python_wrapper, [text], tf.string)
+      tokens = tf.py_function(_python_wrapper, [text], tf.string)
+      tokens.set_shape([None])
+      return tokens
 
     text = tf.py_func(
         lambda x: tf.compat.as_bytes("\0".join(self.tokenize(x))), [text], tf.string)
@@ -200,7 +202,9 @@ class Tokenizer(object):
         tokens = [tf.compat.as_text(s) for s in tokens_t.numpy()]
         string = self._detokenize_string(tokens)
         return tf.constant(string)
-      return tf.py_function(_python_wrapper, [tokens], tf.string)
+      text = tf.py_function(_python_wrapper, [tokens], tf.string)
+      text.set_shape([])
+      return text
     return tf.py_func(self.detokenize, [tokens], tf.string)
 
   def _detokenize_batch_tensor(self, tokens, sequence_length):
