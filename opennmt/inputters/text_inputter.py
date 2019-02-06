@@ -12,7 +12,7 @@ from tensorflow.contrib.tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
-from opennmt.tokenizers.tokenizer import SpaceTokenizer
+from opennmt import tokenizers
 from opennmt.inputters.inputter import Inputter
 from opennmt.utils.cell import build_cell, last_encoding_from_state
 from opennmt.utils.misc import count_lines
@@ -211,12 +211,20 @@ def tokens_to_chars(tokens):
   lengths.set_shape([None])
   return chars, lengths
 
+def _get_field(config, key, prefix=None, default=None, required=False):
+  if prefix:
+    key = "%s%s" % (prefix, key)
+  value = config.get(key, default)
+  if value is None and required:
+    raise ValueError("Missing field '%s' in the data configuration" % key)
+  return value
+
 
 @six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self, tokenizer=SpaceTokenizer(), dtype=tf.float32):
+  def __init__(self, tokenizer=None, dtype=tf.float32):
     super(TextInputter, self).__init__(dtype=dtype)
     self.tokenizer = tokenizer
 
@@ -230,6 +238,15 @@ class TextInputter(Inputter):
     return count_lines(data_file)
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    if self.tokenizer is None:
+      tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
+      if tokenizer_config:
+        if isinstance(tokenizer_config, six.string_types) and tf.gfile.Exists(tokenizer_config):
+          with tf.gfile.Open(config, mode="rb") as config_file:
+            tokenizer_config = yaml.load(config_file)
+        self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
+      else:
+        self.tokenizer = tokenizers.SpaceTokenizer()
     return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
   def _process(self, data):
@@ -265,7 +282,7 @@ class WordEmbedder(TextInputter):
                case_insensitive_embeddings=True,
                trainable=True,
                dropout=0.0,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the word embedder.
 
@@ -282,7 +299,7 @@ class WordEmbedder(TextInputter):
       trainable: If ``False``, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
 
     Raises:
@@ -395,7 +412,7 @@ class CharEmbedder(TextInputter):
                vocabulary_file_key,
                embedding_size,
                dropout=0.0,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character embedder.
 
@@ -405,7 +422,7 @@ class CharEmbedder(TextInputter):
       embedding_size: The size of the character embedding.
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
     super(CharEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
@@ -483,7 +500,7 @@ class CharConvEmbedder(CharEmbedder):
                kernel_size=5,
                stride=3,
                dropout=0.0,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character convolution embedder.
 
@@ -496,7 +513,7 @@ class CharConvEmbedder(CharEmbedder):
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
     super(CharConvEmbedder, self).__init__(
@@ -545,7 +562,7 @@ class CharRNNEmbedder(CharEmbedder):
                dropout=0.2,
                encoding="average",
                cell_class=tf.nn.rnn_cell.LSTMCell,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character RNN embedder.
 
@@ -561,7 +578,7 @@ class CharRNNEmbedder(CharEmbedder):
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
 
     Raises:

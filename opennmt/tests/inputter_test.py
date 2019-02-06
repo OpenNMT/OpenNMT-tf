@@ -188,6 +188,32 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([[2, 1, 4]], features["ids"])
       self.assertAllEqual([1, 3, 10], transformed.shape)
 
+  def testWordEmbedderWithTokenizer(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])
+    data_file = self._makeTextFile("data.txt", ["hello world!"])
+
+    embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
+    metadata = {
+        "vocabulary_file": vocab_file,
+        "tokenization": {
+            "mode": "aggressive",
+            "joiner_annotate": True,
+            "joiner_new": True
+        }
+    }
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata=metadata,
+        shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
+
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      sess.run(tf.global_variables_initializer())
+      features, transformed = sess.run([features, transformed])
+      self.assertAllEqual([4], features["length"])
+      self.assertAllEqual([[2, 1, 3, 4]], features["ids"])
+
   def testWordEmbedderWithPretrainedEmbeddings(self):
     data_file = self._makeTextFile("data.txt", ["hello world !"])
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])

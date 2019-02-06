@@ -20,6 +20,14 @@ data:
   source_words_vocabulary: data/toy-ende/src-vocab.txt
   target_words_vocabulary: data/toy-ende/tgt-vocab.txt
 
+  # (optional) OpenNMT tokenization configuration (or path to a configuration file).
+  # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
+  source_tokenization:
+    mode: aggressive
+    joiner_annotate: true
+    segment_numbers: true
+    segment_alphabet_change: true
+  target_tokenization: config/tokenization/aggressive.yml
 
 # Model and optimization parameters.
 params:

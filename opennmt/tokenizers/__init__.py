@@ -19,7 +19,7 @@ def add_command_line_arguments(parser):
   choices = list(classes_in_module(sys.modules[__name__]))
 
   parser.add_argument(
-      "--tokenizer", default="SpaceTokenizer", choices=choices,
+      "--tokenizer", default=None, choices=choices,
       help="Tokenizer class name.")
   parser.add_argument(
       "--tokenizer_config", default=None,
@@ -28,4 +28,11 @@ def add_command_line_arguments(parser):
 def build_tokenizer(args):
   """Returns a new tokenizer based on command line arguments."""
   module = sys.modules[__name__]
-  return getattr(module, args.tokenizer)(configuration_file_or_key=args.tokenizer_config)
+  if args.tokenizer is None:
+    if args.tokenizer_config:
+      tokenizer_class = OpenNMTTokenizer
+    else:
+      tokenizer_class = SpaceTokenizer
+  else:
+    tokenizer_class = getattr(module, args.tokenizer)
+  return tokenizer_class(configuration_file_or_key=args.tokenizer_config)
