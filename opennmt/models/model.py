@@ -110,14 +110,6 @@ class Model(object):
     def _model_fn(features, labels, params, mode, config):
       """model_fn implementation."""
       if mode == tf.estimator.ModeKeys.TRAIN:
-        counters = self._register_word_counters(features, labels)
-        training_hooks = []
-        if config is not None:
-          training_hooks.append(hooks.CountersHook(
-              every_n_steps=config.save_summary_steps,
-              output_dir=config.model_dir,
-              counters=counters))
-
         features_shards = dispatcher.shard(features)
         labels_shards = dispatcher.shard(labels)
 
@@ -128,8 +120,22 @@ class Model(object):
         loss = _extract_loss(losses_shards)
         train_op, extra_variables = optimize_loss(
             loss, params, mixed_precision=(self.dtype == tf.float16))
+
+        training_hooks = []
         if extra_variables:
           training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
+        if config is not None:
+          features_length = self._get_features_length(features)
+          labels_length = self._get_labels_length(labels)
+          num_words = {}
+          if features_length is not None:
+            num_words["source"] = tf.reduce_sum(features_length)
+          if labels_length is not None:
+            num_words["target"] = tf.reduce_sum(labels_length)
+          training_hooks.append(hooks.LogWordsPerSecondHook(
+              num_words,
+              every_n_steps=config.save_summary_steps,
+              output_dir=config.model_dir))
         return tf.estimator.EstimatorSpec(
             mode,
             loss=loss,
@@ -227,21 +233,6 @@ class Model(object):
       name.
     """
     return None
-
-  def _register_word_counters(self, features, labels):
-    """Creates word counters for sequences (if any) of :obj:`features` and
-    :obj:`labels`.
-    """
-    features_length = self._get_features_length(features)
-    labels_length = self._get_labels_length(labels)
-
-    counters = []
-    with tf.variable_scope("words_per_sec"):
-      if features_length is not None:
-        counters.append(hooks.add_counter("features", tf.reduce_sum(features_length)))
-      if labels_length is not None:
-        counters.append(hooks.add_counter("labels", tf.reduce_sum(labels_length)))
-    return counters
 
   def _initialize(self, metadata, asset_dir=None):
     """Runs model specific initialization (e.g. vocabularies loading).

@@ -53,6 +53,8 @@ class CountersHook(tf.train.SessionRunHook):
   """Hook that summarizes counters.
 
   Implementation is mostly copied from StepCounterHook.
+
+  Deprecated: use LogWordsPerSecondHook instead.
   """
 
   def __init__(self,
@@ -107,6 +109,79 @@ class CountersHook(tf.train.SessionRunHook):
               self._summary_writer.add_summary(summary, step)
             tf.logging.info("%s: %g", name, value)
           self._last_count[i] = counters[i]
+
+
+class LogWordsPerSecondHook(tf.train.SessionRunHook):
+  """Hook that logs the number of words processed per second.
+
+  Implementation is mostly copied from StepCounterHook.
+  """
+
+  def __init__(self,
+               num_words,
+               every_n_steps=100,
+               every_n_secs=None,
+               output_dir=None,
+               summary_writer=None):
+    if (every_n_steps is None) == (every_n_secs is None):
+      raise ValueError("exactly one of every_n_steps and every_n_secs should be provided.")
+    self._timer = tf.train.SecondOrStepTimer(
+        every_steps=every_n_steps,
+        every_secs=every_n_secs)
+
+    self._summary_writer = summary_writer
+    self._output_dir = output_dir
+    self._num_words = num_words
+
+  def _create_variable(self, name, dtype=tf.int64):
+    return tf.Variable(
+        initial_value=0,
+        trainable=False,
+        collections=[],
+        name="%s_words_counter" % name,
+        dtype=dtype)
+
+  def begin(self):
+    if not self._num_words:
+      return
+    if self._summary_writer is None and self._output_dir:
+      self._summary_writer = tf.summary.FileWriterCache.get(self._output_dir)
+    counters = [self._create_variable(name) for name in six.iterkeys(self._num_words)]
+    self._init_op = tf.variables_initializer(counters)
+    self._update_op = {
+        name:tf.assign_add(var, tf.cast(count, tf.int64))
+        for (name, count), var in zip(six.iteritems(self._num_words), counters)}
+    self._last_count = [None for _ in counters]
+    self._global_step = tf.train.get_global_step()
+    if self._global_step is None:
+      raise RuntimeError("Global step should be created to use LogWordsPerSecondHook.")
+
+  def after_create_session(self, session, coord):
+    if self._num_words:
+      session.run(self._init_op)
+
+  def before_run(self, run_context):  # pylint: disable=unused-argument
+    if not self._num_words:
+      return None
+    return tf.train.SessionRunArgs([self._update_op, self._global_step])
+
+  def after_run(self, run_context, run_values):  # pylint: disable=unused-argument
+    if not self._num_words:
+      return
+
+    counters, step = run_values.results
+    if self._timer.should_trigger_for_step(step):
+      elapsed_time, _ = self._timer.update_last_triggered_step(step)
+      if elapsed_time is not None:
+        for i, (name, current_value) in enumerate(six.iteritems(counters)):
+          if self._last_count[i] is not None:
+            value = (current_value - self._last_count[i]) / elapsed_time
+            tf.logging.info("%s_words/sec: %d", name, value)
+            if self._summary_writer is not None:
+              tag_name = "words_per_sec/%s" % name
+              summary = tf.Summary(value=[tf.Summary.Value(tag=tag_name, simple_value=value)])
+              self._summary_writer.add_summary(summary, step)
+          self._last_count[i] = current_value
 
 
 class LogPredictionTimeHook(tf.train.SessionRunHook):
