@@ -236,6 +236,33 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 1], transformed[0][0])
       self.assertAllEqual([2, 2], transformed[0][1])
 
+  def testWordEmbedderWithPretrainedEmbeddingsInInitialize(self):
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    embedding_file = self._makeEmbeddingsFile(
+        [("hello", [1, 1]), ("world", [2, 2]), ("toto", [3, 3])])
+
+    embedder = text_inputter.WordEmbedder("vocabulary_file")
+    metadata = {
+        "vocabulary_file": vocab_file,
+        "embedding": {
+            "path": embedding_file,
+            "with_header": False
+        }
+    }
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata=metadata,
+        shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
+
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      sess.run(tf.global_variables_initializer())
+      features, transformed = sess.run([features, transformed])
+      self.assertAllEqual([1, 1], transformed[0][0])
+      self.assertAllEqual([2, 2], transformed[0][1])
+
   def testCharConvEmbedder(self):
     vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])

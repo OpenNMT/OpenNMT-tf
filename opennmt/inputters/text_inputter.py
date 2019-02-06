@@ -318,6 +318,7 @@ class WordEmbedder(TextInputter):
 
     self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
+    self.embedding_file = None
     self.embedding_file_key = embedding_file_key
     self.embedding_file_with_header = embedding_file_with_header
     self.case_insensitive_embeddings = case_insensitive_embeddings
@@ -325,20 +326,30 @@ class WordEmbedder(TextInputter):
     self.dropout = dropout
     self.num_oov_buckets = 1
 
-    if embedding_size is None and embedding_file_key is None:
-      raise ValueError("Must either provide embedding_size or embedding_file_key")
-
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = super(WordEmbedder, self).initialize(
         metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
     self.vocabulary_file = metadata[self.vocabulary_file_key]
-    self.embedding_file = metadata[self.embedding_file_key] if self.embedding_file_key else None
-
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         num_oov_buckets=self.num_oov_buckets)
+
+    if self.embedding_file_key is not None:
+      self.embedding_file = metadata[self.embedding_file_key]
+    else:
+      embedding = _get_field(metadata, "embedding", prefix=asset_prefix)
+      if embedding is None and self.embedding_size is None:
+        raise ValueError("embedding_size must be set")
+      if embedding is not None:
+        self.embedding_file = embedding["path"]
+        self.trainable = embedding.get("trainable", True)
+        self.embedding_file_with_header = embedding.get("with_header", True)
+        self.case_insensitive_embeddings = embedding.get("case_insensitive", True)
+    if self.embedding_file is None and self.embedding_size is None:
+      raise ValueError("Must either provide embedding_size or embedding_file_key")
+
     return assets
 
   def _get_serving_input(self):
