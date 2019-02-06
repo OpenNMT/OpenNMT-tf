@@ -153,23 +153,27 @@ def load_pretrained_embeddings(embedding_file,
 
   return pretrained
 
-def tokens_to_chars(tokens):
-  """Splits a list of tokens into unicode characters.
-
-  This is an in-graph transformation.
+def tokens_to_chars(tokens, padding_value=PADDING_TOKEN):
+  """Splits tokens into unicode characters.
 
   Args:
-    tokens: A sequence of tokens.
+    tokens: A string ``tf.Tensor`` of shape :math:`[T]`.
+    padding_value: The value to use for padding.
 
   Returns:
-    The characters as a ``tf.Tensor`` of shape
-    ``[sequence_length, max_word_length]`` and the length of each word.
+    The characters as a string ``tf.Tensor`` of shape :math:`[T, W]` and the
+    length of each token as an int64 ``tf.Tensor``  of shape :math:`[T]`.
   """
+  if hasattr(tf, "strings") and hasattr(tf.strings, "unicode_split"):
+    ragged = tf.strings.unicode_split(tokens, "UTF-8")
+    chars = ragged.to_tensor(default_value=padding_value)
+    lengths = ragged.row_lengths()
+    return chars, lengths
 
   def _split_chars(token, max_length, delimiter=" "):
     chars = list(token.decode("utf-8"))
     while len(chars) < max_length:
-      chars.append(PADDING_TOKEN)
+      chars.append(padding_value)
     return delimiter.join(chars).encode("utf-8")
 
   def _string_len(token):
