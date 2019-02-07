@@ -25,7 +25,7 @@ class EvaluatorTest(tf.test.TestCase):
       self.assertEqual(100, int(score))
     else:
       with self.assertRaises(ImportError):
-        bleu_evaluator = evaluator.BLEUEvaluator()
+        bleu_evaluator = evaluator.SacreBLEUEvaluator()
 
   def testBLEUEvaluator(self):
     bleu_evaluator = evaluator.BLEUEvaluator()
