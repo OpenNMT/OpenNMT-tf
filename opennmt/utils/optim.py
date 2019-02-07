@@ -142,12 +142,7 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None):
 
   global_step = tf.train.get_or_create_global_step()
   with tf.variable_scope("optim"):
-    # Learning rate.
-    learning_rate = tf.get_variable(
-        "learning_rate",
-        [],
-        trainable=False,
-        initializer=tf.constant_initializer(float(params["learning_rate"])))
+    learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
     if params.get("decay_type") is not None:
       decay_params = params.get("decay_params", {})
       if "decay_rate" in params:
