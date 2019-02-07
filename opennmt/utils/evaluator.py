@@ -89,7 +89,7 @@ class SacreBLEUEvaluator(ExternalEvaluator):
 
   def __init__(self, *args, **kwargs):
     try:
-      import sacrebleu  # pylint: disable=unused-import
+      import sacrebleu  # pylint: disable=unused-import, unused-variable
     except ImportError:
       raise ImportError("sacreBLEU evaluator requires Python 3")
     super(SacreBLEUEvaluator, self).__init__(*args, **kwargs)
