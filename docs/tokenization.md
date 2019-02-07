@@ -57,4 +57,4 @@ data:
 ## Notes
 
 * As of now, tokenizers are not part of the exported graph. However, all tokenization resources (configuration, subword models, etc.) are registered as additional assets in the `SavedModel` bundle in the `assets.extra` directory.
-* Predictions saved during inference or evaluation are detokenized. Consider using the "BLEU-detok" external evaluator that calls `multi-bleu-detok.perl` instead of `multi-bleu.perl`.
+* Predictions saved during inference or evaluation are detokenized. Consider using the "sacreBLEU" or "BLEU-detok" external evaluators.

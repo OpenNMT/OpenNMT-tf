@@ -35,7 +35,8 @@ setup(
     install_requires=[
         "pyonmttok>=1.5.0,<2;platform_system=='Linux'",
         "pyyaml",
-        "rouge==0.3.1"
+        "rouge==0.3.1",
+        "sacrebleu==1.*;python_version>='3.0'"
     ],
     extras_require={
         "tests": tests_require,

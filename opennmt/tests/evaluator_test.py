@@ -1,4 +1,5 @@
 import os
+import sys
 
 import tensorflow as tf
 
@@ -15,6 +16,16 @@ class EvaluatorTest(tf.test.TestCase):
       ref_file.write(text)
       hyp_file.write(text)
     return ref_path, hyp_path
+
+  def testSacreBLEUEvaluator(self):
+    if sys.version_info >= (3, 0):
+      bleu_evaluator = evaluator.SacreBLEUEvaluator()
+      ref_path, hyp_path = self._make_perfect_hypothesis_file()
+      score = bleu_evaluator.score(ref_path, hyp_path)
+      self.assertEqual(100, int(score))
+    else:
+      with self.assertRaises(ImportError):
+        bleu_evaluator = evaluator.SacreBLEUEvaluator()
 
   def testBLEUEvaluator(self):
     bleu_evaluator = evaluator.BLEUEvaluator()
