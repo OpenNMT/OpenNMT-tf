@@ -29,6 +29,13 @@ data:
     segment_alphabet_change: true
   target_tokenization: config/tokenization/aggressive.yml
 
+  # (optional) Pretrained embedding configuration.
+  source_embedding:
+    path: data/glove/glove-100000.txt
+    with_header: True
+    case_insensitive: True
+    trainable: False
+
 # Model and optimization parameters.
 params:
   # The optimizer class name in tf.train, tf.contrib.opt, or opennmt.optimizers.
