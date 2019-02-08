@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.data &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.utils.data &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -401,7 +401,9 @@
                       <span class="n">maximum_labels_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">features_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">labels_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                      <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">num_shards</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">shard_index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a complete training data pipeline.</span>
 
 <span class="sd">  Args:</span>
@@ -421,7 +423,8 @@
 <span class="sd">      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on</span>
 <span class="sd">      older versions.</span>
 <span class="sd">    dataset_size: The total size of the dataset, if known. It is recommended to</span>
-<span class="sd">      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size.</span>
+<span class="sd">      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size</span>
+<span class="sd">      (or the shard size when sharding is configured).</span>
 <span class="sd">    maximum_features_length: The maximum length or list of maximum lengths of</span>
 <span class="sd">      the features sequence(s). ``None`` to not constrain the length.</span>
 <span class="sd">    maximum_labels_length: The maximum length of the labels sequence.</span>
@@ -430,10 +433,17 @@
 <span class="sd">    labels_length_fn: A callable mapping labels to a sequence length.</span>
 <span class="sd">    batch_size_multiple: When :obj:`batch_type` is &quot;tokens&quot;, ensure that the</span>
 <span class="sd">      result batch size is a multiple of this value.</span>
+<span class="sd">    num_shards: The number of data shards (usually the number of workers in a</span>
+<span class="sd">      distributed setting).</span>
+<span class="sd">    shard_index: The shard index this data pipeline should read from.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A ``tf.data.Dataset``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">num_shards</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">shard_index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">dataset_size</span> <span class="o">//=</span> <span class="n">num_shards</span>
   <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shuffle_buffer_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">dataset_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training on </span><span class="si">%d</span><span class="s2"> examples&quot;</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">)</span>
@@ -558,7 +568,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

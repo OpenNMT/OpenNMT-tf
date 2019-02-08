@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -284,7 +284,7 @@
   <span class="n">update_op</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">optimize_loss</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">update_op</span></div>
 
-<div class="viewcode-block" id="optimize_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize_loss">[docs]</a><span class="k">def</span> <span class="nf">optimize_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">var_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="optimize_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.optimize_loss">[docs]</a><span class="k">def</span> <span class="nf">optimize_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">var_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hvd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Minimizes the loss.</span>
 
 <span class="sd">  Args:</span>
@@ -293,6 +293,7 @@
 <span class="sd">    mixed_precision: If ``True``, wraps the optimizer to maintain a float32 copy</span>
 <span class="sd">      of the weights.</span>
 <span class="sd">    var_list: The variables to update.</span>
+<span class="sd">    hvd: Optional Horovod object.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    The loss minimization op and a list of internal variables to initialize.</span>
@@ -304,12 +305,7 @@
 
   <span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_or_create_global_step</span><span class="p">()</span>
   <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;optim&quot;</span><span class="p">):</span>
-    <span class="c1"># Learning rate.</span>
-    <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
-        <span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span>
-        <span class="p">[],</span>
-        <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">])))</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">decay_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
       <span class="k">if</span> <span class="s2">&quot;decay_rate&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
@@ -337,6 +333,9 @@
     <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
       <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">MixedPrecisionOptimizerWrapper</span><span class="p">(</span>
           <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_scale</span><span class="o">=</span><span class="n">get_loss_scale_from_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">hvd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="kn">from</span> <span class="nn">opennmt.optimizers.distributed_optimizer</span> <span class="k">import</span> <span class="n">DistributedOptimizer</span>
+      <span class="n">optimizer</span> <span class="o">=</span> <span class="n">DistributedOptimizer</span><span class="o">.</span><span class="n">from_params</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;horovod&quot;</span><span class="p">))</span>
 
     <span class="c1"># Gradients.</span>
     <span class="n">gradients</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">compute_gradients</span><span class="p">(</span>
@@ -367,8 +366,14 @@
 <span class="sd">    An operation that conditionally applies the gradients and a list of internal</span>
 <span class="sd">    variables to initialize.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">_apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="s2">&quot;allreduce_gradients&quot;</span><span class="p">):</span>
+      <span class="n">grads_and_vars</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">allreduce_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
+
   <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">accum_count</span><span class="p">)</span> <span class="ow">and</span> <span class="n">accum_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">),</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">_apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">),</span> <span class="p">[]</span>
 
   <span class="n">model_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collections</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
   <span class="n">accum_grads</span> <span class="o">=</span> <span class="p">[]</span>
@@ -393,7 +398,7 @@
         <span class="c1"># This is needed to ensure we can continue from a model trained without</span>
         <span class="c1"># gradient accumulation (and vice-versa).</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/&quot;</span> <span class="o">%</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-          <span class="k">return</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">accum_grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
+          <span class="k">return</span> <span class="n">_apply_gradients</span><span class="p">(</span><span class="n">accum_grads_and_vars</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">no_op</span><span class="p">()</span>
 
@@ -490,7 +495,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

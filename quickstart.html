@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>Quickstart &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -176,8 +176,7 @@
 <p>We recommend using <a class="reference external" href="https://virtualenv.pypa.io/en/stable/"><code class="docutils literal notranslate"><span class="pre">virtualenv</span></code></a> to setup and configure the environment for this quickstart:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>virtualenv pyenv
 <span class="nb">source</span> pyenv/bin/activate
-pip install tensorflow-gpu
-pip install OpenNMT-tf
+pip install OpenNMT-tf<span class="o">[</span>tensorflow_gpu<span class="o">]</span>
 </pre></div>
 </div>
 </div>
@@ -283,7 +282,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.bin.main &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.bin.main &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -250,6 +250,8 @@
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Type of the task to run (for distributed training).&quot;</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--task_index&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ID of the task (for distributed training).&quot;</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--horovod&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable Horovod support for this run.&quot;</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--log_level&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
                       <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;FATAL&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">],</span>
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Logs verbosity.&quot;</span><span class="p">)</span>
@@ -286,6 +288,15 @@
         <span class="p">}</span>
     <span class="p">})</span>
 
+  <span class="c1"># Initialize Horovd if defined.</span>
+  <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">horovod</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">horovod.tensorflow</span> <span class="k">as</span> <span class="nn">hvd</span>
+    <span class="n">hvd</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="n">is_chief</span> <span class="o">=</span> <span class="n">hvd</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">hvd</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_chief</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">task_type</span> <span class="o">==</span> <span class="s2">&quot;chief&quot;</span>
+
   <span class="c1"># Load and merge run configurations.</span>
   <span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run_dir</span><span class="p">:</span>
@@ -293,7 +304,6 @@
   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">:</span>
     <span class="n">config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_prefix_paths</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
 
-  <span class="n">is_chief</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">task_type</span> <span class="o">==</span> <span class="s2">&quot;chief&quot;</span>
   <span class="k">if</span> <span class="n">is_chief</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating model directory </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">])</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">MakeDirs</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">])</span>
@@ -317,7 +327,8 @@
       <span class="n">seed</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
       <span class="n">num_devices</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">num_gpus</span><span class="p">,</span>
       <span class="n">session_config</span><span class="o">=</span><span class="n">session_config</span><span class="p">,</span>
-      <span class="n">auto_config</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">auto_config</span><span class="p">)</span>
+      <span class="n">auto_config</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">auto_config</span><span class="p">,</span>
+      <span class="n">hvd</span><span class="o">=</span><span class="n">hvd</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">==</span> <span class="s2">&quot;train_and_eval&quot;</span><span class="p">:</span>
     <span class="n">runner</span><span class="o">.</span><span class="n">train_and_evaluate</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">checkpoint_path</span><span class="p">)</span>
@@ -387,7 +398,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

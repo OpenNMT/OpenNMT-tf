@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -174,7 +174,7 @@
 
 <span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="k">import</span> <span class="n">text_format</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.tokenizers.tokenizer</span> <span class="k">import</span> <span class="n">SpaceTokenizer</span>
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">tokenizers</span>
 <span class="kn">from</span> <span class="nn">opennmt.inputters.inputter</span> <span class="k">import</span> <span class="n">Inputter</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.cell</span> <span class="k">import</span> <span class="n">build_cell</span><span class="p">,</span> <span class="n">last_encoding_from_state</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">count_lines</span>
@@ -315,23 +315,27 @@
 
   <span class="k">return</span> <span class="n">pretrained</span></div>
 
-<div class="viewcode-block" id="tokens_to_chars"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.tokens_to_chars">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_chars</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Splits a list of tokens into unicode characters.</span>
-
-<span class="sd">  This is an in-graph transformation.</span>
+<div class="viewcode-block" id="tokens_to_chars"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.tokens_to_chars">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_chars</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">padding_value</span><span class="o">=</span><span class="n">PADDING_TOKEN</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Splits tokens into unicode characters.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    tokens: A sequence of tokens.</span>
+<span class="sd">    tokens: A string ``tf.Tensor`` of shape :math:`[T]`.</span>
+<span class="sd">    padding_value: The value to use for padding.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    The characters as a ``tf.Tensor`` of shape</span>
-<span class="sd">    ``[sequence_length, max_word_length]`` and the length of each word.</span>
+<span class="sd">    The characters as a string ``tf.Tensor`` of shape :math:`[T, W]` and the</span>
+<span class="sd">    length of each token as an int64 ``tf.Tensor``  of shape :math:`[T]`.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span> <span class="s2">&quot;strings&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="p">,</span> <span class="s2">&quot;unicode_split&quot;</span><span class="p">):</span>
+    <span class="n">ragged</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">unicode_split</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="n">ragged</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="n">padding_value</span><span class="p">)</span>
+    <span class="n">lengths</span> <span class="o">=</span> <span class="n">ragged</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">chars</span><span class="p">,</span> <span class="n">lengths</span>
 
   <span class="k">def</span> <span class="nf">_split_chars</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">max_length</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
     <span class="n">chars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_length</span><span class="p">:</span>
-      <span class="n">chars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PADDING_TOKEN</span><span class="p">)</span>
+      <span class="n">chars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">padding_value</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_string_len</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
@@ -373,12 +377,20 @@
   <span class="n">lengths</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
   <span class="k">return</span> <span class="n">chars</span><span class="p">,</span> <span class="n">lengths</span></div>
 
+<span class="k">def</span> <span class="nf">_get_field</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+  <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">required</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing field &#39;</span><span class="si">%s</span><span class="s2">&#39; in the data configuration&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">value</span>
+
 
 <div class="viewcode-block" id="TextInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TextInputter</span><span class="p">(</span><span class="n">Inputter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;An abstract inputter that processes text.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">SpaceTokenizer</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span>
 
@@ -392,6 +404,15 @@
     <span class="k">return</span> <span class="n">count_lines</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;tokenization&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">tokenizer_config</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">):</span>
+          <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+            <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizers</span><span class="o">.</span><span class="n">OpenNMTTokenizer</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">tokenizer_config</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizers</span><span class="o">.</span><span class="n">SpaceTokenizer</span><span class="p">()</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span></div>
 
   <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
@@ -427,7 +448,7 @@
                <span class="n">case_insensitive_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-               <span class="n">tokenizer</span><span class="o">=</span><span class="n">SpaceTokenizer</span><span class="p">(),</span>
+               <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the word embedder.</span>
 
@@ -444,7 +465,7 @@
 <span class="sd">      trainable: If ``False``, do not optimize embeddings.</span>
 <span class="sd">      dropout: The probability to drop units in the embedding.</span>
 <span class="sd">      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to</span>
-<span class="sd">        tokenize the input text.</span>
+<span class="sd">        tokenize the input text. Defaults to a space tokenization.</span>
 <span class="sd">      dtype: The embedding type.</span>
 
 <span class="sd">    Raises:</span>
@@ -459,27 +480,38 @@
 
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file_key</span> <span class="o">=</span> <span class="n">vocabulary_file_key</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="o">=</span> <span class="n">embedding_size</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_key</span> <span class="o">=</span> <span class="n">embedding_file_key</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_with_header</span> <span class="o">=</span> <span class="n">embedding_file_with_header</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">case_insensitive_embeddings</span> <span class="o">=</span> <span class="n">case_insensitive_embeddings</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="n">trainable</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span> <span class="o">=</span> <span class="mi">1</span>
-
-    <span class="k">if</span> <span class="n">embedding_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">embedding_file_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must either provide embedding_size or embedding_file_key&quot;</span><span class="p">)</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span> <span class="o">=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="WordEmbedder.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="n">assets</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
         <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file_key</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_key</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_key</span> <span class="k">else</span> <span class="kc">None</span>
-
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">=</span> <span class="n">count_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">index_table_from_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">,</span>
         <span class="n">num_oov_buckets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_key</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">embedding</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;embedding&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">embedding</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;embedding_size must be set&quot;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">embedding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span> <span class="o">=</span> <span class="n">embedding</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trainable&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_with_header</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_header&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">case_insensitive_embeddings</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;case_insensitive&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must either provide embedding_size or embedding_file_key&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">assets</span></div>
 
   <span class="k">def</span> <span class="nf">_get_serving_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -557,7 +589,7 @@
                <span class="n">vocabulary_file_key</span><span class="p">,</span>
                <span class="n">embedding_size</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-               <span class="n">tokenizer</span><span class="o">=</span><span class="n">SpaceTokenizer</span><span class="p">(),</span>
+               <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character embedder.</span>
 
@@ -567,7 +599,7 @@
 <span class="sd">      embedding_size: The size of the character embedding.</span>
 <span class="sd">      dropout: The probability to drop units in the embedding.</span>
 <span class="sd">      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to</span>
-<span class="sd">        tokenize the input text.</span>
+<span class="sd">        tokenize the input text. Defaults to a space tokenization.</span>
 <span class="sd">      dtype: The embedding type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -645,7 +677,7 @@
                <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                <span class="n">stride</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-               <span class="n">tokenizer</span><span class="o">=</span><span class="n">SpaceTokenizer</span><span class="p">(),</span>
+               <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character convolution embedder.</span>
 
@@ -658,7 +690,7 @@
 <span class="sd">      stride: Length of the convolution stride.</span>
 <span class="sd">      dropout: The probability to drop units in the embedding.</span>
 <span class="sd">      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to</span>
-<span class="sd">        tokenize the input text.</span>
+<span class="sd">        tokenize the input text. Defaults to a space tokenization.</span>
 <span class="sd">      dtype: The embedding type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">CharConvEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -707,7 +739,7 @@
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
                <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
                <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
-               <span class="n">tokenizer</span><span class="o">=</span><span class="n">SpaceTokenizer</span><span class="p">(),</span>
+               <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character RNN embedder.</span>
 
@@ -723,7 +755,7 @@
 <span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
 <span class="sd">        argument and returning a cell.</span>
 <span class="sd">      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to</span>
-<span class="sd">        tokenize the input text.</span>
+<span class="sd">        tokenize the input text. Defaults to a space tokenization.</span>
 <span class="sd">      dtype: The embedding type.</span>
 
 <span class="sd">    Raises:</span>
@@ -800,7 +832,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

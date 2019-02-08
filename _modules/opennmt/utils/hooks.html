@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.hooks &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.utils.hooks &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -215,6 +215,8 @@
   <span class="sd">&quot;&quot;&quot;Hook that summarizes counters.</span>
 
 <span class="sd">  Implementation is mostly copied from StepCounterHook.</span>
+
+<span class="sd">  Deprecated: use LogWordsPerSecondHook instead.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -269,6 +271,79 @@
               <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span><span class="o">.</span><span class="n">add_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%g</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">_last_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">counters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="LogWordsPerSecondHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook">[docs]</a><span class="k">class</span> <span class="nc">LogWordsPerSecondHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Hook that logs the number of words processed per second.</span>
+
+<span class="sd">  Implementation is mostly copied from StepCounterHook.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_words</span><span class="p">,</span>
+               <span class="n">every_n_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+               <span class="n">every_n_secs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">summary_writer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">every_n_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">every_n_secs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;exactly one of every_n_steps and every_n_secs should be provided.&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SecondOrStepTimer</span><span class="p">(</span>
+        <span class="n">every_steps</span><span class="o">=</span><span class="n">every_n_steps</span><span class="p">,</span>
+        <span class="n">every_secs</span><span class="o">=</span><span class="n">every_n_secs</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="o">=</span> <span class="n">summary_writer</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span> <span class="o">=</span> <span class="n">num_words</span>
+
+  <span class="k">def</span> <span class="nf">_create_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">collections</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_words_counter&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LogWordsPerSecondHook.begin"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.begin">[docs]</a>  <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_dir</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">FileWriterCache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_dir</span><span class="p">)</span>
+    <span class="n">counters</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_variable</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span><span class="p">)]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">variables_initializer</span><span class="p">(</span><span class="n">counters</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_update_op</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span><span class="n">tf</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">count</span><span class="p">),</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span><span class="p">),</span> <span class="n">counters</span><span class="p">)}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_last_count</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">counters</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_global_step</span><span class="p">()</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Global step should be created to use LogWordsPerSecondHook.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LogWordsPerSecondHook.after_create_session"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.after_create_session">[docs]</a>  <span class="k">def</span> <span class="nf">after_create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span><span class="p">:</span>
+      <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LogWordsPerSecondHook.before_run"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.before_run">[docs]</a>  <span class="k">def</span> <span class="nf">before_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_context</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunArgs</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_op</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global_step</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="LogWordsPerSecondHook.after_run"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.after_run">[docs]</a>  <span class="k">def</span> <span class="nf">after_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_context</span><span class="p">,</span> <span class="n">run_values</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span><span class="p">:</span>
+      <span class="k">return</span>
+
+    <span class="n">counters</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">run_values</span><span class="o">.</span><span class="n">results</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">should_trigger_for_step</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
+      <span class="n">elapsed_time</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">update_last_triggered_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">elapsed_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">current_value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">counters</span><span class="p">)):</span>
+          <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_count</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">elapsed_time</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_words/sec: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+              <span class="n">tag_name</span> <span class="o">=</span> <span class="s2">&quot;words_per_sec/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+              <span class="n">summary</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Summary</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Summary</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">simple_value</span><span class="o">=</span><span class="n">value</span><span class="p">)])</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span><span class="o">.</span><span class="n">add_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_last_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_value</span></div></div>
 
 
 <div class="viewcode-block" id="LogPredictionTimeHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook">[docs]</a><span class="k">class</span> <span class="nc">LogPredictionTimeHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
@@ -437,7 +512,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.evaluator &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.utils.evaluator &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -246,6 +246,26 @@
     <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rouge_scores</span><span class="p">)}</span></div></div>
 
 
+<div class="viewcode-block" id="SacreBLEUEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator">[docs]</a><span class="k">class</span> <span class="nc">SacreBLEUEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Evaluator using sacreBLEU.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="kn">import</span> <span class="nn">sacrebleu</span>  <span class="c1"># pylint: disable=unused-import, unused-variable</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;sacreBLEU evaluator requires Python 3&quot;</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SacreBLEUEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SacreBLEUEvaluator.name"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.name">[docs]</a>  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;sacreBLEU&quot;</span></div>
+
+<div class="viewcode-block" id="SacreBLEUEvaluator.score"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">sacrebleu</span> <span class="k">import</span> <span class="n">corpus_bleu</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">ref_stream</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">predictions_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">sys_stream</span><span class="p">:</span>
+      <span class="n">bleu</span> <span class="o">=</span> <span class="n">corpus_bleu</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">])</span>
+      <span class="k">return</span> <span class="n">bleu</span><span class="o">.</span><span class="n">score</span></div></div>
+
+
 <div class="viewcode-block" id="BLEUEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator">[docs]</a><span class="k">class</span> <span class="nc">BLEUEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Evaluator calling multi-bleu.perl.&quot;&quot;&quot;</span>
 
@@ -315,14 +335,18 @@
   <span class="n">evaluators</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">evaluators_name</span><span class="p">:</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">evaluator_class</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bleu&quot;</span><span class="p">:</span>
-      <span class="n">evaluator</span> <span class="o">=</span> <span class="n">BLEUEvaluator</span><span class="p">(</span><span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">BLEUEvaluator</span>
     <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bleu-detok&quot;</span><span class="p">:</span>
-      <span class="n">evaluator</span> <span class="o">=</span> <span class="n">BLEUDetokEvaluator</span><span class="p">(</span><span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">BLEUDetokEvaluator</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;sacrebleu&quot;</span><span class="p">:</span>
+      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">SacreBLEUEvaluator</span>
     <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;rouge&quot;</span><span class="p">:</span>
-      <span class="n">evaluator</span> <span class="o">=</span> <span class="n">ROUGEEvaluator</span><span class="p">(</span><span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">ROUGEEvaluator</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No evaluator associated with the name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">evaluator_class</span><span class="p">(</span><span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
     <span class="n">evaluators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_post_evaluation_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
@@ -365,7 +389,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

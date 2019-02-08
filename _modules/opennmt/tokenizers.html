@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.tokenizers &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -181,7 +181,7 @@
   <span class="n">choices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">classes_in_module</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]))</span>
 
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-      <span class="s2">&quot;--tokenizer&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;SpaceTokenizer&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
+      <span class="s2">&quot;--tokenizer&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Tokenizer class name.&quot;</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
       <span class="s2">&quot;--tokenizer_config&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -190,7 +190,14 @@
 <div class="viewcode-block" id="build_tokenizer"><a class="viewcode-back" href="../../package/opennmt.tokenizers.html#opennmt.tokenizers.build_tokenizer">[docs]</a><span class="k">def</span> <span class="nf">build_tokenizer</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns a new tokenizer based on command line arguments.&quot;&quot;&quot;</span>
   <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
-  <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">)(</span><span class="n">configuration_file_or_key</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tokenizer_config</span><span class="p">)</span></div>
+  <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer_config</span><span class="p">:</span>
+      <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="n">OpenNMTTokenizer</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="n">SpaceTokenizer</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">tokenizer_class</span><span class="p">(</span><span class="n">configuration_file_or_key</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tokenizer_config</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -226,7 +233,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

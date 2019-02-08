@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference: Configuration &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>Reference: Configuration &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -182,6 +182,21 @@
   <span class="nt">source_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-vocab.txt</span>
   <span class="nt">target_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-vocab.txt</span>
 
+  <span class="c1"># (optional) OpenNMT tokenization configuration (or path to a configuration file).</span>
+  <span class="c1"># See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md</span>
+  <span class="nt">source_tokenization</span><span class="p">:</span>
+    <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
+    <span class="nt">joiner_annotate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">segment_numbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">segment_alphabet_change</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">target_tokenization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span>
+
+  <span class="c1"># (optional) Pretrained embedding configuration.</span>
+  <span class="nt">source_embedding</span><span class="p">:</span>
+    <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/glove/glove-100000.txt</span>
+    <span class="nt">with_header</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+    <span class="nt">case_insensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+    <span class="nt">trainable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
 
 <span class="c1"># Model and optimization parameters.</span>
 <span class="nt">params</span><span class="p">:</span>
@@ -210,6 +225,13 @@
   <span class="nt">loss_scale_params</span><span class="p">:</span>
     <span class="nt">scale_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
     <span class="nt">step_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+
+  <span class="c1"># (optional) Horovod parameters.</span>
+  <span class="nt">horovod</span><span class="p">:</span>
+    <span class="c1"># (optional) Compression type for gradients (can be: &quot;none&quot;, &quot;fp16&quot;, default: &quot;none&quot;).</span>
+    <span class="nt">compression</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">none</span>
+    <span class="c1"># (optional) Average the reduced gradients (default: false).</span>
+    <span class="nt">average_gradients</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) Weights regularization penalty (default: null).</span>
   <span class="nt">regularization</span><span class="p">:</span>
@@ -340,8 +362,8 @@
   <span class="c1"># (optional) Save evaluation predictions in model_dir/eval/.</span>
   <span class="nt">save_eval_predictions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.</span>
-  <span class="c1"># Available evaluators: BLEU, BLEU-detok, ROUGE</span>
-  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">BLEU</span>
+  <span class="c1"># Available evaluators: sacreBLEU, BLEU, BLEU-detok, ROUGE</span>
+  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sacreBLEU</span>
 
   <span class="c1"># (optional) Model exporter(s) to use during the training and evaluation loop:</span>
   <span class="c1"># last, final, best, or null (default: last).</span>
@@ -433,7 +455,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

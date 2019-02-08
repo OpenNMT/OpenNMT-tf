@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -173,6 +173,16 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+
+<div class="viewcode-block" id="tf_supports"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.tf_supports">[docs]</a><span class="k">def</span> <span class="nf">tf_supports</span><span class="p">(</span><span class="n">symbol</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns ``True`` if TensorFlow defines :obj:`symbol`.&quot;&quot;&quot;</span>
+  <span class="n">modules</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+  <span class="n">namespace</span> <span class="o">=</span> <span class="n">tf</span>
+  <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+      <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">namespace</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="print_bytes"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.print_bytes">[docs]</a><span class="k">def</span> <span class="nf">print_bytes</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Prints a string viewed as bytes.</span>
@@ -410,7 +420,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

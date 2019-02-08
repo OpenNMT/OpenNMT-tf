@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner module &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.runner module &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -176,13 +176,13 @@
 <p>Main library entrypoint.</p>
 <dl class="class">
 <dt id="opennmt.runner.Runner">
-<em class="property">class </em><code class="descclassname">opennmt.runner.</code><code class="descname">Runner</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em>, <em>auto_config=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.runner.</code><code class="descname">Runner</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em>, <em>auto_config=False</em>, <em>hvd=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for managing training, inference, and export. It is mostly a
 wrapper around <code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code>.</p>
 <dl class="method">
 <dt id="opennmt.runner.Runner.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em>, <em>auto_config=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>config</em>, <em>seed=None</em>, <em>num_devices=1</em>, <em>gpu_allow_growth=False</em>, <em>session_config=None</em>, <em>auto_config=False</em>, <em>hvd=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the runner parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -197,6 +197,7 @@ wrapper around <code class="docutils literal notranslate"><span class="pre">tf.e
 <li><strong>session_config</strong> – <code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code> overrides.</li>
 <li><strong>auto_config</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, use automatic configuration values defined by
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code>.</li>
+<li><strong>hvd</strong> – Optional Horovod object.</li>
 </ul>
 </td>
 </tr>
@@ -206,6 +207,12 @@ does not define any automatic configuration values.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.runner.Runner.is_chief">
+<code class="descname">is_chief</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.is_chief"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.is_chief" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this runner is the master runner.</p>
 </dd></dl>
 
 <dl class="method">
@@ -377,7 +384,7 @@ sequence model.</p>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.evaluator module &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.utils.evaluator module &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -243,6 +243,25 @@
 </dd></dl>
 
 <dl class="class">
+<dt id="opennmt.utils.evaluator.SacreBLEUEvaluator">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">SacreBLEUEvaluator</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
+<p>Evaluator using sacreBLEU.</p>
+<dl class="method">
+<dt id="opennmt.utils.evaluator.SacreBLEUEvaluator.name">
+<code class="descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUEvaluator.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUEvaluator.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of this evaluator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.evaluator.SacreBLEUEvaluator.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>labels_file</em>, <em>predictions_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUEvaluator.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUEvaluator.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scores the predictions against the true output labels.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="opennmt.utils.evaluator.BLEUEvaluator">
 <em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">BLEUEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUEvaluator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
@@ -346,7 +365,7 @@ more external evaluators.</p>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

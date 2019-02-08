@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model module &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.models.model module &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -236,7 +236,7 @@ the arguments of this function.</p>
 
 <dl class="method">
 <dt id="opennmt.models.model.Model.model_fn">
-<code class="descname">model_fn</code><span class="sig-paren">(</span><em>num_devices=1</em>, <em>eval_prediction_hooks_fn=None</em>, <em>devices=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.model_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.model_fn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">model_fn</code><span class="sig-paren">(</span><em>num_devices=1</em>, <em>eval_prediction_hooks_fn=None</em>, <em>devices=None</em>, <em>hvd=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.model_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.model_fn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the model function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -248,6 +248,7 @@ the arguments of this function.</p>
 during evaluation and return an iterable of evaluation hooks (e.g. for
 saving predictions on disk, running external evaluators, etc.).</li>
 <li><strong>devices</strong> – The list of devices used for training, if known.</li>
+<li><strong>hvd</strong> – Optional Horovod object.</li>
 </ul>
 </td>
 </tr>
@@ -262,7 +263,7 @@ arguments and the returned value.</p>
 
 <dl class="method">
 <dt id="opennmt.models.model.Model.input_fn">
-<code class="descname">input_fn</code><span class="sig-paren">(</span><em>mode</em>, <em>batch_size</em>, <em>metadata</em>, <em>features_file</em>, <em>labels_file=None</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>num_threads=None</em>, <em>sample_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.input_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.input_fn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">input_fn</code><span class="sig-paren">(</span><em>mode</em>, <em>batch_size</em>, <em>metadata</em>, <em>features_file</em>, <em>labels_file=None</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>num_threads=None</em>, <em>sample_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em>, <em>num_shards=1</em>, <em>shard_index=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.input_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.input_fn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an input function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -291,6 +292,9 @@ older versions.</li>
 the features sequence(s). <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</li>
 <li><strong>maximum_labels_length</strong> – The maximum length of the labels sequence.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</li>
+<li><strong>num_shards</strong> – The number of data shards (usually the number of workers in a
+distributed setting).</li>
+<li><strong>shard_index</strong> – The shard index this input pipeline should read from.</li>
 </ul>
 </td>
 </tr>
@@ -414,7 +418,7 @@ by the user.</li>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

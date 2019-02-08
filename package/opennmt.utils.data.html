@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.data module &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>opennmt.utils.data module &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -351,7 +351,7 @@ result batch size is a multiple of this value.</li>
 
 <dl class="function">
 <dt id="opennmt.utils.data.training_pipeline">
-<code class="descclassname">opennmt.utils.data.</code><code class="descname">training_pipeline</code><span class="sig-paren">(</span><em>dataset</em>, <em>batch_size</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>process_fn=None</em>, <em>num_threads=None</em>, <em>shuffle_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>dataset_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em>, <em>features_length_fn=None</em>, <em>labels_length_fn=None</em>, <em>batch_size_multiple=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#training_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.training_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.data.</code><code class="descname">training_pipeline</code><span class="sig-paren">(</span><em>dataset</em>, <em>batch_size</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>process_fn=None</em>, <em>num_threads=None</em>, <em>shuffle_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>dataset_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em>, <em>features_length_fn=None</em>, <em>labels_length_fn=None</em>, <em>batch_size_multiple=1</em>, <em>num_shards=1</em>, <em>shard_index=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/data.html#training_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.data.training_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines a complete training data pipeline.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -374,7 +374,8 @@ from. <code class="docutils literal notranslate"><span class="pre">None</span></
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
 older versions.</li>
 <li><strong>dataset_size</strong> – The total size of the dataset, if known. It is recommended to
-set it when <code class="xref py py-obj docutils literal notranslate"><span class="pre">shuffle_buffer_size</span></code> is smaller than the dataset size.</li>
+set it when <code class="xref py py-obj docutils literal notranslate"><span class="pre">shuffle_buffer_size</span></code> is smaller than the dataset size
+(or the shard size when sharding is configured).</li>
 <li><strong>maximum_features_length</strong> – The maximum length or list of maximum lengths of
 the features sequence(s). <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</li>
 <li><strong>maximum_labels_length</strong> – The maximum length of the labels sequence.
@@ -383,6 +384,9 @@ the features sequence(s). <code class="docutils literal notranslate"><span class
 <li><strong>labels_length_fn</strong> – A callable mapping labels to a sequence length.</li>
 <li><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
 result batch size is a multiple of this value.</li>
+<li><strong>num_shards</strong> – The number of data shards (usually the number of workers in a
+distributed setting).</li>
+<li><strong>shard_index</strong> – The shard index this data pipeline should read from.</li>
 </ul>
 </td>
 </tr>
@@ -470,7 +474,7 @@ dict.</li>
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',

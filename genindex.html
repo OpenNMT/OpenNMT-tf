@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 1.18.0 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 1.19.0 documentation</title>
   
 
   
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                1.18
+                1.19
               </div>
             
           
@@ -306,6 +306,8 @@
       <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session">after_create_session() (opennmt.utils.hooks.LoadWeightsFromCheckpointHook method)</a>
 
       <ul>
+        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.after_create_session">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
+</li>
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.after_create_session">(opennmt.utils.hooks.VariablesInitializerHook method)</a>
 </li>
       </ul></li>
@@ -314,15 +316,17 @@
       <ul>
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.after_run">(opennmt.utils.hooks.LogPredictionTimeHook method)</a>
 </li>
+        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.after_run">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
+</li>
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.after_run">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
 </li>
       </ul></li>
       <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.align_in_time">align_in_time() (in module opennmt.layers.reducer)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.align_tokens_from_attention">align_tokens_from_attention() (in module opennmt.models.sequence_to_sequence)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.align_tokens_from_attention">align_tokens_from_attention() (in module opennmt.models.sequence_to_sequence)</a>
+</li>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.alignment_matrix_from_pharaoh">alignment_matrix_from_pharaoh() (in module opennmt.models.sequence_to_sequence)</a>
 </li>
       <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.apply">apply() (opennmt.layers.position.PositionEncoder method)</a>
@@ -378,6 +382,8 @@
       <ul>
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.before_run">(opennmt.utils.hooks.LogPredictionTimeHook method)</a>
 </li>
+        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.before_run">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
+</li>
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.before_run">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
 </li>
       </ul></li>
@@ -389,6 +395,8 @@
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogParametersCountHook.begin">(opennmt.utils.hooks.LogParametersCountHook method)</a>
 </li>
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.begin">(opennmt.utils.hooks.LogPredictionTimeHook method)</a>
+</li>
+        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.begin">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
 </li>
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.begin">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
 </li>
@@ -695,6 +703,8 @@
 </li>
       <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter">Inputter (class in opennmt.inputters.inputter)</a>
 </li>
+      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.is_chief">is_chief() (opennmt.runner.Runner method)</a>
+</li>
       <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.item_or_tuple">item_or_tuple() (in module opennmt.utils.misc)</a>
 </li>
   </ul></td>
@@ -744,6 +754,8 @@
       <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogParametersCountHook">LogParametersCountHook (class in opennmt.utils.hooks)</a>
 </li>
       <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook">LogPredictionTimeHook (class in opennmt.utils.hooks)</a>
+</li>
+      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook">LogWordsPerSecondHook (class in opennmt.utils.hooks)</a>
 </li>
       <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.lookup">lookup() (opennmt.utils.vocab.Vocab method)</a>
 </li>
@@ -835,6 +847,8 @@
         <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator.name">(opennmt.utils.evaluator.BLEUEvaluator method)</a>
 </li>
         <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator.name">(opennmt.utils.evaluator.ROUGEEvaluator method)</a>
+</li>
+        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.name">(opennmt.utils.evaluator.SacreBLEUEvaluator method)</a>
 </li>
       </ul></li>
       <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.NMTBig">NMTBig (class in opennmt.models.catalog)</a>
@@ -1125,6 +1139,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator">SacreBLEUEvaluator (class in opennmt.utils.evaluator)</a>
+</li>
       <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook">SaveEvaluationPredictionHook (class in opennmt.utils.hooks)</a>
 </li>
       <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.score">score() (opennmt.runner.Runner method)</a>
@@ -1135,6 +1151,8 @@
         <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.score">(opennmt.utils.evaluator.ExternalEvaluator method)</a>
 </li>
         <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator.score">(opennmt.utils.evaluator.ROUGEEvaluator method)</a>
+</li>
+        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.score">(opennmt.utils.evaluator.SacreBLEUEvaluator method)</a>
 </li>
       </ul></li>
       <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder">SelfAttentionDecoder (class in opennmt.decoders.self_attention_decoder)</a>
@@ -1159,10 +1177,10 @@
 </li>
       <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.set_data_field">set_data_field() (opennmt.inputters.inputter.Inputter method)</a>
 </li>
-      <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.shard">shard() (opennmt.utils.parallel.GraphDispatcher method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.shard">shard() (opennmt.utils.parallel.GraphDispatcher method)</a>
+</li>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.shift_target_sequence">shift_target_sequence() (in module opennmt.models.sequence_to_sequence)</a>
 </li>
       <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.SinusoidalPositionEncoder">SinusoidalPositionEncoder (class in opennmt.layers.position)</a>
@@ -1210,6 +1228,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter">TextInputter (class in opennmt.inputters.text_inputter)</a>
+</li>
+      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.tf_supports">tf_supports() (in module opennmt.utils.misc)</a>
 </li>
       <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.tile_sequence_length">tile_sequence_length() (in module opennmt.layers.transformer)</a>
 </li>
@@ -1377,7 +1397,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.18.0',
+              VERSION:'1.19.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
