@@ -40,8 +40,8 @@ setup(
     ],
     extras_require={
         "tests": tests_require,
-        "tensorflow": ["tensorflow>=1.4.0"],
-        "tensorflow_gpu": ["tensorflow-gpu>=1.4.0"]
+        "tensorflow": ["tensorflow>=1.4.0,<2"],
+        "tensorflow_gpu": ["tensorflow-gpu>=1.4.0,<2"]
     },
     tests_require=tests_require,
     test_suite="nose2.collector.collector",
