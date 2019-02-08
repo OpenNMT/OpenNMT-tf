@@ -1,3 +1,5 @@
+# pylint: disable=arguments-differ
+
 """Define layers related to the Google's Transformer model."""
 
 import tensorflow as tf

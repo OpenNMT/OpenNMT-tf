@@ -25,7 +25,7 @@ matrix:
       env:
         - TF_VERSION="2.0"
       before_install:
-        - pip install tf-nightly-2.0-preview
+        - pip install tf-nightly-2.0-preview pylint==2.1.1
         - pip install -e .[tests]
       script:
         - nose2 -s opennmt/v2/tests
