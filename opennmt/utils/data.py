@@ -239,7 +239,9 @@ def training_pipeline(dataset,
                       maximum_labels_length=None,
                       features_length_fn=None,
                       labels_length_fn=None,
-                      batch_size_multiple=1):
+                      batch_size_multiple=1,
+                      num_shards=1,
+                      shard_index=0):
   """Defines a complete training data pipeline.
 
   Args:
@@ -259,7 +261,8 @@ def training_pipeline(dataset,
       ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
       older versions.
     dataset_size: The total size of the dataset, if known. It is recommended to
-      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size.
+      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size
+      (or the shard size when sharding is configured).
     maximum_features_length: The maximum length or list of maximum lengths of
       the features sequence(s). ``None`` to not constrain the length.
     maximum_labels_length: The maximum length of the labels sequence.
@@ -268,10 +271,17 @@ def training_pipeline(dataset,
     labels_length_fn: A callable mapping labels to a sequence length.
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
       result batch size is a multiple of this value.
+    num_shards: The number of data shards (usually the number of workers in a
+      distributed setting).
+    shard_index: The shard index this data pipeline should read from.
 
   Returns:
     A ``tf.data.Dataset``.
   """
+  if num_shards > 1:
+    dataset = dataset.shard(num_shards, shard_index)
+    if dataset_size is not None:
+      dataset_size //= num_shards
   if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
     if dataset_size is not None:
       tf.logging.info("Training on %d examples", dataset_size)

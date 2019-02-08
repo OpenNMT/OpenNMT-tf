@@ -115,7 +115,8 @@ def load_model(model_dir,
     with tf.gfile.Open(serial_model_file, mode="rb") as serial_model:
       model = pickle.load(serial_model)
   else:
-    raise RuntimeError("A model configuration is required.")
+    raise RuntimeError("A model configuration is required: you probably need to "
+                       "set --model or --model_type on the command line.")
 
   return model
 

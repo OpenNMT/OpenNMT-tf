@@ -11,7 +11,7 @@ import six
 import tensorflow as tf
 import yaml
 
-from opennmt.utils.misc import print_bytes
+from opennmt.utils.misc import print_bytes, tf_supports
 
 
 def _make_config_asset_file(config, asset_path):
@@ -162,8 +162,8 @@ class Tokenizer(object):
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
 
-    When not overriden, this default implementation uses a ``tf.py_func``
-    operation to call the string-based tokenization.
+    When not overriden, this default implementation calls the string-based
+    tokenization.
 
     Args:
       text: A 1-D string ``tf.Tensor``.
@@ -171,6 +171,15 @@ class Tokenizer(object):
     Returns:
       A 1-D string ``tf.Tensor``.
     """
+    if tf_supports("py_function"):
+      def _python_wrapper(string_t):
+        string = tf.compat.as_text(string_t.numpy())
+        tokens = self._tokenize_string(string)
+        return tf.constant(tokens)
+      tokens = tf.py_function(_python_wrapper, [text], tf.string)
+      tokens.set_shape([None])
+      return tokens
+
     text = tf.py_func(
         lambda x: tf.compat.as_bytes("\0".join(self.tokenize(x))), [text], tf.string)
     tokens = tf.string_split([text], delimiter="\0").values
@@ -179,8 +188,8 @@ class Tokenizer(object):
   def _detokenize_tensor(self, tokens):
     """Detokenizes tokens.
 
-    When not overriden, this default implementation uses a ``tf.py_func``
-    operation to call the string-based detokenization.
+    When not overriden, this default implementation calls the string-based
+    detokenization.
 
     Args:
       tokens: A 1-D ``tf.Tensor``.
@@ -188,6 +197,14 @@ class Tokenizer(object):
     Returns:
       A 0-D string ``tf.Tensor``.
     """
+    if tf_supports("py_function"):
+      def _python_wrapper(tokens_t):
+        tokens = [tf.compat.as_text(s) for s in tokens_t.numpy()]
+        string = self._detokenize_string(tokens)
+        return tf.constant(string)
+      text = tf.py_function(_python_wrapper, [tokens], tf.string)
+      text.set_shape([])
+      return text
     return tf.py_func(self.detokenize, [tokens], tf.string)
 
   def _detokenize_batch_tensor(self, tokens, sequence_length):
@@ -253,6 +270,20 @@ class SpaceTokenizer(Tokenizer):
 
 class CharacterTokenizer(Tokenizer):
   """A tokenizer that splits unicode characters."""
+
+  def _tokenize_tensor(self, text):
+    if tf_supports("strings.unicode_split"):
+      text = tf.strings.regex_replace(text, " ", "▁")
+      return tf.strings.unicode_split(text, "UTF-8")
+    else:
+      return super(CharacterTokenizer, self)._tokenize_tensor(text)
+
+  def _detokenize_tensor(self, tokens):
+    if tf_supports("strings.reduce_join"):
+      text = tf.strings.reduce_join(tokens, axis=0)
+      return tf.strings.regex_replace(text, "▁", " ")
+    else:
+      return super(CharacterTokenizer, self)._detokenize_tensor(tokens)
 
   def _tokenize_string(self, text):
     return list(text.replace(" ", u"▁"))

@@ -59,7 +59,7 @@ class Model(object):
     """
     return self._build(features, labels, params, mode, config=config)
 
-  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None):
+  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
     """Returns the model function.
 
     Args:
@@ -68,6 +68,7 @@ class Model(object):
         during evaluation and return an iterable of evaluation hooks (e.g. for
         saving predictions on disk, running external evaluators, etc.).
       devices: The list of devices used for training, if known.
+      hvd: Optional Horovod object.
 
     See Also:
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
@@ -110,14 +111,6 @@ class Model(object):
     def _model_fn(features, labels, params, mode, config):
       """model_fn implementation."""
       if mode == tf.estimator.ModeKeys.TRAIN:
-        counters = self._register_word_counters(features, labels)
-        training_hooks = []
-        if config is not None:
-          training_hooks.append(hooks.CountersHook(
-              every_n_steps=config.save_summary_steps,
-              output_dir=config.model_dir,
-              counters=counters))
-
         features_shards = dispatcher.shard(features)
         labels_shards = dispatcher.shard(labels)
 
@@ -127,9 +120,23 @@ class Model(object):
 
         loss = _extract_loss(losses_shards)
         train_op, extra_variables = optimize_loss(
-            loss, params, mixed_precision=(self.dtype == tf.float16))
+            loss, params, mixed_precision=(self.dtype == tf.float16), hvd=hvd)
+
+        training_hooks = []
         if extra_variables:
           training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
+        if config is not None:
+          features_length = self._get_features_length(features)
+          labels_length = self._get_labels_length(labels)
+          num_words = {}
+          if features_length is not None:
+            num_words["source"] = tf.reduce_sum(features_length)
+          if labels_length is not None:
+            num_words["target"] = tf.reduce_sum(labels_length)
+          training_hooks.append(hooks.LogWordsPerSecondHook(
+              num_words,
+              every_n_steps=config.save_summary_steps,
+              output_dir=config.model_dir))
         return tf.estimator.EstimatorSpec(
             mode,
             loss=loss,
@@ -227,21 +234,6 @@ class Model(object):
       name.
     """
     return None
-
-  def _register_word_counters(self, features, labels):
-    """Creates word counters for sequences (if any) of :obj:`features` and
-    :obj:`labels`.
-    """
-    features_length = self._get_features_length(features)
-    labels_length = self._get_labels_length(labels)
-
-    counters = []
-    with tf.variable_scope("words_per_sec"):
-      if features_length is not None:
-        counters.append(hooks.add_counter("features", tf.reduce_sum(features_length)))
-      if labels_length is not None:
-        counters.append(hooks.add_counter("labels", tf.reduce_sum(labels_length)))
-    return counters
 
   def _initialize(self, metadata, asset_dir=None):
     """Runs model specific initialization (e.g. vocabularies loading).
@@ -371,6 +363,8 @@ class Model(object):
                      num_threads=None,
                      sample_buffer_size=None,
                      prefetch_buffer_size=None,
+                     num_shards=1,
+                     shard_index=0,
                      maximum_features_length=None,
                      maximum_labels_length=None):
     """See ``input_fn``."""
@@ -410,7 +404,9 @@ class Model(object):
           maximum_labels_length=maximum_labels_length,
           features_length_fn=self._get_features_length,
           labels_length_fn=self._get_labels_length,
-          batch_size_multiple=batch_size_multiple)
+          batch_size_multiple=batch_size_multiple,
+          num_shards=num_shards,
+          shard_index=shard_index)
     else:
       dataset = data.inference_pipeline(
           dataset,
@@ -442,7 +438,9 @@ class Model(object):
                sample_buffer_size=None,
                prefetch_buffer_size=None,
                maximum_features_length=None,
-               maximum_labels_length=None):
+               maximum_labels_length=None,
+               num_shards=1,
+               shard_index=0):
     """Returns an input function.
 
     Args:
@@ -468,6 +466,9 @@ class Model(object):
         the features sequence(s). ``None`` to not constrain the length.
       maximum_labels_length: The maximum length of the labels sequence.
         ``None`` to not constrain the length.
+      num_shards: The number of data shards (usually the number of workers in a
+        distributed setting).
+      shard_index: The shard index this input pipeline should read from.
 
     Returns:
       A callable that returns the next element.
@@ -495,6 +496,8 @@ class Model(object):
         num_threads=num_threads,
         sample_buffer_size=sample_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
+        num_shards=num_shards,
+        shard_index=shard_index,
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length)
 

@@ -84,6 +84,26 @@ class ROUGEEvaluator(ExternalEvaluator):
     return {k:v["f"] for k, v in six.iteritems(rouge_scores)}
 
 
+class SacreBLEUEvaluator(ExternalEvaluator):
+  """Evaluator using sacreBLEU."""
+
+  def __init__(self, *args, **kwargs):
+    try:
+      import sacrebleu  # pylint: disable=unused-import, unused-variable
+    except ImportError:
+      raise ImportError("sacreBLEU evaluator requires Python 3")
+    super(SacreBLEUEvaluator, self).__init__(*args, **kwargs)
+
+  def name(self):
+    return "sacreBLEU"
+
+  def score(self, labels_file, predictions_path):
+    from sacrebleu import corpus_bleu
+    with open(labels_file) as ref_stream, open(predictions_path) as sys_stream:
+      bleu = corpus_bleu(sys_stream, [ref_stream])
+      return bleu.score
+
+
 class BLEUEvaluator(ExternalEvaluator):
   """Evaluator calling multi-bleu.perl."""
 
@@ -153,14 +173,18 @@ def external_evaluation_fn(evaluators_name, labels_file, output_dir=None):
   evaluators = []
   for name in evaluators_name:
     name = name.lower()
+    evaluator_class = None
     if name == "bleu":
-      evaluator = BLEUEvaluator(labels_file=labels_file, output_dir=output_dir)
+      evaluator_class = BLEUEvaluator
     elif name == "bleu-detok":
-      evaluator = BLEUDetokEvaluator(labels_file=labels_file, output_dir=output_dir)
+      evaluator_class = BLEUDetokEvaluator
+    elif name == "sacrebleu":
+      evaluator_class = SacreBLEUEvaluator
     elif name == "rouge":
-      evaluator = ROUGEEvaluator(labels_file=labels_file, output_dir=output_dir)
+      evaluator_class = ROUGEEvaluator
     else:
       raise ValueError("No evaluator associated with the name: {}".format(name))
+    evaluator = evaluator_class(labels_file=labels_file, output_dir=output_dir)
     evaluators.append(evaluator)
 
   def _post_evaluation_fn(step, predictions_path):

@@ -122,7 +122,7 @@ def optimize(*args, **kwargs):
   update_op, _ = optimize_loss(*args, **kwargs)
   return update_op
 
-def optimize_loss(loss, params, mixed_precision=False, var_list=None):
+def optimize_loss(loss, params, mixed_precision=False, var_list=None, hvd=None):
   """Minimizes the loss.
 
   Args:
@@ -131,6 +131,7 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None):
     mixed_precision: If ``True``, wraps the optimizer to maintain a float32 copy
       of the weights.
     var_list: The variables to update.
+    hvd: Optional Horovod object.
 
   Returns:
     The loss minimization op and a list of internal variables to initialize.
@@ -142,12 +143,7 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None):
 
   global_step = tf.train.get_or_create_global_step()
   with tf.variable_scope("optim"):
-    # Learning rate.
-    learning_rate = tf.get_variable(
-        "learning_rate",
-        [],
-        trainable=False,
-        initializer=tf.constant_initializer(float(params["learning_rate"])))
+    learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
     if params.get("decay_type") is not None:
       decay_params = params.get("decay_params", {})
       if "decay_rate" in params:
@@ -175,6 +171,9 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None):
     if mixed_precision:
       optimizer = optimizers.MixedPrecisionOptimizerWrapper(
           optimizer, loss_scale=get_loss_scale_from_params(params))
+    if hvd is not None:
+      from opennmt.optimizers.distributed_optimizer import DistributedOptimizer
+      optimizer = DistributedOptimizer.from_params(optimizer, params=params.get("horovod"))
 
     # Gradients.
     gradients = optimizer.compute_gradients(
@@ -205,8 +204,14 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
     An operation that conditionally applies the gradients and a list of internal
     variables to initialize.
   """
+
+  def _apply_gradients(grads_and_vars, global_step=None):
+    if hasattr(optimizer, "allreduce_gradients"):
+      grads_and_vars = optimizer.allreduce_gradients(grads_and_vars)
+    return optimizer.apply_gradients(grads_and_vars, global_step=global_step)
+
   if not tf.contrib.framework.is_tensor(accum_count) and accum_count == 1:
-    return optimizer.apply_gradients(grads_and_vars, global_step=global_step), []
+    return _apply_gradients(grads_and_vars, global_step=global_step), []
 
   model_step = tf.Variable(0, trainable=False, collections=[], dtype=tf.int64)
   accum_grads = []
@@ -231,7 +236,7 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
         # This is needed to ensure we can continue from a model trained without
         # gradient accumulation (and vice-versa).
         with tf.name_scope("%s/" % tf.get_variable_scope().name):
-          return optimizer.apply_gradients(accum_grads_and_vars, global_step=global_step)
+          return _apply_gradients(accum_grads_and_vars, global_step=global_step)
       else:
         return tf.no_op()
 

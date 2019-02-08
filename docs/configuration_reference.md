@@ -20,6 +20,21 @@ data:
   source_words_vocabulary: data/toy-ende/src-vocab.txt
   target_words_vocabulary: data/toy-ende/tgt-vocab.txt
 
+  # (optional) OpenNMT tokenization configuration (or path to a configuration file).
+  # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
+  source_tokenization:
+    mode: aggressive
+    joiner_annotate: true
+    segment_numbers: true
+    segment_alphabet_change: true
+  target_tokenization: config/tokenization/aggressive.yml
+
+  # (optional) Pretrained embedding configuration.
+  source_embedding:
+    path: data/glove/glove-100000.txt
+    with_header: True
+    case_insensitive: True
+    trainable: False
 
 # Model and optimization parameters.
 params:
@@ -48,6 +63,13 @@ params:
   loss_scale_params:
     scale_min: 1.0
     step_factor: 2.0
+
+  # (optional) Horovod parameters.
+  horovod:
+    # (optional) Compression type for gradients (can be: "none", "fp16", default: "none").
+    compression: none
+    # (optional) Average the reduced gradients (default: false).
+    average_gradients: false
 
   # (optional) Weights regularization penalty (default: null).
   regularization:
@@ -178,8 +200,8 @@ eval:
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: BLEU, BLEU-detok, ROUGE
-  external_evaluators: BLEU
+  # Available evaluators: sacreBLEU, BLEU, BLEU-detok, ROUGE
+  external_evaluators: sacreBLEU
 
   # (optional) Model exporter(s) to use during the training and evaluation loop:
   # last, final, best, or null (default: last).

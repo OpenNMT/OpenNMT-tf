@@ -12,6 +12,16 @@ import numpy as np
 import tensorflow as tf
 
 
+def tf_supports(symbol):
+  """Returns ``True`` if TensorFlow defines :obj:`symbol`."""
+  modules = symbol.split(".")
+  namespace = tf
+  for module in modules:
+    if not hasattr(namespace, module):
+      return False
+    namespace = getattr(namespace, module)
+  return True
+
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.
 

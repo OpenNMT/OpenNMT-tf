@@ -18,17 +18,26 @@ before_install:
   - pip install tensorflow==$TF_VERSION
   - pip install -e .[tests]
 script:
-  - nose2
+  - nose2 -s opennmt/tests
 matrix:
   include:
+    - python: "3.6"
+      env:
+        - TF_VERSION="2.0"
+      before_install:
+        - pip install tf-nightly-2.0-preview pylint==2.1.1
+        - pip install -e .[tests]
+      script:
+        - nose2 -s opennmt/v2/tests
+        - pylint opennmt/v2/
     - python: "3.6"
       env:
         - TF_VERSION="$LATEST_TF_VERSION"
       install:
         - pip install pylint==2.1.1 wheel twine
       script:
-        - nose2
-        - pylint opennmt/
+        - nose2 -s opennmt/tests
+        - pylint --ignore=tests,v2 opennmt/
       after_success:
         - |
               if [[ -n $TRAVIS_TAG ]]; then

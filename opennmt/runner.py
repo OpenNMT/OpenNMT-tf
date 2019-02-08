@@ -7,6 +7,7 @@ import sys
 import random
 import math
 import subprocess
+import json
 import yaml
 
 import numpy as np
@@ -57,7 +58,8 @@ class Runner(object):
                num_devices=1,
                gpu_allow_growth=False,
                session_config=None,
-               auto_config=False):
+               auto_config=False,
+               hvd=None):
     """Initializes the runner parameters.
 
     Args:
@@ -69,6 +71,7 @@ class Runner(object):
       session_config: ``tf.ConfigProto`` overrides.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
+      hvd: Optional Horovod object.
 
     Raises:
       NotImplementedError: If :obj:`auto_config` is ``True`` but :obj:`model`
@@ -76,12 +79,14 @@ class Runner(object):
     """
     self._model = model
     self._num_devices = num_devices
+    self._num_replicas = hvd.size() if hvd is not None else num_devices
     self._seed = seed
+    self._hvd = hvd
 
     # Configuration priority: user config > auto config > default config.
     self._config = copy.deepcopy(_CONFIG_FALLBACK)
     if auto_config:
-      model_config = self._model.auto_config(num_devices=num_devices)
+      model_config = self._model.auto_config(num_devices=self._num_replicas)
       if not model_config:
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(self._config, model_config)
@@ -94,6 +99,8 @@ class Runner(object):
         log_device_placement=False,
         gpu_options=tf.GPUOptions(
             allow_growth=gpu_allow_growth))
+    if self._hvd is not None:
+      session_config_base.gpu_options.visible_device_list = str(self._hvd.local_rank())
 
     # Disable layout optimizer for better conv1d performance, see:
     # https://github.com/tensorflow/tensorflow/issues/20309
@@ -133,6 +140,10 @@ class Runner(object):
       run_config = run_config.replace(
           save_checkpoints_secs=train_config.get("save_checkpoints_secs"),
           save_checkpoints_steps=train_config.get("save_checkpoints_steps"))
+    if not self.is_chief():
+      run_config = run_config.replace(
+          save_checkpoints_secs=None,
+          save_checkpoints_steps=None)
     if "keep_checkpoint_max" in train_config:
       run_config = run_config.replace(
           keep_checkpoint_max=train_config["keep_checkpoint_max"])
@@ -141,9 +152,20 @@ class Runner(object):
     return tf.estimator.Estimator(
         self._model.model_fn(
             eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
-            devices=devices),
+            devices=devices,
+            hvd=self._hvd),
         config=run_config,
         params=params)
+
+  def is_chief(self):
+    """Returns ``True`` if this runner is the master runner."""
+    if self._hvd is not None:
+      return self._hvd.rank() == 0
+    cluster_spec = os.getenv("TF_CONFIG")
+    if cluster_spec is None:
+      return True
+    cluster_spec = json.loads(cluster_spec)
+    return cluster_spec["task"]["type"] == "chief"
 
   def _make_eval_prediction_hooks_fn(self):
     if (not self._config["eval"].get("save_eval_predictions", False)
@@ -183,7 +205,7 @@ class Runner(object):
       self._config["params"]["gradients_accum"] = _count_batch_accum(
           train_config["batch_size"],
           train_config["effective_batch_size"],
-          num_replicas=self._num_devices)
+          num_replicas=self._num_replicas)
       tf.logging.info("Accumulate gradients of %d iterations to reach effective batch size of %d",
                       self._config["params"]["gradients_accum"],
                       train_config["effective_batch_size"])
@@ -194,7 +216,12 @@ class Runner(object):
 
     if checkpoint_path is not None:
       train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
+    if self._hvd is not None:
+      train_hooks.append(self._hvd.BroadcastGlobalVariablesHook(0))
 
+    train_steps = self._config["train"].get("train_steps")
+    if train_steps is not None and self._hvd is not None:
+      train_steps //= self._hvd.size()
     train_spec = tf.estimator.TrainSpec(
         input_fn=self._model.input_fn(
             tf.estimator.ModeKeys.TRAIN,
@@ -210,8 +237,10 @@ class Runner(object):
             sample_buffer_size=self._config["train"]["sample_buffer_size"],
             prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size"),
             maximum_features_length=self._config["train"].get("maximum_features_length"),
-            maximum_labels_length=self._config["train"].get("maximum_labels_length")),
-        max_steps=self._config["train"].get("train_steps"),
+            maximum_labels_length=self._config["train"].get("maximum_labels_length"),
+            num_shards=self._hvd.size() if self._hvd is not None else 1,
+            shard_index=self._hvd.rank() if self._hvd is not None else 0),
+        max_steps=train_steps,
         hooks=train_hooks)
     return train_spec
 
@@ -292,7 +321,7 @@ class Runner(object):
       if no checkpoints were averaged.
     """
     average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
-    if average_last_checkpoints > 0 and estimator.config.is_chief:
+    if average_last_checkpoints > 0 and self.is_chief():
       return self.average_checkpoints(
           os.path.join(estimator.model_dir, avg_subdirectory),
           max_count=average_last_checkpoints)

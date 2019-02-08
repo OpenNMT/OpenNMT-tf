@@ -12,7 +12,7 @@ from tensorflow.contrib.tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
-from opennmt.tokenizers.tokenizer import SpaceTokenizer
+from opennmt import tokenizers
 from opennmt.inputters.inputter import Inputter
 from opennmt.utils.cell import build_cell, last_encoding_from_state
 from opennmt.utils.misc import count_lines
@@ -153,23 +153,27 @@ def load_pretrained_embeddings(embedding_file,
 
   return pretrained
 
-def tokens_to_chars(tokens):
-  """Splits a list of tokens into unicode characters.
-
-  This is an in-graph transformation.
+def tokens_to_chars(tokens, padding_value=PADDING_TOKEN):
+  """Splits tokens into unicode characters.
 
   Args:
-    tokens: A sequence of tokens.
+    tokens: A string ``tf.Tensor`` of shape :math:`[T]`.
+    padding_value: The value to use for padding.
 
   Returns:
-    The characters as a ``tf.Tensor`` of shape
-    ``[sequence_length, max_word_length]`` and the length of each word.
+    The characters as a string ``tf.Tensor`` of shape :math:`[T, W]` and the
+    length of each token as an int64 ``tf.Tensor``  of shape :math:`[T]`.
   """
+  if hasattr(tf, "strings") and hasattr(tf.strings, "unicode_split"):
+    ragged = tf.strings.unicode_split(tokens, "UTF-8")
+    chars = ragged.to_tensor(default_value=padding_value)
+    lengths = ragged.row_lengths()
+    return chars, lengths
 
   def _split_chars(token, max_length, delimiter=" "):
     chars = list(token.decode("utf-8"))
     while len(chars) < max_length:
-      chars.append(PADDING_TOKEN)
+      chars.append(padding_value)
     return delimiter.join(chars).encode("utf-8")
 
   def _string_len(token):
@@ -211,12 +215,20 @@ def tokens_to_chars(tokens):
   lengths.set_shape([None])
   return chars, lengths
 
+def _get_field(config, key, prefix=None, default=None, required=False):
+  if prefix:
+    key = "%s%s" % (prefix, key)
+  value = config.get(key, default)
+  if value is None and required:
+    raise ValueError("Missing field '%s' in the data configuration" % key)
+  return value
+
 
 @six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self, tokenizer=SpaceTokenizer(), dtype=tf.float32):
+  def __init__(self, tokenizer=None, dtype=tf.float32):
     super(TextInputter, self).__init__(dtype=dtype)
     self.tokenizer = tokenizer
 
@@ -230,6 +242,15 @@ class TextInputter(Inputter):
     return count_lines(data_file)
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    if self.tokenizer is None:
+      tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
+      if tokenizer_config:
+        if isinstance(tokenizer_config, six.string_types) and tf.gfile.Exists(tokenizer_config):
+          with tf.gfile.Open(config, mode="rb") as config_file:
+            tokenizer_config = yaml.load(config_file)
+        self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
+      else:
+        self.tokenizer = tokenizers.SpaceTokenizer()
     return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
   def _process(self, data):
@@ -265,7 +286,7 @@ class WordEmbedder(TextInputter):
                case_insensitive_embeddings=True,
                trainable=True,
                dropout=0.0,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the word embedder.
 
@@ -282,7 +303,7 @@ class WordEmbedder(TextInputter):
       trainable: If ``False``, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
 
     Raises:
@@ -297,6 +318,7 @@ class WordEmbedder(TextInputter):
 
     self.vocabulary_file_key = vocabulary_file_key
     self.embedding_size = embedding_size
+    self.embedding_file = None
     self.embedding_file_key = embedding_file_key
     self.embedding_file_with_header = embedding_file_with_header
     self.case_insensitive_embeddings = case_insensitive_embeddings
@@ -304,20 +326,30 @@ class WordEmbedder(TextInputter):
     self.dropout = dropout
     self.num_oov_buckets = 1
 
-    if embedding_size is None and embedding_file_key is None:
-      raise ValueError("Must either provide embedding_size or embedding_file_key")
-
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = super(WordEmbedder, self).initialize(
         metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
     self.vocabulary_file = metadata[self.vocabulary_file_key]
-    self.embedding_file = metadata[self.embedding_file_key] if self.embedding_file_key else None
-
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     self.vocabulary = tf.contrib.lookup.index_table_from_file(
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         num_oov_buckets=self.num_oov_buckets)
+
+    if self.embedding_file_key is not None:
+      self.embedding_file = metadata[self.embedding_file_key]
+    else:
+      embedding = _get_field(metadata, "embedding", prefix=asset_prefix)
+      if embedding is None and self.embedding_size is None:
+        raise ValueError("embedding_size must be set")
+      if embedding is not None:
+        self.embedding_file = embedding["path"]
+        self.trainable = embedding.get("trainable", True)
+        self.embedding_file_with_header = embedding.get("with_header", True)
+        self.case_insensitive_embeddings = embedding.get("case_insensitive", True)
+    if self.embedding_file is None and self.embedding_size is None:
+      raise ValueError("Must either provide embedding_size or embedding_file_key")
+
     return assets
 
   def _get_serving_input(self):
@@ -395,7 +427,7 @@ class CharEmbedder(TextInputter):
                vocabulary_file_key,
                embedding_size,
                dropout=0.0,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character embedder.
 
@@ -405,7 +437,7 @@ class CharEmbedder(TextInputter):
       embedding_size: The size of the character embedding.
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
     super(CharEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
@@ -483,7 +515,7 @@ class CharConvEmbedder(CharEmbedder):
                kernel_size=5,
                stride=3,
                dropout=0.0,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character convolution embedder.
 
@@ -496,7 +528,7 @@ class CharConvEmbedder(CharEmbedder):
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
     super(CharConvEmbedder, self).__init__(
@@ -545,7 +577,7 @@ class CharRNNEmbedder(CharEmbedder):
                dropout=0.2,
                encoding="average",
                cell_class=tf.nn.rnn_cell.LSTMCell,
-               tokenizer=SpaceTokenizer(),
+               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character RNN embedder.
 
@@ -561,7 +593,7 @@ class CharRNNEmbedder(CharEmbedder):
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text.
+        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
 
     Raises:

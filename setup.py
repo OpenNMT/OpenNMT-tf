@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
 tests_require = [
+    "parameterized",
     "nose2"
 ]
 
 setup(
     name="OpenNMT-tf",
-    version="1.18.0",
+    version="1.19.0",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
@@ -35,12 +36,13 @@ setup(
     install_requires=[
         "pyonmttok>=1.5.0,<2;platform_system=='Linux'",
         "pyyaml",
-        "rouge==0.3.1"
+        "rouge==0.3.1",
+        "sacrebleu==1.*;python_version>='3.0'"
     ],
     extras_require={
         "tests": tests_require,
-        "tensorflow": ["tensorflow>=1.4.0"],
-        "tensorflow_gpu": ["tensorflow-gpu>=1.4.0"]
+        "tensorflow": ["tensorflow>=1.4.0,<2"],
+        "tensorflow_gpu": ["tensorflow-gpu>=1.4.0,<2"]
     },
     tests_require=tests_require,
     test_suite="nose2.collector.collector",

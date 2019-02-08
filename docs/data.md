@@ -74,6 +74,21 @@ For more information, see the TensorFlow documentation:
 * [How to run TensorFlow on Hadoop](https://www.tensorflow.org/deploy/hadoop)
 * [How to run TensorFlow on S3](https://www.tensorflow.org/deploy/s3)
 
+## Pretrained embeddings
+
+Pretrained embeddings can be configured in the `data` section, e.g.:
+
+```yaml
+data:
+  source_embedding:
+    path: data/glove/glove-100000.txt
+    with_header: True
+    case_insensitive: True
+    trainable: False
+```
+
+The format of the embedding file and the options are described in the [load_pretrained_embeddings](http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.load_pretrained_embeddings) function.
+
 ## Parallel inputs
 
 When using `opennmt.inputters.ParallelInputter`, as many input files as inputters are expected. You have to configure your YAML file accordingly:
@@ -84,6 +99,14 @@ data:
     - train_source_1.records
     - train_source_2.txt
     - train_source_3.txt
+
+  # If you also want to configure the tokenization:
+  source_2_tokenization: ...
+  source_3_tokenization: ...
+
+  # If you also want to configure the embeddings:
+  source_2_embedding: ...
+  source_3_embedding: ...
 ```
 
 Similarly, when using the `--features_file` command line option of the main script (e.g. for inference or scoring), a list of files must also be provided:
