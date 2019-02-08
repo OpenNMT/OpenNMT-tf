@@ -37,7 +37,7 @@ matrix:
         - pip install pylint==2.1.1 wheel twine
       script:
         - nose2 -s opennmt/tests
-        - pylint --ignore=v2 opennmt/
+        - pylint --ignore=tests,v2 opennmt/
       after_success:
         - |
               if [[ -n $TRAVIS_TAG ]]; then
