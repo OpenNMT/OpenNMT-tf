@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 
 tests_require = [
+    "parameterized",
     "nose2"
 ]
 
