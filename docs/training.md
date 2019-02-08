@@ -32,6 +32,8 @@ Note that evaluation and inference will run on a single device.
 
 ## Distributed training
 
+### via TensorFlow asynchronous training
+
 OpenNMT-tf also supports asynchronous distributed training with *between-graph replication*. In this mode, each graph replica processes a batch independently, compute the gradients, and asynchronously update a shared set of parameters.
 
 To enable distributed training, the user should use the `train_and_eval` run type and set on the command line:
@@ -54,6 +56,33 @@ CUDA_VISIBLE_DEVICES=0 onmt-main train_and_eval [...] \
 will start the worker 1 on the current machine and first GPU. By setting `CUDA_VISIBLE_DEVICES` correctly, asynchronous distributed training can be run on a single multi-GPU machine.
 
 For more details, see the documentation of [`tf.estimator.train_and_evaluate`](https://www.tensorflow.org/api_docs/python/tf/estimator/train_and_evaluate). Also see [tensorflow/ecosystem](https://github.com/tensorflow/ecosystem) to integrate distributed training with open-source frameworks like Docker or Kubernetes.
+
+### via Horovod (experimental)
+
+OpenNMT-tf has an experimental support for [Horovod](https://github.com/uber/horovod), enabled when the flag `--horovod` is passed to the command line. For example, this command starts a training on 4 GPUs (don't use Horovod in that case, just use `--num_gpus`):
+
+```bash
+mpirun -np 4 \
+    -H localhost:4 \
+    -bind-to none -map-by slot \
+    -x LD_LIBRARY_PATH -x PATH \
+    -mca pml ob1 -mca btl ^openib \
+    onmt-main train --model_type Transformer --config data.yml --auto_config --horovod
+```
+
+Additional parameters can be set in the training configuration:
+
+```yaml
+params:
+  # (optional) Horovod parameters.
+  horovod:
+    # (optional) Compression type for gradients (can be: "none", "fp16", default: "none").
+    compression: none
+    # (optional) Average the reduced gradients (default: false).
+    average_gradients: false
+```
+
+For more information on how to install and use Horovod, please see the [GitHub repository](https://github.com/uber/horovod).
 
 **Note:** distributed training will also split the training directory `model_dir` accross the instances. This could impact features that restore checkpoints like inference, manual export, or checkpoint averaging. The recommend approach to properly support these features while running distributed training is to store the `model_dir` on a shared filesystem, e.g. by using [HDFS](https://www.tensorflow.org/deploy/hadoop).
 

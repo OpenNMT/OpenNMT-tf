@@ -88,6 +88,8 @@ def main():
                       help="Type of the task to run (for distributed training).")
   parser.add_argument("--task_index", type=int, default=0,
                       help="ID of the task (for distributed training).")
+  parser.add_argument("--horovod", default=False, action="store_true",
+                      help="Enable Horovod support for this run.")
   parser.add_argument("--log_level", default="INFO",
                       choices=["DEBUG", "ERROR", "FATAL", "INFO", "WARN"],
                       help="Logs verbosity.")
@@ -124,6 +126,15 @@ def main():
         }
     })
 
+  # Initialize Horovd if defined.
+  if args.horovod:
+    import horovod.tensorflow as hvd
+    hvd.init()
+    is_chief = hvd.rank() == 0
+  else:
+    hvd = None
+    is_chief = args.task_type == "chief"
+
   # Load and merge run configurations.
   config = load_config(args.config)
   if args.run_dir:
@@ -131,7 +142,6 @@ def main():
   if args.data_dir:
     config["data"] = _prefix_paths(args.data_dir, config["data"])
 
-  is_chief = args.task_type == "chief"
   if is_chief and not tf.gfile.Exists(config["model_dir"]):
     tf.logging.info("Creating model directory %s", config["model_dir"])
     tf.gfile.MakeDirs(config["model_dir"])
@@ -155,7 +165,8 @@ def main():
       seed=args.seed,
       num_devices=args.num_gpus,
       session_config=session_config,
-      auto_config=args.auto_config)
+      auto_config=args.auto_config,
+      hvd=hvd)
 
   if args.run == "train_and_eval":
     runner.train_and_evaluate(checkpoint_path=args.checkpoint_path)
