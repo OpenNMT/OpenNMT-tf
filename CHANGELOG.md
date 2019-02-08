@@ -23,6 +23,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * In distributed training, only the master should save checkpoints
 * Clarify loggging of training throughput, use source/target terminology instead of features/labels
+* Do not save the learning rate and words per second counters in the checkpoints
 
 ## [1.18.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.18.0) (2019-02-01)
 
