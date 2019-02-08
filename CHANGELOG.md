@@ -14,7 +14,15 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Experimental [Horovod](https://github.com/uber/horovod) support
+* Experimental `opennmt.v2` namespace that will expose modules compatible with TensorFlow 2.0
+* [`sacreBLEU`](https://github.com/mjpost/sacreBLEU) external evaluator (requires Python 3)
+* Simplify configuration of non structural arguments: tokenization and pretrained embedding can now be configured in the YAML file directly
+
 ### Fixes and improvements
+
+* In distributed training, only the master should save checkpoints
+* Clarify loggging of training throughput, use source/target terminology instead of features/labels
 
 ## [1.18.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.18.0) (2019-02-01)
 
