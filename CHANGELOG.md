@@ -14,6 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [1.19.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.19.0) (2019-02-08)
+
+### New features
+
 * Experimental [Horovod](https://github.com/uber/horovod) support
 * Experimental `opennmt.v2` namespace that will expose modules compatible with TensorFlow 2.0
 * [`sacreBLEU`](https://github.com/mjpost/sacreBLEU) external evaluator (requires Python 3)
