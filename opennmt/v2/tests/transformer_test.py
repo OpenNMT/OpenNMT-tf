@@ -63,6 +63,17 @@ class TransformerTest(tf.test.TestCase):
     y2, cache = attention(x, memory=memory, mask=mask, cache=cache)
     self.assertAllEqual(y1, y2)
 
+  def testMultiHeadAttentionMask(self):
+    attention = transformer.MultiHeadAttention(4, 20, return_attention=True)
+    queries = tf.random.uniform([4, 5, 10])
+    memory = tf.random.uniform([4, 3, 10])
+    mask = tf.expand_dims(tf.sequence_mask([1, 3, 2, 2]), 1)
+    _, _, attention = attention(queries, memory=memory, mask=mask)
+    attention = tf.reshape(attention, [4, -1, 3])
+    mask = tf.broadcast_to(mask, attention.shape)
+    padding = tf.boolean_mask(attention, tf.logical_not(mask))
+    self.assertAllEqual(tf.reduce_sum(padding), 0)
+
 
 if __name__ == "__main__":
   tf.test.main()
