@@ -118,7 +118,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       mask = tf.expand_dims(tf.cast(mask, tf.float32), 1)  # Broadcast on heads dimension.
       dot = tf.cast(tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min), dot.dtype)
     attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
-    drop_attn = tf.nn.dropout(attn, dropout) if training else attn
+    drop_attn = tf.nn.dropout(attn, self.dropout) if training else attn
     heads = tf.matmul(drop_attn, values)
 
     # Concatenate all heads output.
