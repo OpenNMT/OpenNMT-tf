@@ -81,6 +81,12 @@ def classes_in_module(module, public_only=False):
           if (inspect.isclass(getattr(module, symbol))
               and (not public_only or not symbol.startswith("_"))))
 
+def function_args(fun):
+  """Returns the name of :obj:`fun` arguments."""
+  if hasattr(inspect, "getfullargspec"):
+    return inspect.getfullargspec(fun).args
+  return inspect.getargspec(fun).args  # pylint: disable=deprecated-method
+
 def get_third_party_dir():
   """Returns a path to the third_party directory."""
   utils_dir = os.path.dirname(__file__)
