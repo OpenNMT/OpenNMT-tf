@@ -2,8 +2,6 @@
 
 import tensorflow as tf
 
-from opennmt.utils.misc import function_args
-
 
 class LayerNorm(tf.keras.layers.Layer):
   """Layer normalization."""
@@ -36,14 +34,16 @@ class LayerNorm(tf.keras.layers.Layer):
 
 
 class LayerWrapper(tf.keras.layers.Wrapper):
-  """Layer wrapper for input/output normalization and residual connections."""
+  """Layer wrapper for input/output normalization, input/output dropout and
+  residual connection."""
 
   def __init__(self,
                layer,
-               normalize_input=True,
+               normalize_input=False,
                normalize_output=False,
-               residual_connections=True,
-               dropout=0.1,
+               input_dropout=0,
+               output_dropout=0,
+               residual_connection=False,
                **kwargs):
     """Initializes the layer.
 
@@ -51,37 +51,53 @@ class LayerWrapper(tf.keras.layers.Wrapper):
       layer: The layer to wrap.
       normalize_input: Apply layer normalization on the input.
       normalize_output: Apply layer normalization on the output.
-      residual_connections: Add the inputs to layer outputs (if their shape are
+      input_dropout: The probability to drop units in the layer input.
+      output_dropout: The probability to drop units in the layer output.
+      residual_connection: Add the inputs to layer outputs (if their shape are
         compatible).
-      dropout: The probability to drop units in the layer output.
       kwargs: Additional layer arguments.
     """
     super(LayerWrapper, self).__init__(layer, **kwargs)
     self.input_layer_norm = LayerNorm() if normalize_input else None
     self.output_layer_norm = LayerNorm() if normalize_output else None
-    self.residual_connections = residual_connections
-    self.dropout = dropout
+    self.input_dropout = input_dropout
+    self.output_dropout = output_dropout
+    self.residual_connection = residual_connection
 
-  def call(self, inputs, training=None, **kwargs):  # pylint: disable=arguments-differ
+  def call(self, inputs, *args, **kwargs):  # pylint: disable=arguments-differ
     """Runs the wrapper."""
+    training = kwargs.get("training")
     x = inputs
     if self.input_layer_norm is not None:
       x = self.input_layer_norm(x)
-    if "training" in function_args(self.layer.call):
-      kwargs["training"] = training
-    all_outputs = self.layer(x, **kwargs)
+    if training and self.input_dropout > 0:
+      x = tf.nn.dropout(x, self.input_dropout)
+
+    all_outputs = self.layer(x, *args, **kwargs)
     if isinstance(all_outputs, tuple):
       outputs = all_outputs[0]
       extra_outputs = list(all_outputs)[1:]
     else:
       outputs = all_outputs
       extra_outputs = None
-    if training:
-      outputs = tf.nn.dropout(outputs, rate=self.dropout)
-    if self.residual_connections and outputs.shape[-1] == inputs.shape[-1]:
+
+    if training and self.output_dropout > 0:
+      outputs = tf.nn.dropout(outputs, self.output_dropout)
+    if self.residual_connection and outputs.shape[-1] == inputs.shape[-1]:
       outputs += inputs
     if self.output_layer_norm is not None:
       outputs = self.output_layer_norm(outputs)
+
     if extra_outputs:
       return tuple([outputs] + extra_outputs)
     return outputs
+
+  def get_config(self):
+    """Returns the layer configuration."""
+    config = super(LayerWrapper, self).get_config()
+    config["normalize_input"] = self.input_layer_norm is not None
+    config["normalize_output"] = self.output_layer_norm is not None
+    config["input_dropout"] = self.input_dropout
+    config["output_dropout"] = self.output_dropout
+    config["residual_connection"] = self.residual_connection
+    return config

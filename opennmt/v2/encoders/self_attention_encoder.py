@@ -56,16 +56,20 @@ class SelfAttentionEncoder(Encoder):
             name="layer_%d" % i)
         for i in range(num_layers)]
 
-  def call(self, inputs, mask=None, training=None):  # pylint: disable=arguments-differ
+  def encode(self, inputs, sequence_length=None, training=None):
     """Encodes :obj:`inputs`."""
     inputs *= self.num_units**0.5
     inputs = self.position_encoder(inputs)
     if training:
       inputs = tf.nn.dropout(inputs, rate=self.dropout)
+    mask = None
+    if sequence_length is not None:
+      mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=tf.float32)
+      mask = tf.expand_dims(mask, 1)
     for layer in self.layers:
       inputs = layer(inputs, mask=mask, training=training)
     outputs = self.layer_norm(inputs)
-    return outputs, None, mask
+    return outputs, None, sequence_length
 
 
 class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
@@ -95,10 +99,18 @@ class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
     super(_SelfAttentionEncoderLayer, self).__init__(**kwargs)
     self.self_attention = transformer.MultiHeadAttention(
         num_heads, num_units, dropout=attention_dropout)
-    self.self_attention = common.LayerWrapper(self.self_attention, dropout=dropout)
+    self.self_attention = common.LayerWrapper(
+        self.self_attention,
+        normalize_input=True,
+        output_dropout=dropout,
+        residual_connection=True)
     self.ffn = transformer.FeedForwardNetwork(
         ffn_inner_dim, num_units, dropout=relu_dropout)
-    self.ffn = common.LayerWrapper(self.ffn, dropout=dropout)
+    self.ffn = common.LayerWrapper(
+        self.ffn,
+        normalize_input=True,
+        output_dropout=dropout,
+        residual_connection=True)
 
   def call(self, x, mask=None, training=None):  # pylint: disable=arguments-differ
     """Runs the encoder layer."""
