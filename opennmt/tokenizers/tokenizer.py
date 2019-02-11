@@ -11,7 +11,8 @@ import six
 import tensorflow as tf
 import yaml
 
-from opennmt.utils.misc import print_bytes, tf_supports
+from opennmt.utils.misc import print_bytes
+from opennmt.utils.compat import tf_supports
 
 
 def _make_config_asset_file(config, asset_path):

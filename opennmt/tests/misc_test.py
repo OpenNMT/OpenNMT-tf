@@ -6,12 +6,6 @@ from opennmt.utils import misc
 
 class MiscTest(tf.test.TestCase):
 
-  def testTFSupports(self):
-    self.assertTrue(misc.tf_supports("data"))
-    self.assertTrue(misc.tf_supports("data.Dataset"))
-    self.assertFalse(misc.tf_supports("data.UnknwonClass"))
-    self.assertFalse(misc.tf_supports("unknown_module"))
-
   def testFormatTranslationOutput(self):
     self.assertEqual(
         misc.format_translation_output("hello world"),
