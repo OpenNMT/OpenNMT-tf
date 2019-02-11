@@ -117,11 +117,11 @@ class RNN(tf.keras.layers.Wrapper):
       bwd_states = states[len(states)//2:]
       if self.reducer is not None:
         sequences = self.reducer(sequences)
-        states = self.reducer.zip_and_reduce(fwd_states, bwd_states)
+        states = tuple(self.reducer.zip_and_reduce(fwd_states, bwd_states))
       else:
         sequences = tuple(sequences)
         states = (fwd_states, bwd_states)
     else:
       sequences = outputs[0]
-      states = outputs[1:]
+      states = tuple(outputs[1:])
     return sequences, states

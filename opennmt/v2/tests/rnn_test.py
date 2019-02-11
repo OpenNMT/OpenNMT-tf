@@ -20,6 +20,7 @@ class RNNTest(tf.test.TestCase):
     inputs = tf.random.uniform([4, 5, 5])
     outputs, states = rnn_layer(inputs, training=True)
     self.assertListEqual(outputs.shape.as_list(), [4, 5, 10])
+    self.assertIsInstance(states, tuple)
     self.assertEqual(len(states), 3)
 
   def testBRNN(self):
@@ -28,6 +29,7 @@ class RNNTest(tf.test.TestCase):
     inputs = tf.random.uniform([4, 5, 5])
     outputs, states = rnn_layer(inputs, training=True)
     self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
+    self.assertIsInstance(states, tuple)
     self.assertEqual(len(states), 3)
     self.assertEqual(len(states[0]), 2)
     self.assertListEqual(states[0][0].shape.as_list(), [4, 20])
