@@ -4,13 +4,14 @@ import tensorflow as tf
 
 
 def is_tf2():
+  """Returns ``True`` if running TensorFlow 2.0."""
   return tf.__version__.startswith("2")
 
 def tf_supports(symbol):
   """Returns ``True`` if TensorFlow defines :obj:`symbol`."""
   return _string_to_tf_symbol(symbol) is not None
 
-def tf_compat(v2=None, v1=None):
+def tf_compat(v2=None, v1=None):  # pylint: disable=invalid-name
   """Returns the compatible symbol based on the current TensorFlow version.
 
   Args:
