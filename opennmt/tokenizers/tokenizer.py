@@ -12,14 +12,14 @@ import tensorflow as tf
 import yaml
 
 from opennmt.utils.misc import print_bytes
-from opennmt.utils.compat import tf_supports
+from opennmt.utils import compat
 
 
 def _make_config_asset_file(config, asset_path):
   asset_config = copy.deepcopy(config)
   for key, value in six.iteritems(asset_config):
     # Only keep the basename for files (that should also be registered as assets).
-    if isinstance(value, six.string_types) and tf.gfile.Exists(value):
+    if isinstance(value, six.string_types) and compat.gfile_exists(value):
       asset_config[key] = os.path.basename(value)
   with open(asset_path, "w") as asset_file:
     yaml.dump(asset_config, stream=asset_file, default_flow_style=False)
@@ -41,9 +41,9 @@ class Tokenizer(object):
       self._config = params
     else:
       self._config = {}
-      if configuration_file_or_key is not None and tf.gfile.Exists(configuration_file_or_key):
+      if configuration_file_or_key is not None and compat.gfile_exists(configuration_file_or_key):
         configuration_file = configuration_file_or_key
-        with tf.gfile.Open(configuration_file, mode="rb") as conf_file:
+        with compat.gfile_open(configuration_file, mode="rb") as conf_file:
           self._config = yaml.load(conf_file)
       else:
         self._configuration_key = configuration_file_or_key
@@ -67,7 +67,7 @@ class Tokenizer(object):
       if isinstance(configuration, dict):
         self._config = configuration
       else:
-        with tf.gfile.Open(configuration, mode="rb") as conf_file:
+        with compat.gfile_open(configuration, mode="rb") as conf_file:
           self._config = yaml.load(conf_file)
     if self._config and asset_dir is not None:
       asset_name = "%stokenizer_config.yml" % asset_prefix
@@ -116,7 +116,7 @@ class Tokenizer(object):
     Raises:
       ValueError: if the rank of :obj:`text` is greater than 0.
     """
-    if tf.contrib.framework.is_tensor(text):
+    if compat.is_tensor(text):
       rank = len(text.get_shape().as_list())
       if rank == 0:
         return self._tokenize_tensor(text)
@@ -146,7 +146,7 @@ class Tokenizer(object):
       ValueError: if :obj:`tokens` is a 2-D ``tf.Tensor`` and
         :obj:`sequence_length` is not set.
     """
-    if tf.contrib.framework.is_tensor(tokens):
+    if compat.is_tensor(tokens):
       rank = len(tokens.get_shape().as_list())
       if rank == 1:
         return self._detokenize_tensor(tokens)
@@ -172,7 +172,7 @@ class Tokenizer(object):
     Returns:
       A 1-D string ``tf.Tensor``.
     """
-    if tf_supports("py_function"):
+    if compat.tf_supports("py_function"):
       def _python_wrapper(string_t):
         string = tf.compat.as_text(string_t.numpy())
         tokens = self._tokenize_string(string)
@@ -198,7 +198,7 @@ class Tokenizer(object):
     Returns:
       A 0-D string ``tf.Tensor``.
     """
-    if tf_supports("py_function"):
+    if compat.tf_supports("py_function"):
       def _python_wrapper(tokens_t):
         tokens = [tf.compat.as_text(s) for s in tokens_t.numpy()]
         string = self._detokenize_string(tokens)
@@ -257,10 +257,14 @@ class SpaceTokenizer(Tokenizer):
   """A tokenizer that splits on spaces."""
 
   def _tokenize_tensor(self, text):
-    return tf.string_split([text], delimiter=" ").values
+    if compat.tf_supports("string.splits"):
+      return tf.strings.split([text]).values
+    else:
+      return tf.string_split([text], delimiter=" ").values
 
   def _detokenize_tensor(self, tokens):
-    return tf.reduce_join(tokens, axis=0, separator=" ")
+    reduce_join = compat.tf_compat(v2="strings.reduce_join", v1="reduce_join")
+    return reduce_join(tokens, axis=0, separator=" ")
 
   def _tokenize_string(self, text):
     return text.split()
@@ -273,14 +277,14 @@ class CharacterTokenizer(Tokenizer):
   """A tokenizer that splits unicode characters."""
 
   def _tokenize_tensor(self, text):
-    if tf_supports("strings.unicode_split"):
+    if compat.tf_supports("strings.unicode_split"):
       text = tf.strings.regex_replace(text, " ", "▁")
       return tf.strings.unicode_split(text, "UTF-8")
     else:
       return super(CharacterTokenizer, self)._tokenize_tensor(text)
 
   def _detokenize_tensor(self, tokens):
-    if tf_supports("strings.reduce_join"):
+    if compat.tf_supports("strings.reduce_join"):
       text = tf.strings.reduce_join(tokens, axis=0)
       return tf.strings.regex_replace(text, "▁", " ")
     else:

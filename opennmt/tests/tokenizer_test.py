@@ -14,9 +14,7 @@ class TokenizerTest(tf.test.TestCase):
     ref_tokens = [tf.compat.as_bytes(token) for token in ref_tokens]
     text = tf.constant(text)
     tokens = tokenizer.tokenize(text)
-    with self.test_session() as sess:
-      tokens = sess.run(tokens)
-      self.assertAllEqual(ref_tokens, tokens)
+    self.assertAllEqual(ref_tokens, self.evaluate(tokens))
 
   def _testTokenizerOnString(self, tokenizer, text, ref_tokens):
     ref_tokens = [tf.compat.as_text(token) for token in ref_tokens]
@@ -31,9 +29,7 @@ class TokenizerTest(tf.test.TestCase):
     ref_text = tf.compat.as_bytes(ref_text)
     tokens = tf.constant(tokens)
     text = tokenizer.detokenize(tokens)
-    with self.test_session() as sess:
-      text = sess.run(text)
-      self.assertEqual(ref_text, text)
+    self.assertEqual(ref_text, self.evaluate(text))
 
   def _testDetokenizerOnBatchTensor(self, tokenizer, tokens, ref_text):
     ref_text = [tf.compat.as_bytes(t) for t in ref_text]
@@ -43,9 +39,7 @@ class TokenizerTest(tf.test.TestCase):
     tokens = tf.constant(tokens)
     sequence_length = tf.constant(sequence_length)
     text = tokenizer.detokenize(tokens, sequence_length=sequence_length)
-    with self.test_session() as sess:
-      text = sess.run(text)
-      self.assertAllEqual(ref_text, text)
+    self.assertAllEqual(ref_text, self.evaluate(text))
 
   def _testDetokenizerOnString(self, tokenizer, tokens, ref_text):
     tokens = [tf.compat.as_text(token) for token in tokens]
@@ -106,7 +100,7 @@ class TokenizerTest(tf.test.TestCase):
     asset_dir = self.get_temp_dir()
     # Write a dummy SentencePiece model.
     sp_model_path = os.path.join(asset_dir, "model.sp")
-    with tf.gfile.Open(sp_model_path, mode="wb") as sp_model_file:
+    with open(sp_model_path, "wb") as sp_model_file:
       sp_model_file.write(b"some model data\n")
 
     tokenizer = OpenNMTTokenizer(params={"mode": "none", "sp_model_path": sp_model_path})
@@ -123,7 +117,7 @@ class TokenizerTest(tf.test.TestCase):
     self.assertTrue(os.path.exists(assets["model.sp"]))
 
     # The tokenization configuration should not contain absolute paths to resources.
-    with tf.gfile.Open(assets["source_tokenizer_config.yml"], mode="rb") as config_file:
+    with open(assets["source_tokenizer_config.yml"], "rb") as config_file:
       asset_config = yaml.load(config_file.read())
     self.assertDictEqual(asset_config, {"mode": "none", "sp_model_path": "model.sp"})
 
