@@ -43,3 +43,7 @@ def _string_to_tf_symbol(symbol):
       return None
     namespace = getattr(namespace, module)
   return namespace
+
+
+# pylint: disable=invalid-name
+nest = tf_compat(v2="nest", v1="contrib.framework.nest")

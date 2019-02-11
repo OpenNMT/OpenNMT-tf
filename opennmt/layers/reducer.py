@@ -5,7 +5,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils.compat import tf_compat
+from opennmt.utils import compat
 
 
 def pad_in_time(x, padding_length):
@@ -102,17 +102,16 @@ class Reducer(object):
   def zip_and_reduce(self, x, y):
     """Zips :obj:`x` with :obj:`y` and reduces all elements."""
     if isinstance(x, (list, tuple)):
-      tf_nest = tf_compat(v2="nest", v1="contrib.framework.nest")
-      tf_nest.assert_same_structure(x, y)
+      compat.nest.assert_same_structure(x, y)
 
-      x_flat = tf_nest.flatten(x)
-      y_flat = tf_nest.flatten(y)
+      x_flat = compat.nest.flatten(x)
+      y_flat = compat.nest.flatten(y)
 
       flat = []
       for x_i, y_i in zip(x_flat, y_flat):
         flat.append(self([x_i, y_i]))
 
-      return tf_nest.pack_sequence_as(x, flat)
+      return compat.nest.pack_sequence_as(x, flat)
     else:
       return self([x, y])
 

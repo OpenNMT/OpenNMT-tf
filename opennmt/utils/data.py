@@ -3,6 +3,8 @@
 import tensorflow as tf
 import numpy as np
 
+from opennmt.utils import compat
+
 
 def _experimental_data_namespace():
   return tf.data.experimental if hasattr(tf.data, "experimental") else tf.contrib.data
@@ -17,8 +19,7 @@ def get_padded_shapes(dataset):
     The same structure as ``dataset.output_shapes`` containing the padded
     shapes.
   """
-  return tf.contrib.framework.nest.map_structure(
-      lambda shape: shape.as_list(), dataset.output_shapes)
+  return compat.nest.map_structure(lambda shape: shape.as_list(), dataset.output_shapes)
 
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
@@ -33,7 +34,7 @@ def filter_irregular_batches(multiple):
     return lambda dataset: dataset
 
   def _predicate(*x):
-    flat = tf.contrib.framework.nest.flatten(x)
+    flat = compat.nest.flatten(x)
     batch_size = tf.shape(flat[0])[0]
     return tf.equal(tf.mod(batch_size, multiple), 0)
 
