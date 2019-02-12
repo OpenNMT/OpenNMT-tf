@@ -7,16 +7,13 @@ from opennmt.tests import test_util
 
 class TransformerTest(tf.test.TestCase):
 
-  @test_util.run_tf1_only
   def testTileSequenceLength(self):
     num_heads = 2
     length = [5, 3, 7]
     tiled_length = transformer.tile_sequence_length(length, num_heads)
-    with self.test_session() as sess:
-      tiled_length = sess.run(tiled_length)
-      self.assertAllEqual([5, 5, 3, 3, 7, 7], tiled_length)
+    tiled_length = self.evaluate(tiled_length)
+    self.assertAllEqual([5, 5, 3, 3, 7, 7], tiled_length)
 
-  @test_util.run_tf1_only
   def testBuildSequenceMask(self):
     num_heads = 4
     length = [5, 3, 7]
@@ -26,13 +23,10 @@ class TransformerTest(tf.test.TestCase):
         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]]
 
     mask = transformer.build_sequence_mask(tf.constant(length), num_heads=num_heads)
+    mask = self.evaluate(mask)
+    self.assertTupleEqual(mask.shape, (len(length), 1, 1, max(length)))
+    self.assertAllEqual(np.squeeze(mask), expected)
 
-    with self.test_session() as sess:
-      mask = sess.run(mask)
-      self.assertTupleEqual(mask.shape, (len(length), 1, 1, max(length)))
-      self.assertAllEqual(np.squeeze(mask), expected)
-
-  @test_util.run_tf1_only
   def testBuildSequenceMaskWithMaxLen(self):
     num_heads = 4
     length = [5, 3, 6]
@@ -44,13 +38,10 @@ class TransformerTest(tf.test.TestCase):
 
     mask = transformer.build_sequence_mask(
         tf.constant(length), num_heads=num_heads, maximum_length=maximum_length)
+    mask = self.evaluate(mask)
+    self.assertTupleEqual(mask.shape, (len(length), 1, 1, maximum_length))
+    self.assertAllEqual(np.squeeze(mask), expected)
 
-    with self.test_session() as sess:
-      mask = sess.run(mask)
-      self.assertTupleEqual(mask.shape, (len(length), 1, 1, maximum_length))
-      self.assertAllEqual(np.squeeze(mask), expected)
-
-  @test_util.run_tf1_only
   def testBuildFutureMask(self):
     num_heads = 4
     length = [2, 4, 3]
@@ -69,13 +60,10 @@ class TransformerTest(tf.test.TestCase):
          [1.0, 1.0, 1.0, 0.0]]]
 
     mask = transformer.build_future_mask(tf.constant(length), num_heads=num_heads)
+    mask = self.evaluate(mask)
+    self.assertTupleEqual(mask.shape, (len(length), 1, max(length), max(length)))
+    self.assertAllEqual(np.squeeze(mask), expected)
 
-    with self.test_session() as sess:
-      mask = sess.run(mask)
-      self.assertTupleEqual(mask.shape, (len(length), 1, max(length), max(length)))
-      self.assertAllEqual(np.squeeze(mask), expected)
-
-  @test_util.run_tf1_only
   def testBuildFutureMaskWithMaxLen(self):
     num_heads = 4
     length = [2, 4, 3]
@@ -99,13 +87,10 @@ class TransformerTest(tf.test.TestCase):
 
     mask = transformer.build_future_mask(
         tf.constant(length), num_heads=num_heads, maximum_length=maximum_length)
+    mask = self.evaluate(mask)
+    self.assertTupleEqual(mask.shape, (len(length), 1, maximum_length, maximum_length))
+    self.assertAllEqual(np.squeeze(mask), expected)
 
-    with self.test_session() as sess:
-      mask = sess.run(mask)
-      self.assertTupleEqual(mask.shape, (len(length), 1, maximum_length, maximum_length))
-      self.assertAllEqual(np.squeeze(mask), expected)
-
-  @test_util.run_tf1_only
   def testCumulativeAverageMask(self):
     sequence_length = [2, 3]
     expected = [
@@ -117,12 +102,9 @@ class TransformerTest(tf.test.TestCase):
          [1.0/3.0, 1.0/3.0, 1.0/3.0]]]
 
     mask = transformer.cumulative_average_mask(tf.constant(sequence_length))
+    mask = self.evaluate(mask)
+    self.assertAllClose(expected, mask)
 
-    with self.test_session() as sess:
-      mask = sess.run(mask)
-      self.assertAllClose(expected, mask)
-
-  @test_util.run_tf1_only
   def testCumulativeAverageMaskWithMaxLen(self):
     sequence_length = [2, 3]
     maximum_length = 4
@@ -138,66 +120,52 @@ class TransformerTest(tf.test.TestCase):
 
     mask = transformer.cumulative_average_mask(
         tf.constant(sequence_length), maximum_length=maximum_length)
+    mask = self.evaluate(mask)
+    self.assertAllClose(expected, mask)
 
-    with self.test_session() as sess:
-      mask = sess.run(mask)
-      self.assertAllClose(expected, mask)
-
-  @test_util.run_tf1_only
   def testSplitHeads(self):
     batch_size = 3
     length = [5, 3, 7]
     num_heads = 8
     depth = 20
 
-    inputs = tf.placeholder_with_default(
-        np.random.randn(batch_size, max(length), depth * num_heads).astype(np.float32),
-        shape=(None, None, depth * num_heads))
+    inputs = tf.convert_to_tensor(
+        np.random.randn(batch_size, max(length), depth * num_heads).astype(np.float32))
     outputs = transformer.split_heads(inputs, num_heads)
 
     static_shape = outputs.get_shape().as_list()
     self.assertEqual(num_heads, static_shape[1])
     self.assertEqual(depth, static_shape[-1])
+    outputs = self.evaluate(outputs)
+    self.assertAllEqual([batch_size, num_heads, max(length), depth], outputs.shape)
 
-    with self.test_session() as sess:
-      outputs = sess.run(outputs)
-      self.assertAllEqual([batch_size, num_heads, max(length), depth], outputs.shape)
-
-  @test_util.run_tf1_only
   def testCombineHeads(self):
     batch_size = 3
     length = [5, 3, 7]
     num_heads = 8
     depth = 20
 
-    inputs = tf.placeholder_with_default(
-        np.random.randn(batch_size, num_heads, max(length), depth).astype(np.float32),
-        shape=(None, num_heads, None, depth))
+    inputs = tf.convert_to_tensor(
+        np.random.randn(batch_size, num_heads, max(length), depth).astype(np.float32))
     outputs = transformer.combine_heads(inputs)
 
     static_shape = outputs.get_shape().as_list()
     self.assertEqual(depth * num_heads, static_shape[-1])
+    outputs = self.evaluate(outputs)
+    self.assertAllEqual([batch_size, max(length), depth * num_heads], outputs.shape)
 
-    with self.test_session() as sess:
-      outputs = sess.run(outputs)
-      self.assertAllEqual([batch_size, max(length), depth * num_heads], outputs.shape)
-
-  @test_util.run_tf1_only
   def testSplitAndCombineHeads(self):
     batch_size = 3
     length = [5, 3, 7]
     num_heads = 8
     depth = 20
 
-    inputs = tf.placeholder_with_default(
-        np.random.randn(batch_size, max(length), depth * num_heads).astype(np.float32),
-        shape=(None, None, depth * num_heads))
+    inputs = tf.convert_to_tensor(
+        np.random.randn(batch_size, max(length), depth * num_heads).astype(np.float32))
     split = transformer.split_heads(inputs, num_heads)
     combined = transformer.combine_heads(split)
-
-    with self.test_session() as sess:
-      inputs, combined = sess.run([inputs, combined])
-      self.assertAllEqual(inputs, combined)
+    inputs, combined = self.evaluate([inputs, combined])
+    self.assertAllEqual(inputs, combined)
 
   @test_util.run_tf1_only
   def testScaledDotAttention(self):
@@ -262,7 +230,6 @@ class TransformerTest(tf.test.TestCase):
         for h in range(num_heads):
           self.assertEqual(0.0, np.sum(attn[i, h][illegal_connections]))
 
-  @test_util.run_tf1_only
   def testCumulativeAverage(self):
     x = [
       [[1.0], [2.0], [3.0], [0.0]],
@@ -274,12 +241,9 @@ class TransformerTest(tf.test.TestCase):
 
     mask = transformer.cumulative_average_mask(tf.constant(lengths))
     aa = transformer.cumulative_average(x, mask)
+    aa = self.evaluate(aa)
+    self.assertAllClose(y, aa)
 
-    with self.test_session() as sess:
-      aa = sess.run(aa)
-      self.assertAllClose(y, aa)
-
-  @test_util.run_tf1_only
   def testCumulativeAverageWithCache(self):
     x = tf.constant([
       [[1.0], [2.0], [3.0], [0.0]],
@@ -311,10 +275,8 @@ class TransformerTest(tf.test.TestCase):
             {"prev_g": tf.TensorShape([None, None, depth])}),
         parallel_iterations=1)
     aa = tf.transpose(aa_ta.stack(), perm=(1, 0, 2))
-
-    with self.test_session() as sess:
-      aa = sess.run(aa)
-      self.assertAllClose(y, aa)
+    aa = self.evaluate(aa)
+    self.assertAllClose(y, aa)
 
   @test_util.run_tf2_only
   def testFeedForwardNetwork(self):

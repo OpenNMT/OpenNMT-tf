@@ -2,6 +2,8 @@
 
 import tensorflow as tf
 
+from opennmt.utils import compat
+
 
 def tile_sequence_length(sequence_length, num_heads):
   """Tiles lengths :obj:`num_heads` times.
@@ -47,7 +49,7 @@ def _lower_triangle_mask(sequence_length, maximum_length=None, dtype=tf.float32)
   if maximum_length is None:
     maximum_length = tf.reduce_max(sequence_length)
   mask = tf.ones([batch_size, maximum_length, maximum_length], dtype=dtype)
-  mask = tf.matrix_band_part(mask, -1, 0)
+  mask = compat.tf_compat(v2="linalg.band_part", v1="matrix_band_part")(mask, -1, 0)
   return mask
 
 def build_future_mask(sequence_length,

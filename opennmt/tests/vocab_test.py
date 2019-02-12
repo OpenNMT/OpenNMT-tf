@@ -3,10 +3,8 @@ import os
 import tensorflow as tf
 
 from opennmt.utils import Vocab
-from opennmt.tests import test_util
 
 
-@test_util.run_tf1_only
 class VocabTest(tf.test.TestCase):
 
   def testSimpleVocab(self):

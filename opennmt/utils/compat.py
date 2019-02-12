@@ -46,7 +46,9 @@ def _string_to_tf_symbol(symbol):
 
 
 # pylint: disable=invalid-name
+gfile_copy = tf_compat(v2="io.gfile.copy", v1="gfile.Copy")
 gfile_exists = tf_compat(v2="io.gfile.exists", v1="gfile.Exists")
 gfile_open = tf_compat(v2="io.gfile.GFile", v1="gfile.GFile")
 is_tensor = tf_compat(v2="is_tensor", v1="contrib.framework.is_tensor")
+logging = tf_compat(v1="logging")
 nest = tf_compat(v2="nest", v1="contrib.framework.nest")

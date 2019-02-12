@@ -2,7 +2,6 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt.layers import position
-from opennmt.tests import test_util
 
 
 class _DummyPositionEncoder(position.PositionEncoder):
@@ -14,62 +13,55 @@ class _DummyPositionEncoder(position.PositionEncoder):
     return tf.cast(positions, dtype)
 
 
-@test_util.run_tf1_only
 class PositionTest(tf.test.TestCase):
 
   def testPositionBuilder(self):
     sequence_length = tf.constant([4, 6])
     positions = position.make_positions(sequence_length)
-    with self.test_session() as sess:
-      positions = sess.run(positions)
-      self.assertAllEqual([[1, 2, 3, 4, 0, 0], [1, 2, 3, 4, 5, 6]], positions)
+    positions = self.evaluate(positions)
+    self.assertAllEqual([[1, 2, 3, 4, 0, 0], [1, 2, 3, 4, 5, 6]], positions)
 
   def testPositionBuilderWithMaxLen(self):
     sequence_length = tf.constant([4, 6])
     positions = position.make_positions(sequence_length, maximum_length=7)
-    with self.test_session() as sess:
-      positions = sess.run(positions)
-      self.assertAllEqual([[1, 2, 3, 4, 0, 0, 0], [1, 2, 3, 4, 5, 6, 0]], positions)
+    positions = self.evaluate(positions)
+    self.assertAllEqual([[1, 2, 3, 4, 0, 0, 0], [1, 2, 3, 4, 5, 6, 0]], positions)
 
   def testApplyOneEncoding(self):
     encoder = _DummyPositionEncoder()
-    inputs = tf.placeholder_with_default(np.zeros((2, 1, 3)), shape=(None, None, 3))
+    inputs = tf.zeros([2, 1, 3])
     outputs = encoder.apply_one(inputs, 2)
-    with self.test_session() as sess:
-      outputs = sess.run(outputs)
-      self.assertAllEqual(outputs, [[[2, 2, 2]], [[2, 2, 2]]])
+    outputs = self.evaluate(outputs)
+    self.assertAllEqual(outputs, [[[2, 2, 2]], [[2, 2, 2]]])
 
   def testApplyPositionEncoding(self):
     encoder = _DummyPositionEncoder()
     sequence_length = tf.constant([2, 3])
-    inputs = tf.placeholder_with_default(np.zeros((2, 4, 3)), shape=(None, None, 3))
+    inputs = tf.zeros([2, 4, 3])
     outputs = encoder.apply(inputs, sequence_length=sequence_length)
-    with self.test_session() as sess:
-      outputs = sess.run(outputs)
-      self.assertAllEqual(outputs, [
+    outputs = self.evaluate(outputs)
+    self.assertAllEqual(outputs, [
         [[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]],
         [[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]
-      ])
+    ])
 
   def testApplyPositionEncodingWithoutSequenceLength(self):
     encoder = _DummyPositionEncoder()
-    inputs = tf.placeholder_with_default(np.zeros((2, 4, 3)), shape=(None, None, 3))
+    inputs = tf.zeros([2, 4, 3])
     outputs = encoder.apply(inputs)
-    with self.test_session() as sess:
-      outputs = sess.run(outputs)
-      self.assertAllEqual(outputs, [
+    outputs = self.evaluate(outputs)
+    self.assertAllEqual(outputs, [
         [[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]],
         [[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]
-      ])
+    ])
 
   def _testSinusoidalPositionEncoder(self, depth, dtype=tf.float32):
     encoder = position.SinusoidalPositionEncoder()
     positions = position.make_positions([4, 6])
     encoding = encoder.encode(positions, depth, dtype=dtype)
     self.assertEqual(dtype, encoding.dtype.base_dtype)
-    with self.test_session() as sess:
-      encoding = sess.run(encoding)
-      self.assertAllEqual([2, 6, depth], encoding.shape)
+    encoding = self.evaluate(encoding)
+    self.assertAllEqual([2, 6, depth], encoding.shape)
 
   def testSinusoidalPositionEncoder(self):
     self._testSinusoidalPositionEncoder(10)

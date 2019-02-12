@@ -8,9 +8,9 @@ from opennmt.inputters.text_inputter import WordEmbedder
 from opennmt.tests import test_util
 
 
-@test_util.run_tf1_only
 class SequenceToSequenceTest(tf.test.TestCase):
 
+  @test_util.run_tf1_only
   def testShiftTargetSequenceHook(self):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
     with open(vocab_file, "wb") as vocab:
@@ -57,19 +57,17 @@ class SequenceToSequenceTest(tf.test.TestCase):
         source_tokens,
         attention,
         unknown_token="<unk>")
-    with self.test_session() as sess:
-      replaced_target_tokens = sess.run(replaced_target_tokens)
-      self.assertNotIn(b"<unk>", replaced_target_tokens.flatten().tolist())
-      self.assertListEqual(
-          [b"Hello", b"world", b"!", b"", b"", b""], replaced_target_tokens[0].tolist())
-      self.assertListEqual(
-          [b"Mon", b"name", b"is", b"Max", b".", b""], replaced_target_tokens[1].tolist())
+    replaced_target_tokens = self.evaluate(replaced_target_tokens)
+    self.assertNotIn(b"<unk>", replaced_target_tokens.flatten().tolist())
+    self.assertListEqual(
+        [b"Hello", b"world", b"!", b"", b"", b""], replaced_target_tokens[0].tolist())
+    self.assertListEqual(
+        [b"Mon", b"name", b"is", b"Max", b".", b""], replaced_target_tokens[1].tolist())
 
   def _testPharaohAlignments(self, line, lengths, expected_matrix):
     matrix = sequence_to_sequence.alignment_matrix_from_pharaoh(
         tf.constant(line), lengths[0], lengths[1], dtype=tf.int32)
-    with self.test_session() as sess:
-      self.assertListEqual(expected_matrix, sess.run(matrix).tolist())
+    self.assertListEqual(expected_matrix, self.evaluate(matrix).tolist())
 
   def testPharaohAlignments(self):
     self._testPharaohAlignments("", [0, 0], [])

@@ -17,6 +17,7 @@ from google.protobuf import text_format
 
 from opennmt import tokenizers
 from opennmt.inputters.inputter import Inputter
+from opennmt.utils import compat
 from opennmt.utils.cell import build_cell, last_encoding_from_state
 from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
@@ -124,7 +125,7 @@ def load_pretrained_embeddings(embedding_file,
   """
   # Map words to ids from the vocabulary.
   word_to_id = collections.defaultdict(list)
-  with tf.gfile.Open(vocabulary_file, mode="rb") as vocabulary:
+  with compat.gfile_open(vocabulary_file, mode="rb") as vocabulary:
     count = 0
     for word in vocabulary:
       word = word.strip()
@@ -134,7 +135,7 @@ def load_pretrained_embeddings(embedding_file,
       count += 1
 
   # Fill pretrained embedding matrix.
-  with tf.gfile.Open(embedding_file, mode="rb") as embedding:
+  with compat.gfile_open(embedding_file, mode="rb") as embedding:
     pretrained = None
 
     if with_header:
