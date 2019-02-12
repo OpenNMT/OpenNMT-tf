@@ -122,7 +122,6 @@ class SequenceToSequence(Model):
     self.share_embeddings = share_embeddings
     self.source_inputter = source_inputter
     self.target_inputter = target_inputter
-    self.target_inputter.add_process_hooks([shift_target_sequence])
     self.alignment_file_key = alignment_file_key
     self.alignment_file = None
 

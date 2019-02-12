@@ -17,6 +17,7 @@ class Inputter(object):
     self.volatile = set()
     self.process_hooks = []
     self.dtype = dtype
+    self.is_target = False
 
   @property
   def num_outputs(self):
@@ -101,6 +102,8 @@ class Inputter(object):
     Returns:
       A ``tf.estimator.export.ServingInputReceiver``.
     """
+    if self.is_target:
+      raise ValueError("Target inputters do not define a serving input")
     receiver_tensors = self.get_receiver_tensors()
     features = self.make_features(features=receiver_tensors.copy())
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)

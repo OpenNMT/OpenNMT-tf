@@ -15,7 +15,7 @@ except ModuleNotFoundError:
 
 from google.protobuf import text_format
 
-from opennmt import tokenizers
+from opennmt import constants, tokenizers
 from opennmt.inputters.inputter import Inputter
 from opennmt.utils import compat
 from opennmt.utils.cell import build_cell, last_encoding_from_state
@@ -362,7 +362,15 @@ class WordEmbedder(TextInputter):
     features = super(WordEmbedder, self).make_features(element=element, features=features)
     if "ids" in features:
       return features
-    features["ids"] = self.vocabulary.lookup(features["tokens"])
+    ids = self.vocabulary.lookup(features["tokens"])
+    if not self.is_target:
+      features["ids"] = ids
+    else:
+      bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=ids.dtype)
+      eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=ids.dtype)
+      features["ids"] = tf.concat([bos, ids], axis=0)
+      features["ids_out"] = tf.concat([ids, eos], axis=0)
+      features["length"] += 1 # Increment length accordingly.
     return features
 
   def visualize(self, log_dir):

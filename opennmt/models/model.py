@@ -26,6 +26,8 @@ class Model(object):
     self.name = name
     self.features_inputter = features_inputter
     self.labels_inputter = labels_inputter
+    if self.labels_inputter is not None:
+      self.labels_inputter.is_target = True
     self.daisy_chain_variables = daisy_chain_variables
     if dtype is None and self.features_inputter is not None:
       self.dtype = features_inputter.dtype
