@@ -24,7 +24,34 @@ The name of this site , and program name Title purchased will not be displayed .
 
 ### Vectors
 
-The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *TFRecords*. To simplify the preparation of these data, the script `onmt-ark-to-records` can be used to convert vectors serialized in the ARK text format:
+The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *TFRecords*. We propose 2 ways to create this file, choose the one that is the easiest for you:
+
+#### via Python
+
+It is very simple to generate a compatible *TFRecords* file directly from Python:
+
+```python
+import tensorflow as tf
+import opennmt as onmt
+import numpy as np
+
+dataset = [
+  np.random.rand(8, 50),
+  np.random.rand(4, 50),
+  np.random.rand(13, 50)
+]
+
+writer = tf.io.TFRecordWriter("data.records")
+for vector in dataset:
+  onmt.inputters.write_sequence_record(vector, writer)
+writer.close()
+```
+
+This example saves a dataset of 3 random vectors of shape `[time, dim]` into the file "data.records". It should be easy to adapt for any dataset of 2D vectors.
+
+#### via the ARK text format
+
+The script `onmt-ark-to-records` proposes an alternative way to generate this dataset. It converts the ARK text format:
 
 ```text
 KEY [
