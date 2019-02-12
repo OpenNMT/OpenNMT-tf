@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring
+
 """Custom hooks."""
 
 from __future__ import print_function
@@ -159,6 +161,7 @@ class LogWordsPerSecondHook(_SESSION_RUN_HOOK):
       raise RuntimeError("Global step should be created to use LogWordsPerSecondHook.")
 
   def after_create_session(self, session, coord):
+    _ = coord
     if self._num_words:
       session.run(self._init_op)
 
@@ -211,6 +214,7 @@ class LogPredictionTimeHook(_SESSION_RUN_HOOK):
       self._total_tokens += sum(length)
 
   def end(self, session):
+    _ = session
     tf.logging.info("Total prediction time (s): %f", self._total_time)
     tf.logging.info("Average prediction time (s): %f", self._total_time / self._total_examples)
     if self._total_tokens > 0:
@@ -256,6 +260,7 @@ class SaveEvaluationPredictionHook(_SESSION_RUN_HOOK):
         self._model.print_prediction(prediction, stream=output_file)
 
   def end(self, session):
+    _ = session
     tf.logging.info("Evaluation predictions saved to %s", self._output_path)
     if self._post_evaluation_fn is not None:
       self._post_evaluation_fn(self._current_step, self._output_path)
@@ -293,6 +298,7 @@ class LoadWeightsFromCheckpointHook(_SESSION_RUN_HOOK):
     self.assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, self.placeholders)]
 
   def after_create_session(self, session, coord):
+    _ = coord
     for p, op, value in zip(self.placeholders, self.assign_ops, six.itervalues(self.values)):
       session.run(op, {p: value})
 
@@ -316,4 +322,5 @@ class VariablesInitializerHook(_SESSION_RUN_HOOK):
     self._init_op = tf.variables_initializer(self._variables)
 
   def after_create_session(self, session, coord):
+    _ = coord
     session.run(self._init_op)

@@ -105,7 +105,7 @@ class RNN(tf.keras.layers.Wrapper):
     super(RNN, self).__init__(self.rnn, **kwargs)
     self.reducer = reducer
 
-  def call(self, *args, **kwargs):
+  def call(self, *args, **kwargs):  # pylint: disable=arguments-differ
     """Forwards the arguments the RNN layer.
 
     Returns:

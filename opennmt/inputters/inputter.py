@@ -187,7 +187,8 @@ class Inputter(object):
     Args:
       log_dir: The active log directory.
     """
-    pass
+    _ = log_dir
+    return
 
   def transform_data(self, data, mode=tf.estimator.ModeKeys.TRAIN, log_dir=None):
     """Transforms the processed data to an input.

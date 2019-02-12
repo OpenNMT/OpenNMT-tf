@@ -370,11 +370,11 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
     self.outer = tf.keras.layers.Dense(output_dim)
     self.dropout = dropout
 
-  def call(self, inputs, training=None):
+  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Runs the layer."""
     inner = self.inner(inputs)
     if training:
-      inner = tf.nn.dropout(inner, rate=self.dropout)
+      inner = tf.nn.dropout(inner, self.dropout)
     return self.outer(inner)
 
 
@@ -412,7 +412,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     self.dropout = dropout
     self.return_attention = return_attention
 
-  def call(self, inputs, memory=None, mask=None, cache=None, training=None):
+  def call(self, inputs, memory=None, mask=None, cache=None, training=None):  # pylint: disable=arguments-differ
     """Runs the layer.
 
     Args:

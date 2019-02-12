@@ -184,7 +184,7 @@ class ParallelEncoder(Encoder):
 class EncoderV2(tf.keras.layers.Layer):
   """Base class for encoders."""
 
-  def call(self, inputs, sequence_length=None, training=None):
+  def call(self, inputs, sequence_length=None, training=None):  # pylint: disable=arguments-differ
     """Encodes an input sequence.
 
     Args:

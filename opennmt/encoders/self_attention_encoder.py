@@ -153,7 +153,7 @@ class SelfAttentionEncoderV2(EncoderV2):
     inputs *= self.num_units**0.5
     inputs = self.position_encoder(inputs)
     if training:
-      inputs = tf.nn.dropout(inputs, rate=self.dropout)
+      inputs = tf.nn.dropout(inputs, self.dropout)
     mask = None
     if sequence_length is not None:
       mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=tf.float32)
