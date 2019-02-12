@@ -1,8 +1,10 @@
 import tensorflow as tf
 
-from opennmt.v2.layers import common
+from opennmt.layers import common
+from opennmt.tests import test_util
 
 
+@test_util.run_tf2_only
 class CommonLayersTest(tf.test.TestCase):
 
   def testLayerNorm(self):

@@ -1,3 +1,5 @@
+from parameterized import parameterized
+
 import tensorflow as tf
 import numpy as np
 
@@ -14,7 +16,6 @@ def _build_dummy_sequences(sequence_length, depth=5, dtype=tf.float32):
       shape=(None, None, depth))
 
 
-@test_util.run_tf1_only
 class EncoderTest(tf.test.TestCase):
 
   def _testSelfAttentionEncoder(self, dtype=tf.float32):
@@ -34,12 +35,15 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([3, 21, 36], outputs.shape)
       self.assertAllEqual(sequence_length, encoded_length)
 
+  @test_util.run_tf1_only
   def testSelfAttentionEncoder(self):
     self._testSelfAttentionEncoder(dtype=tf.float32)
 
+  @test_util.run_tf1_only
   def testSelfAttentionEncoderFP16(self):
     self._testSelfAttentionEncoder(dtype=tf.float16)
 
+  @test_util.run_tf1_only
   def testConvEncoder(self):
     sequence_length = [17, 21, 20]
     inputs = _build_dummy_sequences(sequence_length)
@@ -52,6 +56,7 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([3, 21, 10], outputs.shape)
       self.assertAllEqual(sequence_length, encoded_length)
 
+  @test_util.run_tf1_only
   def testPyramidalEncoder(self):
     sequence_length = [17, 21, 20]
     inputs = _build_dummy_sequences(sequence_length)
@@ -67,6 +72,7 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([3, 6, 10], outputs.shape)
       self.assertAllEqual([4, 5, 5], encoded_length)
 
+  @test_util.run_tf1_only
   def testPyramidalEncoderShortSequences(self):
     sequence_length = [3, 4, 2]
     inputs = _build_dummy_sequences(sequence_length)
@@ -96,17 +102,21 @@ class EncoderTest(tf.test.TestCase):
       encoded_length = sess.run(encoded_length)
       self.assertAllEqual([4, 5, 5], encoded_length)
 
+  @test_util.run_tf1_only
   def testSequentialEncoder(self):
     self._testSequentialEncoder()
 
+  @test_util.run_tf1_only
   def testSequentialEncoderWithTransitionLayer(self):
     layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
     self._testSequentialEncoder(transition_layer_fn=layer_norm_fn)
 
+  @test_util.run_tf1_only
   def testSequentialEncoderWithTransitionLayerList(self):
     layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
     self._testSequentialEncoder(transition_layer_fn=[layer_norm_fn])
 
+  @test_util.run_tf1_only
   def testSequentialEncoderWithInvalidTransitionLayerList(self):
     layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
     with self.assertRaises(ValueError):
@@ -126,11 +136,14 @@ class EncoderTest(tf.test.TestCase):
       outputs = sess.run(outputs)
       self.assertAllEqual([3, max(sequence_length), 10], outputs.shape)
 
+  @test_util.run_tf1_only
   def testGoogleRNNEncoder2Layers(self):
     self._testGoogleRNNEncoder(2)
+  @test_util.run_tf1_only
   def testGoogleRNNEncoder3Layers(self):
     self._testGoogleRNNEncoder(3)
 
+  @test_util.run_tf1_only
   def testRNMTPlusEncoder(self):
     sequence_length = [4, 6, 5]
     inputs = _build_dummy_sequences(sequence_length)
@@ -146,6 +159,7 @@ class EncoderTest(tf.test.TestCase):
       outputs = sess.run(outputs)
       self.assertAllEqual([3, max(sequence_length), 10], outputs.shape)
 
+  @test_util.run_tf1_only
   def testParallelEncoder(self):
     sequence_lengths = [[17, 21, 20], [10, 9, 15]]
     inputs = [
@@ -180,6 +194,7 @@ class EncoderTest(tf.test.TestCase):
         combined_output_layer_fn=combined_output_layer_fn)
     return encoder.encode(inputs, sequence_length=sequence_length)
 
+  @test_util.run_tf1_only
   def testParallelEncoderSameInput(self):
     sequence_length = [17, 21, 20]
     inputs = _build_dummy_sequences(sequence_length)
@@ -191,6 +206,7 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([3, 21, 40], outputs.shape)
       self.assertAllEqual(sequence_length, encoded_length)
 
+  @test_util.run_tf1_only
   def testParallelEncoderCombinedOutputLayer(self):
     sequence_length = [4, 6, 5]
     inputs = _build_dummy_sequences(sequence_length)
@@ -221,15 +237,48 @@ class EncoderTest(tf.test.TestCase):
       outputs = sess.run(outputs)
       self.assertEqual(combined_output_size, outputs.shape[-1])
 
+  @test_util.run_tf1_only
   def testParallelEncoderSameOutputsLayer(self):
     self._encodeAndProjectInParallel(15)
 
+  @test_util.run_tf1_only
   def testParallelEncoderOutputsLayer(self):
     self._encodeAndProjectInParallel([14, 15])
 
+  @test_util.run_tf1_only
   def testParallelEncoderOutputsLayerInvalid(self):
     with self.assertRaises(ValueError):
       self._encodeAndProjectInParallel([15])
+
+  @parameterized.expand([[tf.float32], [tf.float16]])
+  @test_util.run_tf2_only
+  def testSelfAttentionEncoderV2(self, dtype):
+    encoder = encoders.SelfAttentionEncoderV2(3, num_units=20, num_heads=4, ffn_inner_dim=40)
+    inputs = tf.random.uniform([4, 5, 10], dtype=dtype)
+    lengths = tf.constant([4, 3, 5, 2])
+    outputs, _, _ = encoder(inputs, sequence_length=lengths, training=True)
+    self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
+    self.assertEqual(outputs.dtype, dtype)
+
+  @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
+  @test_util.run_tf2_only
+  def testUnidirectionalRNNEncoderV2(self, cell_class):
+    encoder = encoders.UnidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
+    inputs = tf.random.uniform([4, 5, 10])
+    lengths = tf.constant([4, 3, 5, 2])
+    outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
+    self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
+    self.assertEqual(len(states), 3)
+
+  @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
+  @test_util.run_tf2_only
+  def testBidirectionalRNNEncoderV2(self, cell_class):
+    encoder = encoders.BidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
+    inputs = tf.random.uniform([4, 5, 10])
+    lengths = tf.constant([4, 3, 5, 2])
+    outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
+    self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
+    self.assertEqual(len(states), 3)
 
 
 if __name__ == "__main__":

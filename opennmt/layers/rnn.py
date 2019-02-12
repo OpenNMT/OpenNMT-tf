@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 
-from opennmt.v2.layers import common
+from opennmt.layers import common
 
 
 class RNNCellWrapper(common.LayerWrapper):
@@ -57,7 +57,7 @@ def make_rnn_cell(num_layers,
                   num_units,
                   dropout=0,
                   residual_connections=False,
-                  cell_class=tf.keras.layers.LSTMCell,
+                  cell_class=None,
                   **kwargs):
   """Convenience function to build a multi-layer RNN cell.
 
@@ -67,12 +67,14 @@ def make_rnn_cell(num_layers,
     dropout: The probability to drop units in each layer output.
     residual_connections: If ``True``, each layer input will be added to its output.
     cell_class: The inner cell class or a callable taking :obj:`num_units` as
-      argument and returning a cell.
+      argument and returning a cell. Defaults to a LSTM cell.
     kwargs: Additional arguments passed to the cell constructor.
 
   Returns:
     A ``tf.keras.layers.StackedRNNCells`` instance.
   """
+  if cell_class is None:
+    cell_class = tf.keras.layers.LSTMCell
   cells = []
   for _ in range(num_layers):
     cell = cell_class(num_units, **kwargs)
