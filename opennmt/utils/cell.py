@@ -10,7 +10,7 @@ def build_cell(num_layers,
                mode,
                dropout=0.0,
                residual_connections=False,
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                attention_layers=None,
                attention_mechanisms=None):
   """Convenience function to build a multi-layer RNN cell.
@@ -22,7 +22,7 @@ def build_cell(num_layers,
     dropout: The probability to drop units in each layer output.
     residual_connections: If ``True``, each layer input will be added to its output.
     cell_class: The inner cell class or a callable taking :obj:`num_units` as
-      argument and returning a cell.
+      argument and returning a cell. Defaults to a LSTM cell.
     attention_layers: A list of integers, the layers after which to add attention.
     attention_mechanisms: A list of ``tf.contrib.seq2seq.AttentionMechanism``
       with the same length as :obj:`attention_layers`.
@@ -34,6 +34,8 @@ def build_cell(num_layers,
     ValueError: if :obj:`attention_layers` and :obj:`attention_mechanisms` do
       not have the same length.
   """
+  if cell_class is None:
+    cell_class = tf.nn.rnn_cell.LSTMCell
   cells = []
 
   attention_mechanisms = attention_mechanisms or []

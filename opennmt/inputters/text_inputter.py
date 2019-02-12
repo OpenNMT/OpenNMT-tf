@@ -8,7 +8,10 @@ import six
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.contrib.tensorboard.plugins import projector
+try:
+  from tensorflow.contrib.tensorboard.plugins import projector
+except ModuleNotFoundError:
+  from tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
@@ -576,7 +579,7 @@ class CharRNNEmbedder(CharEmbedder):
                num_units,
                dropout=0.2,
                encoding="average",
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character RNN embedder.
@@ -591,7 +594,7 @@ class CharRNNEmbedder(CharEmbedder):
       encoding: "average" or "last" (case insensitive), the encoding vector to
         extract from the RNN outputs.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell.
+        argument and returning a cell. Defaults to a LSTM cell.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
         tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.

@@ -8,10 +8,12 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import misc
+from opennmt.utils import compat, misc
+
+_SESSION_RUN_HOOK = compat.tf_compat(v2="estimator.SessionRunHook", v1="train.SessionRunHook")
 
 
-class LogParametersCountHook(tf.train.SessionRunHook):
+class LogParametersCountHook(_SESSION_RUN_HOOK):
   """Simple hook that logs the number of trainable parameters."""
 
   def begin(self):
@@ -49,7 +51,7 @@ def add_counter(name, tensor):
   return total_count
 
 
-class CountersHook(tf.train.SessionRunHook):
+class CountersHook(_SESSION_RUN_HOOK):
   """Hook that summarizes counters.
 
   Implementation is mostly copied from StepCounterHook.
@@ -111,7 +113,7 @@ class CountersHook(tf.train.SessionRunHook):
           self._last_count[i] = counters[i]
 
 
-class LogWordsPerSecondHook(tf.train.SessionRunHook):
+class LogWordsPerSecondHook(_SESSION_RUN_HOOK):
   """Hook that logs the number of words processed per second.
 
   Implementation is mostly copied from StepCounterHook.
@@ -184,7 +186,7 @@ class LogWordsPerSecondHook(tf.train.SessionRunHook):
           self._last_count[i] = current_value
 
 
-class LogPredictionTimeHook(tf.train.SessionRunHook):
+class LogPredictionTimeHook(_SESSION_RUN_HOOK):
   """Hooks that gathers and logs prediction times."""
 
   def begin(self):
@@ -215,7 +217,7 @@ class LogPredictionTimeHook(tf.train.SessionRunHook):
       tf.logging.info("Tokens per second: %f", self._total_tokens / self._total_time)
 
 
-class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
+class SaveEvaluationPredictionHook(_SESSION_RUN_HOOK):
   """Hook that saves the evaluation predictions."""
 
   def __init__(self, model, output_file, post_evaluation_fn=None, predictions=None):
@@ -259,7 +261,7 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
       self._post_evaluation_fn(self._current_step, self._output_path)
 
 
-class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
+class LoadWeightsFromCheckpointHook(_SESSION_RUN_HOOK):
   """"Hook that loads model variables from checkpoint before starting the training."""
 
   def __init__(self, checkpoint_path):
@@ -295,7 +297,7 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
       session.run(op, {p: value})
 
 
-class VariablesInitializerHook(tf.train.SessionRunHook):
+class VariablesInitializerHook(_SESSION_RUN_HOOK):
   """Hook that initializes some variables in the current session. This is useful
   when using internal variables (e.g. for value accumulation) that are not saved
   in the checkpoints.
