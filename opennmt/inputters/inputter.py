@@ -165,6 +165,19 @@ class Inputter(object):
     """
     raise NotImplementedError()
 
+  @abc.abstractmethod
+  def make_inputs(self, features, training=True):
+    """Creates the model input from the features.
+
+    Args:
+      features: A dictionary of ``tf.Tensor``.
+      training: Run in training mode.
+
+    Returns:
+      The model input.
+    """
+    raise NotImplementedError()
+
   def visualize(self, log_dir):
     """Visualizes the transformation, usually embeddings.
 
@@ -190,29 +203,10 @@ class Inputter(object):
     Returns:
       The transformed input.
     """
-    inputs = self._transform_data(data, mode)
+    inputs = self.make_inputs(data, training=mode == tf.estimator.ModeKeys.TRAIN)
     if log_dir:
       self.visualize(log_dir)
     return inputs
-
-  @abc.abstractmethod
-  def _transform_data(self, data, mode):
-    """Implementation of ``transform_data``."""
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def transform(self, inputs, mode):
-    """Transforms inputs.
-
-    Args:
-      inputs: A (possible nested structure of) ``tf.Tensor`` which depends on
-        the inputter.
-      mode: A ``tf.estimator.ModeKeys`` mode.
-
-    Returns:
-      The transformed input.
-    """
-    raise NotImplementedError()
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -255,13 +249,6 @@ class MultiInputter(Inputter):
     for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
         inputter.visualize(log_dir)
-
-  def transform(self, inputs, mode):
-    transformed = []
-    for i, inputter in enumerate(self.inputters):
-      with tf.variable_scope("inputter_{}".format(i)):
-        transformed.append(inputter.transform(inputs[i], mode))
-    return transformed
 
 
 class ParallelInputter(MultiInputter):
@@ -332,18 +319,12 @@ class ParallelInputter(MultiInputter):
         all_features["%s%s" % (prefix, key)] = value
     return all_features
 
-  def _transform_data(self, data, mode):
+  def make_inputs(self, features, training=None):
     transformed = []
     for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
-        sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
-        transformed.append(inputter._transform_data(sub_data, mode))  # pylint: disable=protected-access
-    if self.reducer is not None:
-      transformed = self.reducer(transformed)
-    return transformed
-
-  def transform(self, inputs, mode):
-    transformed = super(ParallelInputter, self).transform(inputs, mode)
+        sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+        transformed.append(inputter.make_inputs(sub_features, training=training))
     if self.reducer is not None:
       transformed = self.reducer(transformed)
     return transformed
@@ -388,23 +369,11 @@ class MixedInputter(MultiInputter):
       features = inputter.make_features(element=element, features=features)
     return features
 
-  def _transform_data(self, data, mode):
+  def make_inputs(self, features, training=None):
     transformed = []
     for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
-        transformed.append(inputter._transform_data(data, mode))  # pylint: disable=protected-access
+        transformed.append(inputter.make_inputs(features, training=training))
     outputs = self.reducer(transformed)
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
-    return outputs
-
-  def transform(self, inputs, mode):
-    transformed = super(MixedInputter, self).transform(inputs, mode)
-    outputs = self.reducer(transformed)
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
+    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs

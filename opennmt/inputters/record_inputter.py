@@ -57,11 +57,8 @@ class SequenceRecordInputter(Inputter):
     features["tensor"] = tf.cast(tensor, self.dtype)
     return features
 
-  def _transform_data(self, data, mode):
-    return self.transform(data["tensor"], mode)
-
-  def transform(self, inputs, mode):
-    return inputs
+  def make_inputs(self, features, training=None):
+    return features["tensor"]
 
 
 def write_sequence_record(vector, writer):

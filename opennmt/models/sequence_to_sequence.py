@@ -195,7 +195,8 @@ class SequenceToSequence(Model):
     target_vocab_size = self.target_inputter.vocabulary_size
     target_dtype = self.target_inputter.dtype
     target_embedding_fn = _maybe_reuse_embedding_fn(
-        lambda ids: self.target_inputter.transform(ids, mode=mode),
+        lambda ids: self.target_inputter.make_inputs(
+            {"ids": ids}, training=mode == tf.estimator.ModeKeys.TRAIN),
         scope=target_input_scope)
 
     if labels is not None:

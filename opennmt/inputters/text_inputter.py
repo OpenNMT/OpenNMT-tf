@@ -270,11 +270,7 @@ class TextInputter(Inputter):
     return features
 
   @abc.abstractmethod
-  def _transform_data(self, data, mode):
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def transform(self, inputs, mode):
+  def make_inputs(self, features, training=True):
     raise NotImplementedError()
 
 
@@ -378,10 +374,7 @@ class WordEmbedder(TextInputter):
           self.vocabulary_file,
           num_oov_buckets=self.num_oov_buckets)
 
-  def _transform_data(self, data, mode):
-    return self.transform(data["ids"], mode)
-
-  def transform(self, inputs, mode):
+  def make_inputs(self, features, training=None):
     try:
       embeddings = tf.get_variable("w_embs", dtype=self.dtype, trainable=self.trainable)
     except ValueError:
@@ -408,13 +401,8 @@ class WordEmbedder(TextInputter):
           initializer=initializer,
           trainable=self.trainable)
 
-    outputs = tf.nn.embedding_lookup(embeddings, inputs)
-
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
-
+    outputs = tf.nn.embedding_lookup(embeddings, features["ids"])
+    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs
 
 
@@ -477,6 +465,10 @@ class CharEmbedder(TextInputter):
     features["char_ids"] = self.vocabulary.lookup(chars)
     return features
 
+  @abc.abstractmethod
+  def make_inputs(self, features, training=True):
+    raise NotImplementedError()
+
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
       embeddings = tf.get_variable("w_char_embs", dtype=self.dtype)
@@ -486,23 +478,12 @@ class CharEmbedder(TextInputter):
           self.vocabulary_file,
           num_oov_buckets=self.num_oov_buckets)
 
-  def _transform_data(self, data, mode):
-    return self.transform(data["char_ids"], mode)
-
-  def _embed(self, inputs, mode):
+  def _embed(self, inputs, training):
     embeddings = tf.get_variable(
         "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
-
     outputs = tf.nn.embedding_lookup(embeddings, inputs)
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
+    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs
-
-  @abc.abstractmethod
-  def transform(self, inputs, mode):
-    raise NotImplementedError()
 
 
 class CharConvEmbedder(CharEmbedder):
@@ -542,8 +523,9 @@ class CharConvEmbedder(CharEmbedder):
     self.stride = stride
     self.num_oov_buckets = 1
 
-  def transform(self, inputs, mode):
-    outputs = self._embed(inputs, mode)
+  def make_inputs(self, features, training=None):
+    inputs = features["char_ids"]
+    outputs = self._embed(inputs, training)
 
     # Merge batch and sequence timesteps dimensions.
     outputs = tf.reshape(outputs, [-1, tf.shape(inputs)[-1], self.embedding_size])
@@ -611,15 +593,16 @@ class CharRNNEmbedder(CharEmbedder):
     if self.encoding not in ("average", "last"):
       raise ValueError("Invalid encoding vector: {}".format(self.encoding))
 
-  def transform(self, inputs, mode):
+  def make_inputs(self, features, training=None):
+    inputs = features["char_ids"]
     flat_inputs = tf.reshape(inputs, [-1, tf.shape(inputs)[-1]])
-    embeddings = self._embed(flat_inputs, mode)
+    embeddings = self._embed(flat_inputs, training)
     sequence_length = tf.count_nonzero(flat_inputs, axis=1)
 
     cell = build_cell(
         1,
         self.num_units,
-        mode,
+        tf.estimator.ModeKeys.TRAIN if training else None,
         dropout=self.dropout,
         cell_class=self.cell_class)
     rnn_outputs, rnn_state = tf.nn.dynamic_rnn(
