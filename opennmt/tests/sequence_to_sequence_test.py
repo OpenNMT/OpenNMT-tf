@@ -5,8 +5,10 @@ import tensorflow as tf
 from opennmt import constants
 from opennmt.models import sequence_to_sequence
 from opennmt.inputters.text_inputter import WordEmbedder
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class SequenceToSequenceTest(tf.test.TestCase):
 
   def testShiftTargetSequenceHook(self):

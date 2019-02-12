@@ -3,6 +3,7 @@ import numpy as np
 
 from opennmt import encoders
 from opennmt.layers import reducer
+from opennmt.tests import test_util
 
 
 def _build_dummy_sequences(sequence_length, depth=5, dtype=tf.float32):
@@ -13,6 +14,7 @@ def _build_dummy_sequences(sequence_length, depth=5, dtype=tf.float32):
       shape=(None, None, depth))
 
 
+@test_util.run_tf1_only
 class EncoderTest(tf.test.TestCase):
 
   def _testSelfAttentionEncoder(self, dtype=tf.float32):

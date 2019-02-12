@@ -6,8 +6,10 @@ import tensorflow as tf
 
 from opennmt import config
 from opennmt.models.model import Model
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class ConfigTest(tf.test.TestCase):
 
   def testConfigOverride(self):

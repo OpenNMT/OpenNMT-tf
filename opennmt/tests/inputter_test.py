@@ -6,7 +6,10 @@ import six
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.contrib.tensorboard.plugins import projector
+try:
+  from tensorflow.contrib.tensorboard.plugins import projector
+except ModuleNotFoundError:
+  from tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
@@ -15,8 +18,10 @@ from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
 from opennmt.utils import data
 from opennmt.utils.misc import item_or_tuple, count_lines
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class InputterTest(tf.test.TestCase):
 
   def testVisualizeEmbeddings(self):

@@ -7,8 +7,10 @@ import numpy as np
 
 from opennmt.utils import checkpoint
 from opennmt.utils.vocab import Vocab
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class CheckpointTest(tf.test.TestCase):
 
   def _saveVocab(self, name, words):

@@ -9,6 +9,7 @@ import tensorflow as tf
 from opennmt import constants
 from opennmt.models import catalog
 from opennmt.utils.vocab import Vocab
+from opennmt.tests import test_util
 
 
 def _make_vocab_from_file(path, data_file):
@@ -27,6 +28,7 @@ def _make_data_file(path, lines):
   return path
 
 
+@test_util.run_tf1_only
 class ModelTest(tf.test.TestCase):
 
   def _makeToyEnDeData(self):

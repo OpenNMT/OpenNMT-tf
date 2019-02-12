@@ -8,6 +8,7 @@ from opennmt import decoders
 from opennmt.decoders import decoder
 from opennmt.utils import beam_search
 from opennmt.layers import bridge
+from opennmt.tests import test_util
 
 
 def _generate_source_context(batch_size,
@@ -33,6 +34,7 @@ def _generate_source_context(batch_size,
     return initial_state, memory, memory_sequence_length
 
 
+@test_util.run_tf1_only
 class DecoderTest(tf.test.TestCase):
 
   def testSamplingProbability(self):

@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt.layers import position
+from opennmt.tests import test_util
 
 
 class _DummyPositionEncoder(position.PositionEncoder):
@@ -13,6 +14,7 @@ class _DummyPositionEncoder(position.PositionEncoder):
     return tf.cast(positions, dtype)
 
 
+@test_util.run_tf1_only
 class PositionTest(tf.test.TestCase):
 
   def testPositionBuilder(self):
