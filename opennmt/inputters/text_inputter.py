@@ -242,6 +242,10 @@ class TextInputter(Inputter):
   def get_dataset_size(self, data_file):
     return count_lines(data_file)
 
+  @abc.abstractmethod
+  def get_receiver_tensors(self):
+    raise NotImplementedError()
+
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
@@ -264,10 +268,6 @@ class TextInputter(Inputter):
     features["length"] = tf.shape(tokens)[0]
     features["tokens"] = tokens
     return features
-
-  @abc.abstractmethod
-  def _get_serving_input(self):
-    raise NotImplementedError()
 
   @abc.abstractmethod
   def _transform_data(self, data, mode):
@@ -355,16 +355,11 @@ class WordEmbedder(TextInputter):
 
     return assets
 
-  def _get_serving_input(self):
-    receiver_tensors = {
+  def get_receiver_tensors(self):
+    return {
         "tokens": tf.placeholder(tf.string, shape=(None, None)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
-
-    features = receiver_tensors.copy()
-    features["ids"] = self.vocabulary.lookup(features["tokens"])
-
-    return receiver_tensors, features
 
   def make_features(self, element=None, features=None):
     """Converts words tokens to ids."""
@@ -462,16 +457,11 @@ class CharEmbedder(TextInputter):
         num_oov_buckets=self.num_oov_buckets)
     return assets
 
-  def _get_serving_input(self):
-    receiver_tensors = {
+  def get_receiver_tensors(self):
+    return {
         "chars": tf.placeholder(tf.string, shape=(None, None, None)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
-
-    features = receiver_tensors.copy()
-    features["char_ids"] = self.vocabulary.lookup(features["chars"])
-
-    return receiver_tensors, features
 
   def make_features(self, element=None, features=None):
     """Converts words to characters."""

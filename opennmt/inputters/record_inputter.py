@@ -34,13 +34,11 @@ class SequenceRecordInputter(Inputter):
   def get_dataset_size(self, data_file):
     return sum(1 for _ in tf.python_io.tf_record_iterator(data_file))
 
-  def _get_serving_input(self):
-    receiver_tensors = {
+  def get_receiver_tensors(self):
+    return {
         "tensor": tf.placeholder(self.dtype, shape=(None, None, self.input_depth)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
-
-    return receiver_tensors, receiver_tensors.copy()
 
   def make_features(self, element=None, features=None):
     if features is None:

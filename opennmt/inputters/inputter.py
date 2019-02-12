@@ -6,7 +6,7 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
-from opennmt.utils.misc import extract_prefixed_keys
+from opennmt.utils.misc import extract_prefixed_keys, extract_suffixed_keys
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -101,16 +101,13 @@ class Inputter(object):
     Returns:
       A ``tf.estimator.export.ServingInputReceiver``.
     """
-    receiver_tensors, features = self._get_serving_input()
+    receiver_tensors = self.get_receiver_tensors()
+    features = self.make_features(features=receiver_tensors.copy())
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
-  def _get_serving_input(self):
-    """Returns the input receiver for serving.
-
-    Returns:
-      A tuple ``(receiver_tensors, features)`` as described in
-      ``tf.estimator.export.ServingInputReceiver``.
-    """
+  @abc.abstractmethod
+  def get_receiver_tensors(self):
+    """Returns the input placeholders for serving."""
     raise NotImplementedError()
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
@@ -259,10 +256,6 @@ class MultiInputter(Inputter):
       with tf.variable_scope("inputter_{}".format(i)):
         inputter.visualize(log_dir)
 
-  @abc.abstractmethod
-  def _get_serving_input(self):
-    raise NotImplementedError()
-
   def transform(self, inputs, mode):
     transformed = []
     for i, inputter in enumerate(self.inputters):
@@ -314,16 +307,13 @@ class ParallelInputter(MultiInputter):
         raise RuntimeError("The parallel data files do not have the same size")
     return dataset_size
 
-  def _get_serving_input(self):
-    all_receiver_tensors = {}
-    all_features = {}
+  def get_receiver_tensors(self):
+    receiver_tensors = {}
     for i, inputter in enumerate(self.inputters):
-      receiver_tensors, features = inputter._get_serving_input()  # pylint: disable=protected-access
-      for key, value in six.iteritems(receiver_tensors):
-        all_receiver_tensors["{}_{}".format(key, i)] = value
-      for key, value in six.iteritems(features):
-        all_features["inputter_{}_{}".format(i, key)] = value
-    return all_receiver_tensors, all_features
+      tensors = inputter.get_receiver_tensors()
+      for key, value in six.iteritems(tensors):
+        receiver_tensors["{}_{}".format(key, i)] = value
+    return receiver_tensors
 
   def make_features(self, element=None, features=None):
     if features is None:
@@ -331,9 +321,13 @@ class ParallelInputter(MultiInputter):
     all_features = {}
     for i, inputter in enumerate(self.inputters):
       prefix = "inputter_%d_" % i
+      sub_features = extract_prefixed_keys(features, prefix)
+      if not sub_features:
+        # Also try to read the format produced by get_receiver_tensors.
+        sub_features = extract_suffixed_keys(features, "_%d" % i)
       sub_features = inputter.make_features(
           element=element[i] if element is not None else None,
-          features=extract_prefixed_keys(features, prefix))
+          features=sub_features)
       for key, value in six.iteritems(sub_features):
         all_features["%s%s" % (prefix, key)] = value
     return all_features
@@ -381,14 +375,11 @@ class MixedInputter(MultiInputter):
   def get_dataset_size(self, data_file):
     return self.inputters[0].get_dataset_size(data_file)
 
-  def _get_serving_input(self):
-    all_receiver_tensors = {}
-    all_features = {}
+  def get_receiver_tensors(self):
+    receiver_tensors = {}
     for inputter in self.inputters:
-      receiver_tensors, features = inputter._get_serving_input()  # pylint: disable=protected-access
-      all_receiver_tensors.update(receiver_tensors)
-      all_features.update(features)
-    return all_receiver_tensors, all_features
+      receiver_tensors.update(inputter.get_receiver_tensors())
+    return receiver_tensors
 
   def make_features(self, element=None, features=None):
     if features is None:
