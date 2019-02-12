@@ -10,7 +10,6 @@ from opennmt.utils.vocab import Vocab
 from opennmt.tests import test_util
 
 
-@test_util.run_tf1_only
 class CheckpointTest(tf.test.TestCase):
 
   def _saveVocab(self, name, words):
@@ -77,6 +76,7 @@ class CheckpointTest(tf.test.TestCase):
         saver.save(sess, os.path.join(model_dir, prefix), global_step=global_step)
       return saver.last_checkpoints[0], time.time()
 
+  @test_util.run_tf1_only
   def testCheckpointAveraging(self):
     model_dir = os.path.join(self.get_temp_dir(), "ckpt")
     os.makedirs(model_dir)
@@ -98,6 +98,7 @@ class CheckpointTest(tf.test.TestCase):
     self.assertEqual(avg_var["words_per_sec/features_init"], 89)
     self.assertAllEqual(avg_var["x"], np.full((2, 3), 0.5, dtype=np.float32))
 
+  @test_util.run_tf1_only
   def testCheckpointDTypeConversion(self):
     model_dir = os.path.join(self.get_temp_dir(), "ckpt-fp32")
     os.makedirs(model_dir)

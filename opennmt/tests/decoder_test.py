@@ -34,7 +34,6 @@ def _generate_source_context(batch_size,
     return initial_state, memory, memory_sequence_length
 
 
-@test_util.run_tf1_only
 class DecoderTest(tf.test.TestCase):
 
   def testSamplingProbability(self):
@@ -61,14 +60,13 @@ class DecoderTest(tf.test.TestCase):
     inv_sig_sample_prob = decoder.get_sampling_probability(
         step, schedule_type="inverse_sigmoid", k=1)
 
-    with self.test_session() as sess:
-      self.assertAlmostEqual(0.1, constant_sample_prob)
-      self.assertAlmostEqual(0.5, sess.run(linear_sample_prob))
-      self.assertAlmostEqual(0.5, sess.run(linear_sample_prob_same))
-      self.assertAlmostEqual(1.0, sess.run(linear_sample_prob_inf))
-      self.assertAlmostEqual(1.0 - pow(0.8, 5), sess.run(exp_sample_prob))
-      self.assertAlmostEqual(
-          1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), sess.run(inv_sig_sample_prob))
+    self.assertAlmostEqual(0.1, constant_sample_prob)
+    self.assertAlmostEqual(0.5, self.evaluate(linear_sample_prob))
+    self.assertAlmostEqual(0.5, self.evaluate(linear_sample_prob_same))
+    self.assertAlmostEqual(1.0, self.evaluate(linear_sample_prob_inf))
+    self.assertAlmostEqual(1.0 - pow(0.8, 5), self.evaluate(exp_sample_prob))
+    self.assertAlmostEqual(
+        1.0 - (1.0 / (1.0 + math.exp(5.0 / 1.0))), self.evaluate(inv_sig_sample_prob))
 
   def _testDecoderTraining(self, decoder, initial_state_fn=None, num_sources=1, dtype=tf.float32):
     batch_size = 4
@@ -236,14 +234,17 @@ class DecoderTest(tf.test.TestCase):
           dtype=dtype,
           checkpoint_path=checkpoint_path)
 
+  @test_util.run_tf1_only
   def testRNNDecoder(self):
     decoder = decoders.RNNDecoder(2, 20)
     self._testDecoder(decoder)
 
+  @test_util.run_tf1_only
   def testAttentionalRNNDecoder(self):
     decoder = decoders.AttentionalRNNDecoder(2, 20)
     self._testDecoder(decoder)
 
+  @test_util.run_tf1_only
   def testAttentionalRNNDecoderWithDenseBridge(self):
     decoder = decoders.AttentionalRNNDecoder(2, 36, bridge=bridge.DenseBridge())
     encoder_cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.LSTMCell(5),
@@ -251,22 +252,27 @@ class DecoderTest(tf.test.TestCase):
     initial_state_fn = lambda batch_size, dtype: encoder_cell.zero_state(batch_size, dtype)
     self._testDecoder(decoder, initial_state_fn=initial_state_fn)
 
+  @test_util.run_tf1_only
   def testMultiAttentionalRNNDecoder(self):
     decoder = decoders.MultiAttentionalRNNDecoder(2, 20, attention_layers=[0])
     self._testDecoder(decoder)
 
+  @test_util.run_tf1_only
   def testRNMTPlusDecoder(self):
     decoder = decoders.RNMTPlusDecoder(2, 20, 4)
     self._testDecoder(decoder)
 
+  @test_util.run_tf1_only
   def testSelfAttentionDecoder(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoder(decoder)
 
+  @test_util.run_tf1_only
   def testSelfAttentionDecoderFP16(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoder(decoder, dtype=tf.float16)
 
+  @test_util.run_tf1_only
   def testSelfAttentionDecoderMultiSource(self):
     decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
     self._testDecoder(decoder, num_sources=2)
@@ -275,11 +281,10 @@ class DecoderTest(tf.test.TestCase):
     log_probs = tf.zeros([4, 6])
     token_id = 1
     log_probs = beam_search.penalize_token(log_probs, token_id)
-    with self.test_session() as sess:
-      log_probs = sess.run(log_probs)
-      self.assertTrue(np.all(log_probs[:, token_id] < 0))
-      non_penalized = np.delete(log_probs, 1, token_id)
-      self.assertEqual(np.sum(non_penalized), 0)
+    log_probs = self.evaluate(log_probs)
+    self.assertTrue(np.all(log_probs[:, token_id] < 0))
+    non_penalized = np.delete(log_probs, 1, token_id)
+    self.assertEqual(np.sum(non_penalized), 0)
 
 
 if __name__ == "__main__":
