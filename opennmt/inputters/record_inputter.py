@@ -24,9 +24,6 @@ class SequenceRecordInputter(Inputter):
     """
     super(SequenceRecordInputter, self).__init__(dtype=dtype)
 
-  def get_length(self, data):
-    return data["length"]
-
   def make_dataset(self, data_file):
     first_record = next(tf.python_io.tf_record_iterator(data_file))
     first_record = tf.train.Example.FromString(first_record)

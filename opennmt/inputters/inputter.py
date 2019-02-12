@@ -67,9 +67,9 @@ class Inputter(object):
     del data[key]
     return data
 
-  def get_length(self, unused_data):
-    """Returns the length of the input data, if defined."""
-    return None
+  def get_length(self, features):
+    """Returns the length of the input features, if defined."""
+    return features.get("length")
 
   @abc.abstractmethod
   def make_dataset(self, data_file):
@@ -297,11 +297,11 @@ class ParallelInputter(MultiInputter):
     """
     super(ParallelInputter, self).__init__(inputters, reducer=reducer)
 
-  def get_length(self, data):
+  def get_length(self, features):
     lengths = []
     for i, inputter in enumerate(self.inputters):
-      sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
-      lengths.append(inputter.get_length(sub_data))
+      sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+      lengths.append(inputter.get_length(sub_features))
     if self.reducer is None:
       return lengths
     else:
@@ -385,8 +385,8 @@ class MixedInputter(MultiInputter):
     super(MixedInputter, self).__init__(inputters, reducer=reducer)
     self.dropout = dropout
 
-  def get_length(self, data):
-    return self.inputters[0].get_length(data)
+  def get_length(self, features):
+    return self.inputters[0].get_length(features)
 
   def make_dataset(self, data_file):
     return self.inputters[0].make_dataset(data_file)

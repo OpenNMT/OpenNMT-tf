@@ -236,9 +236,6 @@ class TextInputter(Inputter):
     super(TextInputter, self).__init__(dtype=dtype)
     self.tokenizer = tokenizer
 
-  def get_length(self, data):
-    return data["length"]
-
   def make_dataset(self, data_file):
     return tf.data.TextLineDataset(data_file)
 
