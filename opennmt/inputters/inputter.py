@@ -147,7 +147,7 @@ class Inputter(object):
     See Also:
       :meth:`opennmt.inputters.inputter.Inputter.transform_data`
     """
-    data = self._process(data)
+    data = self.make_features(data)
     for hook in self.process_hooks:
       data = hook(self, data)
     for key in self.volatile:
@@ -155,31 +155,18 @@ class Inputter(object):
     self.volatile.clear()
     return data
 
-  def _process(self, data):
-    """Prepares raw data (implementation).
-
-    Subclasses should extend this function to prepare the raw value read
-    from the dataset to something they can transform (e.g. processing a
-    line of text to a sequence of ids).
-
-    This base implementation makes sure the data is a dictionary so subclasses
-    can populate it.
+  @abc.abstractmethod
+  def make_features(self, element=None, features=None):
+    """Creates features from data.
 
     Args:
-      data: The raw data or a dictionary containing the ``raw`` key.
+      element: An element from the dataset.
+      features: An optional dictionary of features to augment.
 
     Returns:
       A dictionary of ``tf.Tensor``.
-
-    Raises:
-      ValueError: if :obj:`data` is a dictionary but does not contain the
-        ``raw`` key.
     """
-    if not isinstance(data, dict):
-      data = self.set_data_field({}, "raw", data, volatile=True)
-    elif "raw" not in data:
-      raise ValueError("data must contain the raw dataset value")
-    return data
+    raise NotImplementedError()
 
   def visualize(self, log_dir):
     """Visualizes the transformation, usually embeddings.
@@ -338,18 +325,18 @@ class ParallelInputter(MultiInputter):
         all_features["inputter_{}_{}".format(i, key)] = value
     return all_receiver_tensors, all_features
 
-  def _process(self, data):
-    processed_data = {}
+  def make_features(self, element=None, features=None):
+    if features is None:
+      features = {}
+    all_features = {}
     for i, inputter in enumerate(self.inputters):
-      sub_data = inputter._process(data[i])  # pylint: disable=protected-access
-      for key, value in six.iteritems(sub_data):
-        prefixed_key = "inputter_{}_{}".format(i, key)
-        processed_data = self.set_data_field(
-            processed_data,
-            prefixed_key,
-            value,
-            volatile=key in inputter.volatile)
-    return processed_data
+      prefix = "inputter_%d_" % i
+      sub_features = inputter.make_features(
+          element=element[i] if element is not None else None,
+          features=extract_prefixed_keys(features, prefix))
+      for key, value in six.iteritems(sub_features):
+        all_features["%s%s" % (prefix, key)] = value
+    return all_features
 
   def _transform_data(self, data, mode):
     transformed = []
@@ -403,11 +390,12 @@ class MixedInputter(MultiInputter):
       all_features.update(features)
     return all_receiver_tensors, all_features
 
-  def _process(self, data):
+  def make_features(self, element=None, features=None):
+    if features is None:
+      features = {}
     for inputter in self.inputters:
-      data = inputter._process(data)  # pylint: disable=protected-access
-      self.volatile |= inputter.volatile
-    return data
+      features = inputter.make_features(element=element, features=features)
+    return features
 
   def _transform_data(self, data, mode):
     transformed = []

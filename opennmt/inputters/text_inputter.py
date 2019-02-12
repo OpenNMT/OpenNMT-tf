@@ -254,14 +254,16 @@ class TextInputter(Inputter):
         self.tokenizer = tokenizers.SpaceTokenizer()
     return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
-  def _process(self, data):
+  def make_features(self, element=None, features=None):
     """Tokenizes raw text."""
-    data = super(TextInputter, self)._process(data)
-    if "tokens" not in data:
-      tokens = self.tokenizer.tokenize(data["raw"])
-      data["length"] = tf.shape(tokens)[0]
-      data["tokens"] = tokens
-    return data
+    if features is None:
+      features = {}
+    if "tokens" in features:
+      return features
+    tokens = self.tokenizer.tokenize(element)
+    features["length"] = tf.shape(tokens)[0]
+    features["tokens"] = tokens
+    return features
 
   @abc.abstractmethod
   def _get_serving_input(self):
@@ -364,12 +366,13 @@ class WordEmbedder(TextInputter):
 
     return receiver_tensors, features
 
-  def _process(self, data):
+  def make_features(self, element=None, features=None):
     """Converts words tokens to ids."""
-    data = super(WordEmbedder, self)._process(data)
-    if "ids" not in data:
-      data["ids"] = self.vocabulary.lookup(data["tokens"])
-    return data
+    features = super(WordEmbedder, self).make_features(element=element, features=features)
+    if "ids" in features:
+      return features
+    features["ids"] = self.vocabulary.lookup(features["tokens"])
+    return features
 
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):
@@ -470,13 +473,19 @@ class CharEmbedder(TextInputter):
 
     return receiver_tensors, features
 
-  def _process(self, data):
+  def make_features(self, element=None, features=None):
     """Converts words to characters."""
-    data = super(CharEmbedder, self)._process(data)
-    if "char_ids" not in data:
-      chars, _ = tokens_to_chars(data["tokens"])
-      data["char_ids"] = self.vocabulary.lookup(chars)
-    return data
+    if features is None:
+      features = {}
+    if "char_ids" in features:
+      return features
+    if "chars" in features:
+      chars = features["chars"]
+    else:
+      features = super(CharEmbedder, self).make_features(element=element, features=features)
+      chars, _ = tokens_to_chars(features["tokens"])
+    features["char_ids"] = self.vocabulary.lookup(chars)
+    return features
 
   def visualize(self, log_dir):
     with tf.variable_scope(tf.get_variable_scope(), reuse=True):

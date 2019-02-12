@@ -42,24 +42,22 @@ class SequenceRecordInputter(Inputter):
 
     return receiver_tensors, receiver_tensors.copy()
 
-  def _process(self, data):
-    data = super(SequenceRecordInputter, self)._process(data)
-
-    if "tensor" not in data:
-      features = tf.parse_single_example(data["raw"], features={
-          "shape": tf.VarLenFeature(tf.int64),
-          "values": tf.VarLenFeature(tf.float32)
-      })
-
-      values = features["values"].values
-      shape = tf.cast(features["shape"].values, tf.int32)
-
-      tensor = tf.reshape(values, shape)
-      tensor.set_shape([None, self.input_depth])
-      data["length"] = tf.shape(tensor)[0]
-      data["tensor"] = tf.cast(tensor, self.dtype)
-
-    return data
+  def make_features(self, element=None, features=None):
+    if features is None:
+      features = {}
+    if "tensor" in features:
+      return features
+    example = tf.parse_single_example(element, features={
+        "shape": tf.VarLenFeature(tf.int64),
+        "values": tf.VarLenFeature(tf.float32)
+    })
+    values = example["values"].values
+    shape = tf.cast(example["shape"].values, tf.int32)
+    tensor = tf.reshape(values, shape)
+    tensor.set_shape([None, self.input_depth])
+    features["length"] = tf.shape(tensor)[0]
+    features["tensor"] = tf.cast(tensor, self.dtype)
+    return features
 
   def _transform_data(self, data, mode):
     return self.transform(data["tensor"], mode)
