@@ -236,16 +236,6 @@ class TextInputter(Inputter):
     super(TextInputter, self).__init__(dtype=dtype)
     self.tokenizer = tokenizer
 
-  def make_dataset(self, data_file):
-    return tf.data.TextLineDataset(data_file)
-
-  def get_dataset_size(self, data_file):
-    return count_lines(data_file)
-
-  @abc.abstractmethod
-  def get_receiver_tensors(self):
-    raise NotImplementedError()
-
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
@@ -257,6 +247,16 @@ class TextInputter(Inputter):
       else:
         self.tokenizer = tokenizers.SpaceTokenizer()
     return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+
+  def make_dataset(self, data_file):
+    return tf.data.TextLineDataset(data_file)
+
+  def get_dataset_size(self, data_file):
+    return count_lines(data_file)
+
+  @abc.abstractmethod
+  def get_receiver_tensors(self):
+    raise NotImplementedError()
 
   def make_features(self, element=None, features=None):
     """Tokenizes raw text."""
@@ -373,15 +373,6 @@ class WordEmbedder(TextInputter):
       features["length"] += 1 # Increment length accordingly.
     return features
 
-  def visualize(self, log_dir):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable("w_embs", dtype=self.dtype)
-      visualize_embeddings(
-          log_dir,
-          embeddings,
-          self.vocabulary_file,
-          num_oov_buckets=self.num_oov_buckets)
-
   def make_inputs(self, features, training=None):
     try:
       embeddings = tf.get_variable("w_embs", dtype=self.dtype, trainable=self.trainable)
@@ -412,6 +403,15 @@ class WordEmbedder(TextInputter):
     outputs = tf.nn.embedding_lookup(embeddings, features["ids"])
     outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs
+
+  def visualize(self, log_dir):
+    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
+      embeddings = tf.get_variable("w_embs", dtype=self.dtype)
+      visualize_embeddings(
+          log_dir,
+          embeddings,
+          self.vocabulary_file,
+          num_oov_buckets=self.num_oov_buckets)
 
 
 @six.add_metaclass(abc.ABCMeta)

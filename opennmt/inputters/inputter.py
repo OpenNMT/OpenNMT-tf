@@ -24,53 +24,27 @@ class Inputter(object):
     """How many parallel outputs does this inputter produce."""
     return 1
 
-  def add_process_hooks(self, hooks):
-    """Adds processing hooks.
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    """Initializes the inputter within the current graph.
 
-    Processing hooks are additional and model specific data processing
-    functions applied after calling this inputter
-    :meth:`opennmt.inputters.inputter.Inputter.process` function.
-
-    Args:
-      hooks: A list of callables with the signature
-        ``(inputter, data) -> data``.
-    """
-    self.process_hooks.extend(hooks)
-
-  def set_data_field(self, data, key, value, volatile=False):
-    """Sets a data field.
+    For example, one can create lookup tables in this method
+    for their initializer to be added to the current graph
+    ``TABLE_INITIALIZERS`` collection.
 
     Args:
-      data: The data dictionary.
-      key: The value key.
-      value: The value to assign.
-      volatile: If ``True``, the key/value pair will be removed once the
-        processing done.
+      metadata: A dictionary containing additional metadata set
+        by the user.
+      asset_dir: The directory where assets can be written. If ``None``, no
+        assets are returned.
+      asset_prefix: The prefix to attach to assets filename.
 
     Returns:
-      The updated data dictionary.
+      A dictionary containing additional assets used by the inputter.
     """
-    data[key] = value
-    if volatile:
-      self.volatile.add(key)
-    return data
-
-  def remove_data_field(self, data, key):
-    """Removes a data field.
-
-    Args:
-      data: The data dictionary.
-      key: The value key.
-
-    Returns:
-      The updated data dictionary.
-    """
-    del data[key]
-    return data
-
-  def get_length(self, features):
-    """Returns the length of the input features, if defined."""
-    return features.get("length")
+    _ = metadata
+    _ = asset_dir
+    _ = asset_prefix
+    return {}
 
   @abc.abstractmethod
   def make_dataset(self, data_file):
@@ -113,47 +87,9 @@ class Inputter(object):
     """Returns the input placeholders for serving."""
     raise NotImplementedError()
 
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
-    """Initializes the inputter within the current graph.
-
-    For example, one can create lookup tables in this method
-    for their initializer to be added to the current graph
-    ``TABLE_INITIALIZERS`` collection.
-
-    Args:
-      metadata: A dictionary containing additional metadata set
-        by the user.
-      asset_dir: The directory where assets can be written. If ``None``, no
-        assets are returned.
-      asset_prefix: The prefix to attach to assets filename.
-
-    Returns:
-      A dictionary containing additional assets used by the inputter.
-    """
-    _ = metadata
-    _ = asset_dir
-    _ = asset_prefix
-    return {}
-
-  def process(self, data):
-    """Prepares raw data.
-
-    Args:
-      data: The raw data.
-
-    Returns:
-      A dictionary of ``tf.Tensor``.
-
-    See Also:
-      :meth:`opennmt.inputters.inputter.Inputter.transform_data`
-    """
-    data = self.make_features(data)
-    for hook in self.process_hooks:
-      data = hook(self, data)
-    for key in self.volatile:
-      data = self.remove_data_field(data, key)
-    self.volatile.clear()
-    return data
+  def get_length(self, features):
+    """Returns the length of the input features, if defined."""
+    return features.get("length")
 
   @abc.abstractmethod
   def make_features(self, element=None, features=None):
@@ -189,6 +125,73 @@ class Inputter(object):
     """
     _ = log_dir
     return
+
+
+  # TODO: remove the following methods at some point.
+
+  def set_data_field(self, data, key, value, volatile=False):
+    """Sets a data field.
+
+    Args:
+      data: The data dictionary.
+      key: The value key.
+      value: The value to assign.
+      volatile: If ``True``, the key/value pair will be removed once the
+        processing done.
+
+    Returns:
+      The updated data dictionary.
+    """
+    data[key] = value
+    if volatile:
+      self.volatile.add(key)
+    return data
+
+  def remove_data_field(self, data, key):
+    """Removes a data field.
+
+    Args:
+      data: The data dictionary.
+      key: The value key.
+
+    Returns:
+      The updated data dictionary.
+    """
+    del data[key]
+    return data
+
+  def add_process_hooks(self, hooks):
+    """Adds processing hooks.
+
+    Processing hooks are additional and model specific data processing
+    functions applied after calling this inputter
+    :meth:`opennmt.inputters.inputter.Inputter.process` function.
+
+    Args:
+      hooks: A list of callables with the signature
+        ``(inputter, data) -> data``.
+    """
+    self.process_hooks.extend(hooks)
+
+  def process(self, data):
+    """Prepares raw data.
+
+    Args:
+      data: The raw data.
+
+    Returns:
+      A dictionary of ``tf.Tensor``.
+
+    See Also:
+      :meth:`opennmt.inputters.inputter.Inputter.transform_data`
+    """
+    data = self.make_features(data)
+    for hook in self.process_hooks:
+      data = hook(self, data)
+    for key in self.volatile:
+      data = self.remove_data_field(data, key)
+    self.volatile.clear()
+    return data
 
   def transform_data(self, data, mode=tf.estimator.ModeKeys.TRAIN, log_dir=None):
     """Transforms the processed data to an input.
@@ -233,6 +236,13 @@ class MultiInputter(Inputter):
       return len(self.inputters)
     return 1
 
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    assets = {}
+    for i, inputter in enumerate(self.inputters):
+      assets.update(inputter.initialize(
+          metadata, asset_dir=asset_dir, asset_prefix="%s%d_" % (asset_prefix, i + 1)))
+    return assets
+
   @abc.abstractmethod
   def make_dataset(self, data_file):
     raise NotImplementedError()
@@ -240,13 +250,6 @@ class MultiInputter(Inputter):
   @abc.abstractmethod
   def get_dataset_size(self, data_file):
     raise NotImplementedError()
-
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
-    assets = {}
-    for i, inputter in enumerate(self.inputters):
-      assets.update(inputter.initialize(
-          metadata, asset_dir=asset_dir, asset_prefix="%s%d_" % (asset_prefix, i + 1)))
-    return assets
 
   def visualize(self, log_dir):
     for i, inputter in enumerate(self.inputters):
@@ -266,16 +269,6 @@ class ParallelInputter(MultiInputter):
         set, parallel inputs are assumed to have the same length.
     """
     super(ParallelInputter, self).__init__(inputters, reducer=reducer)
-
-  def get_length(self, features):
-    lengths = []
-    for i, inputter in enumerate(self.inputters):
-      sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
-      lengths.append(inputter.get_length(sub_features))
-    if self.reducer is None:
-      return lengths
-    else:
-      return lengths[0]
 
   def make_dataset(self, data_file):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
@@ -304,6 +297,16 @@ class ParallelInputter(MultiInputter):
       for key, value in six.iteritems(tensors):
         receiver_tensors["{}_{}".format(key, i)] = value
     return receiver_tensors
+
+  def get_length(self, features):
+    lengths = []
+    for i, inputter in enumerate(self.inputters):
+      sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+      lengths.append(inputter.get_length(sub_features))
+    if self.reducer is None:
+      return lengths
+    else:
+      return lengths[0]
 
   def make_features(self, element=None, features=None):
     if features is None:
@@ -350,9 +353,6 @@ class MixedInputter(MultiInputter):
     super(MixedInputter, self).__init__(inputters, reducer=reducer)
     self.dropout = dropout
 
-  def get_length(self, features):
-    return self.inputters[0].get_length(features)
-
   def make_dataset(self, data_file):
     return self.inputters[0].make_dataset(data_file)
 
@@ -364,6 +364,9 @@ class MixedInputter(MultiInputter):
     for inputter in self.inputters:
       receiver_tensors.update(inputter.get_receiver_tensors())
     return receiver_tensors
+
+  def get_length(self, features):
+    return self.inputters[0].get_length(features)
 
   def make_features(self, element=None, features=None):
     if features is None:
