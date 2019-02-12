@@ -51,7 +51,7 @@ class SequenceRecordInputter(Inputter):
     if "tensor" not in data:
       features = tf.parse_single_example(data["raw"], features={
           "shape": tf.VarLenFeature(tf.int64),
-          "values": tf.VarLenFeature(self.dtype)
+          "values": tf.VarLenFeature(tf.float32)
       })
 
       values = features["values"].values
@@ -60,7 +60,7 @@ class SequenceRecordInputter(Inputter):
       tensor = tf.reshape(values, shape)
       tensor.set_shape([None, self.input_depth])
       data["length"] = tf.shape(tensor)[0]
-      data["tensor"] = tensor
+      data["tensor"] = tf.cast(tensor, self.dtype)
 
     return data
 
@@ -75,7 +75,7 @@ def write_sequence_record(vector, writer):
   """Writes a vector as a TFRecord.
 
   Args:
-    vector: A 2D Numpy array.
+    vector: A 2D Numpy float array.
     writer: A ``tf.python_io.TFRecordWriter``.
   """
   shape = list(vector.shape)
