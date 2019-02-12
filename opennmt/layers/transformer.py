@@ -356,6 +356,9 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
   .. math::
 
       ffn(x) = max(0, x*W_1 + b_1)*W_2 + b_2
+
+  Note:
+    Object-oriented implementation for TensorFlow 2.0.
   """
 
   def __init__(self, inner_dim, output_dim, dropout=0.1, **kwargs):
@@ -383,6 +386,9 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
 class MultiHeadAttention(tf.keras.layers.Layer):
   """Computes the multi-head attention as described in
   https://arxiv.org/abs/1706.03762.
+
+  Note:
+    Object-oriented implementation for TensorFlow 2.0.
   """
 
   def __init__(self,

@@ -102,6 +102,9 @@ class SelfAttentionEncoder(Encoder):
 class SelfAttentionEncoderV2(EncoderV2):
   """Encoder using self-attention as described in
   https://arxiv.org/abs/1706.03762.
+
+  Note:
+    TensorFlow 2.0 version.
   """
 
   def __init__(self,

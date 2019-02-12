@@ -1,4 +1,4 @@
-"""RNN functions and classes."""
+"""RNN functions and classes for TensorFlow 2.0."""
 
 import tensorflow as tf
 

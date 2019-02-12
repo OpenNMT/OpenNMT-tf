@@ -4,6 +4,7 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt import encoders
+from opennmt.encoders import rnn_encoder, self_attention_encoder
 from opennmt.layers import reducer
 from opennmt.tests import test_util
 
@@ -253,7 +254,8 @@ class EncoderTest(tf.test.TestCase):
   @parameterized.expand([[tf.float32], [tf.float16]])
   @test_util.run_tf2_only
   def testSelfAttentionEncoderV2(self, dtype):
-    encoder = encoders.SelfAttentionEncoderV2(3, num_units=20, num_heads=4, ffn_inner_dim=40)
+    encoder = self_attention_encoder.SelfAttentionEncoderV2(
+        3, num_units=20, num_heads=4, ffn_inner_dim=40)
     inputs = tf.random.uniform([4, 5, 10], dtype=dtype)
     lengths = tf.constant([4, 3, 5, 2])
     outputs, _, _ = encoder(inputs, sequence_length=lengths, training=True)
@@ -263,7 +265,7 @@ class EncoderTest(tf.test.TestCase):
   @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
   @test_util.run_tf2_only
   def testUnidirectionalRNNEncoderV2(self, cell_class):
-    encoder = encoders.UnidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
+    encoder = rnn_encoder.UnidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
     inputs = tf.random.uniform([4, 5, 10])
     lengths = tf.constant([4, 3, 5, 2])
     outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
@@ -273,7 +275,7 @@ class EncoderTest(tf.test.TestCase):
   @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
   @test_util.run_tf2_only
   def testBidirectionalRNNEncoderV2(self, cell_class):
-    encoder = encoders.BidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
+    encoder = rnn_encoder.BidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
     inputs = tf.random.uniform([4, 5, 10])
     lengths = tf.constant([4, 3, 5, 2])
     outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)

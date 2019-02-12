@@ -319,7 +319,11 @@ class PyramidalRNNEncoder(Encoder):
 
 
 class UnidirectionalRNNEncoderV2(EncoderV2):
-  """A simple RNN encoder."""
+  """A simple RNN encoder.
+
+  Note:
+    TensorFlow 2.0 version.
+  """
 
   def __init__(self,
                num_layers,
@@ -356,7 +360,11 @@ class UnidirectionalRNNEncoderV2(EncoderV2):
 
 
 class BidirectionalRNNEncoderV2(EncoderV2):
-  """An encoder that encodes an input sequence in both directions."""
+  """An encoder that encodes an input sequence in both directions.
+
+  Note:
+    TensorFlow 2.0 version.
+  """
 
   def __init__(self,
                num_layers,
