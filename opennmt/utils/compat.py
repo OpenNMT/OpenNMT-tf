@@ -24,12 +24,13 @@ def tf_compat(v2=None, v1=None):  # pylint: disable=invalid-name
   Raises:
     ValueError: if no symbol can be found.
   """
-  candidates = [v2, v1]
+  candidates = []
+  if v2 is not None:
+    candidates.append(v2)
   if v1 is not None:
+    candidates.append(v1)
     candidates.append("compat.v1.%s" % v1)
   for candidate in candidates:
-    if candidate is None:
-      continue
     symbol = _string_to_tf_symbol(candidate)
     if symbol is not None:
       return symbol
@@ -39,9 +40,9 @@ def _string_to_tf_symbol(symbol):
   modules = symbol.split(".")
   namespace = tf
   for module in modules:
-    if not hasattr(namespace, module):
+    namespace = getattr(namespace, module, None)
+    if namespace is None:
       return None
-    namespace = getattr(namespace, module)
   return namespace
 
 
