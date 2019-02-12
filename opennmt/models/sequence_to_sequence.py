@@ -122,7 +122,6 @@ class SequenceToSequence(Model):
     self.share_embeddings = share_embeddings
     self.source_inputter = source_inputter
     self.target_inputter = target_inputter
-    self.target_inputter.add_process_hooks([shift_target_sequence])
     self.alignment_file_key = alignment_file_key
     self.alignment_file = None
 
@@ -195,7 +194,8 @@ class SequenceToSequence(Model):
     target_vocab_size = self.target_inputter.vocabulary_size
     target_dtype = self.target_inputter.dtype
     target_embedding_fn = _maybe_reuse_embedding_fn(
-        lambda ids: self.target_inputter.transform(ids, mode=mode),
+        lambda ids: self.target_inputter.make_inputs(
+            {"ids": ids}, training=mode == tf.estimator.ModeKeys.TRAIN),
         scope=target_input_scope)
 
     if labels is not None:

@@ -162,8 +162,14 @@ class InputterTest(tf.test.TestCase):
     tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
     next_element = iterator.get_next()
 
+    all_features = [next_element]
+    if not inputter.is_target:
+      all_features.append(inputter.get_serving_input_receiver().features)
+    else:
+      with self.assertRaises(ValueError):
+        _ = inputter.get_serving_input_receiver()
     if shapes is not None:
-      for features in (next_element, inputter.get_serving_input_receiver().features):
+      for features in all_features:
         self.assertNotIn("raw", features)
         for field, shape in six.iteritems(shapes):
           self.assertIn(field, features)
@@ -191,6 +197,33 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([3], features["length"])
       self.assertAllEqual([[2, 1, 4]], features["ids"])
       self.assertAllEqual([1, 3, 10], transformed.shape)
+
+  @test_util.run_tf1_only
+  def testWordEmbedderTarget(self):
+    vocab_file = self._makeTextFile(
+        "vocab.txt", ["<blank>", "<s>", "</s>", "the", "world", "hello", "toto"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+
+    embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
+    embedder.is_target = True
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata={"vocabulary_file": vocab_file},
+        shapes={
+            "tokens": [None, None],
+            "ids": [None, None],
+            "ids_out": [None, None],
+            "length": [None]
+        })
+
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      sess.run(tf.global_variables_initializer())
+      features, transformed = sess.run([features, transformed])
+      self.assertAllEqual([4], features["length"])
+      self.assertAllEqual([[1, 5, 4, 7]], features["ids"])
+      self.assertAllEqual([[5, 4, 7, 2]], features["ids_out"])
 
   @test_util.run_tf1_only
   def testWordEmbedderWithTokenizer(self):
