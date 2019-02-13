@@ -163,13 +163,13 @@ class InputterTest(tf.test.TestCase):
     tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
     next_element = iterator.get_next()
 
-    all_features = [next_element]
-    if not inputter.is_target:
-      all_features.append(inputter.get_serving_input_receiver().features)
-    else:
-      with self.assertRaises(ValueError):
-        _ = inputter.get_serving_input_receiver()
     if shapes is not None:
+      all_features = [next_element]
+      if not inputter.is_target:
+        all_features.append(inputter.get_serving_input_receiver().features)
+      else:
+        with self.assertRaises(ValueError):
+          _ = inputter.get_serving_input_receiver()
       for features in all_features:
         self.assertNotIn("raw", features)
         for field, shape in six.iteritems(shapes):
@@ -378,6 +378,32 @@ class InputterTest(tf.test.TestCase):
       self.assertEqual(2, len(transformed))
       self.assertAllEqual([1, 3, 10], transformed[0].shape)
       self.assertAllEqual([1, 3, 5], transformed[1].shape)
+
+  @test_util.run_tf1_only
+  def testParallelInputterSplitFeatures(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+
+    source_embedder = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    target_embedder = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    target_embedder.is_target = True
+    parallel_inputter = inputter.ParallelInputter(
+        [source_embedder, target_embedder], combine_features=False)
+    self.assertEqual(parallel_inputter.num_outputs, 2)
+
+    features, transformed = self._makeDataset(
+        parallel_inputter,
+        [data_file, data_file],
+        metadata={"vocabulary_file_1": vocab_file, "vocabulary_file_2": vocab_file})
+
+    self.assertIsInstance(features, tuple)
+    self.assertEqual(len(features), 2)
+    self.assertEqual(len(transformed), 2)
+    features, labels = features
+    for field in ("ids", "length", "tokens"):
+      self.assertIn(field, features)
+    for field in ("ids", "ids_out", "length", "tokens"):
+      self.assertIn(field, labels)
 
   @test_util.run_tf1_only
   def testMixedInputter(self):

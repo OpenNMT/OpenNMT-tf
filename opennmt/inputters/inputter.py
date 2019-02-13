@@ -261,15 +261,19 @@ class MultiInputter(Inputter):
 class ParallelInputter(MultiInputter):
   """An multi inputter that process parallel data."""
 
-  def __init__(self, inputters, reducer=None):
+  def __init__(self, inputters, reducer=None, combine_features=True):
     """Initializes a parallel inputter.
 
     Args:
       inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
       reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs. If
         set, parallel inputs are assumed to have the same length.
+      combine_features: Combine each inputter features in a single dict or
+        return them separately. This is typically ``True`` for multi source
+        inputs but ``False`` for features/labels parallel data.
     """
     super(ParallelInputter, self).__init__(inputters, reducer=reducer)
+    self.combine_features = combine_features
 
   def make_dataset(self, data_file):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
@@ -302,7 +306,10 @@ class ParallelInputter(MultiInputter):
   def get_length(self, features):
     lengths = []
     for i, inputter in enumerate(self.inputters):
-      sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+      if self.combine_features:
+        sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+      else:
+        sub_features = features[i]
       lengths.append(inputter.get_length(sub_features))
     if self.reducer is None:
       return lengths
@@ -310,27 +317,38 @@ class ParallelInputter(MultiInputter):
       return lengths[0]
 
   def make_features(self, element=None, features=None):
-    if features is None:
-      features = {}
-    all_features = {}
-    for i, inputter in enumerate(self.inputters):
-      prefix = "inputter_%d_" % i
-      sub_features = extract_prefixed_keys(features, prefix)
-      if not sub_features:
-        # Also try to read the format produced by get_receiver_tensors.
-        sub_features = extract_suffixed_keys(features, "_%d" % i)
-      sub_features = inputter.make_features(
-          element=element[i] if element is not None else None,
-          features=sub_features)
-      for key, value in six.iteritems(sub_features):
-        all_features["%s%s" % (prefix, key)] = value
-    return all_features
+    if self.combine_features:
+      if features is None:
+        features = {}
+      for i, inputter in enumerate(self.inputters):
+        prefix = "inputter_%d_" % i
+        sub_features = extract_prefixed_keys(features, prefix)
+        if not sub_features:
+          # Also try to read the format produced by get_receiver_tensors.
+          sub_features = extract_suffixed_keys(features, "_%d" % i)
+        sub_features = inputter.make_features(
+            element=element[i] if element is not None else None,
+            features=sub_features)
+        for key, value in six.iteritems(sub_features):
+          features["%s%s" % (prefix, key)] = value
+      return features
+    else:
+      if features is None:
+        features = [{} for _ in self.inputters]
+      for i, inputter in enumerate(self.inputters):
+        features[i] = inputter.make_features(
+            element=element[i] if element is not None else None,
+            features=features[i])
+      return tuple(features)
 
   def make_inputs(self, features, training=None):
     transformed = []
     for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
-        sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+        if self.combine_features:
+          sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+        else:
+          sub_features = features[i]
         transformed.append(inputter.make_inputs(sub_features, training=training))
     if self.reducer is not None:
       transformed = self.reducer(transformed)
