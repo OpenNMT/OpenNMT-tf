@@ -3,7 +3,7 @@
 import tensorflow as tf
 
 
-__version__ = "1.19.0"
+__version__ = "1.19.1"
 
 if tf.__version__.startswith("2"):
   from opennmt.v2 import *  # pylint: disable=wildcard-import
