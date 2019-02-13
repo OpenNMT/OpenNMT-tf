@@ -55,7 +55,7 @@ class SequenceClassifier(Model):
 
       encoder_outputs, encoder_state, _ = self.encoder.encode(
           inputs,
-          sequence_length=self._get_features_length(features),
+          sequence_length=self.features_inputter.get_length(features),
           mode=mode)
 
     if self.encoding == "average":
