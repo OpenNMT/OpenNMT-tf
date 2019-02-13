@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.19.1 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.19.2 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.1',
+              VERSION:'1.19.2',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -178,6 +178,7 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -420,7 +421,7 @@
       <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;tokenization&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">tokenizer_config</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">):</span>
-          <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+          <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizers</span><span class="o">.</span><span class="n">OpenNMTTokenizer</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">tokenizer_config</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
