@@ -397,6 +397,8 @@ def alignment_matrix_from_pharaoh(alignment_line,
       align_pairs_flat_str, out_type=tf.int64)
   sparse_indices = tf.reshape(align_pairs_flat, [-1, 2])
   sparse_values = tf.ones([tf.shape(sparse_indices)[0]], dtype=dtype)
+  source_length = tf.cast(source_length, tf.int64)
+  target_length = tf.cast(target_length, tf.int64)
   if compat.tf_supports("sparse.to_dense"):
     alignment_matrix_sparse = tf.sparse.SparseTensor(
         sparse_indices, sparse_values, [source_length, target_length])
