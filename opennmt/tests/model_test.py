@@ -15,7 +15,7 @@ from opennmt.tests import test_util
 @test_util.run_tf1_only
 class ModelTest(tf.test.TestCase):
 
-  def _makeToyEnDeData(self):
+  def _makeToyEnDeData(self, with_alignments=False):
     metadata = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
@@ -39,6 +39,13 @@ class ModelTest(tf.test.TestCase):
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
     metadata["target_words_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "tgt_vocab.txt"), labels_file)
+    if with_alignments:
+      # Dummy and incomplete alignments.
+      metadata["train_alignments"] = test_util.make_data_file(
+          os.path.join(self.get_temp_dir(), "aligne.txt"),
+          ["0-0 1-0 2-2 3-4 4-4 5-6",
+           "0-1 1-1 1-3 2-3 4-4",
+           "0-0 1-0 2-2 3-4 4-4 5-6"])
     return features_file, labels_file, metadata
 
   def _makeToyTaggerData(self):
@@ -135,6 +142,22 @@ class ModelTest(tf.test.TestCase):
         labels_file,
         metadata,
         prediction_heads=["tokens", "length", "log_probs"])
+
+  def testSequenceToSequenceWithGuidedAlignment(self):
+    mode = tf.estimator.ModeKeys.TRAIN
+    model = catalog.NMTSmall()
+    params = model.auto_config()["params"]
+    params["guided_alignment_type"] = "ce"
+    features_file, labels_file, metadata = self._makeToyEnDeData(with_alignments=True)
+    features, labels = model.input_fn(mode, 16, metadata, features_file, labels_file)()
+    self.assertIn("alignment", labels)
+    estimator_spec = model.model_fn()(features, labels, params, mode, None)
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+      sess.run(tf.local_variables_initializer())
+      sess.run(tf.tables_initializer())
+      loss = sess.run(estimator_spec.loss)
+      self.assertIsInstance(loss, Number)
 
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
