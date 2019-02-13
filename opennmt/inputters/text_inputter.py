@@ -281,10 +281,6 @@ class TextInputter(Inputter):
   def get_dataset_size(self, data_file):
     return count_lines(data_file)
 
-  @abc.abstractmethod
-  def get_receiver_tensors(self):
-    raise NotImplementedError()
-
   def make_features(self, element=None, features=None):
     """Tokenizes raw text."""
     if features is None:
@@ -295,10 +291,6 @@ class TextInputter(Inputter):
     features["length"] = tf.shape(tokens)[0]
     features["tokens"] = tokens
     return features
-
-  @abc.abstractmethod
-  def make_inputs(self, features, training=True):
-    raise NotImplementedError()
 
 
 class WordEmbedder(TextInputter):

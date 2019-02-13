@@ -79,13 +79,14 @@ class Inputter(object):
     if self.is_target:
       raise ValueError("Target inputters do not define a serving input")
     receiver_tensors = self.get_receiver_tensors()
+    if receiver_tensors is None:
+      raise NotImplementedError("This inputter does not define receiver tensors.")
     features = self.make_features(features=receiver_tensors.copy())
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
-  @abc.abstractmethod
   def get_receiver_tensors(self):
     """Returns the input placeholders for serving."""
-    raise NotImplementedError()
+    return None
 
   def get_length(self, features):
     """Returns the length of the input features, if defined."""
@@ -104,7 +105,6 @@ class Inputter(object):
     """
     raise NotImplementedError()
 
-  @abc.abstractmethod
   def make_inputs(self, features, training=True):
     """Creates the model input from the features.
 
@@ -115,7 +115,8 @@ class Inputter(object):
     Returns:
       The model input.
     """
-    raise NotImplementedError()
+    _ = training
+    return features
 
   def visualize(self, log_dir):
     """Visualizes the transformation, usually embeddings.
