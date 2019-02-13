@@ -103,7 +103,7 @@ class ClassInputter(inputters.TextInputter):
     super(TagsInputter, self).__init__(
         vocabulary_file_key=vocabulary_file_key, num_oov_buckets=0)
 
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     return {
         "classes": element,
         "classes_id": self.vocabulary.lookup(element)

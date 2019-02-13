@@ -275,13 +275,13 @@ class TextInputter(Inputter):
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         default_value=constants.UNKNOWN_TOKEN)
 
-  def make_dataset(self, data_file):
+  def make_dataset(self, data_file, training=None):
     return tf.data.TextLineDataset(data_file)
 
   def get_dataset_size(self, data_file):
     return count_lines(data_file)
 
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     """Tokenizes raw text."""
     if features is None:
       features = {}
@@ -369,9 +369,10 @@ class WordEmbedder(TextInputter):
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     """Converts words tokens to ids."""
-    features = super(WordEmbedder, self).make_features(element=element, features=features)
+    features = super(WordEmbedder, self).make_features(
+        element=element, features=features, training=training)
     if "ids" in features:
       return features
     ids = self.vocabulary.lookup(features["tokens"])
@@ -460,7 +461,7 @@ class CharEmbedder(TextInputter):
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     """Converts words to characters."""
     if features is None:
       features = {}
@@ -469,13 +470,14 @@ class CharEmbedder(TextInputter):
     if "chars" in features:
       chars = features["chars"]
     else:
-      features = super(CharEmbedder, self).make_features(element=element, features=features)
+      features = super(CharEmbedder, self).make_features(
+          element=element, features=features, training=training)
       chars, _ = tokens_to_chars(features["tokens"])
     features["char_ids"] = self.vocabulary.lookup(chars)
     return features
 
   @abc.abstractmethod
-  def make_inputs(self, features, training=True):
+  def make_inputs(self, features, training=None):
     raise NotImplementedError()
 
   def visualize(self, log_dir):

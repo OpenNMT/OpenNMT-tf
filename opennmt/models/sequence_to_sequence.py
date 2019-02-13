@@ -111,11 +111,14 @@ class SequenceToSequence(Model):
         raise TypeError("Sharing embeddings requires both inputters to be a "
                         "WordEmbedder")
 
+    examples_inputter = SequenceToSequenceInputter(
+        source_inputter,
+        target_inputter,
+        alignment_file_key=alignment_file_key)
     super(SequenceToSequence, self).__init__(
         name,
-        features_inputter=source_inputter,
-        labels_inputter=target_inputter,
-        daisy_chain_variables=daisy_chain_variables)
+        daisy_chain_variables=daisy_chain_variables,
+        examples_inputter=examples_inputter)
 
     self.encoder = encoder
     self.decoder = decoder
@@ -141,31 +144,6 @@ class SequenceToSequence(Model):
             "bucket_width": 5
         }
     })
-
-  def _initialize(self, metadata, asset_dir=None):
-    assets = super(SequenceToSequence, self)._initialize(metadata, asset_dir=asset_dir)
-    if self.alignment_file_key is not None and self.alignment_file_key in metadata:
-      self.alignment_file = metadata[self.alignment_file_key]
-    return assets
-
-  def _augment_parallel_dataset(self, dataset, process_fn, mode=None):
-    # Possibly add alignments as labels.
-    if self.alignment_file is None or mode != tf.estimator.ModeKeys.TRAIN:
-      return dataset, process_fn
-
-    def _inject_alignments(text, alignment_line):
-      source, target = text
-      features, labels = process_fn(source, target)  # Default processing.
-      alignments = alignment_matrix_from_pharaoh(
-          alignment_line,
-          self.features_inputter.get_length(features),
-          self.labels_inputter.get_length(labels) - 1)  # Ignore special token.
-      labels["alignment"] = alignments
-      return features, labels
-
-    alignment_dataset = tf.data.TextLineDataset(self.alignment_file)
-    dataset = tf.data.Dataset.zip((dataset, alignment_dataset))
-    return dataset, _inject_alignments
 
   def _get_input_scope(self, default_name=""):
     if self.share_embeddings == EmbeddingsSharingLevel.SOURCE_TARGET_INPUT:
@@ -367,6 +345,43 @@ class SequenceToSequence(Model):
           attention=attention,
           alignment_type=alignment_type)
       print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+
+
+class SequenceToSequenceInputter(inputters.ExampleInputter):
+  """A custom :class:`opennmt.inputters.inputter.ExampleInputter` that possibly
+  injects alignment information during training.
+  """
+
+  def __init__(self, features_inputter, labels_inputter, alignment_file_key=None):
+    super(SequenceToSequenceInputter, self).__init__(features_inputter, labels_inputter)
+    self.alignment_file_key = alignment_file_key
+    self.alignment_file = None
+
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    if self.alignment_file_key is not None and self.alignment_file_key in metadata:
+      self.alignment_file = metadata[self.alignment_file_key]
+    return super(SequenceToSequenceInputter, self).initialize(
+        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+
+  def make_dataset(self, data_file, training=None):
+    dataset = super(SequenceToSequenceInputter, self).make_dataset(
+        data_file, training=training)
+    if self.alignment_file is None or not training:
+      return dataset
+    return tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(self.alignment_file)))
+
+  def make_features(self, element=None, features=None, training=None):
+    if self.alignment_file is None or not training:
+      return super(SequenceToSequenceInputter, self).make_features(
+          element=element, features=features, training=training)
+    text, alignment = element
+    features, labels = super(SequenceToSequenceInputter, self).make_features(
+        text, features=features, training=training)
+    labels["alignment"] = alignment_matrix_from_pharaoh(
+        alignment,
+        self.features_inputter.get_length(features),
+        self.labels_inputter.get_length(labels) - 1)  # Ignore special token.
+    return features, labels
 
 
 def alignment_matrix_from_pharaoh(alignment_line,
