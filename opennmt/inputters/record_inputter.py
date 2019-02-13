@@ -24,7 +24,7 @@ class SequenceRecordInputter(Inputter):
     """
     super(SequenceRecordInputter, self).__init__(dtype=dtype)
 
-  def make_dataset(self, data_file):
+  def make_dataset(self, data_file, training=None):
     first_record = next(tf.python_io.tf_record_iterator(data_file))
     first_record = tf.train.Example.FromString(first_record)
     shape = first_record.features.feature["shape"].int64_list.value
@@ -40,7 +40,7 @@ class SequenceRecordInputter(Inputter):
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     if features is None:
       features = {}
     if "tensor" in features:

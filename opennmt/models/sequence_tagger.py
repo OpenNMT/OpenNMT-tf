@@ -161,8 +161,9 @@ class TagsInputter(inputters.TextInputter):
     super(TagsInputter, self).__init__(
         vocabulary_file_key=vocabulary_file_key, num_oov_buckets=0)
 
-  def make_features(self, element=None, features=None):
-    features = super(TagsInputter, self).make_features(element=element, features=features)
+  def make_features(self, element=None, features=None, training=None):
+    features = super(TagsInputter, self).make_features(
+        element=element, features=features, training=training)
     return {
         "tags": features["tokens"],
         "tags_id": self.vocabulary.lookup(features["tokens"])

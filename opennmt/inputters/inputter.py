@@ -47,11 +47,12 @@ class Inputter(object):
     return {}
 
   @abc.abstractmethod
-  def make_dataset(self, data_file):
+  def make_dataset(self, data_file, training=None):
     """Creates the dataset required by this inputter.
 
     Args:
       data_file: The data file.
+      training: Run in training mode.
 
     Returns:
       A ``tf.data.Dataset``.
@@ -93,19 +94,20 @@ class Inputter(object):
     return features.get("length")
 
   @abc.abstractmethod
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     """Creates features from data.
 
     Args:
       element: An element from the dataset.
       features: An optional dictionary of features to augment.
+      training: Run in training mode.
 
     Returns:
       A dictionary of ``tf.Tensor``.
     """
     raise NotImplementedError()
 
-  def make_inputs(self, features, training=True):
+  def make_inputs(self, features, training=None):
     """Creates the model input from the features.
 
     Args:
@@ -174,11 +176,12 @@ class Inputter(object):
     """
     self.process_hooks.extend(hooks)
 
-  def process(self, data):
+  def process(self, data, training=None):
     """Prepares raw data.
 
     Args:
       data: The raw data.
+      training: Run in training mode.
 
     Returns:
       A dictionary of ``tf.Tensor``.
@@ -186,7 +189,7 @@ class Inputter(object):
     See Also:
       :meth:`opennmt.inputters.inputter.Inputter.transform_data`
     """
-    data = self.make_features(data)
+    data = self.make_features(data, training=training)
     for hook in self.process_hooks:
       data = hook(self, data)
     for key in self.volatile:
@@ -245,7 +248,7 @@ class MultiInputter(Inputter):
     return assets
 
   @abc.abstractmethod
-  def make_dataset(self, data_file):
+  def make_dataset(self, data_file, training=None):
     raise NotImplementedError()
 
   @abc.abstractmethod
@@ -275,11 +278,11 @@ class ParallelInputter(MultiInputter):
     super(ParallelInputter, self).__init__(inputters, reducer=reducer)
     self.combine_features = combine_features
 
-  def make_dataset(self, data_file):
+  def make_dataset(self, data_file, training=None):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
       raise ValueError("The number of data files must be the same as the number of inputters")
     datasets = [
-        inputter.make_dataset(data)
+        inputter.make_dataset(data, training=training)
         for inputter, data in zip(self.inputters, data_file)]
     return tf.data.Dataset.zip(tuple(datasets))
 
@@ -316,7 +319,7 @@ class ParallelInputter(MultiInputter):
     else:
       return lengths[0]
 
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     if self.combine_features:
       if features is None:
         features = {}
@@ -328,7 +331,8 @@ class ParallelInputter(MultiInputter):
           sub_features = extract_suffixed_keys(features, "_%d" % i)
         sub_features = inputter.make_features(
             element=element[i] if element is not None else None,
-            features=sub_features)
+            features=sub_features,
+            training=training)
         for key, value in six.iteritems(sub_features):
           features["%s%s" % (prefix, key)] = value
       return features
@@ -338,7 +342,8 @@ class ParallelInputter(MultiInputter):
       for i, inputter in enumerate(self.inputters):
         features[i] = inputter.make_features(
             element=element[i] if element is not None else None,
-            features=features[i])
+            features=features[i],
+            training=training)
       return tuple(features)
 
   def make_inputs(self, features, training=None):
@@ -372,8 +377,8 @@ class MixedInputter(MultiInputter):
     super(MixedInputter, self).__init__(inputters, reducer=reducer)
     self.dropout = dropout
 
-  def make_dataset(self, data_file):
-    return self.inputters[0].make_dataset(data_file)
+  def make_dataset(self, data_file, training=None):
+    return self.inputters[0].make_dataset(data_file, training=training)
 
   def get_dataset_size(self, data_file):
     return self.inputters[0].get_dataset_size(data_file)
@@ -387,11 +392,12 @@ class MixedInputter(MultiInputter):
   def get_length(self, features):
     return self.inputters[0].get_length(features)
 
-  def make_features(self, element=None, features=None):
+  def make_features(self, element=None, features=None, training=None):
     if features is None:
       features = {}
     for inputter in self.inputters:
-      features = inputter.make_features(element=element, features=features)
+      features = inputter.make_features(
+          element=element, features=features, training=training)
     return features
 
   def make_inputs(self, features, training=None):
@@ -402,3 +408,28 @@ class MixedInputter(MultiInputter):
     outputs = self.reducer(transformed)
     outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs
+
+
+class ExampleInputter(ParallelInputter):
+  """An inputter that returns training examples (parallel features and labels)."""
+
+  def __init__(self, features_inputter, labels_inputter):
+    """Initializes this inputter.
+
+    Args:
+      features_inputter: An inputter producing the features (source).
+      labels_inputter: An inputter producing the labels (target).
+    """
+    self.features_inputter = features_inputter
+    self.labels_inputter = labels_inputter
+    self.labels_inputter.is_target = True
+    super(ExampleInputter, self).__init__(
+        [self.features_inputter, self.labels_inputter], combine_features=False)
+
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    assets = {}
+    assets.update(self.features_inputter.initialize(
+        metadata, asset_dir=asset_dir, asset_prefix="source_"))
+    assets.update(self.labels_inputter.initialize(
+        metadata, asset_dir=asset_dir, asset_prefix="target_"))
+    return assets
