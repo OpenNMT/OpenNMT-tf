@@ -16,6 +16,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.19.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.19.2) (2019-02-13)
+
+### Fixes and improvements
+
+* Fix error when passing the tokenization configuration as a file in the training configuration
+
 ## [1.19.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.19.1) (2019-02-13)
 
 ### Fixes and improvements
