@@ -158,8 +158,8 @@ class SequenceToSequence(Model):
       features, labels = process_fn(source, target)  # Default processing.
       alignments = alignment_matrix_from_pharaoh(
           alignment_line,
-          self._get_features_length(features),
-          self._get_labels_length(labels) - 1)  # Ignore special token.
+          self.features_inputter.get_length(features),
+          self.labels_inputter.get_length(labels) - 1)  # Ignore special token.
       labels["alignment"] = alignments
       return features, labels
 
@@ -175,7 +175,7 @@ class SequenceToSequence(Model):
     return tf.VariableScope(None, name=tf.get_variable_scope().name + "/" + name)
 
   def _build(self, features, labels, params, mode, config=None):
-    features_length = self._get_features_length(features)
+    features_length = self.features_inputter.get_length(features)
     log_dir = config.model_dir if config is not None else None
 
     source_input_scope = self._get_input_scope(default_name="encoder")
@@ -214,7 +214,7 @@ class SequenceToSequence(Model):
 
         logits, _, _, attention = self.decoder.decode(
             target_inputs,
-            self._get_labels_length(labels),
+            self.labels_inputter.get_length(labels),
             vocab_size=target_vocab_size,
             initial_state=encoder_state,
             sampling_probability=sampling_probability,
@@ -278,10 +278,7 @@ class SequenceToSequence(Model):
                   return_alignment_history=True,
                   sample_from=sample_from))
 
-      target_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
-          self.target_inputter.vocabulary_file,
-          vocab_size=target_vocab_size - self.target_inputter.num_oov_buckets,
-          default_value=constants.UNKNOWN_TOKEN)
+      target_vocab_rev = self.target_inputter.vocabulary_lookup_reverse()
       target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):
@@ -320,7 +317,7 @@ class SequenceToSequence(Model):
     else:
       logits = outputs
       attention = None
-    labels_lengths = self._get_labels_length(labels)
+    labels_lengths = self.labels_inputter.get_length(labels)
     loss, loss_normalizer, loss_token_normalizer = cross_entropy_sequence_loss(
         logits,
         labels["ids_out"],
