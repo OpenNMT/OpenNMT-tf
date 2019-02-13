@@ -254,16 +254,6 @@ class Model(object):
     """
     return self.examples_inputter.initialize(metadata, asset_dir=asset_dir)
 
-  def _get_serving_input_receiver(self):
-    """Returns an input receiver for serving this model.
-
-    Returns:
-      A ``tf.estimator.export.ServingInputReceiver``.
-    """
-    if self.features_inputter is None:
-      raise NotImplementedError()
-    return self.features_inputter.get_serving_input_receiver()
-
   def input_fn(self,
                mode,
                batch_size,
@@ -374,16 +364,6 @@ class Model(object):
 
     return _fn
 
-  def _serving_input_fn_impl(self, metadata):
-    """See ``serving_input_fn``."""
-    self._initialize(metadata)
-    # This is a hack for SequenceRecordInputter that currently infers the input
-    # depth from the data files.
-    # TODO: This method should not require the training data.
-    if self.features_inputter is not None and "train_features_file" in metadata:
-      _ = self.features_inputter.make_dataset(metadata["train_features_file"])
-    return self._get_serving_input_receiver()
-
   def serving_input_fn(self, metadata):
     """Returns the serving input function.
 
@@ -394,7 +374,19 @@ class Model(object):
     Returns:
       A callable that returns a ``tf.estimator.export.ServingInputReceiver``.
     """
-    return lambda: self._serving_input_fn_impl(metadata)
+    if self.features_inputter is None:
+      raise NotImplementedError()
+
+    def _fn():
+      self._initialize(metadata)
+      # This is a hack for SequenceRecordInputter that currently infers the input
+      # depth from the data files.
+      # TODO: This method should not require the training data.
+      if  "train_features_file" in metadata:
+        _ = self.features_inputter.make_dataset(metadata["train_features_file"])
+      return self.features_inputter.get_serving_input_receiver()
+
+    return _fn
 
   def get_assets(self, metadata, asset_dir):
     """Returns additional assets used by this model.
