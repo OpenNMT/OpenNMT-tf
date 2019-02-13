@@ -2,6 +2,7 @@
 
 import os
 import six
+import yaml
 
 import tensorflow as tf
 import numpy as np
@@ -190,15 +191,19 @@ class InputterTest(tf.test.TestCase):
   def testWordEmbedderWithTokenizer(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])
     data_file = self._makeTextFile("data.txt", ["hello world!"])
+    tokenization = {
+        "mode": "aggressive",
+        "joiner_annotate": True,
+        "joiner_new": True
+    }
+    tokenization_config_path = os.path.join(self.get_temp_dir(), "tok.yml")
+    with open(tokenization_config_path, "w") as tokenization_config_file:
+      yaml.dump(tokenization, tokenization_config_file)
 
     embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
     metadata = {
         "vocabulary_file": vocab_file,
-        "tokenization": {
-            "mode": "aggressive",
-            "joiner_annotate": True,
-            "joiner_new": True
-        }
+        "tokenization": tokenization_config_path
     }
     features, transformed = self._makeDataset(
         embedder,

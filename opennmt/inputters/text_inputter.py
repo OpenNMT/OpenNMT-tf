@@ -4,6 +4,7 @@ import abc
 import collections
 import os
 import six
+import yaml
 
 import numpy as np
 import tensorflow as tf
@@ -246,7 +247,7 @@ class TextInputter(Inputter):
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
       if tokenizer_config:
         if isinstance(tokenizer_config, six.string_types) and tf.gfile.Exists(tokenizer_config):
-          with tf.gfile.Open(config, mode="rb") as config_file:
+          with tf.gfile.Open(tokenizer_config, mode="rb") as config_file:
             tokenizer_config = yaml.load(config_file)
         self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
       else:
