@@ -233,11 +233,23 @@ def _get_field(config, key, prefix=None, default=None, required=False):
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self, tokenizer=None, dtype=tf.float32):
+  def __init__(self,
+               tokenizer=None,
+               dtype=tf.float32,
+               vocabulary_file_key=None,
+               num_oov_buckets=1):
     super(TextInputter, self).__init__(dtype=dtype)
     self.tokenizer = tokenizer
+    self.vocabulary_file_key = vocabulary_file_key
+    self.num_oov_buckets = num_oov_buckets
+    self.vocabulary = None
+    self.vocabulary_size = None
+    self.vocabulary_file = None
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    self.vocabulary_file = metadata[self.vocabulary_file_key]
+    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
+    self.vocabulary = self.vocabulary_lookup()
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
       if tokenizer_config:
@@ -248,6 +260,20 @@ class TextInputter(Inputter):
       else:
         self.tokenizer = tokenizers.SpaceTokenizer()
     return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+
+  def vocabulary_lookup(self):
+    """Returns a lookup table mapping string to index."""
+    return tf.contrib.lookup.index_table_from_file(
+        self.vocabulary_file,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets,
+        num_oov_buckets=self.num_oov_buckets)
+
+  def vocabulary_lookup_reverse(self):
+    """Returns a lookup table mapping index to string."""
+    return tf.contrib.lookup.index_to_string_table_from_file(
+        self.vocabulary_file,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets,
+        default_value=constants.UNKNOWN_TOKEN)
 
   def make_dataset(self, data_file):
     return tf.data.TextLineDataset(data_file)
@@ -314,9 +340,10 @@ class WordEmbedder(TextInputter):
       The :meth:`opennmt.inputters.text_inputter.load_pretrained_embeddings`
       function for details about the pretrained embedding format and behavior.
     """
-    super(WordEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
-
-    self.vocabulary_file_key = vocabulary_file_key
+    super(WordEmbedder, self).__init__(
+        tokenizer=tokenizer,
+        dtype=dtype,
+        vocabulary_file_key=vocabulary_file_key)
     self.embedding_size = embedding_size
     self.embedding_file = None
     self.embedding_file_key = embedding_file_key
@@ -324,18 +351,10 @@ class WordEmbedder(TextInputter):
     self.case_insensitive_embeddings = case_insensitive_embeddings
     self.trainable = trainable
     self.dropout = dropout
-    self.num_oov_buckets = 1
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = super(WordEmbedder, self).initialize(
         metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
-    self.vocabulary_file = metadata[self.vocabulary_file_key]
-    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.vocabulary_file,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets,
-        num_oov_buckets=self.num_oov_buckets)
-
     if self.embedding_file_key is not None:
       self.embedding_file = metadata[self.embedding_file_key]
     else:
@@ -436,23 +455,12 @@ class CharEmbedder(TextInputter):
         tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
-    super(CharEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
-
-    self.vocabulary_file_key = vocabulary_file_key
+    super(CharEmbedder, self).__init__(
+        tokenizer=tokenizer,
+        dtype=dtype,
+        vocabulary_file_key=vocabulary_file_key)
     self.embedding_size = embedding_size
     self.dropout = dropout
-    self.num_oov_buckets = 1
-
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
-    assets = super(CharEmbedder, self).initialize(
-        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
-    self.vocabulary_file = metadata[self.vocabulary_file_key]
-    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.vocabulary_file,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets,
-        num_oov_buckets=self.num_oov_buckets)
-    return assets
 
   def get_receiver_tensors(self):
     return {

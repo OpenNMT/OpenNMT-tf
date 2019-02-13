@@ -278,10 +278,7 @@ class SequenceToSequence(Model):
                   return_alignment_history=True,
                   sample_from=sample_from))
 
-      target_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
-          self.target_inputter.vocabulary_file,
-          vocab_size=target_vocab_size - self.target_inputter.num_oov_buckets,
-          default_value=constants.UNKNOWN_TOKEN)
+      target_vocab_rev = self.target_inputter.vocabulary_lookup_reverse()
       target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):
