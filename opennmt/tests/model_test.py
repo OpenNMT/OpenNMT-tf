@@ -58,6 +58,21 @@ class ModelTest(tf.test.TestCase):
         ["O", "B-LOC", "I-LOC", "E-LOC", "S-LOC", "B-PER", "I-PER", "E-PER", "S-PER"])
     return features_file, labels_file, metadata
 
+  def _makeToyClassifierData(self):
+    metadata = {}
+    features_file = test_util.make_data_file(
+        os.path.join(self.get_temp_dir(), "src.txt"),
+        ["This product was not good at all , it broke on the first use !",
+         "Perfect , it does everything I need .",
+         "How do I change the battery ?"])
+    labels_file = test_util.make_data_file(
+        os.path.join(self.get_temp_dir(), "labels.txt"), ["negative", "positive", "neutral"])
+    metadata["source_vocabulary"] = test_util.make_vocab_from_file(
+        os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
+    metadata["target_vocabulary"] = test_util.make_data_file(
+        os.path.join(self.get_temp_dir(), "labels_vocab.txt"), ["negative", "positive", "neutral"])
+    return features_file, labels_file, metadata
+
   def _testGenericModel(self,
                         model,
                         mode,
@@ -156,6 +171,28 @@ class ModelTest(tf.test.TestCase):
         metrics=["accuracy", "precision", "recall", "f1"],
         params=params)
 
+  @parameterized.expand([
+      [tf.estimator.ModeKeys.TRAIN],
+      [tf.estimator.ModeKeys.EVAL],
+      [tf.estimator.ModeKeys.PREDICT]])
+  def _testSequenceClassifier(self, mode):
+    model = models.SequenceClassifier(
+        inputters.WordEmbedder("source_vocabulary", 10),
+        encoders.MeanEncoder(),
+        "target_vocabulary")
+    features_file, labels_file, metadata = self._makeToyClassifierData()
+    params = {
+        "optimizer": "GradientDescentOptimizer",
+        "learning_rate": 0.1}
+    self._testGenericModel(
+        model,
+        mode,
+        features_file,
+        labels_file,
+        metadata,
+        prediction_heads=["classes"],
+        metrics=["accuracy"],
+        params=params)
 
 if __name__ == "__main__":
   tf.test.main()
