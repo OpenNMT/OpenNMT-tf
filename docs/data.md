@@ -22,6 +22,37 @@ Yes , we also say that the European budget is not about the duplication of natio
 The name of this site , and program name Title purchased will not be displayed .
 ```
 
+### Vocabulary
+
+For text inputs, vocabulary files should be provided in the data configuration (see for example in the *Quickstart* section). OpenNMT-tf uses a simple text format with **one token per line**, which should begin with these special tokens:
+
+```text
+<blank>
+<s>
+</s>
+```
+
+The `onmt-build-vocab` script can be used to generate this file:
+
+#### via training files
+
+The script can be run directly on training files:
+
+```bash
+onmt-build-vocab --save_vocab vocab.txt train.txt
+```
+
+* To control the vocabulary size, see the available options `onmt-build-vocab -h`
+* By default, `train.txt` is expected to be **tokenized** (see the *Tokenization* section to execute the script on non tokenized files)
+
+#### via SentencePiece vocabulary
+
+If you trained a [SentencePiece](https://github.com/google/sentencepiece) model to tokenize your data, a vocabulary file `*.vocab` was generated in the process. This file can be converted to the OpenNMT-tf vocabulary format:
+
+```bash
+onmt-build-vocab --save_vocab vocab.txt --from_vocab sp.vocab --from_format sentencepiece
+```
+
 ### Vectors
 
 The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *TFRecords*. We propose 2 ways to create this file, choose the one that is the easiest for you:

@@ -10,12 +10,17 @@ from opennmt.utils import compat
 class Vocab(object):
   """Vocabulary class."""
 
-  def __init__(self, special_tokens=None, from_file=None):
+  def __init__(self, special_tokens=None, from_file=None, from_format="default"):
     """Initializes a vocabulary.
 
     Args:
       special_tokens: A list of special tokens (e.g. start of sentence).
       from_file: Optionally initialize from an existing saved vocabulary.
+      from_format: Define the format of the :obj:`from_file` saved vocabulary.
+        Can be: default, sentencepiece. "default" is simply one token per line.
+
+    Raises:
+      ValueError: if :obj:`file_format` is invalid.
     """
     self._token_to_id = {}
     self._id_to_token = []
@@ -32,7 +37,7 @@ class Vocab(object):
         self._frequency.insert(index, float("inf"))
 
     if from_file is not None:
-      self.load(from_file)
+      self.load(from_file, file_format=from_format)
 
   @property
   def size(self):
@@ -43,6 +48,14 @@ class Vocab(object):
   def words(self):
     """Returns the list of words."""
     return self._id_to_token
+
+  def __len__(self):
+    """Returns the number of entries of the vocabulary."""
+    return self.size
+
+  def __contains__(self, token):
+    """Returns ``True`` if the vocabulary contains :obj:`token`."""
+    return self.lookup(token) is not None
 
   def add_from_text(self, filename, tokenizer=None):
     """Fills the vocabulary from a text file.
@@ -72,15 +85,28 @@ class Vocab(object):
         vocab.write(tf.compat.as_bytes(token))
         vocab.write(b"\n")
 
-  def load(self, path):
+  def load(self, path, file_format="default"):
     """Loads a serialized vocabulary.
 
     Args:
       path: The path to the vocabulary to load.
+      file_format: Define the format of the vocabulary file. Can be: default,
+        sentencepiece. "default" is simply one token per line.
+
+    Raises:
+      ValueError: if :obj:`file_format` is invalid.
     """
     with compat.gfile_open(path, mode="rb") as vocab:
-      for token in vocab:
-        self.add(tf.compat.as_text(token[:-1]))
+      for line in vocab:
+        if file_format == "default":
+          self.add(line[:-1])
+        elif file_format == "sentencepiece":
+          token, _ = line.rstrip().split(b"\t")
+          if token in (b"<unk>", b"<s>", b"</s>"):  # Ignore SentencePiece special tokens.
+            continue
+          self.add(token)
+        else:
+          raise ValueError("Invalid vocabulary format: %s" % file_format)
 
   def add(self, token):
     """Adds a token or increases its frequency.
@@ -88,6 +114,8 @@ class Vocab(object):
     Args:
       token: The string to add.
     """
+    if isinstance(token, six.binary_type):
+      token = tf.compat.as_text(token)
     if token not in self._token_to_id:
       index = self.size
       self._token_to_id[token] = index
@@ -109,6 +137,8 @@ class Vocab(object):
     value = None
 
     if isinstance(identifier, six.string_types):
+      if isinstance(identifier, six.binary_type):
+        identifier = tf.compat.as_text(identifier)
       if identifier in self._token_to_id:
         value = self._token_to_id[identifier]
     elif identifier < self.size:
