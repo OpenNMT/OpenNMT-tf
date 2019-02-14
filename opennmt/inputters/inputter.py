@@ -107,6 +107,10 @@ class Inputter(object):
     """
     raise NotImplementedError()
 
+  def build(self):
+    """Creates the variables of this inputter."""
+    return
+
   def make_inputs(self, features, training=None):
     """Creates the model input from the features.
 
@@ -256,27 +260,32 @@ class MultiInputter(Inputter):
     raise NotImplementedError()
 
   def visualize(self, log_dir):
-    for i, inputter in enumerate(self.inputters):
-      with tf.variable_scope("inputter_{}".format(i)):
-        inputter.visualize(log_dir)
+    for inputter in self.inputters:
+      inputter.visualize(log_dir)
 
 
 class ParallelInputter(MultiInputter):
   """An multi inputter that process parallel data."""
 
-  def __init__(self, inputters, reducer=None, combine_features=True):
+  def __init__(self,
+               inputters,
+               reducer=None,
+               share_parameters=False,
+               combine_features=True):
     """Initializes a parallel inputter.
 
     Args:
       inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
       reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs. If
         set, parallel inputs are assumed to have the same length.
+      share_parameters: Share the inputters parameters.
       combine_features: Combine each inputter features in a single dict or
         return them separately. This is typically ``True`` for multi source
         inputs but ``False`` for features/labels parallel data.
     """
     super(ParallelInputter, self).__init__(inputters, reducer=reducer)
     self.combine_features = combine_features
+    self.share_parameters = share_parameters
 
   def make_dataset(self, data_file, training=None):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
@@ -346,10 +355,39 @@ class ParallelInputter(MultiInputter):
             training=training)
       return tuple(features)
 
+  def _get_names(self):
+    for i, _ in enumerate(self.inputters):
+      yield "inputter_%d" % i
+
+  def _get_shared_name(self):
+    return ""
+
+  def _get_scopes(self):
+    names = list(self._get_names())
+    for i, _ in enumerate(self.inputters):
+      if self.share_parameters:
+        name = self._get_shared_name()
+        reuse = i > 0
+      else:
+        name = names[i]
+        reuse = None
+      scope_name = tf.get_variable_scope().name
+      if name:
+        if scope_name:
+          scope_name = "%s/%s" % (scope_name, name)
+        else:
+          scope_name = name
+      yield tf.VariableScope(reuse, name=scope_name)
+
+  def build(self):
+    for inputter, scope in zip(self.inputters, self._get_scopes()):
+      with tf.variable_scope(scope):
+        inputter.build()
+
   def make_inputs(self, features, training=None):
     transformed = []
-    for i, inputter in enumerate(self.inputters):
-      with tf.variable_scope("inputter_{}".format(i)):
+    for i, (inputter, scope) in enumerate(zip(self.inputters, self._get_scopes())):
+      with tf.variable_scope(scope):
         if self.combine_features:
           sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
         else:
@@ -413,18 +451,21 @@ class MixedInputter(MultiInputter):
 class ExampleInputter(ParallelInputter):
   """An inputter that returns training examples (parallel features and labels)."""
 
-  def __init__(self, features_inputter, labels_inputter):
+  def __init__(self, features_inputter, labels_inputter, share_parameters=False):
     """Initializes this inputter.
 
     Args:
       features_inputter: An inputter producing the features (source).
       labels_inputter: An inputter producing the labels (target).
+      share_parameters: Share the inputters parameters.
     """
     self.features_inputter = features_inputter
     self.labels_inputter = labels_inputter
     self.labels_inputter.is_target = True
     super(ExampleInputter, self).__init__(
-        [self.features_inputter, self.labels_inputter], combine_features=False)
+        [self.features_inputter, self.labels_inputter],
+        share_parameters=share_parameters,
+        combine_features=False)
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = {}

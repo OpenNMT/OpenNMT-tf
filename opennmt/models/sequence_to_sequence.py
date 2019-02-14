@@ -39,16 +39,6 @@ def shift_target_sequence(inputter, data):
   data["length"] += 1  # Increment length accordingly.
   return data
 
-def _maybe_reuse_embedding_fn(embedding_fn, scope=None):
-  def _scoped_embedding_fn(ids):
-    try:
-      with tf.variable_scope(scope):
-        return embedding_fn(ids)
-    except ValueError:
-      with tf.variable_scope(scope, reuse=True):
-        return embedding_fn(ids)
-  return _scoped_embedding_fn
-
 
 class EmbeddingsSharingLevel(object):
   """Level of embeddings sharing.
@@ -107,13 +97,19 @@ class SequenceToSequence(Model):
     if not isinstance(target_inputter, inputters.WordEmbedder):
       raise TypeError("Target inputter must be a WordEmbedder")
     if share_embeddings == EmbeddingsSharingLevel.SOURCE_TARGET_INPUT:
-      if not isinstance(source_inputter, inputters.WordEmbedder):
-        raise TypeError("Sharing embeddings requires both inputters to be a "
-                        "WordEmbedder")
+      if isinstance(source_inputter, inputters.ParallelInputter):
+        source_inputters = source_inputter.inputters
+      else:
+        source_inputters = [source_inputter]
+      for inputter in source_inputters:
+        if not isinstance(inputter, inputters.WordEmbedder):
+          raise TypeError("Sharing embeddings requires all inputters to be a "
+                          "WordEmbedder")
 
     examples_inputter = SequenceToSequenceInputter(
         source_inputter,
         target_inputter,
+        share_parameters=share_embeddings == EmbeddingsSharingLevel.SOURCE_TARGET_INPUT,
         alignment_file_key=alignment_file_key)
     super(SequenceToSequence, self).__init__(
         name,
@@ -122,11 +118,6 @@ class SequenceToSequence(Model):
 
     self.encoder = encoder
     self.decoder = decoder
-    self.share_embeddings = share_embeddings
-    self.source_inputter = source_inputter
-    self.target_inputter = target_inputter
-    self.alignment_file_key = alignment_file_key
-    self.alignment_file = None
 
   def auto_config(self, num_devices=1):
     config = super(SequenceToSequence, self).auto_config(num_devices=num_devices)
@@ -145,42 +136,23 @@ class SequenceToSequence(Model):
         }
     })
 
-  def _get_input_scope(self, default_name=""):
-    if self.share_embeddings == EmbeddingsSharingLevel.SOURCE_TARGET_INPUT:
-      name = "shared_embeddings"
-    else:
-      name = default_name
-    return tf.VariableScope(None, name=tf.get_variable_scope().name + "/" + name)
-
   def _build(self, features, labels, params, mode, config=None):
+    training = mode == tf.estimator.ModeKeys.TRAIN
+    self.examples_inputter.build()
+
     features_length = self.features_inputter.get_length(features)
-    log_dir = config.model_dir if config is not None else None
-
-    source_input_scope = self._get_input_scope(default_name="encoder")
-    target_input_scope = self._get_input_scope(default_name="decoder")
-
-    source_inputs = _maybe_reuse_embedding_fn(
-        lambda ids: self.source_inputter.transform_data(ids, mode=mode, log_dir=log_dir),
-        scope=source_input_scope)(features)
-
+    source_inputs = self.features_inputter.make_inputs(features, training=training)
     with tf.variable_scope("encoder"):
       encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
           source_inputs,
           sequence_length=features_length,
           mode=mode)
 
-    target_vocab_size = self.target_inputter.vocabulary_size
-    target_dtype = self.target_inputter.dtype
-    target_embedding_fn = _maybe_reuse_embedding_fn(
-        lambda ids: self.target_inputter.make_inputs(
-            {"ids": ids}, training=mode == tf.estimator.ModeKeys.TRAIN),
-        scope=target_input_scope)
+    target_vocab_size = self.labels_inputter.vocabulary_size
+    target_dtype = self.labels_inputter.dtype
 
     if labels is not None:
-      target_inputs = _maybe_reuse_embedding_fn(
-          lambda ids: self.target_inputter.transform_data(ids, mode=mode, log_dir=log_dir),
-          scope=target_input_scope)(labels)
-
+      target_inputs = self.labels_inputter.make_inputs(labels, training=training)
       with tf.variable_scope("decoder"):
         sampling_probability = None
         if mode == tf.estimator.ModeKeys.TRAIN:
@@ -196,7 +168,7 @@ class SequenceToSequence(Model):
             vocab_size=target_vocab_size,
             initial_state=encoder_state,
             sampling_probability=sampling_probability,
-            embedding=target_embedding_fn,
+            embedding=self.labels_inputter.embedding,
             mode=mode,
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length,
@@ -223,7 +195,7 @@ class SequenceToSequence(Model):
 
         if beam_width <= 1:
           sampled_ids, _, sampled_length, log_probs, alignment = self.decoder.dynamic_decode(
-              target_embedding_fn,
+              self.labels_inputter.embedding,
               start_tokens,
               end_token,
               vocab_size=target_vocab_size,
@@ -240,7 +212,7 @@ class SequenceToSequence(Model):
           length_penalty = params.get("length_penalty", 0)
           sampled_ids, _, sampled_length, log_probs, alignment = (
               self.decoder.dynamic_decode_and_search(
-                  target_embedding_fn,
+                  self.labels_inputter.embedding,
                   start_tokens,
                   end_token,
                   vocab_size=target_vocab_size,
@@ -256,14 +228,14 @@ class SequenceToSequence(Model):
                   return_alignment_history=True,
                   sample_from=sample_from))
 
-      target_vocab_rev = self.target_inputter.vocabulary_lookup_reverse()
+      target_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
       target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):
         if alignment is None:
           raise TypeError("replace_unknown_target is not compatible with decoders "
                           "that don't return alignment history")
-        if not isinstance(self.source_inputter, inputters.WordEmbedder):
+        if not isinstance(self.features_inputter, inputters.WordEmbedder):
           raise TypeError("replace_unknown_target is only defined when the source "
                           "inputter is a WordEmbedder")
         source_tokens = features["tokens"]
@@ -330,7 +302,7 @@ class SequenceToSequence(Model):
     for i in range(n_best):
       target_length = prediction["length"][i] - 1  # Ignore </s>.
       tokens = prediction["tokens"][i][:target_length]
-      sentence = self.target_inputter.tokenizer.detokenize(tokens)
+      sentence = self.labels_inputter.tokenizer.detokenize(tokens)
       score = None
       attention = None
       alignment_type = None
@@ -352,8 +324,13 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
   injects alignment information during training.
   """
 
-  def __init__(self, features_inputter, labels_inputter, alignment_file_key=None):
-    super(SequenceToSequenceInputter, self).__init__(features_inputter, labels_inputter)
+  def __init__(self,
+               features_inputter,
+               labels_inputter,
+               share_parameters=False,
+               alignment_file_key=None):
+    super(SequenceToSequenceInputter, self).__init__(
+        features_inputter, labels_inputter, share_parameters=share_parameters)
     self.alignment_file_key = alignment_file_key
     self.alignment_file = None
 
@@ -382,6 +359,12 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
         self.features_inputter.get_length(features),
         self.labels_inputter.get_length(labels) - 1)  # Ignore special token.
     return features, labels
+
+  def _get_names(self):
+    return ["encoder", "decoder"]
+
+  def _get_shared_name(self):
+    return "shared_embeddings"
 
 
 def alignment_matrix_from_pharaoh(alignment_line,

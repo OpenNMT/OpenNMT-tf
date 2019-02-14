@@ -380,6 +380,35 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 5], transformed[1].shape)
 
   @test_util.run_tf1_only
+  def testParallelInputterShareParameters(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    metadata = {"vocabulary_file": vocab_file}
+    inputters = [
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10),
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)]
+    parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
+    parallel_inputter.initialize(metadata)
+    parallel_inputter.build()
+    self.assertEqual(inputters[0].embedding, inputters[1].embedding)
+
+  @test_util.run_tf1_only
+  def testNestedParallelInputterShareParameters(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    metadata = {"vocabulary_file": vocab_file}
+    source_inputters = [
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10),
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)]
+    target_inputter = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
+    inputters = [
+        inputter.ParallelInputter(source_inputters, share_parameters=True),
+        target_inputter]
+    parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
+    parallel_inputter.initialize(metadata)
+    parallel_inputter.build()
+    self.assertEqual(source_inputters[0].embedding, target_inputter.embedding)
+    self.assertEqual(source_inputters[1].embedding, target_inputter.embedding)
+
+  @test_util.run_tf1_only
   def testExampleInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
