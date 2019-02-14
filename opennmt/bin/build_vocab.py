@@ -10,8 +10,14 @@ from opennmt import utils
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      "data", nargs="+",
+      "data", nargs="*",
       help="Source text file.")
+  parser.add_argument(
+      "--from_vocab", default=None,
+      help="Build from a saved vocabulary (see also --from_format).")
+  parser.add_argument(
+      "--from_format", default="default", choices=["default", "sentencepiece"],
+      help="The format of the saved vocabulary (see also --from_vocab).")
   parser.add_argument(
       "--save_vocab", required=True,
       help="Output vocabulary file.")
@@ -38,7 +44,10 @@ def main():
     special_tokens.append(constants.START_OF_SENTENCE_TOKEN)
     special_tokens.append(constants.END_OF_SENTENCE_TOKEN)
 
-  vocab = utils.Vocab(special_tokens=special_tokens)
+  vocab = utils.Vocab(
+      special_tokens=special_tokens,
+      from_file=args.from_vocab,
+      from_format=args.from_format)
   for data_file in args.data:
     vocab.add_from_text(data_file, tokenizer=tokenizer)
   vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)
