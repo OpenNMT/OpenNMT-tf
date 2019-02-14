@@ -11,6 +11,14 @@ def tf_supports(symbol):
   """Returns ``True`` if TensorFlow defines :obj:`symbol`."""
   return _string_to_tf_symbol(symbol) is not None
 
+def tf_any(*symbols):
+  """Returns the first supported symbol."""
+  for symbol in symbols:
+    module = _string_to_tf_symbol(symbol)
+    if module is not None:
+      return module
+  return None
+
 def tf_compat(v2=None, v1=None):  # pylint: disable=invalid-name
   """Returns the compatible symbol based on the current TensorFlow version.
 
@@ -30,11 +38,10 @@ def tf_compat(v2=None, v1=None):  # pylint: disable=invalid-name
   if v1 is not None:
     candidates.append(v1)
     candidates.append("compat.v1.%s" % v1)
-  for candidate in candidates:
-    symbol = _string_to_tf_symbol(candidate)
-    if symbol is not None:
-      return symbol
-  raise ValueError("Failure to resolve the TensorFlow symbol")
+  symbol = tf_any(*candidates)
+  if symbol is None:
+    raise ValueError("Failure to resolve the TensorFlow symbol")
+  return symbol
 
 def _string_to_tf_symbol(symbol):
   modules = symbol.split(".")
