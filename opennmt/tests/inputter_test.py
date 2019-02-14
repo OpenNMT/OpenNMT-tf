@@ -380,19 +380,17 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 5], transformed[1].shape)
 
   @test_util.run_tf1_only
-  def testParallelInputterSplitFeatures(self):
+  def testExampleInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
 
-    source_embedder = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
-    target_embedder = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
-    target_embedder.is_target = True
-    parallel_inputter = inputter.ParallelInputter(
-        [source_embedder, target_embedder], combine_features=False)
-    self.assertEqual(parallel_inputter.num_outputs, 2)
+    source_inputter = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    target_inputter = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+    self.assertEqual(example_inputter.num_outputs, 2)
 
     features, transformed = self._makeDataset(
-        parallel_inputter,
+        example_inputter,
         [data_file, data_file],
         metadata={"vocabulary_file_1": vocab_file, "vocabulary_file_2": vocab_file})
 
