@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from opennmt import constants
 from opennmt import inputters
+from opennmt import layers
 
 from opennmt.models.model import Model
 from opennmt.utils import compat
@@ -47,9 +48,23 @@ class EmbeddingsSharingLevel(object):
 
    * ``NONE``: no sharing (default)
    * ``SOURCE_TARGET_INPUT``: share source and target word embeddings
+   * ``TARGET``: share target word embeddings and softmax weights
+   * ``ALL``: share words embeddings and softmax weights
   """
   NONE = 0
   SOURCE_TARGET_INPUT = 1
+  TARGET = 2
+  ALL = 3
+
+  @staticmethod
+  def share_input_embeddings(level):
+    """Returns ``True`` if input embeddings should be shared at :obj:`level`."""
+    return level in (EmbeddingsSharingLevel.SOURCE_TARGET_INPUT, EmbeddingsSharingLevel.ALL)
+
+  @staticmethod
+  def share_target_embeddings(level):
+    """Returns ``True`` if target embeddings should be shared at :obj:`level`."""
+    return level in (EmbeddingsSharingLevel.TARGET, EmbeddingsSharingLevel.ALL)
 
 
 class SequenceToSequence(Model):
@@ -96,7 +111,7 @@ class SequenceToSequence(Model):
           "saw: {} and {}".format(source_inputter.dtype, target_inputter.dtype))
     if not isinstance(target_inputter, inputters.WordEmbedder):
       raise TypeError("Target inputter must be a WordEmbedder")
-    if share_embeddings == EmbeddingsSharingLevel.SOURCE_TARGET_INPUT:
+    if EmbeddingsSharingLevel.share_input_embeddings(share_embeddings):
       if isinstance(source_inputter, inputters.ParallelInputter):
         source_inputters = source_inputter.inputters
       else:
@@ -109,7 +124,7 @@ class SequenceToSequence(Model):
     examples_inputter = SequenceToSequenceInputter(
         source_inputter,
         target_inputter,
-        share_parameters=share_embeddings == EmbeddingsSharingLevel.SOURCE_TARGET_INPUT,
+        share_parameters=EmbeddingsSharingLevel.share_input_embeddings(share_embeddings),
         alignment_file_key=alignment_file_key)
     super(SequenceToSequence, self).__init__(
         name,
@@ -118,6 +133,7 @@ class SequenceToSequence(Model):
 
     self.encoder = encoder
     self.decoder = decoder
+    self.share_embeddings = share_embeddings
 
   def auto_config(self, num_devices=1):
     config = super(SequenceToSequence, self).auto_config(num_devices=num_devices)
@@ -150,6 +166,15 @@ class SequenceToSequence(Model):
 
     target_vocab_size = self.labels_inputter.vocabulary_size
     target_dtype = self.labels_inputter.dtype
+    output_layer = None
+    if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
+      output_layer = layers.Dense(
+          target_vocab_size,
+          weight=self.labels_inputter.embedding,
+          transpose=True,
+          dtype=target_dtype)
+      with tf.name_scope(tf.get_variable_scope().name + "/"):
+        output_layer.build([None, self.decoder.output_size])
 
     if labels is not None:
       target_inputs = self.labels_inputter.make_inputs(labels, training=training)
@@ -169,6 +194,7 @@ class SequenceToSequence(Model):
             initial_state=encoder_state,
             sampling_probability=sampling_probability,
             embedding=self.labels_inputter.embedding,
+            output_layer=output_layer,
             mode=mode,
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length,
@@ -200,6 +226,7 @@ class SequenceToSequence(Model):
               end_token,
               vocab_size=target_vocab_size,
               initial_state=encoder_state,
+              output_layer=output_layer,
               maximum_iterations=maximum_iterations,
               minimum_length=minimum_length,
               mode=mode,
@@ -217,6 +244,7 @@ class SequenceToSequence(Model):
                   end_token,
                   vocab_size=target_vocab_size,
                   initial_state=encoder_state,
+                  output_layer=output_layer,
                   beam_width=beam_width,
                   length_penalty=length_penalty,
                   maximum_iterations=maximum_iterations,
