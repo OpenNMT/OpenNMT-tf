@@ -14,6 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [1.20.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.20.0) (2019-02-15)
+
+### New features
+
 * More embeddings sharing combinations:
   * Share embeddings of multi source inputs (set `share_parameters=True` to `ParallelInputter`)
   * Share target embeddings and softmax weights (set `share_embeddings=onmt.models.EmbeddingsSharingLevel.TARGET` to a seq2seq model)
