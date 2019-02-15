@@ -8,9 +8,8 @@ import six
 import tensorflow as tf
 
 from opennmt import inputters
-from opennmt.utils import data, hooks
+from opennmt.utils import hooks
 from opennmt.utils.optim import optimize_loss
-from opennmt.utils.misc import item_or_tuple
 from opennmt.utils.parallel import GraphDispatcher
 
 
@@ -304,60 +303,48 @@ class Model(object):
     Returns:
       A callable that returns the next element.
 
-    Raises:
-      ValueError: if :obj:`labels_file` is not set when in training or
-        evaluation mode.
-
     See Also:
       ``tf.estimator.Estimator``.
     """
-    if labels_file is None:
-      if mode != tf.estimator.ModeKeys.PREDICT:
-        raise ValueError("Labels file is required for training and evaluation")
-      inputter = self.features_inputter
-      data_file = features_file
-    else:
-      inputter = self.examples_inputter
-      data_file = [features_file, labels_file]
-
-    training = mode == tf.estimator.ModeKeys.TRAIN
-    process_fn = lambda *arg: inputter.make_features(item_or_tuple(arg), training=training)
+    batch_size_multiple = 1
+    if batch_type == "tokens" and self.dtype == tf.float16:
+      batch_size_multiple = 8
 
     def _fn():
       self._initialize(metadata)
-      dataset = inputter.make_dataset(data_file, training=training)
-      if training:
-        batch_size_multiple = 1
-        if batch_type == "tokens" and self.dtype == tf.float16:
-          batch_size_multiple = 8
-        dataset = data.training_pipeline(
-            dataset,
+
+      if mode == tf.estimator.ModeKeys.PREDICT:
+        dataset = self.examples_inputter.make_inference_dataset(
+            features_file,
+            batch_size,
+            bucket_width=bucket_width,
+            num_threads=num_threads,
+            prefetch_buffer_size=prefetch_buffer_size)
+      elif mode == tf.estimator.ModeKeys.EVAL:
+        dataset = self.examples_inputter.make_evaluation_dataset(
+            features_file,
+            labels_file,
+            batch_size,
+            num_threads=num_threads,
+            prefetch_buffer_size=prefetch_buffer_size)
+      elif mode == tf.estimator.ModeKeys.TRAIN:
+        dataset = self.examples_inputter.make_training_dataset(
+            features_file,
+            labels_file,
             batch_size,
             batch_type=batch_type,
             batch_multiplier=batch_multiplier,
-            bucket_width=bucket_width,
-            single_pass=single_pass,
-            process_fn=process_fn,
-            num_threads=num_threads,
+            batch_size_multiple=batch_size_multiple,
             shuffle_buffer_size=sample_buffer_size,
-            prefetch_buffer_size=prefetch_buffer_size,
-            dataset_size=self.features_inputter.get_dataset_size(features_file),
+            bucket_width=bucket_width,
             maximum_features_length=maximum_features_length,
             maximum_labels_length=maximum_labels_length,
-            features_length_fn=self.features_inputter.get_length,
-            labels_length_fn=self.labels_inputter.get_length,
-            batch_size_multiple=batch_size_multiple,
+            single_pass=single_pass,
             num_shards=num_shards,
-            shard_index=shard_index)
-      else:
-        dataset = data.inference_pipeline(
-            dataset,
-            batch_size,
-            process_fn=process_fn,
+            shard_index=shard_index,
             num_threads=num_threads,
-            prefetch_buffer_size=prefetch_buffer_size,
-            bucket_width=bucket_width,
-            length_fn=self.features_inputter.get_length)
+            prefetch_buffer_size=prefetch_buffer_size)
+
       iterator = dataset.make_initializable_iterator()
       # Add the initializer to a standard collection for it to be initialized.
       tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)

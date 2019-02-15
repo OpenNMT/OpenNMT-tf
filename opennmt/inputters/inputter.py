@@ -6,7 +6,8 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
-from opennmt.utils.misc import extract_prefixed_keys, extract_suffixed_keys
+from opennmt.utils.data import inference_pipeline, training_pipeline
+from opennmt.utils.misc import extract_prefixed_keys, extract_suffixed_keys, item_or_tuple
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -48,7 +49,7 @@ class Inputter(object):
 
   @abc.abstractmethod
   def make_dataset(self, data_file, training=None):
-    """Creates the dataset required by this inputter.
+    """Creates the base dataset required by this inputter.
 
     Args:
       data_file: The data file.
@@ -58,6 +59,42 @@ class Inputter(object):
       A ``tf.data.Dataset``.
     """
     raise NotImplementedError()
+
+  def make_inference_dataset(self,
+                             features_file,
+                             batch_size,
+                             bucket_width=None,
+                             num_threads=1,
+                             prefetch_buffer_size=None):
+    """Builds a dataset to be used for inference.
+
+    For evaluation and training datasets, see
+    :class:`opennmt.inputters.inputter.ExampleInputter`.
+
+    Args:
+      features_file: The test file.
+      batch_size: The batch size to use.
+      bucket_width: The width of the length buckets to select batch candidates
+        from (for efficiency). Set ``None`` to not constrain batch formation.
+      num_threads: The number of elements processed in parallel.
+      prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+        older versions.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    map_func = lambda *arg: self.make_features(item_or_tuple(arg), training=False)
+    dataset = self.make_dataset(features_file, training=False)
+    dataset = inference_pipeline(
+        dataset,
+        batch_size,
+        process_fn=map_func,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size,
+        bucket_width=bucket_width,
+        length_fn=self.get_length)
+    return dataset
 
   @abc.abstractmethod
   def get_dataset_size(self, data_file):
@@ -474,3 +511,124 @@ class ExampleInputter(ParallelInputter):
     assets.update(self.labels_inputter.initialize(
         metadata, asset_dir=asset_dir, asset_prefix="target_"))
     return assets
+
+  def make_inference_dataset(self,
+                             features_file,
+                             batch_size,
+                             bucket_width=None,
+                             num_threads=1,
+                             prefetch_buffer_size=None):
+    return self.features_inputter.make_inference_dataset(
+        features_file,
+        batch_size,
+        bucket_width=bucket_width,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size)
+
+  def make_evaluation_dataset(self,
+                              features_file,
+                              labels_file,
+                              batch_size,
+                              num_threads=1,
+                              prefetch_buffer_size=None):
+    """Builds a dataset to be used for evaluation.
+
+    Args:
+      features_file: The evaluation source file.
+      labels_file: The evaluation target file.
+      batch_size: The batch size to use.
+      num_threads: The number of elements processed in parallel.
+      prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+        older versions.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    map_func = lambda *arg: self.make_features(arg, training=False)
+    dataset = self.make_dataset([features_file, labels_file], training=False)
+    dataset = inference_pipeline(
+        dataset,
+        batch_size,
+        process_fn=map_func,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size)
+    return dataset
+
+  def make_training_dataset(self,
+                            features_file,
+                            labels_file,
+                            batch_size,
+                            batch_type="examples",
+                            batch_multiplier=1,
+                            batch_size_multiple=1,
+                            shuffle_buffer_size=None,
+                            bucket_width=None,
+                            maximum_features_length=None,
+                            maximum_labels_length=None,
+                            single_pass=False,
+                            num_shards=1,
+                            shard_index=0,
+                            num_threads=4,
+                            prefetch_buffer_size=None):
+    """Builds a dataset to be used for training. It supports the full training
+    pipeline, including:
+
+    * sharding
+    * shuffling
+    * filtering
+    * bucketing
+    * prefetching
+
+    Args:
+      features_file: The evaluation source file.
+      labels_file: The evaluation target file.
+      batch_size: The batch size to use.
+      batch_type: The training batching stragety to use: can be "examples" or
+        "tokens".
+      batch_multiplier: The batch size multiplier to prepare splitting accross
+         replicated graph parts.
+      batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
+        result batch size is a multiple of this value.
+      shuffle_buffer_size: The number of elements from which to sample.
+      bucket_width: The width of the length buckets to select batch candidates
+        from (for efficiency). Set ``None`` to not constrain batch formation.
+      maximum_features_length: The maximum length or list of maximum lengths of
+        the features sequence(s). ``None`` to not constrain the length.
+      maximum_labels_length: The maximum length of the labels sequence.
+        ``None`` to not constrain the length.
+      single_pass: If ``True``, makes a single pass over the training data.
+      num_shards: The number of data shards (usually the number of workers in a
+        distributed setting).
+      shard_index: The shard index this data pipeline should read from.
+      num_threads: The number of elements processed in parallel.
+      prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+        older versions.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    dataset_size = self.features_inputter.get_dataset_size(features_file)
+    map_func = lambda *arg: self.make_features(arg, training=True)
+    dataset = self.make_dataset([features_file, labels_file], training=True)
+    dataset = training_pipeline(
+        dataset,
+        batch_size,
+        batch_type=batch_type,
+        batch_multiplier=batch_multiplier,
+        bucket_width=bucket_width,
+        single_pass=single_pass,
+        process_fn=map_func,
+        num_threads=num_threads,
+        shuffle_buffer_size=shuffle_buffer_size,
+        prefetch_buffer_size=prefetch_buffer_size,
+        dataset_size=dataset_size,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        features_length_fn=self.features_inputter.get_length,
+        labels_length_fn=self.labels_inputter.get_length,
+        batch_size_multiple=batch_size_multiple,
+        num_shards=num_shards,
+        shard_index=shard_index)
+    return dataset
