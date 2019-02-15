@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -178,8 +178,10 @@
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">constants</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">inputters</span>
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">layers</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.losses</span> <span class="k">import</span> <span class="n">cross_entropy_sequence_loss</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">merge_dict</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.decoder</span> <span class="k">import</span> <span class="n">get_sampling_probability</span>
@@ -212,16 +214,6 @@
   <span class="n">data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Increment length accordingly.</span>
   <span class="k">return</span> <span class="n">data</span></div>
 
-<span class="k">def</span> <span class="nf">_maybe_reuse_embedding_fn</span><span class="p">(</span><span class="n">embedding_fn</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="k">def</span> <span class="nf">_scoped_embedding_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">embedding_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">embedding_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">_scoped_embedding_fn</span>
-
 
 <div class="viewcode-block" id="EmbeddingsSharingLevel"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel">[docs]</a><span class="k">class</span> <span class="nc">EmbeddingsSharingLevel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Level of embeddings sharing.</span>
@@ -230,9 +222,23 @@
 
 <span class="sd">   * ``NONE``: no sharing (default)</span>
 <span class="sd">   * ``SOURCE_TARGET_INPUT``: share source and target word embeddings</span>
+<span class="sd">   * ``TARGET``: share target word embeddings and softmax weights</span>
+<span class="sd">   * ``ALL``: share words embeddings and softmax weights</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
-  <span class="n">SOURCE_TARGET_INPUT</span> <span class="o">=</span> <span class="mi">1</span></div>
+  <span class="n">SOURCE_TARGET_INPUT</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="n">TARGET</span> <span class="o">=</span> <span class="mi">2</span>
+  <span class="n">ALL</span> <span class="o">=</span> <span class="mi">3</span>
+
+<div class="viewcode-block" id="EmbeddingsSharingLevel.share_input_embeddings"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.share_input_embeddings">[docs]</a>  <span class="nd">@staticmethod</span>
+  <span class="k">def</span> <span class="nf">share_input_embeddings</span><span class="p">(</span><span class="n">level</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns ``True`` if input embeddings should be shared at :obj:`level`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">SOURCE_TARGET_INPUT</span><span class="p">,</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EmbeddingsSharingLevel.share_target_embeddings"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.share_target_embeddings">[docs]</a>  <span class="nd">@staticmethod</span>
+  <span class="k">def</span> <span class="nf">share_target_embeddings</span><span class="p">(</span><span class="n">level</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns ``True`` if target embeddings should be shared at :obj:`level`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">TARGET</span><span class="p">,</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="SequenceToSequence"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence">[docs]</a><span class="k">class</span> <span class="nc">SequenceToSequence</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
@@ -279,25 +285,29 @@
           <span class="s2">&quot;saw: </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">target_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
       <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Target inputter must be a WordEmbedder&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">share_embeddings</span> <span class="o">==</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">SOURCE_TARGET_INPUT</span><span class="p">:</span>
-      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Sharing embeddings requires both inputters to be a &quot;</span>
-                        <span class="s2">&quot;WordEmbedder&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span><span class="n">share_embeddings</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ParallelInputter</span><span class="p">):</span>
+        <span class="n">source_inputters</span> <span class="o">=</span> <span class="n">source_inputter</span><span class="o">.</span><span class="n">inputters</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">source_inputters</span> <span class="o">=</span> <span class="p">[</span><span class="n">source_inputter</span><span class="p">]</span>
+      <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">source_inputters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
+          <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Sharing embeddings requires all inputters to be a &quot;</span>
+                          <span class="s2">&quot;WordEmbedder&quot;</span><span class="p">)</span>
 
+    <span class="n">examples_inputter</span> <span class="o">=</span> <span class="n">SequenceToSequenceInputter</span><span class="p">(</span>
+        <span class="n">source_inputter</span><span class="p">,</span>
+        <span class="n">target_inputter</span><span class="p">,</span>
+        <span class="n">share_parameters</span><span class="o">=</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span><span class="n">share_embeddings</span><span class="p">),</span>
+        <span class="n">alignment_file_key</span><span class="o">=</span><span class="n">alignment_file_key</span><span class="p">)</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
-        <span class="n">features_inputter</span><span class="o">=</span><span class="n">source_inputter</span><span class="p">,</span>
-        <span class="n">labels_inputter</span><span class="o">=</span><span class="n">target_inputter</span><span class="p">,</span>
-        <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="n">daisy_chain_variables</span><span class="p">)</span>
+        <span class="n">daisy_chain_variables</span><span class="o">=</span><span class="n">daisy_chain_variables</span><span class="p">,</span>
+        <span class="n">examples_inputter</span><span class="o">=</span><span class="n">examples_inputter</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">decoder</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span> <span class="o">=</span> <span class="n">share_embeddings</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">source_inputter</span> <span class="o">=</span> <span class="n">source_inputter</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span> <span class="o">=</span> <span class="n">target_inputter</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">add_process_hooks</span><span class="p">([</span><span class="n">shift_target_sequence</span><span class="p">])</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span> <span class="o">=</span> <span class="n">alignment_file_key</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span> <span class="o">=</span> <span class="n">share_embeddings</span></div>
 
 <div class="viewcode-block" id="SequenceToSequence.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
@@ -316,66 +326,32 @@
         <span class="p">}</span>
     <span class="p">})</span></div>
 
-  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">assets</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">assets</span>
-
-  <span class="k">def</span> <span class="nf">_augment_parallel_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="c1"># Possibly add alignments as labels.</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">process_fn</span>
-
-    <span class="k">def</span> <span class="nf">_inject_alignments</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">alignment_line</span><span class="p">):</span>
-      <span class="n">source</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">text</span>
-      <span class="n">features</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">process_fn</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>  <span class="c1"># Default processing.</span>
-      <span class="n">alignments</span> <span class="o">=</span> <span class="n">alignment_matrix_from_pharaoh</span><span class="p">(</span>
-          <span class="n">alignment_line</span><span class="p">,</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">_get_features_length</span><span class="p">(</span><span class="n">features</span><span class="p">),</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Ignore special token.</span>
-      <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alignments</span>
-      <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span>
-
-    <span class="n">alignment_dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span><span class="p">)</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">zip</span><span class="p">((</span><span class="n">dataset</span><span class="p">,</span> <span class="n">alignment_dataset</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">_inject_alignments</span>
-
-  <span class="k">def</span> <span class="nf">_get_input_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span> <span class="o">==</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">SOURCE_TARGET_INPUT</span><span class="p">:</span>
-      <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;shared_embeddings&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">name</span> <span class="o">=</span> <span class="n">default_name</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">VariableScope</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
-
   <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">features_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-    <span class="n">log_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">model_dir</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">training</span> <span class="o">=</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
-    <span class="n">source_input_scope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_input_scope</span><span class="p">(</span><span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;encoder&quot;</span><span class="p">)</span>
-    <span class="n">target_input_scope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_input_scope</span><span class="p">(</span><span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;decoder&quot;</span><span class="p">)</span>
-
-    <span class="n">source_inputs</span> <span class="o">=</span> <span class="n">_maybe_reuse_embedding_fn</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">transform_data</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">log_dir</span><span class="o">=</span><span class="n">log_dir</span><span class="p">),</span>
-        <span class="n">scope</span><span class="o">=</span><span class="n">source_input_scope</span><span class="p">)(</span><span class="n">features</span><span class="p">)</span>
-
+    <span class="n">features_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">source_inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_inputs</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">):</span>
       <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">encoder_sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
           <span class="n">source_inputs</span><span class="p">,</span>
           <span class="n">sequence_length</span><span class="o">=</span><span class="n">features_length</span><span class="p">,</span>
           <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 
-    <span class="n">target_vocab_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span>
-    <span class="n">target_dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">dtype</span>
-    <span class="n">target_embedding_fn</span> <span class="o">=</span> <span class="n">_maybe_reuse_embedding_fn</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">),</span>
-        <span class="n">scope</span><span class="o">=</span><span class="n">target_input_scope</span><span class="p">)</span>
+    <span class="n">target_vocab_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span>
+    <span class="n">target_dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_target_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span><span class="p">):</span>
+      <span class="n">output_layer</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
+          <span class="n">target_vocab_size</span><span class="p">,</span>
+          <span class="n">weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
+          <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">dtype</span><span class="o">=</span><span class="n">target_dtype</span><span class="p">)</span>
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span>
+        <span class="n">output_layer</span><span class="o">.</span><span class="n">build</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_size</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">target_inputs</span> <span class="o">=</span> <span class="n">_maybe_reuse_embedding_fn</span><span class="p">(</span>
-          <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">transform_data</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">log_dir</span><span class="o">=</span><span class="n">log_dir</span><span class="p">),</span>
-          <span class="n">scope</span><span class="o">=</span><span class="n">target_input_scope</span><span class="p">)(</span><span class="n">labels</span><span class="p">)</span>
-
+      <span class="n">target_inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">make_inputs</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
       <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;decoder&quot;</span><span class="p">):</span>
         <span class="n">sampling_probability</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
@@ -387,11 +363,12 @@
 
         <span class="n">logits</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
             <span class="n">target_inputs</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span>
             <span class="n">vocab_size</span><span class="o">=</span><span class="n">target_vocab_size</span><span class="p">,</span>
             <span class="n">initial_state</span><span class="o">=</span><span class="n">encoder_state</span><span class="p">,</span>
             <span class="n">sampling_probability</span><span class="o">=</span><span class="n">sampling_probability</span><span class="p">,</span>
-            <span class="n">embedding</span><span class="o">=</span><span class="n">target_embedding_fn</span><span class="p">,</span>
+            <span class="n">embedding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
+            <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
             <span class="n">memory</span><span class="o">=</span><span class="n">encoder_outputs</span><span class="p">,</span>
             <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">encoder_sequence_length</span><span class="p">,</span>
@@ -418,11 +395,12 @@
 
         <span class="k">if</span> <span class="n">beam_width</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
           <span class="n">sampled_ids</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">sampled_length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">alignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
-              <span class="n">target_embedding_fn</span><span class="p">,</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
               <span class="n">start_tokens</span><span class="p">,</span>
               <span class="n">end_token</span><span class="p">,</span>
               <span class="n">vocab_size</span><span class="o">=</span><span class="n">target_vocab_size</span><span class="p">,</span>
               <span class="n">initial_state</span><span class="o">=</span><span class="n">encoder_state</span><span class="p">,</span>
+              <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">,</span>
               <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
               <span class="n">minimum_length</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">,</span>
               <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
@@ -435,11 +413,12 @@
           <span class="n">length_penalty</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
           <span class="n">sampled_ids</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">sampled_length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">alignment</span> <span class="o">=</span> <span class="p">(</span>
               <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">dynamic_decode_and_search</span><span class="p">(</span>
-                  <span class="n">target_embedding_fn</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
                   <span class="n">start_tokens</span><span class="p">,</span>
                   <span class="n">end_token</span><span class="p">,</span>
                   <span class="n">vocab_size</span><span class="o">=</span><span class="n">target_vocab_size</span><span class="p">,</span>
                   <span class="n">initial_state</span><span class="o">=</span><span class="n">encoder_state</span><span class="p">,</span>
+                  <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">,</span>
                   <span class="n">beam_width</span><span class="o">=</span><span class="n">beam_width</span><span class="p">,</span>
                   <span class="n">length_penalty</span><span class="o">=</span><span class="n">length_penalty</span><span class="p">,</span>
                   <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
@@ -451,17 +430,14 @@
                   <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                   <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">))</span>
 
-      <span class="n">target_vocab_rev</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">index_to_string_table_from_file</span><span class="p">(</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-          <span class="n">vocab_size</span><span class="o">=</span><span class="n">target_vocab_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">,</span>
-          <span class="n">default_value</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">)</span>
+      <span class="n">target_vocab_rev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_lookup_reverse</span><span class="p">()</span>
       <span class="n">target_tokens</span> <span class="o">=</span> <span class="n">target_vocab_rev</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
 
       <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replace_unknown_target&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">alignment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
           <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;replace_unknown_target is not compatible with decoders &quot;</span>
                           <span class="s2">&quot;that don&#39;t return alignment history&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
           <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;replace_unknown_target is only defined when the source &quot;</span>
                           <span class="s2">&quot;inputter is a WordEmbedder&quot;</span><span class="p">)</span>
         <span class="n">source_tokens</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span>
@@ -493,7 +469,7 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">labels_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_labels_length</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">labels_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span><span class="p">,</span> <span class="n">loss_token_normalizer</span> <span class="o">=</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
         <span class="n">logits</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;ids_out&quot;</span><span class="p">],</span>
@@ -528,7 +504,7 @@
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_best</span><span class="p">):</span>
       <span class="n">target_length</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Ignore &lt;/s&gt;.</span>
       <span class="n">tokens</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][:</span><span class="n">target_length</span><span class="p">]</span>
-      <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+      <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
       <span class="n">score</span> <span class="o">=</span> <span class="kc">None</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
       <span class="n">alignment_type</span> <span class="o">=</span> <span class="kc">None</span>
@@ -543,6 +519,54 @@
           <span class="n">attention</span><span class="o">=</span><span class="n">attention</span><span class="p">,</span>
           <span class="n">alignment_type</span><span class="o">=</span><span class="n">alignment_type</span><span class="p">)</span>
       <span class="n">print_bytes</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">sentence</span><span class="p">),</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SequenceToSequenceInputter"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter">[docs]</a><span class="k">class</span> <span class="nc">SequenceToSequenceInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A custom :class:`opennmt.inputters.inputter.ExampleInputter` that possibly</span>
+<span class="sd">  injects alignment information during training.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">features_inputter</span><span class="p">,</span>
+               <span class="n">labels_inputter</span><span class="p">,</span>
+               <span class="n">share_parameters</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">alignment_file_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequenceInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">features_inputter</span><span class="p">,</span> <span class="n">labels_inputter</span><span class="p">,</span> <span class="n">share_parameters</span><span class="o">=</span><span class="n">share_parameters</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span> <span class="o">=</span> <span class="n">alignment_file_key</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SequenceToSequenceInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_file_key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequenceInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SequenceToSequenceInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequenceInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span>
+        <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">zip</span><span class="p">((</span><span class="n">dataset</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="SequenceToSequenceInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequenceInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
+          <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="n">text</span><span class="p">,</span> <span class="n">alignment</span> <span class="o">=</span> <span class="n">element</span>
+    <span class="n">features</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequenceInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
+        <span class="n">text</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alignment_matrix_from_pharaoh</span><span class="p">(</span>
+        <span class="n">alignment</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Ignore special token.</span>
+    <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span></div>
+
+  <span class="k">def</span> <span class="nf">_get_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="s2">&quot;decoder&quot;</span><span class="p">]</span>
+
+  <span class="k">def</span> <span class="nf">_get_shared_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;shared_embeddings&quot;</span></div>
 
 
 <div class="viewcode-block" id="alignment_matrix_from_pharaoh"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.alignment_matrix_from_pharaoh">[docs]</a><span class="k">def</span> <span class="nf">alignment_matrix_from_pharaoh</span><span class="p">(</span><span class="n">alignment_line</span><span class="p">,</span>
@@ -563,16 +587,28 @@
 <span class="sd">    ``[target_length, source_length]``, where ``[i, j] = 1`` if the ``i`` th</span>
 <span class="sd">    target word is aligned with the ``j`` th source word.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">align_pairs_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">string_split</span><span class="p">([</span><span class="n">alignment_line</span><span class="p">],</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-  <span class="n">align_pairs_flat_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">string_split</span><span class="p">(</span><span class="n">align_pairs_str</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-  <span class="n">align_pairs_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">string_to_number</span><span class="p">(</span><span class="n">align_pairs_flat_str</span><span class="p">,</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;strings.split&quot;</span><span class="p">):</span>
+    <span class="n">align_pairs_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">([</span><span class="n">alignment_line</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">align_pairs_flat_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">align_pairs_str</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">align_pairs_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">string_split</span><span class="p">([</span><span class="n">alignment_line</span><span class="p">],</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">align_pairs_flat_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">string_split</span><span class="p">(</span><span class="n">align_pairs_str</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+  <span class="n">align_pairs_flat</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v2</span><span class="o">=</span><span class="s2">&quot;strings.to_number&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="s2">&quot;string_to_number&quot;</span><span class="p">)(</span>
+      <span class="n">align_pairs_flat_str</span><span class="p">,</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
   <span class="n">sparse_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">align_pairs_flat</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
   <span class="n">sparse_values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sparse_indices</span><span class="p">)[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-  <span class="n">alignment_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse_to_dense</span><span class="p">(</span>
-      <span class="n">sparse_indices</span><span class="p">,</span>
-      <span class="p">[</span><span class="n">source_length</span><span class="p">,</span> <span class="n">target_length</span><span class="p">],</span>
-      <span class="n">sparse_values</span><span class="p">,</span>
-      <span class="n">validate_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  <span class="n">source_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">source_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+  <span class="n">target_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">target_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;sparse.to_dense&quot;</span><span class="p">):</span>
+    <span class="n">alignment_matrix_sparse</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">SparseTensor</span><span class="p">(</span>
+        <span class="n">sparse_indices</span><span class="p">,</span> <span class="n">sparse_values</span><span class="p">,</span> <span class="p">[</span><span class="n">source_length</span><span class="p">,</span> <span class="n">target_length</span><span class="p">])</span>
+    <span class="n">alignment_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">to_dense</span><span class="p">(</span><span class="n">alignment_matrix_sparse</span><span class="p">,</span> <span class="n">validate_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">alignment_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse_to_dense</span><span class="p">(</span>
+        <span class="n">sparse_indices</span><span class="p">,</span>
+        <span class="p">[</span><span class="n">source_length</span><span class="p">,</span> <span class="n">target_length</span><span class="p">],</span>
+        <span class="n">sparse_values</span><span class="p">,</span>
+        <span class="n">validate_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">alignment_matrix</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="guided_alignment_cost"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.guided_alignment_cost">[docs]</a><span class="k">def</span> <span class="nf">guided_alignment_cost</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">,</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter module &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.inputters.text_inputter module &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -295,47 +295,9 @@ length of each token as an int64 <code class="docutils literal notranslate"><spa
 
 <dl class="class">
 <dt id="opennmt.inputters.text_inputter.TextInputter">
-<em class="property">class </em><code class="descclassname">opennmt.inputters.text_inputter.</code><code class="descname">TextInputter</code><span class="sig-paren">(</span><em>tokenizer=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.inputters.text_inputter.</code><code class="descname">TextInputter</code><span class="sig-paren">(</span><em>tokenizer=None</em>, <em>dtype=tf.float32</em>, <em>vocabulary_file_key=None</em>, <em>num_oov_buckets=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a></p>
 <p>An abstract inputter that processes text.</p>
-<dl class="method">
-<dt id="opennmt.inputters.text_inputter.TextInputter.get_length">
-<code class="descname">get_length</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.get_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.get_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the length of the input data, if defined.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.text_inputter.TextInputter.make_dataset">
-<code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the dataset required by this inputter.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.text_inputter.TextInputter.get_dataset_size">
-<code class="descname">get_dataset_size</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the size of the dataset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total size.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="opennmt.inputters.text_inputter.TextInputter.initialize">
 <code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em>, <em>asset_dir=None</em>, <em>asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.initialize" title="Permalink to this definition">¶</a></dt>
@@ -364,25 +326,58 @@ assets are returned.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.text_inputter.TextInputter.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms inputs.</p>
+<dt id="opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup">
+<code class="descname">vocabulary_lookup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.vocabulary_lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a lookup table mapping string to index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup_reverse">
+<code class="descname">vocabulary_lookup_reverse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.vocabulary_lookup_reverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup_reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a lookup table mapping index to string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.TextInputter.make_dataset">
+<code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the base dataset required by this inputter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
-the inputter.</li>
-<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>data_file</strong> – The data file.</li>
+<li><strong>training</strong> – Run in training mode.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.TextInputter.get_dataset_size">
+<code class="descname">get_dataset_size</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the size of the dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total size.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.TextInputter.make_features">
+<code class="descname">make_features</code><span class="sig-paren">(</span><em>element=None</em>, <em>features=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.make_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tokenizes raw text.</p>
 </dd></dl>
 
 </dd></dl>
@@ -459,6 +454,45 @@ assets are returned.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.inputters.text_inputter.WordEmbedder.get_receiver_tensors">
+<code class="descname">get_receiver_tensors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#WordEmbedder.get_receiver_tensors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.WordEmbedder.get_receiver_tensors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the input placeholders for serving.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.WordEmbedder.make_features">
+<code class="descname">make_features</code><span class="sig-paren">(</span><em>element=None</em>, <em>features=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#WordEmbedder.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.WordEmbedder.make_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts words tokens to ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.WordEmbedder.build">
+<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#WordEmbedder.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.WordEmbedder.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the variables of this inputter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.WordEmbedder.make_inputs">
+<code class="descname">make_inputs</code><span class="sig-paren">(</span><em>features</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#WordEmbedder.make_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.WordEmbedder.make_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the model input from the features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>training</strong> – Run in training mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The model input.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.inputters.text_inputter.WordEmbedder.visualize">
 <code class="descname">visualize</code><span class="sig-paren">(</span><em>log_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#WordEmbedder.visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.WordEmbedder.visualize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visualizes the transformation, usually embeddings.</p>
@@ -467,28 +501,6 @@ assets are returned.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_dir</strong> – The active log directory.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.text_inputter.WordEmbedder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#WordEmbedder.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.WordEmbedder.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms inputs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
-the inputter.</li>
-<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
-</td>
 </tr>
 </tbody>
 </table>
@@ -525,26 +537,38 @@ tokenize the input text. Defaults to a space tokenization.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.text_inputter.CharEmbedder.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em>, <em>asset_dir=None</em>, <em>asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharEmbedder.initialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the inputter within the current graph.</p>
-<p>For example, one can create lookup tables in this method
-for their initializer to be added to the current graph
-<code class="docutils literal notranslate"><span class="pre">TABLE_INITIALIZERS</span></code> collection.</p>
+<dt id="opennmt.inputters.text_inputter.CharEmbedder.get_receiver_tensors">
+<code class="descname">get_receiver_tensors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.get_receiver_tensors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharEmbedder.get_receiver_tensors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the input placeholders for serving.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.CharEmbedder.make_features">
+<code class="descname">make_features</code><span class="sig-paren">(</span><em>element=None</em>, <em>features=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharEmbedder.make_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts words to characters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.CharEmbedder.build">
+<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharEmbedder.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the variables of this inputter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.CharEmbedder.make_inputs">
+<code class="descname">make_inputs</code><span class="sig-paren">(</span><em>features</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.make_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharEmbedder.make_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the model input from the features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>metadata</strong> – A dictionary containing additional metadata set
-by the user.</li>
-<li><strong>asset_dir</strong> – The directory where assets can be written. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no
-assets are returned.</li>
-<li><strong>asset_prefix</strong> – The prefix to attach to assets filename.</li>
+<li><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>training</strong> – Run in training mode.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary containing additional assets used by the inputter.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The model input.</p>
 </td>
 </tr>
 </tbody>
@@ -560,28 +584,6 @@ assets are returned.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_dir</strong> – The active log directory.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.text_inputter.CharEmbedder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharEmbedder.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms inputs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
-the inputter.</li>
-<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
-</td>
 </tr>
 </tbody>
 </table>
@@ -621,21 +623,20 @@ tokenize the input text. Defaults to a space tokenization.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.text_inputter.CharConvEmbedder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharConvEmbedder.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharConvEmbedder.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms inputs.</p>
+<dt id="opennmt.inputters.text_inputter.CharConvEmbedder.make_inputs">
+<code class="descname">make_inputs</code><span class="sig-paren">(</span><em>features</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharConvEmbedder.make_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharConvEmbedder.make_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the model input from the features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
-the inputter.</li>
-<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>training</strong> – Run in training mode.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The model input.</p>
 </td>
 </tr>
 </tbody>
@@ -646,12 +647,12 @@ the inputter.</li>
 
 <dl class="class">
 <dt id="opennmt.inputters.text_inputter.CharRNNEmbedder">
-<em class="property">class </em><code class="descclassname">opennmt.inputters.text_inputter.</code><code class="descname">CharRNNEmbedder</code><span class="sig-paren">(</span><em>vocabulary_file_key</em>, <em>embedding_size</em>, <em>num_units</em>, <em>dropout=0.2</em>, <em>encoding='average'</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>tokenizer=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharRNNEmbedder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.inputters.text_inputter.</code><code class="descname">CharRNNEmbedder</code><span class="sig-paren">(</span><em>vocabulary_file_key</em>, <em>embedding_size</em>, <em>num_units</em>, <em>dropout=0.2</em>, <em>encoding='average'</em>, <em>cell_class=None</em>, <em>tokenizer=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharRNNEmbedder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.text_inputter.CharEmbedder" title="opennmt.inputters.text_inputter.CharEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.text_inputter.CharEmbedder</span></code></a></p>
 <p>An inputter that runs a single RNN layer over character embeddings.</p>
 <dl class="method">
 <dt id="opennmt.inputters.text_inputter.CharRNNEmbedder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>vocabulary_file_key</em>, <em>embedding_size</em>, <em>num_units</em>, <em>dropout=0.2</em>, <em>encoding='average'</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>tokenizer=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharRNNEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>vocabulary_file_key</em>, <em>embedding_size</em>, <em>num_units</em>, <em>dropout=0.2</em>, <em>encoding='average'</em>, <em>cell_class=None</em>, <em>tokenizer=None</em>, <em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharRNNEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the parameters of the character RNN embedder.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -667,7 +668,7 @@ outputs.</li>
 <li><strong>encoding</strong> – “average” or “last” (case insensitive), the encoding vector to
 extract from the RNN outputs.</li>
 <li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
-argument and returning a cell.</li>
+argument and returning a cell. Defaults to a LSTM cell.</li>
 <li><strong>tokenizer</strong> – An optional <a class="reference internal" href="opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer" title="opennmt.tokenizers.tokenizer.Tokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.tokenizers.tokenizer.Tokenizer</span></code></a> to
 tokenize the input text. Defaults to a space tokenization.</li>
 <li><strong>dtype</strong> – The embedding type.</li>
@@ -682,21 +683,20 @@ tokenize the input text. Defaults to a space tokenization.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.text_inputter.CharRNNEmbedder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharRNNEmbedder.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms inputs.</p>
+<dt id="opennmt.inputters.text_inputter.CharRNNEmbedder.make_inputs">
+<code class="descname">make_inputs</code><span class="sig-paren">(</span><em>features</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder.make_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.CharRNNEmbedder.make_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the model input from the features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
-the inputter.</li>
-<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>training</strong> – Run in training mode.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The model input.</p>
 </td>
 </tr>
 </tbody>

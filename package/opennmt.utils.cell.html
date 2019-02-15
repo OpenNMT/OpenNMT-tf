@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.cell module &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.utils.cell module &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -200,7 +200,7 @@
 <p>RNN cells helpers.</p>
 <dl class="function">
 <dt id="opennmt.utils.cell.build_cell">
-<code class="descclassname">opennmt.utils.cell.</code><code class="descname">build_cell</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>mode</em>, <em>dropout=0.0</em>, <em>residual_connections=False</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>attention_layers=None</em>, <em>attention_mechanisms=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/cell.html#build_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.cell.build_cell" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.cell.</code><code class="descname">build_cell</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>mode</em>, <em>dropout=0.0</em>, <em>residual_connections=False</em>, <em>cell_class=None</em>, <em>attention_layers=None</em>, <em>attention_mechanisms=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/cell.html#build_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.cell.build_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience function to build a multi-layer RNN cell.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -213,7 +213,7 @@
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
 <li><strong>residual_connections</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, each layer input will be added to its output.</li>
 <li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
-argument and returning a cell.</li>
+argument and returning a cell. Defaults to a LSTM cell.</li>
 <li><strong>attention_layers</strong> – A list of integers, the layers after which to add attention.</li>
 <li><strong>attention_mechanisms</strong> – A list of <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>
 with the same length as <code class="xref py py-obj docutils literal notranslate"><span class="pre">attention_layers</span></code>.</li>

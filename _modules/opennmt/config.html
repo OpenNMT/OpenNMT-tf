@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.config &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -183,6 +183,7 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="k">import</span> <span class="n">catalog</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">merge_dict</span>
 
 
@@ -265,7 +266,7 @@
 
   <span class="k">if</span> <span class="n">model_name_or_path</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+      <span class="n">compat</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
           <span class="s2">&quot;You provided a model configuration but a checkpoint already exists. &quot;</span>
           <span class="s2">&quot;The model configuration must define the same model as the one used for &quot;</span>
           <span class="s2">&quot;the initial training. However, you can change non structural values like &quot;</span>
@@ -274,19 +275,19 @@
     <span class="k">if</span> <span class="n">model_file</span><span class="p">:</span>
       <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">compat</span><span class="o">.</span><span class="n">gfile_copy</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">model_name</span><span class="p">:</span>
       <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_description_file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_open</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_description_file</span><span class="p">:</span>
           <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;from opennmt.models import catalog</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
           <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;model = catalog.</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_name</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">):</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_exists</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">):</span>
+    <span class="n">compat</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">)</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">):</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading serialized model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">serial_model_file</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">serial_model</span><span class="p">:</span>
+  <span class="k">elif</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_exists</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">):</span>
+    <span class="n">compat</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading serialized model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">serial_model_file</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_open</span><span class="p">(</span><span class="n">serial_model_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">serial_model</span><span class="p">:</span>
       <span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">serial_model</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A model configuration is required: you probably need to &quot;</span>
@@ -308,7 +309,7 @@
     <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
 
   <span class="k">for</span> <span class="n">config_path</span> <span class="ow">in</span> <span class="n">config_paths</span><span class="p">:</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
       <span class="n">subconfig</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
       <span class="c1"># Add or update section in main configuration.</span>
       <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">subconfig</span><span class="p">)</span>

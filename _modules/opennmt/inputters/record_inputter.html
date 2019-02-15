@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -198,10 +198,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SequenceRecordInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequenceRecordInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="SequenceRecordInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
+<div class="viewcode-block" id="SequenceRecordInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">first_record</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">python_io</span><span class="o">.</span><span class="n">tf_record_iterator</span><span class="p">(</span><span class="n">data_file</span><span class="p">))</span>
     <span class="n">first_record</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Example</span><span class="o">.</span><span class="n">FromString</span><span class="p">(</span><span class="n">first_record</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">first_record</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">feature</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">int64_list</span><span class="o">.</span><span class="n">value</span>
@@ -211,45 +208,38 @@
 <div class="viewcode-block" id="SequenceRecordInputter.get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.get_dataset_size">[docs]</a>  <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">python_io</span><span class="o">.</span><span class="n">tf_record_iterator</span><span class="p">(</span><span class="n">data_file</span><span class="p">))</span></div>
 
-  <span class="k">def</span> <span class="nf">_get_serving_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">receiver_tensors</span> <span class="o">=</span> <span class="p">{</span>
+<div class="viewcode-block" id="SequenceRecordInputter.get_receiver_tensors"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.get_receiver_tensors">[docs]</a>  <span class="k">def</span> <span class="nf">get_receiver_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;tensor&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_depth</span><span class="p">)),</span>
         <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,))</span>
-    <span class="p">}</span>
+    <span class="p">}</span></div>
 
-    <span class="k">return</span> <span class="n">receiver_tensors</span><span class="p">,</span> <span class="n">receiver_tensors</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<div class="viewcode-block" id="SequenceRecordInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="s2">&quot;tensor&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">features</span>
+    <span class="n">example</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">parse_single_example</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">VarLenFeature</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+        <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">VarLenFeature</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="p">})</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">example</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+    <span class="n">tensor</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_depth</span><span class="p">])</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tensor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">features</span></div>
 
-  <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceRecordInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="s2">&quot;tensor&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-      <span class="n">features</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">parse_single_example</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">],</span> <span class="n">features</span><span class="o">=</span><span class="p">{</span>
-          <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">VarLenFeature</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
-          <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">VarLenFeature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-      <span class="p">})</span>
-
-      <span class="n">values</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-      <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-
-      <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
-      <span class="n">tensor</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_depth</span><span class="p">])</span>
-      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tensor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span>
-
-    <span class="k">return</span> <span class="n">data</span>
-
-  <span class="k">def</span> <span class="nf">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tensor&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="p">)</span>
-
-<div class="viewcode-block" id="SequenceRecordInputter.transform"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.transform">[docs]</a>  <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">inputs</span></div></div>
+<div class="viewcode-block" id="SequenceRecordInputter.make_inputs"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.make_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">make_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tensor&quot;</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="write_sequence_record"><a class="viewcode-back" href="../../../package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.write_sequence_record">[docs]</a><span class="k">def</span> <span class="nf">write_sequence_record</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Writes a vector as a TFRecord.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    vector: A 2D Numpy array.</span>
+<span class="sd">    vector: A 2D Numpy float array.</span>
 <span class="sd">    writer: A ``tf.python_io.TFRecordWriter``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>

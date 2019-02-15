@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.transformer module &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.layers.transformer module &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.models package" href="opennmt.models.html" />
-    <link rel="prev" title="opennmt.layers.reducer module" href="opennmt.layers.reducer.html" /> 
+    <link rel="prev" title="opennmt.layers.rnn module" href="opennmt.layers.rnn.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -491,6 +491,105 @@ probabilities (if <code class="xref py py-obj docutils literal notranslate"><spa
 </table>
 </dd></dl>
 
+<dl class="class">
+<dt id="opennmt.layers.transformer.FeedForwardNetwork">
+<em class="property">class </em><code class="descclassname">opennmt.layers.transformer.</code><code class="descname">FeedForwardNetwork</code><span class="sig-paren">(</span><em>inner_dim</em>, <em>output_dim</em>, <em>dropout=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#FeedForwardNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.FeedForwardNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>Implements the Transformer’s “Feed Forward” layer.</p>
+<div class="math notranslate nohighlight">
+\[ffn(x) = max(0, x*W_1 + b_1)*W_2 + b_2\]</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Object-oriented implementation for TensorFlow 2.0.</p>
+</div>
+<dl class="method">
+<dt id="opennmt.layers.transformer.FeedForwardNetwork.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>inner_dim</em>, <em>output_dim</em>, <em>dropout=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#FeedForwardNetwork.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.FeedForwardNetwork.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inner_dim</strong> – The number of units of the inner linear transformation.</li>
+<li><strong>output_dim</strong> – The number of units of the ouput linear transformation.</li>
+<li><strong>dropout</strong> – The probability to drop units from the inner transformation.</li>
+<li><strong>kwargs</strong> – Additional layer arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.transformer.FeedForwardNetwork.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#FeedForwardNetwork.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.FeedForwardNetwork.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the layer.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.transformer.MultiHeadAttention">
+<em class="property">class </em><code class="descclassname">opennmt.layers.transformer.</code><code class="descname">MultiHeadAttention</code><span class="sig-paren">(</span><em>num_heads</em>, <em>num_units</em>, <em>dropout=0.1</em>, <em>return_attention=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.MultiHeadAttention" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>Computes the multi-head attention as described in
+<a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Object-oriented implementation for TensorFlow 2.0.</p>
+</div>
+<dl class="method">
+<dt id="opennmt.layers.transformer.MultiHeadAttention.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_heads</em>, <em>num_units</em>, <em>dropout=0.1</em>, <em>return_attention=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.MultiHeadAttention.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes this layers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_heads</strong> – The number of attention heads.</li>
+<li><strong>num_units</strong> – The number of hidden units.</li>
+<li><strong>dropout</strong> – The probability to drop units from the inputs.</li>
+<li><strong>return_attention</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also return the attention weights of the
+first head.</li>
+<li><strong>kwargs</strong> – Additional layer arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.transformer.MultiHeadAttention.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em>, <em>memory=None</em>, <em>mask=None</em>, <em>cache=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.MultiHeadAttention.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The sequence of queries. A tensor of shape <span class="math notranslate nohighlight">\([B, T_1, ...]\)</span>.</li>
+<li><strong>memory</strong> – The sequence to attend. A tensor of shape <span class="math notranslate nohighlight">\([B, T_2, ...]\)</span>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, computes self-attention.</li>
+<li><strong>mask</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> applied to the dot product.</li>
+<li><strong>cache</strong> – A dictionary containing pre-projected keys and values.</li>
+<li><strong>training</strong> – Run in training mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple with the attention context, the updated cache and the attention
+probabilities of the first head (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_attention</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -504,7 +603,7 @@ probabilities (if <code class="xref py py-obj docutils literal notranslate"><spa
         <a href="opennmt.models.html" class="btn btn-neutral float-right" title="opennmt.models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.layers.reducer.html" class="btn btn-neutral float-left" title="opennmt.layers.reducer module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.layers.rnn.html" class="btn btn-neutral float-left" title="opennmt.layers.rnn module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

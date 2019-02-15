@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.common module &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.layers.common module &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -219,6 +219,199 @@ to use of optimizers that don’t support sparse gradients (e.g. Adafactor).</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.common.Dense">
+<em class="property">class </em><code class="descclassname">opennmt.layers.common.</code><code class="descname">Dense</code><span class="sig-paren">(</span><em>units</em>, <em>weight=None</em>, <em>transpose=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#Dense"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.Dense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.layers.core.Dense</span></code></p>
+<p>Small <code class="docutils literal notranslate"><span class="pre">tf.keras.layers.Dense</span></code> extension to possibly reuse an existing weight
+matrix.</p>
+<dl class="method">
+<dt id="opennmt.layers.common.Dense.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>units</em>, <em>weight=None</em>, <em>transpose=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#Dense.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.Dense.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>unit</strong> – Positive integer, dimensionality of the output space.</li>
+<li><strong>weight</strong> – The weight to reuse.</li>
+<li><strong>transpose</strong> – Whether <code class="xref py py-obj docutils literal notranslate"><span class="pre">weight</span></code> should be transposed or not.</li>
+<li><strong>kwargs</strong> – Additional layers arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.common.Dense.add_weight">
+<code class="descname">add_weight</code><span class="sig-paren">(</span><em>name</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#Dense.add_weight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.Dense.add_weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new variable to the layer, or gets an existing one; returns it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> – variable name.</li>
+<li><strong>shape</strong> – variable shape.</li>
+<li><strong>dtype</strong> – The type of the variable. Defaults to <cite>self.dtype</cite> or <cite>float32</cite>.</li>
+<li><strong>initializer</strong> – initializer instance (callable).</li>
+<li><strong>regularizer</strong> – regularizer instance (callable).</li>
+<li><strong>trainable</strong> – whether the variable should be part of the layer’s
+“trainable_variables” (e.g. variables, biases)
+or “non_trainable_variables” (e.g. BatchNorm mean, stddev).
+Note, if the current variable scope is marked as non-trainable
+then this parameter is ignored and any added variables are also
+marked as non-trainable. <cite>trainable</cite> defaults to <cite>True</cite> unless
+<cite>synchronization</cite> is set to <cite>ON_READ</cite>.</li>
+<li><strong>constraint</strong> – constraint instance (callable).</li>
+<li><strong>partitioner</strong> – Partitioner to be passed to the <cite>Checkpointable</cite> API.</li>
+<li><strong>use_resource</strong> – Whether to use <cite>ResourceVariable</cite>.</li>
+<li><strong>synchronization</strong> – Indicates when a distributed a variable will be
+aggregated. Accepted values are constants defined in the class
+<cite>tf.VariableSynchronization</cite>. By default the synchronization is set to
+<cite>AUTO</cite> and the current <cite>DistributionStrategy</cite> chooses
+when to synchronize. If <cite>synchronization</cite> is set to <cite>ON_READ</cite>,
+<cite>trainable</cite> must not be set to <cite>True</cite>.</li>
+<li><strong>aggregation</strong> – Indicates how a distributed variable will be aggregated.
+Accepted values are constants defined in the class
+<cite>tf.VariableAggregation</cite>.</li>
+<li><strong>**kwargs</strong> – Additional keyword arguments. Accepted values are <cite>getter</cite> and
+<cite>collections</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The created variable.  Usually either a <cite>Variable</cite> or <cite>ResourceVariable</cite>
+instance.  If <cite>partitioner</cite> is not <cite>None</cite>, a <cite>PartitionedVariable</cite>
+instance is returned.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code> – If called with partioned variable regularization and
+eager execution is enabled.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – When giving unsupported dtype and no initializer or when
+trainable has been set to True with synchronization set as <cite>ON_READ</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.common.Dense.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#Dense.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.Dense.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</li>
+<li><strong>**kwargs</strong> – Additional keyword arguments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tensor or list/tuple of tensors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.common.LayerNorm">
+<em class="property">class </em><code class="descclassname">opennmt.layers.common.</code><code class="descname">LayerNorm</code><span class="sig-paren">(</span><em>epsilon=1e-06</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerNorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>Layer normalization.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Requires TensorFlow 2.0.</p>
+</div>
+<dl class="method">
+<dt id="opennmt.layers.common.LayerNorm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>epsilon=1e-06</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerNorm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>epsilon</strong> – The epsilon value to use.</li>
+<li><strong>kwargs</strong> – Additional layer arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.common.LayerNorm.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerNorm.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the variables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.common.LayerNorm.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerNorm.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.common.LayerWrapper">
+<em class="property">class </em><code class="descclassname">opennmt.layers.common.</code><code class="descname">LayerWrapper</code><span class="sig-paren">(</span><em>layer</em>, <em>normalize_input=False</em>, <em>normalize_output=False</em>, <em>input_dropout=0</em>, <em>output_dropout=0</em>, <em>residual_connection=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.layers.wrappers.Wrapper</span></code></p>
+<p>Layer wrapper for input/output normalization, input/output dropout and
+residual connection.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Requires TensorFlow 2.0.</p>
+</div>
+<dl class="method">
+<dt id="opennmt.layers.common.LayerWrapper.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>layer</em>, <em>normalize_input=False</em>, <em>normalize_output=False</em>, <em>input_dropout=0</em>, <em>output_dropout=0</em>, <em>residual_connection=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerWrapper.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>layer</strong> – The layer to wrap.</li>
+<li><strong>normalize_input</strong> – Apply layer normalization on the input.</li>
+<li><strong>normalize_output</strong> – Apply layer normalization on the output.</li>
+<li><strong>input_dropout</strong> – The probability to drop units in the layer input.</li>
+<li><strong>output_dropout</strong> – The probability to drop units in the layer output.</li>
+<li><strong>residual_connection</strong> – Add the inputs to layer outputs (if their shape are
+compatible).</li>
+<li><strong>kwargs</strong> – Additional layer arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.common.LayerWrapper.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerWrapper.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the wrapper.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.common.LayerWrapper.get_config">
+<code class="descname">get_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper.get_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerWrapper.get_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the layer configuration.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>

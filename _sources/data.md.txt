@@ -22,9 +22,67 @@ Yes , we also say that the European budget is not about the duplication of natio
 The name of this site , and program name Title purchased will not be displayed .
 ```
 
+### Vocabulary
+
+For text inputs, vocabulary files should be provided in the data configuration (see for example in the *Quickstart* section). OpenNMT-tf uses a simple text format with **one token per line**, which should begin with these special tokens:
+
+```text
+<blank>
+<s>
+</s>
+```
+
+The `onmt-build-vocab` script can be used to generate this file:
+
+#### via training files
+
+The script can be run directly on training files:
+
+```bash
+onmt-build-vocab --save_vocab vocab.txt train.txt
+```
+
+* To control the vocabulary size, see the available options `onmt-build-vocab -h`
+* By default, `train.txt` is expected to be **tokenized** (see the *Tokenization* section to execute the script on non tokenized files)
+
+#### via SentencePiece vocabulary
+
+If you trained a [SentencePiece](https://github.com/google/sentencepiece) model to tokenize your data, a vocabulary file `*.vocab` was generated in the process. This file can be converted to the OpenNMT-tf vocabulary format:
+
+```bash
+onmt-build-vocab --save_vocab vocab.txt --from_vocab sp.vocab --from_format sentencepiece
+```
+
 ### Vectors
 
-The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *TFRecords*. To simplify the preparation of these data, the script `onmt-ark-to-records` can be used to convert vectors serialized in the ARK text format:
+The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *TFRecords*. We propose 2 ways to create this file, choose the one that is the easiest for you:
+
+#### via Python
+
+It is very simple to generate a compatible *TFRecords* file directly from Python:
+
+```python
+import tensorflow as tf
+import opennmt as onmt
+import numpy as np
+
+dataset = [
+  np.random.rand(8, 50),
+  np.random.rand(4, 50),
+  np.random.rand(13, 50)
+]
+
+writer = tf.io.TFRecordWriter("data.records")
+for vector in dataset:
+  onmt.inputters.write_sequence_record(vector, writer)
+writer.close()
+```
+
+This example saves a dataset of 3 random vectors of shape `[time, dim]` into the file "data.records". It should be easy to adapt for any dataset of 2D vectors.
+
+#### via the ARK text format
+
+The script `onmt-ark-to-records` proposes an alternative way to generate this dataset. It converts the ARK text format:
 
 ```text
 KEY [

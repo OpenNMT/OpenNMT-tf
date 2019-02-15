@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc module &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.utils.misc module &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -199,12 +199,6 @@
 <span id="opennmt-utils-misc-module"></span><h1>opennmt.utils.misc module<a class="headerlink" href="#module-opennmt.utils.misc" title="Permalink to this headline">¶</a></h1>
 <p>Various utility functions to use throughout the project.</p>
 <dl class="function">
-<dt id="opennmt.utils.misc.tf_supports">
-<code class="descclassname">opennmt.utils.misc.</code><code class="descname">tf_supports</code><span class="sig-paren">(</span><em>symbol</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#tf_supports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.tf_supports" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if TensorFlow defines <code class="xref py py-obj docutils literal notranslate"><span class="pre">symbol</span></code>.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="opennmt.utils.misc.print_bytes">
 <code class="descclassname">opennmt.utils.misc.</code><code class="descname">print_bytes</code><span class="sig-paren">(</span><em>str_as_bytes</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#print_bytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.print_bytes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints a string viewed as bytes.</p>
@@ -257,6 +251,12 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="opennmt.utils.misc.function_args">
+<code class="descclassname">opennmt.utils.misc.</code><code class="descname">function_args</code><span class="sig-paren">(</span><em>fun</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#function_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.function_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of <code class="xref py py-obj docutils literal notranslate"><span class="pre">fun</span></code> arguments.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="opennmt.utils.misc.get_third_party_dir">
 <code class="descclassname">opennmt.utils.misc.</code><code class="descname">get_third_party_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#get_third_party_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.get_third_party_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a path to the third_party directory.</p>
@@ -275,10 +275,23 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="opennmt.utils.misc.shape_list">
+<code class="descclassname">opennmt.utils.misc.</code><code class="descname">shape_list</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#shape_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.shape_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of dims, statically where possible.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="opennmt.utils.misc.extract_prefixed_keys">
 <code class="descclassname">opennmt.utils.misc.</code><code class="descname">extract_prefixed_keys</code><span class="sig-paren">(</span><em>dictionary</em>, <em>prefix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#extract_prefixed_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.extract_prefixed_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with all keys from <code class="xref py py-obj docutils literal notranslate"><span class="pre">dictionary</span></code> that are prefixed
 with <code class="xref py py-obj docutils literal notranslate"><span class="pre">prefix</span></code>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.utils.misc.extract_suffixed_keys">
+<code class="descclassname">opennmt.utils.misc.</code><code class="descname">extract_suffixed_keys</code><span class="sig-paren">(</span><em>dictionary</em>, <em>suffix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/misc.html#extract_suffixed_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.misc.extract_suffixed_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with all keys from <code class="xref py py-obj docutils literal notranslate"><span class="pre">dictionary</span></code> that are suffixed
+with <code class="xref py py-obj docutils literal notranslate"><span class="pre">suffix</span></code>.</p>
 </dd></dl>
 
 <dl class="function">

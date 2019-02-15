@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.bin.ark_to_records &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.bin.ark_to_records &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -188,7 +188,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.inputters.record_inputter</span> <span class="k">import</span> <span class="n">write_sequence_record</span>
 
 
-<div class="viewcode-block" id="consume_next_vector"><a class="viewcode-back" href="../../../package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.consume_next_vector">[docs]</a><span class="k">def</span> <span class="nf">consume_next_vector</span><span class="p">(</span><span class="n">ark_file</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+<div class="viewcode-block" id="consume_next_vector"><a class="viewcode-back" href="../../../package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.consume_next_vector">[docs]</a><span class="k">def</span> <span class="nf">consume_next_vector</span><span class="p">(</span><span class="n">ark_file</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Consumes the next vector.</span>
 
 <span class="sd">  Args:</span>
@@ -220,7 +220,7 @@
     <span class="k">if</span> <span class="n">end</span><span class="p">:</span>
       <span class="k">break</span>
 
-  <span class="k">return</span> <span class="n">idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
+  <span class="k">return</span> <span class="n">idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="consume_next_text"><a class="viewcode-back" href="../../../package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.consume_next_text">[docs]</a><span class="k">def</span> <span class="nf">consume_next_text</span><span class="p">(</span><span class="n">text_file</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Consumes the next text line from `text_file`.&quot;&quot;&quot;</span>
@@ -240,7 +240,7 @@
   <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
   <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ark_to_records_aligned"><a class="viewcode-back" href="../../../package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.ark_to_records_aligned">[docs]</a><span class="k">def</span> <span class="nf">ark_to_records_aligned</span><span class="p">(</span><span class="n">ark_filename</span><span class="p">,</span> <span class="n">text_filename</span><span class="p">,</span> <span class="n">out_prefix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+<div class="viewcode-block" id="ark_to_records_aligned"><a class="viewcode-back" href="../../../package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.ark_to_records_aligned">[docs]</a><span class="k">def</span> <span class="nf">ark_to_records_aligned</span><span class="p">(</span><span class="n">ark_filename</span><span class="p">,</span> <span class="n">text_filename</span><span class="p">,</span> <span class="n">out_prefix</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Converts ARK and text datasets to aligned TFRecords and text datasets.&quot;&quot;&quot;</span>
   <span class="n">record_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">python_io</span><span class="o">.</span><span class="n">TFRecordWriter</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s2">&quot;.records&quot;</span><span class="p">)</span>
   <span class="n">text_writer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
@@ -268,7 +268,7 @@
 
   <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">ark_filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ark_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">text_filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">text_file</span><span class="p">:</span> <span class="c1">#pylint: disable=line-too-long</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-      <span class="n">ark_idx</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">consume_next_vector</span><span class="p">(</span><span class="n">ark_file</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">ark_idx</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">consume_next_vector</span><span class="p">(</span><span class="n">ark_file</span><span class="p">)</span>
       <span class="n">text_idx</span><span class="p">,</span> <span class="n">text</span> <span class="o">=</span> <span class="n">consume_next_text</span><span class="p">(</span><span class="n">text_file</span><span class="p">)</span>
 
       <span class="k">if</span> <span class="ow">not</span> <span class="n">ark_idx</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">text_idx</span><span class="p">:</span>
@@ -306,14 +306,14 @@
 
   <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved </span><span class="si">{}</span><span class="s2"> aligned records.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ark_to_records"><a class="viewcode-back" href="../../../package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.ark_to_records">[docs]</a><span class="k">def</span> <span class="nf">ark_to_records</span><span class="p">(</span><span class="n">ark_filename</span><span class="p">,</span> <span class="n">out_prefix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+<div class="viewcode-block" id="ark_to_records"><a class="viewcode-back" href="../../../package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.ark_to_records">[docs]</a><span class="k">def</span> <span class="nf">ark_to_records</span><span class="p">(</span><span class="n">ark_filename</span><span class="p">,</span> <span class="n">out_prefix</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Converts ARK dataset to TFRecords.&quot;&quot;&quot;</span>
   <span class="n">record_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">python_io</span><span class="o">.</span><span class="n">TFRecordWriter</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s2">&quot;.records&quot;</span><span class="p">)</span>
   <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
 
   <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">ark_filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ark_file</span><span class="p">:</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-      <span class="n">ark_idx</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">consume_next_vector</span><span class="p">(</span><span class="n">ark_file</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">ark_idx</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">consume_next_vector</span><span class="p">(</span><span class="n">ark_file</span><span class="p">)</span>
       <span class="k">if</span> <span class="ow">not</span> <span class="n">ark_idx</span><span class="p">:</span>
         <span class="k">break</span>
       <span class="n">write_sequence_record</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">record_writer</span><span class="p">)</span>
@@ -332,15 +332,12 @@
                             <span class="s2">&quot;(must set it to align source and target files).&quot;</span><span class="p">))</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output files prefix (will be suffixed by .records and .txt).&quot;</span><span class="p">)</span>
-  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dtype&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Vector dtype&quot;</span><span class="p">)</span>
   <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-  <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">txt</span><span class="p">:</span>
-    <span class="n">ark_to_records_aligned</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ark</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">ark_to_records_aligned</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ark</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="n">ark_to_records</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ark</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
+    <span class="n">ark_to_records</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ark</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">)</span></div>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
   <span class="n">main</span><span class="p">()</span>

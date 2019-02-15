@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -176,6 +176,8 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
+
 
 <div class="viewcode-block" id="tile_sequence_length"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.tile_sequence_length">[docs]</a><span class="k">def</span> <span class="nf">tile_sequence_length</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Tiles lengths :obj:`num_heads` times.</span>
@@ -221,7 +223,7 @@
   <span class="k">if</span> <span class="n">maximum_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">maximum_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)</span>
   <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">maximum_length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-  <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matrix_band_part</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="n">mask</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v2</span><span class="o">=</span><span class="s2">&quot;linalg.band_part&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="s2">&quot;matrix_band_part&quot;</span><span class="p">)(</span><span class="n">mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">mask</span>
 
 <div class="viewcode-block" id="build_future_mask"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.build_future_mask">[docs]</a><span class="k">def</span> <span class="nf">build_future_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span>
@@ -520,6 +522,138 @@
   <span class="k">if</span> <span class="n">input_dim</span> <span class="o">==</span> <span class="n">output_dim</span><span class="p">:</span>
     <span class="n">outputs</span> <span class="o">+=</span> <span class="n">inputs</span>
   <span class="k">return</span> <span class="n">outputs</span></div>
+
+
+<div class="viewcode-block" id="FeedForwardNetwork"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.FeedForwardNetwork">[docs]</a><span class="k">class</span> <span class="nc">FeedForwardNetwork</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Implements the Transformer&#39;s &quot;Feed Forward&quot; layer.</span>
+
+<span class="sd">  .. math::</span>
+
+<span class="sd">      ffn(x) = max(0, x*W_1 + b_1)*W_2 + b_2</span>
+
+<span class="sd">  Note:</span>
+<span class="sd">    Object-oriented implementation for TensorFlow 2.0.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FeedForwardNetwork.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.FeedForwardNetwork.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inner_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes this layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      inner_dim: The number of units of the inner linear transformation.</span>
+<span class="sd">      output_dim: The number of units of the ouput linear transformation.</span>
+<span class="sd">      dropout: The probability to drop units from the inner transformation.</span>
+<span class="sd">      kwargs: Additional layer arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">FeedForwardNetwork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">inner</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">inner_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">outer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">output_dim</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
+
+<div class="viewcode-block" id="FeedForwardNetwork.call"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.FeedForwardNetwork.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="sd">&quot;&quot;&quot;Runs the layer.&quot;&quot;&quot;</span>
+    <span class="n">inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+      <span class="n">inner</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MultiHeadAttention"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.MultiHeadAttention">[docs]</a><span class="k">class</span> <span class="nc">MultiHeadAttention</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Computes the multi-head attention as described in</span>
+<span class="sd">  https://arxiv.org/abs/1706.03762.</span>
+
+<span class="sd">  Note:</span>
+<span class="sd">    Object-oriented implementation for TensorFlow 2.0.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MultiHeadAttention.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.MultiHeadAttention.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_heads</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+               <span class="n">return_attention</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes this layers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_heads: The number of attention heads.</span>
+<span class="sd">      num_units: The number of hidden units.</span>
+<span class="sd">      dropout: The probability to drop units from the inputs.</span>
+<span class="sd">      return_attention: If ``True``, also return the attention weights of the</span>
+<span class="sd">        first head.</span>
+<span class="sd">      kwargs: Additional layer arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">MultiHeadAttention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_units</span> <span class="o">%</span> <span class="n">num_heads</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multi head attention requires that num_units is a&quot;</span>
+                       <span class="s2">&quot; multiple of </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">num_heads</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span> <span class="o">=</span> <span class="n">num_heads</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">linear_queries</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_units</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">linear_keys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_units</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">linear_values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_units</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">linear_output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_units</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">return_attention</span> <span class="o">=</span> <span class="n">return_attention</span></div>
+
+<div class="viewcode-block" id="MultiHeadAttention.call"><a class="viewcode-back" href="../../../package/opennmt.layers.transformer.html#opennmt.layers.transformer.MultiHeadAttention.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="sd">&quot;&quot;&quot;Runs the layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      inputs: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.</span>
+<span class="sd">      memory: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.</span>
+<span class="sd">        If ``None``, computes self-attention.</span>
+<span class="sd">      mask: A ``tf.Tensor`` applied to the dot product.</span>
+<span class="sd">      cache: A dictionary containing pre-projected keys and values.</span>
+<span class="sd">      training: Run in training mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple with the attention context, the updated cache and the attention</span>
+<span class="sd">      probabilities of the first head (if :obj:`return_attention` is ``True``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_compute_kv</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+      <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_keys</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+      <span class="n">keys</span> <span class="o">=</span> <span class="n">split_heads</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">)</span>
+      <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_values</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+      <span class="n">values</span> <span class="o">=</span> <span class="n">split_heads</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">keys</span><span class="p">,</span> <span class="n">values</span>
+
+    <span class="c1"># Compute queries.</span>
+    <span class="n">queries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_queries</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">queries</span> <span class="o">=</span> <span class="n">split_heads</span><span class="p">(</span><span class="n">queries</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">)</span>
+    <span class="n">queries</span> <span class="o">*=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">)</span><span class="o">**-</span><span class="mf">0.5</span>
+
+    <span class="c1"># Compute keys and values.</span>
+    <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">keys</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">_compute_kv</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">cache</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">keys</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">cache</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">values</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+        <span class="n">keys</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_compute_kv</span><span class="p">(</span><span class="n">memory</span><span class="p">),</span>
+            <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">cache</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">keys</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">_compute_kv</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
+
+    <span class="n">cache</span> <span class="o">=</span> <span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+    <span class="c1"># Dot product attention.</span>
+    <span class="n">dot</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">queries</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Broadcast on heads dimension.</span>
+      <span class="n">dot</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">dot</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span> <span class="o">+</span> <span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">mask</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="o">.</span><span class="n">min</span><span class="p">),</span> <span class="n">dot</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">attn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">dot</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)),</span> <span class="n">dot</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">drop_attn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">attn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span> <span class="k">if</span> <span class="n">training</span> <span class="k">else</span> <span class="n">attn</span>
+    <span class="n">heads</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">drop_attn</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+    <span class="c1"># Concatenate all heads output.</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">combine_heads</span><span class="p">(</span><span class="n">heads</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_output</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_attention</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">cache</span><span class="p">,</span> <span class="n">attn</span>
+    <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">cache</span></div></div>
 </pre></div>
 
            </div>

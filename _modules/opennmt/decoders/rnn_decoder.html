@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.rnn_decoder &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.decoders.rnn_decoder &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -195,7 +195,7 @@
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">bridge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
@@ -206,7 +206,7 @@
 <span class="sd">      bridge: A :class:`opennmt.layers.bridge.Bridge` to pass the encoder state</span>
 <span class="sd">        to the decoder.</span>
 <span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
-<span class="sd">        argument and returning a cell.</span>
+<span class="sd">        argument and returning a cell. Defaults to a LSTM cell.</span>
 <span class="sd">      dropout: The probability to drop units in each layer output.</span>
 <span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
 <span class="sd">        output.</span>
@@ -385,9 +385,9 @@
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">bridge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
+               <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">output_is_attention</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
@@ -400,7 +400,8 @@
 <span class="sd">      attention_mechanism_class: A class inheriting from</span>
 <span class="sd">        ``tf.contrib.seq2seq.AttentionMechanism`` or a callable that takes</span>
 <span class="sd">        ``(num_units, memory, memory_sequence_length)`` as arguments and returns</span>
-<span class="sd">        a ``tf.contrib.seq2seq.AttentionMechanism``.</span>
+<span class="sd">        a ``tf.contrib.seq2seq.AttentionMechanism``. Defaults to</span>
+<span class="sd">        ``tf.contrib.seq2seq.LuongAttention``.</span>
 <span class="sd">      output_is_attention: If ``True``, the final decoder output (before logits)</span>
 <span class="sd">        is the output of the attention layer. In all cases, the output of the</span>
 <span class="sd">        attention layer is passed to the next step.</span>
@@ -410,6 +411,8 @@
 <span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
 <span class="sd">        output.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">attention_mechanism_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">AttentionalRNNDecoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">num_layers</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>
@@ -480,8 +483,8 @@
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">attention_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">rnn_cell</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+               <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
@@ -496,7 +499,8 @@
 <span class="sd">        ``tf.contrib.seq2seq.AttentionMechanism``. Alternatively, the class can</span>
 <span class="sd">        be replaced by a callable that takes</span>
 <span class="sd">        ``(num_units, memory, memory_sequence_length)`` as arguments and returns</span>
-<span class="sd">        a ``tf.contrib.seq2seq.AttentionMechanism``.</span>
+<span class="sd">        a ``tf.contrib.seq2seq.AttentionMechanism``. Defaults to</span>
+<span class="sd">        ``tf.contrib.seq2seq.LuongAttention``.</span>
 <span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
 <span class="sd">        argument and returning a cell.</span>
 <span class="sd">      dropout: The probability to drop units in each layer output.</span>
@@ -512,7 +516,8 @@
 
     <span class="n">attention_layers</span> <span class="o">=</span> <span class="n">attention_layers</span> <span class="ow">or</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">attention_layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="o">%</span> <span class="n">num_layers</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">attention_layers</span><span class="p">]</span>
-
+    <span class="k">if</span> <span class="n">attention_mechanism_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attention_mechanism_class</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
       <span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="p">[</span><span class="n">attention_mechanism_class</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">attention_layers</span><span class="p">]</span>
 
@@ -556,7 +561,7 @@
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">num_heads</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LayerNormBasicLSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
 
@@ -565,10 +570,12 @@
 <span class="sd">      num_units: The number of units in each layer.</span>
 <span class="sd">      num_heads: The number of attention heads.</span>
 <span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
-<span class="sd">        argument and returning a cell.</span>
+<span class="sd">        argument and returning a cell. Defaults to a layer normalized LSTM cell.</span>
 <span class="sd">      dropout: The probability to drop units from the decoder input and in each</span>
 <span class="sd">        layer output.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cell_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">cell_class</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LayerNormBasicLSTMCell</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">RNMTPlusDecoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">num_layers</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>
@@ -608,7 +615,7 @@
                <span class="n">num_heads</span><span class="p">,</span>
                <span class="n">memory</span><span class="p">,</span>
                <span class="n">memory_sequence_length</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LayerNormBasicLSTMCell</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">_RNMTPlusDecoderCell</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.hooks &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.utils.hooks &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -172,7 +172,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for opennmt.utils.hooks</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Custom hooks.&quot;&quot;&quot;</span>
+<span></span><span class="c1"># pylint: disable=missing-docstring</span>
+
+<span class="sd">&quot;&quot;&quot;Custom hooks.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 
@@ -182,10 +184,12 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span><span class="p">,</span> <span class="n">misc</span>
+
+<span class="n">_SESSION_RUN_HOOK</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v2</span><span class="o">=</span><span class="s2">&quot;estimator.SessionRunHook&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="s2">&quot;train.SessionRunHook&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="LogParametersCountHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogParametersCountHook">[docs]</a><span class="k">class</span> <span class="nc">LogParametersCountHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+<div class="viewcode-block" id="LogParametersCountHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogParametersCountHook">[docs]</a><span class="k">class</span> <span class="nc">LogParametersCountHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Simple hook that logs the number of trainable parameters.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LogParametersCountHook.begin"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogParametersCountHook.begin">[docs]</a>  <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -223,7 +227,7 @@
   <span class="k">return</span> <span class="n">total_count</span></div>
 
 
-<div class="viewcode-block" id="CountersHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook">[docs]</a><span class="k">class</span> <span class="nc">CountersHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+<div class="viewcode-block" id="CountersHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook">[docs]</a><span class="k">class</span> <span class="nc">CountersHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Hook that summarizes counters.</span>
 
 <span class="sd">  Implementation is mostly copied from StepCounterHook.</span>
@@ -285,7 +289,7 @@
           <span class="bp">self</span><span class="o">.</span><span class="n">_last_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">counters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="LogWordsPerSecondHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook">[docs]</a><span class="k">class</span> <span class="nc">LogWordsPerSecondHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+<div class="viewcode-block" id="LogWordsPerSecondHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook">[docs]</a><span class="k">class</span> <span class="nc">LogWordsPerSecondHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Hook that logs the number of words processed per second.</span>
 
 <span class="sd">  Implementation is mostly copied from StepCounterHook.</span>
@@ -331,6 +335,7 @@
       <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Global step should be created to use LogWordsPerSecondHook.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LogWordsPerSecondHook.after_create_session"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.after_create_session">[docs]</a>  <span class="k">def</span> <span class="nf">after_create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">coord</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_words</span><span class="p">:</span>
       <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span><span class="p">)</span></div>
 
@@ -358,7 +363,7 @@
           <span class="bp">self</span><span class="o">.</span><span class="n">_last_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_value</span></div></div>
 
 
-<div class="viewcode-block" id="LogPredictionTimeHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook">[docs]</a><span class="k">class</span> <span class="nc">LogPredictionTimeHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+<div class="viewcode-block" id="LogPredictionTimeHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook">[docs]</a><span class="k">class</span> <span class="nc">LogPredictionTimeHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Hooks that gathers and logs prediction times.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LogPredictionTimeHook.begin"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.begin">[docs]</a>  <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -383,13 +388,14 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">_total_tokens</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">length</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LogPredictionTimeHook.end"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.end">[docs]</a>  <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">session</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Total prediction time (s): </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_time</span><span class="p">)</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Average prediction time (s): </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_time</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_examples</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_tokens</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tokens per second: </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_tokens</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_time</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SaveEvaluationPredictionHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook">[docs]</a><span class="k">class</span> <span class="nc">SaveEvaluationPredictionHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+<div class="viewcode-block" id="SaveEvaluationPredictionHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook">[docs]</a><span class="k">class</span> <span class="nc">SaveEvaluationPredictionHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Hook that saves the evaluation predictions.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SaveEvaluationPredictionHook.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">post_evaluation_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -428,12 +434,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">print_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">output_file</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SaveEvaluationPredictionHook.end"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.end">[docs]</a>  <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">session</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Evaluation predictions saved to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_evaluation_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_post_evaluation_fn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_path</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="LoadWeightsFromCheckpointHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook">[docs]</a><span class="k">class</span> <span class="nc">LoadWeightsFromCheckpointHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+<div class="viewcode-block" id="LoadWeightsFromCheckpointHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook">[docs]</a><span class="k">class</span> <span class="nc">LoadWeightsFromCheckpointHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;&quot;Hook that loads model variables from checkpoint before starting the training.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">):</span>
@@ -465,11 +472,12 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">assign_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tf_vars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">placeholders</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="LoadWeightsFromCheckpointHook.after_create_session"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session">[docs]</a>  <span class="k">def</span> <span class="nf">after_create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">coord</span>
     <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">placeholders</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">assign_ops</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">itervalues</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)):</span>
       <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span></div></div>
 
 
-<div class="viewcode-block" id="VariablesInitializerHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook">[docs]</a><span class="k">class</span> <span class="nc">VariablesInitializerHook</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SessionRunHook</span><span class="p">):</span>
+<div class="viewcode-block" id="VariablesInitializerHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook">[docs]</a><span class="k">class</span> <span class="nc">VariablesInitializerHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Hook that initializes some variables in the current session. This is useful</span>
 <span class="sd">  when using internal variables (e.g. for value accumulation) that are not saved</span>
 <span class="sd">  in the checkpoints.</span>
@@ -488,6 +496,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">variables_initializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VariablesInitializerHook.after_create_session"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.after_create_session">[docs]</a>  <span class="k">def</span> <span class="nf">after_create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">coord</span>
     <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_op</span><span class="p">)</span></div></div>
 </pre></div>
 

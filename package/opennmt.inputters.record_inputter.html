@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.record_inputter module &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.inputters.record_inputter module &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -226,22 +226,21 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.record_inputter.SequenceRecordInputter.get_length">
-<code class="descname">get_length</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#SequenceRecordInputter.get_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.record_inputter.SequenceRecordInputter.get_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the length of the input data, if defined.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="opennmt.inputters.record_inputter.SequenceRecordInputter.make_dataset">
-<code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#SequenceRecordInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.record_inputter.SequenceRecordInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the dataset required by this inputter.</p>
+<code class="descname">make_dataset</code><span class="sig-paren">(</span><em>data_file</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#SequenceRecordInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.record_inputter.SequenceRecordInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the base dataset required by this inputter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> – The data file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_file</strong> – The data file.</li>
+<li><strong>training</strong> – Run in training mode.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -264,21 +263,48 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.record_inputter.SequenceRecordInputter.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>inputs</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#SequenceRecordInputter.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.record_inputter.SequenceRecordInputter.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms inputs.</p>
+<dt id="opennmt.inputters.record_inputter.SequenceRecordInputter.get_receiver_tensors">
+<code class="descname">get_receiver_tensors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#SequenceRecordInputter.get_receiver_tensors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.record_inputter.SequenceRecordInputter.get_receiver_tensors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the input placeholders for serving.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.record_inputter.SequenceRecordInputter.make_features">
+<code class="descname">make_features</code><span class="sig-paren">(</span><em>element=None</em>, <em>features=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#SequenceRecordInputter.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.record_inputter.SequenceRecordInputter.make_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates features from data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inputs</strong> – A (possible nested structure of) <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> which depends on
-the inputter.</li>
-<li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
+<li><strong>element</strong> – An element from the dataset.</li>
+<li><strong>features</strong> – An optional dictionary of features to augment.</li>
+<li><strong>training</strong> – Run in training mode.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The transformed input.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.record_inputter.SequenceRecordInputter.make_inputs">
+<code class="descname">make_inputs</code><span class="sig-paren">(</span><em>features</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#SequenceRecordInputter.make_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.record_inputter.SequenceRecordInputter.make_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the model input from the features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>training</strong> – Run in training mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The model input.</p>
 </td>
 </tr>
 </tbody>
@@ -296,7 +322,7 @@ the inputter.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vector</strong> – A 2D Numpy array.</li>
+<li><strong>vector</strong> – A 2D Numpy float array.</li>
 <li><strong>writer</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.python_io.TFRecordWriter</span></code>.</li>
 </ul>
 </td>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.rnn_decoder module &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.decoders.rnn_decoder module &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -200,12 +200,12 @@
 <p>Define RNN-based decoders.</p>
 <dl class="class">
 <dt id="opennmt.decoders.rnn_decoder.RNNDecoder">
-<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">RNNDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNNDecoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">RNNDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNNDecoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder" title="opennmt.decoders.decoder.Decoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.decoder.Decoder</span></code></a></p>
 <p>A basic RNN decoder.</p>
 <dl class="method">
 <dt id="opennmt.decoders.rnn_decoder.RNNDecoder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoder parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -217,7 +217,7 @@
 <li><strong>bridge</strong> – A <a class="reference internal" href="opennmt.layers.bridge.html#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a> to pass the encoder state
 to the decoder.</li>
 <li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
-argument and returning a cell.</li>
+argument and returning a cell. Defaults to a LSTM cell.</li>
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
 <li><strong>residual_connections</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, each layer input will be added to its
 output.</li>
@@ -305,13 +305,13 @@ of…) tensors.</li>
 
 <dl class="class">
 <dt id="opennmt.decoders.rnn_decoder.AttentionalRNNDecoder">
-<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">AttentionalRNNDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>attention_mechanism_class=&lt;class 'tensorflow.contrib.seq2seq.python.ops.attention_wrapper.LuongAttention'&gt;</em>, <em>output_is_attention=True</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">AttentionalRNNDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>attention_mechanism_class=None</em>, <em>output_is_attention=True</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.decoders.rnn_decoder.RNNDecoder" title="opennmt.decoders.rnn_decoder.RNNDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.rnn_decoder.RNNDecoder</span></code></a></p>
 <p>A RNN decoder with attention.</p>
 <p>It simple overrides the cell construction to add an attention wrapper.</p>
 <dl class="method">
 <dt id="opennmt.decoders.rnn_decoder.AttentionalRNNDecoder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>attention_mechanism_class=&lt;class 'tensorflow.contrib.seq2seq.python.ops.attention_wrapper.LuongAttention'&gt;</em>, <em>output_is_attention=True</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>bridge=None</em>, <em>attention_mechanism_class=None</em>, <em>output_is_attention=True</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoder parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -325,7 +325,8 @@ to the decoder.</li>
 <li><strong>attention_mechanism_class</strong> – A class inheriting from
 <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code> or a callable that takes
 <code class="docutils literal notranslate"><span class="pre">(num_units,</span> <span class="pre">memory,</span> <span class="pre">memory_sequence_length)</span></code> as arguments and returns
-a <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>.</li>
+a <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>. Defaults to
+<code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.LuongAttention</span></code>.</li>
 <li><strong>output_is_attention</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the final decoder output (before logits)
 is the output of the attention layer. In all cases, the output of the
 attention layer is passed to the next step.</li>
@@ -352,7 +353,7 @@ history.</p>
 
 <dl class="class">
 <dt id="opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder">
-<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">MultiAttentionalRNNDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>attention_layers=None</em>, <em>attention_mechanism_class=&lt;class 'tensorflow.contrib.seq2seq.python.ops.attention_wrapper.LuongAttention'&gt;</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#MultiAttentionalRNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">MultiAttentionalRNNDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>attention_layers=None</em>, <em>attention_mechanism_class=None</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#MultiAttentionalRNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.decoders.rnn_decoder.RNNDecoder" title="opennmt.decoders.rnn_decoder.RNNDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.rnn_decoder.RNNDecoder</span></code></a></p>
 <p>A RNN decoder with multi-attention.</p>
 <p>This decoder can attend the encoder outputs after multiple RNN layers using
@@ -361,7 +362,7 @@ decoder is not initialized from the encoder state (i.e. a
 <a class="reference internal" href="opennmt.layers.bridge.html#opennmt.layers.bridge.ZeroBridge" title="opennmt.layers.bridge.ZeroBridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.bridge.ZeroBridge</span></code></a> is imposed).</p>
 <dl class="method">
 <dt id="opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>attention_layers=None</em>, <em>attention_mechanism_class=&lt;class 'tensorflow.contrib.seq2seq.python.ops.attention_wrapper.LuongAttention'&gt;</em>, <em>cell_class=&lt;class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'&gt;</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#MultiAttentionalRNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>attention_layers=None</em>, <em>attention_mechanism_class=None</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#MultiAttentionalRNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoder parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -377,7 +378,8 @@ layer.</li>
 <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>. Alternatively, the class can
 be replaced by a callable that takes
 <code class="docutils literal notranslate"><span class="pre">(num_units,</span> <span class="pre">memory,</span> <span class="pre">memory_sequence_length)</span></code> as arguments and returns
-a <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>.</li>
+a <code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.AttentionMechanism</span></code>. Defaults to
+<code class="docutils literal notranslate"><span class="pre">tf.contrib.seq2seq.LuongAttention</span></code>.</li>
 <li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
 argument and returning a cell.</li>
 <li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
@@ -394,12 +396,12 @@ output.</li>
 
 <dl class="class">
 <dt id="opennmt.decoders.rnn_decoder.RNMTPlusDecoder">
-<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">RNMTPlusDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>cell_class=&lt;class 'tensorflow.contrib.rnn.python.ops.rnn_cell.LayerNormBasicLSTMCell'&gt;</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNMTPlusDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNMTPlusDecoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.decoders.rnn_decoder.</code><code class="descname">RNMTPlusDecoder</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>cell_class=None</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNMTPlusDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNMTPlusDecoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.decoders.rnn_decoder.RNNDecoder" title="opennmt.decoders.rnn_decoder.RNNDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.rnn_decoder.RNNDecoder</span></code></a></p>
 <p>The RNMT+ decoder described in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
 <dl class="method">
 <dt id="opennmt.decoders.rnn_decoder.RNMTPlusDecoder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>cell_class=&lt;class 'tensorflow.contrib.rnn.python.ops.rnn_cell.LayerNormBasicLSTMCell'&gt;</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNMTPlusDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNMTPlusDecoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>num_heads</em>, <em>cell_class=None</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#RNMTPlusDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.rnn_decoder.RNMTPlusDecoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoder parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -410,7 +412,7 @@ output.</li>
 <li><strong>num_units</strong> – The number of units in each layer.</li>
 <li><strong>num_heads</strong> – The number of attention heads.</li>
 <li><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
-argument and returning a cell.</li>
+argument and returning a cell. Defaults to a layer normalized LSTM cell.</li>
 <li><strong>dropout</strong> – The probability to drop units from the decoder input and in each
 layer output.</li>
 </ul>

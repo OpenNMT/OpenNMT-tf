@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>Data &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -107,7 +107,16 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#data-format">Data format</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#text">Text</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vectors">Vectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vocabulary">Vocabulary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#via-training-files">via training files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#via-sentencepiece-vocabulary">via SentencePiece vocabulary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#vectors">Vectors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#via-python">via Python</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#via-the-ark-text-format">via the ARK text format</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#alignments">Alignments</a></li>
 </ul>
 </li>
@@ -206,9 +215,61 @@ The name of this site , and program name Title purchased will not be displayed .
 </pre></div>
 </div>
 </div>
+<div class="section" id="vocabulary">
+<h3>Vocabulary<a class="headerlink" href="#vocabulary" title="Permalink to this headline">¶</a></h3>
+<p>For text inputs, vocabulary files should be provided in the data configuration (see for example in the <em>Quickstart</em> section). OpenNMT-tf uses a simple text format with <strong>one token per line</strong>, which should begin with these special tokens:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;blank&gt;
+&lt;s&gt;
+&lt;/s&gt;
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can be used to generate this file:</p>
+<div class="section" id="via-training-files">
+<h4>via training files<a class="headerlink" href="#via-training-files" title="Permalink to this headline">¶</a></h4>
+<p>The script can be run directly on training files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --save_vocab vocab.txt train.txt
+</pre></div>
+</div>
+<ul class="simple">
+<li>To control the vocabulary size, see the available options <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span> <span class="pre">-h</span></code></li>
+<li>By default, <code class="docutils literal notranslate"><span class="pre">train.txt</span></code> is expected to be <strong>tokenized</strong> (see the <em>Tokenization</em> section to execute the script on non tokenized files)</li>
+</ul>
+</div>
+<div class="section" id="via-sentencepiece-vocabulary">
+<h4>via SentencePiece vocabulary<a class="headerlink" href="#via-sentencepiece-vocabulary" title="Permalink to this headline">¶</a></h4>
+<p>If you trained a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> model to tokenize your data, a vocabulary file <code class="docutils literal notranslate"><span class="pre">*.vocab</span></code> was generated in the process. This file can be converted to the OpenNMT-tf vocabulary format:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --save_vocab vocab.txt --from_vocab sp.vocab --from_format sentencepiece
+</pre></div>
+</div>
+</div>
+</div>
 <div class="section" id="vectors">
 <h3>Vectors<a class="headerlink" href="#vectors" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.SequenceRecordInputter</span></code> expects a file with serialized <em>TFRecords</em>. To simplify the preparation of these data, the script <code class="docutils literal notranslate"><span class="pre">onmt-ark-to-records</span></code> can be used to convert vectors serialized in the ARK text format:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.SequenceRecordInputter</span></code> expects a file with serialized <em>TFRecords</em>. We propose 2 ways to create this file, choose the one that is the easiest for you:</p>
+<div class="section" id="via-python">
+<h4>via Python<a class="headerlink" href="#via-python" title="Permalink to this headline">¶</a></h4>
+<p>It is very simple to generate a compatible <em>TFRecords</em> file directly from Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">opennmt</span> <span class="kn">as</span> <span class="nn">onmt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">TFRecordWriter</span><span class="p">(</span><span class="s2">&quot;data.records&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+  <span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">write_sequence_record</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">writer</span><span class="p">)</span>
+<span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This example saves a dataset of 3 random vectors of shape <code class="docutils literal notranslate"><span class="pre">[time,</span> <span class="pre">dim]</span></code> into the file “data.records”. It should be easy to adapt for any dataset of 2D vectors.</p>
+</div>
+<div class="section" id="via-the-ark-text-format">
+<h4>via the ARK text format<a class="headerlink" href="#via-the-ark-text-format" title="Permalink to this headline">¶</a></h4>
+<p>The script <code class="docutils literal notranslate"><span class="pre">onmt-ark-to-records</span></code> proposes an alternative way to generate this dataset. It converts the ARK text format:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>KEY [
 FEAT1.1 FEAT1.2 FEAT1.3 ... FEAT1.n
 ...
@@ -217,6 +278,7 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 </div>
 <p>which describes an example of <code class="docutils literal notranslate"><span class="pre">m</span></code> vectors of depth <code class="docutils literal notranslate"><span class="pre">n</span></code> and identified by <code class="docutils literal notranslate"><span class="pre">KEY</span></code>.</p>
 <p>See <code class="docutils literal notranslate"><span class="pre">onmt-ark-to-records</span> <span class="pre">-h</span></code> for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with <code class="docutils literal notranslate"><span class="pre">KEY</span></code>s) to generate aligned source vectors and target texts.</p>
+</div>
 </div>
 <div class="section" id="alignments">
 <h3>Alignments<a class="headerlink" href="#alignments" title="Permalink to this headline">¶</a></h3>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.bin.build_vocab &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.bin.build_vocab &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -184,8 +184,14 @@
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../package/opennmt.bin.build_vocab.html#opennmt.bin.build_vocab.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
   <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-      <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Source text file.&quot;</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+      <span class="s2">&quot;--from_vocab&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Build from a saved vocabulary (see also --from_format).&quot;</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+      <span class="s2">&quot;--from_format&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;sentencepiece&quot;</span><span class="p">],</span>
+      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The format of the saved vocabulary (see also --from_vocab).&quot;</span><span class="p">)</span>
   <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
       <span class="s2">&quot;--save_vocab&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output vocabulary file.&quot;</span><span class="p">)</span>
@@ -212,7 +218,10 @@
     <span class="n">special_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">START_OF_SENTENCE_TOKEN</span><span class="p">)</span>
     <span class="n">special_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_TOKEN</span><span class="p">)</span>
 
-  <span class="n">vocab</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">Vocab</span><span class="p">(</span><span class="n">special_tokens</span><span class="o">=</span><span class="n">special_tokens</span><span class="p">)</span>
+  <span class="n">vocab</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">Vocab</span><span class="p">(</span>
+      <span class="n">special_tokens</span><span class="o">=</span><span class="n">special_tokens</span><span class="p">,</span>
+      <span class="n">from_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">from_vocab</span><span class="p">,</span>
+      <span class="n">from_format</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">from_format</span><span class="p">)</span>
   <span class="k">for</span> <span class="n">data_file</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
     <span class="n">vocab</span><span class="o">.</span><span class="n">add_from_text</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">)</span>
   <span class="n">vocab</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">prune</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">min_frequency</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">min_frequency</span><span class="p">)</span>

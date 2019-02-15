@@ -26,6 +26,7 @@
 ./_modules/opennmt/layers/common.html
 ./_modules/opennmt/layers/position.html
 ./_modules/opennmt/layers/reducer.html
+./_modules/opennmt/layers/rnn.html
 ./_modules/opennmt/layers/transformer.html
 ./_modules/opennmt/models/catalog.html
 ./_modules/opennmt/models/model.html
@@ -43,6 +44,7 @@
 ./_modules/opennmt/utils/beam_search.html
 ./_modules/opennmt/utils/cell.html
 ./_modules/opennmt/utils/checkpoint.html
+./_modules/opennmt/utils/compat.html
 ./_modules/opennmt/utils/data.html
 ./_modules/opennmt/utils/decay.html
 ./_modules/opennmt/utils/evaluator.html
@@ -90,6 +92,7 @@
 ./_sources/package/opennmt.layers.common.rst.txt
 ./_sources/package/opennmt.layers.position.rst.txt
 ./_sources/package/opennmt.layers.reducer.rst.txt
+./_sources/package/opennmt.layers.rnn.rst.txt
 ./_sources/package/opennmt.layers.rst.txt
 ./_sources/package/opennmt.layers.transformer.rst.txt
 ./_sources/package/opennmt.models.catalog.rst.txt
@@ -100,6 +103,7 @@
 ./_sources/package/opennmt.models.sequence_to_sequence.rst.txt
 ./_sources/package/opennmt.models.transformer.rst.txt
 ./_sources/package/opennmt.optimizers.adafactor.rst.txt
+./_sources/package/opennmt.optimizers.distributed_optimizer.rst.txt
 ./_sources/package/opennmt.optimizers.mixed_precision_wrapper.rst.txt
 ./_sources/package/opennmt.optimizers.multistep_adam.rst.txt
 ./_sources/package/opennmt.optimizers.rst.txt
@@ -112,6 +116,7 @@
 ./_sources/package/opennmt.utils.beam_search.rst.txt
 ./_sources/package/opennmt.utils.cell.rst.txt
 ./_sources/package/opennmt.utils.checkpoint.rst.txt
+./_sources/package/opennmt.utils.compat.rst.txt
 ./_sources/package/opennmt.utils.data.rst.txt
 ./_sources/package/opennmt.utils.decay.rst.txt
 ./_sources/package/opennmt.utils.evaluator.rst.txt
@@ -231,6 +236,7 @@
 ./package/opennmt.layers.html
 ./package/opennmt.layers.position.html
 ./package/opennmt.layers.reducer.html
+./package/opennmt.layers.rnn.html
 ./package/opennmt.layers.transformer.html
 ./package/opennmt.models.catalog.html
 ./package/opennmt.models.html
@@ -240,6 +246,7 @@
 ./package/opennmt.models.sequence_to_sequence.html
 ./package/opennmt.models.transformer.html
 ./package/opennmt.optimizers.adafactor.html
+./package/opennmt.optimizers.distributed_optimizer.html
 ./package/opennmt.optimizers.html
 ./package/opennmt.optimizers.mixed_precision_wrapper.html
 ./package/opennmt.optimizers.multistep_adam.html
@@ -251,6 +258,7 @@
 ./package/opennmt.utils.beam_search.html
 ./package/opennmt.utils.cell.html
 ./package/opennmt.utils.checkpoint.html
+./package/opennmt.utils.compat.html
 ./package/opennmt.utils.data.html
 ./package/opennmt.utils.decay.html
 ./package/opennmt.utils.evaluator.html

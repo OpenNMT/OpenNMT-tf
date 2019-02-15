@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.19.2 documentation</title>
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.20.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.19.2',
+              VERSION:'1.20.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.19
+                1.20
               </div>
             
           
@@ -180,7 +180,6 @@
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">optimizers</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">decay</span>
-<span class="kn">from</span> <span class="nn">opennmt.optimizers.mixed_precision_wrapper</span> <span class="k">import</span> <span class="n">get_loss_scale_from_params</span>
 
 
 <div class="viewcode-block" id="learning_rate_decay_fn"><a class="viewcode-back" href="../../../package/opennmt.utils.optim.html#opennmt.utils.optim.learning_rate_decay_fn">[docs]</a><span class="k">def</span> <span class="nf">learning_rate_decay_fn</span><span class="p">(</span><span class="n">decay_type</span><span class="p">,</span>
@@ -343,6 +342,7 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer_class</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_params</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
+      <span class="kn">from</span> <span class="nn">opennmt.optimizers.mixed_precision_wrapper</span> <span class="k">import</span> <span class="n">get_loss_scale_from_params</span>
       <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">MixedPrecisionOptimizerWrapper</span><span class="p">(</span>
           <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_scale</span><span class="o">=</span><span class="n">get_loss_scale_from_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">hvd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
