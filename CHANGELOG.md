@@ -14,7 +14,19 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* More embeddings sharing combinations:
+  * Share embeddings of multi source inputs (set `share_parameters=True` to `ParallelInputter`)
+  * Share target embeddings and softmax weights (set `share_embeddings=onmt.models.EmbeddingsSharingLevel.TARGET` to a seq2seq model)
+  * Share all embeddings (set `share_embeddings=onmt.models.EmbeddingsSharingLevel.ALL` to a seq2seq model, see the example model in `config/models/transformer_shared_embedding.py`)
+* Support converting SentencePiece vocabularies in `onmt-build-vocab`
+
 ### Fixes and improvements
+
+* Remove the `--dtype` option of `onmt-ark-to-records`: this is considered a bug fix as the records should always be saved in float32
+* Fix output dtype of `SequenceRecordInputter` which was always float32
+* Fix guided alignment training for TensorFlow versions older than 1.11
+* Refactor the `Inputter` API
+* Increase coverage of TensorFlow 2.0 tests and remove temporary namespace `opennmt.v2`
 
 ## [1.19.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.19.2) (2019-02-13)
 
