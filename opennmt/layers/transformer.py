@@ -451,14 +451,18 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     # Compute keys and values.
     if memory is None:
       keys, values = _compute_kv(inputs)
-      if cache is not None:
+      if cache:
         keys = tf.concat([cache[0], keys], axis=2)
         values = tf.concat([cache[1], values], axis=2)
     else:
-      if not cache or tf.equal(tf.shape(cache[0])[2], 0):
-        keys, values = _compute_kv(memory)
+      if cache:
+        keys, values = tf.cond(
+            tf.equal(tf.shape(cache[0])[2], 0),
+            true_fn=lambda: _compute_kv(memory),
+            false_fn=lambda: cache)
       else:
-        keys, values = cache
+        keys, values = _compute_kv(memory)
+
     cache = (keys, values)
 
     # Dot product attention.
