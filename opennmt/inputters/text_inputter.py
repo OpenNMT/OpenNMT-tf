@@ -9,12 +9,16 @@ import yaml
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.contrib.tensorboard.plugins import projector
+try:
+  from tensorflow.contrib.tensorboard.plugins import projector
+except ModuleNotFoundError:
+  from tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
-from opennmt import tokenizers
+from opennmt import constants, tokenizers
 from opennmt.inputters.inputter import Inputter
+from opennmt.utils import compat
 from opennmt.utils.cell import build_cell, last_encoding_from_state
 from opennmt.utils.misc import count_lines
 from opennmt.constants import PADDING_TOKEN
@@ -122,7 +126,7 @@ def load_pretrained_embeddings(embedding_file,
   """
   # Map words to ids from the vocabulary.
   word_to_id = collections.defaultdict(list)
-  with tf.gfile.Open(vocabulary_file, mode="rb") as vocabulary:
+  with compat.gfile_open(vocabulary_file, mode="rb") as vocabulary:
     count = 0
     for word in vocabulary:
       word = word.strip()
@@ -132,7 +136,7 @@ def load_pretrained_embeddings(embedding_file,
       count += 1
 
   # Fill pretrained embedding matrix.
-  with tf.gfile.Open(embedding_file, mode="rb") as embedding:
+  with compat.gfile_open(embedding_file, mode="rb") as embedding:
     pretrained = None
 
     if with_header:
@@ -229,20 +233,23 @@ def _get_field(config, key, prefix=None, default=None, required=False):
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self, tokenizer=None, dtype=tf.float32):
+  def __init__(self,
+               tokenizer=None,
+               dtype=tf.float32,
+               vocabulary_file_key=None,
+               num_oov_buckets=1):
     super(TextInputter, self).__init__(dtype=dtype)
     self.tokenizer = tokenizer
-
-  def get_length(self, data):
-    return data["length"]
-
-  def make_dataset(self, data_file):
-    return tf.data.TextLineDataset(data_file)
-
-  def get_dataset_size(self, data_file):
-    return count_lines(data_file)
+    self.vocabulary_file_key = vocabulary_file_key
+    self.num_oov_buckets = num_oov_buckets
+    self.vocabulary = None
+    self.vocabulary_size = None
+    self.vocabulary_file = None
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    self.vocabulary_file = metadata[self.vocabulary_file_key]
+    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
+    self.vocabulary = self.vocabulary_lookup()
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
       if tokenizer_config:
@@ -254,26 +261,36 @@ class TextInputter(Inputter):
         self.tokenizer = tokenizers.SpaceTokenizer()
     return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
-  def _process(self, data):
+  def vocabulary_lookup(self):
+    """Returns a lookup table mapping string to index."""
+    return tf.contrib.lookup.index_table_from_file(
+        self.vocabulary_file,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets,
+        num_oov_buckets=self.num_oov_buckets)
+
+  def vocabulary_lookup_reverse(self):
+    """Returns a lookup table mapping index to string."""
+    return tf.contrib.lookup.index_to_string_table_from_file(
+        self.vocabulary_file,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets,
+        default_value=constants.UNKNOWN_TOKEN)
+
+  def make_dataset(self, data_file, training=None):
+    return tf.data.TextLineDataset(data_file)
+
+  def get_dataset_size(self, data_file):
+    return count_lines(data_file)
+
+  def make_features(self, element=None, features=None, training=None):
     """Tokenizes raw text."""
-    data = super(TextInputter, self)._process(data)
-    if "tokens" not in data:
-      tokens = self.tokenizer.tokenize(data["raw"])
-      data["length"] = tf.shape(tokens)[0]
-      data["tokens"] = tokens
-    return data
-
-  @abc.abstractmethod
-  def _get_serving_input(self):
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def _transform_data(self, data, mode):
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def transform(self, inputs, mode):
-    raise NotImplementedError()
+    if features is None:
+      features = {}
+    if "tokens" in features:
+      return features
+    tokens = self.tokenizer.tokenize(element)
+    features["length"] = tf.shape(tokens)[0]
+    features["tokens"] = tokens
+    return features
 
 
 class WordEmbedder(TextInputter):
@@ -315,9 +332,11 @@ class WordEmbedder(TextInputter):
       The :meth:`opennmt.inputters.text_inputter.load_pretrained_embeddings`
       function for details about the pretrained embedding format and behavior.
     """
-    super(WordEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
-
-    self.vocabulary_file_key = vocabulary_file_key
+    super(WordEmbedder, self).__init__(
+        tokenizer=tokenizer,
+        dtype=dtype,
+        vocabulary_file_key=vocabulary_file_key)
+    self.embedding = None
     self.embedding_size = embedding_size
     self.embedding_file = None
     self.embedding_file_key = embedding_file_key
@@ -325,18 +344,10 @@ class WordEmbedder(TextInputter):
     self.case_insensitive_embeddings = case_insensitive_embeddings
     self.trainable = trainable
     self.dropout = dropout
-    self.num_oov_buckets = 1
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = super(WordEmbedder, self).initialize(
         metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
-    self.vocabulary_file = metadata[self.vocabulary_file_key]
-    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.vocabulary_file,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets,
-        num_oov_buckets=self.num_oov_buckets)
-
     if self.embedding_file_key is not None:
       self.embedding_file = metadata[self.embedding_file_key]
     else:
@@ -353,71 +364,65 @@ class WordEmbedder(TextInputter):
 
     return assets
 
-  def _get_serving_input(self):
-    receiver_tensors = {
+  def get_receiver_tensors(self):
+    return {
         "tokens": tf.placeholder(tf.string, shape=(None, None)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
-    features = receiver_tensors.copy()
-    features["ids"] = self.vocabulary.lookup(features["tokens"])
-
-    return receiver_tensors, features
-
-  def _process(self, data):
+  def make_features(self, element=None, features=None, training=None):
     """Converts words tokens to ids."""
-    data = super(WordEmbedder, self)._process(data)
-    if "ids" not in data:
-      data["ids"] = self.vocabulary.lookup(data["tokens"])
-    return data
+    features = super(WordEmbedder, self).make_features(
+        element=element, features=features, training=training)
+    if "ids" in features:
+      return features
+    ids = self.vocabulary.lookup(features["tokens"])
+    if not self.is_target:
+      features["ids"] = ids
+    else:
+      bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=ids.dtype)
+      eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=ids.dtype)
+      features["ids"] = tf.concat([bos, ids], axis=0)
+      features["ids_out"] = tf.concat([ids, eos], axis=0)
+      features["length"] += 1 # Increment length accordingly.
+    return features
+
+  def build(self):
+    if self.embedding_file:
+      pretrained = load_pretrained_embeddings(
+          self.embedding_file,
+          self.vocabulary_file,
+          num_oov_buckets=self.num_oov_buckets,
+          with_header=self.embedding_file_with_header,
+          case_insensitive_embeddings=self.case_insensitive_embeddings)
+      self.embedding_size = pretrained.shape[-1]
+
+      initializer = tf.constant_initializer(
+          pretrained.astype(self.dtype.as_numpy_dtype()), dtype=self.dtype)
+    else:
+      initializer = None
+
+    shape = [self.vocabulary_size, self.embedding_size]
+    self.embedding = tf.get_variable(
+        "w_embs",
+        shape=shape,
+        dtype=self.dtype,
+        initializer=initializer,
+        trainable=self.trainable)
+
+  def make_inputs(self, features, training=None):
+    if self.embedding is None:
+      self.build()
+    outputs = tf.nn.embedding_lookup(self.embedding, features["ids"])
+    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
+    return outputs
 
   def visualize(self, log_dir):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable("w_embs", dtype=self.dtype)
-      visualize_embeddings(
-          log_dir,
-          embeddings,
-          self.vocabulary_file,
-          num_oov_buckets=self.num_oov_buckets)
-
-  def _transform_data(self, data, mode):
-    return self.transform(data["ids"], mode)
-
-  def transform(self, inputs, mode):
-    try:
-      embeddings = tf.get_variable("w_embs", dtype=self.dtype, trainable=self.trainable)
-    except ValueError:
-      # Variable does not exist yet.
-      if self.embedding_file:
-        pretrained = load_pretrained_embeddings(
-            self.embedding_file,
-            self.vocabulary_file,
-            num_oov_buckets=self.num_oov_buckets,
-            with_header=self.embedding_file_with_header,
-            case_insensitive_embeddings=self.case_insensitive_embeddings)
-        self.embedding_size = pretrained.shape[-1]
-
-        initializer = tf.constant_initializer(
-            pretrained.astype(self.dtype.as_numpy_dtype()), dtype=self.dtype)
-      else:
-        initializer = None
-
-      shape = [self.vocabulary_size, self.embedding_size]
-      embeddings = tf.get_variable(
-          "w_embs",
-          shape=shape,
-          dtype=self.dtype,
-          initializer=initializer,
-          trainable=self.trainable)
-
-    outputs = tf.nn.embedding_lookup(embeddings, inputs)
-
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
-
-    return outputs
+    visualize_embeddings(
+        log_dir,
+        self.embedding,
+        self.vocabulary_file,
+        num_oov_buckets=self.num_oov_buckets)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -441,69 +446,56 @@ class CharEmbedder(TextInputter):
         tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
-    super(CharEmbedder, self).__init__(tokenizer=tokenizer, dtype=dtype)
-
-    self.vocabulary_file_key = vocabulary_file_key
+    super(CharEmbedder, self).__init__(
+        tokenizer=tokenizer,
+        dtype=dtype,
+        vocabulary_file_key=vocabulary_file_key)
     self.embedding_size = embedding_size
+    self.embedding = None
     self.dropout = dropout
-    self.num_oov_buckets = 1
 
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
-    assets = super(CharEmbedder, self).initialize(
-        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
-    self.vocabulary_file = metadata[self.vocabulary_file_key]
-    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.vocabulary_file,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets,
-        num_oov_buckets=self.num_oov_buckets)
-    return assets
-
-  def _get_serving_input(self):
-    receiver_tensors = {
+  def get_receiver_tensors(self):
+    return {
         "chars": tf.placeholder(tf.string, shape=(None, None, None)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
-    features = receiver_tensors.copy()
-    features["char_ids"] = self.vocabulary.lookup(features["chars"])
-
-    return receiver_tensors, features
-
-  def _process(self, data):
+  def make_features(self, element=None, features=None, training=None):
     """Converts words to characters."""
-    data = super(CharEmbedder, self)._process(data)
-    if "char_ids" not in data:
-      chars, _ = tokens_to_chars(data["tokens"])
-      data["char_ids"] = self.vocabulary.lookup(chars)
-    return data
+    if features is None:
+      features = {}
+    if "char_ids" in features:
+      return features
+    if "chars" in features:
+      chars = features["chars"]
+    else:
+      features = super(CharEmbedder, self).make_features(
+          element=element, features=features, training=training)
+      chars, _ = tokens_to_chars(features["tokens"])
+    features["char_ids"] = self.vocabulary.lookup(chars)
+    return features
 
-  def visualize(self, log_dir):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable("w_char_embs", dtype=self.dtype)
-      visualize_embeddings(
-          log_dir,
-          embeddings,
-          self.vocabulary_file,
-          num_oov_buckets=self.num_oov_buckets)
-
-  def _transform_data(self, data, mode):
-    return self.transform(data["char_ids"], mode)
-
-  def _embed(self, inputs, mode):
-    embeddings = tf.get_variable(
+  def build(self):
+    self.embedding = tf.get_variable(
         "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
 
-    outputs = tf.nn.embedding_lookup(embeddings, inputs)
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
-    return outputs
-
   @abc.abstractmethod
-  def transform(self, inputs, mode):
+  def make_inputs(self, features, training=None):
     raise NotImplementedError()
+
+  def visualize(self, log_dir):
+    visualize_embeddings(
+        log_dir,
+        self.embedding,
+        self.vocabulary_file,
+        num_oov_buckets=self.num_oov_buckets)
+
+  def _embed(self, inputs, training):
+    if self.embedding is None:
+      self.build()
+    outputs = tf.nn.embedding_lookup(self.embedding, inputs)
+    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
+    return outputs
 
 
 class CharConvEmbedder(CharEmbedder):
@@ -543,8 +535,9 @@ class CharConvEmbedder(CharEmbedder):
     self.stride = stride
     self.num_oov_buckets = 1
 
-  def transform(self, inputs, mode):
-    outputs = self._embed(inputs, mode)
+  def make_inputs(self, features, training=None):
+    inputs = features["char_ids"]
+    outputs = self._embed(inputs, training)
 
     # Merge batch and sequence timesteps dimensions.
     outputs = tf.reshape(outputs, [-1, tf.shape(inputs)[-1], self.embedding_size])
@@ -577,7 +570,7 @@ class CharRNNEmbedder(CharEmbedder):
                num_units,
                dropout=0.2,
                encoding="average",
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character RNN embedder.
@@ -592,7 +585,7 @@ class CharRNNEmbedder(CharEmbedder):
       encoding: "average" or "last" (case insensitive), the encoding vector to
         extract from the RNN outputs.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell.
+        argument and returning a cell. Defaults to a LSTM cell.
       tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
         tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
@@ -612,15 +605,16 @@ class CharRNNEmbedder(CharEmbedder):
     if self.encoding not in ("average", "last"):
       raise ValueError("Invalid encoding vector: {}".format(self.encoding))
 
-  def transform(self, inputs, mode):
+  def make_inputs(self, features, training=None):
+    inputs = features["char_ids"]
     flat_inputs = tf.reshape(inputs, [-1, tf.shape(inputs)[-1]])
-    embeddings = self._embed(flat_inputs, mode)
+    embeddings = self._embed(flat_inputs, training)
     sequence_length = tf.count_nonzero(flat_inputs, axis=1)
 
     cell = build_cell(
         1,
         self.num_units,
-        mode,
+        tf.estimator.ModeKeys.TRAIN if training else None,
         dropout=self.dropout,
         cell_class=self.cell_class)
     rnn_outputs, rnn_state = tf.nn.dynamic_rnn(

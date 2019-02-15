@@ -77,12 +77,12 @@ import opennmt as onmt
 tf.enable_eager_execution()
 
 # Build a random batch of input sequences.
-inputs = tf.random_uniform((3, 6, 256))
-sequence_length = [4, 6, 5]
+inputs = tf.random.uniform([3, 6, 256])
+sequence_length = tf.constant([4, 6, 5], dtype=tf.int32)
 
 # Encode with a self-attentional encoder.
-encoder = onmt.encoders.SelfAttentionEncoder(num_layers=4)
-outputs, state, outputs_length = encoder.encode(
+encoder = onmt.encoders.SelfAttentionEncoder(num_layers=6)
+outputs, _, _ = encoder.encode(
     inputs,
     sequence_length=sequence_length,
     mode=tf.estimator.ModeKeys.TRAIN)
@@ -92,6 +92,7 @@ print(outputs)
 
 For more advanced examples, some online resources are using OpenNMT-tf as a library:
 
+* The directory `examples/library` contains additional examples that use OpenNMT-tf as a library
 * [OpenNMT Hackathon 2018](https://github.com/OpenNMT/Hackathon/tree/master/unsupervised-nmt) features a tutorial to implement unsupervised NMT using OpenNMT-tf
 * [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `onmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
 

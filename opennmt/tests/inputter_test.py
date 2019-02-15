@@ -7,19 +7,24 @@ import yaml
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.contrib.tensorboard.plugins import projector
+try:
+  from tensorflow.contrib.tensorboard.plugins import projector
+except ModuleNotFoundError:
+  from tensorboard.plugins import projector
 
 from google.protobuf import text_format
 
 from opennmt.constants import PADDING_TOKEN as PAD
 from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
-from opennmt.utils import data
+from opennmt.utils import compat, data
 from opennmt.utils.misc import item_or_tuple, count_lines
+from opennmt.tests import test_util
 
 
 class InputterTest(tf.test.TestCase):
 
+  @test_util.run_tf1_only
   def testVisualizeEmbeddings(self):
     log_dir = os.path.join(self.get_temp_dir(), "log")
     if not os.path.exists(log_dir):
@@ -70,12 +75,11 @@ class InputterTest(tf.test.TestCase):
     self.assertEqual("src_emb.txt", projector_config.embeddings[0].metadata_path)
 
   def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
-    expected_chars = tf.contrib.framework.nest.map_structure(tf.compat.as_bytes, expected_chars)
+    expected_chars = compat.nest.map_structure(tf.compat.as_bytes, expected_chars)
     chars, lengths = text_inputter.tokens_to_chars(tf.constant(tokens, dtype=tf.string))
-    with self.test_session() as sess:
-      chars, lengths = sess.run([chars, lengths])
-      self.assertListEqual(expected_chars, chars.tolist())
-      self.assertListEqual(expected_lengths, lengths.tolist())
+    chars, lengths = self.evaluate([chars, lengths])
+    self.assertListEqual(expected_chars, chars.tolist())
+    self.assertListEqual(expected_lengths, lengths.tolist())
 
   def testTokensToCharsEmpty(self):
     self._testTokensToChars([], [], [])
@@ -160,7 +164,13 @@ class InputterTest(tf.test.TestCase):
     next_element = iterator.get_next()
 
     if shapes is not None:
-      for features in (next_element, inputter.get_serving_input_receiver().features):
+      all_features = [next_element]
+      if not inputter.is_target:
+        all_features.append(inputter.get_serving_input_receiver().features)
+      else:
+        with self.assertRaises(ValueError):
+          _ = inputter.get_serving_input_receiver()
+      for features in all_features:
         self.assertNotIn("raw", features)
         for field, shape in six.iteritems(shapes):
           self.assertIn(field, features)
@@ -169,6 +179,7 @@ class InputterTest(tf.test.TestCase):
     transformed = inputter.transform_data(next_element)
     return next_element, transformed
 
+  @test_util.run_tf1_only
   def testWordEmbedder(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -188,6 +199,34 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([[2, 1, 4]], features["ids"])
       self.assertAllEqual([1, 3, 10], transformed.shape)
 
+  @test_util.run_tf1_only
+  def testWordEmbedderTarget(self):
+    vocab_file = self._makeTextFile(
+        "vocab.txt", ["<blank>", "<s>", "</s>", "the", "world", "hello", "toto"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+
+    embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
+    embedder.is_target = True
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata={"vocabulary_file": vocab_file},
+        shapes={
+            "tokens": [None, None],
+            "ids": [None, None],
+            "ids_out": [None, None],
+            "length": [None]
+        })
+
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      sess.run(tf.global_variables_initializer())
+      features, transformed = sess.run([features, transformed])
+      self.assertAllEqual([4], features["length"])
+      self.assertAllEqual([[1, 5, 4, 7]], features["ids"])
+      self.assertAllEqual([[5, 4, 7, 2]], features["ids_out"])
+
+  @test_util.run_tf1_only
   def testWordEmbedderWithTokenizer(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])
     data_file = self._makeTextFile("data.txt", ["hello world!"])
@@ -218,6 +257,7 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([4], features["length"])
       self.assertAllEqual([[2, 1, 3, 4]], features["ids"])
 
+  @test_util.run_tf1_only
   def testWordEmbedderWithPretrainedEmbeddings(self):
     data_file = self._makeTextFile("data.txt", ["hello world !"])
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
@@ -241,6 +281,7 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 1], transformed[0][0])
       self.assertAllEqual([2, 2], transformed[0][1])
 
+  @test_util.run_tf1_only
   def testWordEmbedderWithPretrainedEmbeddingsInInitialize(self):
     data_file = self._makeTextFile("data.txt", ["hello world !"])
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
@@ -268,6 +309,7 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 1], transformed[0][0])
       self.assertAllEqual([2, 2], transformed[0][1])
 
+  @test_util.run_tf1_only
   def testCharConvEmbedder(self):
     vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -289,6 +331,7 @@ class InputterTest(tf.test.TestCase):
           features["char_ids"])
       self.assertAllEqual([1, 3, 5], transformed.shape)
 
+  @test_util.run_tf1_only
   def testCharRNNEmbedder(self):
     vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -306,6 +349,7 @@ class InputterTest(tf.test.TestCase):
       features, transformed = sess.run([features, transformed])
       self.assertAllEqual([1, 3, 5], transformed.shape)
 
+  @test_util.run_tf1_only
   def testParallelInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -335,6 +379,60 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([1, 3, 10], transformed[0].shape)
       self.assertAllEqual([1, 3, 5], transformed[1].shape)
 
+  @test_util.run_tf1_only
+  def testParallelInputterShareParameters(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    metadata = {"vocabulary_file": vocab_file}
+    inputters = [
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10),
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)]
+    parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
+    parallel_inputter.initialize(metadata)
+    parallel_inputter.build()
+    self.assertEqual(inputters[0].embedding, inputters[1].embedding)
+
+  @test_util.run_tf1_only
+  def testNestedParallelInputterShareParameters(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    metadata = {"vocabulary_file": vocab_file}
+    source_inputters = [
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10),
+        text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)]
+    target_inputter = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
+    inputters = [
+        inputter.ParallelInputter(source_inputters, share_parameters=True),
+        target_inputter]
+    parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
+    parallel_inputter.initialize(metadata)
+    parallel_inputter.build()
+    self.assertEqual(source_inputters[0].embedding, target_inputter.embedding)
+    self.assertEqual(source_inputters[1].embedding, target_inputter.embedding)
+
+  @test_util.run_tf1_only
+  def testExampleInputter(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+
+    source_inputter = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    target_inputter = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+    self.assertEqual(example_inputter.num_outputs, 2)
+
+    features, transformed = self._makeDataset(
+        example_inputter,
+        [data_file, data_file],
+        metadata={"vocabulary_file_1": vocab_file, "vocabulary_file_2": vocab_file})
+
+    self.assertIsInstance(features, tuple)
+    self.assertEqual(len(features), 2)
+    self.assertEqual(len(transformed), 2)
+    features, labels = features
+    for field in ("ids", "length", "tokens"):
+      self.assertIn(field, features)
+    for field in ("ids", "ids_out", "length", "tokens"):
+      self.assertIn(field, labels)
+
+  @test_util.run_tf1_only
   def testMixedInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     vocab_alt_file = self._makeTextFile("vocab_alt.txt", ["h", "e", "l", "w", "o"])
@@ -357,6 +455,7 @@ class InputterTest(tf.test.TestCase):
       features, transformed = sess.run([features, transformed])
       self.assertAllEqual([1, 3, 15], transformed.shape)
 
+  @test_util.run_tf1_only
   def testSequenceRecord(self):
     vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)
 

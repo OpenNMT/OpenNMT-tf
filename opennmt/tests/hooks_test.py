@@ -1,8 +1,10 @@
 import tensorflow as tf
 
 from opennmt.utils import hooks
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class HooksTest(tf.test.TestCase):
 
   def testAddCounter(self):

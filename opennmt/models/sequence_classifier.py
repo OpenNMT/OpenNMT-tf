@@ -2,9 +2,10 @@
 
 import tensorflow as tf
 
+from opennmt import inputters
 from opennmt.models.model import Model
 from opennmt.utils.cell import last_encoding_from_state
-from opennmt.utils.misc import count_lines, print_bytes
+from opennmt.utils.misc import print_bytes
 from opennmt.utils.losses import cross_entropy_loss
 
 
@@ -38,32 +39,12 @@ class SequenceClassifier(Model):
     super(SequenceClassifier, self).__init__(
         name,
         features_inputter=inputter,
+        labels_inputter=ClassInputter(labels_vocabulary_file_key),
         daisy_chain_variables=daisy_chain_variables)
-
     self.encoder = encoder
-    self.labels_vocabulary_file_key = labels_vocabulary_file_key
     self.encoding = encoding.lower()
-
     if self.encoding not in ("average", "last"):
       raise ValueError("Invalid encoding vector: {}".format(self.encoding))
-
-  def _initialize(self, metadata, asset_dir=None):
-    assets = super(SequenceClassifier, self)._initialize(metadata, asset_dir=asset_dir)
-    self.labels_vocabulary_file = metadata[self.labels_vocabulary_file_key]
-    self.num_labels = count_lines(self.labels_vocabulary_file)
-    return assets
-
-  def _get_labels_builder(self, labels_file):
-    labels_vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.labels_vocabulary_file,
-        vocab_size=self.num_labels)
-
-    dataset = tf.data.TextLineDataset(labels_file)
-    process_fn = lambda x: {
-        "classes": x,
-        "classes_id": labels_vocabulary.lookup(x)
-    }
-    return dataset, process_fn
 
   def _build(self, features, labels, params, mode, config=None):
     with tf.variable_scope("encoder"):
@@ -74,7 +55,7 @@ class SequenceClassifier(Model):
 
       encoder_outputs, encoder_state, _ = self.encoder.encode(
           inputs,
-          sequence_length=self._get_features_length(features),
+          sequence_length=self.features_inputter.get_length(features),
           mode=mode)
 
     if self.encoding == "average":
@@ -85,12 +66,10 @@ class SequenceClassifier(Model):
     with tf.variable_scope("generator"):
       logits = tf.layers.dense(
           encoding,
-          self.num_labels)
+          self.labels_inputter.vocabulary_size)
 
     if mode != tf.estimator.ModeKeys.TRAIN:
-      labels_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
-          self.labels_vocabulary_file,
-          vocab_size=self.num_labels)
+      labels_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
       classes_prob = tf.nn.softmax(logits)
       classes_id = tf.argmax(classes_prob, axis=1)
       predictions = {
@@ -115,3 +94,17 @@ class SequenceClassifier(Model):
 
   def print_prediction(self, prediction, params=None, stream=None):
     print_bytes(prediction["classes"], stream=stream)
+
+
+class ClassInputter(inputters.TextInputter):
+  """Reading class from a text file."""
+
+  def __init__(self, vocabulary_file_key):
+    super(TagsInputter, self).__init__(
+        vocabulary_file_key=vocabulary_file_key, num_oov_buckets=0)
+
+  def make_features(self, element=None, features=None, training=None):
+    return {
+        "classes": element,
+        "classes_id": self.vocabulary.lookup(element)
+    }

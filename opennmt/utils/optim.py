@@ -6,7 +6,6 @@ import tensorflow as tf
 
 from opennmt import optimizers
 from opennmt.utils import decay
-from opennmt.optimizers.mixed_precision_wrapper import get_loss_scale_from_params
 
 
 def learning_rate_decay_fn(decay_type,
@@ -169,6 +168,7 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None, hvd=None):
     else:
       optimizer = optimizer_class(learning_rate, **optimizer_params)
     if mixed_precision:
+      from opennmt.optimizers.mixed_precision_wrapper import get_loss_scale_from_params
       optimizer = optimizers.MixedPrecisionOptimizerWrapper(
           optimizer, loss_scale=get_loss_scale_from_params(params))
     if hvd is not None:

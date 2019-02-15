@@ -15,5 +15,6 @@ Submodules
    opennmt.layers.common
    opennmt.layers.position
    opennmt.layers.reducer
+   opennmt.layers.rnn
    opennmt.layers.transformer
 

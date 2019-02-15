@@ -9,6 +9,7 @@ import tensorflow as tf
 import yaml
 
 from opennmt.models import catalog
+from opennmt.utils import compat
 from opennmt.utils.misc import merge_dict
 
 
@@ -91,7 +92,7 @@ def load_model(model_dir,
 
   if model_name_or_path:
     if tf.train.latest_checkpoint(model_dir) is not None:
-      tf.logging.warn(
+      compat.logging.warn(
           "You provided a model configuration but a checkpoint already exists. "
           "The model configuration must define the same model as the one used for "
           "the initial training. However, you can change non structural values like "
@@ -100,19 +101,19 @@ def load_model(model_dir,
     if model_file:
       model = load_model_from_file(model_file)
       if serialize_model:
-        tf.gfile.Copy(model_file, model_description_path, overwrite=True)
+        compat.gfile_copy(model_file, model_description_path, overwrite=True)
     elif model_name:
       model = load_model_from_catalog(model_name)
       if serialize_model:
-        with tf.gfile.Open(model_description_path, mode="w") as model_description_file:
+        with compat.gfile_open(model_description_path, mode="w") as model_description_file:
           model_description_file.write("from opennmt.models import catalog\n")
           model_description_file.write("model = catalog.%s\n" % model_name)
-  elif tf.gfile.Exists(model_description_path):
-    tf.logging.info("Loading model description from %s", model_description_path)
+  elif compat.gfile_exists(model_description_path):
+    compat.logging.info("Loading model description from %s", model_description_path)
     model = load_model_from_file(model_description_path)
-  elif tf.gfile.Exists(serial_model_file):
-    tf.logging.info("Loading serialized model description from %s", serial_model_file)
-    with tf.gfile.Open(serial_model_file, mode="rb") as serial_model:
+  elif compat.gfile_exists(serial_model_file):
+    compat.logging.info("Loading serialized model description from %s", serial_model_file)
+    with compat.gfile_open(serial_model_file, mode="rb") as serial_model:
       model = pickle.load(serial_model)
   else:
     raise RuntimeError("A model configuration is required: you probably need to "
@@ -134,7 +135,7 @@ def load_config(config_paths, config=None):
     config = {}
 
   for config_path in config_paths:
-    with tf.gfile.Open(config_path, mode="rb") as config_file:
+    with compat.gfile_open(config_path, mode="rb") as config_file:
       subconfig = yaml.load(config_file.read())
       # Add or update section in main configuration.
       merge_dict(config, subconfig)

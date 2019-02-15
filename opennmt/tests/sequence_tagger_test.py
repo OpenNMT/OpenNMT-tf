@@ -2,8 +2,10 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt.models import sequence_tagger
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class SequenceTaggerTest(tf.test.TestCase):
 
   def _testTagSchemeFlags(self,

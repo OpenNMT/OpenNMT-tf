@@ -2,8 +2,10 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt.utils import optim
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class OptimTest(tf.test.TestCase):
 
   def _testRegularization(self, type, scale):

@@ -6,7 +6,8 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
-from opennmt.utils.misc import extract_prefixed_keys
+from opennmt.utils.data import inference_pipeline, training_pipeline
+from opennmt.utils.misc import extract_prefixed_keys, extract_suffixed_keys, item_or_tuple
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -17,24 +18,160 @@ class Inputter(object):
     self.volatile = set()
     self.process_hooks = []
     self.dtype = dtype
+    self.is_target = False
 
   @property
   def num_outputs(self):
     """How many parallel outputs does this inputter produce."""
     return 1
 
-  def add_process_hooks(self, hooks):
-    """Adds processing hooks.
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    """Initializes the inputter within the current graph.
 
-    Processing hooks are additional and model specific data processing
-    functions applied after calling this inputter
-    :meth:`opennmt.inputters.inputter.Inputter.process` function.
+    For example, one can create lookup tables in this method
+    for their initializer to be added to the current graph
+    ``TABLE_INITIALIZERS`` collection.
 
     Args:
-      hooks: A list of callables with the signature
-        ``(inputter, data) -> data``.
+      metadata: A dictionary containing additional metadata set
+        by the user.
+      asset_dir: The directory where assets can be written. If ``None``, no
+        assets are returned.
+      asset_prefix: The prefix to attach to assets filename.
+
+    Returns:
+      A dictionary containing additional assets used by the inputter.
     """
-    self.process_hooks.extend(hooks)
+    _ = metadata
+    _ = asset_dir
+    _ = asset_prefix
+    return {}
+
+  @abc.abstractmethod
+  def make_dataset(self, data_file, training=None):
+    """Creates the base dataset required by this inputter.
+
+    Args:
+      data_file: The data file.
+      training: Run in training mode.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    raise NotImplementedError()
+
+  def make_inference_dataset(self,
+                             features_file,
+                             batch_size,
+                             bucket_width=None,
+                             num_threads=1,
+                             prefetch_buffer_size=None):
+    """Builds a dataset to be used for inference.
+
+    For evaluation and training datasets, see
+    :class:`opennmt.inputters.inputter.ExampleInputter`.
+
+    Args:
+      features_file: The test file.
+      batch_size: The batch size to use.
+      bucket_width: The width of the length buckets to select batch candidates
+        from (for efficiency). Set ``None`` to not constrain batch formation.
+      num_threads: The number of elements processed in parallel.
+      prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+        older versions.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    map_func = lambda *arg: self.make_features(item_or_tuple(arg), training=False)
+    dataset = self.make_dataset(features_file, training=False)
+    dataset = inference_pipeline(
+        dataset,
+        batch_size,
+        process_fn=map_func,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size,
+        bucket_width=bucket_width,
+        length_fn=self.get_length)
+    return dataset
+
+  @abc.abstractmethod
+  def get_dataset_size(self, data_file):
+    """Returns the size of the dataset.
+
+    Args:
+      data_file: The data file.
+
+    Returns:
+      The total size.
+    """
+    raise NotImplementedError()
+
+  def get_serving_input_receiver(self):
+    """Returns a serving input receiver for this inputter.
+
+    Returns:
+      A ``tf.estimator.export.ServingInputReceiver``.
+    """
+    if self.is_target:
+      raise ValueError("Target inputters do not define a serving input")
+    receiver_tensors = self.get_receiver_tensors()
+    if receiver_tensors is None:
+      raise NotImplementedError("This inputter does not define receiver tensors.")
+    features = self.make_features(features=receiver_tensors.copy())
+    return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
+
+  def get_receiver_tensors(self):
+    """Returns the input placeholders for serving."""
+    return None
+
+  def get_length(self, features):
+    """Returns the length of the input features, if defined."""
+    return features.get("length")
+
+  @abc.abstractmethod
+  def make_features(self, element=None, features=None, training=None):
+    """Creates features from data.
+
+    Args:
+      element: An element from the dataset.
+      features: An optional dictionary of features to augment.
+      training: Run in training mode.
+
+    Returns:
+      A dictionary of ``tf.Tensor``.
+    """
+    raise NotImplementedError()
+
+  def build(self):
+    """Creates the variables of this inputter."""
+    return
+
+  def make_inputs(self, features, training=None):
+    """Creates the model input from the features.
+
+    Args:
+      features: A dictionary of ``tf.Tensor``.
+      training: Run in training mode.
+
+    Returns:
+      The model input.
+    """
+    _ = training
+    return features
+
+  def visualize(self, log_dir):
+    """Visualizes the transformation, usually embeddings.
+
+    Args:
+      log_dir: The active log directory.
+    """
+    _ = log_dir
+    return
+
+
+  # TODO: remove the following methods at some point.
 
   def set_data_field(self, data, key, value, volatile=False):
     """Sets a data field.
@@ -67,79 +204,25 @@ class Inputter(object):
     del data[key]
     return data
 
-  def get_length(self, unused_data):
-    """Returns the length of the input data, if defined."""
-    return None
+  def add_process_hooks(self, hooks):
+    """Adds processing hooks.
 
-  @abc.abstractmethod
-  def make_dataset(self, data_file):
-    """Creates the dataset required by this inputter.
-
-    Args:
-      data_file: The data file.
-
-    Returns:
-      A ``tf.data.Dataset``.
-    """
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def get_dataset_size(self, data_file):
-    """Returns the size of the dataset.
+    Processing hooks are additional and model specific data processing
+    functions applied after calling this inputter
+    :meth:`opennmt.inputters.inputter.Inputter.process` function.
 
     Args:
-      data_file: The data file.
-
-    Returns:
-      The total size.
+      hooks: A list of callables with the signature
+        ``(inputter, data) -> data``.
     """
-    raise NotImplementedError()
+    self.process_hooks.extend(hooks)
 
-  def get_serving_input_receiver(self):
-    """Returns a serving input receiver for this inputter.
-
-    Returns:
-      A ``tf.estimator.export.ServingInputReceiver``.
-    """
-    receiver_tensors, features = self._get_serving_input()
-    return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
-
-  def _get_serving_input(self):
-    """Returns the input receiver for serving.
-
-    Returns:
-      A tuple ``(receiver_tensors, features)`` as described in
-      ``tf.estimator.export.ServingInputReceiver``.
-    """
-    raise NotImplementedError()
-
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
-    """Initializes the inputter within the current graph.
-
-    For example, one can create lookup tables in this method
-    for their initializer to be added to the current graph
-    ``TABLE_INITIALIZERS`` collection.
-
-    Args:
-      metadata: A dictionary containing additional metadata set
-        by the user.
-      asset_dir: The directory where assets can be written. If ``None``, no
-        assets are returned.
-      asset_prefix: The prefix to attach to assets filename.
-
-    Returns:
-      A dictionary containing additional assets used by the inputter.
-    """
-    _ = metadata
-    _ = asset_dir
-    _ = asset_prefix
-    return {}
-
-  def process(self, data):
+  def process(self, data, training=None):
     """Prepares raw data.
 
     Args:
       data: The raw data.
+      training: Run in training mode.
 
     Returns:
       A dictionary of ``tf.Tensor``.
@@ -147,47 +230,13 @@ class Inputter(object):
     See Also:
       :meth:`opennmt.inputters.inputter.Inputter.transform_data`
     """
-    data = self._process(data)
+    data = self.make_features(data, training=training)
     for hook in self.process_hooks:
       data = hook(self, data)
     for key in self.volatile:
       data = self.remove_data_field(data, key)
     self.volatile.clear()
     return data
-
-  def _process(self, data):
-    """Prepares raw data (implementation).
-
-    Subclasses should extend this function to prepare the raw value read
-    from the dataset to something they can transform (e.g. processing a
-    line of text to a sequence of ids).
-
-    This base implementation makes sure the data is a dictionary so subclasses
-    can populate it.
-
-    Args:
-      data: The raw data or a dictionary containing the ``raw`` key.
-
-    Returns:
-      A dictionary of ``tf.Tensor``.
-
-    Raises:
-      ValueError: if :obj:`data` is a dictionary but does not contain the
-        ``raw`` key.
-    """
-    if not isinstance(data, dict):
-      data = self.set_data_field({}, "raw", data, volatile=True)
-    elif "raw" not in data:
-      raise ValueError("data must contain the raw dataset value")
-    return data
-
-  def visualize(self, log_dir):
-    """Visualizes the transformation, usually embeddings.
-
-    Args:
-      log_dir: The active log directory.
-    """
-    pass
 
   def transform_data(self, data, mode=tf.estimator.ModeKeys.TRAIN, log_dir=None):
     """Transforms the processed data to an input.
@@ -205,29 +254,10 @@ class Inputter(object):
     Returns:
       The transformed input.
     """
-    inputs = self._transform_data(data, mode)
+    inputs = self.make_inputs(data, training=mode == tf.estimator.ModeKeys.TRAIN)
     if log_dir:
       self.visualize(log_dir)
     return inputs
-
-  @abc.abstractmethod
-  def _transform_data(self, data, mode):
-    """Implementation of ``transform_data``."""
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def transform(self, inputs, mode):
-    """Transforms inputs.
-
-    Args:
-      inputs: A (possible nested structure of) ``tf.Tensor`` which depends on
-        the inputter.
-      mode: A ``tf.estimator.ModeKeys`` mode.
-
-    Returns:
-      The transformed input.
-    """
-    raise NotImplementedError()
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -251,14 +281,6 @@ class MultiInputter(Inputter):
       return len(self.inputters)
     return 1
 
-  @abc.abstractmethod
-  def make_dataset(self, data_file):
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def get_dataset_size(self, data_file):
-    raise NotImplementedError()
-
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = {}
     for i, inputter in enumerate(self.inputters):
@@ -266,51 +288,47 @@ class MultiInputter(Inputter):
           metadata, asset_dir=asset_dir, asset_prefix="%s%d_" % (asset_prefix, i + 1)))
     return assets
 
-  def visualize(self, log_dir):
-    for i, inputter in enumerate(self.inputters):
-      with tf.variable_scope("inputter_{}".format(i)):
-        inputter.visualize(log_dir)
-
   @abc.abstractmethod
-  def _get_serving_input(self):
+  def make_dataset(self, data_file, training=None):
     raise NotImplementedError()
 
-  def transform(self, inputs, mode):
-    transformed = []
-    for i, inputter in enumerate(self.inputters):
-      with tf.variable_scope("inputter_{}".format(i)):
-        transformed.append(inputter.transform(inputs[i], mode))
-    return transformed
+  @abc.abstractmethod
+  def get_dataset_size(self, data_file):
+    raise NotImplementedError()
+
+  def visualize(self, log_dir):
+    for inputter in self.inputters:
+      inputter.visualize(log_dir)
 
 
 class ParallelInputter(MultiInputter):
   """An multi inputter that process parallel data."""
 
-  def __init__(self, inputters, reducer=None):
+  def __init__(self,
+               inputters,
+               reducer=None,
+               share_parameters=False,
+               combine_features=True):
     """Initializes a parallel inputter.
 
     Args:
       inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
       reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs. If
         set, parallel inputs are assumed to have the same length.
+      share_parameters: Share the inputters parameters.
+      combine_features: Combine each inputter features in a single dict or
+        return them separately. This is typically ``True`` for multi source
+        inputs but ``False`` for features/labels parallel data.
     """
     super(ParallelInputter, self).__init__(inputters, reducer=reducer)
+    self.combine_features = combine_features
+    self.share_parameters = share_parameters
 
-  def get_length(self, data):
-    lengths = []
-    for i, inputter in enumerate(self.inputters):
-      sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
-      lengths.append(inputter.get_length(sub_data))
-    if self.reducer is None:
-      return lengths
-    else:
-      return lengths[0]
-
-  def make_dataset(self, data_file):
+  def make_dataset(self, data_file, training=None):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
       raise ValueError("The number of data files must be the same as the number of inputters")
     datasets = [
-        inputter.make_dataset(data)
+        inputter.make_dataset(data, training=training)
         for inputter, data in zip(self.inputters, data_file)]
     return tf.data.Dataset.zip(tuple(datasets))
 
@@ -326,42 +344,92 @@ class ParallelInputter(MultiInputter):
         raise RuntimeError("The parallel data files do not have the same size")
     return dataset_size
 
-  def _get_serving_input(self):
-    all_receiver_tensors = {}
-    all_features = {}
+  def get_receiver_tensors(self):
+    receiver_tensors = {}
     for i, inputter in enumerate(self.inputters):
-      receiver_tensors, features = inputter._get_serving_input()  # pylint: disable=protected-access
-      for key, value in six.iteritems(receiver_tensors):
-        all_receiver_tensors["{}_{}".format(key, i)] = value
-      for key, value in six.iteritems(features):
-        all_features["inputter_{}_{}".format(i, key)] = value
-    return all_receiver_tensors, all_features
+      tensors = inputter.get_receiver_tensors()
+      for key, value in six.iteritems(tensors):
+        receiver_tensors["{}_{}".format(key, i)] = value
+    return receiver_tensors
 
-  def _process(self, data):
-    processed_data = {}
+  def get_length(self, features):
+    lengths = []
     for i, inputter in enumerate(self.inputters):
-      sub_data = inputter._process(data[i])  # pylint: disable=protected-access
-      for key, value in six.iteritems(sub_data):
-        prefixed_key = "inputter_{}_{}".format(i, key)
-        processed_data = self.set_data_field(
-            processed_data,
-            prefixed_key,
-            value,
-            volatile=key in inputter.volatile)
-    return processed_data
+      if self.combine_features:
+        sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+      else:
+        sub_features = features[i]
+      lengths.append(inputter.get_length(sub_features))
+    if self.reducer is None:
+      return lengths
+    else:
+      return lengths[0]
 
-  def _transform_data(self, data, mode):
+  def make_features(self, element=None, features=None, training=None):
+    if self.combine_features:
+      if features is None:
+        features = {}
+      for i, inputter in enumerate(self.inputters):
+        prefix = "inputter_%d_" % i
+        sub_features = extract_prefixed_keys(features, prefix)
+        if not sub_features:
+          # Also try to read the format produced by get_receiver_tensors.
+          sub_features = extract_suffixed_keys(features, "_%d" % i)
+        sub_features = inputter.make_features(
+            element=element[i] if element is not None else None,
+            features=sub_features,
+            training=training)
+        for key, value in six.iteritems(sub_features):
+          features["%s%s" % (prefix, key)] = value
+      return features
+    else:
+      if features is None:
+        features = [{} for _ in self.inputters]
+      for i, inputter in enumerate(self.inputters):
+        features[i] = inputter.make_features(
+            element=element[i] if element is not None else None,
+            features=features[i],
+            training=training)
+      return tuple(features)
+
+  def _get_names(self):
+    for i, _ in enumerate(self.inputters):
+      yield "inputter_%d" % i
+
+  def _get_shared_name(self):
+    return ""
+
+  def _get_scopes(self):
+    names = list(self._get_names())
+    for i, _ in enumerate(self.inputters):
+      if self.share_parameters:
+        name = self._get_shared_name()
+        reuse = i > 0
+      else:
+        name = names[i]
+        reuse = None
+      scope_name = tf.get_variable_scope().name
+      if name:
+        if scope_name:
+          scope_name = "%s/%s" % (scope_name, name)
+        else:
+          scope_name = name
+      yield tf.VariableScope(reuse, name=scope_name)
+
+  def build(self):
+    for inputter, scope in zip(self.inputters, self._get_scopes()):
+      with tf.variable_scope(scope):
+        inputter.build()
+
+  def make_inputs(self, features, training=None):
     transformed = []
-    for i, inputter in enumerate(self.inputters):
-      with tf.variable_scope("inputter_{}".format(i)):
-        sub_data = extract_prefixed_keys(data, "inputter_{}_".format(i))
-        transformed.append(inputter._transform_data(sub_data, mode))  # pylint: disable=protected-access
-    if self.reducer is not None:
-      transformed = self.reducer(transformed)
-    return transformed
-
-  def transform(self, inputs, mode):
-    transformed = super(ParallelInputter, self).transform(inputs, mode)
+    for i, (inputter, scope) in enumerate(zip(self.inputters, self._get_scopes())):
+      with tf.variable_scope(scope):
+        if self.combine_features:
+          sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+        else:
+          sub_features = features[i]
+        transformed.append(inputter.make_inputs(sub_features, training=training))
     if self.reducer is not None:
       transformed = self.reducer(transformed)
     return transformed
@@ -384,47 +452,183 @@ class MixedInputter(MultiInputter):
     super(MixedInputter, self).__init__(inputters, reducer=reducer)
     self.dropout = dropout
 
-  def get_length(self, data):
-    return self.inputters[0].get_length(data)
-
-  def make_dataset(self, data_file):
-    return self.inputters[0].make_dataset(data_file)
+  def make_dataset(self, data_file, training=None):
+    return self.inputters[0].make_dataset(data_file, training=training)
 
   def get_dataset_size(self, data_file):
     return self.inputters[0].get_dataset_size(data_file)
 
-  def _get_serving_input(self):
-    all_receiver_tensors = {}
-    all_features = {}
+  def get_receiver_tensors(self):
+    receiver_tensors = {}
     for inputter in self.inputters:
-      receiver_tensors, features = inputter._get_serving_input()  # pylint: disable=protected-access
-      all_receiver_tensors.update(receiver_tensors)
-      all_features.update(features)
-    return all_receiver_tensors, all_features
+      receiver_tensors.update(inputter.get_receiver_tensors())
+    return receiver_tensors
 
-  def _process(self, data):
+  def get_length(self, features):
+    return self.inputters[0].get_length(features)
+
+  def make_features(self, element=None, features=None, training=None):
+    if features is None:
+      features = {}
     for inputter in self.inputters:
-      data = inputter._process(data)  # pylint: disable=protected-access
-      self.volatile |= inputter.volatile
-    return data
+      features = inputter.make_features(
+          element=element, features=features, training=training)
+    return features
 
-  def _transform_data(self, data, mode):
+  def make_inputs(self, features, training=None):
     transformed = []
     for i, inputter in enumerate(self.inputters):
       with tf.variable_scope("inputter_{}".format(i)):
-        transformed.append(inputter._transform_data(data, mode))  # pylint: disable=protected-access
+        transformed.append(inputter.make_inputs(features, training=training))
     outputs = self.reducer(transformed)
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
+    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs
 
-  def transform(self, inputs, mode):
-    transformed = super(MixedInputter, self).transform(inputs, mode)
-    outputs = self.reducer(transformed)
-    outputs = tf.layers.dropout(
-        outputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
-    return outputs
+
+class ExampleInputter(ParallelInputter):
+  """An inputter that returns training examples (parallel features and labels)."""
+
+  def __init__(self, features_inputter, labels_inputter, share_parameters=False):
+    """Initializes this inputter.
+
+    Args:
+      features_inputter: An inputter producing the features (source).
+      labels_inputter: An inputter producing the labels (target).
+      share_parameters: Share the inputters parameters.
+    """
+    self.features_inputter = features_inputter
+    self.labels_inputter = labels_inputter
+    self.labels_inputter.is_target = True
+    super(ExampleInputter, self).__init__(
+        [self.features_inputter, self.labels_inputter],
+        share_parameters=share_parameters,
+        combine_features=False)
+
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    assets = {}
+    assets.update(self.features_inputter.initialize(
+        metadata, asset_dir=asset_dir, asset_prefix="source_"))
+    assets.update(self.labels_inputter.initialize(
+        metadata, asset_dir=asset_dir, asset_prefix="target_"))
+    return assets
+
+  def make_inference_dataset(self,
+                             features_file,
+                             batch_size,
+                             bucket_width=None,
+                             num_threads=1,
+                             prefetch_buffer_size=None):
+    return self.features_inputter.make_inference_dataset(
+        features_file,
+        batch_size,
+        bucket_width=bucket_width,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size)
+
+  def make_evaluation_dataset(self,
+                              features_file,
+                              labels_file,
+                              batch_size,
+                              num_threads=1,
+                              prefetch_buffer_size=None):
+    """Builds a dataset to be used for evaluation.
+
+    Args:
+      features_file: The evaluation source file.
+      labels_file: The evaluation target file.
+      batch_size: The batch size to use.
+      num_threads: The number of elements processed in parallel.
+      prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+        older versions.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    map_func = lambda *arg: self.make_features(arg, training=False)
+    dataset = self.make_dataset([features_file, labels_file], training=False)
+    dataset = inference_pipeline(
+        dataset,
+        batch_size,
+        process_fn=map_func,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size)
+    return dataset
+
+  def make_training_dataset(self,
+                            features_file,
+                            labels_file,
+                            batch_size,
+                            batch_type="examples",
+                            batch_multiplier=1,
+                            batch_size_multiple=1,
+                            shuffle_buffer_size=None,
+                            bucket_width=None,
+                            maximum_features_length=None,
+                            maximum_labels_length=None,
+                            single_pass=False,
+                            num_shards=1,
+                            shard_index=0,
+                            num_threads=4,
+                            prefetch_buffer_size=None):
+    """Builds a dataset to be used for training. It supports the full training
+    pipeline, including:
+
+    * sharding
+    * shuffling
+    * filtering
+    * bucketing
+    * prefetching
+
+    Args:
+      features_file: The evaluation source file.
+      labels_file: The evaluation target file.
+      batch_size: The batch size to use.
+      batch_type: The training batching stragety to use: can be "examples" or
+        "tokens".
+      batch_multiplier: The batch size multiplier to prepare splitting accross
+         replicated graph parts.
+      batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
+        result batch size is a multiple of this value.
+      shuffle_buffer_size: The number of elements from which to sample.
+      bucket_width: The width of the length buckets to select batch candidates
+        from (for efficiency). Set ``None`` to not constrain batch formation.
+      maximum_features_length: The maximum length or list of maximum lengths of
+        the features sequence(s). ``None`` to not constrain the length.
+      maximum_labels_length: The maximum length of the labels sequence.
+        ``None`` to not constrain the length.
+      single_pass: If ``True``, makes a single pass over the training data.
+      num_shards: The number of data shards (usually the number of workers in a
+        distributed setting).
+      shard_index: The shard index this data pipeline should read from.
+      num_threads: The number of elements processed in parallel.
+      prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+        older versions.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    dataset_size = self.features_inputter.get_dataset_size(features_file)
+    map_func = lambda *arg: self.make_features(arg, training=True)
+    dataset = self.make_dataset([features_file, labels_file], training=True)
+    dataset = training_pipeline(
+        dataset,
+        batch_size,
+        batch_type=batch_type,
+        batch_multiplier=batch_multiplier,
+        bucket_width=bucket_width,
+        single_pass=single_pass,
+        process_fn=map_func,
+        num_threads=num_threads,
+        shuffle_buffer_size=shuffle_buffer_size,
+        prefetch_buffer_size=prefetch_buffer_size,
+        dataset_size=dataset_size,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        features_length_fn=self.features_inputter.get_length,
+        labels_length_fn=self.labels_inputter.get_length,
+        batch_size_multiple=batch_size_multiple,
+        num_shards=num_shards,
+        shard_index=shard_index)
+    return dataset

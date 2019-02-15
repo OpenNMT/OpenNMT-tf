@@ -7,9 +7,9 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import data, hooks
+from opennmt import inputters
+from opennmt.utils import hooks
 from opennmt.utils.optim import optimize_loss
-from opennmt.utils.misc import item_or_tuple
 from opennmt.utils.parallel import GraphDispatcher
 
 
@@ -22,13 +22,17 @@ class Model(object):
                features_inputter=None,
                labels_inputter=None,
                daisy_chain_variables=False,
-               dtype=None):
+               dtype=None,
+               examples_inputter=None):
     self.name = name
-    self.features_inputter = features_inputter
-    self.labels_inputter = labels_inputter
+    self.examples_inputter = examples_inputter
+    if self.examples_inputter is None:
+      self.examples_inputter = inputters.ExampleInputter(features_inputter, labels_inputter)
+    self.features_inputter = self.examples_inputter.features_inputter
+    self.labels_inputter = self.examples_inputter.labels_inputter
     self.daisy_chain_variables = daisy_chain_variables
     if dtype is None and self.features_inputter is not None:
-      self.dtype = features_inputter.dtype
+      self.dtype = self.features_inputter.dtype
     else:
       self.dtype = dtype or tf.float32
 
@@ -126,8 +130,9 @@ class Model(object):
         if extra_variables:
           training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
         if config is not None:
-          features_length = self._get_features_length(features)
-          labels_length = self._get_labels_length(labels)
+          self.examples_inputter.visualize(config.model_dir)
+          features_length = self.features_inputter.get_length(features)
+          labels_length = self.labels_inputter.get_length(labels)
           num_words = {}
           if features_length is not None:
             num_words["source"] = tf.reduce_sum(features_length)
@@ -247,182 +252,7 @@ class Model(object):
     Returns:
       A dictionary containing additional assets used by the model.
     """
-    assets = {}
-    if self.features_inputter is not None:
-      assets.update(self.features_inputter.initialize(
-          metadata, asset_dir=asset_dir, asset_prefix="source_"))
-    if self.labels_inputter is not None:
-      assets.update(self.labels_inputter.initialize(
-          metadata, asset_dir=asset_dir, asset_prefix="target_"))
-    return assets
-
-  def _get_serving_input_receiver(self):
-    """Returns an input receiver for serving this model.
-
-    Returns:
-      A ``tf.estimator.export.ServingInputReceiver``.
-    """
-    if self.features_inputter is None:
-      raise NotImplementedError()
-    return self.features_inputter.get_serving_input_receiver()
-
-  def _get_features_length(self, features):
-    """Returns the features length.
-
-    Args:
-      features: A dict of ``tf.Tensor``.
-
-    Returns:
-      The length as a ``tf.Tensor`` or list of ``tf.Tensor``, or ``None`` if
-      length is undefined.
-    """
-    if self.features_inputter is None:
-      return None
-    return self.features_inputter.get_length(features)
-
-  def _get_labels_length(self, labels):
-    """Returns the labels length.
-
-    Args:
-      labels: A dict of ``tf.Tensor``.
-
-    Returns:
-      The length as a ``tf.Tensor``  or ``None`` if length is undefined.
-    """
-    if self.labels_inputter is None:
-      return None
-    return self.labels_inputter.get_length(labels)
-
-  def _get_dataset_size(self, features_file):
-    """Returns the size of the dataset.
-
-    Args:
-      features_file: The file of features.
-
-    Returns:
-      The total size.
-    """
-    if self.features_inputter is None:
-      raise NotImplementedError()
-    return self.features_inputter.get_dataset_size(features_file)
-
-  def _get_features_builder(self, features_file):
-    """Returns the recipe to build features.
-
-    Args:
-      features_file: The file of features.
-
-    Returns:
-      A tuple ``(tf.data.Dataset, process_fn)``.
-    """
-    if self.features_inputter is None:
-      raise NotImplementedError()
-    dataset = self.features_inputter.make_dataset(features_file)
-    process_fn = self.features_inputter.process
-    return dataset, process_fn
-
-  def _get_labels_builder(self, labels_file):
-    """Returns the recipe to build labels.
-
-    Args:
-      labels_file: The file of labels.
-
-    Returns:
-      A tuple ``(tf.data.Dataset, process_fn)``.
-    """
-    if self.labels_inputter is None:
-      raise NotImplementedError()
-    dataset = self.labels_inputter.make_dataset(labels_file)
-    process_fn = self.labels_inputter.process
-    return dataset, process_fn
-
-  def _augment_parallel_dataset(self, dataset, process_fn, mode=None):
-    """Augments a parallel dataset.
-
-    Args:
-      dataset: A parallel dataset.
-      process_fn: The current dataset processing function.
-      mode: A ``tf.estimator.ModeKeys`` mode.
-
-    Returns:
-      A tuple ``(tf.data.Dataset, process_fn)``.
-    """
-    _ = mode
-    return dataset, process_fn
-
-  def _input_fn_impl(self,
-                     mode,
-                     batch_size,
-                     metadata,
-                     features_file,
-                     labels_file=None,
-                     batch_type="examples",
-                     batch_multiplier=1,
-                     bucket_width=None,
-                     single_pass=False,
-                     num_threads=None,
-                     sample_buffer_size=None,
-                     prefetch_buffer_size=None,
-                     num_shards=1,
-                     shard_index=0,
-                     maximum_features_length=None,
-                     maximum_labels_length=None):
-    """See ``input_fn``."""
-    self._initialize(metadata)
-
-    feat_dataset, feat_process_fn = self._get_features_builder(features_file)
-
-    if labels_file is None:
-      dataset = feat_dataset
-      # Parallel inputs must be catched in a single tuple and not considered as multiple arguments.
-      process_fn = lambda *arg: feat_process_fn(item_or_tuple(arg))
-    else:
-      labels_dataset, labels_process_fn = self._get_labels_builder(labels_file)
-
-      dataset = tf.data.Dataset.zip((feat_dataset, labels_dataset))
-      process_fn = lambda features, labels: (
-          feat_process_fn(features), labels_process_fn(labels))
-      dataset, process_fn = self._augment_parallel_dataset(dataset, process_fn, mode=mode)
-
-    if mode == tf.estimator.ModeKeys.TRAIN:
-      batch_size_multiple = 1
-      if batch_type == "tokens" and self.dtype == tf.float16:
-        batch_size_multiple = 8
-      dataset = data.training_pipeline(
-          dataset,
-          batch_size,
-          batch_type=batch_type,
-          batch_multiplier=batch_multiplier,
-          bucket_width=bucket_width,
-          single_pass=single_pass,
-          process_fn=process_fn,
-          num_threads=num_threads,
-          shuffle_buffer_size=sample_buffer_size,
-          prefetch_buffer_size=prefetch_buffer_size,
-          dataset_size=self._get_dataset_size(features_file),
-          maximum_features_length=maximum_features_length,
-          maximum_labels_length=maximum_labels_length,
-          features_length_fn=self._get_features_length,
-          labels_length_fn=self._get_labels_length,
-          batch_size_multiple=batch_size_multiple,
-          num_shards=num_shards,
-          shard_index=shard_index)
-    else:
-      dataset = data.inference_pipeline(
-          dataset,
-          batch_size,
-          process_fn=process_fn,
-          num_threads=num_threads,
-          prefetch_buffer_size=prefetch_buffer_size,
-          bucket_width=bucket_width,
-          length_fn=self._get_features_length)
-
-    iterator = dataset.make_initializable_iterator()
-
-    # Add the initializer to a standard collection for it to be initialized.
-    tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
-
-    return iterator.get_next()
+    return self.examples_inputter.initialize(metadata, asset_dir=asset_dir)
 
   def input_fn(self,
                mode,
@@ -473,43 +303,54 @@ class Model(object):
     Returns:
       A callable that returns the next element.
 
-    Raises:
-      ValueError: if :obj:`labels_file` is not set when in training or
-        evaluation mode.
-
     See Also:
       ``tf.estimator.Estimator``.
     """
-    if mode != tf.estimator.ModeKeys.PREDICT and labels_file is None:
-      raise ValueError("Labels file is required for training and evaluation")
+    batch_size_multiple = 1
+    if batch_type == "tokens" and self.dtype == tf.float16:
+      batch_size_multiple = 8
 
-    return lambda: self._input_fn_impl(
-        mode,
-        batch_size,
-        metadata,
-        features_file,
-        labels_file=labels_file,
-        batch_type=batch_type,
-        batch_multiplier=batch_multiplier,
-        bucket_width=bucket_width,
-        single_pass=single_pass,
-        num_threads=num_threads,
-        sample_buffer_size=sample_buffer_size,
-        prefetch_buffer_size=prefetch_buffer_size,
-        num_shards=num_shards,
-        shard_index=shard_index,
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length)
+    def _fn():
+      self._initialize(metadata)
 
-  def _serving_input_fn_impl(self, metadata):
-    """See ``serving_input_fn``."""
-    self._initialize(metadata)
-    # This is a hack for SequenceRecordInputter that currently infers the input
-    # depth from the data files.
-    # TODO: This method should not require the training data.
-    if self.features_inputter is not None and "train_features_file" in metadata:
-      _ = self.features_inputter.make_dataset(metadata["train_features_file"])
-    return self._get_serving_input_receiver()
+      if mode == tf.estimator.ModeKeys.PREDICT:
+        dataset = self.examples_inputter.make_inference_dataset(
+            features_file,
+            batch_size,
+            bucket_width=bucket_width,
+            num_threads=num_threads,
+            prefetch_buffer_size=prefetch_buffer_size)
+      elif mode == tf.estimator.ModeKeys.EVAL:
+        dataset = self.examples_inputter.make_evaluation_dataset(
+            features_file,
+            labels_file,
+            batch_size,
+            num_threads=num_threads,
+            prefetch_buffer_size=prefetch_buffer_size)
+      elif mode == tf.estimator.ModeKeys.TRAIN:
+        dataset = self.examples_inputter.make_training_dataset(
+            features_file,
+            labels_file,
+            batch_size,
+            batch_type=batch_type,
+            batch_multiplier=batch_multiplier,
+            batch_size_multiple=batch_size_multiple,
+            shuffle_buffer_size=sample_buffer_size,
+            bucket_width=bucket_width,
+            maximum_features_length=maximum_features_length,
+            maximum_labels_length=maximum_labels_length,
+            single_pass=single_pass,
+            num_shards=num_shards,
+            shard_index=shard_index,
+            num_threads=num_threads,
+            prefetch_buffer_size=prefetch_buffer_size)
+
+      iterator = dataset.make_initializable_iterator()
+      # Add the initializer to a standard collection for it to be initialized.
+      tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
+      return iterator.get_next()
+
+    return _fn
 
   def serving_input_fn(self, metadata):
     """Returns the serving input function.
@@ -521,7 +362,19 @@ class Model(object):
     Returns:
       A callable that returns a ``tf.estimator.export.ServingInputReceiver``.
     """
-    return lambda: self._serving_input_fn_impl(metadata)
+    if self.features_inputter is None:
+      raise NotImplementedError()
+
+    def _fn():
+      self._initialize(metadata)
+      # This is a hack for SequenceRecordInputter that currently infers the input
+      # depth from the data files.
+      # TODO: This method should not require the training data.
+      if  "train_features_file" in metadata:
+        _ = self.features_inputter.make_dataset(metadata["train_features_file"])
+      return self.features_inputter.get_serving_input_receiver()
+
+    return _fn
 
   def get_assets(self, metadata, asset_dir):
     """Returns additional assets used by this model.

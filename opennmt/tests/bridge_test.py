@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 from opennmt.layers import bridge
+from opennmt.tests import test_util
 
 
 def _build_state(num_layers, num_units, batch_size):
@@ -9,6 +10,7 @@ def _build_state(num_layers, num_units, batch_size):
   return cell.zero_state(batch_size, tf.float32)
 
 
+@test_util.run_tf1_only
 class BridgeTest(tf.test.TestCase):
 
   def testZeroBridge(self):

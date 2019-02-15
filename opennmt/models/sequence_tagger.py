@@ -3,8 +3,9 @@
 import tensorflow as tf
 import numpy as np
 
+from opennmt import inputters
 from opennmt.models.model import Model
-from opennmt.utils.misc import count_lines, print_bytes
+from opennmt.utils.misc import print_bytes
 from opennmt.utils.losses import cross_entropy_sequence_loss
 
 
@@ -38,37 +39,17 @@ class SequenceTagger(Model):
     super(SequenceTagger, self).__init__(
         name,
         features_inputter=inputter,
+        labels_inputter=TagsInputter(labels_vocabulary_file_key),
         daisy_chain_variables=daisy_chain_variables)
-
     self.encoder = encoder
-    self.labels_vocabulary_file_key = labels_vocabulary_file_key
     self.crf_decoding = crf_decoding
-
     if tagging_scheme:
       self.tagging_scheme = tagging_scheme.lower()
     else:
       self.tagging_scheme = None
 
-  def _initialize(self, metadata, asset_dir=None):
-    assets = super(SequenceTagger, self)._initialize(metadata, asset_dir=asset_dir)
-    self.labels_vocabulary_file = metadata[self.labels_vocabulary_file_key]
-    self.num_labels = count_lines(self.labels_vocabulary_file)
-    return assets
-
-  def _get_labels_builder(self, labels_file):
-    labels_vocabulary = tf.contrib.lookup.index_table_from_file(
-        self.labels_vocabulary_file,
-        vocab_size=self.num_labels)
-
-    dataset = tf.data.TextLineDataset(labels_file)
-    process_fn = lambda x: {
-        "tags": tf.string_split([x]).values,
-        "tags_id": labels_vocabulary.lookup(tf.string_split([x]).values)
-    }
-    return dataset, process_fn
-
   def _build(self, features, labels, params, mode, config=None):
-    length = self._get_features_length(features)
+    length = self.features_inputter.get_length(features)
 
     with tf.variable_scope("encoder"):
       inputs = self.features_inputter.transform_data(
@@ -84,12 +65,12 @@ class SequenceTagger(Model):
     with tf.variable_scope("generator"):
       logits = tf.layers.dense(
           encoder_outputs,
-          self.num_labels)
+          self.labels_inputter.vocabulary_size)
 
     if mode != tf.estimator.ModeKeys.TRAIN:
       if self.crf_decoding:
-        transition_params = tf.get_variable(
-            "transitions", shape=[self.num_labels, self.num_labels])
+        shape = [self.labels_inputter.vocabulary_size, self.labels_inputter.vocabulary_size]
+        transition_params = tf.get_variable("transitions", shape=shape)
         tags_id, _ = tf.contrib.crf.crf_decode(
             logits,
             transition_params,
@@ -99,9 +80,7 @@ class SequenceTagger(Model):
         tags_prob = tf.nn.softmax(logits)
         tags_id = tf.argmax(tags_prob, axis=2)
 
-      labels_vocab_rev = tf.contrib.lookup.index_to_string_table_from_file(
-          self.labels_vocabulary_file,
-          vocab_size=self.num_labels)
+      labels_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
 
       # A tensor can not be both fed and fetched,
       # so identity a new tensor of "length" for export model to predict
@@ -117,7 +96,7 @@ class SequenceTagger(Model):
     return logits, predictions
 
   def _compute_loss(self, features, labels, outputs, params, mode):
-    length = self._get_features_length(features)
+    length = self.features_inputter.get_length(features)
     if self.crf_decoding:
       with tf.variable_scope(tf.get_variable_scope(), reuse=mode != tf.estimator.ModeKeys.TRAIN):
         log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
@@ -137,7 +116,7 @@ class SequenceTagger(Model):
           mode=mode)
 
   def _compute_metrics(self, features, labels, predictions):
-    length = self._get_features_length(features)
+    length = self.features_inputter.get_length(features)
     weights = tf.sequence_mask(
         length, maxlen=tf.shape(labels["tags"])[1], dtype=tf.float32)
 
@@ -173,6 +152,22 @@ class SequenceTagger(Model):
     tags = prediction["tags"][:prediction["length"]]
     sent = b" ".join(tags)
     print_bytes(sent, stream=stream)
+
+
+class TagsInputter(inputters.TextInputter):
+  """Reading space-separated tags."""
+
+  def __init__(self, vocabulary_file_key):
+    super(TagsInputter, self).__init__(
+        vocabulary_file_key=vocabulary_file_key, num_oov_buckets=0)
+
+  def make_features(self, element=None, features=None, training=None):
+    features = super(TagsInputter, self).make_features(
+        element=element, features=features, training=training)
+    return {
+        "tags": features["tokens"],
+        "tags_id": self.vocabulary.lookup(features["tokens"])
+    }
 
 
 def flag_bioes_tags(gold, predicted, sequence_length=None):

@@ -5,6 +5,8 @@ import six
 
 import tensorflow as tf
 
+from opennmt.utils import compat
+
 
 def pad_in_time(x, padding_length):
   """Helper function to pad a tensor in the time dimension and retain the static depth dimension."""
@@ -99,17 +101,17 @@ class Reducer(object):
 
   def zip_and_reduce(self, x, y):
     """Zips :obj:`x` with :obj:`y` and reduces all elements."""
-    if tf.contrib.framework.nest.is_sequence(x):
-      tf.contrib.framework.nest.assert_same_structure(x, y)
+    if isinstance(x, (list, tuple)):
+      compat.nest.assert_same_structure(x, y)
 
-      x_flat = tf.contrib.framework.nest.flatten(x)
-      y_flat = tf.contrib.framework.nest.flatten(y)
+      x_flat = compat.nest.flatten(x)
+      y_flat = compat.nest.flatten(y)
 
       flat = []
       for x_i, y_i in zip(x_flat, y_flat):
         flat.append(self([x_i, y_i]))
 
-      return tf.contrib.framework.nest.pack_sequence_as(x, flat)
+      return compat.nest.pack_sequence_as(x, flat)
     else:
       return self([x, y])
 

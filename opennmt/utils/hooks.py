@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring
+
 """Custom hooks."""
 
 from __future__ import print_function
@@ -8,10 +10,12 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import misc
+from opennmt.utils import compat, misc
+
+_SESSION_RUN_HOOK = compat.tf_compat(v2="estimator.SessionRunHook", v1="train.SessionRunHook")
 
 
-class LogParametersCountHook(tf.train.SessionRunHook):
+class LogParametersCountHook(_SESSION_RUN_HOOK):
   """Simple hook that logs the number of trainable parameters."""
 
   def begin(self):
@@ -49,7 +53,7 @@ def add_counter(name, tensor):
   return total_count
 
 
-class CountersHook(tf.train.SessionRunHook):
+class CountersHook(_SESSION_RUN_HOOK):
   """Hook that summarizes counters.
 
   Implementation is mostly copied from StepCounterHook.
@@ -111,7 +115,7 @@ class CountersHook(tf.train.SessionRunHook):
           self._last_count[i] = counters[i]
 
 
-class LogWordsPerSecondHook(tf.train.SessionRunHook):
+class LogWordsPerSecondHook(_SESSION_RUN_HOOK):
   """Hook that logs the number of words processed per second.
 
   Implementation is mostly copied from StepCounterHook.
@@ -157,6 +161,7 @@ class LogWordsPerSecondHook(tf.train.SessionRunHook):
       raise RuntimeError("Global step should be created to use LogWordsPerSecondHook.")
 
   def after_create_session(self, session, coord):
+    _ = coord
     if self._num_words:
       session.run(self._init_op)
 
@@ -184,7 +189,7 @@ class LogWordsPerSecondHook(tf.train.SessionRunHook):
           self._last_count[i] = current_value
 
 
-class LogPredictionTimeHook(tf.train.SessionRunHook):
+class LogPredictionTimeHook(_SESSION_RUN_HOOK):
   """Hooks that gathers and logs prediction times."""
 
   def begin(self):
@@ -209,13 +214,14 @@ class LogPredictionTimeHook(tf.train.SessionRunHook):
       self._total_tokens += sum(length)
 
   def end(self, session):
+    _ = session
     tf.logging.info("Total prediction time (s): %f", self._total_time)
     tf.logging.info("Average prediction time (s): %f", self._total_time / self._total_examples)
     if self._total_tokens > 0:
       tf.logging.info("Tokens per second: %f", self._total_tokens / self._total_time)
 
 
-class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
+class SaveEvaluationPredictionHook(_SESSION_RUN_HOOK):
   """Hook that saves the evaluation predictions."""
 
   def __init__(self, model, output_file, post_evaluation_fn=None, predictions=None):
@@ -254,12 +260,13 @@ class SaveEvaluationPredictionHook(tf.train.SessionRunHook):
         self._model.print_prediction(prediction, stream=output_file)
 
   def end(self, session):
+    _ = session
     tf.logging.info("Evaluation predictions saved to %s", self._output_path)
     if self._post_evaluation_fn is not None:
       self._post_evaluation_fn(self._current_step, self._output_path)
 
 
-class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
+class LoadWeightsFromCheckpointHook(_SESSION_RUN_HOOK):
   """"Hook that loads model variables from checkpoint before starting the training."""
 
   def __init__(self, checkpoint_path):
@@ -291,11 +298,12 @@ class LoadWeightsFromCheckpointHook(tf.train.SessionRunHook):
     self.assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, self.placeholders)]
 
   def after_create_session(self, session, coord):
+    _ = coord
     for p, op, value in zip(self.placeholders, self.assign_ops, six.itervalues(self.values)):
       session.run(op, {p: value})
 
 
-class VariablesInitializerHook(tf.train.SessionRunHook):
+class VariablesInitializerHook(_SESSION_RUN_HOOK):
   """Hook that initializes some variables in the current session. This is useful
   when using internal variables (e.g. for value accumulation) that are not saved
   in the checkpoints.
@@ -314,4 +322,5 @@ class VariablesInitializerHook(tf.train.SessionRunHook):
     self._init_op = tf.variables_initializer(self._variables)
 
   def after_create_session(self, session, coord):
+    _ = coord
     session.run(self._init_op)

@@ -1,5 +1,7 @@
 """Module defining reusable and model specific layers."""
 
+from opennmt.layers.common import Dense
+
 from opennmt.layers.reducer import SumReducer
 from opennmt.layers.reducer import MultiplyReducer
 from opennmt.layers.reducer import ConcatReducer

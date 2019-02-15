@@ -67,14 +67,13 @@ class PositionEncoder(object):
     timesteps = tf.shape(inputs)[1]
     input_dim = inputs.get_shape().as_list()[-1]
 
-    with tf.variable_scope("position_encoding"):
-      if position is None:
-        positions = tf.range(timesteps) + 1
-      else:
-        positions = [position]
-      position_encoding = self.encode([positions], input_dim, dtype=inputs.dtype)
-      position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
-      return self.reducer([inputs, position_encoding])
+    if position is None:
+      positions = tf.range(timesteps) + 1
+    else:
+      positions = [position]
+    position_encoding = self.encode([positions], input_dim, dtype=inputs.dtype)
+    position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
+    return self.reducer([inputs, position_encoding])
 
   def apply(self, inputs, sequence_length=None):
     """Shortcut for ``__call__``."""
@@ -136,8 +135,9 @@ class PositionEmbedder(PositionEncoder):
 
   def encode(self, positions, depth, dtype=tf.float32):
     positions = tf.minimum(positions, self.maximum_position)
-    embeddings = tf.get_variable(
-        "w_embs", shape=[self.maximum_position + 1, depth], dtype=dtype)
+    with tf.variable_scope("position_encoding"):
+      embeddings = tf.get_variable(
+          "w_embs", shape=[self.maximum_position + 1, depth], dtype=dtype)
     return tf.nn.embedding_lookup(embeddings, positions)
 
 

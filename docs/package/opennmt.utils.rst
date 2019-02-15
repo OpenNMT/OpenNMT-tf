@@ -15,6 +15,7 @@ Submodules
    opennmt.utils.beam_search
    opennmt.utils.cell
    opennmt.utils.checkpoint
+   opennmt.utils.compat
    opennmt.utils.data
    opennmt.utils.decay
    opennmt.utils.evaluator

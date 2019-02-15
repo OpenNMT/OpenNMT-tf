@@ -3,8 +3,10 @@ import numpy as np
 
 from opennmt import encoders
 from opennmt.models import sequence_classifier
+from opennmt.tests import test_util
 
 
+@test_util.run_tf1_only
 class SequenceClassifierTest(tf.test.TestCase):
 
   def _testLastEncoding(self, encoder):

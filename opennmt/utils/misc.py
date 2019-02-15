@@ -12,16 +12,6 @@ import numpy as np
 import tensorflow as tf
 
 
-def tf_supports(symbol):
-  """Returns ``True`` if TensorFlow defines :obj:`symbol`."""
-  modules = symbol.split(".")
-  namespace = tf
-  for module in modules:
-    if not hasattr(namespace, module):
-      return False
-    namespace = getattr(namespace, module)
-  return True
-
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.
 
@@ -81,6 +71,12 @@ def classes_in_module(module, public_only=False):
           if (inspect.isclass(getattr(module, symbol))
               and (not public_only or not symbol.startswith("_"))))
 
+def function_args(fun):
+  """Returns the name of :obj:`fun` arguments."""
+  if hasattr(inspect, "getfullargspec"):
+    return inspect.getfullargspec(fun).args
+  return inspect.getargspec(fun).args  # pylint: disable=deprecated-method
+
 def get_third_party_dir():
   """Returns a path to the third_party directory."""
   utils_dir = os.path.dirname(__file__)
@@ -103,6 +99,25 @@ def count_parameters():
   """Returns the total number of trainable parameters."""
   return sum(variable.get_shape().num_elements() for variable in tf.trainable_variables())
 
+def shape_list(x):
+  """Return list of dims, statically where possible."""
+  x = tf.convert_to_tensor(x)
+
+  # If unknown rank, return dynamic shape
+  if x.get_shape().dims is None:
+    return tf.shape(x)
+
+  static = x.get_shape().as_list()
+  shape = tf.shape(x)
+
+  ret = []
+  for i, _ in enumerate(static):
+    dim = static[i]
+    if dim is None:
+      dim = shape[i]
+    ret.append(dim)
+  return ret
+
 def extract_prefixed_keys(dictionary, prefix):
   """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
   with :obj:`prefix`.
@@ -111,6 +126,17 @@ def extract_prefixed_keys(dictionary, prefix):
   for key, value in six.iteritems(dictionary):
     if key.startswith(prefix):
       original_key = key[len(prefix):]
+      sub_dict[original_key] = value
+  return sub_dict
+
+def extract_suffixed_keys(dictionary, suffix):
+  """Returns a dictionary with all keys from :obj:`dictionary` that are suffixed
+  with :obj:`suffix`.
+  """
+  sub_dict = {}
+  for key, value in six.iteritems(dictionary):
+    if key.endswith(suffix):
+      original_key = key[:-len(suffix)]
       sub_dict[original_key] = value
   return sub_dict
 

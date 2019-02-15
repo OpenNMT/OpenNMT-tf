@@ -21,7 +21,7 @@ class RNNDecoder(decoder.Decoder):
                num_layers,
                num_units,
                bridge=None,
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.
@@ -32,7 +32,7 @@ class RNNDecoder(decoder.Decoder):
       bridge: A :class:`opennmt.layers.bridge.Bridge` to pass the encoder state
         to the decoder.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell.
+        argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
       residual_connections: If ``True``, each layer input will be added to its
         output.
@@ -211,9 +211,9 @@ class AttentionalRNNDecoder(RNNDecoder):
                num_layers,
                num_units,
                bridge=None,
-               attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
+               attention_mechanism_class=None,
                output_is_attention=True,
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.
@@ -226,7 +226,8 @@ class AttentionalRNNDecoder(RNNDecoder):
       attention_mechanism_class: A class inheriting from
         ``tf.contrib.seq2seq.AttentionMechanism`` or a callable that takes
         ``(num_units, memory, memory_sequence_length)`` as arguments and returns
-        a ``tf.contrib.seq2seq.AttentionMechanism``.
+        a ``tf.contrib.seq2seq.AttentionMechanism``. Defaults to
+        ``tf.contrib.seq2seq.LuongAttention``.
       output_is_attention: If ``True``, the final decoder output (before logits)
         is the output of the attention layer. In all cases, the output of the
         attention layer is passed to the next step.
@@ -236,6 +237,8 @@ class AttentionalRNNDecoder(RNNDecoder):
       residual_connections: If ``True``, each layer input will be added to its
         output.
     """
+    if attention_mechanism_class is None:
+      attention_mechanism_class = tf.contrib.seq2seq.LuongAttention
     super(AttentionalRNNDecoder, self).__init__(
         num_layers,
         num_units,
@@ -306,8 +309,8 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
                num_layers,
                num_units,
                attention_layers=None,
-               attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               attention_mechanism_class=None,
+               cell_class=None,
                dropout=0.3,
                residual_connections=False):
     """Initializes the decoder parameters.
@@ -322,7 +325,8 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
         ``tf.contrib.seq2seq.AttentionMechanism``. Alternatively, the class can
         be replaced by a callable that takes
         ``(num_units, memory, memory_sequence_length)`` as arguments and returns
-        a ``tf.contrib.seq2seq.AttentionMechanism``.
+        a ``tf.contrib.seq2seq.AttentionMechanism``. Defaults to
+        ``tf.contrib.seq2seq.LuongAttention``.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell.
       dropout: The probability to drop units in each layer output.
@@ -338,7 +342,8 @@ class MultiAttentionalRNNDecoder(RNNDecoder):
 
     attention_layers = attention_layers or [-1]
     attention_layers = [l % num_layers for l in attention_layers]
-
+    if attention_mechanism_class is None:
+      attention_mechanism_class = tf.contrib.seq2seq.LuongAttention
     if not isinstance(attention_mechanism_class, list):
       attention_mechanism_class = [attention_mechanism_class for _ in attention_layers]
 
@@ -382,7 +387,7 @@ class RNMTPlusDecoder(RNNDecoder):
                num_layers,
                num_units,
                num_heads,
-               cell_class=tf.contrib.rnn.LayerNormBasicLSTMCell,
+               cell_class=None,
                dropout=0.3):
     """Initializes the decoder parameters.
 
@@ -391,10 +396,12 @@ class RNMTPlusDecoder(RNNDecoder):
       num_units: The number of units in each layer.
       num_heads: The number of attention heads.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell.
+        argument and returning a cell. Defaults to a layer normalized LSTM cell.
       dropout: The probability to drop units from the decoder input and in each
         layer output.
     """
+    if cell_class is None:
+      cell_class = tf.contrib.rnn.LayerNormBasicLSTMCell
     super(RNMTPlusDecoder, self).__init__(
         num_layers,
         num_units,
@@ -434,7 +441,7 @@ class _RNMTPlusDecoderCell(tf.nn.rnn_cell.RNNCell):
                num_heads,
                memory,
                memory_sequence_length,
-               cell_class=tf.contrib.rnn.LayerNormBasicLSTMCell,
+               cell_class=None,
                dropout=0.3):
     super(_RNMTPlusDecoderCell, self).__init__()
     self._mode = mode

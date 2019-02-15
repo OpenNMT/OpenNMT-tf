@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import os
 
 import tensorflow as tf
 
 from opennmt.utils import Vocab
+from opennmt.tests import test_util
 
 
 class VocabTest(tf.test.TestCase):
@@ -70,6 +73,29 @@ class VocabTest(tf.test.TestCase):
 
     self.assertEqual(vocab1.size, vocab2.size)
     self.assertEqual(vocab1.lookup("titi"), vocab2.lookup("titi"))
+
+  def testLoadSentencePieceVocab(self):
+    vocab_path = test_util.make_data_file(
+        os.path.join(self.get_temp_dir(), "vocab_sp"),
+        [
+            "<unk>	0",
+            "<s>	0",
+            "</s>	0",
+            ",	-3.0326",
+            ".	-3.41093",
+            "▁the	-3.85169",
+            "s	-4.05468",
+            "▁die	-4.15914",
+            "▁in	-4.2419",
+            "▁der	-4.36135"
+        ])
+
+    vocab = Vocab(from_file=vocab_path, from_format="sentencepiece")
+    self.assertEqual(len(vocab), 7)
+    self.assertNotIn("<unk>", vocab)
+    self.assertNotIn("<s>", vocab)
+    self.assertNotIn("</s>", vocab)
+    self.assertIn("▁the", vocab)
 
   def testVocabPadding(self):
     vocab = Vocab()

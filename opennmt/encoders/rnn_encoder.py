@@ -6,8 +6,9 @@ import six
 import tensorflow as tf
 
 from opennmt.utils.cell import build_cell
-from opennmt.encoders.encoder import Encoder
+from opennmt.encoders.encoder import Encoder, EncoderV2
 from opennmt.layers.reducer import SumReducer, ConcatReducer, JoinReducer, pad_in_time
+from opennmt.layers import rnn
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -17,7 +18,7 @@ class RNNEncoder(Encoder):
   def __init__(self,
                num_layers,
                num_units,
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                dropout=0.0,
                residual_connections=False):
     """Common constructor to save parameters."""
@@ -47,7 +48,7 @@ class UnidirectionalRNNEncoder(RNNEncoder):
   def __init__(self,
                num_layers,
                num_units,
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                dropout=0.3,
                residual_connections=False):
     """Initializes the parameters of the encoder.
@@ -56,7 +57,7 @@ class UnidirectionalRNNEncoder(RNNEncoder):
       num_layers: The number of layers.
       num_units: The number of units in each layer.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell.
+        argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
       residual_connections: If ``True``, each layer input will be added to its
         output.
@@ -87,7 +88,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
                num_layers,
                num_units,
                reducer=SumReducer(),
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                dropout=0.3,
                residual_connections=False):
     """Initializes the parameters of the encoder.
@@ -98,7 +99,7 @@ class BidirectionalRNNEncoder(RNNEncoder):
       reducer: A :class:`opennmt.layers.reducer.Reducer` instance to merge
         bidirectional state and outputs.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell.
+        argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
       residual_connections: If ``True``, each layer input will be added to its
         output.
@@ -145,7 +146,7 @@ class RNMTPlusEncoder(Encoder):
   def __init__(self,
                num_layers=6,
                num_units=1024,
-               cell_class=tf.contrib.rnn.LayerNormBasicLSTMCell,
+               cell_class=None,
                dropout=0.3):
     """Initializes the parameters of the encoder.
 
@@ -153,10 +154,13 @@ class RNMTPlusEncoder(Encoder):
       num_layers: The number of layers.
       num_units: The number of units in each RNN layer and the final output.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell. For efficiency, consider using the
-        standard ``tf.nn.rnn_cell.LSTMCell`` instead.
+        argument and returning a cell. Defaults to a layer normalized LSTM cell.
+        For efficiency, consider using the standard ``tf.nn.rnn_cell.LSTMCell``
+        instead.
       dropout: The probability to drop units in each layer output.
     """
+    if cell_class is None:
+      cell_class = tf.contrib.rnn.LayerNormBasicLSTMCell
     self._num_units = num_units
     self._dropout = dropout
     self._layers = [
@@ -249,7 +253,7 @@ class PyramidalRNNEncoder(Encoder):
                num_layers,
                num_units,
                reduction_factor=2,
-               cell_class=tf.nn.rnn_cell.LSTMCell,
+               cell_class=None,
                dropout=0.3):
     """Initializes the parameters of the encoder.
 
@@ -258,7 +262,7 @@ class PyramidalRNNEncoder(Encoder):
       num_units: The number of units in each layer.
       reduction_factor: The time reduction factor.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell.
+        argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
     """
     self.reduction_factor = reduction_factor
@@ -312,3 +316,95 @@ class PyramidalRNNEncoder(Encoder):
         outputs,
         self.state_reducer(encoder_state),
         sequence_length)
+
+
+class UnidirectionalRNNEncoderV2(EncoderV2):
+  """A simple RNN encoder.
+
+  Note:
+    TensorFlow 2.0 version.
+  """
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               cell_class=None,
+               dropout=0.3,
+               residual_connections=False,
+               **kwargs):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
+        argument and returning a cell. Defaults to a LSTM cell.
+      dropout: The probability to drop units in each layer output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
+      kwargs: Additional layer arguments.
+    """
+    super(UnidirectionalRNNEncoderV2, self).__init__(**kwargs)
+    cell = rnn.make_rnn_cell(
+        num_layers,
+        num_units,
+        dropout=dropout,
+        residual_connections=residual_connections,
+        cell_class=cell_class)
+    self.rnn = rnn.RNN(cell)
+
+  def encode(self, inputs, sequence_length=None, training=None):
+    mask = self.build_mask(inputs, sequence_length=sequence_length)
+    outputs, states = self.rnn(inputs, mask=mask, training=training)
+    return outputs, states, sequence_length
+
+
+class BidirectionalRNNEncoderV2(EncoderV2):
+  """An encoder that encodes an input sequence in both directions.
+
+  Note:
+    TensorFlow 2.0 version.
+  """
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               reducer=SumReducer(),
+               cell_class=None,
+               dropout=0.3,
+               residual_connections=False,
+               **kwargs):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer.
+      reducer: A :class:`opennmt.layers.reducer.Reducer` instance to merge
+        bidirectional state and outputs.
+      cell_class: The inner cell class or a callable taking :obj:`num_units` as
+        argument and returning a cell. Defaults to a LSTM cell.
+      dropout: The probability to drop units in each layer output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
+
+    Raises:
+      ValueError: when using :class:`opennmt.layers.reducer.ConcatReducer` and
+        :obj:`num_units` is not divisible by 2.
+    """
+    if isinstance(reducer, ConcatReducer):
+      if num_units % 2 != 0:
+        raise ValueError("num_units must be divisible by 2 to use the ConcatReducer.")
+      num_units /= 2
+    super(BidirectionalRNNEncoderV2, self).__init__(**kwargs)
+    cell = rnn.make_rnn_cell(
+        num_layers,
+        num_units,
+        dropout=dropout,
+        residual_connections=residual_connections,
+        cell_class=cell_class)
+    self.rnn = rnn.RNN(cell, bidirectional=True, reducer=reducer)
+
+  def encode(self, inputs, sequence_length=None, training=None):
+    mask = self.build_mask(inputs, sequence_length=sequence_length)
+    outputs, states = self.rnn(inputs, mask=mask, training=training)
+    return outputs, states, sequence_length
