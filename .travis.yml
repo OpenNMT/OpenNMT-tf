@@ -20,6 +20,12 @@ matrix:
   include:
     - python: "3.6"
       env:
+        - TF_VERSION="2.0.0.dev20190215"
+      before_install:
+        - pip install tf-nightly-2.0-preview==$TF_VERSION
+        - pip install -e .[tests]
+    - python: "3.6"
+      env:
         - TF_VERSION="$LATEST_TF_VERSION"
       install:
         - pip install pylint==2.2.* wheel twine
