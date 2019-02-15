@@ -4,6 +4,8 @@ import tensorflow as tf
 
 from tensorflow.python.framework import function
 
+from opennmt.utils.misc import shape_list
+
 
 @function.Defun(
     python_grad_func=lambda x, dy: tf.convert_to_tensor(dy),
@@ -28,6 +30,44 @@ def embedding_lookup(params, ids):
   """
   params = convert_gradient_to_tensor(params)
   return tf.nn.embedding_lookup(params, ids)
+
+
+class Dense(tf.keras.layers.Dense):
+  """Small ``tf.keras.layers.Dense`` extension to possibly reuse an existing weight
+  matrix.
+  """
+
+  def __init__(self, units, weight=None, transpose=False, **kwargs):
+    """Initializes the layer.
+
+    Args:
+      unit: Positive integer, dimensionality of the output space.
+      weight: The weight to reuse.
+      transpose: Whether :obj:`weight` should be transposed or not.
+      kwargs: Additional layers arguments.
+    """
+    super(Dense, self).__init__(units, **kwargs)
+    self.weight = weight
+    self.transpose = transpose
+
+  def add_weight(self, name, *args, **kwargs):  # pylint: disable=arguments-differ
+    if self.weight is not None and name == "kernel":
+      return self.weight
+    return super(Dense, self).add_weight(name, *args, **kwargs)
+
+  def call(self, inputs):
+    if self.weight is None:
+      return super(Dense, self).call(inputs)
+    shape = shape_list(inputs)
+    rank = len(shape)
+    if rank > 2:
+      inputs = tf.reshape(inputs, [-1, shape[-1]])
+    outputs = tf.matmul(inputs, self.kernel, transpose_b=self.transpose)
+    if self.use_bias:
+      outputs = tf.nn.bias_add(outputs, self.bias)
+    if rank > 2:
+      outputs = tf.reshape(outputs, shape[:-1] + [self.units])
+    return outputs
 
 
 class LayerNorm(tf.keras.layers.Layer):

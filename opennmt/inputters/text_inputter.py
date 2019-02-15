@@ -336,6 +336,7 @@ class WordEmbedder(TextInputter):
         tokenizer=tokenizer,
         dtype=dtype,
         vocabulary_file_key=vocabulary_file_key)
+    self.embedding = None
     self.embedding_size = embedding_size
     self.embedding_file = None
     self.embedding_file_key = embedding_file_key
@@ -386,45 +387,42 @@ class WordEmbedder(TextInputter):
       features["length"] += 1 # Increment length accordingly.
     return features
 
+  def build(self):
+    if self.embedding_file:
+      pretrained = load_pretrained_embeddings(
+          self.embedding_file,
+          self.vocabulary_file,
+          num_oov_buckets=self.num_oov_buckets,
+          with_header=self.embedding_file_with_header,
+          case_insensitive_embeddings=self.case_insensitive_embeddings)
+      self.embedding_size = pretrained.shape[-1]
+
+      initializer = tf.constant_initializer(
+          pretrained.astype(self.dtype.as_numpy_dtype()), dtype=self.dtype)
+    else:
+      initializer = None
+
+    shape = [self.vocabulary_size, self.embedding_size]
+    self.embedding = tf.get_variable(
+        "w_embs",
+        shape=shape,
+        dtype=self.dtype,
+        initializer=initializer,
+        trainable=self.trainable)
+
   def make_inputs(self, features, training=None):
-    try:
-      embeddings = tf.get_variable("w_embs", dtype=self.dtype, trainable=self.trainable)
-    except ValueError:
-      # Variable does not exist yet.
-      if self.embedding_file:
-        pretrained = load_pretrained_embeddings(
-            self.embedding_file,
-            self.vocabulary_file,
-            num_oov_buckets=self.num_oov_buckets,
-            with_header=self.embedding_file_with_header,
-            case_insensitive_embeddings=self.case_insensitive_embeddings)
-        self.embedding_size = pretrained.shape[-1]
-
-        initializer = tf.constant_initializer(
-            pretrained.astype(self.dtype.as_numpy_dtype()), dtype=self.dtype)
-      else:
-        initializer = None
-
-      shape = [self.vocabulary_size, self.embedding_size]
-      embeddings = tf.get_variable(
-          "w_embs",
-          shape=shape,
-          dtype=self.dtype,
-          initializer=initializer,
-          trainable=self.trainable)
-
-    outputs = tf.nn.embedding_lookup(embeddings, features["ids"])
+    if self.embedding is None:
+      self.build()
+    outputs = tf.nn.embedding_lookup(self.embedding, features["ids"])
     outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs
 
   def visualize(self, log_dir):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable("w_embs", dtype=self.dtype)
-      visualize_embeddings(
-          log_dir,
-          embeddings,
-          self.vocabulary_file,
-          num_oov_buckets=self.num_oov_buckets)
+    visualize_embeddings(
+        log_dir,
+        self.embedding,
+        self.vocabulary_file,
+        num_oov_buckets=self.num_oov_buckets)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -453,6 +451,7 @@ class CharEmbedder(TextInputter):
         dtype=dtype,
         vocabulary_file_key=vocabulary_file_key)
     self.embedding_size = embedding_size
+    self.embedding = None
     self.dropout = dropout
 
   def get_receiver_tensors(self):
@@ -476,23 +475,25 @@ class CharEmbedder(TextInputter):
     features["char_ids"] = self.vocabulary.lookup(chars)
     return features
 
+  def build(self):
+    self.embedding = tf.get_variable(
+        "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
+
   @abc.abstractmethod
   def make_inputs(self, features, training=None):
     raise NotImplementedError()
 
   def visualize(self, log_dir):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-      embeddings = tf.get_variable("w_char_embs", dtype=self.dtype)
-      visualize_embeddings(
-          log_dir,
-          embeddings,
-          self.vocabulary_file,
-          num_oov_buckets=self.num_oov_buckets)
+    visualize_embeddings(
+        log_dir,
+        self.embedding,
+        self.vocabulary_file,
+        num_oov_buckets=self.num_oov_buckets)
 
   def _embed(self, inputs, training):
-    embeddings = tf.get_variable(
-        "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
-    outputs = tf.nn.embedding_lookup(embeddings, inputs)
+    if self.embedding is None:
+      self.build()
+    outputs = tf.nn.embedding_lookup(self.embedding, inputs)
     outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
     return outputs
 

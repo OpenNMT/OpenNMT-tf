@@ -27,30 +27,12 @@ from tensorflow.python.util import nest
 
 from tensorflow.python.estimator.util import fn_args
 
+from opennmt.utils.misc import shape_list
+
 # Assuming EOS_ID is 1
 EOS_ID = 1
 # Default value for INF
 INF = 1. * 1e7
-
-
-def _shape_list(x):
-  """Return list of dims, statically where possible."""
-  x = tf.convert_to_tensor(x)
-
-  # If unknown rank, return dynamic shape
-  if x.get_shape().dims is None:
-    return tf.shape(x)
-
-  static = x.get_shape().as_list()
-  shape = tf.shape(x)
-
-  ret = []
-  for i, _ in enumerate(static):
-    dim = static[i]
-    if dim is None:
-      dim = shape[i]
-    ret.append(dim)
-  return ret
 
 
 def _merge_beam_dim(tensor):
@@ -64,7 +46,7 @@ def _merge_beam_dim(tensor):
   """
   if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
     return tensor
-  shape = _shape_list(tensor)
+  shape = shape_list(tensor)
   shape[0] *= shape[1]  # batch -> batch * beam_size
   shape.pop(1)  # Remove beam dim
   return tf.reshape(tensor, shape)
@@ -83,7 +65,7 @@ def _unmerge_beam_dim(tensor, batch_size, beam_size):
   """
   if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims < 1:
     return tensor
-  shape = _shape_list(tensor)
+  shape = shape_list(tensor)
   new_shape = [batch_size] + [beam_size] + shape[1:]
   return tf.reshape(tensor, new_shape)
 
@@ -296,7 +278,7 @@ def beam_search(symbols_to_logits_fn,
      decoding probabilities [batch_size, beam_size]) and the decoding
     states if `return_states` is True.
   """
-  batch_size = _shape_list(initial_ids)[0]
+  batch_size = shape_list(initial_ids)[0]
 
   # Assume initial_ids are prob 1.0
   initial_log_probs = tf.constant([[0.] + [-float("inf")] * (beam_size - 1)])
@@ -318,7 +300,7 @@ def beam_search(symbols_to_logits_fn,
   # Finished will keep track of all the sequences that have finished so far
   # Finished log probs will be negative infinity in the beginning
   # finished_flags will keep track of booleans
-  finished_seq = tf.zeros(_shape_list(alive_seq), tf.int32)
+  finished_seq = tf.zeros(shape_list(alive_seq), tf.int32)
   # Setting the scores of the initial to negative infinity.
   finished_scores = tf.ones([batch_size, beam_size]) * -INF
   finished_flags = tf.zeros([batch_size, beam_size], tf.bool)

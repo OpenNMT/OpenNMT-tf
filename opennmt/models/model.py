@@ -131,6 +131,7 @@ class Model(object):
         if extra_variables:
           training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
         if config is not None:
+          self.examples_inputter.visualize(config.model_dir)
           features_length = self.features_inputter.get_length(features)
           labels_length = self.labels_inputter.get_length(labels)
           num_words = {}
