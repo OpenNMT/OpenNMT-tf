@@ -124,8 +124,10 @@ class Model(object):
               _loss_op, features_shards, labels_shards, params, mode)
 
         loss = _extract_loss(losses_shards)
-        train_op, extra_variables = optimize_loss(
-            loss, params, mixed_precision=(self.dtype == tf.float16), hvd=hvd)
+        train_op = self.optimize_loss(loss, params=params, hvd=hvd)
+        extra_variables = []
+        if isinstance(train_op, tuple):
+          train_op, extra_variables = train_op
 
         training_hooks = []
         if extra_variables:
@@ -225,6 +227,22 @@ class Model(object):
       The loss or a tuple containing the computed loss and the loss to display.
     """
     raise NotImplementedError()
+
+  def optimize_loss(self, loss, params=None, hvd=None):
+    """Returns the loss optimization op.
+
+    Args:
+      loss: The loss to optimize.
+      params: A dictionary of hyperparameters.
+      hvd: Optional Horovod object.
+
+    Returns:
+      The training op and optionally a list of extra variables to initialize.
+    """
+    if params is None:
+      params = {}
+    mixed_precision = self.dtype == tf.float16
+    return optimize_loss(loss, params, mixed_precision=mixed_precision, hvd=hvd)
 
   def compute_metrics(self, predictions, labels):  # pylint: disable=unused-argument
     """Computes additional metrics on the predictions.
