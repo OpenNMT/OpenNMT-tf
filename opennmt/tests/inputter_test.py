@@ -154,13 +154,11 @@ class InputterTest(tf.test.TestCase):
       inputter.initialize(metadata)
 
     self.assertEqual(dataset_size, inputter.get_dataset_size(data_file))
-
     dataset = inputter.make_dataset(data_file)
     dataset = dataset.map(lambda *arg: inputter.process(item_or_tuple(arg)))
     dataset = dataset.padded_batch(1, padded_shapes=data.get_padded_shapes(dataset))
 
     iterator = dataset.make_initializable_iterator()
-    tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
     next_element = iterator.get_next()
 
     if shapes is not None:
@@ -171,13 +169,16 @@ class InputterTest(tf.test.TestCase):
         with self.assertRaises(ValueError):
           _ = inputter.get_serving_input_receiver()
       for features in all_features:
-        self.assertNotIn("raw", features)
         for field, shape in six.iteritems(shapes):
           self.assertIn(field, features)
           self.assertAllEqual(shape, features[field].get_shape().as_list())
 
     transformed = inputter.transform_data(next_element)
-    return next_element, transformed
+    with self.test_session() as sess:
+      sess.run(tf.tables_initializer())
+      sess.run(tf.global_variables_initializer())
+      sess.run(iterator.initializer)
+      return sess.run((next_element, transformed))
 
   @test_util.run_tf1_only
   def testWordEmbedder(self):
@@ -191,13 +192,9 @@ class InputterTest(tf.test.TestCase):
         metadata={"vocabulary_file": vocab_file},
         shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([3], features["length"])
-      self.assertAllEqual([[2, 1, 4]], features["ids"])
-      self.assertAllEqual([1, 3, 10], transformed.shape)
+    self.assertAllEqual([3], features["length"])
+    self.assertAllEqual([[2, 1, 4]], features["ids"])
+    self.assertAllEqual([1, 3, 10], transformed.shape)
 
   @test_util.run_tf1_only
   def testWordEmbedderTarget(self):
@@ -218,13 +215,9 @@ class InputterTest(tf.test.TestCase):
             "length": [None]
         })
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([4], features["length"])
-      self.assertAllEqual([[1, 5, 4, 7]], features["ids"])
-      self.assertAllEqual([[5, 4, 7, 2]], features["ids_out"])
+    self.assertAllEqual([4], features["length"])
+    self.assertAllEqual([[1, 5, 4, 7]], features["ids"])
+    self.assertAllEqual([[5, 4, 7, 2]], features["ids_out"])
 
   @test_util.run_tf1_only
   def testWordEmbedderWithTokenizer(self):
@@ -250,12 +243,8 @@ class InputterTest(tf.test.TestCase):
         metadata=metadata,
         shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([4], features["length"])
-      self.assertAllEqual([[2, 1, 3, 4]], features["ids"])
+    self.assertAllEqual([4], features["length"])
+    self.assertAllEqual([[2, 1, 3, 4]], features["ids"])
 
   @test_util.run_tf1_only
   def testWordEmbedderWithPretrainedEmbeddings(self):
@@ -274,12 +263,8 @@ class InputterTest(tf.test.TestCase):
         metadata={"vocabulary_file": vocab_file, "embedding_file": embedding_file},
         shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([1, 1], transformed[0][0])
-      self.assertAllEqual([2, 2], transformed[0][1])
+    self.assertAllEqual([1, 1], transformed[0][0])
+    self.assertAllEqual([2, 2], transformed[0][1])
 
   @test_util.run_tf1_only
   def testWordEmbedderWithPretrainedEmbeddingsInInitialize(self):
@@ -302,12 +287,8 @@ class InputterTest(tf.test.TestCase):
         metadata=metadata,
         shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([1, 1], transformed[0][0])
-      self.assertAllEqual([2, 2], transformed[0][1])
+    self.assertAllEqual([1, 1], transformed[0][0])
+    self.assertAllEqual([2, 2], transformed[0][1])
 
   @test_util.run_tf1_only
   def testCharConvEmbedder(self):
@@ -321,15 +302,11 @@ class InputterTest(tf.test.TestCase):
         metadata={"vocabulary_file": vocab_file},
         shapes={"char_ids": [None, None, None], "length": [None]})
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([3], features["length"])
-      self.assertAllEqual(
-          [[[0, 1, 2, 2, 4], [3, 4, 5, 2, 5], [5, 5, 5, 5, 5]]],
-          features["char_ids"])
-      self.assertAllEqual([1, 3, 5], transformed.shape)
+    self.assertAllEqual([3], features["length"])
+    self.assertAllEqual(
+        [[[0, 1, 2, 2, 4], [3, 4, 5, 2, 5], [5, 5, 5, 5, 5]]],
+        features["char_ids"])
+    self.assertAllEqual([1, 3, 5], transformed.shape)
 
   @test_util.run_tf1_only
   def testCharRNNEmbedder(self):
@@ -343,11 +320,7 @@ class InputterTest(tf.test.TestCase):
         metadata={"vocabulary_file": vocab_file},
         shapes={"char_ids": [None, None, None], "length": [None]})
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([1, 3, 5], transformed.shape)
+    self.assertAllEqual([1, 3, 5], transformed.shape)
 
   @test_util.run_tf1_only
   def testParallelInputter(self):
@@ -368,16 +341,9 @@ class InputterTest(tf.test.TestCase):
                 "inputter_1_ids": [None, None], "inputter_1_length": [None]})
 
     self.assertEqual(2, len(parallel_inputter.get_length(features)))
-    self.assertNotIn("inputter_0_raw", features)
-    self.assertNotIn("inputter_1_raw", features)
-
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertEqual(2, len(transformed))
-      self.assertAllEqual([1, 3, 10], transformed[0].shape)
-      self.assertAllEqual([1, 3, 5], transformed[1].shape)
+    self.assertEqual(2, len(transformed))
+    self.assertAllEqual([1, 3, 10], transformed[0].shape)
+    self.assertAllEqual([1, 3, 5], transformed[1].shape)
 
   @test_util.run_tf1_only
   def testParallelInputterShareParameters(self):
@@ -448,12 +414,7 @@ class InputterTest(tf.test.TestCase):
         data_file,
         metadata={"vocabulary_file_1": vocab_file, "vocabulary_file_2": vocab_alt_file},
         shapes={"char_ids": [None, None, None], "ids": [None, None], "length": [None]})
-
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      sess.run(tf.global_variables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertAllEqual([1, 3, 15], transformed.shape)
+    self.assertAllEqual([1, 3, 15], transformed.shape)
 
   @test_util.run_tf1_only
   def testSequenceRecord(self):
@@ -470,12 +431,9 @@ class InputterTest(tf.test.TestCase):
         record_file,
         shapes={"tensor": [None, None, 2], "length": [None]})
 
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      features, transformed = sess.run([features, transformed])
-      self.assertEqual([2], features["length"])
-      self.assertAllEqual([vector], features["tensor"])
-      self.assertAllEqual([vector], transformed)
+    self.assertEqual([2], features["length"])
+    self.assertAllEqual([vector], features["tensor"])
+    self.assertAllEqual([vector], transformed)
 
 
 if __name__ == "__main__":
