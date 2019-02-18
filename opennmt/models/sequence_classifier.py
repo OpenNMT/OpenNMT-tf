@@ -77,12 +77,14 @@ class SequenceClassifier(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs, params, mode):
+  def compute_loss(self, outputs, labels, training=True, params=None):
+    if params is None:
+      params = {}
     return cross_entropy_loss(
         outputs,
         labels["classes_id"],
         label_smoothing=params.get("label_smoothing", 0.0),
-        mode=mode)
+        mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
 
   def _compute_metrics(self, features, labels, predictions):
     return {

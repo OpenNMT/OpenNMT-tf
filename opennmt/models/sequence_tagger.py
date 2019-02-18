@@ -92,14 +92,15 @@ class SequenceTagger(Model):
 
     return logits, predictions
 
-  def _compute_loss(self, features, labels, outputs, params, mode):
-    length = self.features_inputter.get_length(features)
+  def compute_loss(self, outputs, labels, training=True, params=None):
+    if params is None:
+      params = {}
     if self.crf_decoding:
-      with tf.variable_scope(tf.get_variable_scope(), reuse=mode != tf.estimator.ModeKeys.TRAIN):
+      with tf.variable_scope(tf.get_variable_scope(), reuse=not training):
         log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
             outputs,
             tf.cast(labels["tags_id"], tf.int32),
-            length)
+            labels["length"])
       loss = tf.reduce_sum(-log_likelihood)
       loss_normalizer = tf.cast(tf.shape(log_likelihood)[0], loss.dtype)
       return loss, loss_normalizer
@@ -107,10 +108,10 @@ class SequenceTagger(Model):
       return cross_entropy_sequence_loss(
           outputs,
           labels["tags_id"],
-          length,
+          labels["length"],
           label_smoothing=params.get("label_smoothing", 0.0),
           average_in_time=params.get("average_loss_in_time", False),
-          mode=mode)
+          mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
 
   def _compute_metrics(self, features, labels, predictions):
     length = self.features_inputter.get_length(features)
@@ -162,6 +163,7 @@ class TagsInputter(inputters.TextInputter):
     features = super(TagsInputter, self).make_features(
         element=element, features=features, training=training)
     return {
+        "length": features["length"],
         "tags": features["tokens"],
         "tags_id": self.vocabulary.lookup(features["tokens"])
     }
