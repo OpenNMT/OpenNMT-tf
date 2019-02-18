@@ -61,7 +61,7 @@ class Model(object):
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       the arguments of this function.
     """
-    return self._build(features, labels, params, mode, config=config)
+    return self._call(features, labels, params, mode)
 
   def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
     """Returns the model function.
@@ -83,9 +83,9 @@ class Model(object):
         daisy_chain_variables=self.daisy_chain_variables,
         devices=devices)
 
-    def _loss_op(features, labels, params, mode, config):
+    def _loss_op(features, labels, params, mode):
       """Single callable to compute the loss."""
-      logits, _ = self._build(features, labels, params, mode, config=config)
+      logits, _ = self._call(features, labels, params, mode)
       return self._compute_loss(features, labels, logits, params, mode)
 
     def _normalize_loss(num, den=None):
@@ -120,7 +120,7 @@ class Model(object):
 
         with tf.variable_scope(self.name, initializer=self._initializer(params)):
           losses_shards = dispatcher(
-              _loss_op, features_shards, labels_shards, params, mode, config)
+              _loss_op, features_shards, labels_shards, params, mode)
 
         loss = _extract_loss(losses_shards)
         train_op, extra_variables = optimize_loss(
@@ -149,7 +149,7 @@ class Model(object):
             training_hooks=training_hooks)
       elif mode == tf.estimator.ModeKeys.EVAL:
         with tf.variable_scope(self.name):
-          logits, predictions = self._build(features, labels, params, mode, config=config)
+          logits, predictions = self._call(features, labels, params, mode)
           loss = self._compute_loss(features, labels, logits, params, mode)
 
         loss = _extract_loss(loss)
@@ -164,7 +164,7 @@ class Model(object):
             evaluation_hooks=evaluation_hooks)
       elif mode == tf.estimator.ModeKeys.PREDICT:
         with tf.variable_scope(self.name):
-          _, predictions = self._build(features, labels, params, mode, config=config)
+          _, predictions = self._call(features, labels, params, mode)
 
         # Forward example index for reordering predictions.
         if "index" in features:
@@ -199,7 +199,7 @@ class Model(object):
     return None
 
   @abc.abstractmethod
-  def _build(self, features, labels, params, mode, config=None):
+  def _call(self, features, labels, params, mode):
     """Creates the graph.
 
     Returns:

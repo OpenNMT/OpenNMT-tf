@@ -46,13 +46,10 @@ class SequenceClassifier(Model):
     if self.encoding not in ("average", "last"):
       raise ValueError("Invalid encoding vector: {}".format(self.encoding))
 
-  def _build(self, features, labels, params, mode, config=None):
+  def _call(self, features, labels, params, mode):
+    training = mode == tf.estimator.ModeKeys.TRAIN
     with tf.variable_scope("encoder"):
-      inputs = self.features_inputter.transform_data(
-          features,
-          mode=mode,
-          log_dir=config.model_dir if config is not None else None)
-
+      inputs = self.features_inputter.make_inputs(features, training=training)
       encoder_outputs, encoder_state, _ = self.encoder.encode(
           inputs,
           sequence_length=self.features_inputter.get_length(features),

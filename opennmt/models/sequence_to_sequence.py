@@ -152,7 +152,7 @@ class SequenceToSequence(Model):
         }
     })
 
-  def _build(self, features, labels, params, mode, config=None):
+  def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
     self.examples_inputter.build()
 
