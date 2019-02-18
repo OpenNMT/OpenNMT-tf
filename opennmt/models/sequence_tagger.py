@@ -113,10 +113,9 @@ class SequenceTagger(Model):
           average_in_time=params.get("average_loss_in_time", False),
           mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
 
-  def _compute_metrics(self, features, labels, predictions):
-    length = self.features_inputter.get_length(features)
+  def compute_metrics(self, predictions, labels):
     weights = tf.sequence_mask(
-        length, maxlen=tf.shape(labels["tags"])[1], dtype=tf.float32)
+        labels["length"], maxlen=tf.shape(labels["tags"])[1], dtype=tf.float32)
 
     eval_metric_ops = {}
     eval_metric_ops["accuracy"] = tf.metrics.accuracy(
@@ -129,7 +128,7 @@ class SequenceTagger(Model):
 
       gold_flags, predicted_flags = tf.py_func(
           flag_fn,
-          [labels["tags"], predictions["tags"], length],
+          [labels["tags"], predictions["tags"], labels["length"]],
           [tf.bool, tf.bool],
           stateful=False)
 

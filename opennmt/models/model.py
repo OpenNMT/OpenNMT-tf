@@ -154,7 +154,7 @@ class Model(object):
           loss = self.compute_loss(logits, labels, training=False, params=params)
 
         loss = _extract_loss(loss)
-        eval_metric_ops = self._compute_metrics(features, labels, predictions)  # pylint: disable=assignment-from-none
+        eval_metric_ops = self.compute_metrics(predictions, labels)
         evaluation_hooks = []
         if predictions is not None and eval_prediction_hooks_fn is not None:
           evaluation_hooks.extend(eval_prediction_hooks_fn(predictions))
@@ -226,17 +226,16 @@ class Model(object):
     """
     raise NotImplementedError()
 
-  def _compute_metrics(self, features, labels, predictions):  # pylint: disable=unused-argument
+  def compute_metrics(self, predictions, labels):  # pylint: disable=unused-argument
     """Computes additional metrics on the predictions.
 
     Args:
-      features: The dict of features ``tf.Tensor``.
-      labels: The dict of labels ``tf.Tensor``.
       predictions: The model predictions.
+      labels: The dict of labels ``tf.Tensor``.
 
     Returns:
-      A dict of metric results (tuple ``(metric_tensor, update_op)``) keyed by
-      name.
+      A dict of metrics. See the ``eval_metric_ops`` field of
+      ``tf.estimator.EstimatorSpec``.
     """
     return None
 

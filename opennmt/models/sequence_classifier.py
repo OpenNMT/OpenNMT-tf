@@ -86,7 +86,7 @@ class SequenceClassifier(Model):
         label_smoothing=params.get("label_smoothing", 0.0),
         mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
 
-  def _compute_metrics(self, features, labels, predictions):
+  def compute_metrics(self, predictions, labels):
     return {
         "accuracy": tf.metrics.accuracy(labels["classes"], predictions["classes"])
     }
