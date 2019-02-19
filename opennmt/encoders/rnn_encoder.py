@@ -6,7 +6,7 @@ import six
 import tensorflow as tf
 
 from opennmt.utils.cell import build_cell
-from opennmt.encoders.encoder import Encoder, EncoderV2
+from opennmt.encoders.encoder import Encoder
 from opennmt.layers.reducer import SumReducer, ConcatReducer, JoinReducer, pad_in_time
 from opennmt.layers import rnn
 
@@ -22,6 +22,7 @@ class RNNEncoder(Encoder):
                dropout=0.0,
                residual_connections=False):
     """Common constructor to save parameters."""
+    super(RNNEncoder, self).__init__()
     self.num_layers = num_layers
     self.num_units = num_units
     self.cell_class = cell_class
@@ -159,6 +160,7 @@ class RNMTPlusEncoder(Encoder):
         instead.
       dropout: The probability to drop units in each layer output.
     """
+    super(RNMTPlusEncoder, self).__init__()
     if cell_class is None:
       cell_class = tf.contrib.rnn.LayerNormBasicLSTMCell
     self._num_units = num_units
@@ -215,6 +217,7 @@ class GoogleRNNEncoder(Encoder):
     Raises:
       ValueError: if :obj:`num_layers` < 2.
     """
+    super(GoogleRNNEncoder, self).__init__()
     if num_layers < 2:
       raise ValueError("GoogleRNNEncoder requires at least 2 layers")
 
@@ -265,6 +268,7 @@ class PyramidalRNNEncoder(Encoder):
         argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
     """
+    super(PyramidalRNNEncoder, self).__init__()
     self.reduction_factor = reduction_factor
     self.state_reducer = JoinReducer()
     self.layers = []
@@ -318,7 +322,7 @@ class PyramidalRNNEncoder(Encoder):
         sequence_length)
 
 
-class UnidirectionalRNNEncoderV2(EncoderV2):
+class UnidirectionalRNNEncoderV2(Encoder):
   """A simple RNN encoder.
 
   Note:
@@ -353,13 +357,13 @@ class UnidirectionalRNNEncoderV2(EncoderV2):
         cell_class=cell_class)
     self.rnn = rnn.RNN(cell)
 
-  def encode(self, inputs, sequence_length=None, training=None):
+  def call(self, inputs, sequence_length=None, training=None):
     mask = self.build_mask(inputs, sequence_length=sequence_length)
     outputs, states = self.rnn(inputs, mask=mask, training=training)
     return outputs, states, sequence_length
 
 
-class BidirectionalRNNEncoderV2(EncoderV2):
+class BidirectionalRNNEncoderV2(Encoder):
   """An encoder that encodes an input sequence in both directions.
 
   Note:
@@ -404,7 +408,7 @@ class BidirectionalRNNEncoderV2(EncoderV2):
         cell_class=cell_class)
     self.rnn = rnn.RNN(cell, bidirectional=True, reducer=reducer)
 
-  def encode(self, inputs, sequence_length=None, training=None):
+  def call(self, inputs, sequence_length=None, training=None):
     mask = self.build_mask(inputs, sequence_length=sequence_length)
     outputs, states = self.rnn(inputs, mask=mask, training=training)
     return outputs, states, sequence_length

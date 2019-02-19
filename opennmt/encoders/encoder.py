@@ -9,10 +9,33 @@ from opennmt.layers.reducer import ConcatReducer, JoinReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Encoder(object):
+class Encoder(tf.keras.layers.Layer):
   """Base class for encoders."""
 
-  @abc.abstractmethod
+  def build_mask(self, inputs, sequence_length=None, dtype=tf.bool):
+    """Builds a boolean mask for :obj:`inputs`."""
+    if sequence_length is None:
+      return None
+    mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=dtype)
+    mask = tf.expand_dims(mask, -1)
+    return mask
+
+  def call(self, inputs, sequence_length=None, training=None):  # pylint: disable=arguments-differ
+    """Encodes an input sequence.
+
+    Args:
+      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
+      sequence_length: The length of each input with shape :math:`[B]`.
+      training: Run in training mode.
+
+    Returns:
+      A tuple ``(outputs, state, sequence_length)``.
+    """
+    return self.encode(
+        inputs,
+        sequence_length=sequence_length,
+        mode=tf.estimator.ModeKeys.TRAIN if training else None)
+
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     """Encodes an input sequence.
 
@@ -24,7 +47,10 @@ class Encoder(object):
     Returns:
       A tuple ``(outputs, state, sequence_length)``.
     """
-    raise NotImplementedError()
+    return self(
+        inputs,
+        sequence_length=sequence_length,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
 
 
 class SequentialEncoder(Encoder):
@@ -55,6 +81,7 @@ class SequentialEncoder(Encoder):
       raise ValueError("The number of transition layers must match the number of encoder "
                        "transitions, expected %d layers but got %d."
                        % (len(encoders) - 1, len(transition_layer_fn)))
+    super(SequentialEncoder, self).__init__()
     self.encoders = encoders
     self.states_reducer = states_reducer
     self.transition_layer_fn = transition_layer_fn
@@ -130,6 +157,7 @@ class ParallelEncoder(Encoder):
       raise ValueError("The number of output layers must match the number of encoders; "
                        "expected %d layers but got %d."
                        % (len(encoders), len(outputs_layer_fn)))
+    super(ParallelEncoder, self).__init__()
     self.encoders = encoders
     self.outputs_reducer = outputs_reducer if outputs_reducer is not None else JoinReducer()
     self.states_reducer = states_reducer if states_reducer is not None else JoinReducer()
@@ -178,43 +206,3 @@ class ParallelEncoder(Encoder):
       outputs = self.combined_output_layer_fn(outputs)
 
     return (outputs, self.states_reducer(all_states), sequence_length)
-
-
-@six.add_metaclass(abc.ABCMeta)
-class EncoderV2(tf.keras.layers.Layer):
-  """Base class for encoders."""
-
-  def call(self, inputs, sequence_length=None, training=None):  # pylint: disable=arguments-differ
-    """Encodes an input sequence.
-
-    Args:
-      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
-      sequence_length: The length of each input with shape :math:`[B]`.
-      training: Run in training mode.
-
-    Returns:
-      A tuple ``(outputs, state, sequence_length)``.
-    """
-    return self.encode(inputs, sequence_length=sequence_length, training=training)
-
-  def build_mask(self, inputs, sequence_length=None, dtype=tf.bool):
-    """Builds a boolean mask for :obj:`inputs`."""
-    if sequence_length is None:
-      return None
-    mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=dtype)
-    mask = tf.expand_dims(mask, -1)
-    return mask
-
-  @abc.abstractmethod
-  def encode(self, inputs, sequence_length=None, training=None):
-    """Encodes an input sequence.
-
-    Args:
-      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
-      sequence_length: The length of each input with shape :math:`[B]`.
-      training: Run in training mode.
-
-    Returns:
-      A tuple ``(outputs, state, sequence_length)``.
-    """
-    raise NotImplementedError()
