@@ -9,6 +9,7 @@ import yaml
 import numpy as np
 import tensorflow as tf
 
+from tensorflow.python.ops import lookup_ops as lookup
 try:
   from tensorflow.contrib.tensorboard.plugins import projector
 except ModuleNotFoundError:
@@ -253,8 +254,8 @@ class TextInputter(Inputter):
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
       if tokenizer_config:
-        if isinstance(tokenizer_config, six.string_types) and tf.gfile.Exists(tokenizer_config):
-          with tf.gfile.Open(tokenizer_config, mode="rb") as config_file:
+        if isinstance(tokenizer_config, six.string_types) and compat.gfile_exists(tokenizer_config):
+          with compat.gfile_open(tokenizer_config, mode="rb") as config_file:
             tokenizer_config = yaml.load(config_file)
         self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
       else:
@@ -263,14 +264,14 @@ class TextInputter(Inputter):
 
   def vocabulary_lookup(self):
     """Returns a lookup table mapping string to index."""
-    return tf.contrib.lookup.index_table_from_file(
+    return lookup.index_table_from_file(
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         num_oov_buckets=self.num_oov_buckets)
 
   def vocabulary_lookup_reverse(self):
     """Returns a lookup table mapping index to string."""
-    return tf.contrib.lookup.index_to_string_table_from_file(
+    return lookup.index_to_string_table_from_file(
         self.vocabulary_file,
         vocab_size=self.vocabulary_size - self.num_oov_buckets,
         default_value=constants.UNKNOWN_TOKEN)
@@ -343,7 +344,7 @@ class WordEmbedder(TextInputter):
     self.embedding_file_with_header = embedding_file_with_header
     self.case_insensitive_embeddings = case_insensitive_embeddings
     self.trainable = trainable
-    self.dropout = dropout
+    self.dropout = tf.keras.layers.Dropout(dropout)
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = super(WordEmbedder, self).initialize(
@@ -387,7 +388,7 @@ class WordEmbedder(TextInputter):
       features["length"] += 1 # Increment length accordingly.
     return features
 
-  def build(self):
+  def build(self, input_shape=None):
     if self.embedding_file:
       pretrained = load_pretrained_embeddings(
           self.embedding_file,
@@ -396,25 +397,22 @@ class WordEmbedder(TextInputter):
           with_header=self.embedding_file_with_header,
           case_insensitive_embeddings=self.case_insensitive_embeddings)
       self.embedding_size = pretrained.shape[-1]
-
-      initializer = tf.constant_initializer(
-          pretrained.astype(self.dtype.as_numpy_dtype()), dtype=self.dtype)
+      initializer = tf.constant_initializer(value=pretrained.astype(self.dtype))
     else:
       initializer = None
-
     shape = [self.vocabulary_size, self.embedding_size]
-    self.embedding = tf.get_variable(
-        "w_embs",
+    self.embedding = self.add_variable(
+        name=compat.name_from_variable_scope("w_embs"),
         shape=shape,
-        dtype=self.dtype,
         initializer=initializer,
         trainable=self.trainable)
+    super(WordEmbedder, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
-    if self.embedding is None:
+    if not self.built:
       self.build()
     outputs = tf.nn.embedding_lookup(self.embedding, features["ids"])
-    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
+    outputs = self.dropout(outputs, training=training)
     return outputs
 
   def visualize(self, log_dir):
@@ -475,9 +473,11 @@ class CharEmbedder(TextInputter):
     features["char_ids"] = self.vocabulary.lookup(chars)
     return features
 
-  def build(self):
-    self.embedding = tf.get_variable(
-        "w_char_embs", shape=[self.vocabulary_size, self.embedding_size], dtype=self.dtype)
+  def build(self, input_shape=None):
+    self.embedding = self.add_variable(
+        name=compat.name_from_variable_scope("w_char_embs"),
+        shape=[self.vocabulary_size, self.embedding_size])
+    super(CharEmbedder, self).build(input_shape)
 
   @abc.abstractmethod
   def make_inputs(self, features, training=None):
@@ -491,7 +491,7 @@ class CharEmbedder(TextInputter):
         num_oov_buckets=self.num_oov_buckets)
 
   def _embed(self, inputs, training):
-    if self.embedding is None:
+    if not self.built:
       self.build()
     outputs = tf.nn.embedding_lookup(self.embedding, inputs)
     outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)

@@ -6,18 +6,19 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
+from opennmt.utils import compat
 from opennmt.utils.data import inference_pipeline, training_pipeline
 from opennmt.utils.misc import extract_prefixed_keys, extract_suffixed_keys, item_or_tuple
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Inputter(object):
+class Inputter(tf.keras.layers.Layer):
   """Base class for inputters."""
 
   def __init__(self, dtype=tf.float32):
+    super(Inputter, self).__init__(dtype=dtype)
     self.volatile = set()
     self.process_hooks = []
-    self.dtype = dtype
     self.is_target = False
 
   @property
@@ -144,9 +145,9 @@ class Inputter(object):
     """
     raise NotImplementedError()
 
-  def build(self):
-    """Creates the variables of this inputter."""
-    return
+  def call(self, features, training=None):  # pylint: disable=arguments-differ
+    """Forwards call to ``make_inputs().``"""
+    return make_inputs(features, training=training)
 
   def make_inputs(self, features, training=None):
     """Creates the model input from the features.
@@ -262,7 +263,7 @@ class Inputter(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class MultiInputter(Inputter):
-  """An inputter that gathers multiple inputters."""
+  """An inputter that gathers multiple inputters, possibly nested."""
 
   def __init__(self, inputters, reducer=None):
     if not isinstance(inputters, list) or not inputters:
@@ -280,6 +281,16 @@ class MultiInputter(Inputter):
     if self.reducer is None or isinstance(self.reducer, JoinReducer):
       return len(self.inputters)
     return 1
+
+  def get_leaf_inputters(self):
+    """Returns a list of all leaf Inputter instances."""
+    inputters = []
+    for inputter in self.inputters:
+      if isinstance(inputter, MultiInputter):
+        inputters.extend(inputter.get_leaf_inputters())
+      else:
+        inputters.append(inputter)
+    return inputters
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = {}
@@ -319,10 +330,19 @@ class ParallelInputter(MultiInputter):
       combine_features: Combine each inputter features in a single dict or
         return them separately. This is typically ``True`` for multi source
         inputs but ``False`` for features/labels parallel data.
+
+    Raises:
+      ValueError: if :obj:`share_parameters` is set but the child inputters are
+        not of the same type.
     """
     super(ParallelInputter, self).__init__(inputters, reducer=reducer)
     self.combine_features = combine_features
     self.share_parameters = share_parameters
+    if self.share_parameters:
+      leaves = self.get_leaf_inputters()
+      for inputter in leaves[1:]:
+        if type(inputter) is not type(leaves[0]):
+          raise ValueError("Each inputter must be of the same type for parameter sharing")
 
   def make_dataset(self, data_file, training=None):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
@@ -400,31 +420,36 @@ class ParallelInputter(MultiInputter):
     return ""
 
   def _get_scopes(self):
-    names = list(self._get_names())
-    for i, _ in enumerate(self.inputters):
+    for _, name in zip(self.inputters, self._get_names()):
       if self.share_parameters:
         name = self._get_shared_name()
-        reuse = i > 0
-      else:
-        name = names[i]
-        reuse = None
-      scope_name = tf.get_variable_scope().name
-      if name:
-        if scope_name:
-          scope_name = "%s/%s" % (scope_name, name)
-        else:
-          scope_name = name
-      yield tf.VariableScope(reuse, name=scope_name)
+      yield name
 
-  def build(self):
-    for inputter, scope in zip(self.inputters, self._get_scopes()):
-      with tf.variable_scope(scope):
-        inputter.build()
+  def build(self, input_shape=None):
+    if self.share_parameters:
+      # When sharing parameters, build the first leaf inputter and then set
+      # all attributes with parameters to the other inputters.
+      leaves = self.get_leaf_inputters()
+      first, others = leaves[0], leaves[1:]
+      with compat.tf_compat(v1="variable_scope")(self._get_shared_name()):
+        first.build(input_shape)
+      for name, attr in six.iteritems(first.__dict__):
+        if (isinstance(attr, tf.Variable)
+            or (isinstance(attr, tf.keras.layers.Layer) and attr.variables)):
+          for inputter in others:
+            setattr(inputter, name, attr)
+    else:
+      for inputter, scope in zip(self.inputters, self._get_names()):
+        with compat.tf_compat(v1="variable_scope")(scope):
+          inputter.build(input_shape)
+    super(ParallelInputter, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
+    if not self.built:
+      self.build()
     transformed = []
     for i, (inputter, scope) in enumerate(zip(self.inputters, self._get_scopes())):
-      with tf.variable_scope(scope):
+      with compat.tf_compat(v1="variable_scope")(scope):
         if self.combine_features:
           sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
         else:
@@ -478,7 +503,7 @@ class MixedInputter(MultiInputter):
   def make_inputs(self, features, training=None):
     transformed = []
     for i, inputter in enumerate(self.inputters):
-      with tf.variable_scope("inputter_{}".format(i)):
+      with compat.tf_compat(v1="variable_scope")("inputter_{}".format(i)):
         transformed.append(inputter.make_inputs(features, training=training))
     outputs = self.reducer(transformed)
     outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
