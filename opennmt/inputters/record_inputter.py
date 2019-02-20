@@ -3,6 +3,7 @@
 import tensorflow as tf
 
 from opennmt.inputters.inputter import Inputter
+from opennmt.utils import compat
 
 
 class SequenceRecordInputter(Inputter):
@@ -25,14 +26,14 @@ class SequenceRecordInputter(Inputter):
     super(SequenceRecordInputter, self).__init__(dtype=dtype)
 
   def make_dataset(self, data_file, training=None):
-    first_record = next(tf.python_io.tf_record_iterator(data_file))
+    first_record = next(compat.tf_compat(v1="python_io.tf_record_iterator")(data_file))
     first_record = tf.train.Example.FromString(first_record)
     shape = first_record.features.feature["shape"].int64_list.value
     self.input_depth = shape[-1]
     return tf.data.TFRecordDataset(data_file)
 
   def get_dataset_size(self, data_file):
-    return sum(1 for _ in tf.python_io.tf_record_iterator(data_file))
+    return sum(1 for _ in compat.tf_compat(v1="python_io.tf_record_iterator")(data_file))
 
   def get_receiver_tensors(self):
     return {
@@ -45,9 +46,11 @@ class SequenceRecordInputter(Inputter):
       features = {}
     if "tensor" in features:
       return features
-    example = tf.parse_single_example(element, features={
-        "shape": tf.VarLenFeature(tf.int64),
-        "values": tf.VarLenFeature(tf.float32)
+    tf_parse_example = compat.tf_compat(v2="io.parse_single_example", v1="parse_single_example")
+    tf_var_len_feature = compat.tf_compat(v2="io.VarLenFeature", v1="VarLenFeature")
+    example = tf_parse_example(element, features={
+        "shape": tf_var_len_feature(tf.int64),
+        "values": tf_var_len_feature(tf.float32)
     })
     values = example["values"].values
     shape = tf.cast(example["shape"].values, tf.int32)
