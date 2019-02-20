@@ -6,6 +6,7 @@ import numpy as np
 from opennmt import encoders
 from opennmt.encoders import rnn_encoder, self_attention_encoder
 from opennmt.layers import reducer
+from opennmt.utils import compat
 from opennmt.tests import test_util
 
 
@@ -15,6 +16,20 @@ def _build_dummy_sequences(sequence_length, depth=5, dtype=tf.float32):
       np.random.randn(
           batch_size, max(sequence_length), depth).astype(dtype.as_numpy_dtype()),
       shape=(None, None, depth))
+
+
+class DenseEncoder(encoders.Encoder):
+
+  def __init__(self, num_layers, num_units):
+    super(DenseEncoder, self).__init__()
+    self.layers = [tf.keras.layers.Dense(num_units) for _ in range(num_layers)]
+
+  def call(self, inputs, sequence_length=None, training=None):
+    states = []
+    for layer in self.layers:
+      inputs = layer(inputs)
+      states.append(inputs[:, -1])
+    return inputs, tuple(states), sequence_length
 
 
 class EncoderTest(tf.test.TestCase):
@@ -85,43 +100,25 @@ class EncoderTest(tf.test.TestCase):
       encoded_length = sess.run(encoded_length)
       self.assertAllEqual([1, 1, 1], encoded_length)
 
-  def _testSequentialEncoder(self, transition_layer_fn=None):
-    sequence_length = [17, 21, 20]
-    inputs = _build_dummy_sequences(sequence_length)
-    encoders_sequence = [
-        encoders.UnidirectionalRNNEncoder(1, 20),
-        encoders.PyramidalRNNEncoder(3, 10, reduction_factor=2)]
+  @parameterized.expand([[None], [tf.identity], [[tf.identity]]])
+  def testSequentialEncoder(self, transition_layer_fn):
+    inputs = tf.zeros([3, 5, 10])
     encoder = encoders.SequentialEncoder(
-        encoders_sequence, transition_layer_fn=transition_layer_fn)
-    _, state, encoded_length = encoder.encode(
-        inputs, sequence_length=sequence_length)
-    self.assertEqual(4, len(state))
-    for s in state:
-      self.assertIsInstance(s, tf.nn.rnn_cell.LSTMStateTuple)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      encoded_length = sess.run(encoded_length)
-      self.assertAllEqual([4, 5, 5], encoded_length)
+        [DenseEncoder(1, 20), DenseEncoder(3, 20)],
+        transition_layer_fn=transition_layer_fn)
+    outputs, states, _ = encoder.encode(inputs)
+    self.assertEqual(len(states), 4)
+    if not compat.is_tf2():
+      with self.test_session() as sess:
+        sess.run(tf.global_variables_initializer())
+    outputs = self.evaluate(outputs)
+    self.assertAllEqual(outputs.shape, [3, 5, 20])
 
-  @test_util.run_tf1_only
-  def testSequentialEncoder(self):
-    self._testSequentialEncoder()
-
-  @test_util.run_tf1_only
-  def testSequentialEncoderWithTransitionLayer(self):
-    layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
-    self._testSequentialEncoder(transition_layer_fn=layer_norm_fn)
-
-  @test_util.run_tf1_only
-  def testSequentialEncoderWithTransitionLayerList(self):
-    layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
-    self._testSequentialEncoder(transition_layer_fn=[layer_norm_fn])
-
-  @test_util.run_tf1_only
-  def testSequentialEncoderWithInvalidTransitionLayerList(self):
-    layer_norm_fn = lambda x: tf.contrib.layers.layer_norm(x, begin_norm_axis=-1)
+  def testSequentialEncoderWithTooManyTransitionLayers(self):
     with self.assertRaises(ValueError):
-      self._testSequentialEncoder(transition_layer_fn=[layer_norm_fn, layer_norm_fn])
+      _ = encoders.SequentialEncoder(
+          [DenseEncoder(1, 20), DenseEncoder(3, 20)],
+          transition_layer_fn=[tf.identity, tf.identity])
 
   def _testGoogleRNNEncoder(self, num_layers):
     sequence_length = [17, 21, 20]
@@ -160,96 +157,90 @@ class EncoderTest(tf.test.TestCase):
       outputs = sess.run(outputs)
       self.assertAllEqual([3, max(sequence_length), 10], outputs.shape)
 
-  @test_util.run_tf1_only
   def testParallelEncoder(self):
-    sequence_lengths = [[17, 21, 20], [10, 9, 15]]
-    inputs = [
-        _build_dummy_sequences(length) for length in sequence_lengths]
-    encoder = encoders.ParallelEncoder([
-        encoders.UnidirectionalRNNEncoder(1, 20),
-        encoders.UnidirectionalRNNEncoder(1, 20)],
+    sequence_lengths = [[3, 5, 2], [6, 6, 4]]
+    inputs = [tf.zeros([3, 5, 10]), tf.zeros([3, 6, 10])]
+    encoder = encoders.ParallelEncoder(
+        [DenseEncoder(1, 20), DenseEncoder(2, 20)],
         outputs_reducer=reducer.ConcatReducer(axis=1))
     outputs, state, encoded_length = encoder.encode(
         inputs, sequence_length=sequence_lengths)
-    self.assertEqual(2, len(state))
-    for s in state:
-      self.assertIsInstance(s, tf.nn.rnn_cell.LSTMStateTuple)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      outputs, encoded_length = sess.run([outputs, encoded_length])
-      self.assertAllEqual([3, 35, 20], outputs.shape)
-      self.assertAllEqual([27, 30, 35], encoded_length)
+    self.assertEqual(len(state), 3)
+    if not compat.is_tf2():
+      with self.test_session() as sess:
+        sess.run(tf.global_variables_initializer())
+    outputs, encoded_length = self.evaluate([outputs, encoded_length])
+    self.assertAllEqual([3, 11, 20], outputs.shape)
+    self.assertAllEqual([9, 11, 6], encoded_length)
 
   def _encodeInParallel(self,
                         inputs,
                         sequence_length=None,
                         outputs_layer_fn=None,
                         combined_output_layer_fn=None):
-    columns = [
-        encoders.UnidirectionalRNNEncoder(1, 20),
-        encoders.UnidirectionalRNNEncoder(1, 20)]
+    columns = [DenseEncoder(1, 20), DenseEncoder(1, 20)]
     encoder = encoders.ParallelEncoder(
         columns,
         outputs_reducer=reducer.ConcatReducer(),
         outputs_layer_fn=outputs_layer_fn,
         combined_output_layer_fn=combined_output_layer_fn)
-    return encoder.encode(inputs, sequence_length=sequence_length)
+    outputs, _, _ = encoder.encode(inputs, sequence_length=sequence_length)
+    if not compat.is_tf2():
+      with self.test_session() as sess:
+        sess.run(tf.global_variables_initializer())
+    return self.evaluate(outputs)
 
-  @test_util.run_tf1_only
   def testParallelEncoderSameInput(self):
-    sequence_length = [17, 21, 20]
-    inputs = _build_dummy_sequences(sequence_length)
-    outputs, _, encoded_length = self._encodeInParallel(
-        inputs, sequence_length=sequence_length)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      outputs, encoded_length = sess.run([outputs, encoded_length])
-      self.assertAllEqual([3, 21, 40], outputs.shape)
-      self.assertAllEqual(sequence_length, encoded_length)
+    sequence_length = tf.constant([2, 5, 4], dtype=tf.int32)
+    inputs = tf.zeros([3, 5, 10])
+    outputs = self._encodeInParallel(inputs, sequence_length=sequence_length)
+    self.assertAllEqual(outputs.shape, [3, 5, 40])
 
-  @test_util.run_tf1_only
   def testParallelEncoderCombinedOutputLayer(self):
-    sequence_length = [4, 6, 5]
-    inputs = _build_dummy_sequences(sequence_length)
-    outputs, _, encoded_length = self._encodeInParallel(
+    sequence_length = tf.constant([2, 5, 4], dtype=tf.int32)
+    inputs = tf.zeros([3, 5, 10])
+    outputs = self._encodeInParallel(
         inputs,
         sequence_length=sequence_length,
-        combined_output_layer_fn=lambda x: tf.layers.dense(x, 15))
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      outputs = sess.run(outputs)
-      self.assertEqual(15, outputs.shape[-1])
+        combined_output_layer_fn=tf.keras.layers.Dense(15))
+    self.assertEqual(outputs.shape[-1], 15)
 
   def _encodeAndProjectInParallel(self, outputs_size):
-    sequence_length = [4, 6, 5]
-    inputs = _build_dummy_sequences(sequence_length)
+    sequence_length = tf.constant([2, 5, 4], dtype=tf.int32)
+    inputs = tf.zeros([3, 5, 10])
     if isinstance(outputs_size, list):
-      outputs_layer_fn = [lambda x, s=s: tf.layers.dense(x, s) for s in outputs_size]
+      outputs_layer_fn = [tf.keras.layers.Dense(s) for s in outputs_size]
       combined_output_size = sum(outputs_size)
     else:
-      outputs_layer_fn = lambda x: tf.layers.dense(x, outputs_size)
+      outputs_layer_fn = tf.keras.layers.Dense(outputs_size)
       combined_output_size = outputs_size * 2
-    outputs, _, encoded_length = self._encodeInParallel(
+    outputs = self._encodeInParallel(
         inputs,
         sequence_length=sequence_length,
         outputs_layer_fn=outputs_layer_fn)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      outputs = sess.run(outputs)
-      self.assertEqual(combined_output_size, outputs.shape[-1])
+    self.assertEqual(outputs.shape[-1], combined_output_size)
 
-  @test_util.run_tf1_only
   def testParallelEncoderSameOutputsLayer(self):
     self._encodeAndProjectInParallel(15)
 
-  @test_util.run_tf1_only
   def testParallelEncoderOutputsLayer(self):
     self._encodeAndProjectInParallel([14, 15])
 
-  @test_util.run_tf1_only
   def testParallelEncoderOutputsLayerInvalid(self):
     with self.assertRaises(ValueError):
       self._encodeAndProjectInParallel([15])
+
+  def testParallelEncoderReuse(self):
+    lengths = [tf.constant([2, 5, 4], dtype=tf.int32), tf.constant([6, 6, 3], dtype=tf.int32)]
+    inputs = [tf.zeros([3, 5, 10]), tf.zeros([3, 6, 10])]
+    encoder = encoders.ParallelEncoder(DenseEncoder(2, 20), outputs_reducer=None)
+    outputs, _, _ = encoder.encode(inputs, sequence_length=lengths)
+    if not compat.is_tf2():
+      with self.test_session() as sess:
+        sess.run(tf.global_variables_initializer())
+    outputs = self.evaluate(outputs)
+    self.assertIsInstance(outputs, tuple)
+    self.assertEqual(len(outputs), 2)
 
   @parameterized.expand([[tf.float32], [tf.float16]])
   @test_util.run_tf2_only
@@ -276,6 +267,15 @@ class EncoderTest(tf.test.TestCase):
   @test_util.run_tf2_only
   def testBidirectionalRNNEncoderV2(self, cell_class):
     encoder = rnn_encoder.BidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
+    inputs = tf.random.uniform([4, 5, 10])
+    lengths = tf.constant([4, 3, 5, 2])
+    outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
+    self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
+    self.assertEqual(len(states), 3)
+
+  @test_util.run_tf2_only
+  def testGoogleRNNEncoderV2(self):
+    encoder = rnn_encoder.BidirectionalRNNEncoderV2(3, 20)
     inputs = tf.random.uniform([4, 5, 10])
     lengths = tf.constant([4, 3, 5, 2])
     outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)

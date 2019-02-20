@@ -4,7 +4,7 @@ import tensorflow as tf
 
 from opennmt.layers import transformer
 
-from opennmt.encoders.encoder import Encoder, EncoderV2
+from opennmt.encoders.encoder import Encoder
 from opennmt.layers.position import SinusoidalPositionEncoder
 from opennmt.layers import common
 
@@ -38,6 +38,7 @@ class SelfAttentionEncoder(Encoder):
       position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
         apply on inputs or ``None``.
     """
+    super(SelfAttentionEncoder, self).__init__()
     self.num_layers = num_layers
     self.num_units = num_units
     self.num_heads = num_heads
@@ -99,7 +100,7 @@ class SelfAttentionEncoder(Encoder):
     return (outputs, state, sequence_length)
 
 
-class SelfAttentionEncoderV2(EncoderV2):
+class SelfAttentionEncoderV2(Encoder):
   """Encoder using self-attention as described in
   https://arxiv.org/abs/1706.03762.
 
@@ -151,7 +152,7 @@ class SelfAttentionEncoderV2(EncoderV2):
             name="layer_%d" % i)
         for i in range(num_layers)]
 
-  def encode(self, inputs, sequence_length=None, training=None):
+  def call(self, inputs, sequence_length=None, training=None):
     """Encodes :obj:`inputs`."""
     inputs *= self.num_units**0.5
     inputs = self.position_encoder(inputs)
