@@ -49,7 +49,7 @@ class Encoder(tf.keras.layers.Layer):
     Returns:
       A tuple ``(outputs, state, sequence_length)``.
     """
-    return self(
+    return self.call(
         inputs,
         sequence_length=sequence_length,
         training=mode == tf.estimator.ModeKeys.TRAIN)
