@@ -147,7 +147,7 @@ class Inputter(tf.keras.layers.Layer):
 
   def call(self, features, training=None):  # pylint: disable=arguments-differ
     """Forwards call to ``make_inputs().``"""
-    return make_inputs(features, training=training)
+    return self.make_inputs(features, training=training)
 
   def make_inputs(self, features, training=None):
     """Creates the model input from the features.
