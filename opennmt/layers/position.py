@@ -7,7 +7,6 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import SumReducer
-from opennmt.utils import compat
 
 
 def make_positions(sequence_length, maximum_length=None):
@@ -43,14 +42,13 @@ def make_positions(sequence_length, maximum_length=None):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class PositionEncoder(tf.keras.layers.Layer):
+class PositionEncoder(object):
   """Base class for position encoders."""
 
   def __init__(self, reducer=SumReducer()):
-    super(PositionEncoder, self).__init__()
     self.reducer = reducer
 
-  def call(self, inputs, sequence_length=None, position=None):  # pylint: disable=arguments-differ
+  def __call__(self, inputs, sequence_length=None, position=None):
     """Apply position encoding to inputs.
 
     Args:
@@ -77,7 +75,7 @@ class PositionEncoder(tf.keras.layers.Layer):
     position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
     return self.reducer([inputs, position_encoding])
 
-  def apply(self, inputs, sequence_length=None):  # pylint: disable=arguments-differ
+  def apply(self, inputs, sequence_length=None):
     """Shortcut for ``__call__``."""
     return self(inputs, sequence_length=sequence_length)
 
@@ -134,17 +132,13 @@ class PositionEmbedder(PositionEncoder):
     """
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position
-    self.embedding = None
-
-  def build(self, input_shape):
-    depth = input_shape.as_list()[-1]
-    self.embedding = self.add_variable(
-        name=compat.name_from_variable_scope("position_encoding/w_embs"),
-        shape=[self.maximum_position + 1, depth])
 
   def encode(self, positions, depth, dtype=tf.float32):
     positions = tf.minimum(positions, self.maximum_position)
-    return tf.nn.embedding_lookup(self.embedding, positions)
+    with tf.variable_scope("position_encoding"):
+      embeddings = tf.get_variable(
+          "w_embs", shape=[self.maximum_position + 1, depth], dtype=dtype)
+    return tf.nn.embedding_lookup(embeddings, positions)
 
 
 class SinusoidalPositionEncoder(PositionEncoder):
