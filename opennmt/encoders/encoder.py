@@ -1,6 +1,7 @@
 """Base class for encoders and generic multi encoders."""
 
 import abc
+import itertools
 import six
 
 import tensorflow as tf
@@ -133,7 +134,8 @@ class ParallelEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
+      encoders: A list of :class:`opennmt.encoders.encoder.Encoder` or a single
+        one, in which case the same encoder is applied to each input.
       outputs_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
         outputs. If ``None``, defaults to
         :class:`opennmt.layers.reducer.JoinReducer`.
@@ -147,13 +149,15 @@ class ParallelEncoder(Encoder):
       combined_output_layer_fn: A callable to apply on the combined output
         (i.e. the output of :obj:`outputs_reducer`).
       share_parameters: If ``True``, share parameters between the parallel
-        encoders.
+        encoders. For stateful encoders, simply pass a single encoder instance
+        to :obj:`encoders` for parameter sharing.
 
     Raises:
       ValueError: if :obj:`outputs_layer_fn` is a list with a size not equal
         to the number of encoders.
     """
-    if (outputs_layer_fn is not None and isinstance(outputs_layer_fn, list)
+    if (isinstance(encoders, list)
+        and outputs_layer_fn is not None and isinstance(outputs_layer_fn, list)
         and len(outputs_layer_fn) != len(encoders)):
       raise ValueError("The number of output layers must match the number of encoders; "
                        "expected %d layers but got %d."
@@ -170,15 +174,21 @@ class ParallelEncoder(Encoder):
     all_outputs = []
     all_states = []
     all_sequence_lengths = []
+    parallel_inputs = isinstance(inputs, (list, tuple))
+    parallel_encoders = isinstance(self.encoders, (list, tuple))
 
-    if tf.contrib.framework.nest.is_sequence(inputs) and len(inputs) != len(self.encoders):
+    if parallel_encoders and parallel_inputs and len(inputs) != len(self.encoders):
       raise ValueError("ParallelEncoder expects as many inputs as parallel encoders")
+    if parallel_encoders:
+      encoders = self.encoders
+    else:
+      encoders = itertools.repeat(self.encoders, len(inputs) if parallel_inputs else 1)
 
-    for i, encoder in enumerate(self.encoders):
+    for i, encoder in enumerate(encoders):
       scope_name = "encoder_{}".format(i) if not self.share_parameters else "parallel_encoder"
       reuse = self.share_parameters and i > 0
-      with tf.variable_scope(scope_name, reuse=reuse):
-        if tf.contrib.framework.nest.is_sequence(inputs):
+      with compat.tf_compat(v1="variable_scope")(scope_name, reuse=reuse):
+        if parallel_inputs:
           encoder_inputs = inputs[i]
           length = sequence_length[i]
         else:
