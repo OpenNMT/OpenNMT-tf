@@ -1,7 +1,10 @@
+from parameterized import parameterized
+
 import tensorflow as tf
 import numpy as np
 
 from opennmt.layers import position
+from opennmt.utils import compat
 
 
 class _DummyPositionEncoder(position.PositionEncoder):
@@ -70,6 +73,20 @@ class PositionTest(tf.test.TestCase):
   def testSinusoidalPositionEncoderInvalidDepth(self):
     with self.assertRaises(ValueError):
       self._testSinusoidalPositionEncoder(5)
+
+  @parameterized.expand([[tf.float32], [tf.float16]])
+  def testPositionEmbedder(self, dtype):
+    encoder = position.PositionEmbedder()
+    inputs = tf.zeros([3, 5, 10], dtype=dtype)
+    outputs = encoder(inputs)
+    self.assertEqual(outputs.dtype, dtype)
+    self.assertEqual(encoder.embedding.dtype, dtype)
+    self.assertEqual(encoder.embedding.name, "position_encoding/w_embs:0")
+    if not compat.is_tf2():
+      with self.test_session() as sess:
+        sess.run(tf.global_variables_initializer())
+    outputs = self.evaluate(outputs)
+    self.assertAllEqual(outputs.shape, [3, 5, 10])
 
 
 if __name__ == "__main__":
