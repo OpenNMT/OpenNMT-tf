@@ -106,7 +106,7 @@ class EncoderTest(tf.test.TestCase):
     encoder = encoders.SequentialEncoder(
         [DenseEncoder(1, 20), DenseEncoder(3, 20)],
         transition_layer_fn=transition_layer_fn)
-    outputs, states, _ = encoder(inputs, training=True)
+    outputs, states, _ = encoder.encode(inputs)
     self.assertEqual(len(states), 4)
     if not compat.is_tf2():
       with self.test_session() as sess:
@@ -234,7 +234,7 @@ class EncoderTest(tf.test.TestCase):
     lengths = [tf.constant([2, 5, 4], dtype=tf.int32), tf.constant([6, 6, 3], dtype=tf.int32)]
     inputs = [tf.zeros([3, 5, 10]), tf.zeros([3, 6, 10])]
     encoder = encoders.ParallelEncoder(DenseEncoder(2, 20), outputs_reducer=None)
-    outputs, _, _ = encoder(inputs, sequence_length=lengths, training=True)
+    outputs, _, _ = encoder.encode(inputs, sequence_length=lengths)
     if not compat.is_tf2():
       with self.test_session() as sess:
         sess.run(tf.global_variables_initializer())
