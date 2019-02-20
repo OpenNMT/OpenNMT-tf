@@ -6,7 +6,7 @@ import six
 import tensorflow as tf
 
 from opennmt.utils.cell import build_cell
-from opennmt.encoders.encoder import Encoder
+from opennmt.encoders.encoder import Encoder, SequentialEncoder
 from opennmt.layers.reducer import SumReducer, ConcatReducer, JoinReducer, pad_in_time
 from opennmt.layers import rnn
 
@@ -412,3 +412,37 @@ class BidirectionalRNNEncoderV2(Encoder):
     mask = self.build_mask(inputs, sequence_length=sequence_length)
     outputs, states = self.rnn(inputs, mask=mask, training=training)
     return outputs, states, sequence_length
+
+
+class GoogleRNNEncoderV2(SequentialEncoder):
+  """The RNN encoder used in GNMT as described in
+  https://arxiv.org/abs/1609.08144.
+
+  Note:
+    TensorFlow 2.0 version.
+  """
+
+  def __init__(self, num_layers, num_units, dropout=0.3):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer.
+      dropout: The probability to drop units in each layer output.
+
+    Raises:
+      ValueError: if :obj:`num_layers` < 2.
+    """
+    if num_layers < 2:
+      raise ValueError("GoogleRNNEncoder requires at least 2 layers")
+    bidirectional = BidirectionalRNNEncoderV2(
+        1,
+        num_units,
+        reducer=ConcatReducer(),
+        dropout=dropout)
+    unidirectional = UnidirectionalRNNEncoderV2(
+        num_layers - 1,
+        num_units,
+        dropout=dropout,
+        residual_connections=True)
+    super(GoogleRNNEncoderV2, self).__init__([bidirectional, unidirectional])
