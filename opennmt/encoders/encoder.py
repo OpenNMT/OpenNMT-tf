@@ -6,6 +6,7 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
+from opennmt.utils import compat
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -90,7 +91,7 @@ class SequentialEncoder(Encoder):
     encoder_state = []
 
     for i, encoder in enumerate(self.encoders):
-      with tf.variable_scope("encoder_{}".format(i)):
+      with compat.tf_compat(v1="variable_scope")("encoder_{}".format(i)):
         if i > 0 and self.transition_layer_fn is not None:
           if isinstance(self.transition_layer_fn, list):
             inputs = self.transition_layer_fn[i - 1](inputs)
