@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt import decoders
-from opennmt.decoders import decoder
+from opennmt.decoders import decoder, self_attention_decoder
 from opennmt.utils import beam_search
 from opennmt.layers import bridge
 from opennmt.tests import test_util
@@ -285,6 +285,66 @@ class DecoderTest(tf.test.TestCase):
     self.assertTrue(np.all(log_probs[:, token_id] < 0))
     non_penalized = np.delete(log_probs, 1, token_id)
     self.assertEqual(np.sum(non_penalized), 0)
+
+  @test_util.run_tf2_only
+  def testSelfAttentionDecoderV2(self):
+    decoder = self_attention_decoder.SelfAttentionDecoderV2(
+        2, num_units=6, num_heads=2, ffn_inner_dim=12)
+    decoder.finalize(vocab_size=10)
+    inputs = tf.random.uniform([3, 5, 6])
+    sequence_length = tf.constant([5, 5, 4], dtype=tf.int32)
+    memory = tf.random.uniform([3, 7, 6])
+    memory_sequence_length = tf.constant([5, 7, 3], dtype=tf.int32)
+    logits, state, attention = decoder(
+        inputs,
+        sequence_length,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length,
+        training=True)
+    self.assertEqual(logits.shape[-1], 10)
+    self.assertListEqual(attention.shape.as_list(), [3, 5, 7])
+    state = decoder.get_initial_state(batch_size=3)
+    inputs = tf.random.uniform([3, 6])
+    logits, state, attention = decoder(
+        inputs,
+        tf.constant(0),
+        state=state,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
+    self.assertEqual(logits.shape[-1], 10)
+    self.assertEqual(len(state), 2)
+    self.assertListEqual(attention.shape.as_list(), [3, 7])
+
+  @test_util.run_tf2_only
+  def testSelfAttentionDecoderV2MultiSource(self):
+    decoder = self_attention_decoder.SelfAttentionDecoderV2(
+        2, num_units=6, num_heads=2, ffn_inner_dim=12, num_sources=2)
+    decoder.finalize(vocab_size=10)
+    inputs = tf.random.uniform([3, 5, 6])
+    sequence_length = tf.constant([5, 5, 4], dtype=tf.int32)
+    memory = [tf.random.uniform([3, 7, 6]), tf.random.uniform([3, 2, 6])]
+    memory_sequence_length = [
+          tf.constant([5, 7, 3], dtype=tf.int32), tf.constant([1, 1, 2], dtype=tf.int32)]
+    logits, state, attention = decoder(
+        inputs,
+        sequence_length,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length,
+        training=True)
+    self.assertEqual(logits.shape[-1], 10)
+    self.assertIsNone(attention)
+    state = decoder.get_initial_state(batch_size=3)
+    inputs = tf.random.uniform([3, 6])
+    logits, state, attention = decoder(
+        inputs,
+        tf.constant(0),
+        state=state,
+        memory=memory,
+        memory_sequence_length=memory_sequence_length)
+    self.assertEqual(logits.shape[-1], 10)
+    self.assertEqual(len(state), 2)
+    self.assertEqual(len(state[0]["memory_kv"]), 2)
+    self.assertIsNone(attention)
 
 
 if __name__ == "__main__":

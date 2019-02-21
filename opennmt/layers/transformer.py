@@ -456,6 +456,13 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         values = tf.concat([cache[1], values], axis=2)
     else:
       if cache:
+        if not self.linear_keys.built:
+          # Ensure that the variable names are not impacted by the tf.cond name
+          # scope if the layers have not already been built.
+          with tf.name_scope(self.linear_keys.name):
+            self.linear_keys.build(memory.shape)
+          with tf.name_scope(self.linear_values.name):
+            self.linear_values.build(memory.shape)
         keys, values = tf.cond(
             tf.equal(tf.shape(cache[0])[2], 0),
             true_fn=lambda: _compute_kv(memory),
