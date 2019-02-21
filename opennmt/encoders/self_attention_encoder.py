@@ -195,18 +195,10 @@ class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
     super(_SelfAttentionEncoderLayer, self).__init__(**kwargs)
     self.self_attention = transformer.MultiHeadAttention(
         num_heads, num_units, dropout=attention_dropout)
-    self.self_attention = common.LayerWrapper(
-        self.self_attention,
-        normalize_input=True,
-        output_dropout=dropout,
-        residual_connection=True)
+    self.self_attention = transformer.TransformerLayerWrapper(self.self_attention, dropout)
     self.ffn = transformer.FeedForwardNetwork(
         ffn_inner_dim, num_units, dropout=relu_dropout)
-    self.ffn = common.LayerWrapper(
-        self.ffn,
-        normalize_input=True,
-        output_dropout=dropout,
-        residual_connection=True)
+    self.ffn = transformer.TransformerLayerWrapper(self.ffn, dropout)
 
   def call(self, x, mask=None, training=None):  # pylint: disable=arguments-differ
     """Runs the encoder layer."""

@@ -2,6 +2,7 @@
 
 import tensorflow as tf
 
+from opennmt.layers import common
 from opennmt.utils import compat
 
 
@@ -480,3 +481,29 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     if self.return_attention:
       return outputs, cache, attn
     return outputs, cache
+
+
+class TransformerLayerWrapper(common.LayerWrapper):
+  """Layer wrapper that applies a standard Transformer preprocessing and
+  postprocessing:
+
+  .. code-block:: text
+
+      y = layer_norm(x)
+      y = dropout(layer(y)) + x
+  """
+
+  def __init__(self, layer, output_dropout, **kwargs):
+    """Initializes the wrapper.
+
+    Args:
+      layer: The Transformer layer to wrap.
+      output_dropout: The dropout to apply on the layer output.
+      **kwargs: Additional layer arguments.
+    """
+    super(TransformerLayerWrapper, self).__init__(
+        layer,
+        normalize_input=True,
+        output_dropout=output_dropout,
+        residual_connection=True,
+        **kwargs)
