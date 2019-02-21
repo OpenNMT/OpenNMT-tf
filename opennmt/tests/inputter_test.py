@@ -193,6 +193,7 @@ class InputterTest(tf.test.TestCase):
         metadata={"vocabulary_file": vocab_file},
         shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
+    self.assertEqual(embedder.embedding.name, "w_embs:0")
     self.assertAllEqual([3], features["length"])
     self.assertAllEqual([[2, 1, 4]], features["ids"])
     self.assertAllEqual([1, 3, 10], transformed.shape)

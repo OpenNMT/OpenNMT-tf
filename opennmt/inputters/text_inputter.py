@@ -401,11 +401,19 @@ class WordEmbedder(TextInputter):
     else:
       initializer = None
     shape = [self.vocabulary_size, self.embedding_size]
-    self.embedding = self.add_variable(
-        name=compat.name_from_variable_scope("w_embs"),
-        shape=shape,
-        initializer=initializer,
-        trainable=self.trainable)
+    if compat.is_tf2():
+      self.embedding = self.add_variable(
+          name=compat.name_from_variable_scope("w_embs"),
+          shape=shape,
+          initializer=initializer,
+          trainable=self.trainable)
+    else:
+      self.embedding = tf.get_variable(
+          "w_embs",
+          shape=shape,
+          dtype=self.dtype,
+          initializer=initializer,
+          trainable=self.trainable)
     super(WordEmbedder, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
@@ -474,9 +482,13 @@ class CharEmbedder(TextInputter):
     return features
 
   def build(self, input_shape=None):
-    self.embedding = self.add_variable(
-        name=compat.name_from_variable_scope("w_char_embs"),
-        shape=[self.vocabulary_size, self.embedding_size])
+    shape = [self.vocabulary_size, self.embedding_size]
+    if compat.is_tf2():
+      self.embedding = self.add_variable(
+          name=compat.name_from_variable_scope("w_char_embs"), shape=shape)
+    else:
+      self.embedding = tf.get_variable(
+          "w_char_embs", shape=shape, dtype=self.dtype)
     super(CharEmbedder, self).build(input_shape)
 
   @abc.abstractmethod
