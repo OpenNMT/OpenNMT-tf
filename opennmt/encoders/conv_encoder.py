@@ -27,6 +27,7 @@ class ConvEncoder(Encoder):
       position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
         apply on inputs or ``None``.
     """
+    super(ConvEncoder, self).__init__()
     self.num_layers = num_layers
     self.num_units = num_units
     self.kernel_size = kernel_size

@@ -152,7 +152,7 @@ class SequenceToSequence(Model):
         }
     })
 
-  def _build(self, features, labels, params, mode, config=None):
+  def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
     self.examples_inputter.build()
 
@@ -288,7 +288,9 @@ class SequenceToSequence(Model):
 
     return outputs, predictions
 
-  def _compute_loss(self, features, labels, outputs, params, mode):
+  def compute_loss(self, outputs, labels, training=True, params=None):
+    if params is None:
+      params = {}
     if isinstance(outputs, dict):
       logits = outputs["logits"]
       attention = outputs.get("attention")
@@ -302,8 +304,8 @@ class SequenceToSequence(Model):
         labels_lengths,
         label_smoothing=params.get("label_smoothing", 0.0),
         average_in_time=params.get("average_loss_in_time", False),
-        mode=mode)
-    if mode == tf.estimator.ModeKeys.TRAIN:
+        mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
+    if training:
       gold_alignments = labels.get("alignment")
       guided_alignment_type = params.get("guided_alignment_type")
       if gold_alignments is not None and guided_alignment_type is not None:

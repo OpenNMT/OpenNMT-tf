@@ -17,6 +17,7 @@ from tensorflow.python.estimator.util import fn_args
 
 from google.protobuf import text_format
 
+from opennmt import models
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils.evaluator import external_evaluation_fn
 from opennmt.utils.misc import format_translation_output, OrderRestorer
@@ -273,6 +274,10 @@ class Runner(object):
 
     Args:
       checkpoint_path: The checkpoint path to load the model weights from it.
+
+    Returns:
+      A tuple with a dict of evaluation metrics and the export result or
+      ``None`` in TensorFlow 1.8 and older.
     """
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
@@ -280,8 +285,9 @@ class Runner(object):
     train_spec = self._build_train_spec(checkpoint_path)
     eval_spec = self._build_eval_spec()
     estimator = self._make_estimator()
-    tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+    result = tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
     self._maybe_average_checkpoints(estimator)
+    return result
 
   def train(self, checkpoint_path=None):
     """Runs the training loop.
@@ -299,12 +305,19 @@ class Runner(object):
     self._maybe_average_checkpoints(estimator)
 
   def evaluate(self, checkpoint_path=None):
-    """Runs evaluation."""
+    """Runs evaluation.
+
+    Args:
+      checkpoint_path: The checkpoint path to load the model weights from it.
+
+    Returns:
+      A dict of evaluation metrics.
+    """
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     eval_spec = self._build_eval_spec()
     estimator = self._make_estimator()
-    estimator.evaluate(
+    return estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
 
   def _maybe_average_checkpoints(self, estimator, avg_subdirectory="avg"):
@@ -435,7 +448,7 @@ class Runner(object):
         checkpoint_path=checkpoint_path,
         **kwargs)
 
-  def score(self, features_file, predictions_file, checkpoint_path=None):
+  def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.
 
     Args:
@@ -443,12 +456,14 @@ class Runner(object):
       predictions_file: The predictions file to score.
       checkpoint_path: Path of a specific checkpoint to use. If ``None``,
         the latest is used.
+      output_file: The file where the scores are saved. Otherwise, they will be
+        printed on the standard output.
 
     Raises:
       ValueError: if no checkpoint are found or if the model is not a sequence to
         sequence model.
     """
-    if not hasattr(self._model, "target_inputter"):
+    if not isinstance(self._model, models.SequenceToSequence):
       raise ValueError("scoring only works for sequence to sequence models")
 
     if checkpoint_path is None:
@@ -488,8 +503,13 @@ class Runner(object):
           "cross_entropy": cross_entropy,
           "score": scores,
           "tokens": labels["tokens"],
-          "length": labels["length"] - 1  # For -1, see sequence_to_sequence.shift_target_sequence.
+          "length": labels["length"] - 1  # -1 for the special token.
       }
+
+      if output_file:
+        stream = io.open(output_file, encoding="utf-8", mode="w")
+      else:
+        stream = sys.stdout
 
       with tf.train.MonitoredSession(
           session_creator=tf.train.ChiefSessionCreator(
@@ -498,7 +518,7 @@ class Runner(object):
         while not sess.should_stop():
           for batch in misc.extract_batches(sess.run(results)):
             tokens = batch["tokens"][:batch["length"]]
-            sentence = self._model.target_inputter.tokenizer.detokenize(tokens)
+            sentence = self._model.labels_inputter.tokenizer.detokenize(tokens)
             token_level_scores = None
             if self._config["score"].get("with_token_level"):
               token_level_scores = batch["cross_entropy"][:batch["length"]]
@@ -509,8 +529,10 @@ class Runner(object):
                 token_level_scores=token_level_scores,
                 attention=batch["attention"][:batch["length"]],
                 alignment_type=alignment_type)
-            misc.print_bytes(tf.compat.as_bytes(sentence))
+            misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
 
+      if output_file:
+        stream.close()
 
 def _make_exporters(exporters_type, serving_input_fn, assets_extra=None):
   if exporters_type is None:

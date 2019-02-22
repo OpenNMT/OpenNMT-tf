@@ -43,6 +43,16 @@ def tf_compat(v2=None, v1=None):  # pylint: disable=invalid-name
     raise ValueError("Failure to resolve the TensorFlow symbol")
   return symbol
 
+def name_from_variable_scope(name=""):
+  """Creates a name prefixed by the current variable scope."""
+  var_scope = tf_compat(v1="get_variable_scope")().name
+  compat_name = ""
+  if name:
+    compat_name = "%s/" % name
+  if var_scope:
+    compat_name = "%s/%s" % (var_scope, compat_name)
+  return compat_name
+
 def _string_to_tf_symbol(symbol):
   modules = symbol.split(".")
   namespace = tf

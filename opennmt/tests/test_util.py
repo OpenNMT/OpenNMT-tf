@@ -10,6 +10,9 @@ def run_tf1_only(func):
 def run_tf2_only(func):
   return unittest.skipIf(not compat.is_tf2(), "TensorFlow v2 only test")(func)
 
+def skip_if_unsupported(symbol):
+  return unittest.skipIf(not compat.tf_supports(symbol), "tf.%s is not supported")
+
 def make_data_file(path, lines):
   with open(path, "w") as data:
     for line in lines:

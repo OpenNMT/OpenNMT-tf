@@ -61,7 +61,7 @@ class Model(object):
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       the arguments of this function.
     """
-    return self._build(features, labels, params, mode, config=config)
+    return self._call(features, labels, params, mode)
 
   def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
     """Returns the model function.
@@ -83,10 +83,11 @@ class Model(object):
         daisy_chain_variables=self.daisy_chain_variables,
         devices=devices)
 
-    def _loss_op(features, labels, params, mode, config):
+    def _loss_op(features, labels, params, mode):
       """Single callable to compute the loss."""
-      logits, _ = self._build(features, labels, params, mode, config=config)
-      return self._compute_loss(features, labels, logits, params, mode)
+      logits, _ = self._call(features, labels, params, mode)
+      return self.compute_loss(
+          logits, labels, training=mode == tf.estimator.ModeKeys.TRAIN, params=params)
 
     def _normalize_loss(num, den=None):
       """Normalizes the loss."""
@@ -120,11 +121,13 @@ class Model(object):
 
         with tf.variable_scope(self.name, initializer=self._initializer(params)):
           losses_shards = dispatcher(
-              _loss_op, features_shards, labels_shards, params, mode, config)
+              _loss_op, features_shards, labels_shards, params, mode)
 
         loss = _extract_loss(losses_shards)
-        train_op, extra_variables = optimize_loss(
-            loss, params, mixed_precision=(self.dtype == tf.float16), hvd=hvd)
+        train_op = self.optimize_loss(loss, params=params, hvd=hvd)
+        extra_variables = []
+        if isinstance(train_op, tuple):
+          train_op, extra_variables = train_op
 
         training_hooks = []
         if extra_variables:
@@ -149,11 +152,11 @@ class Model(object):
             training_hooks=training_hooks)
       elif mode == tf.estimator.ModeKeys.EVAL:
         with tf.variable_scope(self.name):
-          logits, predictions = self._build(features, labels, params, mode, config=config)
-          loss = self._compute_loss(features, labels, logits, params, mode)
+          logits, predictions = self._call(features, labels, params, mode)
+          loss = self.compute_loss(logits, labels, training=False, params=params)
 
         loss = _extract_loss(loss)
-        eval_metric_ops = self._compute_metrics(features, labels, predictions)  # pylint: disable=assignment-from-none
+        eval_metric_ops = self.compute_metrics(predictions, labels)
         evaluation_hooks = []
         if predictions is not None and eval_prediction_hooks_fn is not None:
           evaluation_hooks.extend(eval_prediction_hooks_fn(predictions))
@@ -164,7 +167,7 @@ class Model(object):
             evaluation_hooks=evaluation_hooks)
       elif mode == tf.estimator.ModeKeys.PREDICT:
         with tf.variable_scope(self.name):
-          _, predictions = self._build(features, labels, params, mode, config=config)
+          _, predictions = self._call(features, labels, params, mode)
 
         # Forward example index for reordering predictions.
         if "index" in features:
@@ -199,7 +202,7 @@ class Model(object):
     return None
 
   @abc.abstractmethod
-  def _build(self, features, labels, params, mode, config=None):
+  def _call(self, features, labels, params, mode):
     """Creates the graph.
 
     Returns:
@@ -211,32 +214,46 @@ class Model(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _compute_loss(self, features, labels, outputs, params, mode):
+  def compute_loss(self, outputs, labels, training=True, params=None):
     """Computes the loss.
 
     Args:
-      features: The dict of features ``tf.Tensor``.
+      outputs: The model outputs (usually unscaled probabilities).
       labels: The dict of labels ``tf.Tensor``.
-      output: The model outputs (usually unscaled probabilities).
+      training: Compute training loss.
       params: A dictionary of hyperparameters.
-      mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
       The loss or a tuple containing the computed loss and the loss to display.
     """
     raise NotImplementedError()
 
-  def _compute_metrics(self, features, labels, predictions):  # pylint: disable=unused-argument
+  def optimize_loss(self, loss, params=None, hvd=None):
+    """Returns the loss optimization op.
+
+    Args:
+      loss: The loss to optimize.
+      params: A dictionary of hyperparameters.
+      hvd: Optional Horovod object.
+
+    Returns:
+      The training op and optionally a list of extra variables to initialize.
+    """
+    if params is None:
+      params = {}
+    mixed_precision = self.dtype == tf.float16
+    return optimize_loss(loss, params, mixed_precision=mixed_precision, hvd=hvd)
+
+  def compute_metrics(self, predictions, labels):  # pylint: disable=unused-argument
     """Computes additional metrics on the predictions.
 
     Args:
-      features: The dict of features ``tf.Tensor``.
-      labels: The dict of labels ``tf.Tensor``.
       predictions: The model predictions.
+      labels: The dict of labels ``tf.Tensor``.
 
     Returns:
-      A dict of metric results (tuple ``(metric_tensor, update_op)``) keyed by
-      name.
+      A dict of metrics. See the ``eval_metric_ops`` field of
+      ``tf.estimator.EstimatorSpec``.
     """
     return None
 

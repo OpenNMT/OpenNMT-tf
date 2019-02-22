@@ -1,18 +1,43 @@
 """Base class for encoders and generic multi encoders."""
 
 import abc
+import itertools
 import six
 
 import tensorflow as tf
 
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
+from opennmt.utils import compat
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Encoder(object):
+class Encoder(tf.keras.layers.Layer):
   """Base class for encoders."""
 
-  @abc.abstractmethod
+  def build_mask(self, inputs, sequence_length=None, dtype=tf.bool):
+    """Builds a boolean mask for :obj:`inputs`."""
+    if sequence_length is None:
+      return None
+    mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=dtype)
+    mask = tf.expand_dims(mask, -1)
+    return mask
+
+  def call(self, inputs, sequence_length=None, training=None):  # pylint: disable=arguments-differ
+    """Encodes an input sequence.
+
+    Args:
+      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
+      sequence_length: The length of each input with shape :math:`[B]`.
+      training: Run in training mode.
+
+    Returns:
+      A tuple ``(outputs, state, sequence_length)``.
+    """
+    return self.encode(
+        inputs,
+        sequence_length=sequence_length,
+        mode=tf.estimator.ModeKeys.TRAIN if training else None)
+
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     """Encodes an input sequence.
 
@@ -24,7 +49,10 @@ class Encoder(object):
     Returns:
       A tuple ``(outputs, state, sequence_length)``.
     """
-    raise NotImplementedError()
+    return self.call(
+        inputs,
+        sequence_length=sequence_length,
+        training=mode == tf.estimator.ModeKeys.TRAIN)
 
 
 class SequentialEncoder(Encoder):
@@ -55,6 +83,7 @@ class SequentialEncoder(Encoder):
       raise ValueError("The number of transition layers must match the number of encoder "
                        "transitions, expected %d layers but got %d."
                        % (len(encoders) - 1, len(transition_layer_fn)))
+    super(SequentialEncoder, self).__init__()
     self.encoders = encoders
     self.states_reducer = states_reducer
     self.transition_layer_fn = transition_layer_fn
@@ -63,7 +92,7 @@ class SequentialEncoder(Encoder):
     encoder_state = []
 
     for i, encoder in enumerate(self.encoders):
-      with tf.variable_scope("encoder_{}".format(i)):
+      with compat.tf_compat(v1="variable_scope")("encoder_{}".format(i)):
         if i > 0 and self.transition_layer_fn is not None:
           if isinstance(self.transition_layer_fn, list):
             inputs = self.transition_layer_fn[i - 1](inputs)
@@ -105,7 +134,8 @@ class ParallelEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
+      encoders: A list of :class:`opennmt.encoders.encoder.Encoder` or a single
+        one, in which case the same encoder is applied to each input.
       outputs_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
         outputs. If ``None``, defaults to
         :class:`opennmt.layers.reducer.JoinReducer`.
@@ -119,17 +149,20 @@ class ParallelEncoder(Encoder):
       combined_output_layer_fn: A callable to apply on the combined output
         (i.e. the output of :obj:`outputs_reducer`).
       share_parameters: If ``True``, share parameters between the parallel
-        encoders.
+        encoders. For stateful encoders, simply pass a single encoder instance
+        to :obj:`encoders` for parameter sharing.
 
     Raises:
       ValueError: if :obj:`outputs_layer_fn` is a list with a size not equal
         to the number of encoders.
     """
-    if (outputs_layer_fn is not None and isinstance(outputs_layer_fn, list)
+    if (isinstance(encoders, list)
+        and outputs_layer_fn is not None and isinstance(outputs_layer_fn, list)
         and len(outputs_layer_fn) != len(encoders)):
       raise ValueError("The number of output layers must match the number of encoders; "
                        "expected %d layers but got %d."
                        % (len(encoders), len(outputs_layer_fn)))
+    super(ParallelEncoder, self).__init__()
     self.encoders = encoders
     self.outputs_reducer = outputs_reducer if outputs_reducer is not None else JoinReducer()
     self.states_reducer = states_reducer if states_reducer is not None else JoinReducer()
@@ -141,15 +174,21 @@ class ParallelEncoder(Encoder):
     all_outputs = []
     all_states = []
     all_sequence_lengths = []
+    parallel_inputs = isinstance(inputs, (list, tuple))
+    parallel_encoders = isinstance(self.encoders, (list, tuple))
 
-    if tf.contrib.framework.nest.is_sequence(inputs) and len(inputs) != len(self.encoders):
+    if parallel_encoders and parallel_inputs and len(inputs) != len(self.encoders):
       raise ValueError("ParallelEncoder expects as many inputs as parallel encoders")
+    if parallel_encoders:
+      encoders = self.encoders
+    else:
+      encoders = itertools.repeat(self.encoders, len(inputs) if parallel_inputs else 1)
 
-    for i, encoder in enumerate(self.encoders):
+    for i, encoder in enumerate(encoders):
       scope_name = "encoder_{}".format(i) if not self.share_parameters else "parallel_encoder"
       reuse = self.share_parameters and i > 0
-      with tf.variable_scope(scope_name, reuse=reuse):
-        if tf.contrib.framework.nest.is_sequence(inputs):
+      with compat.tf_compat(v1="variable_scope")(scope_name, reuse=reuse):
+        if parallel_inputs:
           encoder_inputs = inputs[i]
           length = sequence_length[i]
         else:
@@ -178,43 +217,3 @@ class ParallelEncoder(Encoder):
       outputs = self.combined_output_layer_fn(outputs)
 
     return (outputs, self.states_reducer(all_states), sequence_length)
-
-
-@six.add_metaclass(abc.ABCMeta)
-class EncoderV2(tf.keras.layers.Layer):
-  """Base class for encoders."""
-
-  def call(self, inputs, sequence_length=None, training=None):  # pylint: disable=arguments-differ
-    """Encodes an input sequence.
-
-    Args:
-      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
-      sequence_length: The length of each input with shape :math:`[B]`.
-      training: Run in training mode.
-
-    Returns:
-      A tuple ``(outputs, state, sequence_length)``.
-    """
-    return self.encode(inputs, sequence_length=sequence_length, training=training)
-
-  def build_mask(self, inputs, sequence_length=None, dtype=tf.bool):
-    """Builds a boolean mask for :obj:`inputs`."""
-    if sequence_length is None:
-      return None
-    mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=dtype)
-    mask = tf.expand_dims(mask, -1)
-    return mask
-
-  @abc.abstractmethod
-  def encode(self, inputs, sequence_length=None, training=None):
-    """Encodes an input sequence.
-
-    Args:
-      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
-      sequence_length: The length of each input with shape :math:`[B]`.
-      training: Run in training mode.
-
-    Returns:
-      A tuple ``(outputs, state, sequence_length)``.
-    """
-    raise NotImplementedError()

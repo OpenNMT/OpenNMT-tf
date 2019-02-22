@@ -14,6 +14,10 @@ env:
 before_install:
   - pip install tensorflow==$TF_VERSION
   - pip install -e .[tests]
+before_script:
+  - wget https://s3.amazonaws.com/opennmt-models/transliteration-aren.tar.gz
+  - mkdir -p $TRAVIS_BUILD_DIR/testdata
+  - tar xf transliteration-aren.tar.gz -C $TRAVIS_BUILD_DIR/testdata
 script:
   - nose2
 matrix:
