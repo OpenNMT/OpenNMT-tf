@@ -344,7 +344,7 @@ class WordEmbedder(TextInputter):
     self.embedding_file_with_header = embedding_file_with_header
     self.case_insensitive_embeddings = case_insensitive_embeddings
     self.trainable = trainable
-    self.dropout = tf.keras.layers.Dropout(dropout)
+    self.dropout = dropout
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     assets = super(WordEmbedder, self).initialize(
@@ -420,7 +420,8 @@ class WordEmbedder(TextInputter):
     if not self.built:
       self.build()
     outputs = tf.nn.embedding_lookup(self.embedding, features["ids"])
-    outputs = self.dropout(outputs, training=training)
+    if training and self.dropout > 0:
+      outputs = tf.keras.layers.Dropout(self.dropout)(outputs, training=training)
     return outputs
 
   def visualize(self, log_dir):
