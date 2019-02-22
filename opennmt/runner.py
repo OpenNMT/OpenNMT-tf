@@ -448,7 +448,7 @@ class Runner(object):
       ValueError: if no checkpoint are found or if the model is not a sequence to
         sequence model.
     """
-    if not hasattr(self._model, "target_inputter"):
+    if not hasattr(self._model, "examples_inputter"):
       raise ValueError("scoring only works for sequence to sequence models")
 
     if checkpoint_path is None:
