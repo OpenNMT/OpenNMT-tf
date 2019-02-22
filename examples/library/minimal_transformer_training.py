@@ -171,7 +171,7 @@ def translate(model_dir,
 
   # Encode the source.
   with tf.variable_scope("encoder"):
-    source_embedding = source_inputter.make_inputs(source, training=True)
+    source_embedding = source_inputter.make_inputs(source)
     memory, _, _ = encoder.encode(source_embedding, source["length"], mode=mode)
 
   # Generate the target.
