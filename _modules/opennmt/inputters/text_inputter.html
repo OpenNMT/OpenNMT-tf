@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -183,6 +183,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">lookup_ops</span> <span class="k">as</span> <span class="n">lookup</span>
 <span class="k">try</span><span class="p">:</span>
   <span class="kn">from</span> <span class="nn">tensorflow.contrib.tensorboard.plugins</span> <span class="k">import</span> <span class="n">projector</span>
 <span class="k">except</span> <span class="n">ModuleNotFoundError</span><span class="p">:</span>
@@ -427,8 +428,8 @@
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;tokenization&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">tokenizer_config</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">):</span>
-          <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_exists</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">):</span>
+          <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_open</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizers</span><span class="o">.</span><span class="n">OpenNMTTokenizer</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">tokenizer_config</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
@@ -437,14 +438,14 @@
 
 <div class="viewcode-block" id="TextInputter.vocabulary_lookup"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup">[docs]</a>  <span class="k">def</span> <span class="nf">vocabulary_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a lookup table mapping string to index.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">index_table_from_file</span><span class="p">(</span>
+    <span class="k">return</span> <span class="n">lookup</span><span class="o">.</span><span class="n">index_table_from_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">,</span>
         <span class="n">num_oov_buckets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.vocabulary_lookup_reverse"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup_reverse">[docs]</a>  <span class="k">def</span> <span class="nf">vocabulary_lookup_reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a lookup table mapping index to string.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">index_to_string_table_from_file</span><span class="p">(</span>
+    <span class="k">return</span> <span class="n">lookup</span><span class="o">.</span><span class="n">index_to_string_table_from_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">,</span>
         <span class="n">default_value</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">)</span></div>
@@ -561,7 +562,7 @@
       <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># Increment length accordingly.</span>
     <span class="k">return</span> <span class="n">features</span></div>
 
-<div class="viewcode-block" id="WordEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WordEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span><span class="p">:</span>
       <span class="n">pretrained</span> <span class="o">=</span> <span class="n">load_pretrained_embeddings</span><span class="p">(</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span><span class="p">,</span>
@@ -570,25 +571,31 @@
           <span class="n">with_header</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_with_header</span><span class="p">,</span>
           <span class="n">case_insensitive_embeddings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">case_insensitive_embeddings</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="o">=</span> <span class="n">pretrained</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-      <span class="n">initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span>
-          <span class="n">pretrained</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">as_numpy_dtype</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">pretrained</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">initializer</span> <span class="o">=</span> <span class="kc">None</span>
-
     <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
-        <span class="s2">&quot;w_embs&quot;</span><span class="p">,</span>
-        <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
-        <span class="n">initializer</span><span class="o">=</span><span class="n">initializer</span><span class="p">,</span>
-        <span class="n">trainable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">is_tf2</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span>
+          <span class="n">name</span><span class="o">=</span><span class="n">compat</span><span class="o">.</span><span class="n">name_from_variable_scope</span><span class="p">(</span><span class="s2">&quot;w_embs&quot;</span><span class="p">),</span>
+          <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span>
+          <span class="n">initializer</span><span class="o">=</span><span class="n">initializer</span><span class="p">,</span>
+          <span class="n">trainable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
+          <span class="s2">&quot;w_embs&quot;</span><span class="p">,</span>
+          <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span>
+          <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+          <span class="n">initializer</span><span class="o">=</span><span class="n">initializer</span><span class="p">,</span>
+          <span class="n">trainable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WordEmbedder.make_inputs"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.make_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">make_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">])</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">outputs</span></div>
 
 <div class="viewcode-block" id="WordEmbedder.visualize"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.visualize">[docs]</a>  <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>
@@ -649,9 +656,15 @@
     <span class="n">features</span><span class="p">[</span><span class="s2">&quot;char_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">features</span></div>
 
-<div class="viewcode-block" id="CharEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
-        <span class="s2">&quot;w_char_embs&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
+<div class="viewcode-block" id="CharEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">is_tf2</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span>
+          <span class="n">name</span><span class="o">=</span><span class="n">compat</span><span class="o">.</span><span class="n">name_from_variable_scope</span><span class="p">(</span><span class="s2">&quot;w_char_embs&quot;</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span>
+          <span class="s2">&quot;w_char_embs&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CharEmbedder.make_inputs"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.make_inputs">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
   <span class="k">def</span> <span class="nf">make_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -665,7 +678,7 @@
         <span class="n">num_oov_buckets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span></div>
 
   <span class="k">def</span> <span class="nf">_embed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>

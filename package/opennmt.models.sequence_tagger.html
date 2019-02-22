@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_tagger module &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.models.sequence_tagger module &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -225,6 +225,51 @@ precision, recall, etc.</li>
 between devices for this model. Not compatible with RNN based models.</li>
 <li><strong>name</strong> – The name of this model.</li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.sequence_tagger.SequenceTagger.compute_loss">
+<code class="descname">compute_loss</code><span class="sig-paren">(</span><em>outputs</em>, <em>labels</em>, <em>training=True</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger.compute_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_tagger.SequenceTagger.compute_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the loss.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>outputs</strong> – The model outputs (usually unscaled probabilities).</li>
+<li><strong>labels</strong> – The dict of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>training</strong> – Compute training loss.</li>
+<li><strong>params</strong> – A dictionary of hyperparameters.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The loss or a tuple containing the computed loss and the loss to display.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.sequence_tagger.SequenceTagger.compute_metrics">
+<code class="descname">compute_metrics</code><span class="sig-paren">(</span><em>predictions</em>, <em>labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger.compute_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.sequence_tagger.SequenceTagger.compute_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes additional metrics on the predictions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>predictions</strong> – The model predictions.</li>
+<li><strong>labels</strong> – The dict of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dict of metrics. See the <code class="docutils literal notranslate"><span class="pre">eval_metric_ops</span></code> field of
+<code class="docutils literal notranslate"><span class="pre">tf.estimator.EstimatorSpec</span></code>.</p>
 </td>
 </tr>
 </tbody>

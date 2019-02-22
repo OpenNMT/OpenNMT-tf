@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.compat &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.utils.compat &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -216,6 +216,16 @@
   <span class="k">if</span> <span class="n">symbol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Failure to resolve the TensorFlow symbol&quot;</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">symbol</span></div>
+
+<div class="viewcode-block" id="name_from_variable_scope"><a class="viewcode-back" href="../../../package/opennmt.utils.compat.html#opennmt.utils.compat.name_from_variable_scope">[docs]</a><span class="k">def</span> <span class="nf">name_from_variable_scope</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates a name prefixed by the current variable scope.&quot;&quot;&quot;</span>
+  <span class="n">var_scope</span> <span class="o">=</span> <span class="n">tf_compat</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="s2">&quot;get_variable_scope&quot;</span><span class="p">)()</span><span class="o">.</span><span class="n">name</span>
+  <span class="n">compat_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+    <span class="n">compat_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/&quot;</span> <span class="o">%</span> <span class="n">name</span>
+  <span class="k">if</span> <span class="n">var_scope</span><span class="p">:</span>
+    <span class="n">compat_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">var_scope</span><span class="p">,</span> <span class="n">compat_name</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">compat_name</span></div>
 
 <span class="k">def</span> <span class="nf">_string_to_tf_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">):</span>
   <span class="n">modules</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>

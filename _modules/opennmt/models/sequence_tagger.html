@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -222,15 +222,12 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="n">training</span> <span class="o">=</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span>
     <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">):</span>
-      <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">transform_data</span><span class="p">(</span>
-          <span class="n">features</span><span class="p">,</span>
-          <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-          <span class="n">log_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_dir</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
-
+      <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_inputs</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
       <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">encoder_sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
           <span class="n">inputs</span><span class="p">,</span>
           <span class="n">sequence_length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
@@ -269,14 +266,15 @@
 
     <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">predictions</span>
 
-  <span class="k">def</span> <span class="nf">_compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+<div class="viewcode-block" id="SequenceTagger.compute_loss"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.compute_loss">[docs]</a>  <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">(),</span> <span class="n">reuse</span><span class="o">=</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">):</span>
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">(),</span> <span class="n">reuse</span><span class="o">=</span><span class="ow">not</span> <span class="n">training</span><span class="p">):</span>
         <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">crf</span><span class="o">.</span><span class="n">crf_log_likelihood</span><span class="p">(</span>
             <span class="n">outputs</span><span class="p">,</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
-            <span class="n">length</span><span class="p">)</span>
+            <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">])</span>
       <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="o">-</span><span class="n">log_likelihood</span><span class="p">)</span>
       <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
       <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span>
@@ -284,15 +282,14 @@
       <span class="k">return</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
           <span class="n">outputs</span><span class="p">,</span>
           <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span>
-          <span class="n">length</span><span class="p">,</span>
+          <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
           <span class="n">label_smoothing</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
           <span class="n">average_in_time</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_loss_in_time&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-          <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+          <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span> <span class="k">if</span> <span class="n">training</span> <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+<div class="viewcode-block" id="SequenceTagger.compute_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.compute_metrics">[docs]</a>  <span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
     <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
-        <span class="n">length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="n">eval_metric_ops</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">eval_metric_ops</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span>
@@ -305,7 +302,7 @@
 
       <span class="n">gold_flags</span><span class="p">,</span> <span class="n">predicted_flags</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_func</span><span class="p">(</span>
           <span class="n">flag_fn</span><span class="p">,</span>
-          <span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">length</span><span class="p">],</span>
+          <span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]],</span>
           <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">],</span>
           <span class="n">stateful</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -320,7 +317,7 @@
       <span class="n">eval_metric_ops</span><span class="p">[</span><span class="s2">&quot;recall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">recall_metric</span>
       <span class="n">eval_metric_ops</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">no_op</span><span class="p">())</span>
 
-    <span class="k">return</span> <span class="n">eval_metric_ops</span>
+    <span class="k">return</span> <span class="n">eval_metric_ops</span></div>
 
 <div class="viewcode-block" id="SequenceTagger.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.print_prediction">[docs]</a>  <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">tags</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">][:</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]]</span>
@@ -339,6 +336,7 @@
     <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TagsInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
         <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
         <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">],</span>
         <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
     <span class="p">}</span></div></div>

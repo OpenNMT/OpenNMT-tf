@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.self_attention_encoder module &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.encoders.self_attention_encoder module &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -258,7 +258,7 @@ apply on inputs or <code class="docutils literal notranslate"><span class="pre">
 <dl class="class">
 <dt id="opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.self_attention_encoder.</code><code class="descname">SelfAttentionEncoderV2</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units=512</em>, <em>num_heads=8</em>, <em>ffn_inner_dim=2048</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>relu_dropout=0.1</em>, <em>position_encoder=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoderV2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.EncoderV2" title="opennmt.encoders.encoder.EncoderV2"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.EncoderV2</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>Encoder using self-attention as described in
 <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
 <div class="admonition note">
@@ -294,8 +294,8 @@ apply on inputs. If <code class="docutils literal notranslate"><span class="pre"
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoderV2.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.encode" title="Permalink to this definition">¶</a></dt>
+<dt id="opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoderV2.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes <code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span></code>.</p>
 </dd></dl>
 

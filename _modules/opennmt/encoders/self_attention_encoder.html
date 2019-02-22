@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -178,7 +178,7 @@
 
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">transformer</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">Encoder</span><span class="p">,</span> <span class="n">EncoderV2</span>
+<span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">Encoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="k">import</span> <span class="n">SinusoidalPositionEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span>
 
@@ -212,6 +212,7 @@
 <span class="sd">      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to</span>
 <span class="sd">        apply on inputs or ``None``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttentionEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span> <span class="o">=</span> <span class="n">num_heads</span>
@@ -273,7 +274,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SelfAttentionEncoderV2"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2">[docs]</a><span class="k">class</span> <span class="nc">SelfAttentionEncoderV2</span><span class="p">(</span><span class="n">EncoderV2</span><span class="p">):</span>
+<div class="viewcode-block" id="SelfAttentionEncoderV2"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2">[docs]</a><span class="k">class</span> <span class="nc">SelfAttentionEncoderV2</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Encoder using self-attention as described in</span>
 <span class="sd">  https://arxiv.org/abs/1706.03762.</span>
 
@@ -325,7 +326,7 @@
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;layer_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="SelfAttentionEncoderV2.encode"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.encode">[docs]</a>  <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SelfAttentionEncoderV2.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Encodes :obj:`inputs`.&quot;&quot;&quot;</span>
     <span class="n">inputs</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="o">**</span><span class="mf">0.5</span>
     <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>

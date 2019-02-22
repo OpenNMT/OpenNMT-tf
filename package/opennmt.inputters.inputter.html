@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.inputter module &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.inputters.inputter module &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -201,7 +201,7 @@
 <dl class="class">
 <dt id="opennmt.inputters.inputter.Inputter">
 <em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">Inputter</code><span class="sig-paren">(</span><em>dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p>Base class for inputters.</p>
 <dl class="attribute">
 <dt id="opennmt.inputters.inputter.Inputter.num_outputs">
@@ -351,9 +351,9 @@ older versions.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.inputter.Inputter.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the variables of this inputter.</p>
+<dt id="opennmt.inputters.inputter.Inputter.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>features</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.Inputter.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forwards call to <code class="docutils literal notranslate"><span class="pre">make_inputs().</span></code></p>
 </dd></dl>
 
 <dl class="method">
@@ -510,11 +510,17 @@ functions applied after calling this inputter
 <dt id="opennmt.inputters.inputter.MultiInputter">
 <em class="property">class </em><code class="descclassname">opennmt.inputters.inputter.</code><code class="descname">MultiInputter</code><span class="sig-paren">(</span><em>inputters</em>, <em>reducer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a></p>
-<p>An inputter that gathers multiple inputters.</p>
+<p>An inputter that gathers multiple inputters, possibly nested.</p>
 <dl class="attribute">
 <dt id="opennmt.inputters.inputter.MultiInputter.num_outputs">
 <code class="descname">num_outputs</code><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.num_outputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>How many parallel outputs does this inputter produce.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.inputter.MultiInputter.get_leaf_inputters">
+<code class="descname">get_leaf_inputters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.get_leaf_inputters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.MultiInputter.get_leaf_inputters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all leaf Inputter instances.</p>
 </dd></dl>
 
 <dl class="method">
@@ -610,7 +616,7 @@ assets are returned.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>inputters</strong> – A list of <a class="reference internal" href="#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a>.</li>
 <li><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer" title="opennmt.layers.reducer.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.reducer.Reducer</span></code></a> to merge all inputs. If
 set, parallel inputs are assumed to have the same length.</li>
@@ -619,6 +625,10 @@ set, parallel inputs are assumed to have the same length.</li>
 return them separately. This is typically <code class="docutils literal notranslate"><span class="pre">True</span></code> for multi source
 inputs but <code class="docutils literal notranslate"><span class="pre">False</span></code> for features/labels parallel data.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">share_parameters</span></code> is set but the child inputters are
+not of the same type.</p>
 </td>
 </tr>
 </tbody>
@@ -698,8 +708,8 @@ inputs but <code class="docutils literal notranslate"><span class="pre">False</s
 
 <dl class="method">
 <dt id="opennmt.inputters.inputter.ParallelInputter.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.ParallelInputter.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the variables of this inputter.</p>
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.inputter.ParallelInputter.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the variables of the layer.</p>
 </dd></dl>
 
 <dl class="method">

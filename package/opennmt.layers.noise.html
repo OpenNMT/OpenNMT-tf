@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.layers.noise module &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'1.20.1',
+              LANGUAGE:'en',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.layers.position module" href="opennmt.layers.position.html" />
+    <link rel="prev" title="opennmt.layers.common module" href="opennmt.layers.common.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.20
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.layers.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+        
+          <li><a href="opennmt.layers.html">opennmt.layers package</a> &raquo;</li>
+        
+      <li>opennmt.layers.noise module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt.layers.noise">
+<span id="opennmt-layers-noise-module"></span><h1>opennmt.layers.noise module<a class="headerlink" href="#module-opennmt.layers.noise" title="Permalink to this headline">¶</a></h1>
+<p>Noise layers.</p>
+<dl class="class">
+<dt id="opennmt.layers.noise.WordNoiser">
+<em class="property">class </em><code class="descclassname">opennmt.layers.noise.</code><code class="descname">WordNoiser</code><span class="sig-paren">(</span><em>noises=None</em>, <em>subword_token='￭'</em>, <em>is_spacer=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordNoiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordNoiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Applies noise to words sequences.</p>
+<dl class="method">
+<dt id="opennmt.layers.noise.WordNoiser.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>noises=None</em>, <em>subword_token='￭'</em>, <em>is_spacer=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordNoiser.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordNoiser.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the noising class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>noises</strong> – A list of <a class="reference internal" href="#opennmt.layers.noise.Noise" title="opennmt.layers.noise.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.noise.Noise</span></code></a> instances to apply
+sequentially.</li>
+<li><strong>subword_token</strong> – The special token used by the subword tokenizer. This is
+required when the noise should be applied at the word level and not the
+subword level.</li>
+<li><strong>is_spacer</strong> – Whether <code class="xref py py-obj docutils literal notranslate"><span class="pre">subword_token</span></code> is used as a spacer (as in
+SentencePiece) or a joiner (as in BPE).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.noise.WordNoiser.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>noise</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordNoiser.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordNoiser.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a noise to apply.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.noise.WordNoiser.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>tokens</em>, <em>sequence_length=None</em>, <em>keep_shape=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordNoiser.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordNoiser.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies noise on <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tokens</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or batch of string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>sequence_length</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is 2D, the length of each sequence in
+the batch.</li>
+<li><strong>keep_shape</strong> – Ensure that the shape is kept. Otherwise, fit the shape to the
+new lengths.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple with the noisy version of <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> and the new lengths.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.noise.Noise">
+<em class="property">class </em><code class="descclassname">opennmt.layers.noise.</code><code class="descname">Noise</code><a class="reference internal" href="../_modules/opennmt/layers/noise.html#Noise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.Noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for noise modules.</p>
+<dl class="method">
+<dt id="opennmt.layers.noise.Noise.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>words</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#Noise.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.Noise.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies noise on a sequence of words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>words</strong> – The sequence of words as a string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>. If it has 2
+dimensions, each row represents a word that possibly contains multiple
+tokens.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A noisy version of <code class="xref py py-obj docutils literal notranslate"><span class="pre">words</span></code>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">words</span></code> has a rank greater than 2.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.noise.WordDropout">
+<em class="property">class </em><code class="descclassname">opennmt.layers.noise.</code><code class="descname">WordDropout</code><span class="sig-paren">(</span><em>dropout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordDropout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordDropout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.noise.Noise" title="opennmt.layers.noise.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.noise.Noise</span></code></a></p>
+<p>Randomly drops words in a sequence.</p>
+<dl class="method">
+<dt id="opennmt.layers.noise.WordDropout.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>dropout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordDropout.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordDropout.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the noise module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dropout</strong> – The probability to drop word.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.noise.WordReplacement">
+<em class="property">class </em><code class="descclassname">opennmt.layers.noise.</code><code class="descname">WordReplacement</code><span class="sig-paren">(</span><em>probability</em>, <em>filler='&lt;unk&gt;'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordReplacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordReplacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.noise.Noise" title="opennmt.layers.noise.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.noise.Noise</span></code></a></p>
+<p>Randomly replaces words.</p>
+<dl class="method">
+<dt id="opennmt.layers.noise.WordReplacement.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>probability</em>, <em>filler='&lt;unk&gt;'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordReplacement.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordReplacement.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the noise module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>probability</strong> – The probability to replace words.</li>
+<li><strong>filler</strong> – The replacement token.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.noise.WordPermutation">
+<em class="property">class </em><code class="descclassname">opennmt.layers.noise.</code><code class="descname">WordPermutation</code><span class="sig-paren">(</span><em>max_distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordPermutation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordPermutation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.noise.Noise" title="opennmt.layers.noise.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.noise.Noise</span></code></a></p>
+<p>Randomly permutes words in a sequence with a maximum distance.</p>
+<dl class="method">
+<dt id="opennmt.layers.noise.WordPermutation.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>max_distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordPermutation.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordPermutation.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the noise module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_distance</strong> – The maximum permutation distance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.noise.tokens_to_words">
+<code class="descclassname">opennmt.layers.noise.</code><code class="descname">tokens_to_words</code><span class="sig-paren">(</span><em>tokens</em>, <em>subword_token='￭'</em>, <em>is_spacer=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#tokens_to_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.tokens_to_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a sequence of tokens to a sequence of words.</p>
+<p>For example, if a BPE tokenization produces this sequence:</p>
+<blockquote>
+<div>[“He&#64;&#64;”, “llo”, “W&#64;&#64;”, “orld”, “&#64;&#64;!”]</div></blockquote>
+<p>this function will return the tensor:</p>
+<blockquote>
+<div>[[“He&#64;&#64;”, “llo”, “”], [“W&#64;&#64;”, “orld”, “&#64;&#64;!”]]</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tokens</strong> – A 1D string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</li>
+<li><strong>subword_token</strong> – The special token used by the subword tokenizer.</li>
+<li><strong>is_spacer</strong> – Whether <code class="xref py py-obj docutils literal notranslate"><span class="pre">subword_token</span></code> is used as a spacer (as in
+SentencePiece) or a joiner (as in BPE).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A 2D string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.noise.random_mask">
+<code class="descclassname">opennmt.layers.noise.</code><code class="descname">random_mask</code><span class="sig-paren">(</span><em>shape</em>, <em>probability</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#random_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.random_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a random boolean mask.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>shape</strong> – The mask shape.</li>
+<li><strong>probability</strong> – The probability to select an element.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A boolean mask with shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.layers.position.html" class="btn btn-neutral float-right" title="opennmt.layers.position module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.layers.common.html" class="btn btn-neutral float-left" title="opennmt.layers.common module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, The OpenNMT Authors
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

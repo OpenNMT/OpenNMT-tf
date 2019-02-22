@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner module &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.runner module &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -237,6 +237,9 @@ does not define any automatic configuration values.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</td>
 </tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A tuple with a dict of evaluation metrics and the export result or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> in TensorFlow 1.8 and older.</td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -259,6 +262,16 @@ does not define any automatic configuration values.</p>
 <dt id="opennmt.runner.Runner.evaluate">
 <code class="descname">evaluate</code><span class="sig-paren">(</span><em>checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.evaluate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs evaluation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dict of evaluation metrics.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -329,7 +342,7 @@ containing the exported model will be created. Defaults to
 
 <dl class="method">
 <dt id="opennmt.runner.Runner.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>features_file</em>, <em>predictions_file</em>, <em>checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.score" title="Permalink to this definition">¶</a></dt>
+<code class="descname">score</code><span class="sig-paren">(</span><em>features_file</em>, <em>predictions_file</em>, <em>checkpoint_path=None</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.runner.Runner.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scores existing predictions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -340,6 +353,8 @@ containing the exported model will be created. Defaults to
 <li><strong>predictions_file</strong> – The predictions file to score.</li>
 <li><strong>checkpoint_path</strong> – Path of a specific checkpoint to use. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 the latest is used.</li>
+<li><strong>output_file</strong> – The file where the scores are saved. Otherwise, they will be
+printed on the standard output.</li>
 </ul>
 </td>
 </tr>

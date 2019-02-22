@@ -24,6 +24,7 @@
 ./_modules/opennmt/inputters/text_inputter.html
 ./_modules/opennmt/layers/bridge.html
 ./_modules/opennmt/layers/common.html
+./_modules/opennmt/layers/noise.html
 ./_modules/opennmt/layers/position.html
 ./_modules/opennmt/layers/reducer.html
 ./_modules/opennmt/layers/rnn.html
@@ -90,6 +91,7 @@
 ./_sources/package/opennmt.inputters.text_inputter.rst.txt
 ./_sources/package/opennmt.layers.bridge.rst.txt
 ./_sources/package/opennmt.layers.common.rst.txt
+./_sources/package/opennmt.layers.noise.rst.txt
 ./_sources/package/opennmt.layers.position.rst.txt
 ./_sources/package/opennmt.layers.reducer.rst.txt
 ./_sources/package/opennmt.layers.rnn.rst.txt
@@ -234,6 +236,7 @@
 ./package/opennmt.layers.bridge.html
 ./package/opennmt.layers.common.html
 ./package/opennmt.layers.html
+./package/opennmt.layers.noise.html
 ./package/opennmt.layers.position.html
 ./package/opennmt.layers.reducer.html
 ./package/opennmt.layers.rnn.html

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -220,13 +220,10 @@
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="s2">&quot;last&quot;</span><span class="p">):</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid encoding vector: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">))</span></div>
 
-  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="n">training</span> <span class="o">=</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">):</span>
-      <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">transform_data</span><span class="p">(</span>
-          <span class="n">features</span><span class="p">,</span>
-          <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-          <span class="n">log_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_dir</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
-
+      <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_inputs</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
       <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
           <span class="n">inputs</span><span class="p">,</span>
           <span class="n">sequence_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">),</span>
@@ -254,17 +251,19 @@
 
     <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">predictions</span>
 
-  <span class="k">def</span> <span class="nf">_compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<div class="viewcode-block" id="SequenceClassifier.compute_loss"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier.compute_loss">[docs]</a>  <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">return</span> <span class="n">cross_entropy_loss</span><span class="p">(</span>
         <span class="n">outputs</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;classes_id&quot;</span><span class="p">],</span>
         <span class="n">label_smoothing</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
-        <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span> <span class="k">if</span> <span class="n">training</span> <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+<div class="viewcode-block" id="SequenceClassifier.compute_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier.compute_metrics">[docs]</a>  <span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">])</span>
-    <span class="p">}</span>
+    <span class="p">}</span></div>
 
 <div class="viewcode-block" id="SequenceClassifier.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier.print_prediction">[docs]</a>  <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">print_bytes</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">],</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>

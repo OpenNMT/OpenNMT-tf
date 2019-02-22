@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -180,18 +180,19 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.layers.reducer</span> <span class="k">import</span> <span class="n">ConcatReducer</span><span class="p">,</span> <span class="n">JoinReducer</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.data</span> <span class="k">import</span> <span class="n">inference_pipeline</span><span class="p">,</span> <span class="n">training_pipeline</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">extract_prefixed_keys</span><span class="p">,</span> <span class="n">extract_suffixed_keys</span><span class="p">,</span> <span class="n">item_or_tuple</span>
 
 
 <div class="viewcode-block" id="Inputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Inputter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Inputter</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for inputters.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Inputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">volatile</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">process_hooks</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">is_target</span> <span class="o">=</span> <span class="kc">False</span>
 
   <span class="nd">@property</span>
@@ -318,9 +319,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Inputter.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates the variables of this inputter.&quot;&quot;&quot;</span>
-    <span class="k">return</span></div>
+<div class="viewcode-block" id="Inputter.call"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="sd">&quot;&quot;&quot;Forwards call to ``make_inputs().``&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_inputs</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Inputter.make_inputs"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.make_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">make_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates the model input from the features.</span>
@@ -436,7 +437,7 @@
 
 <div class="viewcode-block" id="MultiInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MultiInputter</span><span class="p">(</span><span class="n">Inputter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;An inputter that gathers multiple inputters.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;An inputter that gathers multiple inputters, possibly nested.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputters</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputters</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">inputters</span><span class="p">:</span>
@@ -454,6 +455,16 @@
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reducer</span><span class="p">,</span> <span class="n">JoinReducer</span><span class="p">):</span>
       <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="MultiInputter.get_leaf_inputters"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.get_leaf_inputters">[docs]</a>  <span class="k">def</span> <span class="nf">get_leaf_inputters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of all leaf Inputter instances.&quot;&quot;&quot;</span>
+    <span class="n">inputters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">MultiInputter</span><span class="p">):</span>
+        <span class="n">inputters</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">get_leaf_inputters</span><span class="p">())</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">inputters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inputters</span></div>
 
 <div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="n">assets</span> <span class="o">=</span> <span class="p">{}</span>
@@ -493,10 +504,19 @@
 <span class="sd">      combine_features: Combine each inputter features in a single dict or</span>
 <span class="sd">        return them separately. This is typically ``True`` for multi source</span>
 <span class="sd">        inputs but ``False`` for features/labels parallel data.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`share_parameters` is set but the child inputters are</span>
+<span class="sd">        not of the same type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ParallelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputters</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span> <span class="o">=</span> <span class="n">combine_features</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span> <span class="o">=</span> <span class="n">share_parameters</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span> <span class="o">=</span> <span class="n">share_parameters</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span><span class="p">:</span>
+      <span class="n">leaves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_leaf_inputters</span><span class="p">()</span>
+      <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">leaves</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">inputter</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">leaves</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+          <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Each inputter must be of the same type for parameter sharing&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
@@ -574,31 +594,36 @@
     <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">_get_scopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_names</span><span class="p">())</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_names</span><span class="p">()):</span>
       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_shared_name</span><span class="p">()</span>
-        <span class="n">reuse</span> <span class="o">=</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">reuse</span> <span class="o">=</span> <span class="kc">None</span>
-      <span class="n">scope_name</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span>
-      <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">scope_name</span><span class="p">:</span>
-          <span class="n">scope_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">scope_name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">scope_name</span> <span class="o">=</span> <span class="n">name</span>
-      <span class="k">yield</span> <span class="n">tf</span><span class="o">.</span><span class="n">VariableScope</span><span class="p">(</span><span class="n">reuse</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">scope_name</span><span class="p">)</span>
+      <span class="k">yield</span> <span class="n">name</span>
 
-<div class="viewcode-block" id="ParallelInputter.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">scope</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_scopes</span><span class="p">()):</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">):</span>
-        <span class="n">inputter</span><span class="o">.</span><span class="n">build</span><span class="p">()</span></div>
+<div class="viewcode-block" id="ParallelInputter.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span><span class="p">:</span>
+      <span class="c1"># When sharing parameters, build the first leaf inputter and then set</span>
+      <span class="c1"># all attributes with parameters to the other inputters.</span>
+      <span class="n">leaves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_leaf_inputters</span><span class="p">()</span>
+      <span class="n">first</span><span class="p">,</span> <span class="n">others</span> <span class="o">=</span> <span class="n">leaves</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">leaves</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+      <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="s2">&quot;variable_scope&quot;</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_shared_name</span><span class="p">()):</span>
+        <span class="n">first</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">variables</span><span class="p">)):</span>
+          <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">scope</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_names</span><span class="p">()):</span>
+        <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="s2">&quot;variable_scope&quot;</span><span class="p">)(</span><span class="n">scope</span><span class="p">):</span>
+          <span class="n">inputter</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">ParallelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.make_inputs"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.make_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">make_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
     <span class="n">transformed</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_scopes</span><span class="p">())):</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">):</span>
+      <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="s2">&quot;variable_scope&quot;</span><span class="p">)(</span><span class="n">scope</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span><span class="p">:</span>
           <span class="n">sub_features</span> <span class="o">=</span> <span class="n">extract_prefixed_keys</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="s2">&quot;inputter_</span><span class="si">{}</span><span class="s2">_&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -652,7 +677,7 @@
 <div class="viewcode-block" id="MixedInputter.make_inputs"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.make_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">make_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">transformed</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;inputter_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span>
+      <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="s2">&quot;variable_scope&quot;</span><span class="p">)(</span><span class="s2">&quot;inputter_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span>
         <span class="n">transformed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">make_inputs</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">))</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.rnn_encoder module &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.encoders.rnn_encoder module &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -501,7 +501,7 @@ argument and returning a cell. Defaults to a LSTM cell.</li>
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoderV2">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">UnidirectionalRNNEncoderV2</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#UnidirectionalRNNEncoderV2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoderV2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.EncoderV2" title="opennmt.encoders.encoder.EncoderV2"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.EncoderV2</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>A simple RNN encoder.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -532,8 +532,8 @@ output.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoderV2.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#UnidirectionalRNNEncoderV2.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoderV2.encode" title="Permalink to this definition">¶</a></dt>
+<dt id="opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoderV2.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#UnidirectionalRNNEncoderV2.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoderV2.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes an input sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -558,7 +558,7 @@ output.</li>
 <dl class="class">
 <dt id="opennmt.encoders.rnn_encoder.BidirectionalRNNEncoderV2">
 <em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">BidirectionalRNNEncoderV2</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>reducer=&lt;opennmt.layers.reducer.SumReducer object&gt;</em>, <em>cell_class=None</em>, <em>dropout=0.3</em>, <em>residual_connections=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#BidirectionalRNNEncoderV2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoderV2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.EncoderV2" title="opennmt.encoders.encoder.EncoderV2"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.EncoderV2</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder" title="opennmt.encoders.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.Encoder</span></code></a></p>
 <p>An encoder that encodes an input sequence in both directions.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -594,8 +594,8 @@ output.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.encoders.rnn_encoder.BidirectionalRNNEncoderV2.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#BidirectionalRNNEncoderV2.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoderV2.encode" title="Permalink to this definition">¶</a></dt>
+<dt id="opennmt.encoders.rnn_encoder.BidirectionalRNNEncoderV2.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#BidirectionalRNNEncoderV2.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoderV2.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes an input sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -609,6 +609,40 @@ output.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.encoders.rnn_encoder.GoogleRNNEncoderV2">
+<em class="property">class </em><code class="descclassname">opennmt.encoders.rnn_encoder.</code><code class="descname">GoogleRNNEncoderV2</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#GoogleRNNEncoderV2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.GoogleRNNEncoderV2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="opennmt.encoders.encoder.html#opennmt.encoders.encoder.SequentialEncoder" title="opennmt.encoders.encoder.SequentialEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.encoder.SequentialEncoder</span></code></a></p>
+<p>The RNN encoder used in GNMT as described in
+<a class="reference external" href="https://arxiv.org/abs/1609.08144">https://arxiv.org/abs/1609.08144</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">TensorFlow 2.0 version.</p>
+</div>
+<dl class="method">
+<dt id="opennmt.encoders.rnn_encoder.GoogleRNNEncoderV2.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units</em>, <em>dropout=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/rnn_encoder.html#GoogleRNNEncoderV2.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.rnn_encoder.GoogleRNNEncoderV2.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the parameters of the encoder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_layers</strong> – The number of layers.</li>
+<li><strong>num_units</strong> – The number of units in each layer.</li>
+<li><strong>dropout</strong> – The probability to drop units in each layer output.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_layers</span></code> &lt; 2.</p>
 </td>
 </tr>
 </tbody>

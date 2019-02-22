@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.20.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.20.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.0',
+              VERSION:'1.20.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -185,6 +185,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
+
 
 <div class="viewcode-block" id="print_bytes"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.print_bytes">[docs]</a><span class="k">def</span> <span class="nf">print_bytes</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Prints a string viewed as bytes.</span>
@@ -263,7 +265,7 @@
 
 <div class="viewcode-block" id="count_lines"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.count_lines">[docs]</a><span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the number of lines of the file :obj:`filename`.&quot;&quot;&quot;</span>
-  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
       <span class="k">pass</span>
