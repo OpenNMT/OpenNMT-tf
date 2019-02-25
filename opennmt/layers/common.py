@@ -133,8 +133,8 @@ class LayerWrapper(tf.keras.layers.Wrapper):
       kwargs: Additional layer arguments.
     """
     super(LayerWrapper, self).__init__(layer, **kwargs)
-    self.input_layer_norm = LayerNorm() if normalize_input else None
-    self.output_layer_norm = LayerNorm() if normalize_output else None
+    self.input_layer_norm = LayerNorm(name="input_norm") if normalize_input else None
+    self.output_layer_norm = LayerNorm(name="output_norm") if normalize_output else None
     self.input_dropout = input_dropout
     self.output_dropout = output_dropout
     self.residual_connection = residual_connection
@@ -166,6 +166,15 @@ class LayerWrapper(tf.keras.layers.Wrapper):
     if extra_outputs:
       return tuple([outputs] + extra_outputs)
     return outputs
+
+  @property
+  def trainable_weights(self):
+    weights = self.layer.trainable_weights
+    if self.input_layer_norm is not None:
+      weights.extend(self.input_layer_norm.trainable_weights)
+    if self.output_layer_norm is not None:
+      weights.extend(self.output_layer_norm.trainable_weights)
+    return weights
 
   def get_config(self):
     """Returns the layer configuration."""
