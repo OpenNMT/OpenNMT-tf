@@ -85,7 +85,7 @@ def make_rnn_cell(num_layers,
   return tf.keras.layers.StackedRNNCells(cells)
 
 
-class RNN(tf.keras.layers.Wrapper):
+class RNN(tf.keras.layers.Layer):
   """A generic RNN layer."""
 
   def __init__(self, cell, bidirectional=False, reducer=None, **kwargs):
@@ -98,12 +98,12 @@ class RNN(tf.keras.layers.Wrapper):
         bidirectional state and outputs.
       kwargs: Additional layer arguments.
     """
+    super(RNN, self).__init__(**kwargs)
+    self.reducer = reducer
     self.rnn = tf.keras.layers.RNN(cell, return_sequences=True, return_state=True)
     if bidirectional:
       with tf.keras.utils.custom_object_scope(_CUSTOM_OBJECTS):
         self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode=None)
-    super(RNN, self).__init__(self.rnn, **kwargs)
-    self.reducer = reducer
 
   def call(self, *args, **kwargs):  # pylint: disable=arguments-differ
     """Forwards the arguments the RNN layer.
