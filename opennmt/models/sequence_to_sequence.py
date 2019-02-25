@@ -304,7 +304,7 @@ class SequenceToSequence(Model):
         labels_lengths,
         label_smoothing=params.get("label_smoothing", 0.0),
         average_in_time=params.get("average_loss_in_time", False),
-        mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
+        training=training)
     if training:
       gold_alignments = labels.get("alignment")
       guided_alignment_type = params.get("guided_alignment_type")

@@ -111,7 +111,7 @@ class SequenceTagger(Model):
           labels["length"],
           label_smoothing=params.get("label_smoothing", 0.0),
           average_in_time=params.get("average_loss_in_time", False),
-          mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
+          training=training)
 
   def compute_metrics(self, predictions, labels):
     weights = tf.sequence_mask(
