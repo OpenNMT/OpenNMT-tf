@@ -104,7 +104,7 @@ class LayerNorm(tf.keras.layers.Layer):
     return norm_x * self.scale + self.bias
 
 
-class LayerWrapper(tf.keras.layers.Wrapper):
+class LayerWrapper(tf.keras.layers.Layer):
   """Layer wrapper for input/output normalization, input/output dropout and
   residual connection.
 
@@ -132,7 +132,8 @@ class LayerWrapper(tf.keras.layers.Wrapper):
         compatible).
       kwargs: Additional layer arguments.
     """
-    super(LayerWrapper, self).__init__(layer, **kwargs)
+    super(LayerWrapper, self).__init__(**kwargs)
+    self.layer = layer
     self.input_layer_norm = LayerNorm(name="input_norm") if normalize_input else None
     self.output_layer_norm = LayerNorm(name="output_norm") if normalize_output else None
     self.input_dropout = input_dropout
@@ -167,21 +168,23 @@ class LayerWrapper(tf.keras.layers.Wrapper):
       return tuple([outputs] + extra_outputs)
     return outputs
 
-  @property
-  def trainable_weights(self):
-    weights = self.layer.trainable_weights
-    if self.input_layer_norm is not None:
-      weights.extend(self.input_layer_norm.trainable_weights)
-    if self.output_layer_norm is not None:
-      weights.extend(self.output_layer_norm.trainable_weights)
-    return weights
+  # The wrapper should be serializable to be used in tf.keras.layers.Bidirectional.
 
   def get_config(self):
-    """Returns the layer configuration."""
-    config = super(LayerWrapper, self).get_config()
-    config["normalize_input"] = self.input_layer_norm is not None
-    config["normalize_output"] = self.output_layer_norm is not None
-    config["input_dropout"] = self.input_dropout
-    config["output_dropout"] = self.output_dropout
-    config["residual_connection"] = self.residual_connection
-    return config
+    """Returns the layer wrapper configuration."""
+    config = {
+        "layer": tf.keras.layers.serialize(self.layer),
+        "normalize_input": self.input_layer_norm is not None,
+        "normalize_output": self.output_layer_norm is not None,
+        "input_dropout": self.input_dropout,
+        "output_dropout": self.output_dropout,
+        "residual_connection": self.residual_connection
+    }
+    base_config = super(LayerWrapper, self).get_config()
+    return dict(list(base_config.items()) + list(config.items()))
+
+  @classmethod
+  def from_config(cls, config):
+    """Creates a layer wrapper from its configuration."""
+    layer = tf.keras.layers.deserialize(config.pop("layer"))
+    return cls(layer, **config)
