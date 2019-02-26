@@ -3,15 +3,13 @@
 from __future__ import print_function
 
 import abc
-import copy
 import six
 
 import tensorflow as tf
 
+from opennmt import estimator
 from opennmt import inputters
-from opennmt.utils import hooks
 from opennmt.utils.optim import optimize_loss
-from opennmt.utils.parallel import GraphDispatcher
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -74,127 +72,6 @@ class Model(object):
     """
     with tf.variable_scope(self.name, initializer=self._initializer(params)):
       return self._call(features, labels, params, mode)
-
-  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
-    """Returns the model function.
-
-    Args:
-      num_devices: The number of devices used for training.
-      eval_prediction_hooks_fn: A callable that takes the model predictions
-        during evaluation and return an iterable of evaluation hooks (e.g. for
-        saving predictions on disk, running external evaluators, etc.).
-      devices: The list of devices used for training, if known.
-      hvd: Optional Horovod object.
-
-    See Also:
-      ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
-      arguments and the returned value.
-    """
-    dispatcher = GraphDispatcher(
-        num_devices=num_devices,
-        daisy_chain_variables=self.daisy_chain_variables,
-        devices=devices)
-
-    def _loss_op(model, features, labels, params, mode):
-      """Single callable to compute the loss."""
-      logits, _ = model(features, labels, params, mode)
-      return model.compute_loss(
-          logits, labels, training=mode == tf.estimator.ModeKeys.TRAIN, params=params)
-
-    def _normalize_loss(num, den=None):
-      """Normalizes the loss."""
-      if isinstance(num, list):  # Sharded mode.
-        if den is not None:
-          assert isinstance(den, list)
-          return tf.add_n(num) / tf.add_n(den)
-        else:
-          return tf.reduce_mean(num)
-      elif den is not None:
-        return num / den
-      else:
-        return num
-
-    def _extract_loss(loss):
-      """Extracts and summarizes the loss."""
-      if not isinstance(loss, tuple):
-        actual_loss = _normalize_loss(loss)
-        tboard_loss = actual_loss
-      else:
-        actual_loss = _normalize_loss(loss[0], den=loss[1])
-        tboard_loss = _normalize_loss(loss[0], den=loss[2]) if len(loss) > 2 else actual_loss
-      tf.summary.scalar("loss", tboard_loss)
-      return actual_loss
-
-    def _model_fn(features, labels, params, mode, config):
-      """model_fn implementation."""
-      model = copy.deepcopy(self)
-
-      if mode == tf.estimator.ModeKeys.TRAIN:
-        features_shards = dispatcher.shard(features)
-        labels_shards = dispatcher.shard(labels)
-        losses_shards = dispatcher(
-            _loss_op, model, features_shards, labels_shards, params, mode)
-        loss = _extract_loss(losses_shards)
-        train_op = model.optimize_loss(loss, params=params, hvd=hvd)
-        extra_variables = []
-        if isinstance(train_op, tuple):
-          train_op, extra_variables = train_op
-
-        training_hooks = []
-        if extra_variables:
-          training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
-        if config is not None:
-          model.examples_inputter.visualize(config.model_dir)
-          features_length = model.features_inputter.get_length(features)
-          labels_length = model.labels_inputter.get_length(labels)
-          num_words = {}
-          if features_length is not None:
-            num_words["source"] = tf.reduce_sum(features_length)
-          if labels_length is not None:
-            num_words["target"] = tf.reduce_sum(labels_length)
-          training_hooks.append(hooks.LogWordsPerSecondHook(
-              num_words,
-              every_n_steps=config.save_summary_steps,
-              output_dir=config.model_dir))
-        return tf.estimator.EstimatorSpec(
-            mode,
-            loss=loss,
-            train_op=train_op,
-            training_hooks=training_hooks)
-
-      elif mode == tf.estimator.ModeKeys.EVAL:
-        logits, predictions = model(features, labels, params, mode)
-        loss = model.compute_loss(logits, labels, training=False, params=params)
-        loss = _extract_loss(loss)
-        eval_metric_ops = model.compute_metrics(predictions, labels)
-        evaluation_hooks = []
-        if predictions is not None and eval_prediction_hooks_fn is not None:
-          evaluation_hooks.extend(eval_prediction_hooks_fn(predictions))
-        return tf.estimator.EstimatorSpec(
-            mode,
-            loss=loss,
-            eval_metric_ops=eval_metric_ops,
-            evaluation_hooks=evaluation_hooks)
-
-      elif mode == tf.estimator.ModeKeys.PREDICT:
-        _, predictions = model(features, labels, params, mode)
-
-        # Forward example index for reordering predictions.
-        if "index" in features:
-          predictions["index"] = features["index"]
-
-        export_outputs = {}
-        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
-            tf.estimator.export.PredictOutput(predictions))
-
-        return tf.estimator.EstimatorSpec(
-            mode,
-            predictions=predictions,
-            export_outputs=export_outputs)
-      else:
-        raise RuntimeError("Invalid mode")
-
-    return _model_fn
 
   def _initializer(self, params):
     """Returns the global initializer for this model.
@@ -319,52 +196,48 @@ class Model(object):
     See Also:
       ``tf.estimator.Estimator``.
     """
-    batch_size_multiple = 1
-    if batch_type == "tokens" and self.dtype == tf.float16:
-      batch_size_multiple = 8
     if metadata is not None:
       self.initialize(metadata)
+    return estimator.make_input_fn(
+        self,
+        mode,
+        batch_size,
+        features_file,
+        labels_file=labels_file,
+        batch_type=batch_type,
+        batch_multiplier=batch_multiplier,
+        bucket_width=bucket_width,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        shuffle_buffer_size=sample_buffer_size,
+        single_pass=single_pass,
+        num_shards=num_shards,
+        shard_index=shard_index,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size,
+        return_dataset=False)
 
-    def _fn():
-      model = copy.deepcopy(self)
-      if mode == tf.estimator.ModeKeys.PREDICT:
-        dataset = model.examples_inputter.make_inference_dataset(
-            features_file,
-            batch_size,
-            bucket_width=bucket_width,
-            num_threads=num_threads,
-            prefetch_buffer_size=prefetch_buffer_size)
-      elif mode == tf.estimator.ModeKeys.EVAL:
-        dataset = model.examples_inputter.make_evaluation_dataset(
-            features_file,
-            labels_file,
-            batch_size,
-            num_threads=num_threads,
-            prefetch_buffer_size=prefetch_buffer_size)
-      elif mode == tf.estimator.ModeKeys.TRAIN:
-        dataset = model.examples_inputter.make_training_dataset(
-            features_file,
-            labels_file,
-            batch_size,
-            batch_type=batch_type,
-            batch_multiplier=batch_multiplier,
-            batch_size_multiple=batch_size_multiple,
-            shuffle_buffer_size=sample_buffer_size,
-            bucket_width=bucket_width,
-            maximum_features_length=maximum_features_length,
-            maximum_labels_length=maximum_labels_length,
-            single_pass=single_pass,
-            num_shards=num_shards,
-            shard_index=shard_index,
-            num_threads=num_threads,
-            prefetch_buffer_size=prefetch_buffer_size)
+  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
+    """Returns the model function.
 
-      iterator = dataset.make_initializable_iterator()
-      # Add the initializer to a standard collection for it to be initialized.
-      tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
-      return iterator.get_next()
+    Args:
+      num_devices: The number of devices used for training.
+      eval_prediction_hooks_fn: A callable that takes the model predictions
+        during evaluation and return an iterable of evaluation hooks (e.g. for
+        saving predictions on disk, running external evaluators, etc.).
+      devices: The list of devices used for training, if known.
+      hvd: Optional Horovod object.
 
-    return _fn
+    See Also:
+      ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
+      arguments and the returned value.
+    """
+    return estimator.make_model_fn(
+        self,
+        eval_prediction_hooks_fn=eval_prediction_hooks_fn,
+        num_devices=num_devices,
+        devices=devices,
+        hvd=hvd)
 
   def serving_input_fn(self, metadata=None):
     """Returns the serving input function.
@@ -376,16 +249,9 @@ class Model(object):
     Returns:
       A callable that returns a ``tf.estimator.export.ServingInputReceiver``.
     """
-    if self.features_inputter is None:
-      raise NotImplementedError()
     if metadata is not None:
       self.initialize(metadata)
-
-    def _fn():
-      model = copy.deepcopy(self)
-      return model.features_inputter.get_serving_input_receiver()
-
-    return _fn
+    return estimator.make_serving_input_fn(self)
 
   def get_assets(self, metadata=None, asset_dir=None):
     """Returns additional assets used by this model.
