@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import abc
+import copy
 import six
 
 import tensorflow as tf
@@ -94,10 +95,10 @@ class Model(object):
         daisy_chain_variables=self.daisy_chain_variables,
         devices=devices)
 
-    def _loss_op(features, labels, params, mode):
+    def _loss_op(model, features, labels, params, mode):
       """Single callable to compute the loss."""
-      logits, _ = self(features, labels, params, mode)
-      return self.compute_loss(
+      logits, _ = model(features, labels, params, mode)
+      return model.compute_loss(
           logits, labels, training=mode == tf.estimator.ModeKeys.TRAIN, params=params)
 
     def _normalize_loss(num, den=None):
@@ -126,13 +127,15 @@ class Model(object):
 
     def _model_fn(features, labels, params, mode, config):
       """model_fn implementation."""
+      model = copy.deepcopy(self)
+
       if mode == tf.estimator.ModeKeys.TRAIN:
         features_shards = dispatcher.shard(features)
         labels_shards = dispatcher.shard(labels)
         losses_shards = dispatcher(
-            _loss_op, features_shards, labels_shards, params, mode)
+            _loss_op, model, features_shards, labels_shards, params, mode)
         loss = _extract_loss(losses_shards)
-        train_op = self.optimize_loss(loss, params=params, hvd=hvd)
+        train_op = model.optimize_loss(loss, params=params, hvd=hvd)
         extra_variables = []
         if isinstance(train_op, tuple):
           train_op, extra_variables = train_op
@@ -141,9 +144,9 @@ class Model(object):
         if extra_variables:
           training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
         if config is not None:
-          self.examples_inputter.visualize(config.model_dir)
-          features_length = self.features_inputter.get_length(features)
-          labels_length = self.labels_inputter.get_length(labels)
+          model.examples_inputter.visualize(config.model_dir)
+          features_length = model.features_inputter.get_length(features)
+          labels_length = model.labels_inputter.get_length(labels)
           num_words = {}
           if features_length is not None:
             num_words["source"] = tf.reduce_sum(features_length)
@@ -160,10 +163,10 @@ class Model(object):
             training_hooks=training_hooks)
 
       elif mode == tf.estimator.ModeKeys.EVAL:
-        logits, predictions = self(features, labels, params, mode)
-        loss = self.compute_loss(logits, labels, training=False, params=params)
+        logits, predictions = model(features, labels, params, mode)
+        loss = model.compute_loss(logits, labels, training=False, params=params)
         loss = _extract_loss(loss)
-        eval_metric_ops = self.compute_metrics(predictions, labels)
+        eval_metric_ops = model.compute_metrics(predictions, labels)
         evaluation_hooks = []
         if predictions is not None and eval_prediction_hooks_fn is not None:
           evaluation_hooks.extend(eval_prediction_hooks_fn(predictions))
@@ -174,7 +177,7 @@ class Model(object):
             evaluation_hooks=evaluation_hooks)
 
       elif mode == tf.estimator.ModeKeys.PREDICT:
-        _, predictions = self(features, labels, params, mode)
+        _, predictions = model(features, labels, params, mode)
 
         # Forward example index for reordering predictions.
         if "index" in features:
@@ -267,8 +270,8 @@ class Model(object):
   def input_fn(self,
                mode,
                batch_size,
-               metadata,
-               features_file,
+               metadata=None,
+               features_file=None,
                labels_file=None,
                batch_type="examples",
                batch_multiplier=1,
@@ -287,7 +290,7 @@ class Model(object):
       mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size to use.
       metadata: A dictionary containing additional metadata set
-        by the user.
+        by the user. Required if ``Model.initialize()`` has not been called.
       features_file: The file containing input features.
       labels_file: The file containing output labels.
       batch_type: The training batching stragety to use: can be "examples" or
@@ -319,25 +322,27 @@ class Model(object):
     batch_size_multiple = 1
     if batch_type == "tokens" and self.dtype == tf.float16:
       batch_size_multiple = 8
-    self.initialize(metadata)
+    if metadata is not None:
+      self.initialize(metadata)
 
     def _fn():
+      model = copy.deepcopy(self)
       if mode == tf.estimator.ModeKeys.PREDICT:
-        dataset = self.examples_inputter.make_inference_dataset(
+        dataset = model.examples_inputter.make_inference_dataset(
             features_file,
             batch_size,
             bucket_width=bucket_width,
             num_threads=num_threads,
             prefetch_buffer_size=prefetch_buffer_size)
       elif mode == tf.estimator.ModeKeys.EVAL:
-        dataset = self.examples_inputter.make_evaluation_dataset(
+        dataset = model.examples_inputter.make_evaluation_dataset(
             features_file,
             labels_file,
             batch_size,
             num_threads=num_threads,
             prefetch_buffer_size=prefetch_buffer_size)
       elif mode == tf.estimator.ModeKeys.TRAIN:
-        dataset = self.examples_inputter.make_training_dataset(
+        dataset = model.examples_inputter.make_training_dataset(
             features_file,
             labels_file,
             batch_size,
@@ -361,42 +366,40 @@ class Model(object):
 
     return _fn
 
-  def serving_input_fn(self, metadata):
+  def serving_input_fn(self, metadata=None):
     """Returns the serving input function.
 
     Args:
       metadata: A dictionary containing additional metadata set
-        by the user.
+        by the user. Required if ``Model.initialize()`` has not been called.
 
     Returns:
       A callable that returns a ``tf.estimator.export.ServingInputReceiver``.
     """
     if self.features_inputter is None:
       raise NotImplementedError()
-    self.initialize(metadata)
+    if metadata is not None:
+      self.initialize(metadata)
 
     def _fn():
-      # This is a hack for SequenceRecordInputter that currently infers the input
-      # depth from the data files.
-      # TODO: This method should not require the training data.
-      if  "train_features_file" in metadata:
-        _ = self.features_inputter.make_dataset(metadata["train_features_file"])
-      return self.features_inputter.get_serving_input_receiver()
+      model = copy.deepcopy(self)
+      return model.features_inputter.get_serving_input_receiver()
 
     return _fn
 
-  def get_assets(self, metadata, asset_dir):
+  def get_assets(self, metadata=None, asset_dir=None):
     """Returns additional assets used by this model.
 
     Args:
       metadata: A dictionary containing additional metadata set
-        by the user.
+        by the user. Required if ``Model.initialize()`` has not been called.
       asset_dir: The directory where assets can be written.
 
     Returns:
       A dictionary of additional assets.
     """
-    self.initialize(metadata)
+    if metadata is not None:
+      self.initialize(metadata)
     return self.examples_inputter.export_assets(asset_dir)
 
   def print_prediction(self, prediction, params=None, stream=None):
