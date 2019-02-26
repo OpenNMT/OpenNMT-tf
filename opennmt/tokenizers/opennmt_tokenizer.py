@@ -39,10 +39,14 @@ class OpenNMTTokenizer(Tokenizer):
     assets = super(OpenNMTTokenizer, self).initialize(
         metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
     self._tokenizer = create_tokenizer(self._config)
-    if asset_dir is not None:
-      for key, value in six.iteritems(self._config):
-        if key.endswith("path"):
-          assets[os.path.basename(value)] = value
+    return assets
+
+  def export_assets(self, asset_dir, asset_prefix=""):
+    assets = super(OpenNMTTokenizer, self).export_assets(
+        asset_dir, asset_prefix=asset_prefix)
+    for key, value in six.iteritems(self._config):
+      if key.endswith("path"):
+        assets[os.path.basename(value)] = value
     return assets
 
   def _tokenize_string(self, text):

@@ -259,7 +259,12 @@ class TextInputter(Inputter):
         self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
       else:
         self.tokenizer = tokenizers.SpaceTokenizer()
-    return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+    self.tokenizer.initialize(metadata)
+    return super(TextInputter, self).initialize(
+        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+
+  def export_assets(self, asset_dir, asset_prefix=""):
+    return self.tokenizer.export_assets(asset_dir, asset_prefix=asset_prefix)
 
   def vocabulary_lookup(self):
     """Returns a lookup table mapping string to index."""

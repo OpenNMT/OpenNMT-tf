@@ -40,6 +40,20 @@ class Inputter(tf.keras.layers.Layer):
       A dictionary containing additional assets used by the inputter.
     """
     _ = metadata
+    if asset_dir is not None:
+      return self.export_assets(asset_dir, asset_prefix=asset_prefix)
+    return {}
+
+  def export_assets(self, asset_dir, asset_prefix=""):
+    """Exports assets used by this tokenizer.
+
+    Args:
+      asset_dir: The directory where assets can be written.
+      asset_prefix: The prefix to attach to assets filename.
+
+    Returns:
+      A dictionary containing additional assets used by the inputter.
+    """
     _ = asset_dir
     _ = asset_prefix
     return {}
@@ -289,10 +303,16 @@ class MultiInputter(Inputter):
     return inputters
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    for inputter in self.inputters:
+      inputter.initialize(metadata)
+    return super(MultiInputter, self).initialize(
+        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+
+  def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}
     for i, inputter in enumerate(self.inputters):
-      assets.update(inputter.initialize(
-          metadata, asset_dir=asset_dir, asset_prefix="%s%d_" % (asset_prefix, i + 1)))
+      assets.update(inputter.export_assets(
+          asset_dir, asset_prefix="%s%d_" % (asset_prefix, i + 1)))
     return assets
 
   @abc.abstractmethod
@@ -528,12 +548,12 @@ class ExampleInputter(ParallelInputter):
         share_parameters=share_parameters,
         combine_features=False)
 
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+  def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}
-    assets.update(self.features_inputter.initialize(
-        metadata, asset_dir=asset_dir, asset_prefix="source_"))
-    assets.update(self.labels_inputter.initialize(
-        metadata, asset_dir=asset_dir, asset_prefix="target_"))
+    assets.update(self.features_inputter.export_assets(
+        asset_dir, asset_prefix="source_"))
+    assets.update(self.labels_inputter.export_assets(
+        asset_dir, asset_prefix="target_"))
     return assets
 
   def make_inference_dataset(self,

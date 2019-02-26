@@ -61,7 +61,6 @@ class Tokenizer(object):
     Returns:
       A dictionary containing additional assets used by the tokenizer.
     """
-    assets = {}
     if self._configuration_key is not None:
       configuration = metadata[self._configuration_key]
       if isinstance(configuration, dict):
@@ -69,7 +68,22 @@ class Tokenizer(object):
       else:
         with compat.gfile_open(configuration, mode="rb") as conf_file:
           self._config = yaml.load(conf_file)
-    if self._config and asset_dir is not None:
+    if asset_dir is not None:
+      return self.export_assets(asset_dir, asset_prefix=asset_prefix)
+    return {}
+
+  def export_assets(self, asset_dir, asset_prefix=""):
+    """Exports assets for this tokenizer.
+
+    Args:
+      asset_dir: The directory where assets can be written.
+      asset_prefix: The prefix to attach to assets filename.
+
+    Returns:
+      A dictionary containing additional assets used by the tokenizer.
+    """
+    assets = {}
+    if self._config:
       asset_name = "%stokenizer_config.yml" % asset_prefix
       asset_path = os.path.join(asset_dir, asset_name)
       _make_config_asset_file(self._config, asset_path)
