@@ -48,6 +48,16 @@ class Model(object):
     _ = num_devices
     return {}
 
+  def initialize(self, metadata):
+    """Initializes the model from the data configuration.
+
+    Args:
+      metadata: A dictionary containing additional data configuration set
+        by the user (e.g. vocabularies, tokenization, pretrained embeddings,
+        etc.).
+    """
+    self.examples_inputter.initialize(metadata)
+
   def __call__(self, features, labels, params, mode, config=None):
     """Calls the model function.
 
@@ -257,20 +267,6 @@ class Model(object):
     """
     return None
 
-  def _initialize(self, metadata, asset_dir=None):
-    """Runs model specific initialization (e.g. vocabularies loading).
-
-    Args:
-      metadata: A dictionary containing additional metadata set
-        by the user.
-      asset_dir: The directory where assets can be written. If ``None``, no
-        assets are returned.
-
-    Returns:
-      A dictionary containing additional assets used by the model.
-    """
-    return self.examples_inputter.initialize(metadata, asset_dir=asset_dir)
-
   def input_fn(self,
                mode,
                batch_size,
@@ -326,10 +322,9 @@ class Model(object):
     batch_size_multiple = 1
     if batch_type == "tokens" and self.dtype == tf.float16:
       batch_size_multiple = 8
+    self.initialize(metadata)
 
     def _fn():
-      self._initialize(metadata)
-
       if mode == tf.estimator.ModeKeys.PREDICT:
         dataset = self.examples_inputter.make_inference_dataset(
             features_file,
@@ -381,9 +376,9 @@ class Model(object):
     """
     if self.features_inputter is None:
       raise NotImplementedError()
+    self.initialize(metadata)
 
     def _fn():
-      self._initialize(metadata)
       # This is a hack for SequenceRecordInputter that currently infers the input
       # depth from the data files.
       # TODO: This method should not require the training data.
@@ -404,9 +399,8 @@ class Model(object):
     Returns:
       A dictionary of additional assets.
     """
-    assets = self._initialize(metadata, asset_dir=asset_dir)
-    tf.reset_default_graph()
-    return assets
+    self.initialize(metadata)
+    return self.examples_inputter.export_assets(asset_dir)
 
   def print_prediction(self, prediction, params=None, stream=None):
     """Prints the model prediction.
