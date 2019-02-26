@@ -250,7 +250,6 @@ class TextInputter(Inputter):
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = self.vocabulary_lookup()
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
       if tokenizer_config:
@@ -277,6 +276,7 @@ class TextInputter(Inputter):
         default_value=constants.UNKNOWN_TOKEN)
 
   def make_dataset(self, data_file, training=None):
+    self.vocabulary = self.vocabulary_lookup()
     return tf.data.TextLineDataset(data_file)
 
   def get_dataset_size(self, data_file):
@@ -377,6 +377,8 @@ class WordEmbedder(TextInputter):
         element=element, features=features, training=training)
     if "ids" in features:
       return features
+    if self.vocabulary is None:
+      self.vocabulary = self.vocabulary_lookup()
     ids = self.vocabulary.lookup(features["tokens"])
     if not self.is_target:
       features["ids"] = ids
@@ -479,6 +481,8 @@ class CharEmbedder(TextInputter):
       features = super(CharEmbedder, self).make_features(
           element=element, features=features, training=training)
       chars, _ = tokens_to_chars(features["tokens"])
+    if self.vocabulary is None:
+      self.vocabulary = self.vocabulary_lookup()
     features["char_ids"] = self.vocabulary.lookup(chars)
     return features
 
