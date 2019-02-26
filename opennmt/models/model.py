@@ -71,7 +71,8 @@ class Model(object):
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       the arguments of this function.
     """
-    return self._call(features, labels, params, mode)
+    with tf.variable_scope(self.name, initializer=self._initializer(params)):
+      return self._call(features, labels, params, mode)
 
   def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
     """Returns the model function.
@@ -95,7 +96,7 @@ class Model(object):
 
     def _loss_op(features, labels, params, mode):
       """Single callable to compute the loss."""
-      logits, _ = self._call(features, labels, params, mode)
+      logits, _ = self(features, labels, params, mode)
       return self.compute_loss(
           logits, labels, training=mode == tf.estimator.ModeKeys.TRAIN, params=params)
 
@@ -128,11 +129,8 @@ class Model(object):
       if mode == tf.estimator.ModeKeys.TRAIN:
         features_shards = dispatcher.shard(features)
         labels_shards = dispatcher.shard(labels)
-
-        with tf.variable_scope(self.name, initializer=self._initializer(params)):
-          losses_shards = dispatcher(
-              _loss_op, features_shards, labels_shards, params, mode)
-
+        losses_shards = dispatcher(
+            _loss_op, features_shards, labels_shards, params, mode)
         loss = _extract_loss(losses_shards)
         train_op = self.optimize_loss(loss, params=params, hvd=hvd)
         extra_variables = []
@@ -160,11 +158,10 @@ class Model(object):
             loss=loss,
             train_op=train_op,
             training_hooks=training_hooks)
-      elif mode == tf.estimator.ModeKeys.EVAL:
-        with tf.variable_scope(self.name):
-          logits, predictions = self._call(features, labels, params, mode)
-          loss = self.compute_loss(logits, labels, training=False, params=params)
 
+      elif mode == tf.estimator.ModeKeys.EVAL:
+        logits, predictions = self(features, labels, params, mode)
+        loss = self.compute_loss(logits, labels, training=False, params=params)
         loss = _extract_loss(loss)
         eval_metric_ops = self.compute_metrics(predictions, labels)
         evaluation_hooks = []
@@ -175,9 +172,9 @@ class Model(object):
             loss=loss,
             eval_metric_ops=eval_metric_ops,
             evaluation_hooks=evaluation_hooks)
+
       elif mode == tf.estimator.ModeKeys.PREDICT:
-        with tf.variable_scope(self.name):
-          _, predictions = self._call(features, labels, params, mode)
+        _, predictions = self(features, labels, params, mode)
 
         # Forward example index for reordering predictions.
         if "index" in features:

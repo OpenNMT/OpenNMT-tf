@@ -43,6 +43,7 @@ class SequenceTagger(Model):
         daisy_chain_variables=daisy_chain_variables)
     self.encoder = encoder
     self.crf_decoding = crf_decoding
+    self.transition_params = None
     if tagging_scheme:
       self.tagging_scheme = tagging_scheme.lower()
     else:
@@ -64,13 +65,13 @@ class SequenceTagger(Model):
           encoder_outputs,
           self.labels_inputter.vocabulary_size)
 
+    num_tags = self.labels_inputter.vocabulary_size
+    self.transition_params = tf.get_variable("transitions", shape=[num_tags, num_tags])
     if mode != tf.estimator.ModeKeys.TRAIN:
       if self.crf_decoding:
-        shape = [self.labels_inputter.vocabulary_size, self.labels_inputter.vocabulary_size]
-        transition_params = tf.get_variable("transitions", shape=shape)
         tags_id, _ = tf.contrib.crf.crf_decode(
             logits,
-            transition_params,
+            self.transition_params,
             encoder_sequence_length)
         tags_id = tf.cast(tags_id, tf.int64)
       else:
@@ -96,11 +97,11 @@ class SequenceTagger(Model):
     if params is None:
       params = {}
     if self.crf_decoding:
-      with tf.variable_scope(tf.get_variable_scope(), reuse=not training):
-        log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
-            outputs,
-            tf.cast(labels["tags_id"], tf.int32),
-            labels["length"])
+      log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
+          outputs,
+          tf.cast(labels["tags_id"], tf.int32),
+          labels["length"],
+          transition_params=self.transition_params)
       loss = tf.reduce_sum(-log_likelihood)
       loss_normalizer = tf.cast(tf.shape(log_likelihood)[0], loss.dtype)
       return loss, loss_normalizer
