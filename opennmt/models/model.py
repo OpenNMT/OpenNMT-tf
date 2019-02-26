@@ -48,6 +48,16 @@ class Model(object):
     _ = num_devices
     return {}
 
+  def initialize(self, metadata):
+    """Initializes the model from the data configuration.
+
+    Args:
+      metadata: A dictionary containing additional data configuration set
+        by the user (e.g. vocabularies, tokenization, pretrained embeddings,
+        etc.).
+    """
+    self.examples_inputter.initialize(metadata)
+
   def __call__(self, features, labels, params, mode, config=None):
     """Calls the model function.
 
@@ -61,7 +71,8 @@ class Model(object):
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       the arguments of this function.
     """
-    return self._call(features, labels, params, mode)
+    with tf.variable_scope(self.name, initializer=self._initializer(params)):
+      return self._call(features, labels, params, mode)
 
   def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
     """Returns the model function.
@@ -85,7 +96,7 @@ class Model(object):
 
     def _loss_op(features, labels, params, mode):
       """Single callable to compute the loss."""
-      logits, _ = self._call(features, labels, params, mode)
+      logits, _ = self(features, labels, params, mode)
       return self.compute_loss(
           logits, labels, training=mode == tf.estimator.ModeKeys.TRAIN, params=params)
 
@@ -118,11 +129,8 @@ class Model(object):
       if mode == tf.estimator.ModeKeys.TRAIN:
         features_shards = dispatcher.shard(features)
         labels_shards = dispatcher.shard(labels)
-
-        with tf.variable_scope(self.name, initializer=self._initializer(params)):
-          losses_shards = dispatcher(
-              _loss_op, features_shards, labels_shards, params, mode)
-
+        losses_shards = dispatcher(
+            _loss_op, features_shards, labels_shards, params, mode)
         loss = _extract_loss(losses_shards)
         train_op = self.optimize_loss(loss, params=params, hvd=hvd)
         extra_variables = []
@@ -150,11 +158,10 @@ class Model(object):
             loss=loss,
             train_op=train_op,
             training_hooks=training_hooks)
-      elif mode == tf.estimator.ModeKeys.EVAL:
-        with tf.variable_scope(self.name):
-          logits, predictions = self._call(features, labels, params, mode)
-          loss = self.compute_loss(logits, labels, training=False, params=params)
 
+      elif mode == tf.estimator.ModeKeys.EVAL:
+        logits, predictions = self(features, labels, params, mode)
+        loss = self.compute_loss(logits, labels, training=False, params=params)
         loss = _extract_loss(loss)
         eval_metric_ops = self.compute_metrics(predictions, labels)
         evaluation_hooks = []
@@ -165,9 +172,9 @@ class Model(object):
             loss=loss,
             eval_metric_ops=eval_metric_ops,
             evaluation_hooks=evaluation_hooks)
+
       elif mode == tf.estimator.ModeKeys.PREDICT:
-        with tf.variable_scope(self.name):
-          _, predictions = self._call(features, labels, params, mode)
+        _, predictions = self(features, labels, params, mode)
 
         # Forward example index for reordering predictions.
         if "index" in features:
@@ -257,20 +264,6 @@ class Model(object):
     """
     return None
 
-  def _initialize(self, metadata, asset_dir=None):
-    """Runs model specific initialization (e.g. vocabularies loading).
-
-    Args:
-      metadata: A dictionary containing additional metadata set
-        by the user.
-      asset_dir: The directory where assets can be written. If ``None``, no
-        assets are returned.
-
-    Returns:
-      A dictionary containing additional assets used by the model.
-    """
-    return self.examples_inputter.initialize(metadata, asset_dir=asset_dir)
-
   def input_fn(self,
                mode,
                batch_size,
@@ -326,10 +319,9 @@ class Model(object):
     batch_size_multiple = 1
     if batch_type == "tokens" and self.dtype == tf.float16:
       batch_size_multiple = 8
+    self.initialize(metadata)
 
     def _fn():
-      self._initialize(metadata)
-
       if mode == tf.estimator.ModeKeys.PREDICT:
         dataset = self.examples_inputter.make_inference_dataset(
             features_file,
@@ -381,9 +373,9 @@ class Model(object):
     """
     if self.features_inputter is None:
       raise NotImplementedError()
+    self.initialize(metadata)
 
     def _fn():
-      self._initialize(metadata)
       # This is a hack for SequenceRecordInputter that currently infers the input
       # depth from the data files.
       # TODO: This method should not require the training data.
@@ -404,9 +396,8 @@ class Model(object):
     Returns:
       A dictionary of additional assets.
     """
-    assets = self._initialize(metadata, asset_dir=asset_dir)
-    tf.reset_default_graph()
-    return assets
+    self.initialize(metadata)
+    return self.examples_inputter.export_assets(asset_dir)
 
   def print_prediction(self, prediction, params=None, stream=None):
     """Prints the model prediction.

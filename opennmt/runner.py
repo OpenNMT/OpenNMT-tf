@@ -486,12 +486,11 @@ class Runner(object):
       tf.train.create_global_step(g)
       features, labels = input_fn()
       labels["alignment"] = None  # Add alignment key to force the model to return attention.
-      with tf.variable_scope(self._model.name):
-        outputs, _ = self._model(
-            features,
-            labels,
-            self._config["params"],
-            tf.estimator.ModeKeys.EVAL)
+      outputs, _ = self._model(
+          features,
+          labels,
+          self._config["params"],
+          tf.estimator.ModeKeys.EVAL)
 
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
           logits=outputs["logits"], labels=labels["ids_out"])
