@@ -406,21 +406,12 @@ class WordEmbedder(TextInputter):
       self.embedding_size = pretrained.shape[-1]
       initializer = tf.constant_initializer(value=pretrained.astype(self.dtype))
     else:
-      initializer = None
+      initializer = tf.keras.initializers.glorot_uniform()
     shape = [self.vocabulary_size, self.embedding_size]
-    if compat.is_tf2():
-      self.embedding = self.add_variable(
-          name=compat.name_from_variable_scope("w_embs"),
-          shape=shape,
-          initializer=initializer,
-          trainable=self.trainable)
-    else:
-      self.embedding = tf.get_variable(
-          "w_embs",
-          shape=shape,
-          dtype=self.dtype,
-          initializer=initializer,
-          trainable=self.trainable)
+    self.embedding = tf.Variable(
+        initial_value=lambda: initializer(shape, dtype=self.dtype),
+        trainable=self.trainable,
+        name=compat.name_from_variable_scope("w_embs"))
     super(WordEmbedder, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
@@ -493,12 +484,10 @@ class CharEmbedder(TextInputter):
 
   def build(self, input_shape=None):
     shape = [self.vocabulary_size, self.embedding_size]
-    if compat.is_tf2():
-      self.embedding = self.add_variable(
-          name=compat.name_from_variable_scope("w_char_embs"), shape=shape)
-    else:
-      self.embedding = tf.get_variable(
-          "w_char_embs", shape=shape, dtype=self.dtype)
+    initializer = tf.keras.initializers.glorot_uniform()
+    self.embedding = tf.Variable(
+        initial_value=lambda: initializer(shape, dtype=self.dtype),
+        name=compat.name_from_variable_scope("w_char_embs"))
     super(CharEmbedder, self).build(input_shape)
 
   @abc.abstractmethod
