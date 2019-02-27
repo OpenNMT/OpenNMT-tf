@@ -48,7 +48,10 @@ class Bridge(tf.keras.layers.Layer):
     Returns:
       The decoder initial state.
     """
-    return super(Bridge, self).__call__([encoder_state, decoder_zero_state])
+    inputs = [encoder_state, decoder_zero_state]
+    # Always build for backward compatibility.
+    self.build(compat.nest.map_structure(lambda x: x.shape, inputs))
+    return self.call(inputs)
 
   @abc.abstractmethod
   def call(self, states):  # pylint: disable=arguments-differ
