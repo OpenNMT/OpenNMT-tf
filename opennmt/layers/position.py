@@ -63,12 +63,10 @@ class PositionEncoder(tf.keras.layers.Layer):
       A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the
       :attr:`reducer`.
     """
-    # Temporary override for TensorFlow versions <= 1.8 that fails to infer the
-    # input dtype and calls build() under an unwanted name scope.
-    if not self.built:
-      self._dtype = inputs.dtype
-      self.build(inputs.shape)
-    return super(PositionEncoder, self).__call__(
+    # Always build for backward compatibility.
+    self._dtype = inputs.dtype
+    self.build(inputs.shape)
+    return self.call(
         inputs, sequence_length=sequence_length, position=position)
 
   def call(self, inputs, sequence_length=None, position=None):  # pylint: disable=arguments-differ
