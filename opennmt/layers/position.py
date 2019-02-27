@@ -7,6 +7,7 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import SumReducer
+from opennmt.utils import compat
 
 
 def make_positions(sequence_length, maximum_length=None):
@@ -42,13 +43,14 @@ def make_positions(sequence_length, maximum_length=None):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class PositionEncoder(object):
+class PositionEncoder(tf.keras.layers.Layer):
   """Base class for position encoders."""
 
   def __init__(self, reducer=SumReducer()):
+    super(PositionEncoder, self).__init__()
     self.reducer = reducer
 
-  def __call__(self, inputs, sequence_length=None, position=None):
+  def __call__(self, inputs, sequence_length=None, position=None):  # pylint: disable=arguments-differ
     """Apply position encoding to inputs.
 
     Args:
@@ -61,6 +63,15 @@ class PositionEncoder(object):
       A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the
       :attr:`reducer`.
     """
+    # Temporary override for TensorFlow versions <= 1.8 that fails to infer the
+    # input dtype and calls build() under an unwanted name scope.
+    if not self.built:
+      self._dtype = inputs.dtype
+      self.build(inputs.shape)
+    return super(PositionEncoder, self).__call__(
+        inputs, sequence_length=sequence_length, position=position)
+
+  def call(self, inputs, sequence_length=None, position=None):  # pylint: disable=arguments-differ
     _ = sequence_length
 
     batch_size = tf.shape(inputs)[0]
@@ -75,7 +86,7 @@ class PositionEncoder(object):
     position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
     return self.reducer([inputs, position_encoding])
 
-  def apply(self, inputs, sequence_length=None):
+  def apply(self, inputs, sequence_length=None):  # pylint: disable=arguments-differ
     """Shortcut for ``__call__``."""
     return self(inputs, sequence_length=sequence_length)
 
@@ -132,13 +143,19 @@ class PositionEmbedder(PositionEncoder):
     """
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position
+    self.embedding = None
+
+  def build(self, input_shape):
+    shape = [self.maximum_position + 1, input_shape.as_list()[-1]]
+    initializer = tf.keras.initializers.glorot_uniform()
+    self.embedding = tf.Variable(
+        initial_value=lambda: initializer(shape, dtype=self.dtype),
+        name=compat.name_from_variable_scope("position_encoding/w_embs"))
+    super(PositionEmbedder, self).build(input_shape)
 
   def encode(self, positions, depth, dtype=tf.float32):
     positions = tf.minimum(positions, self.maximum_position)
-    with tf.variable_scope("position_encoding"):
-      embeddings = tf.get_variable(
-          "w_embs", shape=[self.maximum_position + 1, depth], dtype=dtype)
-    return tf.nn.embedding_lookup(embeddings, positions)
+    return tf.nn.embedding_lookup(self.embedding, positions)
 
 
 class SinusoidalPositionEncoder(PositionEncoder):
