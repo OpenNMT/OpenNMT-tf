@@ -13,7 +13,7 @@ from opennmt.utils.optim import optimize_loss
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Model(object):
+class Model(tf.keras.layers.Layer):
   """Base class for models."""
 
   def __init__(self,
@@ -23,17 +23,23 @@ class Model(object):
                daisy_chain_variables=False,
                dtype=None,
                examples_inputter=None):
-    self.name = name
+    if examples_inputter is None:
+      examples_inputter = inputters.ExampleInputter(features_inputter, labels_inputter)
+    if dtype is None:
+      dtype = examples_inputter.features_inputter.dtype
+    super(Model, self).__init__(name=name, dtype=dtype)
     self.examples_inputter = examples_inputter
-    if self.examples_inputter is None:
-      self.examples_inputter = inputters.ExampleInputter(features_inputter, labels_inputter)
-    self.features_inputter = self.examples_inputter.features_inputter
-    self.labels_inputter = self.examples_inputter.labels_inputter
     self.daisy_chain_variables = daisy_chain_variables
-    if dtype is None and self.features_inputter is not None:
-      self.dtype = self.features_inputter.dtype
-    else:
-      self.dtype = dtype or tf.float32
+
+  @property
+  def features_inputter(self):
+    """The inputter producing features."""
+    return self.examples_inputter.features_inputter
+
+  @property
+  def labels_inputter(self):
+    """The inputter producing labels."""
+    return self.examples_inputter.labels_inputter
 
   def auto_config(self, num_devices=1):
     """Returns automatic configuration values specific to this model.
@@ -57,7 +63,7 @@ class Model(object):
     """
     self.examples_inputter.initialize(metadata)
 
-  def __call__(self, features, labels, params, mode, config=None):
+  def __call__(self, features, labels, params, mode, config=None):  # pylint: disable=arguments-differ
     """Calls the model function.
 
     Returns:
