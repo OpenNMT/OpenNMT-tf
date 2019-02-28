@@ -274,6 +274,7 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
+               position_encoder=SinusoidalPositionEncoder(),
                num_sources=1,
                **kwargs):
     """Initializes the parameters of the decoder.
@@ -288,6 +289,8 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
       attention_dropout: The probability to drop units from the attention.
       relu_dropout: The probability to drop units from the ReLU activation in
         the feed forward layer.
+      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
+        apply on inputs.
       num_sources: The number of source contexts expected by this decoder.
       **kwargs: Additional layer arguments.
     """
@@ -295,7 +298,7 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
     self.num_units = num_units
     self.num_heads = num_heads
     self.dropout = dropout
-    self.position_encoder = SinusoidalPositionEncoder()
+    self.position_encoder = position_encoder
     self.layer_norm = common.LayerNorm(name="output_norm")
     self.layers = [
         _SelfAttentionDecoderLayer(
@@ -327,9 +330,9 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
            training=None):
     # Process inputs.
     inputs *= self.num_units**0.5
-    inputs = self.position_encoder(inputs, position=step + 1 if step is not None else None)
-    if training:
-      inputs = tf.nn.dropout(inputs, self.dropout)
+    if self.position_encoder is not None:
+      inputs = self.position_encoder(inputs, position=step + 1 if step is not None else None)
+    inputs = common.dropout(inputs, self.dropout, training=training)
 
     # Prepare query mask.
     mask = None

@@ -116,7 +116,7 @@ class SelfAttentionEncoderV2(Encoder):
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
-               position_encoder=None,
+               position_encoder=SinusoidalPositionEncoder(),
                **kwargs):
     """Initializes the parameters of the encoder.
 
@@ -131,15 +131,12 @@ class SelfAttentionEncoderV2(Encoder):
       relu_dropout: The probability to drop units from the ReLU activation in
         the feed forward layer.
       position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
-        apply on inputs. If ``None``, defaults to
-        :class:`opennmt.layers.position.SinusoidalPositionEncoder`.
+        apply on inputs.
     """
     super(SelfAttentionEncoderV2, self).__init__(**kwargs)
     self.num_units = num_units
     self.dropout = dropout
     self.position_encoder = position_encoder
-    if self.position_encoder is None:
-      self.position_encoder = SinusoidalPositionEncoder()
     self.layer_norm = common.LayerNorm()
     self.layers = [
         _SelfAttentionEncoderLayer(
@@ -155,7 +152,8 @@ class SelfAttentionEncoderV2(Encoder):
   def call(self, inputs, sequence_length=None, training=None):
     """Encodes :obj:`inputs`."""
     inputs *= self.num_units**0.5
-    inputs = self.position_encoder(inputs)
+    if self.position_encoder is not None:
+      inputs = self.position_encoder(inputs)
     inputs = common.dropout(inputs, self.dropout, training=training)
     mask = None
     if sequence_length is not None:
