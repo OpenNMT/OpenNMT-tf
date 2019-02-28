@@ -156,8 +156,7 @@ class SelfAttentionEncoderV2(Encoder):
     """Encodes :obj:`inputs`."""
     inputs *= self.num_units**0.5
     inputs = self.position_encoder(inputs)
-    if training:
-      inputs = tf.nn.dropout(inputs, self.dropout)
+    inputs = common.dropout(inputs, self.dropout, training=training)
     mask = None
     if sequence_length is not None:
       mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=tf.float32)

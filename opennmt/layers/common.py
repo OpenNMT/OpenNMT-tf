@@ -4,7 +4,7 @@ import tensorflow as tf
 
 from tensorflow.python.framework import function
 
-from opennmt.utils.misc import shape_list
+from opennmt.utils.misc import function_args, shape_list
 
 
 @function.Defun(
@@ -30,6 +30,15 @@ def embedding_lookup(params, ids):
   """
   params = convert_gradient_to_tensor(params)
   return tf.nn.embedding_lookup(params, ids)
+
+def dropout(x, rate, training=None):
+  """Simple dropout layer."""
+  if not training or rate == 0:
+    return x
+  if "keep_prob" in function_args(tf.nn.dropout):
+    return tf.nn.dropout(x, 1.0 - rate)
+  else:
+    return tf.nn.dropout(x, rate)
 
 
 class Dense(tf.keras.layers.Dense):
@@ -146,8 +155,7 @@ class LayerWrapper(tf.keras.layers.Layer):
     x = inputs
     if self.input_layer_norm is not None:
       x = self.input_layer_norm(x)
-    if training and self.input_dropout > 0:
-      x = tf.nn.dropout(x, self.input_dropout)
+    x = dropout(x, self.input_dropout, training=training)
 
     all_outputs = self.layer(x, *args, **kwargs)
     if isinstance(all_outputs, tuple):
@@ -157,8 +165,7 @@ class LayerWrapper(tf.keras.layers.Layer):
       outputs = all_outputs
       extra_outputs = None
 
-    if training and self.output_dropout > 0:
-      outputs = tf.nn.dropout(outputs, self.output_dropout)
+    outputs = dropout(outputs, self.output_dropout, training=training)
     if self.residual_connection and outputs.shape[-1] == inputs.shape[-1]:
       outputs += inputs
     if self.output_layer_norm is not None:

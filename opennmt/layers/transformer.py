@@ -379,8 +379,7 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Runs the layer."""
     inner = self.inner(inputs)
-    if training:
-      inner = tf.nn.dropout(inner, self.dropout)
+    inner = common.dropout(inner, self.dropout, training=training)
     return self.outer(inner)
 
 
@@ -472,7 +471,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       mask = tf.expand_dims(tf.cast(mask, tf.float32), 1)  # Broadcast on heads dimension.
       dot = tf.cast(tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min), dot.dtype)
     attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
-    drop_attn = tf.nn.dropout(attn, self.dropout) if training else attn
+    drop_attn = common.dropout(attn, self.dropout, training=training)
     heads = tf.matmul(drop_attn, values)
 
     # Concatenate all heads output.
