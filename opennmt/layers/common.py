@@ -4,7 +4,8 @@ import tensorflow as tf
 
 from tensorflow.python.framework import function
 
-from opennmt.utils.misc import function_args, shape_list
+from opennmt.utils import compat
+from opennmt.utils.misc import shape_list
 
 
 @function.Defun(
@@ -35,10 +36,10 @@ def dropout(x, rate, training=None):
   """Simple dropout layer."""
   if not training or rate == 0:
     return x
-  if "keep_prob" in function_args(tf.nn.dropout):
-    return tf.nn.dropout(x, 1.0 - rate)
-  else:
+  if compat.is_tf2():
     return tf.nn.dropout(x, rate)
+  else:
+    return tf.nn.dropout(x, 1.0 - rate)
 
 
 class Dense(tf.keras.layers.Dense):
