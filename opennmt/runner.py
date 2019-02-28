@@ -17,6 +17,7 @@ from tensorflow.python.estimator.util import fn_args
 
 from google.protobuf import text_format
 
+from opennmt import estimator as estimator_util
 from opennmt import models
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils.evaluator import external_evaluation_fn
@@ -152,7 +153,8 @@ class Runner(object):
 
     devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
     return tf.estimator.Estimator(
-        self._model.model_fn(
+        estimator_util.make_model_fn(
+            self._model,
             eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
             devices=devices,
             hvd=self._hvd),
@@ -225,7 +227,8 @@ class Runner(object):
     if train_steps is not None and self._hvd is not None:
       train_steps //= self._hvd.size()
     train_spec = tf.estimator.TrainSpec(
-        input_fn=self._model.input_fn(
+        input_fn=estimator_util.make_input_fn(
+            self._model,
             tf.estimator.ModeKeys.TRAIN,
             self._config["train"]["batch_size"],
             features_file=self._config["data"]["train_features_file"],
@@ -233,21 +236,22 @@ class Runner(object):
             batch_type=self._config["train"]["batch_type"],
             batch_multiplier=self._num_devices,
             bucket_width=self._config["train"]["bucket_width"],
-            single_pass=self._config["train"].get("single_pass", False),
-            num_threads=self._config["train"].get("num_threads"),
-            sample_buffer_size=self._config["train"]["sample_buffer_size"],
-            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size"),
             maximum_features_length=self._config["train"].get("maximum_features_length"),
             maximum_labels_length=self._config["train"].get("maximum_labels_length"),
+            shuffle_buffer_size=self._config["train"]["sample_buffer_size"],
+            single_pass=self._config["train"].get("single_pass", False),
             num_shards=self._hvd.size() if self._hvd is not None else 1,
-            shard_index=self._hvd.rank() if self._hvd is not None else 0),
+            shard_index=self._hvd.rank() if self._hvd is not None else 0,
+            num_threads=self._config["train"].get("num_threads"),
+            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size")),
         max_steps=train_steps,
         hooks=train_hooks)
     return train_spec
 
   def _build_eval_spec(self):
     eval_spec = tf.estimator.EvalSpec(
-        input_fn=self._model.input_fn(
+        input_fn=estimator_util.make_input_fn(
+            self._model,
             tf.estimator.ModeKeys.EVAL,
             self._config["eval"]["batch_size"],
             features_file=self._config["data"]["eval_features_file"],
@@ -257,7 +261,7 @@ class Runner(object):
         steps=None,
         exporters=_make_exporters(
             self._config["eval"]["exporters"],
-            self._model.serving_input_fn(),
+            estimator_util.make_serving_input_fn(self._model),
             assets_extra=self._get_model_assets()),
         throttle_secs=self._config["eval"]["eval_delay"])
     return eval_spec
@@ -373,7 +377,8 @@ class Runner(object):
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
 
-    input_fn = self._model.input_fn(
+    input_fn = estimator_util.make_input_fn(
+        self._model,
         tf.estimator.ModeKeys.PREDICT,
         self._config["infer"]["batch_size"],
         features_file=features_file,
@@ -448,7 +453,7 @@ class Runner(object):
 
     return export_fn(
         export_dir_base,
-        self._model.serving_input_fn(),
+        estimator_util.make_serving_input_fn(self._model),
         assets_extra=self._get_model_assets(),
         checkpoint_path=checkpoint_path,
         **kwargs)
