@@ -115,8 +115,9 @@ class SelfAttentionEncoderV2(Encoder):
                ffn_inner_dim=2048,
                dropout=0.1,
                attention_dropout=0.1,
-               relu_dropout=0.1,
-               position_encoder=None,
+               ffn_dropout=0.1,
+               ffn_activation=tf.nn.relu,
+               position_encoder=SinusoidalPositionEncoder(),
                **kwargs):
     """Initializes the parameters of the encoder.
 
@@ -128,18 +129,17 @@ class SelfAttentionEncoderV2(Encoder):
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
       attention_dropout: The probability to drop units from the attention.
-      relu_dropout: The probability to drop units from the ReLU activation in
+      ffn_dropout: The probability to drop units from the activation output in
         the feed forward layer.
+      ffn_activation: The activation function to apply between the two linear
+        transformations of the feed forward layer.
       position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
-        apply on inputs. If ``None``, defaults to
-        :class:`opennmt.layers.position.SinusoidalPositionEncoder`.
+        apply on inputs.
     """
     super(SelfAttentionEncoderV2, self).__init__(**kwargs)
     self.num_units = num_units
     self.dropout = dropout
     self.position_encoder = position_encoder
-    if self.position_encoder is None:
-      self.position_encoder = SinusoidalPositionEncoder()
     self.layer_norm = common.LayerNorm()
     self.layers = [
         _SelfAttentionEncoderLayer(
@@ -148,14 +148,16 @@ class SelfAttentionEncoderV2(Encoder):
             ffn_inner_dim,
             dropout=dropout,
             attention_dropout=attention_dropout,
-            relu_dropout=relu_dropout,
+            ffn_dropout=ffn_dropout,
+            ffn_activation=ffn_activation,
             name="layer_%d" % i)
         for i in range(num_layers)]
 
   def call(self, inputs, sequence_length=None, training=None):
     """Encodes :obj:`inputs`."""
     inputs *= self.num_units**0.5
-    inputs = self.position_encoder(inputs)
+    if self.position_encoder is not None:
+      inputs = self.position_encoder(inputs)
     inputs = common.dropout(inputs, self.dropout, training=training)
     mask = None
     if sequence_length is not None:
@@ -176,7 +178,8 @@ class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
                ffn_inner_dim,
                dropout=0.1,
                attention_dropout=0.1,
-               relu_dropout=0.1,
+               ffn_dropout=0.1,
+               ffn_activation=tf.nn.relu,
                **kwargs):
     """Initializes the layer.
 
@@ -187,8 +190,10 @@ class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
       attention_dropout: The probability to drop units from the attention.
-      relu_dropout: The probability to drop units from the ReLU activation in
+      ffn_dropout: The probability to drop units from the activation output in
         the feed forward layer.
+      ffn_activation: The activation function to apply between the two linear
+        transformations of the feed forward layer.
       kwargs: Additional layer arguments.
     """
     super(_SelfAttentionEncoderLayer, self).__init__(**kwargs)
@@ -197,7 +202,11 @@ class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
     self.self_attention = transformer.TransformerLayerWrapper(
         self.self_attention, dropout, name="sub_layer_0")
     self.ffn = transformer.FeedForwardNetwork(
-        ffn_inner_dim, num_units, dropout=relu_dropout, name="feed_forward")
+        ffn_inner_dim,
+        num_units,
+        dropout=ffn_dropout,
+        activation=ffn_activation,
+        name="feed_forward")
     self.ffn = transformer.TransformerLayerWrapper(
         self.ffn, dropout, name="sub_layer_1")
 
