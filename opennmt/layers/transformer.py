@@ -362,17 +362,24 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
     Object-oriented implementation for TensorFlow 2.0.
   """
 
-  def __init__(self, inner_dim, output_dim, dropout=0.1, **kwargs):
+  def __init__(self,
+               inner_dim,
+               output_dim,
+               dropout=0.1,
+               activation=tf.nn.relu,
+               **kwargs):
     """Initializes this layer.
 
     Args:
       inner_dim: The number of units of the inner linear transformation.
       output_dim: The number of units of the ouput linear transformation.
-      dropout: The probability to drop units from the inner transformation.
+      dropout: The probability to drop units from the activation output.
+      activation: The activation function to apply between the two linear
+        transformations.
       kwargs: Additional layer arguments.
     """
     super(FeedForwardNetwork, self).__init__(**kwargs)
-    self.inner = tf.keras.layers.Dense(inner_dim, activation=tf.nn.relu, name="inner")
+    self.inner = tf.keras.layers.Dense(inner_dim, activation=activation, name="inner")
     self.outer = tf.keras.layers.Dense(output_dim, name="outer")
     self.dropout = dropout
 

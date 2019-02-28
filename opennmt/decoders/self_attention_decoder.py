@@ -273,7 +273,8 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
                ffn_inner_dim=2048,
                dropout=0.1,
                attention_dropout=0.1,
-               relu_dropout=0.1,
+               ffn_dropout=0.1,
+               ffn_activation=tf.nn.relu,
                position_encoder=SinusoidalPositionEncoder(),
                num_sources=1,
                **kwargs):
@@ -287,8 +288,10 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
         in the feed forward layer.
       dropout: The probability to drop units from the outputs.
       attention_dropout: The probability to drop units from the attention.
-      relu_dropout: The probability to drop units from the ReLU activation in
+      ffn_dropout: The probability to drop units from the activation output in
         the feed forward layer.
+      ffn_activation: The activation function to apply between the two linear
+        transformations of the feed forward layer.
       position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
         apply on inputs.
       num_sources: The number of source contexts expected by this decoder.
@@ -308,7 +311,8 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
             num_sources=num_sources,
             dropout=dropout,
             attention_dropout=attention_dropout,
-            relu_dropout=relu_dropout,
+            ffn_dropout=ffn_dropout,
+            ffn_activation=ffn_activation,
             name="layer_%d" % i)
         for i in range(num_layers)]
 
@@ -428,7 +432,8 @@ class _SelfAttentionDecoderLayer(tf.keras.layers.Layer):
                num_sources=1,
                dropout=0.1,
                attention_dropout=0.1,
-               relu_dropout=0.1,
+               ffn_dropout=0.1,
+               ffn_activation=tf.nn.relu,
                **kwargs):
     """Initializes the layer.
 
@@ -440,8 +445,10 @@ class _SelfAttentionDecoderLayer(tf.keras.layers.Layer):
       num_sources: The number of source contexts.
       dropout: The probability to drop units from the outputs.
       attention_dropout: The probability to drop units from the attention.
-      relu_dropout: The probability to drop units from the ReLU activation in
+      ffn_dropout: The probability to drop units from the activation output in
         the feed forward layer.
+      ffn_activation: The activation function to apply between the two linear
+        transformations of the feed forward layer.
       **kwargs: Additional layer arguments.
     """
     super(_SelfAttentionDecoderLayer, self).__init__(**kwargs)
@@ -466,7 +473,8 @@ class _SelfAttentionDecoderLayer(tf.keras.layers.Layer):
     self.ffn = transformer.FeedForwardNetwork(
         ffn_inner_dim,
         num_units,
-        dropout=relu_dropout,
+        dropout=ffn_dropout,
+        activation=ffn_activation,
         name="feed_forward")
     self.ffn = transformer.TransformerLayerWrapper(
         self.ffn, dropout, name="sub_layer_%d" % (num_sources + 1))
