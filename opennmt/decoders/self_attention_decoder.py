@@ -359,7 +359,7 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
         memory_mask.append(mem_mask)
 
     # Run each layer.
-    new_cache = [] if cache is not None else None
+    new_cache = []
     for i, layer in enumerate(self.layers):
       inputs, layer_cache, attention = layer(
           inputs,
@@ -368,8 +368,7 @@ class SelfAttentionDecoderV2(decoder.DecoderV2):
           memory_mask=memory_mask,
           cache=cache[i] if cache is not None else None,
           training=training)
-      if new_cache is not None:
-        new_cache.append(layer_cache)
+      new_cache.append(layer_cache)
     outputs = self.layer_norm(inputs)
     return outputs, new_cache, attention
 

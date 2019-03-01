@@ -302,6 +302,7 @@ class DecoderTest(tf.test.TestCase):
         memory_sequence_length=memory_sequence_length,
         training=True)
     self.assertEqual(logits.shape[-1], 10)
+    self.assertEqual(len(state), 2)
     self.assertListEqual(attention.shape.as_list(), [3, 5, 7])
     state = decoder.get_initial_state(batch_size=3)
     inputs = tf.random.uniform([3, 6])
