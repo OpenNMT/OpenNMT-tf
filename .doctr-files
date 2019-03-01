@@ -19,6 +19,7 @@
 ./_modules/opennmt/encoders/mean_encoder.html
 ./_modules/opennmt/encoders/rnn_encoder.html
 ./_modules/opennmt/encoders/self_attention_encoder.html
+./_modules/opennmt/estimator.html
 ./_modules/opennmt/inputters/inputter.html
 ./_modules/opennmt/inputters/record_inputter.html
 ./_modules/opennmt/inputters/text_inputter.html
@@ -30,6 +31,7 @@
 ./_modules/opennmt/layers/rnn.html
 ./_modules/opennmt/layers/transformer.html
 ./_modules/opennmt/models/catalog.html
+./_modules/opennmt/models/language_model.html
 ./_modules/opennmt/models/model.html
 ./_modules/opennmt/models/sequence_classifier.html
 ./_modules/opennmt/models/sequence_tagger.html
@@ -57,11 +59,11 @@
 ./_modules/opennmt/utils/vocab.html
 ./_sources/README.md.txt
 ./_sources/configuration.md.txt
-./_sources/configuration_reference.md.txt
 ./_sources/data.md.txt
 ./_sources/index.rst.txt
 ./_sources/inference.md.txt
 ./_sources/installation.md.txt
+./_sources/model.md.txt
 ./_sources/package/modules.rst.txt
 ./_sources/package/opennmt.bin.ark_to_records.rst.txt
 ./_sources/package/opennmt.bin.average_checkpoints.rst.txt
@@ -85,6 +87,7 @@
 ./_sources/package/opennmt.encoders.rnn_encoder.rst.txt
 ./_sources/package/opennmt.encoders.rst.txt
 ./_sources/package/opennmt.encoders.self_attention_encoder.rst.txt
+./_sources/package/opennmt.estimator.rst.txt
 ./_sources/package/opennmt.inputters.inputter.rst.txt
 ./_sources/package/opennmt.inputters.record_inputter.rst.txt
 ./_sources/package/opennmt.inputters.rst.txt
@@ -98,6 +101,7 @@
 ./_sources/package/opennmt.layers.rst.txt
 ./_sources/package/opennmt.layers.transformer.rst.txt
 ./_sources/package/opennmt.models.catalog.rst.txt
+./_sources/package/opennmt.models.language_model.rst.txt
 ./_sources/package/opennmt.models.model.rst.txt
 ./_sources/package/opennmt.models.rst.txt
 ./_sources/package/opennmt.models.sequence_classifier.rst.txt
@@ -198,12 +202,12 @@
 ./_static/up.png
 ./_static/websupport.js
 ./configuration.html
-./configuration_reference.html
 ./data.html
 ./genindex.html
 ./index.html
 ./inference.html
 ./installation.html
+./model.html
 ./objects.inv
 ./package/modules.html
 ./package/opennmt.bin.ark_to_records.html
@@ -228,6 +232,7 @@
 ./package/opennmt.encoders.mean_encoder.html
 ./package/opennmt.encoders.rnn_encoder.html
 ./package/opennmt.encoders.self_attention_encoder.html
+./package/opennmt.estimator.html
 ./package/opennmt.html
 ./package/opennmt.inputters.html
 ./package/opennmt.inputters.inputter.html
@@ -243,6 +248,7 @@
 ./package/opennmt.layers.transformer.html
 ./package/opennmt.models.catalog.html
 ./package/opennmt.models.html
+./package/opennmt.models.language_model.html
 ./package/opennmt.models.model.html
 ./package/opennmt.models.sequence_classifier.html
 ./package/opennmt.models.sequence_tagger.html

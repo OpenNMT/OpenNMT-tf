@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.position module &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.layers.position module &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -100,17 +100,27 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
@@ -174,7 +184,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
         
           <li><a href="opennmt.layers.html">opennmt.layers package</a> &raquo;</li>
         
@@ -225,7 +235,7 @@ is the maximum of <code class="xref py py-obj docutils literal notranslate"><spa
 <dl class="class">
 <dt id="opennmt.layers.position.PositionEncoder">
 <em class="property">class </em><code class="descclassname">opennmt.layers.position.</code><code class="descname">PositionEncoder</code><span class="sig-paren">(</span><em>reducer=&lt;opennmt.layers.reducer.SumReducer object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p>Base class for position encoders.</p>
 <dl class="method">
 <dt id="opennmt.layers.position.PositionEncoder.__call__">
@@ -245,6 +255,27 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([B, T, D]\)</span> where <span class="math notranslate nohighlight">\(D\)</span> depends on the
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">reducer</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.position.PositionEncoder.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>position=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEncoder.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</li>
+<li><strong>**kwargs</strong> – Additional keyword arguments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tensor or list/tuple of tensors.</p>
 </td>
 </tr>
 </tbody>
@@ -334,6 +365,12 @@ position encodings.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.position.PositionEmbedder.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEmbedder.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEmbedder.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the variables of the layer.</p>
 </dd></dl>
 
 <dl class="method">

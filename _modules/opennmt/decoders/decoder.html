@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -98,17 +98,27 @@
               
             
             
-              <ul>
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">Reference: opennmt package</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
 </ul>
 
             
@@ -387,7 +397,8 @@
                      <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                     <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                     <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">sample_temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_tokens` with greedy search.</span>
 
 <span class="sd">    Usually used for inference.</span>
@@ -413,6 +424,8 @@
 <span class="sd">        unsupported by the decoder).</span>
 <span class="sd">      sample_from: Sample predictions from the :obj:`sample_from` most likely</span>
 <span class="sd">        tokens. If 0, sample from the full output distribution.</span>
+<span class="sd">      sample_temperature: Value dividing logits. In random sampling, a high</span>
+<span class="sd">        value generates more random samples.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or</span>
@@ -436,7 +449,8 @@
         <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="n">return_alignment_history</span><span class="o">=</span><span class="n">return_alignment_history</span><span class="p">,</span>
-        <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">)</span></div>
+        <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">,</span>
+        <span class="n">sample_temperature</span><span class="o">=</span><span class="n">sample_temperature</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Decoder.dynamic_decode_and_search"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.dynamic_decode_and_search">[docs]</a>  <span class="k">def</span> <span class="nf">dynamic_decode_and_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                 <span class="n">embedding</span><span class="p">,</span>
@@ -454,7 +468,8 @@
                                 <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                                <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                <span class="n">sample_temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_tokens` with beam search.</span>
 
 <span class="sd">    Usually used for inference.</span>
@@ -482,6 +497,8 @@
 <span class="sd">        unsupported by the decoder).</span>
 <span class="sd">      sample_from: Sample predictions from the :obj:`sample_from` most likely</span>
 <span class="sd">        tokens. If 0, sample from the full output distribution.</span>
+<span class="sd">      sample_temperature: Value dividing logits. In random sampling, a high</span>
+<span class="sd">        value generates more random samples.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or</span>
@@ -547,7 +564,8 @@
           <span class="n">return_state</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
           <span class="n">min_decode_length</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">,</span>
           <span class="n">last_step_as_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">)</span>
+          <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">,</span>
+          <span class="n">sample_temperature</span><span class="o">=</span><span class="n">sample_temperature</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">outputs</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">beam_search</span><span class="o">.</span><span class="n">beam_search</span><span class="p">(</span>
           <span class="n">_symbols_to_logits_fn</span><span class="p">,</span>
@@ -630,6 +648,221 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
 
+<div class="viewcode-block" id="DecoderV2"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">DecoderV2</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Base class for decoders.</span>
+
+<span class="sd">  Note:</span>
+<span class="sd">    TensorFlow 2.0 version.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DecoderV2.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_sources: The number of source contexts expected by this decoder.</span>
+<span class="sd">      **kwargs: Additional layer arguments.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if the number of source contexts :obj:`num_sources` is not</span>
+<span class="sd">        supported by this decoder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">num_sources</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_sources</span> <span class="ow">or</span> <span class="n">num_sources</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_sources</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This decoder accepts between </span><span class="si">%d</span><span class="s2"> and </span><span class="si">%d</span><span class="s2"> source contexts, &quot;</span>
+                       <span class="s2">&quot;but received </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">minimum_sources</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_sources</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">))</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">DecoderV2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="n">num_sources</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">minimum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The minimum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">maximum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The maximum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="DecoderV2.initialize"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the decoder configuration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      vocab_size: The target vocabulary size.</span>
+<span class="sd">      output_layer: The output layer to use.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if both :obj:`vocab_size` and :obj:`output_layer` are not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">output_layer</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;One of vocab_size and output_layer must be set&quot;</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;logits&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DecoderV2.get_initial_state"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.get_initial_state">[docs]</a>  <span class="k">def</span> <span class="nf">get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      initial_state: An initial state to start from, e.g. the last encoder</span>
+<span class="sd">        state.</span>
+<span class="sd">      batch_size: The batch size to use.</span>
+<span class="sd">      dtype: The dtype of the state.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A nested structure of tensors representing the decoder state.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      RuntimeError: if the decoder was not initialized.</span>
+<span class="sd">      ValueError: if one of :obj:`batch_size` or :obj:`dtype` is not set but</span>
+<span class="sd">        :obj:`initial_state` is not passed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either initial_state should be set, or batch_size and &quot;</span>
+                         <span class="s2">&quot;dtype should be set&quot;</span><span class="p">)</span>
+      <span class="n">first_state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">initial_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">first_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">first_state</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">)</span></div>
+
+  <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="DecoderV2.call"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+           <span class="n">inputs</span><span class="p">,</span>
+           <span class="n">length_or_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Runs the decoder layer on either a complete sequence (e.g. for training</span>
+<span class="sd">    or scoring), or a single timestep (e.g. for iterative decoding).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      inputs: The inputs to decode, can be a 3D (training) or 2D (iterative</span>
+<span class="sd">        decoding) tensor.</span>
+<span class="sd">      length_or_step: For 3D :obj:`inputs`, the length of each sequence. For 2D</span>
+<span class="sd">        :obj:`inputs`, the current decoding timestep.</span>
+<span class="sd">      state: The decoder state.</span>
+<span class="sd">      memory: Memory values to query.</span>
+<span class="sd">      memory_sequence_length: Memory values length.</span>
+<span class="sd">      training: Run in training mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple with the logits, the decoder state, and an attention vector.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      RuntimeError: if the decoder was not initialized.</span>
+<span class="sd">      ValueError: if the :obj:`inputs` rank is different than 2 or 3.</span>
+<span class="sd">      ValueError: if :obj:`length_or_step` is invalid.</span>
+<span class="sd">      ValueError: if the number of source contexts (:obj:`memory`) does not</span>
+<span class="sd">        match the number defined at the decoder initialization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_memory_is_compatible</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">)</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">length_or_step</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length_or_step should be a scalar with the current timestep&quot;</span><span class="p">)</span>
+      <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span>
+          <span class="n">length_or_step</span><span class="p">,</span>
+          <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+          <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+          <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">length_or_step</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length_or_step should contain the length of each sequence&quot;</span><span class="p">)</span>
+      <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span>
+          <span class="n">sequence_length</span><span class="o">=</span><span class="n">length_or_step</span><span class="p">,</span>
+          <span class="n">initial_state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+          <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+          <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported input rank </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span></div>
+
+<div class="viewcode-block" id="DecoderV2.forward"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.forward">[docs]</a>  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+              <span class="n">inputs</span><span class="p">,</span>
+              <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Runs the decoder on full sequences.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      inputs: The 3D decoder input.</span>
+<span class="sd">      sequence_length: The length of each input sequence.</span>
+<span class="sd">      initial_state: The initial decoder state.</span>
+<span class="sd">      memory: Memory values to query.</span>
+<span class="sd">      memory_sequence_length: Memory values length.</span>
+<span class="sd">      training: Run in training mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple with the decoder outputs, the decoder state, and the attention</span>
+<span class="sd">      vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: implement this using step().</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DecoderV2.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.step">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+           <span class="n">inputs</span><span class="p">,</span>
+           <span class="n">timestep</span><span class="p">,</span>
+           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Runs one decoding step.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      inputs: The 2D decoder input.</span>
+<span class="sd">      timestep: The current decoding step.</span>
+<span class="sd">      state: The decoder state.</span>
+<span class="sd">      memory: Memory values to query.</span>
+<span class="sd">      memory_sequence_length: Memory values length.</span>
+<span class="sd">      training: Run in training mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple with the decoder outputs, the decoder state, and the attention</span>
+<span class="sd">      vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+  <span class="k">def</span> <span class="nf">_assert_is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raises an expection if the decoder was not initialized.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The decoder was not initialized&quot;</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_assert_memory_is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raises an expection if the memory layout is not compatible with this decoder.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_num_elements</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="n">num_memory</span> <span class="o">=</span> <span class="n">_num_elements</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
+    <span class="n">num_length</span> <span class="o">=</span> <span class="n">_num_elements</span><span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_memory</span> <span class="o">!=</span> <span class="n">num_length</span> <span class="ow">and</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;got </span><span class="si">%d</span><span class="s2"> memory values but </span><span class="si">%d</span><span class="s2"> length vectors&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_memory</span><span class="p">,</span> <span class="n">num_length</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">num_memory</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expected </span><span class="si">%d</span><span class="s2"> source contexts, but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">,</span> <span class="n">num_memory</span><span class="p">))</span></div>
+
+
 <div class="viewcode-block" id="greedy_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.greedy_decode">[docs]</a><span class="k">def</span> <span class="nf">greedy_decode</span><span class="p">(</span><span class="n">symbols_to_logits_fn</span><span class="p">,</span>
                   <span class="n">initial_ids</span><span class="p">,</span>
                   <span class="n">end_id</span><span class="p">,</span>
@@ -638,7 +871,8 @@
                   <span class="n">return_state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">min_decode_length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                   <span class="n">last_step_as_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                  <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="n">sample_temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Greedily decodes from :obj:`initial_ids`.</span>
 
 <span class="sd">  Args:</span>
@@ -655,13 +889,15 @@
 <span class="sd">      :obj:`symbols_to_logits_fn`.</span>
 <span class="sd">    sample_from: Sample from the :obj:`sample_from` most likely tokens. If 0,</span>
 <span class="sd">      sample from the full output distribution.</span>
+<span class="sd">    sample_temperature: Value dividing logits. In random sampling, a high value</span>
+<span class="sd">      generates more random samples.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A tuple with the decoded output, the decoded lengths, the log probabilities,</span>
 <span class="sd">    and the decoding states (if :obj:`return_state` is ``True``).</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">initial_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">batch_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">initial_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">batch_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">initial_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
 
   <span class="k">def</span> <span class="nf">_condition</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">unused_inputs</span><span class="p">,</span> <span class="n">unused_outputs</span><span class="p">,</span>
                  <span class="n">unused_lengths</span><span class="p">,</span> <span class="n">unused_cum_log_probs</span><span class="p">,</span> <span class="n">unused_state</span><span class="p">):</span>
@@ -673,7 +909,10 @@
   <span class="k">def</span> <span class="nf">_body</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
     <span class="c1"># Run next step.</span>
     <span class="n">logits</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">symbols_to_logits_fn</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
-    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sample_temperature</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">logits</span> <span class="o">/=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sample_temperature</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">min_decode_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
       <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
           <span class="n">step</span> <span class="o">&lt;</span> <span class="n">min_decode_length</span><span class="p">,</span>
@@ -683,10 +922,13 @@
     <span class="k">if</span> <span class="n">sample_from</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Sample best prediction.</span>
       <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">sample_from</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Sample from the full output distribution.</span>
-      <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_probs</span><span class="p">))</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+      <span class="n">distribution</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_probs</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># Sample from the top K.</span>
       <span class="n">topk_log_probs</span><span class="p">,</span> <span class="n">topk_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">sample_from</span><span class="p">)</span>
-      <span class="n">topk_sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">logits</span><span class="o">=</span><span class="n">topk_log_probs</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+      <span class="n">topk_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">topk_ids</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">distribution</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">logits</span><span class="o">=</span><span class="n">topk_log_probs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+      <span class="n">topk_sampled_ids</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
       <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">topk_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_ids</span><span class="p">,</span> <span class="n">topk_sampled_ids</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
 
     <span class="n">sampled_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_ids</span><span class="p">,</span> <span class="n">sampled_ids</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>

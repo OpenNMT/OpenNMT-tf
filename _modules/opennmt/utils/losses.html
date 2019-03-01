@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.losses &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.utils.losses &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -98,17 +98,27 @@
               
             
             
-              <ul>
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">Reference: opennmt package</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
 </ul>
 
             
@@ -187,11 +197,11 @@
       <span class="n">off_value</span><span class="o">=</span><span class="n">label_smoothing</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">num_classes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
       <span class="n">dtype</span><span class="o">=</span><span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
   <span class="c1"># Computes the softmax in full precision.</span>
   <span class="k">if</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
     <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">and</span> <span class="n">label_smoothing</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+  <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="n">label_smoothing</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
     <span class="n">smoothed_labels</span> <span class="o">=</span> <span class="n">_smooth_one_hot_labels</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="p">,</span> <span class="s2">&quot;softmax_cross_entropy_with_logits_v2&quot;</span><span class="p">):</span>
       <span class="n">smoothed_labels</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stop_gradient</span><span class="p">(</span><span class="n">smoothed_labels</span><span class="p">)</span>
@@ -209,7 +219,8 @@
                                 <span class="n">sequence_length</span><span class="p">,</span>
                                 <span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                                 <span class="n">average_in_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">):</span>
+                                <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span>
+                                <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Computes the cross entropy loss of sequences.</span>
 
 <span class="sd">  Args:</span>
@@ -219,20 +230,24 @@
 <span class="sd">    label_smoothing: The label smoothing value.</span>
 <span class="sd">    average_in_time: If ``True``, also average the loss in the time dimension.</span>
 <span class="sd">    mode: A ``tf.estimator.ModeKeys`` mode.</span>
+<span class="sd">    training: Compute training loss. If not set, infer training mode from</span>
+<span class="sd">      :obj:`mode`.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A tuple (cumulated loss, loss normalizer, token-level normalizer).</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">training</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">training</span> <span class="o">=</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span>
   <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">logits</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
   <span class="n">max_time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">logits</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 
-  <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+  <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
   <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
       <span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cross_entropy</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
   <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_entropy</span> <span class="o">*</span> <span class="n">weights</span><span class="p">)</span>
   <span class="n">loss_token_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
 
-  <span class="k">if</span> <span class="n">average_in_time</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
+  <span class="k">if</span> <span class="n">average_in_time</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
     <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">loss_token_normalizer</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
@@ -242,7 +257,8 @@
 <div class="viewcode-block" id="cross_entropy_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.losses.html#opennmt.utils.losses.cross_entropy_loss">[docs]</a><span class="k">def</span> <span class="nf">cross_entropy_loss</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span>
                        <span class="n">labels</span><span class="p">,</span>
                        <span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                       <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">):</span>
+                       <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span>
+                       <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Computes the cross entropy loss.</span>
 
 <span class="sd">  Args:</span>
@@ -250,11 +266,15 @@
 <span class="sd">    labels: The true labels.</span>
 <span class="sd">    label_smoothing: The label smoothing value.</span>
 <span class="sd">    mode: A ``tf.estimator.ModeKeys`` mode.</span>
+<span class="sd">    training: Compute training loss. If not set, infer training mode from</span>
+<span class="sd">      :obj:`mode`.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    The cumulated loss and the loss normalizer.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">training</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">training</span> <span class="o">=</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span>
+  <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
   <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
   <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span></div>

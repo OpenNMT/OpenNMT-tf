@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.self_attention_decoder module &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.decoders.self_attention_decoder module &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -100,17 +100,27 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a><ul class="current">
@@ -174,7 +184,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
         
           <li><a href="opennmt.decoders.html">opennmt.decoders package</a> &raquo;</li>
         
@@ -303,6 +313,113 @@ of…) tensors.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A callable with the signature
 <code class="docutils literal notranslate"><span class="pre">(step,</span> <span class="pre">inputs,</span> <span class="pre">state,</span> <span class="pre">mode)</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state)</span></code> or
 <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">attention)</span></code> if <code class="docutils literal notranslate"><span class="pre">self.support_alignment_history</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2">
+<em class="property">class </em><code class="descclassname">opennmt.decoders.self_attention_decoder.</code><code class="descname">SelfAttentionDecoderV2</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units=512</em>, <em>num_heads=8</em>, <em>ffn_inner_dim=2048</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>ffn_dropout=0.1</em>, <em>ffn_activation=&lt;function relu&gt;</em>, <em>position_encoder=&lt;opennmt.layers.position.SinusoidalPositionEncoder object&gt;</em>, <em>num_sources=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoderV2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2" title="opennmt.decoders.decoder.DecoderV2"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.decoder.DecoderV2</span></code></a></p>
+<p>Encoder using self-attention as described in
+<a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">TensorFlow 2.0 version.</p>
+</div>
+<dl class="method">
+<dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_layers</em>, <em>num_units=512</em>, <em>num_heads=8</em>, <em>ffn_inner_dim=2048</em>, <em>dropout=0.1</em>, <em>attention_dropout=0.1</em>, <em>ffn_dropout=0.1</em>, <em>ffn_activation=&lt;function relu&gt;</em>, <em>position_encoder=&lt;opennmt.layers.position.SinusoidalPositionEncoder object&gt;</em>, <em>num_sources=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoderV2.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the parameters of the decoder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_layers</strong> – The number of layers.</li>
+<li><strong>num_units</strong> – The number of hidden units.</li>
+<li><strong>num_heads</strong> – The number of heads in the multi-head attention.</li>
+<li><strong>ffn_inner_dim</strong> – The number of units of the inner linear transformation
+in the feed forward layer.</li>
+<li><strong>dropout</strong> – The probability to drop units from the outputs.</li>
+<li><strong>attention_dropout</strong> – The probability to drop units from the attention.</li>
+<li><strong>ffn_dropout</strong> – The probability to drop units from the activation output in
+the feed forward layer.</li>
+<li><strong>ffn_activation</strong> – The activation function to apply between the two linear
+transformations of the feed forward layer.</li>
+<li><strong>position_encoder</strong> – The <a class="reference internal" href="opennmt.layers.position.html#opennmt.layers.position.PositionEncoder" title="opennmt.layers.position.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.position.PositionEncoder</span></code></a> to
+apply on inputs.</li>
+<li><strong>num_sources</strong> – The number of source contexts expected by this decoder.</li>
+<li><strong>**kwargs</strong> – Additional layer arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.minimum_sources">
+<code class="descname">minimum_sources</code><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.minimum_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>The minimum number of source contexts supported by this decoder.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.maximum_sources">
+<code class="descname">maximum_sources</code><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.maximum_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum number of source contexts supported by this decoder.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>inputs</em>, <em>sequence_length=None</em>, <em>initial_state=None</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoderV2.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the decoder on full sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The 3D decoder input.</li>
+<li><strong>sequence_length</strong> – The length of each input sequence.</li>
+<li><strong>initial_state</strong> – The initial decoder state.</li>
+<li><strong>memory</strong> – Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – Memory values length.</li>
+<li><strong>training</strong> – Run in training mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple with the decoder outputs, the decoder state, and the attention
+vector.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>inputs</em>, <em>timestep</em>, <em>state=None</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoderV2.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs one decoding step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The 2D decoder input.</li>
+<li><strong>timestep</strong> – The current decoding step.</li>
+<li><strong>state</strong> – The decoder state.</li>
+<li><strong>memory</strong> – Memory values to query.</li>
+<li><strong>memory_sequence_length</strong> – Memory values length.</li>
+<li><strong>training</strong> – Run in training mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple with the decoder outputs, the decoder state, and the attention
+vector.</p>
 </td>
 </tr>
 </tbody>

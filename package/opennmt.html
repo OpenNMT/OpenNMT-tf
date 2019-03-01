@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference: opennmt package &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt package &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.bin package" href="opennmt.bin.html" />
-    <link rel="prev" title="Reference: Configuration" href="../configuration_reference.html" /> 
+    <link rel="prev" title="Serving" href="../serving.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -100,17 +100,27 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Reference: opennmt package</a><ul>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">opennmt package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
@@ -126,6 +136,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.config.html">opennmt.config module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.constants.html">opennmt.constants module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.estimator.html">opennmt.estimator module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.runner.html">opennmt.runner module</a></li>
 </ul>
 </li>
@@ -176,7 +187,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Reference: opennmt package</li>
+      <li>opennmt package</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -193,9 +204,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="reference-opennmt-package">
-<h1>Reference: opennmt package<a class="headerlink" href="#reference-opennmt-package" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-opennmt"></span><p>OpenNMT module.</p>
+  <div class="section" id="module-opennmt">
+<span id="opennmt-package"></span><h1>opennmt package<a class="headerlink" href="#module-opennmt" title="Permalink to this headline">¶</a></h1>
+<p>OpenNMT module.</p>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -260,6 +271,7 @@
 <li class="toctree-l1"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.models.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.catalog.html">opennmt.models.catalog module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.language_model.html">opennmt.models.language_model module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.model.html">opennmt.models.model module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.sequence_classifier.html">opennmt.models.sequence_classifier module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.sequence_tagger.html">opennmt.models.sequence_tagger module</a></li>
@@ -316,6 +328,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="opennmt.config.html">opennmt.config module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="opennmt.constants.html">opennmt.constants module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.estimator.html">opennmt.estimator module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="opennmt.runner.html">opennmt.runner module</a></li>
 </ul>
 </div>
@@ -333,7 +346,7 @@
         <a href="opennmt.bin.html" class="btn btn-neutral float-right" title="opennmt.bin package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../configuration_reference.html" class="btn btn-neutral float-left" title="Reference: Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../serving.html" class="btn btn-neutral float-left" title="Serving" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

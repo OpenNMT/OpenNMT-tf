@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -98,17 +98,27 @@
               
             
             
-              <ul>
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">Reference: opennmt package</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
 </ul>
 
             
@@ -289,8 +299,9 @@
                <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-               <span class="n">relu_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-               <span class="n">position_encoder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+               <span class="n">ffn_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
+               <span class="n">position_encoder</span><span class="o">=</span><span class="n">SinusoidalPositionEncoder</span><span class="p">(),</span>
                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
 
@@ -302,18 +313,17 @@
 <span class="sd">        in the feed forward layer.</span>
 <span class="sd">      dropout: The probability to drop units from the outputs.</span>
 <span class="sd">      attention_dropout: The probability to drop units from the attention.</span>
-<span class="sd">      relu_dropout: The probability to drop units from the ReLU activation in</span>
+<span class="sd">      ffn_dropout: The probability to drop units from the activation output in</span>
 <span class="sd">        the feed forward layer.</span>
+<span class="sd">      ffn_activation: The activation function to apply between the two linear</span>
+<span class="sd">        transformations of the feed forward layer.</span>
 <span class="sd">      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to</span>
-<span class="sd">        apply on inputs. If ``None``, defaults to</span>
-<span class="sd">        :class:`opennmt.layers.position.SinusoidalPositionEncoder`.</span>
+<span class="sd">        apply on inputs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttentionEncoderV2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="o">=</span> <span class="n">position_encoder</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="o">=</span> <span class="n">SinusoidalPositionEncoder</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">layer_norm</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">_SelfAttentionEncoderLayer</span><span class="p">(</span>
@@ -322,16 +332,17 @@
             <span class="n">ffn_inner_dim</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
             <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
-            <span class="n">relu_dropout</span><span class="o">=</span><span class="n">relu_dropout</span><span class="p">,</span>
+            <span class="n">ffn_dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span>
+            <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;layer_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="SelfAttentionEncoderV2.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Encodes :obj:`inputs`.&quot;&quot;&quot;</span>
     <span class="n">inputs</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="o">**</span><span class="mf">0.5</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
-      <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -351,7 +362,8 @@
                <span class="n">ffn_inner_dim</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-               <span class="n">relu_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+               <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+               <span class="n">ffn_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
 
@@ -362,25 +374,25 @@
 <span class="sd">        in the feed forward layer.</span>
 <span class="sd">      dropout: The probability to drop units from the outputs.</span>
 <span class="sd">      attention_dropout: The probability to drop units from the attention.</span>
-<span class="sd">      relu_dropout: The probability to drop units from the ReLU activation in</span>
+<span class="sd">      ffn_dropout: The probability to drop units from the activation output in</span>
 <span class="sd">        the feed forward layer.</span>
+<span class="sd">      ffn_activation: The activation function to apply between the two linear</span>
+<span class="sd">        transformations of the feed forward layer.</span>
 <span class="sd">      kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">_SelfAttentionEncoderLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span>
-        <span class="n">num_heads</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">,</span>
-        <span class="n">normalize_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">output_dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">residual_connection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">num_heads</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;multi_head_attention&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">TransformerLayerWrapper</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sub_layer_0&quot;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">FeedForwardNetwork</span><span class="p">(</span>
-        <span class="n">ffn_inner_dim</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">relu_dropout</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span>
-        <span class="n">normalize_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">output_dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">residual_connection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ffn_inner_dim</span><span class="p">,</span>
+        <span class="n">num_units</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span>
+        <span class="n">activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;feed_forward&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">TransformerLayerWrapper</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sub_layer_1&quot;</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
     <span class="sd">&quot;&quot;&quot;Runs the encoder layer.&quot;&quot;&quot;</span>

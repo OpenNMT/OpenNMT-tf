@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model module &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.models.model module &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.models.sequence_classifier module" href="opennmt.models.sequence_classifier.html" />
-    <link rel="prev" title="opennmt.models.catalog module" href="opennmt.models.catalog.html" /> 
+    <link rel="prev" title="opennmt.models.language_model module" href="opennmt.models.language_model.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -100,17 +100,27 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
@@ -174,7 +184,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
         
           <li><a href="opennmt.models.html">opennmt.models package</a> &raquo;</li>
         
@@ -201,8 +211,26 @@
 <dl class="class">
 <dt id="opennmt.models.model.Model">
 <em class="property">class </em><code class="descclassname">opennmt.models.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>name</em>, <em>features_inputter=None</em>, <em>labels_inputter=None</em>, <em>daisy_chain_variables=False</em>, <em>dtype=None</em>, <em>examples_inputter=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p>Base class for models.</p>
+<dl class="attribute">
+<dt id="opennmt.models.model.Model.unsupervised">
+<code class="descname">unsupervised</code><a class="headerlink" href="#opennmt.models.model.Model.unsupervised" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsupervised model.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.models.model.Model.features_inputter">
+<code class="descname">features_inputter</code><a class="headerlink" href="#opennmt.models.model.Model.features_inputter" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inputter producing features.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.models.model.Model.labels_inputter">
+<code class="descname">labels_inputter</code><a class="headerlink" href="#opennmt.models.model.Model.labels_inputter" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inputter producing labels.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="opennmt.models.model.Model.auto_config">
 <code class="descname">auto_config</code><span class="sig-paren">(</span><em>num_devices=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.auto_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.auto_config" title="Permalink to this definition">¶</a></dt>
@@ -214,6 +242,22 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num_devices</strong> – The number of devices used for the training.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A partial training configuration.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.model.Model.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the model from the data configuration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional data configuration set
+by the user (e.g. vocabularies, tokenization, pretrained embeddings,
+etc.).</td>
 </tr>
 </tbody>
 </table>
@@ -243,33 +287,6 @@
 <p class="first admonition-title">See also</p>
 <p class="last"><code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code> ‘s <code class="docutils literal notranslate"><span class="pre">model_fn</span></code> argument for more details about
 the arguments of this function.</p>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.models.model.Model.model_fn">
-<code class="descname">model_fn</code><span class="sig-paren">(</span><em>num_devices=1</em>, <em>eval_prediction_hooks_fn=None</em>, <em>devices=None</em>, <em>hvd=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.model_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.model_fn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the model function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_devices</strong> – The number of devices used for training.</li>
-<li><strong>eval_prediction_hooks_fn</strong> – A callable that takes the model predictions
-during evaluation and return an iterable of evaluation hooks (e.g. for
-saving predictions on disk, running external evaluators, etc.).</li>
-<li><strong>devices</strong> – The list of devices used for training, if known.</li>
-<li><strong>hvd</strong> – Optional Horovod object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code> ‘s <code class="docutils literal notranslate"><span class="pre">model_fn</span></code> argument for more details about
-arguments and the returned value.</p>
 </div>
 </dd></dl>
 
@@ -342,7 +359,7 @@ arguments and the returned value.</p>
 
 <dl class="method">
 <dt id="opennmt.models.model.Model.input_fn">
-<code class="descname">input_fn</code><span class="sig-paren">(</span><em>mode</em>, <em>batch_size</em>, <em>metadata</em>, <em>features_file</em>, <em>labels_file=None</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>num_threads=None</em>, <em>sample_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em>, <em>num_shards=1</em>, <em>shard_index=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.input_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.input_fn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">input_fn</code><span class="sig-paren">(</span><em>mode</em>, <em>batch_size</em>, <em>metadata=None</em>, <em>features_file=None</em>, <em>labels_file=None</em>, <em>batch_type='examples'</em>, <em>batch_multiplier=1</em>, <em>bucket_width=None</em>, <em>single_pass=False</em>, <em>num_threads=None</em>, <em>sample_buffer_size=None</em>, <em>prefetch_buffer_size=None</em>, <em>maximum_features_length=None</em>, <em>maximum_labels_length=None</em>, <em>num_shards=1</em>, <em>shard_index=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.input_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.input_fn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an input function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -352,7 +369,7 @@ arguments and the returned value.</p>
 <li><strong>mode</strong> – A <code class="docutils literal notranslate"><span class="pre">tf.estimator.ModeKeys</span></code> mode.</li>
 <li><strong>batch_size</strong> – The batch size to use.</li>
 <li><strong>metadata</strong> – A dictionary containing additional metadata set
-by the user.</li>
+by the user. Required if <code class="docutils literal notranslate"><span class="pre">Model.initialize()</span></code> has not been called.</li>
 <li><strong>features_file</strong> – The file containing input features.</li>
 <li><strong>labels_file</strong> – The file containing output labels.</li>
 <li><strong>batch_type</strong> – The training batching stragety to use: can be “examples” or
@@ -389,15 +406,42 @@ distributed setting).</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.models.model.Model.model_fn">
+<code class="descname">model_fn</code><span class="sig-paren">(</span><em>num_devices=1</em>, <em>eval_prediction_hooks_fn=None</em>, <em>devices=None</em>, <em>hvd=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.model_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.model_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the model function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_devices</strong> – The number of devices used for training.</li>
+<li><strong>eval_prediction_hooks_fn</strong> – A callable that takes the model predictions
+during evaluation and return an iterable of evaluation hooks (e.g. for
+saving predictions on disk, running external evaluators, etc.).</li>
+<li><strong>devices</strong> – The list of devices used for training, if known.</li>
+<li><strong>hvd</strong> – Optional Horovod object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">tf.estimator.Estimator</span></code> ‘s <code class="docutils literal notranslate"><span class="pre">model_fn</span></code> argument for more details about
+arguments and the returned value.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.models.model.Model.serving_input_fn">
-<code class="descname">serving_input_fn</code><span class="sig-paren">(</span><em>metadata</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.serving_input_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.serving_input_fn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">serving_input_fn</code><span class="sig-paren">(</span><em>metadata=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.serving_input_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.serving_input_fn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the serving input function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metadata</strong> – A dictionary containing additional metadata set
-by the user.</td>
+by the user. Required if <code class="docutils literal notranslate"><span class="pre">Model.initialize()</span></code> has not been called.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A callable that returns a <code class="docutils literal notranslate"><span class="pre">tf.estimator.export.ServingInputReceiver</span></code>.</td>
 </tr>
@@ -407,7 +451,7 @@ by the user.</td>
 
 <dl class="method">
 <dt id="opennmt.models.model.Model.get_assets">
-<code class="descname">get_assets</code><span class="sig-paren">(</span><em>metadata</em>, <em>asset_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.get_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.get_assets" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_assets</code><span class="sig-paren">(</span><em>metadata=None</em>, <em>asset_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.get_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.model.Model.get_assets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns additional assets used by this model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -415,7 +459,7 @@ by the user.</td>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>metadata</strong> – A dictionary containing additional metadata set
-by the user.</li>
+by the user. Required if <code class="docutils literal notranslate"><span class="pre">Model.initialize()</span></code> has not been called.</li>
 <li><strong>asset_dir</strong> – The directory where assets can be written.</li>
 </ul>
 </td>
@@ -461,7 +505,7 @@ by the user.</li>
         <a href="opennmt.models.sequence_classifier.html" class="btn btn-neutral float-right" title="opennmt.models.sequence_classifier module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.models.catalog.html" class="btn btn-neutral float-left" title="opennmt.models.catalog module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.models.language_model.html" class="btn btn-neutral float-left" title="opennmt.models.language_model module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

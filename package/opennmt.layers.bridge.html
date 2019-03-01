@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.bridge module &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.layers.bridge module &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -100,17 +100,27 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
@@ -174,7 +184,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
         
           <li><a href="opennmt.layers.html">opennmt.layers package</a> &raquo;</li>
         
@@ -221,8 +231,8 @@
 
 <dl class="class">
 <dt id="opennmt.layers.bridge.Bridge">
-<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">Bridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.Bridge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">Bridge</code><span class="sig-paren">(</span><em>trainable=True</em>, <em>name=None</em>, <em>dtype=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.Bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p>Base class for bridges.</p>
 <dl class="method">
 <dt id="opennmt.layers.bridge.Bridge.__call__">
@@ -245,20 +255,83 @@
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="opennmt.layers.bridge.Bridge.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>states</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.Bridge.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</li>
+<li><strong>**kwargs</strong> – Additional keyword arguments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tensor or list/tuple of tensors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.layers.bridge.CopyBridge">
-<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">CopyBridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#CopyBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.CopyBridge" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">CopyBridge</code><span class="sig-paren">(</span><em>trainable=True</em>, <em>name=None</em>, <em>dtype=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#CopyBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.CopyBridge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
 <p>A bridge that passes the encoder state as is.</p>
+<dl class="method">
+<dt id="opennmt.layers.bridge.CopyBridge.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>states</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#CopyBridge.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.CopyBridge.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</li>
+<li><strong>**kwargs</strong> – Additional keyword arguments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tensor or list/tuple of tensors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="opennmt.layers.bridge.ZeroBridge">
-<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">ZeroBridge</code><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#ZeroBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.ZeroBridge" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.layers.bridge.</code><code class="descname">ZeroBridge</code><span class="sig-paren">(</span><em>trainable=True</em>, <em>name=None</em>, <em>dtype=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#ZeroBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.ZeroBridge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.layers.bridge.Bridge" title="opennmt.layers.bridge.Bridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.bridge.Bridge</span></code></a></p>
 <p>A bridge that does not pass information from the encoder.</p>
+<dl class="method">
+<dt id="opennmt.layers.bridge.ZeroBridge.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>states</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#ZeroBridge.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.ZeroBridge.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</li>
+<li><strong>**kwargs</strong> – Additional keyword arguments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tensor or list/tuple of tensors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -277,6 +350,33 @@ encoder state to the decoder state size.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activation</strong> – Activation function (a callable).
 Set it to <code class="docutils literal notranslate"><span class="pre">None</span></code> to maintain a linear activation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.bridge.DenseBridge.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#DenseBridge.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.DenseBridge.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the variables of the layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.bridge.DenseBridge.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>states</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#DenseBridge.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.bridge.DenseBridge.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</li>
+<li><strong>**kwargs</strong> – Additional keyword arguments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tensor or list/tuple of tensors.</p>
+</td>
 </tr>
 </tbody>
 </table>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.transformer module &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.layers.transformer module &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -100,17 +100,27 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
@@ -174,7 +184,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
         
           <li><a href="opennmt.layers.html">opennmt.layers package</a> &raquo;</li>
         
@@ -493,7 +503,7 @@ probabilities (if <code class="xref py py-obj docutils literal notranslate"><spa
 
 <dl class="class">
 <dt id="opennmt.layers.transformer.FeedForwardNetwork">
-<em class="property">class </em><code class="descclassname">opennmt.layers.transformer.</code><code class="descname">FeedForwardNetwork</code><span class="sig-paren">(</span><em>inner_dim</em>, <em>output_dim</em>, <em>dropout=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#FeedForwardNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.FeedForwardNetwork" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.layers.transformer.</code><code class="descname">FeedForwardNetwork</code><span class="sig-paren">(</span><em>inner_dim</em>, <em>output_dim</em>, <em>dropout=0.1</em>, <em>activation=&lt;function relu&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#FeedForwardNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.FeedForwardNetwork" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p>Implements the Transformer’s “Feed Forward” layer.</p>
 <div class="math notranslate nohighlight">
@@ -504,7 +514,7 @@ probabilities (if <code class="xref py py-obj docutils literal notranslate"><spa
 </div>
 <dl class="method">
 <dt id="opennmt.layers.transformer.FeedForwardNetwork.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>inner_dim</em>, <em>output_dim</em>, <em>dropout=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#FeedForwardNetwork.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.FeedForwardNetwork.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>inner_dim</em>, <em>output_dim</em>, <em>dropout=0.1</em>, <em>activation=&lt;function relu&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#FeedForwardNetwork.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.FeedForwardNetwork.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes this layer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -513,7 +523,9 @@ probabilities (if <code class="xref py py-obj docutils literal notranslate"><spa
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>inner_dim</strong> – The number of units of the inner linear transformation.</li>
 <li><strong>output_dim</strong> – The number of units of the ouput linear transformation.</li>
-<li><strong>dropout</strong> – The probability to drop units from the inner transformation.</li>
+<li><strong>dropout</strong> – The probability to drop units from the activation output.</li>
+<li><strong>activation</strong> – The activation function to apply between the two linear
+transformations.</li>
 <li><strong>kwargs</strong> – Additional layer arguments.</li>
 </ul>
 </td>
@@ -582,6 +594,37 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple with the attention context, the updated cache and the attention
 probabilities of the first head (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_attention</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.transformer.TransformerLayerWrapper">
+<em class="property">class </em><code class="descclassname">opennmt.layers.transformer.</code><code class="descname">TransformerLayerWrapper</code><span class="sig-paren">(</span><em>layer</em>, <em>output_dropout</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#TransformerLayerWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.TransformerLayerWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="opennmt.layers.common.html#opennmt.layers.common.LayerWrapper" title="opennmt.layers.common.LayerWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.common.LayerWrapper</span></code></a></p>
+<p>Layer wrapper that applies a standard Transformer preprocessing and
+postprocessing:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>y = layer_norm(x)
+y = dropout(layer(y)) + x
+</pre></div>
+</div>
+<dl class="method">
+<dt id="opennmt.layers.transformer.TransformerLayerWrapper.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>layer</em>, <em>output_dropout</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#TransformerLayerWrapper.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.transformer.TransformerLayerWrapper.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the wrapper.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>layer</strong> – The Transformer layer to wrap.</li>
+<li><strong>output_dropout</strong> – The dropout to apply on the layer output.</li>
+<li><strong>**kwargs</strong> – Additional layer arguments.</li>
+</ul>
 </td>
 </tr>
 </tbody>

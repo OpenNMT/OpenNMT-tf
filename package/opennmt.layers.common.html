@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.common module &mdash; OpenNMT-tf 1.20.1 documentation</title>
+  <title>opennmt.layers.common module &mdash; OpenNMT-tf 1.21.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.20.1',
+              VERSION:'1.21.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.20
+                1.21
               </div>
             
           
@@ -100,17 +100,27 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_reference.html">Reference: Configuration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">Reference: opennmt package</a><ul class="current">
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
@@ -174,7 +184,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="opennmt.html">Reference: opennmt package</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
         
           <li><a href="opennmt.layers.html">opennmt.layers package</a> &raquo;</li>
         
@@ -219,6 +229,12 @@ to use of optimizers that don’t support sparse gradients (e.g. Adafactor).</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="opennmt.layers.common.dropout">
+<code class="descclassname">opennmt.layers.common.</code><code class="descname">dropout</code><span class="sig-paren">(</span><em>x</em>, <em>rate</em>, <em>training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#dropout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.dropout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple dropout layer.</p>
 </dd></dl>
 
 <dl class="class">
@@ -369,7 +385,7 @@ trainable has been set to True with synchronization set as <cite>ON_READ</cite>.
 <dl class="class">
 <dt id="opennmt.layers.common.LayerWrapper">
 <em class="property">class </em><code class="descclassname">opennmt.layers.common.</code><code class="descname">LayerWrapper</code><span class="sig-paren">(</span><em>layer</em>, <em>normalize_input=False</em>, <em>normalize_output=False</em>, <em>input_dropout=0</em>, <em>output_dropout=0</em>, <em>residual_connection=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerWrapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.layers.wrappers.Wrapper</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p>Layer wrapper for input/output normalization, input/output dropout and
 residual connection.</p>
 <div class="admonition note">
@@ -409,7 +425,13 @@ compatible).</li>
 <dl class="method">
 <dt id="opennmt.layers.common.LayerWrapper.get_config">
 <code class="descname">get_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper.get_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerWrapper.get_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the layer configuration.</p>
+<dd><p>Returns the layer wrapper configuration.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="opennmt.layers.common.LayerWrapper.from_config">
+<em class="property">classmethod </em><code class="descname">from_config</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.common.LayerWrapper.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a layer wrapper from its configuration.</p>
 </dd></dl>
 
 </dd></dl>
