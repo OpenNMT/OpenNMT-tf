@@ -47,6 +47,7 @@ For example:
 params:
   beam_width: 1
   sampling_topk: 0
+  sampling_temperature: 1
 ```
 
 ## N-best list

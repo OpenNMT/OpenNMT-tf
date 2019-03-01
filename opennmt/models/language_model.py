@@ -95,7 +95,8 @@ class LanguageModel(Model):
           state=state,
           min_decode_length=params.get("minimum_decoding_length", 0),
           last_step_as_input=True,
-          sample_from=params.get("sampling_topk", 1))
+          sample_from=params.get("sampling_topk", 1),
+          sample_temperature=params.get("sampling_temperature", 1))
 
       # Build the full prediction.
       full_ids = tf.concat([ids, sampled_ids], 1)

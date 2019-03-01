@@ -213,7 +213,8 @@ class Decoder(object):
                      memory_sequence_length=None,
                      dtype=None,
                      return_alignment_history=False,
-                     sample_from=1):
+                     sample_from=1,
+                     sample_temperature=1):
     """Decodes dynamically from :obj:`start_tokens` with greedy search.
 
     Usually used for inference.
@@ -239,6 +240,8 @@ class Decoder(object):
         unsupported by the decoder).
       sample_from: Sample predictions from the :obj:`sample_from` most likely
         tokens. If 0, sample from the full output distribution.
+      sample_temperature: Value dividing logits. In random sampling, a high
+        value generates more random samples.
 
     Returns:
       A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
@@ -262,7 +265,8 @@ class Decoder(object):
         memory_sequence_length=memory_sequence_length,
         dtype=dtype,
         return_alignment_history=return_alignment_history,
-        sample_from=sample_from)
+        sample_from=sample_from,
+        sample_temperature=sample_temperature)
 
   def dynamic_decode_and_search(self,
                                 embedding,
@@ -280,7 +284,8 @@ class Decoder(object):
                                 memory_sequence_length=None,
                                 dtype=None,
                                 return_alignment_history=False,
-                                sample_from=1):
+                                sample_from=1,
+                                sample_temperature=1):
     """Decodes dynamically from :obj:`start_tokens` with beam search.
 
     Usually used for inference.
@@ -308,6 +313,8 @@ class Decoder(object):
         unsupported by the decoder).
       sample_from: Sample predictions from the :obj:`sample_from` most likely
         tokens. If 0, sample from the full output distribution.
+      sample_temperature: Value dividing logits. In random sampling, a high
+        value generates more random samples.
 
     Returns:
       A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
@@ -373,7 +380,8 @@ class Decoder(object):
           return_state=True,
           min_decode_length=minimum_length,
           last_step_as_input=True,
-          sample_from=sample_from)
+          sample_from=sample_from,
+          sample_temperature=sample_temperature)
     else:
       outputs, log_probs, state = beam_search.beam_search(
           _symbols_to_logits_fn,
@@ -679,7 +687,8 @@ def greedy_decode(symbols_to_logits_fn,
                   return_state=False,
                   min_decode_length=0,
                   last_step_as_input=False,
-                  sample_from=1):
+                  sample_from=1,
+                  sample_temperature=1):
   """Greedily decodes from :obj:`initial_ids`.
 
   Args:
@@ -696,6 +705,8 @@ def greedy_decode(symbols_to_logits_fn,
       :obj:`symbols_to_logits_fn`.
     sample_from: Sample from the :obj:`sample_from` most likely tokens. If 0,
       sample from the full output distribution.
+    sample_temperature: Value dividing logits. In random sampling, a high value
+      generates more random samples.
 
   Returns:
     A tuple with the decoded output, the decoded lengths, the log probabilities,
@@ -714,7 +725,10 @@ def greedy_decode(symbols_to_logits_fn,
   def _body(step, finished, inputs, outputs, lengths, cum_log_probs, state):
     # Run next step.
     logits, state = symbols_to_logits_fn(inputs, step, state)
-    log_probs = tf.nn.log_softmax(tf.cast(logits, tf.float32))
+    logits = tf.cast(logits, tf.float32)
+    if sample_temperature != 1:
+      logits /= tf.cast(sample_temperature, logits.dtype)
+    log_probs = tf.nn.log_softmax(logits)
     if min_decode_length > 0:
       log_probs = tf.cond(
           step < min_decode_length,
