@@ -75,6 +75,8 @@ params:
   regularization:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).
     scale: 1e-4  # if using "l1_l2" regularization, this should be a YAML list.
+  # (optional) Decoupled weight decay (default: null).
+  weight_decay: 0.01
 
   # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
   average_loss_in_time: false
@@ -117,6 +119,8 @@ params:
   # (optional) Sample predictions from the top K most likely tokens (requires
   # beam_width to 1). If 0, sample from the full output distribution (default: 1).
   sampling_topk: 1
+  # (optional) High temperatures generate more random samples (default: 1).
+  sampling_temperature: 1
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
   # (optional) Maximum decoding iterations before stopping (default: 250).
