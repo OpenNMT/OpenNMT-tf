@@ -75,6 +75,8 @@ params:
   regularization:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).
     scale: 1e-4  # if using "l1_l2" regularization, this should be a YAML list.
+  # (optional) Decoupled weight decay (default: null).
+  weight_decay: 0.01
 
   # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
   average_loss_in_time: false
