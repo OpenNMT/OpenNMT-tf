@@ -1,4 +1,4 @@
-Reference: opennmt package
+opennmt package
 ===============
 
 .. automodule:: opennmt
@@ -28,5 +28,6 @@ Submodules
 
    opennmt.config
    opennmt.constants
+   opennmt.estimator
    opennmt.runner
 

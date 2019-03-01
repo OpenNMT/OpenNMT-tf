@@ -1,6 +1,7 @@
 """Define learning rate decay functions."""
 
 import tensorflow as tf
+import numpy as np
 
 
 # All functions must take the learning rate and the step as first arguments.
@@ -91,6 +92,29 @@ def rsqrt_decay_v2(scale, step, warmup_steps):
   warmup_steps = tf.cast(warmup_steps, tf.float32)
   return scale * tf.rsqrt(tf.maximum(step, warmup_steps))
 
+
+def cosine_annealing(scale, step, max_step=1000000, warmup_steps=None):
+  """Decay using a cosine annealing schedule.
+
+  Args:
+    scale: The initial learning rate.
+    step: The current step.
+    max_step: The last step of the scedule.
+    warmup_steps: The number of steps to increment the learning rate linearly
+      from 0 to :obj:`scale` before annealing.
+
+  Returns:
+    The learning rate for the step :obj:`step`.
+  """
+  step = tf.cast(step, tf.float32)
+  max_step = tf.cast(max_step, tf.float32)
+  eta_min = 0
+  eta_max = scale
+  annealing = lambda: eta_min + 0.5 * (eta_max - eta_min) * (1 + tf.cos(np.pi * step / max_step))
+  linear = lambda: scale * step / tf.cast(warmup_steps, tf.float32)
+  if warmup_steps is None:
+    return annealing()
+  return tf.cond(tf.less(step, warmup_steps), true_fn=linear, false_fn=annealing)
 
 def rnmtplus_decay(scale,
                    step,

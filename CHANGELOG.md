@@ -16,6 +16,20 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.21.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.0) (2019-03-01)
+
+### New features
+
+* New experimental model type `LanguageModel` to train generative language models (see the example [GPT-2 configuration](https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/models/gpt_2.py)). The usage is the same as a sequence to sequence model except that "labels" data should not be set.
+* `cosine_annealing` learning rate decay
+* `weight_decay` parameter to apply decoupled weight decay regularization (as described in [Loshchilov et al. 2017](https://arxiv.org/abs/1711.05101))
+* `sampling_temperature` parameter to control the randomness of the generation
+
+### Fixes and improvements
+
+* Improve correctness of `MeanEncoder` for variable lengths inputs (requires TensorFlow 1.13+)
+* Internal refactoring and changes to prepare for 2.0 transition
+
 ## [1.20.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.20.1) (2019-02-22)
 
 ### Fixes and improvements

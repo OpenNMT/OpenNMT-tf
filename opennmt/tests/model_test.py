@@ -198,7 +198,7 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.TRAIN],
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])
-  def _testSequenceClassifier(self, mode):
+  def testSequenceClassifier(self, mode):
     model = models.SequenceClassifier(
         inputters.WordEmbedder("source_vocabulary", 10),
         encoders.MeanEncoder(),

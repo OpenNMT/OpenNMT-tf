@@ -13,11 +13,11 @@ def _smooth_one_hot_labels(logits, labels, label_smoothing):
       off_value=label_smoothing / tf.cast(num_classes - 1, label_smoothing.dtype),
       dtype=logits.dtype)
 
-def _softmax_cross_entropy(logits, labels, label_smoothing, mode):
+def _softmax_cross_entropy(logits, labels, label_smoothing, training):
   # Computes the softmax in full precision.
   if logits.dtype.base_dtype != tf.float32:
     logits = tf.cast(logits, tf.float32)
-  if mode == tf.estimator.ModeKeys.TRAIN and label_smoothing > 0.0:
+  if training and label_smoothing > 0.0:
     smoothed_labels = _smooth_one_hot_labels(logits, labels, label_smoothing)
     if hasattr(tf.nn, "softmax_cross_entropy_with_logits_v2"):
       smoothed_labels = tf.stop_gradient(smoothed_labels)
@@ -35,7 +35,8 @@ def cross_entropy_sequence_loss(logits,
                                 sequence_length,
                                 label_smoothing=0.0,
                                 average_in_time=False,
-                                mode=tf.estimator.ModeKeys.TRAIN):
+                                mode=tf.estimator.ModeKeys.TRAIN,
+                                training=None):
   """Computes the cross entropy loss of sequences.
 
   Args:
@@ -45,20 +46,24 @@ def cross_entropy_sequence_loss(logits,
     label_smoothing: The label smoothing value.
     average_in_time: If ``True``, also average the loss in the time dimension.
     mode: A ``tf.estimator.ModeKeys`` mode.
+    training: Compute training loss. If not set, infer training mode from
+      :obj:`mode`.
 
   Returns:
     A tuple (cumulated loss, loss normalizer, token-level normalizer).
   """
+  if training is None:
+    training = mode == tf.estimator.ModeKeys.TRAIN
   batch_size = tf.shape(logits)[0]
   max_time = tf.shape(logits)[1]
 
-  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
+  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, training)
   weights = tf.sequence_mask(
       sequence_length, maxlen=max_time, dtype=cross_entropy.dtype)
   loss = tf.reduce_sum(cross_entropy * weights)
   loss_token_normalizer = tf.reduce_sum(weights)
 
-  if average_in_time or mode != tf.estimator.ModeKeys.TRAIN:
+  if average_in_time or not training:
     loss_normalizer = loss_token_normalizer
   else:
     loss_normalizer = tf.cast(batch_size, loss.dtype)
@@ -68,7 +73,8 @@ def cross_entropy_sequence_loss(logits,
 def cross_entropy_loss(logits,
                        labels,
                        label_smoothing=0.0,
-                       mode=tf.estimator.ModeKeys.TRAIN):
+                       mode=tf.estimator.ModeKeys.TRAIN,
+                       training=None):
   """Computes the cross entropy loss.
 
   Args:
@@ -76,11 +82,15 @@ def cross_entropy_loss(logits,
     labels: The true labels.
     label_smoothing: The label smoothing value.
     mode: A ``tf.estimator.ModeKeys`` mode.
+    training: Compute training loss. If not set, infer training mode from
+      :obj:`mode`.
 
   Returns:
     The cumulated loss and the loss normalizer.
   """
-  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, mode)
+  if training is None:
+    training = mode == tf.estimator.ModeKeys.TRAIN
+  cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, training)
   loss = tf.reduce_sum(cross_entropy)
   loss_normalizer = tf.cast(tf.shape(cross_entropy)[0], loss.dtype)
   return loss, loss_normalizer

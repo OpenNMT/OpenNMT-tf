@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from tensorflow.python.framework import function
 
+from opennmt.utils import compat
 from opennmt.utils.misc import shape_list
 
 
@@ -30,6 +31,15 @@ def embedding_lookup(params, ids):
   """
   params = convert_gradient_to_tensor(params)
   return tf.nn.embedding_lookup(params, ids)
+
+def dropout(x, rate, training=None):
+  """Simple dropout layer."""
+  if not training or rate == 0:
+    return x
+  if compat.is_tf2():
+    return tf.nn.dropout(x, rate)
+  else:
+    return tf.nn.dropout(x, 1.0 - rate)
 
 
 class Dense(tf.keras.layers.Dense):
@@ -104,7 +114,7 @@ class LayerNorm(tf.keras.layers.Layer):
     return norm_x * self.scale + self.bias
 
 
-class LayerWrapper(tf.keras.layers.Wrapper):
+class LayerWrapper(tf.keras.layers.Layer):
   """Layer wrapper for input/output normalization, input/output dropout and
   residual connection.
 
@@ -132,9 +142,10 @@ class LayerWrapper(tf.keras.layers.Wrapper):
         compatible).
       kwargs: Additional layer arguments.
     """
-    super(LayerWrapper, self).__init__(layer, **kwargs)
-    self.input_layer_norm = LayerNorm() if normalize_input else None
-    self.output_layer_norm = LayerNorm() if normalize_output else None
+    super(LayerWrapper, self).__init__(**kwargs)
+    self.layer = layer
+    self.input_layer_norm = LayerNorm(name="input_norm") if normalize_input else None
+    self.output_layer_norm = LayerNorm(name="output_norm") if normalize_output else None
     self.input_dropout = input_dropout
     self.output_dropout = output_dropout
     self.residual_connection = residual_connection
@@ -145,8 +156,7 @@ class LayerWrapper(tf.keras.layers.Wrapper):
     x = inputs
     if self.input_layer_norm is not None:
       x = self.input_layer_norm(x)
-    if training and self.input_dropout > 0:
-      x = tf.nn.dropout(x, self.input_dropout)
+    x = dropout(x, self.input_dropout, training=training)
 
     all_outputs = self.layer(x, *args, **kwargs)
     if isinstance(all_outputs, tuple):
@@ -156,8 +166,7 @@ class LayerWrapper(tf.keras.layers.Wrapper):
       outputs = all_outputs
       extra_outputs = None
 
-    if training and self.output_dropout > 0:
-      outputs = tf.nn.dropout(outputs, self.output_dropout)
+    outputs = dropout(outputs, self.output_dropout, training=training)
     if self.residual_connection and outputs.shape[-1] == inputs.shape[-1]:
       outputs += inputs
     if self.output_layer_norm is not None:
@@ -167,12 +176,23 @@ class LayerWrapper(tf.keras.layers.Wrapper):
       return tuple([outputs] + extra_outputs)
     return outputs
 
+  # The wrapper should be serializable to be used in tf.keras.layers.Bidirectional.
+
   def get_config(self):
-    """Returns the layer configuration."""
-    config = super(LayerWrapper, self).get_config()
-    config["normalize_input"] = self.input_layer_norm is not None
-    config["normalize_output"] = self.output_layer_norm is not None
-    config["input_dropout"] = self.input_dropout
-    config["output_dropout"] = self.output_dropout
-    config["residual_connection"] = self.residual_connection
-    return config
+    """Returns the layer wrapper configuration."""
+    config = {
+        "layer": tf.keras.layers.serialize(self.layer),
+        "normalize_input": self.input_layer_norm is not None,
+        "normalize_output": self.output_layer_norm is not None,
+        "input_dropout": self.input_dropout,
+        "output_dropout": self.output_dropout,
+        "residual_connection": self.residual_connection
+    }
+    base_config = super(LayerWrapper, self).get_config()
+    return dict(list(base_config.items()) + list(config.items()))
+
+  @classmethod
+  def from_config(cls, config):
+    """Creates a layer wrapper from its configuration."""
+    layer = tf.keras.layers.deserialize(config.pop("layer"))
+    return cls(layer, **config)

@@ -250,7 +250,6 @@ class TextInputter(Inputter):
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     self.vocabulary_file = metadata[self.vocabulary_file_key]
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    self.vocabulary = self.vocabulary_lookup()
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
       if tokenizer_config:
@@ -260,7 +259,12 @@ class TextInputter(Inputter):
         self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
       else:
         self.tokenizer = tokenizers.SpaceTokenizer()
-    return self.tokenizer.initialize(metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+    self.tokenizer.initialize(metadata)
+    return super(TextInputter, self).initialize(
+        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+
+  def export_assets(self, asset_dir, asset_prefix=""):
+    return self.tokenizer.export_assets(asset_dir, asset_prefix=asset_prefix)
 
   def vocabulary_lookup(self):
     """Returns a lookup table mapping string to index."""
@@ -277,6 +281,7 @@ class TextInputter(Inputter):
         default_value=constants.UNKNOWN_TOKEN)
 
   def make_dataset(self, data_file, training=None):
+    self.vocabulary = self.vocabulary_lookup()
     return tf.data.TextLineDataset(data_file)
 
   def get_dataset_size(self, data_file):
@@ -377,6 +382,8 @@ class WordEmbedder(TextInputter):
         element=element, features=features, training=training)
     if "ids" in features:
       return features
+    if self.vocabulary is None:
+      self.vocabulary = self.vocabulary_lookup()
     ids = self.vocabulary.lookup(features["tokens"])
     if not self.is_target:
       features["ids"] = ids
@@ -399,21 +406,12 @@ class WordEmbedder(TextInputter):
       self.embedding_size = pretrained.shape[-1]
       initializer = tf.constant_initializer(value=pretrained.astype(self.dtype))
     else:
-      initializer = None
+      initializer = tf.keras.initializers.glorot_uniform()
     shape = [self.vocabulary_size, self.embedding_size]
-    if compat.is_tf2():
-      self.embedding = self.add_variable(
-          name=compat.name_from_variable_scope("w_embs"),
-          shape=shape,
-          initializer=initializer,
-          trainable=self.trainable)
-    else:
-      self.embedding = tf.get_variable(
-          "w_embs",
-          shape=shape,
-          dtype=self.dtype,
-          initializer=initializer,
-          trainable=self.trainable)
+    self.embedding = tf.Variable(
+        initial_value=lambda: initializer(shape, dtype=self.dtype),
+        trainable=self.trainable,
+        name=compat.name_from_variable_scope("w_embs"))
     super(WordEmbedder, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
@@ -479,17 +477,17 @@ class CharEmbedder(TextInputter):
       features = super(CharEmbedder, self).make_features(
           element=element, features=features, training=training)
       chars, _ = tokens_to_chars(features["tokens"])
+    if self.vocabulary is None:
+      self.vocabulary = self.vocabulary_lookup()
     features["char_ids"] = self.vocabulary.lookup(chars)
     return features
 
   def build(self, input_shape=None):
     shape = [self.vocabulary_size, self.embedding_size]
-    if compat.is_tf2():
-      self.embedding = self.add_variable(
-          name=compat.name_from_variable_scope("w_char_embs"), shape=shape)
-    else:
-      self.embedding = tf.get_variable(
-          "w_char_embs", shape=shape, dtype=self.dtype)
+    initializer = tf.keras.initializers.glorot_uniform()
+    self.embedding = tf.Variable(
+        initial_value=lambda: initializer(shape, dtype=self.dtype),
+        name=compat.name_from_variable_scope("w_char_embs"))
     super(CharEmbedder, self).build(input_shape)
 
   @abc.abstractmethod

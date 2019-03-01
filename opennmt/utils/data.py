@@ -285,7 +285,7 @@ def training_pipeline(dataset,
       dataset_size //= num_shards
   if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
     if dataset_size is not None:
-      tf.logging.info("Training on %d examples", dataset_size)
+      compat.logging.info("Training on %d examples", dataset_size)
       if shuffle_buffer_size < 0 or shuffle_buffer_size > dataset_size:
         shuffle_buffer_size = dataset_size
       elif shuffle_buffer_size < dataset_size:

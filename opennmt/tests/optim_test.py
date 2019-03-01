@@ -1,36 +1,41 @@
-import tensorflow as tf
-import numpy as np
+from parameterized import parameterized
 
+import tensorflow as tf
+
+from opennmt.utils import compat
 from opennmt.utils import optim
 from opennmt.tests import test_util
 
 
-@test_util.run_tf1_only
 class OptimTest(tf.test.TestCase):
 
-  def _testRegularization(self, type, scale):
-    tf.reset_default_graph()
-    x = tf.placeholder_with_default(
-        np.random.randn(64, 128).astype(np.float32), shape=(None, 128))
-    x = tf.layers.dense(x, 256)
-    x = tf.layers.dense(x, 128)
-    regularization = optim.regularization_penalty(type, scale)
+  @parameterized.expand([
+      ["l1", 1e-4],
+      ["L1", 1e-4],
+      ["l1", 1],
+      ["l2", 1e-4],
+      ["l1_l2", (1e-4, 1e-4)],
+  ])
+  def testRegularization(self, type, scale):
+    layer = tf.keras.layers.Dense(256)
+    layer.build([None, 128])
+    regularization = optim.regularization_penalty(
+        type, scale, weights_list=layer.trainable_variables)
     self.assertEqual(0, len(regularization.shape.as_list()))
-    with self.test_session(tf.get_default_graph()) as sess:
-      sess.run(tf.global_variables_initializer())
-      sess.run(regularization)
+    if not compat.is_tf2():
+      with self.test_session() as sess:
+        sess.run(tf.global_variables_initializer())
+    self.evaluate(regularization)
 
-  def testRegularization(self):
-    self._testRegularization("l1", 1e-4)
-    self._testRegularization("L1", 1e-4)
-    self._testRegularization("l1", 1)
-    self._testRegularization("l2", 1e-4)
-    self._testRegularization("l1_l2", (1e-4, 1e-4))
+  def testRegulaizationInvalidType(self):
     with self.assertRaises(ValueError):
-      self._testRegularization("l1_l2", 1e-4)
-    with self.assertRaises(ValueError):
-      self._testRegularization("l3", 1e-4)
+      optim.regularization_penalty("l3", 1e-4, weights_list=[])
 
+  def testRegulaizationMissingScaleValue(self):
+    with self.assertRaises(ValueError):
+      optim.regularization_penalty("l1_l2", 1e-4, weights_list=[])
+
+  @test_util.run_tf1_only
   def testDelayedUpdate(self):
     global_step = tf.Variable(0, trainable=False, dtype=tf.int64)
     optimizer = tf.train.GradientDescentOptimizer(1.0)
@@ -58,6 +63,7 @@ class OptimTest(tf.test.TestCase):
       _check_step([0.0, -3.0], [-5.0, -2.0], 1)  # accum_grad = [-3.0, -2.0]
       _check_step([2.0, -1.0], [-4.0, 1.0], 2)   # accum_grad = [-1.0, -3.0], apply
 
+  @test_util.run_tf1_only
   def testDelayedUpdateSparseGradients(self):
     # Test that delayed update does not crash on sparse gradients.
     global_step = tf.Variable(0, trainable=False, dtype=tf.int64)
@@ -72,6 +78,7 @@ class OptimTest(tf.test.TestCase):
         global_step,
         accum_count=3)
 
+  @test_util.run_tf1_only
   def testDelayedUpdateOptimizerSlots(self):
     # Test that delayed update does not change any variable names, in particular
     # optimizer variables.

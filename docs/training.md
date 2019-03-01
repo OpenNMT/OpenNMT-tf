@@ -154,5 +154,5 @@ Retraining can also be useful to fine-tune an existing model. For example in mac
 
 OpenNMT-tf offers some features to make this process easier:
 
-* The script `onmt-update-vocab` can be used to change the word vocabularies contained in a checkpoint (e.g. to add a domain terminology)
+* The script `onmt-update-vocab` can be used to change the word vocabularies contained in a checkpoint while keeping learned weights of shared words (e.g. to add a domain terminology)
 * The command line argument `--checkpoint_path` can be used to load the weights of an existing checkpoint while starting from a fresh training state (i.e. with new learning rate schedule and optimizer variables)

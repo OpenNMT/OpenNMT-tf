@@ -213,7 +213,8 @@ class Decoder(object):
                      memory_sequence_length=None,
                      dtype=None,
                      return_alignment_history=False,
-                     sample_from=1):
+                     sample_from=1,
+                     sample_temperature=1):
     """Decodes dynamically from :obj:`start_tokens` with greedy search.
 
     Usually used for inference.
@@ -239,6 +240,8 @@ class Decoder(object):
         unsupported by the decoder).
       sample_from: Sample predictions from the :obj:`sample_from` most likely
         tokens. If 0, sample from the full output distribution.
+      sample_temperature: Value dividing logits. In random sampling, a high
+        value generates more random samples.
 
     Returns:
       A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
@@ -262,7 +265,8 @@ class Decoder(object):
         memory_sequence_length=memory_sequence_length,
         dtype=dtype,
         return_alignment_history=return_alignment_history,
-        sample_from=sample_from)
+        sample_from=sample_from,
+        sample_temperature=sample_temperature)
 
   def dynamic_decode_and_search(self,
                                 embedding,
@@ -280,7 +284,8 @@ class Decoder(object):
                                 memory_sequence_length=None,
                                 dtype=None,
                                 return_alignment_history=False,
-                                sample_from=1):
+                                sample_from=1,
+                                sample_temperature=1):
     """Decodes dynamically from :obj:`start_tokens` with beam search.
 
     Usually used for inference.
@@ -308,6 +313,8 @@ class Decoder(object):
         unsupported by the decoder).
       sample_from: Sample predictions from the :obj:`sample_from` most likely
         tokens. If 0, sample from the full output distribution.
+      sample_temperature: Value dividing logits. In random sampling, a high
+        value generates more random samples.
 
     Returns:
       A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
@@ -373,7 +380,8 @@ class Decoder(object):
           return_state=True,
           min_decode_length=minimum_length,
           last_step_as_input=True,
-          sample_from=sample_from)
+          sample_from=sample_from,
+          sample_temperature=sample_temperature)
     else:
       outputs, log_probs, state = beam_search.beam_search(
           _symbols_to_logits_fn,
@@ -456,6 +464,221 @@ class Decoder(object):
     raise NotImplementedError()
 
 
+@six.add_metaclass(abc.ABCMeta)
+class DecoderV2(tf.keras.layers.Layer):
+  """Base class for decoders.
+
+  Note:
+    TensorFlow 2.0 version.
+  """
+
+  def __init__(self, num_sources=1, **kwargs):
+    """Initializes the decoder parameters.
+
+    Args:
+      num_sources: The number of source contexts expected by this decoder.
+      **kwargs: Additional layer arguments.
+
+    Raises:
+      ValueError: if the number of source contexts :obj:`num_sources` is not
+        supported by this decoder.
+    """
+    if num_sources < self.minimum_sources or num_sources > self.maximum_sources:
+      raise ValueError("This decoder accepts between %d and %d source contexts, "
+                       "but received %d" % (
+                           self.minimum_sources, self.maximum_sources, num_sources))
+    super(DecoderV2, self).__init__(**kwargs)
+    self.num_sources = num_sources
+    self.output_layer = None
+
+  @property
+  def minimum_sources(self):
+    """The minimum number of source contexts supported by this decoder."""
+    return 1
+
+  @property
+  def maximum_sources(self):
+    """The maximum number of source contexts supported by this decoder."""
+    return 1
+
+  def initialize(self, vocab_size=None, output_layer=None):
+    """Initializes the decoder configuration.
+
+    Args:
+      vocab_size: The target vocabulary size.
+      output_layer: The output layer to use.
+
+    Raises:
+      ValueError: if both :obj:`vocab_size` and :obj:`output_layer` are not set.
+    """
+    if output_layer is not None:
+      self.output_layer = output_layer
+    else:
+      if vocab_size is None:
+        raise ValueError("One of vocab_size and output_layer must be set")
+      self.output_layer = tf.keras.layers.Dense(vocab_size, name="logits")
+
+  def get_initial_state(self, initial_state=None, batch_size=None, dtype=tf.float32):
+    """Returns the initial decoder state.
+
+    Args:
+      initial_state: An initial state to start from, e.g. the last encoder
+        state.
+      batch_size: The batch size to use.
+      dtype: The dtype of the state.
+
+    Returns:
+      A nested structure of tensors representing the decoder state.
+
+    Raises:
+      RuntimeError: if the decoder was not initialized.
+      ValueError: if one of :obj:`batch_size` or :obj:`dtype` is not set but
+        :obj:`initial_state` is not passed.
+    """
+    self._assert_is_initialized()
+    if batch_size is None or dtype is None:
+      if initial_state is None:
+        raise ValueError("Either initial_state should be set, or batch_size and "
+                         "dtype should be set")
+      first_state = tf.nest.flatten(initial_state)[0]
+      if batch_size is None:
+        batch_size = tf.shape(first_state)[0]
+      if dtype is None:
+        dtype = first_state.dtype
+    return self._get_initial_state(batch_size, dtype, initial_state=initial_state)
+
+  # pylint: disable=arguments-differ
+  def call(self,
+           inputs,
+           length_or_step=None,
+           state=None,
+           memory=None,
+           memory_sequence_length=None,
+           training=None):
+    """Runs the decoder layer on either a complete sequence (e.g. for training
+    or scoring), or a single timestep (e.g. for iterative decoding).
+
+    Args:
+      inputs: The inputs to decode, can be a 3D (training) or 2D (iterative
+        decoding) tensor.
+      length_or_step: For 3D :obj:`inputs`, the length of each sequence. For 2D
+        :obj:`inputs`, the current decoding timestep.
+      state: The decoder state.
+      memory: Memory values to query.
+      memory_sequence_length: Memory values length.
+      training: Run in training mode.
+
+    Returns:
+      A tuple with the logits, the decoder state, and an attention vector.
+
+    Raises:
+      RuntimeError: if the decoder was not initialized.
+      ValueError: if the :obj:`inputs` rank is different than 2 or 3.
+      ValueError: if :obj:`length_or_step` is invalid.
+      ValueError: if the number of source contexts (:obj:`memory`) does not
+        match the number defined at the decoder initialization.
+    """
+    self._assert_is_initialized()
+    self._assert_memory_is_compatible(memory, memory_sequence_length)
+    rank = inputs.shape.ndims
+    if rank == 2:
+      if length_or_step.shape.ndims != 0:
+        raise ValueError("length_or_step should be a scalar with the current timestep")
+      outputs, state, attention = self.step(
+          inputs,
+          length_or_step,
+          state=state,
+          memory=memory,
+          memory_sequence_length=memory_sequence_length,
+          training=training)
+    elif rank == 3:
+      if length_or_step.shape.ndims != 1:
+        raise ValueError("length_or_step should contain the length of each sequence")
+      outputs, state, attention = self.forward(
+          inputs,
+          sequence_length=length_or_step,
+          initial_state=state,
+          memory=memory,
+          memory_sequence_length=memory_sequence_length,
+          training=training)
+    else:
+      raise ValueError("Unsupported input rank %d" % rank)
+    logits = self.output_layer(outputs)
+    return logits, state, attention
+
+  def forward(self,
+              inputs,
+              sequence_length=None,
+              initial_state=None,
+              memory=None,
+              memory_sequence_length=None,
+              training=None):
+    """Runs the decoder on full sequences.
+
+    Args:
+      inputs: The 3D decoder input.
+      sequence_length: The length of each input sequence.
+      initial_state: The initial decoder state.
+      memory: Memory values to query.
+      memory_sequence_length: Memory values length.
+      training: Run in training mode.
+
+    Returns:
+      A tuple with the decoder outputs, the decoder state, and the attention
+      vector.
+    """
+    # TODO: implement this using step().
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def step(self,
+           inputs,
+           timestep,
+           state=None,
+           memory=None,
+           memory_sequence_length=None,
+           training=None):
+    """Runs one decoding step.
+
+    Args:
+      inputs: The 2D decoder input.
+      timestep: The current decoding step.
+      state: The decoder state.
+      memory: Memory values to query.
+      memory_sequence_length: Memory values length.
+      training: Run in training mode.
+
+    Returns:
+      A tuple with the decoder outputs, the decoder state, and the attention
+      vector.
+    """
+    raise NotImplementedError()
+
+  def _assert_is_initialized(self):
+    """Raises an expection if the decoder was not initialized."""
+    if self.output_layer is None:
+      raise RuntimeError("The decoder was not initialized")
+
+  def _assert_memory_is_compatible(self, memory, memory_sequence_length):
+    """Raises an expection if the memory layout is not compatible with this decoder."""
+
+    def _num_elements(obj):
+      if obj is None:
+        return 0
+      elif isinstance(obj, (list, tuple)):
+        return len(obj)
+      else:
+        return 1
+
+    num_memory = _num_elements(memory)
+    num_length = _num_elements(memory_sequence_length)
+    if num_memory != num_length and memory_sequence_length is not None:
+      raise ValueError("got %d memory values but %d length vectors" % (num_memory, num_length))
+    if num_memory != self.num_sources:
+      raise ValueError("expected %d source contexts, but got %d" % (
+          self.num_sources, num_memory))
+
+
 def greedy_decode(symbols_to_logits_fn,
                   initial_ids,
                   end_id,
@@ -464,7 +687,8 @@ def greedy_decode(symbols_to_logits_fn,
                   return_state=False,
                   min_decode_length=0,
                   last_step_as_input=False,
-                  sample_from=1):
+                  sample_from=1,
+                  sample_temperature=1):
   """Greedily decodes from :obj:`initial_ids`.
 
   Args:
@@ -481,13 +705,15 @@ def greedy_decode(symbols_to_logits_fn,
       :obj:`symbols_to_logits_fn`.
     sample_from: Sample from the :obj:`sample_from` most likely tokens. If 0,
       sample from the full output distribution.
+    sample_temperature: Value dividing logits. In random sampling, a high value
+      generates more random samples.
 
   Returns:
     A tuple with the decoded output, the decoded lengths, the log probabilities,
     and the decoding states (if :obj:`return_state` is ``True``).
   """
   batch_size = tf.shape(initial_ids)[0]
-  batch_ids = tf.range(batch_size, dtype=initial_ids.dtype)
+  batch_ids = tf.range(tf.cast(batch_size, initial_ids.dtype))
 
   def _condition(step, finished, unused_inputs, unused_outputs,
                  unused_lengths, unused_cum_log_probs, unused_state):
@@ -499,7 +725,10 @@ def greedy_decode(symbols_to_logits_fn,
   def _body(step, finished, inputs, outputs, lengths, cum_log_probs, state):
     # Run next step.
     logits, state = symbols_to_logits_fn(inputs, step, state)
-    log_probs = tf.nn.log_softmax(tf.cast(logits, tf.float32))
+    logits = tf.cast(logits, tf.float32)
+    if sample_temperature != 1:
+      logits /= tf.cast(sample_temperature, logits.dtype)
+    log_probs = tf.nn.log_softmax(logits)
     if min_decode_length > 0:
       log_probs = tf.cond(
           step < min_decode_length,
@@ -509,10 +738,13 @@ def greedy_decode(symbols_to_logits_fn,
     if sample_from == 1:  # Sample best prediction.
       sampled_ids = tf.argmax(log_probs, axis=-1, output_type=inputs.dtype)
     elif sample_from == 0:  # Sample from the full output distribution.
-      sampled_ids = tf.distributions.Categorical(probs=tf.exp(log_probs)).sample()
+      distribution = tf.distributions.Categorical(probs=tf.exp(log_probs), dtype=inputs.dtype)
+      sampled_ids = distribution.sample()
     else:  # Sample from the top K.
       topk_log_probs, topk_ids = tf.nn.top_k(log_probs, k=sample_from)
-      topk_sampled_ids = tf.distributions.Categorical(logits=topk_log_probs).sample()
+      topk_ids = tf.cast(topk_ids, inputs.dtype)
+      distribution = tf.distributions.Categorical(logits=topk_log_probs, dtype=inputs.dtype)
+      topk_sampled_ids = distribution.sample()
       sampled_ids = tf.gather_nd(topk_ids, tf.stack([batch_ids, topk_sampled_ids], axis=-1))
 
     sampled_log_probs = tf.gather_nd(log_probs, tf.stack([batch_ids, sampled_ids], axis=-1))

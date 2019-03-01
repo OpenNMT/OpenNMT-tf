@@ -216,6 +216,7 @@ class SequenceToSequence(Model):
         maximum_iterations = params.get("maximum_iterations", 250)
         minimum_length = params.get("minimum_decoding_length", 0)
         sample_from = params.get("sampling_topk", 1)
+        sample_temperature = params.get("sampling_temperature", 1)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
         end_token = constants.END_OF_SENTENCE_ID
 
@@ -234,7 +235,8 @@ class SequenceToSequence(Model):
               memory_sequence_length=encoder_sequence_length,
               dtype=target_dtype,
               return_alignment_history=True,
-              sample_from=sample_from)
+              sample_from=sample_from,
+              sample_temperature=sample_temperature)
         else:
           length_penalty = params.get("length_penalty", 0)
           sampled_ids, _, sampled_length, log_probs, alignment = (
@@ -254,7 +256,8 @@ class SequenceToSequence(Model):
                   memory_sequence_length=encoder_sequence_length,
                   dtype=target_dtype,
                   return_alignment_history=True,
-                  sample_from=sample_from))
+                  sample_from=sample_from,
+                  sample_temperature=sample_temperature))
 
       target_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
       target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
@@ -304,7 +307,7 @@ class SequenceToSequence(Model):
         labels_lengths,
         label_smoothing=params.get("label_smoothing", 0.0),
         average_in_time=params.get("average_loss_in_time", False),
-        mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
+        training=training)
     if training:
       gold_alignments = labels.get("alignment")
       guided_alignment_type = params.get("guided_alignment_type")

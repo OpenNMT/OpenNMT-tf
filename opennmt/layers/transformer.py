@@ -2,6 +2,7 @@
 
 import tensorflow as tf
 
+from opennmt.layers import common
 from opennmt.utils import compat
 
 
@@ -361,25 +362,31 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
     Object-oriented implementation for TensorFlow 2.0.
   """
 
-  def __init__(self, inner_dim, output_dim, dropout=0.1, **kwargs):
+  def __init__(self,
+               inner_dim,
+               output_dim,
+               dropout=0.1,
+               activation=tf.nn.relu,
+               **kwargs):
     """Initializes this layer.
 
     Args:
       inner_dim: The number of units of the inner linear transformation.
       output_dim: The number of units of the ouput linear transformation.
-      dropout: The probability to drop units from the inner transformation.
+      dropout: The probability to drop units from the activation output.
+      activation: The activation function to apply between the two linear
+        transformations.
       kwargs: Additional layer arguments.
     """
     super(FeedForwardNetwork, self).__init__(**kwargs)
-    self.inner = tf.keras.layers.Dense(inner_dim, activation=tf.nn.relu)
-    self.outer = tf.keras.layers.Dense(output_dim)
+    self.inner = tf.keras.layers.Dense(inner_dim, activation=activation, name="inner")
+    self.outer = tf.keras.layers.Dense(output_dim, name="outer")
     self.dropout = dropout
 
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Runs the layer."""
     inner = self.inner(inputs)
-    if training:
-      inner = tf.nn.dropout(inner, self.dropout)
+    inner = common.dropout(inner, self.dropout, training=training)
     return self.outer(inner)
 
 
@@ -413,10 +420,10 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                        " multiple of %s" % num_heads)
     self.num_heads = num_heads
     self.num_units = num_units
-    self.linear_queries = tf.keras.layers.Dense(num_units)
-    self.linear_keys = tf.keras.layers.Dense(num_units)
-    self.linear_values = tf.keras.layers.Dense(num_units)
-    self.linear_output = tf.keras.layers.Dense(num_units)
+    self.linear_queries = tf.keras.layers.Dense(num_units, name="linear_queries")
+    self.linear_keys = tf.keras.layers.Dense(num_units, name="linear_keys")
+    self.linear_values = tf.keras.layers.Dense(num_units, name="linear_values")
+    self.linear_output = tf.keras.layers.Dense(num_units, name="linear_output")
     self.dropout = dropout
     self.return_attention = return_attention
 
@@ -456,6 +463,13 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         values = tf.concat([cache[1], values], axis=2)
     else:
       if cache:
+        if not self.linear_keys.built:
+          # Ensure that the variable names are not impacted by the tf.cond name
+          # scope if the layers have not already been built.
+          with tf.name_scope(self.linear_keys.name):
+            self.linear_keys.build(memory.shape)
+          with tf.name_scope(self.linear_values.name):
+            self.linear_values.build(memory.shape)
         keys, values = tf.cond(
             tf.equal(tf.shape(cache[0])[2], 0),
             true_fn=lambda: _compute_kv(memory),
@@ -471,7 +485,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       mask = tf.expand_dims(tf.cast(mask, tf.float32), 1)  # Broadcast on heads dimension.
       dot = tf.cast(tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min), dot.dtype)
     attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
-    drop_attn = tf.nn.dropout(attn, self.dropout) if training else attn
+    drop_attn = common.dropout(attn, self.dropout, training=training)
     heads = tf.matmul(drop_attn, values)
 
     # Concatenate all heads output.
@@ -480,3 +494,29 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     if self.return_attention:
       return outputs, cache, attn
     return outputs, cache
+
+
+class TransformerLayerWrapper(common.LayerWrapper):
+  """Layer wrapper that applies a standard Transformer preprocessing and
+  postprocessing:
+
+  .. code-block:: text
+
+      y = layer_norm(x)
+      y = dropout(layer(y)) + x
+  """
+
+  def __init__(self, layer, output_dropout, **kwargs):
+    """Initializes the wrapper.
+
+    Args:
+      layer: The Transformer layer to wrap.
+      output_dropout: The dropout to apply on the layer output.
+      **kwargs: Additional layer arguments.
+    """
+    super(TransformerLayerWrapper, self).__init__(
+        layer,
+        normalize_input=True,
+        output_dropout=output_dropout,
+        residual_connection=True,
+        **kwargs)

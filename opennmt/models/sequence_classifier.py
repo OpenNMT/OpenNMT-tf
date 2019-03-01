@@ -84,7 +84,7 @@ class SequenceClassifier(Model):
         outputs,
         labels["classes_id"],
         label_smoothing=params.get("label_smoothing", 0.0),
-        mode=tf.estimator.ModeKeys.TRAIN if training else tf.estimator.ModeKeys.EVAL)
+        training=training)
 
   def compute_metrics(self, predictions, labels):
     return {
@@ -99,7 +99,7 @@ class ClassInputter(inputters.TextInputter):
   """Reading class from a text file."""
 
   def __init__(self, vocabulary_file_key):
-    super(TagsInputter, self).__init__(
+    super(ClassInputter, self).__init__(
         vocabulary_file_key=vocabulary_file_key, num_oov_buckets=0)
 
   def make_features(self, element=None, features=None, training=None):

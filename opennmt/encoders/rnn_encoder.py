@@ -322,8 +322,8 @@ class PyramidalRNNEncoder(Encoder):
         sequence_length)
 
 
-class UnidirectionalRNNEncoderV2(Encoder):
-  """A simple RNN encoder.
+class RNNEncoderV2(Encoder):
+  """A RNN sequence encoder.
 
   Note:
     TensorFlow 2.0 version.
@@ -332,81 +332,35 @@ class UnidirectionalRNNEncoderV2(Encoder):
   def __init__(self,
                num_layers,
                num_units,
-               cell_class=None,
-               dropout=0.3,
+               bidirectional=False,
                residual_connections=False,
+               dropout=0.3,
+               reducer=ConcatReducer(),
+               cell_class=None,
                **kwargs):
     """Initializes the parameters of the encoder.
 
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell. Defaults to a LSTM cell.
-      dropout: The probability to drop units in each layer output.
+      bidirectional: Use a bidirectional RNN.
       residual_connections: If ``True``, each layer input will be added to its
         output.
-      kwargs: Additional layer arguments.
-    """
-    super(UnidirectionalRNNEncoderV2, self).__init__(**kwargs)
-    cell = rnn.make_rnn_cell(
-        num_layers,
-        num_units,
-        dropout=dropout,
-        residual_connections=residual_connections,
-        cell_class=cell_class)
-    self.rnn = rnn.RNN(cell)
-
-  def call(self, inputs, sequence_length=None, training=None):
-    mask = self.build_mask(inputs, sequence_length=sequence_length)
-    outputs, states = self.rnn(inputs, mask=mask, training=training)
-    return outputs, states, sequence_length
-
-
-class BidirectionalRNNEncoderV2(Encoder):
-  """An encoder that encodes an input sequence in both directions.
-
-  Note:
-    TensorFlow 2.0 version.
-  """
-
-  def __init__(self,
-               num_layers,
-               num_units,
-               reducer=SumReducer(),
-               cell_class=None,
-               dropout=0.3,
-               residual_connections=False,
-               **kwargs):
-    """Initializes the parameters of the encoder.
-
-    Args:
-      num_layers: The number of layers.
-      num_units: The number of units in each layer.
       reducer: A :class:`opennmt.layers.reducer.Reducer` instance to merge
         bidirectional state and outputs.
+      dropout: The probability to drop units in each layer output.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell. Defaults to a LSTM cell.
-      dropout: The probability to drop units in each layer output.
-      residual_connections: If ``True``, each layer input will be added to its
-        output.
-
-    Raises:
-      ValueError: when using :class:`opennmt.layers.reducer.ConcatReducer` and
-        :obj:`num_units` is not divisible by 2.
+      **kwargs: Additional layer arguments.
     """
-    if isinstance(reducer, ConcatReducer):
-      if num_units % 2 != 0:
-        raise ValueError("num_units must be divisible by 2 to use the ConcatReducer.")
-      num_units /= 2
-    super(BidirectionalRNNEncoderV2, self).__init__(**kwargs)
+    super(RNNEncoderV2, self).__init__(**kwargs)
     cell = rnn.make_rnn_cell(
         num_layers,
         num_units,
         dropout=dropout,
         residual_connections=residual_connections,
         cell_class=cell_class)
-    self.rnn = rnn.RNN(cell, bidirectional=True, reducer=reducer)
+    self.rnn = rnn.RNN(cell, bidirectional=bidirectional, reducer=reducer)
 
   def call(self, inputs, sequence_length=None, training=None):
     mask = self.build_mask(inputs, sequence_length=sequence_length)
@@ -414,7 +368,7 @@ class BidirectionalRNNEncoderV2(Encoder):
     return outputs, states, sequence_length
 
 
-class GoogleRNNEncoderV2(SequentialEncoder):
+class GNMTEncoder(SequentialEncoder):
   """The RNN encoder used in GNMT as described in
   https://arxiv.org/abs/1609.08144.
 
@@ -435,14 +389,14 @@ class GoogleRNNEncoderV2(SequentialEncoder):
     """
     if num_layers < 2:
       raise ValueError("GoogleRNNEncoder requires at least 2 layers")
-    bidirectional = BidirectionalRNNEncoderV2(
+    bidirectional = RNNEncoderV2(
         1,
-        num_units,
-        reducer=ConcatReducer(),
+        num_units // 2,
+        bidirectional=True,
         dropout=dropout)
-    unidirectional = UnidirectionalRNNEncoderV2(
+    unidirectional = RNNEncoderV2(
         num_layers - 1,
         num_units,
         dropout=dropout,
         residual_connections=True)
-    super(GoogleRNNEncoderV2, self).__init__([bidirectional, unidirectional])
+    super(GNMTEncoder, self).__init__([bidirectional, unidirectional])

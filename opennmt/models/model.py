@@ -7,14 +7,13 @@ import six
 
 import tensorflow as tf
 
+from opennmt import estimator
 from opennmt import inputters
-from opennmt.utils import hooks
 from opennmt.utils.optim import optimize_loss
-from opennmt.utils.parallel import GraphDispatcher
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Model(object):
+class Model(tf.keras.layers.Layer):
   """Base class for models."""
 
   def __init__(self,
@@ -24,17 +23,28 @@ class Model(object):
                daisy_chain_variables=False,
                dtype=None,
                examples_inputter=None):
-    self.name = name
+    if examples_inputter is None:
+      examples_inputter = inputters.ExampleInputter(features_inputter, labels_inputter)
     self.examples_inputter = examples_inputter
-    if self.examples_inputter is None:
-      self.examples_inputter = inputters.ExampleInputter(features_inputter, labels_inputter)
-    self.features_inputter = self.examples_inputter.features_inputter
-    self.labels_inputter = self.examples_inputter.labels_inputter
+    if dtype is None:
+      dtype = self.features_inputter.dtype
+    super(Model, self).__init__(name=name, dtype=dtype)
     self.daisy_chain_variables = daisy_chain_variables
-    if dtype is None and self.features_inputter is not None:
-      self.dtype = self.features_inputter.dtype
-    else:
-      self.dtype = dtype or tf.float32
+
+  @property
+  def unsupervised(self):
+    """Unsupervised model."""
+    return not hasattr(self.examples_inputter, "labels_inputter")
+
+  @property
+  def features_inputter(self):
+    """The inputter producing features."""
+    return getattr(self.examples_inputter, "features_inputter", self.examples_inputter)
+
+  @property
+  def labels_inputter(self):
+    """The inputter producing labels."""
+    return self.examples_inputter.labels_inputter
 
   def auto_config(self, num_devices=1):
     """Returns automatic configuration values specific to this model.
@@ -48,7 +58,17 @@ class Model(object):
     _ = num_devices
     return {}
 
-  def __call__(self, features, labels, params, mode, config=None):
+  def initialize(self, metadata):
+    """Initializes the model from the data configuration.
+
+    Args:
+      metadata: A dictionary containing additional data configuration set
+        by the user (e.g. vocabularies, tokenization, pretrained embeddings,
+        etc.).
+    """
+    self.examples_inputter.initialize(metadata)
+
+  def __call__(self, features, labels, params, mode, config=None):  # pylint: disable=arguments-differ
     """Calls the model function.
 
     Returns:
@@ -61,130 +81,8 @@ class Model(object):
       ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
       the arguments of this function.
     """
-    return self._call(features, labels, params, mode)
-
-  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
-    """Returns the model function.
-
-    Args:
-      num_devices: The number of devices used for training.
-      eval_prediction_hooks_fn: A callable that takes the model predictions
-        during evaluation and return an iterable of evaluation hooks (e.g. for
-        saving predictions on disk, running external evaluators, etc.).
-      devices: The list of devices used for training, if known.
-      hvd: Optional Horovod object.
-
-    See Also:
-      ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
-      arguments and the returned value.
-    """
-    dispatcher = GraphDispatcher(
-        num_devices=num_devices,
-        daisy_chain_variables=self.daisy_chain_variables,
-        devices=devices)
-
-    def _loss_op(features, labels, params, mode):
-      """Single callable to compute the loss."""
-      logits, _ = self._call(features, labels, params, mode)
-      return self.compute_loss(
-          logits, labels, training=mode == tf.estimator.ModeKeys.TRAIN, params=params)
-
-    def _normalize_loss(num, den=None):
-      """Normalizes the loss."""
-      if isinstance(num, list):  # Sharded mode.
-        if den is not None:
-          assert isinstance(den, list)
-          return tf.add_n(num) / tf.add_n(den)
-        else:
-          return tf.reduce_mean(num)
-      elif den is not None:
-        return num / den
-      else:
-        return num
-
-    def _extract_loss(loss):
-      """Extracts and summarizes the loss."""
-      if not isinstance(loss, tuple):
-        actual_loss = _normalize_loss(loss)
-        tboard_loss = actual_loss
-      else:
-        actual_loss = _normalize_loss(loss[0], den=loss[1])
-        tboard_loss = _normalize_loss(loss[0], den=loss[2]) if len(loss) > 2 else actual_loss
-      tf.summary.scalar("loss", tboard_loss)
-      return actual_loss
-
-    def _model_fn(features, labels, params, mode, config):
-      """model_fn implementation."""
-      if mode == tf.estimator.ModeKeys.TRAIN:
-        features_shards = dispatcher.shard(features)
-        labels_shards = dispatcher.shard(labels)
-
-        with tf.variable_scope(self.name, initializer=self._initializer(params)):
-          losses_shards = dispatcher(
-              _loss_op, features_shards, labels_shards, params, mode)
-
-        loss = _extract_loss(losses_shards)
-        train_op = self.optimize_loss(loss, params=params, hvd=hvd)
-        extra_variables = []
-        if isinstance(train_op, tuple):
-          train_op, extra_variables = train_op
-
-        training_hooks = []
-        if extra_variables:
-          training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
-        if config is not None:
-          self.examples_inputter.visualize(config.model_dir)
-          features_length = self.features_inputter.get_length(features)
-          labels_length = self.labels_inputter.get_length(labels)
-          num_words = {}
-          if features_length is not None:
-            num_words["source"] = tf.reduce_sum(features_length)
-          if labels_length is not None:
-            num_words["target"] = tf.reduce_sum(labels_length)
-          training_hooks.append(hooks.LogWordsPerSecondHook(
-              num_words,
-              every_n_steps=config.save_summary_steps,
-              output_dir=config.model_dir))
-        return tf.estimator.EstimatorSpec(
-            mode,
-            loss=loss,
-            train_op=train_op,
-            training_hooks=training_hooks)
-      elif mode == tf.estimator.ModeKeys.EVAL:
-        with tf.variable_scope(self.name):
-          logits, predictions = self._call(features, labels, params, mode)
-          loss = self.compute_loss(logits, labels, training=False, params=params)
-
-        loss = _extract_loss(loss)
-        eval_metric_ops = self.compute_metrics(predictions, labels)
-        evaluation_hooks = []
-        if predictions is not None and eval_prediction_hooks_fn is not None:
-          evaluation_hooks.extend(eval_prediction_hooks_fn(predictions))
-        return tf.estimator.EstimatorSpec(
-            mode,
-            loss=loss,
-            eval_metric_ops=eval_metric_ops,
-            evaluation_hooks=evaluation_hooks)
-      elif mode == tf.estimator.ModeKeys.PREDICT:
-        with tf.variable_scope(self.name):
-          _, predictions = self._call(features, labels, params, mode)
-
-        # Forward example index for reordering predictions.
-        if "index" in features:
-          predictions["index"] = features["index"]
-
-        export_outputs = {}
-        export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
-            tf.estimator.export.PredictOutput(predictions))
-
-        return tf.estimator.EstimatorSpec(
-            mode,
-            predictions=predictions,
-            export_outputs=export_outputs)
-      else:
-        raise RuntimeError("Invalid mode")
-
-    return _model_fn
+    with tf.variable_scope(self.name, initializer=self._initializer(params)):
+      return self._call(features, labels, params, mode)
 
   def _initializer(self, params):
     """Returns the global initializer for this model.
@@ -257,25 +155,11 @@ class Model(object):
     """
     return None
 
-  def _initialize(self, metadata, asset_dir=None):
-    """Runs model specific initialization (e.g. vocabularies loading).
-
-    Args:
-      metadata: A dictionary containing additional metadata set
-        by the user.
-      asset_dir: The directory where assets can be written. If ``None``, no
-        assets are returned.
-
-    Returns:
-      A dictionary containing additional assets used by the model.
-    """
-    return self.examples_inputter.initialize(metadata, asset_dir=asset_dir)
-
   def input_fn(self,
                mode,
                batch_size,
-               metadata,
-               features_file,
+               metadata=None,
+               features_file=None,
                labels_file=None,
                batch_type="examples",
                batch_multiplier=1,
@@ -294,7 +178,7 @@ class Model(object):
       mode: A ``tf.estimator.ModeKeys`` mode.
       batch_size: The batch size to use.
       metadata: A dictionary containing additional metadata set
-        by the user.
+        by the user. Required if ``Model.initialize()`` has not been called.
       features_file: The file containing input features.
       labels_file: The file containing output labels.
       batch_type: The training batching stragety to use: can be "examples" or
@@ -323,90 +207,77 @@ class Model(object):
     See Also:
       ``tf.estimator.Estimator``.
     """
-    batch_size_multiple = 1
-    if batch_type == "tokens" and self.dtype == tf.float16:
-      batch_size_multiple = 8
+    if metadata is not None:
+      self.initialize(metadata)
+    return estimator.make_input_fn(
+        self,
+        mode,
+        batch_size,
+        features_file,
+        labels_file=labels_file,
+        batch_type=batch_type,
+        batch_multiplier=batch_multiplier,
+        bucket_width=bucket_width,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        shuffle_buffer_size=sample_buffer_size,
+        single_pass=single_pass,
+        num_shards=num_shards,
+        shard_index=shard_index,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size,
+        return_dataset=False)
 
-    def _fn():
-      self._initialize(metadata)
+  def model_fn(self, num_devices=1, eval_prediction_hooks_fn=None, devices=None, hvd=None):
+    """Returns the model function.
 
-      if mode == tf.estimator.ModeKeys.PREDICT:
-        dataset = self.examples_inputter.make_inference_dataset(
-            features_file,
-            batch_size,
-            bucket_width=bucket_width,
-            num_threads=num_threads,
-            prefetch_buffer_size=prefetch_buffer_size)
-      elif mode == tf.estimator.ModeKeys.EVAL:
-        dataset = self.examples_inputter.make_evaluation_dataset(
-            features_file,
-            labels_file,
-            batch_size,
-            num_threads=num_threads,
-            prefetch_buffer_size=prefetch_buffer_size)
-      elif mode == tf.estimator.ModeKeys.TRAIN:
-        dataset = self.examples_inputter.make_training_dataset(
-            features_file,
-            labels_file,
-            batch_size,
-            batch_type=batch_type,
-            batch_multiplier=batch_multiplier,
-            batch_size_multiple=batch_size_multiple,
-            shuffle_buffer_size=sample_buffer_size,
-            bucket_width=bucket_width,
-            maximum_features_length=maximum_features_length,
-            maximum_labels_length=maximum_labels_length,
-            single_pass=single_pass,
-            num_shards=num_shards,
-            shard_index=shard_index,
-            num_threads=num_threads,
-            prefetch_buffer_size=prefetch_buffer_size)
+    Args:
+      num_devices: The number of devices used for training.
+      eval_prediction_hooks_fn: A callable that takes the model predictions
+        during evaluation and return an iterable of evaluation hooks (e.g. for
+        saving predictions on disk, running external evaluators, etc.).
+      devices: The list of devices used for training, if known.
+      hvd: Optional Horovod object.
 
-      iterator = dataset.make_initializable_iterator()
-      # Add the initializer to a standard collection for it to be initialized.
-      tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
-      return iterator.get_next()
+    See Also:
+      ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
+      arguments and the returned value.
+    """
+    return estimator.make_model_fn(
+        self,
+        eval_prediction_hooks_fn=eval_prediction_hooks_fn,
+        num_devices=num_devices,
+        devices=devices,
+        hvd=hvd)
 
-    return _fn
-
-  def serving_input_fn(self, metadata):
+  def serving_input_fn(self, metadata=None):
     """Returns the serving input function.
 
     Args:
       metadata: A dictionary containing additional metadata set
-        by the user.
+        by the user. Required if ``Model.initialize()`` has not been called.
 
     Returns:
       A callable that returns a ``tf.estimator.export.ServingInputReceiver``.
     """
-    if self.features_inputter is None:
-      raise NotImplementedError()
+    if metadata is not None:
+      self.initialize(metadata)
+    return estimator.make_serving_input_fn(self)
 
-    def _fn():
-      self._initialize(metadata)
-      # This is a hack for SequenceRecordInputter that currently infers the input
-      # depth from the data files.
-      # TODO: This method should not require the training data.
-      if  "train_features_file" in metadata:
-        _ = self.features_inputter.make_dataset(metadata["train_features_file"])
-      return self.features_inputter.get_serving_input_receiver()
-
-    return _fn
-
-  def get_assets(self, metadata, asset_dir):
+  def get_assets(self, metadata=None, asset_dir=None):
     """Returns additional assets used by this model.
 
     Args:
       metadata: A dictionary containing additional metadata set
-        by the user.
+        by the user. Required if ``Model.initialize()`` has not been called.
       asset_dir: The directory where assets can be written.
 
     Returns:
       A dictionary of additional assets.
     """
-    assets = self._initialize(metadata, asset_dir=asset_dir)
-    tf.reset_default_graph()
-    return assets
+    if metadata is not None:
+      self.initialize(metadata)
+    return self.examples_inputter.export_assets(asset_dir)
 
   def print_prediction(self, prediction, params=None, stream=None):
     """Prints the model prediction.

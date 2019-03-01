@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from opennmt import optimizers
 from opennmt.utils import decay
+from opennmt.utils import misc
 
 
 def learning_rate_decay_fn(decay_type,
@@ -166,7 +167,13 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None, hvd=None):
       optimizer = optimizers.get_adafactor_optimizer_from_params(
           optimizer_class, optimizer_params, learning_rate=learning_rate)
     else:
-      optimizer = optimizer_class(learning_rate, **optimizer_params)
+      weight_decay = params.get("weight_decay")
+      if weight_decay is not None:
+        optimizer_class = tf.contrib.opt.extend_with_decoupled_weight_decay(optimizer_class)
+        optimizer = optimizer_class(
+            weight_decay, learning_rate=learning_rate, **optimizer_params)
+      else:
+        optimizer = optimizer_class(learning_rate, **optimizer_params)
     if mixed_precision:
       from opennmt.optimizers.mixed_precision_wrapper import get_loss_scale_from_params
       optimizer = optimizers.MixedPrecisionOptimizerWrapper(
@@ -208,7 +215,10 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
   def _apply_gradients(grads_and_vars, global_step=None):
     if hasattr(optimizer, "allreduce_gradients"):
       grads_and_vars = optimizer.allreduce_gradients(grads_and_vars)
-    return optimizer.apply_gradients(grads_and_vars, global_step=global_step)
+    kwargs = {}
+    if "decay_var_list" in misc.function_args(optimizer.apply_gradients):
+      kwargs["decay_var_list"] = [var for _, var in grads_and_vars if not _is_bias(var)]
+    return optimizer.apply_gradients(grads_and_vars, global_step=global_step, **kwargs)
 
   if not tf.contrib.framework.is_tensor(accum_count) and accum_count == 1:
     return _apply_gradients(grads_and_vars, global_step=global_step), []
@@ -267,8 +277,6 @@ def regularization_penalty(regularization_type, scale, weights_list=None):
     ValueError: if :obj:`regularization_type` is invalid or is ``l1_l2`` but
       :obj:`scale` is not a sequence.
   """
-  def _is_bias(variable):
-    return len(variable.shape.as_list()) == 1 and variable.name.endswith("bias:0")
   if weights_list is None:
     weights_list = tf.trainable_variables()
   weights_list = list(filter(lambda v: not _is_bias(v), weights_list))
@@ -288,6 +296,9 @@ def regularization_penalty(regularization_type, scale, weights_list=None):
 
   penalty = tf.add_n([regularizer(w) for w in weights_list])
   return penalty
+
+def _is_bias(variable):
+  return len(variable.shape.as_list()) == 1 and variable.name.endswith("bias:0")
 
 def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
   """Clips gradients by global norm."""

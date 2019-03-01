@@ -18,9 +18,7 @@ class Encoder(tf.keras.layers.Layer):
     """Builds a boolean mask for :obj:`inputs`."""
     if sequence_length is None:
       return None
-    mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=dtype)
-    mask = tf.expand_dims(mask, -1)
-    return mask
+    return tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=dtype)
 
   def call(self, inputs, sequence_length=None, training=None):  # pylint: disable=arguments-differ
     """Encodes an input sequence.

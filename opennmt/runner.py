@@ -17,6 +17,7 @@ from tensorflow.python.estimator.util import fn_args
 
 from google.protobuf import text_format
 
+from opennmt import estimator as estimator_util
 from opennmt import models
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils.evaluator import external_evaluation_fn
@@ -92,6 +93,7 @@ class Runner(object):
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(self._config, model_config)
     misc.merge_dict(self._config, config)
+    self._model.initialize(self._config["data"])
     tf.logging.info(
         "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
 
@@ -151,7 +153,8 @@ class Runner(object):
 
     devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
     return tf.estimator.Estimator(
-        self._model.model_fn(
+        estimator_util.make_model_fn(
+            self._model,
             eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
             devices=devices,
             hvd=self._hvd),
@@ -172,6 +175,8 @@ class Runner(object):
     if (not self._config["eval"].get("save_eval_predictions", False)
         and self._config["eval"].get("external_evaluators") is None):
       return None
+    if self._model.unsupervised:
+      raise RuntimeError("This model does not support saving evaluation predictions")
     save_path = os.path.join(self._config["model_dir"], "eval")
     if not tf.gfile.Exists(save_path):
       tf.gfile.MakeDirs(save_path)
@@ -224,41 +229,41 @@ class Runner(object):
     if train_steps is not None and self._hvd is not None:
       train_steps //= self._hvd.size()
     train_spec = tf.estimator.TrainSpec(
-        input_fn=self._model.input_fn(
+        input_fn=estimator_util.make_input_fn(
+            self._model,
             tf.estimator.ModeKeys.TRAIN,
             self._config["train"]["batch_size"],
-            self._config["data"],
-            self._config["data"]["train_features_file"],
-            labels_file=self._config["data"]["train_labels_file"],
+            features_file=self._config["data"]["train_features_file"],
+            labels_file=self._config["data"].get("train_labels_file"),
             batch_type=self._config["train"]["batch_type"],
             batch_multiplier=self._num_devices,
             bucket_width=self._config["train"]["bucket_width"],
-            single_pass=self._config["train"].get("single_pass", False),
-            num_threads=self._config["train"].get("num_threads"),
-            sample_buffer_size=self._config["train"]["sample_buffer_size"],
-            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size"),
             maximum_features_length=self._config["train"].get("maximum_features_length"),
             maximum_labels_length=self._config["train"].get("maximum_labels_length"),
+            shuffle_buffer_size=self._config["train"]["sample_buffer_size"],
+            single_pass=self._config["train"].get("single_pass", False),
             num_shards=self._hvd.size() if self._hvd is not None else 1,
-            shard_index=self._hvd.rank() if self._hvd is not None else 0),
+            shard_index=self._hvd.rank() if self._hvd is not None else 0,
+            num_threads=self._config["train"].get("num_threads"),
+            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size")),
         max_steps=train_steps,
         hooks=train_hooks)
     return train_spec
 
   def _build_eval_spec(self):
     eval_spec = tf.estimator.EvalSpec(
-        input_fn=self._model.input_fn(
+        input_fn=estimator_util.make_input_fn(
+            self._model,
             tf.estimator.ModeKeys.EVAL,
             self._config["eval"]["batch_size"],
-            self._config["data"],
-            self._config["data"]["eval_features_file"],
+            features_file=self._config["data"]["eval_features_file"],
+            labels_file=self._config["data"].get("eval_labels_file"),
             num_threads=self._config["eval"].get("num_threads"),
-            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size"),
-            labels_file=self._config["data"]["eval_labels_file"]),
+            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size")),
         steps=None,
         exporters=_make_exporters(
             self._config["eval"]["exporters"],
-            self._model.serving_input_fn(self._config["data"]),
+            estimator_util.make_serving_input_fn(self._model),
             assets_extra=self._get_model_assets()),
         throttle_secs=self._config["eval"]["eval_delay"])
     return eval_spec
@@ -267,7 +272,7 @@ class Runner(object):
     generated_assets_path = os.path.join(self._config["model_dir"], "assets")
     if not tf.gfile.Exists(generated_assets_path):
       tf.gfile.MakeDirs(generated_assets_path)
-    return self._model.get_assets(self._config["data"], asset_dir=generated_assets_path)
+    return self._model.get_assets(asset_dir=generated_assets_path)
 
   def train_and_evaluate(self, checkpoint_path=None):
     """Runs the training and evaluation loop.
@@ -374,11 +379,11 @@ class Runner(object):
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
 
-    input_fn = self._model.input_fn(
+    input_fn = estimator_util.make_input_fn(
+        self._model,
         tf.estimator.ModeKeys.PREDICT,
         self._config["infer"]["batch_size"],
-        self._config["data"],
-        features_file,
+        features_file=features_file,
         bucket_width=self._config["infer"]["bucket_width"],
         num_threads=self._config["infer"].get("num_threads"),
         prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"))
@@ -441,9 +446,16 @@ class Runner(object):
         # with the behavior of tf.estimator.Exporter.
         kwargs["strip_default_attrs"] = True
 
+    # This is a hack for SequenceRecordInputter that currently infers the input
+    # depth from the data files.
+    # TODO: This method should not require the training data.
+    data_config = self._config["data"]
+    if  "train_features_file" in data_config:
+      _ = model.features_inputter.make_dataset(data_config["train_features_file"])
+
     return export_fn(
         export_dir_base,
-        self._model.serving_input_fn(self._config["data"]),
+        estimator_util.make_serving_input_fn(self._model),
         assets_extra=self._get_model_assets(),
         checkpoint_path=checkpoint_path,
         **kwargs)
@@ -463,8 +475,8 @@ class Runner(object):
       ValueError: if no checkpoint are found or if the model is not a sequence to
         sequence model.
     """
-    if not isinstance(self._model, models.SequenceToSequence):
-      raise ValueError("scoring only works for sequence to sequence models")
+    if not isinstance(self._model, (models.LanguageModel, models.SequenceToSequence)):
+      raise ValueError("scoring only works for sequence to sequence or language models")
 
     if checkpoint_path is None:
       checkpoint_path = tf.train.latest_checkpoint(self._config["model_dir"])
@@ -473,25 +485,22 @@ class Runner(object):
     if checkpoint_path is None:
       raise ValueError("could not find a trained model in %s" % self._config["model_dir"])
 
-    input_fn = self._model.input_fn(
-        tf.estimator.ModeKeys.EVAL,
-        self._config["score"]["batch_size"],
-        self._config["data"],
-        features_file,
-        labels_file=predictions_file,
-        num_threads=self._config["score"].get("num_threads"),
-        prefetch_buffer_size=self._config["score"].get("prefetch_buffer_size"))
-
-    with tf.Graph().as_default() as g:
-      tf.train.create_global_step(g)
-      features, labels = input_fn()
+    model = copy.deepcopy(self._model)
+    with tf.Graph().as_default():
+      dataset = model.examples_inputter.make_evaluation_dataset(
+          features_file,
+          predictions_file,
+          self._config["score"]["batch_size"],
+          num_threads=self._config["score"].get("num_threads"),
+          prefetch_buffer_size=self._config["score"].get("prefetch_buffer_size"))
+      iterator = dataset.make_initializable_iterator()
+      features, labels = iterator.get_next()
       labels["alignment"] = None  # Add alignment key to force the model to return attention.
-      with tf.variable_scope(self._model.name):
-        outputs, _ = self._model(
-            features,
-            labels,
-            self._config["params"],
-            tf.estimator.ModeKeys.EVAL)
+      outputs, _ = model(
+          features,
+          labels,
+          self._config["params"],
+          tf.estimator.ModeKeys.EVAL)
 
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
           logits=outputs["logits"], labels=labels["ids_out"])
@@ -499,35 +508,43 @@ class Runner(object):
       masked_cross_entropy = cross_entropy * weights
       scores = tf.reduce_sum(masked_cross_entropy, axis=1)
       results = {
-          "attention": outputs["attention"],
           "cross_entropy": cross_entropy,
           "score": scores,
           "tokens": labels["tokens"],
           "length": labels["length"] - 1  # -1 for the special token.
       }
+      if "attention" in outputs:
+        results["attention"] = outputs["attention"]
 
       if output_file:
         stream = io.open(output_file, encoding="utf-8", mode="w")
       else:
         stream = sys.stdout
 
+      output_tokenizer = (
+          self._model.labels_inputter.tokenizer if not self._model.unsupervised
+          else self._model.features_inputter.tokenizer)
       with tf.train.MonitoredSession(
           session_creator=tf.train.ChiefSessionCreator(
               checkpoint_filename_with_path=checkpoint_path,
               config=self._session_config)) as sess:
+        sess.run(iterator.initializer)
         while not sess.should_stop():
           for batch in misc.extract_batches(sess.run(results)):
             tokens = batch["tokens"][:batch["length"]]
-            sentence = self._model.labels_inputter.tokenizer.detokenize(tokens)
+            sentence = output_tokenizer.detokenize(tokens)
             token_level_scores = None
+            attention = None
             if self._config["score"].get("with_token_level"):
               token_level_scores = batch["cross_entropy"][:batch["length"]]
+            if "attention" in batch:
+              attention = batch["attention"][:batch["length"]]
             alignment_type = self._config["score"].get("with_alignments")
             sentence = format_translation_output(
                 sentence,
                 score=batch["score"],
                 token_level_scores=token_level_scores,
-                attention=batch["attention"][:batch["length"]],
+                attention=attention,
                 alignment_type=alignment_type)
             misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
 

@@ -51,6 +51,18 @@ class EncoderTest(tf.test.TestCase):
       self.assertAllEqual([3, 21, 36], outputs.shape)
       self.assertAllEqual(sequence_length, encoded_length)
 
+  @test_util.skip_if_unsupported("RaggedTensor")
+  def testMeanEncoder(self):
+    inputs = tf.concat([tf.ones([1, 5, 1]), 2*tf.ones([1, 5, 1])], 0)
+    length = tf.constant([2, 4], dtype=tf.int32)
+    mask = tf.sequence_mask(length, maxlen=tf.shape(inputs)[1], dtype=inputs.dtype)
+    inputs *= tf.expand_dims(mask, -1)
+    encoder = encoders.MeanEncoder()
+    _, state, _ = encoder.encode(inputs, sequence_length=length)
+    state = self.evaluate(state)
+    self.assertEqual(state[0][0], 1)
+    self.assertEqual(state[1][0], 2)
+
   @test_util.run_tf1_only
   def testSelfAttentionEncoder(self):
     self._testSelfAttentionEncoder(dtype=tf.float32)
@@ -256,7 +268,7 @@ class EncoderTest(tf.test.TestCase):
   @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
   @test_util.run_tf2_only
   def testUnidirectionalRNNEncoderV2(self, cell_class):
-    encoder = rnn_encoder.UnidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
+    encoder = rnn_encoder.RNNEncoderV2(3, 20, cell_class=cell_class)
     inputs = tf.random.uniform([4, 5, 10])
     lengths = tf.constant([4, 3, 5, 2])
     outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
@@ -266,16 +278,16 @@ class EncoderTest(tf.test.TestCase):
   @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
   @test_util.run_tf2_only
   def testBidirectionalRNNEncoderV2(self, cell_class):
-    encoder = rnn_encoder.BidirectionalRNNEncoderV2(3, 20, cell_class=cell_class)
+    encoder = rnn_encoder.RNNEncoderV2(3, 20, bidirectional=True, cell_class=cell_class)
     inputs = tf.random.uniform([4, 5, 10])
     lengths = tf.constant([4, 3, 5, 2])
     outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
-    self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
+    self.assertListEqual(outputs.shape.as_list(), [4, 5, 40])
     self.assertEqual(len(states), 3)
 
   @test_util.run_tf2_only
-  def testGoogleRNNEncoderV2(self):
-    encoder = rnn_encoder.BidirectionalRNNEncoderV2(3, 20)
+  def testGNMTEncoder(self):
+    encoder = rnn_encoder.GNMTEncoder(3, 20)
     inputs = tf.random.uniform([4, 5, 10])
     lengths = tf.constant([4, 3, 5, 2])
     outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
