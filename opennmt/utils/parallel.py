@@ -140,16 +140,15 @@ class GraphDispatcher(object):
       if self._daisy_chain_variables:
         custom_getter = _daisy_chain_getter
 
-      with tf.name_scope("parallel_{}".format(i)):
-        with tf.variable_scope(
-            tf.get_variable_scope(),
-            reuse=True if i > 0 else None,
-            custom_getter=custom_getter):
-          if device is None:
+      with tf.variable_scope(
+          tf.get_variable_scope(),
+          reuse=True if i > 0 else None,
+          custom_getter=custom_getter):
+        if device is None:
+          outputs.append(funs[i](*args[i], **kwargs[i]))
+        else:
+          with tf.device(device):
             outputs.append(funs[i](*args[i], **kwargs[i]))
-          else:
-            with tf.device(device):
-              outputs.append(funs[i](*args[i], **kwargs[i]))
 
     # If the function returned a tuple, also return a tuple of sharded results.
     if isinstance(outputs[0], tuple):
