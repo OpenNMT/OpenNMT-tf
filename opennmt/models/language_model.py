@@ -16,7 +16,6 @@ class LanguageModel(Model):
   """An experimental language model."""
 
   def __init__(self,
-               vocabulary_file_key,
                decoder,
                embedding_size=None,
                reuse_embedding=True,
@@ -24,10 +23,9 @@ class LanguageModel(Model):
     """Initializes the language model.
 
     Args:
-      vocabulary_file_key: The configuration key of the vocabulary file
-        containing one character per line.
       decoder: A :class:`opennmt.decoders.decoder.DecoderV2` instance.
-      embedding_size: The size of the word embedding.
+      embedding_size: The size of the word embedding. If not set, pretrained
+        embeddings should be defined in the configuration.
       reuse_embedding: If ``True``, reuse the embedding weights in the output
         layer.
       name: The name of this model.
@@ -37,7 +35,7 @@ class LanguageModel(Model):
     """
     if not isinstance(decoder, decoder_util.DecoderV2):
       raise ValueError("Language model only supports DecoderV2")
-    inputter = LanguageModelInputter(vocabulary_file_key, embedding_size=embedding_size)
+    inputter = LanguageModelInputter("vocabulary", embedding_size=embedding_size)
     super(LanguageModel, self).__init__(name, examples_inputter=inputter)
     self.decoder = decoder
     self.reuse_embedding = reuse_embedding
