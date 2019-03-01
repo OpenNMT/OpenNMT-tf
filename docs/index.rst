@@ -4,15 +4,31 @@ Content
 =======
 
 .. toctree::
+   :caption: Getting started
    :maxdepth: 1
 
    quickstart.md
    installation.md
+
+.. toctree::
+   :caption: Configuration
+   :maxdepth: 1
+
+   model.md
    configuration.md
    data.md
    tokenization.md
+
+.. toctree::
+   :caption: Usage
+   :maxdepth: 1
+
    training.md
    inference.md
    serving.md
-   configuration_reference.md
+
+.. toctree::
+   :caption: API
+   :maxdepth: 1
+
    package/opennmt
