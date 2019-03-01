@@ -290,7 +290,7 @@ class DecoderTest(tf.test.TestCase):
   def testSelfAttentionDecoderV2(self):
     decoder = self_attention_decoder.SelfAttentionDecoderV2(
         2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    decoder.finalize(vocab_size=10)
+    decoder.initialize(vocab_size=10)
     inputs = tf.random.uniform([3, 5, 6])
     sequence_length = tf.constant([5, 5, 4], dtype=tf.int32)
     memory = tf.random.uniform([3, 7, 6])
@@ -320,7 +320,7 @@ class DecoderTest(tf.test.TestCase):
   def testSelfAttentionDecoderV2MultiSource(self):
     decoder = self_attention_decoder.SelfAttentionDecoderV2(
         2, num_units=6, num_heads=2, ffn_inner_dim=12, num_sources=2)
-    decoder.finalize(vocab_size=10)
+    decoder.initialize(vocab_size=10)
     inputs = tf.random.uniform([3, 5, 6])
     sequence_length = tf.constant([5, 5, 4], dtype=tf.int32)
     memory = [tf.random.uniform([3, 7, 6]), tf.random.uniform([3, 2, 6])]

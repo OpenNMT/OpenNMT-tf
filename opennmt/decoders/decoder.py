@@ -493,8 +493,8 @@ class DecoderV2(tf.keras.layers.Layer):
     """The maximum number of source contexts supported by this decoder."""
     return 1
 
-  def finalize(self, vocab_size=None, output_layer=None):
-    """Finalizes the decoder configuration.
+  def initialize(self, vocab_size=None, output_layer=None):
+    """Initializes the decoder configuration.
 
     Args:
       vocab_size: The target vocabulary size.
@@ -523,11 +523,11 @@ class DecoderV2(tf.keras.layers.Layer):
       A nested structure of tensors representing the decoder state.
 
     Raises:
-      RuntimeError: if the decoder was not finalized.
+      RuntimeError: if the decoder was not initialized.
       ValueError: if one of :obj:`batch_size` or :obj:`dtype` is not set but
         :obj:`initial_state` is not passed.
     """
-    self._assert_is_finalized()
+    self._assert_is_initialized()
     if batch_size is None or dtype is None:
       if initial_state is None:
         raise ValueError("Either initial_state should be set, or batch_size and "
@@ -564,13 +564,13 @@ class DecoderV2(tf.keras.layers.Layer):
       A tuple with the logits, the decoder state, and an attention vector.
 
     Raises:
-      RuntimeError: if the decoder was not finalized.
+      RuntimeError: if the decoder was not initialized.
       ValueError: if the :obj:`inputs` rank is different than 2 or 3.
       ValueError: if :obj:`length_or_step` is invalid.
       ValueError: if the number of source contexts (:obj:`memory`) does not
         match the number defined at the decoder initialization.
     """
-    self._assert_is_finalized()
+    self._assert_is_initialized()
     self._assert_memory_is_compatible(memory, memory_sequence_length)
     rank = inputs.shape.ndims
     if rank == 2:
@@ -646,10 +646,10 @@ class DecoderV2(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
-  def _assert_is_finalized(self):
-    """Raises an expection if the decoder was not finalized."""
+  def _assert_is_initialized(self):
+    """Raises an expection if the decoder was not initialized."""
     if self.output_layer is None:
-      raise RuntimeError("The decoder was not finalized")
+      raise RuntimeError("The decoder was not initialized")
 
   def _assert_memory_is_compatible(self, memory, memory_sequence_length):
     """Raises an expection if the memory layout is not compatible with this decoder."""
