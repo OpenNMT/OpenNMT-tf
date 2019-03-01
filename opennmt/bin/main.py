@@ -191,8 +191,6 @@ def main():
   elif args.run == "score":
     if not args.features_file:
       parser.error("--features_file is required for scoring.")
-    if not args.predictions_file:
-      parser.error("--predictions_file is required for scoring.")
     runner.score(
         args.features_file,
         args.predictions_file,
