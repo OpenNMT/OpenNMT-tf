@@ -175,6 +175,8 @@ class Runner(object):
     if (not self._config["eval"].get("save_eval_predictions", False)
         and self._config["eval"].get("external_evaluators") is None):
       return None
+    if self._model.unsupervised:
+      raise RuntimeError("This model does not support saving evaluation predictions")
     save_path = os.path.join(self._config["model_dir"], "eval")
     if not tf.gfile.Exists(save_path):
       tf.gfile.MakeDirs(save_path)
@@ -232,7 +234,7 @@ class Runner(object):
             tf.estimator.ModeKeys.TRAIN,
             self._config["train"]["batch_size"],
             features_file=self._config["data"]["train_features_file"],
-            labels_file=self._config["data"]["train_labels_file"],
+            labels_file=self._config["data"].get("train_labels_file"),
             batch_type=self._config["train"]["batch_type"],
             batch_multiplier=self._num_devices,
             bucket_width=self._config["train"]["bucket_width"],
@@ -255,7 +257,7 @@ class Runner(object):
             tf.estimator.ModeKeys.EVAL,
             self._config["eval"]["batch_size"],
             features_file=self._config["data"]["eval_features_file"],
-            labels_file=self._config["data"]["eval_labels_file"],
+            labels_file=self._config["data"].get("eval_labels_file"),
             num_threads=self._config["eval"].get("num_threads"),
             prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size")),
         steps=None,
@@ -473,8 +475,8 @@ class Runner(object):
       ValueError: if no checkpoint are found or if the model is not a sequence to
         sequence model.
     """
-    if not isinstance(self._model, models.SequenceToSequence):
-      raise ValueError("scoring only works for sequence to sequence models")
+    if not isinstance(self._model, (models.LanguageModel, models.SequenceToSequence)):
+      raise ValueError("scoring only works for sequence to sequence or language models")
 
     if checkpoint_path is None:
       checkpoint_path = tf.train.latest_checkpoint(self._config["model_dir"])
@@ -506,18 +508,22 @@ class Runner(object):
       masked_cross_entropy = cross_entropy * weights
       scores = tf.reduce_sum(masked_cross_entropy, axis=1)
       results = {
-          "attention": outputs["attention"],
           "cross_entropy": cross_entropy,
           "score": scores,
           "tokens": labels["tokens"],
           "length": labels["length"] - 1  # -1 for the special token.
       }
+      if "attention" in outputs:
+        results["attention"] = outputs["attention"]
 
       if output_file:
         stream = io.open(output_file, encoding="utf-8", mode="w")
       else:
         stream = sys.stdout
 
+      output_tokenizer = (
+          self._model.labels_inputter.tokenizer if not self._model.unsupervised
+          else self._model.features_inputter.tokenizer)
       with tf.train.MonitoredSession(
           session_creator=tf.train.ChiefSessionCreator(
               checkpoint_filename_with_path=checkpoint_path,
@@ -526,16 +532,19 @@ class Runner(object):
         while not sess.should_stop():
           for batch in misc.extract_batches(sess.run(results)):
             tokens = batch["tokens"][:batch["length"]]
-            sentence = self._model.labels_inputter.tokenizer.detokenize(tokens)
+            sentence = output_tokenizer.detokenize(tokens)
             token_level_scores = None
+            attention = None
             if self._config["score"].get("with_token_level"):
               token_level_scores = batch["cross_entropy"][:batch["length"]]
+            if "attention" in batch:
+              attention = batch["attention"][:batch["length"]]
             alignment_type = self._config["score"].get("with_alignments")
             sentence = format_translation_output(
                 sentence,
                 score=batch["score"],
                 token_level_scores=token_level_scores,
-                attention=batch["attention"][:batch["length"]],
+                attention=attention,
                 alignment_type=alignment_type)
             misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
 

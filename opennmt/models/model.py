@@ -25,16 +25,21 @@ class Model(tf.keras.layers.Layer):
                examples_inputter=None):
     if examples_inputter is None:
       examples_inputter = inputters.ExampleInputter(features_inputter, labels_inputter)
-    if dtype is None:
-      dtype = examples_inputter.features_inputter.dtype
-    super(Model, self).__init__(name=name, dtype=dtype)
     self.examples_inputter = examples_inputter
+    if dtype is None:
+      dtype = self.features_inputter.dtype
+    super(Model, self).__init__(name=name, dtype=dtype)
     self.daisy_chain_variables = daisy_chain_variables
+
+  @property
+  def unsupervised(self):
+    """Unsupervised model."""
+    return not hasattr(self.examples_inputter, "labels_inputter")
 
   @property
   def features_inputter(self):
     """The inputter producing features."""
-    return self.examples_inputter.features_inputter
+    return getattr(self.examples_inputter, "features_inputter", self.examples_inputter)
 
   @property
   def labels_inputter(self):

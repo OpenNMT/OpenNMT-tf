@@ -172,7 +172,9 @@ def make_model_fn(model,
       if config is not None:
         local_model.examples_inputter.visualize(config.model_dir)
         features_length = local_model.features_inputter.get_length(features)
-        labels_length = local_model.labels_inputter.get_length(labels)
+        labels_length = (
+            local_model.labels_inputter.get_length(labels)
+            if not model.unsupervised else None)
         num_words = {}
         if features_length is not None:
           num_words["source"] = tf.reduce_sum(features_length)

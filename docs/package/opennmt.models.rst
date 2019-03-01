@@ -12,6 +12,7 @@ Submodules
 .. toctree::
 
    opennmt.models.catalog
+   opennmt.models.language_model
    opennmt.models.model
    opennmt.models.sequence_classifier
    opennmt.models.sequence_tagger
