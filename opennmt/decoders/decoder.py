@@ -702,7 +702,7 @@ def greedy_decode(symbols_to_logits_fn,
     and the decoding states (if :obj:`return_state` is ``True``).
   """
   batch_size = tf.shape(initial_ids)[0]
-  batch_ids = tf.range(batch_size, dtype=initial_ids.dtype)
+  batch_ids = tf.range(tf.cast(batch_size, initial_ids.dtype))
 
   def _condition(step, finished, unused_inputs, unused_outputs,
                  unused_lengths, unused_cum_log_probs, unused_state):
@@ -724,10 +724,13 @@ def greedy_decode(symbols_to_logits_fn,
     if sample_from == 1:  # Sample best prediction.
       sampled_ids = tf.argmax(log_probs, axis=-1, output_type=inputs.dtype)
     elif sample_from == 0:  # Sample from the full output distribution.
-      sampled_ids = tf.distributions.Categorical(probs=tf.exp(log_probs)).sample()
+      distribution = tf.distributions.Categorical(probs=tf.exp(log_probs), dtype=inputs.dtype)
+      sampled_ids = distribution.sample()
     else:  # Sample from the top K.
       topk_log_probs, topk_ids = tf.nn.top_k(log_probs, k=sample_from)
-      topk_sampled_ids = tf.distributions.Categorical(logits=topk_log_probs).sample()
+      topk_ids = tf.cast(topk_ids, inputs.dtype)
+      distribution = tf.distributions.Categorical(logits=topk_log_probs, dtype=inputs.dtype)
+      topk_sampled_ids = distribution.sample()
       sampled_ids = tf.gather_nd(topk_ids, tf.stack([batch_ids, topk_sampled_ids], axis=-1))
 
     sampled_log_probs = tf.gather_nd(log_probs, tf.stack([batch_ids, sampled_ids], axis=-1))
