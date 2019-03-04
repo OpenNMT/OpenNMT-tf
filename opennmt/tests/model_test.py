@@ -159,6 +159,20 @@ class ModelTest(tf.test.TestCase):
       loss = sess.run(estimator_spec.loss)
       self.assertIsInstance(loss, Number)
 
+  def testSequenceToSequenceWithReplaceUnknownTarget(self):
+    mode = tf.estimator.ModeKeys.PREDICT
+    model = catalog.NMTSmall()
+    params = model.auto_config()["params"]
+    params["replace_unknown_target"] = True
+    features_file, _, metadata = self._makeToyEnDeData()
+    features = model.input_fn(mode, 16, metadata, features_file)()
+    estimator_spec = model.model_fn()(features, None, params, mode, None)
+    with self.test_session() as sess:
+      sess.run(tf.global_variables_initializer())
+      sess.run(tf.local_variables_initializer())
+      sess.run(tf.tables_initializer())
+      _ = sess.run(estimator_spec.predictions)
+
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
     model = catalog.NMTSmall()
