@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 1.21.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 1.21.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.21.0',
+              VERSION:'1.21.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -242,6 +242,11 @@
     <span class="nt">with_header</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
     <span class="nt">case_insensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
     <span class="nt">trainable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+
+  <span class="c1"># (optional) For sequence tagging tasks, the tagging scheme that is used (e.g. BIOES).</span>
+  <span class="c1"># For supported schemes, additional evaluation metrics could be computed such as</span>
+  <span class="c1"># precision, recall, etc. (accepted values: bioes; default: null).</span>
+  <span class="nt">tagging_scheme</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bioes</span>
 
 <span class="c1"># Model and optimization parameters.</span>
 <span class="nt">params</span><span class="p">:</span>
