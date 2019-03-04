@@ -1,6 +1,6 @@
 """OpenNMT module."""
 
-__version__ = "1.21.0"
+__version__ = "1.21.1"
 
 from opennmt import decoders
 from opennmt import encoders
