@@ -17,6 +17,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * Allow configuring `tagging_scheme` in the data configuration
+* Fix dimension mismatch when using `replace_unknown_target`
 
 ## [1.21.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.0) (2019-03-01)
 
