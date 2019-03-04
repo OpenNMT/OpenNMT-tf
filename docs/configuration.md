@@ -57,6 +57,11 @@ data:
     case_insensitive: True
     trainable: False
 
+  # (optional) For sequence tagging tasks, the tagging scheme that is used (e.g. BIOES).
+  # For supported schemes, additional evaluation metrics could be computed such as
+  # precision, recall, etc. (accepted values: bioes; default: null).
+  tagging_scheme: bioes
+
 # Model and optimization parameters.
 params:
   # The optimizer class name in tf.train, tf.contrib.opt, or opennmt.optimizers.
