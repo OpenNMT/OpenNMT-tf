@@ -49,6 +49,10 @@ class SequenceTagger(Model):
     else:
       self.tagging_scheme = None
 
+  def initialize(self, metadata):
+    self.tagging_scheme = metadata.get("tagging_scheme", self.tagging_scheme)
+    super(SequenceTagger, self).initialize(metadata)
+
   def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
     length = self.features_inputter.get_length(features)

@@ -6,6 +6,7 @@ from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
 
+from opennmt.layers import reducer
 from opennmt.models.model import Model
 from opennmt.utils import compat
 from opennmt.utils.losses import cross_entropy_sequence_loss
@@ -276,6 +277,9 @@ class SequenceToSequence(Model):
         original_shape = tf.shape(target_tokens)
         target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
         attention = tf.reshape(alignment, [-1, tf.shape(alignment)[2], tf.shape(alignment)[3]])
+        # We don't have attention for </s> but ensure that the attention time dimension matches
+        # the tokens time dimension.
+        attention = reducer.align_in_time(attention, tf.shape(target_tokens)[1])
         replaced_target_tokens = replace_unknown_target(target_tokens, source_tokens, attention)
         target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
