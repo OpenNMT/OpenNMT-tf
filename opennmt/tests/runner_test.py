@@ -81,6 +81,9 @@ class RunnerTest(tf.test.TestCase):
         "data": {
             "eval_features_file": ar_file,
             "eval_labels_file": en_file
+        },
+        "eval": {
+            "external_evaluators": "BLEU"
         }
     }
     runner = self._getTransliterationRunner(config)

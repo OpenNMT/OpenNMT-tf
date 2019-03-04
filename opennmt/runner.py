@@ -20,7 +20,7 @@ from google.protobuf import text_format
 from opennmt import estimator as estimator_util
 from opennmt import models
 from opennmt.utils import hooks, checkpoint, misc
-from opennmt.utils.evaluator import external_evaluation_fn
+from opennmt.utils import evaluator
 from opennmt.utils.misc import format_translation_output, OrderRestorer
 from opennmt.utils.parallel import get_devices
 
@@ -180,14 +180,16 @@ class Runner(object):
     save_path = os.path.join(self._config["model_dir"], "eval")
     if not tf.gfile.Exists(save_path):
       tf.gfile.MakeDirs(save_path)
+    scorers = evaluator.make_scorers(self._config["eval"].get("external_evaluators"))
+    external_evaluator = evaluator.ExternalEvaluator(
+        labels_file=self._config["data"]["eval_labels_file"],
+        output_dir=save_path,
+        scorers=scorers)
     return lambda predictions: [
         hooks.SaveEvaluationPredictionHook(
             self._model,
             os.path.join(save_path, "predictions.txt"),
-            post_evaluation_fn=external_evaluation_fn(
-                self._config["eval"].get("external_evaluators"),
-                self._config["data"]["eval_labels_file"],
-                output_dir=save_path),
+            post_evaluation_fn=external_evaluator,
             predictions=predictions)]
 
   def _finalize_training_parameters(self):
