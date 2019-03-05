@@ -11,7 +11,6 @@ Submodules
 
 .. toctree::
 
-   opennmt.utils.adafactor
    opennmt.utils.beam_search
    opennmt.utils.cell
    opennmt.utils.checkpoint
