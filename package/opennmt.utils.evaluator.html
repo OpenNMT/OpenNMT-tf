@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.evaluator module &mdash; OpenNMT-tf 1.21.1 documentation</title>
+  <title>opennmt.utils.evaluator module &mdash; OpenNMT-tf 1.21.2 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.21.1',
+              VERSION:'1.21.2',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -210,9 +210,15 @@
 <p>Evaluation related classes and functions.</p>
 <dl class="class">
 <dt id="opennmt.utils.evaluator.ExternalEvaluator">
-<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">ExternalEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ExternalEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ExternalEvaluator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">ExternalEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em>, <em>scorers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ExternalEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ExternalEvaluator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for external evaluators.</p>
+<dl class="method">
+<dt id="opennmt.utils.evaluator.ExternalEvaluator.add_scorer">
+<code class="descname">add_scorer</code><span class="sig-paren">(</span><em>scorer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ExternalEvaluator.add_scorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ExternalEvaluator.add_scorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a scorer to this evaluator.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="opennmt.utils.evaluator.ExternalEvaluator.__call__">
 <code class="descname">__call__</code><span class="sig-paren">(</span><em>step</em>, <em>predictions_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ExternalEvaluator.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ExternalEvaluator.__call__" title="Permalink to this definition">¶</a></dt>
@@ -231,88 +237,133 @@
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="opennmt.utils.evaluator.ExternalEvaluator.name">
-<code class="descname">name</code><a class="headerlink" href="#opennmt.utils.evaluator.ExternalEvaluator.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the name of this evaluator.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="opennmt.utils.evaluator.ExternalEvaluator.score">
 <code class="descname">score</code><span class="sig-paren">(</span><em>labels_file</em>, <em>predictions_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ExternalEvaluator.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ExternalEvaluator.score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scores the predictions against the true output labels.</p>
+<dd><p>Kept for backward compatibility: calls the first scorer.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="opennmt.utils.evaluator.ROUGEEvaluator">
-<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">ROUGEEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ROUGEEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ROUGEEvaluator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
-<p>ROUGE evaluator based on <a class="reference external" href="https://github.com/pltrdy/rouge">https://github.com/pltrdy/rouge</a>.</p>
-<dl class="method">
-<dt id="opennmt.utils.evaluator.ROUGEEvaluator.name">
-<code class="descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ROUGEEvaluator.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ROUGEEvaluator.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the name of this evaluator.</p>
+<dt id="opennmt.utils.evaluator.Scorer">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">Scorer</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#Scorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.Scorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Scores hypotheses against references.</p>
+<dl class="attribute">
+<dt id="opennmt.utils.evaluator.Scorer.name">
+<code class="descname">name</code><a class="headerlink" href="#opennmt.utils.evaluator.Scorer.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The scorer name.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.utils.evaluator.ROUGEEvaluator.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>labels_file</em>, <em>predictions_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ROUGEEvaluator.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ROUGEEvaluator.score" title="Permalink to this definition">¶</a></dt>
+<dt id="opennmt.utils.evaluator.Scorer.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>labels_file</em>, <em>predictions_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#Scorer.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.Scorer.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scores the predictions against the true output labels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.evaluator.Scorer.lower_is_better">
+<code class="descname">lower_is_better</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#Scorer.lower_is_better"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.Scorer.lower_is_better" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if a lower score is better.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.evaluator.Scorer.summarize">
+<code class="descname">summarize</code><span class="sig-paren">(</span><em>writer</em>, <em>step</em>, <em>score</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#Scorer.summarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.Scorer.summarize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarizes the score in TensorBoard.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>writer</strong> – A summary writer.</li>
+<li><strong>step</strong> – The current step.</li>
+<li><strong>scorer</strong> – The score to summarize.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.evaluator.Scorer.log">
+<code class="descname">log</code><span class="sig-paren">(</span><em>score</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#Scorer.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.Scorer.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs the score in the console output.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="opennmt.utils.evaluator.SacreBLEUEvaluator">
-<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">SacreBLEUEvaluator</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUEvaluator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
-<p>Evaluator using sacreBLEU.</p>
+<dt id="opennmt.utils.evaluator.ROUGEScorer">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">ROUGEScorer</code><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ROUGEScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ROUGEScorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.Scorer" title="opennmt.utils.evaluator.Scorer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.Scorer</span></code></a></p>
+<p>ROUGE scorer based on <a class="reference external" href="https://github.com/pltrdy/rouge">https://github.com/pltrdy/rouge</a>.</p>
 <dl class="method">
-<dt id="opennmt.utils.evaluator.SacreBLEUEvaluator.name">
-<code class="descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUEvaluator.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUEvaluator.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the name of this evaluator.</p>
+<dt id="opennmt.utils.evaluator.ROUGEScorer.summarize">
+<code class="descname">summarize</code><span class="sig-paren">(</span><em>writer</em>, <em>step</em>, <em>score</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ROUGEScorer.summarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ROUGEScorer.summarize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarizes the score in TensorBoard.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>writer</strong> – A summary writer.</li>
+<li><strong>step</strong> – The current step.</li>
+<li><strong>scorer</strong> – The score to summarize.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.utils.evaluator.SacreBLEUEvaluator.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>labels_file</em>, <em>predictions_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUEvaluator.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUEvaluator.score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scores the predictions against the true output labels.</p>
+<dt id="opennmt.utils.evaluator.ROUGEScorer.log">
+<code class="descname">log</code><span class="sig-paren">(</span><em>score</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ROUGEScorer.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ROUGEScorer.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs the score in the console output.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="opennmt.utils.evaluator.BLEUEvaluator">
-<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">BLEUEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUEvaluator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
-<p>Evaluator calling multi-bleu.perl.</p>
-<dl class="method">
-<dt id="opennmt.utils.evaluator.BLEUEvaluator.name">
-<code class="descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUEvaluator.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUEvaluator.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the name of this evaluator.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.utils.evaluator.BLEUEvaluator.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>labels_file</em>, <em>predictions_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUEvaluator.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUEvaluator.score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scores the predictions against the true output labels.</p>
-</dd></dl>
-
+<dt id="opennmt.utils.evaluator.SacreBLEUScorer">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">SacreBLEUScorer</code><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUScorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.Scorer" title="opennmt.utils.evaluator.Scorer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.Scorer</span></code></a></p>
+<p>Scorer using sacreBLEU.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="opennmt.utils.evaluator.BLEUDetokEvaluator">
-<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">BLEUDetokEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUDetokEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUDetokEvaluator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.BLEUEvaluator" title="opennmt.utils.evaluator.BLEUEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.BLEUEvaluator</span></code></a></p>
+<dt id="opennmt.utils.evaluator.BLEUScorer">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">BLEUScorer</code><span class="sig-paren">(</span><em>bleu_script='multi-bleu.perl'</em>, <em>name='BLEU'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUScorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.Scorer" title="opennmt.utils.evaluator.Scorer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.Scorer</span></code></a></p>
+<p>Scorer calling multi-bleu.perl.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.evaluator.BLEUDetokScorer">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">BLEUDetokScorer</code><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUDetokScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUDetokScorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.BLEUScorer" title="opennmt.utils.evaluator.BLEUScorer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.BLEUScorer</span></code></a></p>
 <p>Evaluator calling multi-bleu-detok.perl.</p>
-<dl class="method">
-<dt id="opennmt.utils.evaluator.BLEUDetokEvaluator.name">
-<code class="descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUDetokEvaluator.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUDetokEvaluator.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the name of this evaluator.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="opennmt.utils.evaluator.make_scorers">
+<code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">make_scorers</code><span class="sig-paren">(</span><em>names</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#make_scorers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.make_scorers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of scorers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>names</strong> – A list of scorer names or a single name.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of <a class="reference internal" href="#opennmt.utils.evaluator.Scorer" title="opennmt.utils.evaluator.Scorer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.Scorer</span></code></a> instances.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if a scorer name is invalid.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -320,13 +371,13 @@
 <code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">external_evaluation_fn</code><span class="sig-paren">(</span><em>evaluators_name</em>, <em>labels_file</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#external_evaluation_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.external_evaluation_fn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a callable to be used in
 <a class="reference internal" href="opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook" title="opennmt.utils.hooks.SaveEvaluationPredictionHook"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.hooks.SaveEvaluationPredictionHook</span></code></a> that calls one or
-more external evaluators.</p>
+more scorers.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>evaluators_name</strong> – An evaluator name or a list of evaluators name.</li>
+<li><strong>evaluators_name</strong> – A scorer name or a list of scorer names.</li>
 <li><strong>labels_file</strong> – The true output labels.</li>
 <li><strong>output_dir</strong> – The run directory.</li>
 </ul>
@@ -335,11 +386,39 @@ more external evaluators.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A callable or <code class="docutils literal notranslate"><span class="pre">None</span></code> if <code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluators_name</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> or empty.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if an evaluator name is invalid.</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if an scorer name is invalid.</p>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.evaluator.ROUGEEvaluator">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">ROUGEEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#ROUGEEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.ROUGEEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
+<p>ROUGE evaluator based on <a class="reference external" href="https://github.com/pltrdy/rouge">https://github.com/pltrdy/rouge</a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.evaluator.SacreBLEUEvaluator">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">SacreBLEUEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#SacreBLEUEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.SacreBLEUEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
+<p>Evaluator using sacreBLEU.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.evaluator.BLEUEvaluator">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">BLEUEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
+<p>Evaluator calling multi-bleu.perl.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.utils.evaluator.BLEUDetokEvaluator">
+<em class="property">class </em><code class="descclassname">opennmt.utils.evaluator.</code><code class="descname">BLEUDetokEvaluator</code><span class="sig-paren">(</span><em>labels_file=None</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/evaluator.html#BLEUDetokEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.evaluator.BLEUDetokEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.utils.evaluator.ExternalEvaluator" title="opennmt.utils.evaluator.ExternalEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.evaluator.ExternalEvaluator</span></code></a></p>
+<p>Evaluator calling multi-bleu-detok.perl.</p>
 </dd></dl>
 
 </div>

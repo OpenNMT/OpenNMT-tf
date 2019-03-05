@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.position &mdash; OpenNMT-tf 1.21.1 documentation</title>
+  <title>opennmt.layers.position &mdash; OpenNMT-tf 1.21.2 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.21.1',
+              VERSION:'1.21.2',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -247,9 +247,13 @@
 <span class="sd">      A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the</span>
 <span class="sd">      :attr:`reducer`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Always build for backward compatibility.</span>
+    <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">is_tf2</span><span class="p">():</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c1"># Build by default for backward compatibility.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">compat</span><span class="o">.</span><span class="n">reuse</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
         <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">)</span></div>
 

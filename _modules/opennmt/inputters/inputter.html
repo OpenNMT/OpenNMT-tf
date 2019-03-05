@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 1.21.1 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 1.21.2 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.21.1',
+              VERSION:'1.21.2',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -638,6 +638,7 @@
             <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">variables</span><span class="p">)):</span>
           <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="n">inputter</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">for</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">scope</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_names</span><span class="p">()):</span>
         <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_compat</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="s2">&quot;variable_scope&quot;</span><span class="p">)(</span><span class="n">scope</span><span class="p">):</span>

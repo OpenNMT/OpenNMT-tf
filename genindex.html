@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 1.21.1 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 1.21.2 documentation</title>
   
 
   
@@ -26,7 +26,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.21.1',
+              VERSION:'1.21.2',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -228,6 +228,8 @@
 </li>
         <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.__call__">(opennmt.utils.evaluator.ExternalEvaluator method)</a>
 </li>
+        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.__call__">(opennmt.utils.evaluator.Scorer method)</a>
+</li>
         <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.__call__">(opennmt.utils.parallel.GraphDispatcher method)</a>
 </li>
       </ul></li>
@@ -377,6 +379,8 @@
 </li>
       <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.add_process_hooks">add_process_hooks() (opennmt.inputters.inputter.Inputter method)</a>
 </li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.add_scorer">add_scorer() (opennmt.utils.evaluator.ExternalEvaluator method)</a>
+</li>
       <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.Dense.add_weight">add_weight() (opennmt.layers.common.Dense method)</a>
 </li>
       <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session">after_create_session() (opennmt.utils.hooks.LoadWeightsFromCheckpointHook method)</a>
@@ -397,10 +401,10 @@
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.after_run">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.align_in_time">align_in_time() (in module opennmt.layers.reducer)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.align_in_time">align_in_time() (in module opennmt.layers.reducer)</a>
+</li>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.align_tokens_from_attention">align_tokens_from_attention() (in module opennmt.models.sequence_to_sequence)</a>
 </li>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.alignment_matrix_from_pharaoh">alignment_matrix_from_pharaoh() (in module opennmt.models.sequence_to_sequence)</a>
@@ -483,13 +487,17 @@
         <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.begin">(opennmt.utils.hooks.VariablesInitializerHook method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder">BidirectionalRNNEncoder (class in opennmt.encoders.rnn_encoder)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokEvaluator">BLEUDetokEvaluator (class in opennmt.utils.evaluator)</a>
 </li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokScorer">BLEUDetokScorer (class in opennmt.utils.evaluator)</a>
+</li>
       <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator">BLEUEvaluator (class in opennmt.utils.evaluator)</a>
+</li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUScorer">BLEUScorer (class in opennmt.utils.evaluator)</a>
 </li>
       <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.Bridge">Bridge (class in opennmt.layers.bridge)</a>
 </li>
@@ -969,16 +977,22 @@
 </li>
       <li><a href="package/opennmt.config.html#opennmt.config.load_model_from_catalog">load_model_from_catalog() (in module opennmt.config)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.config.html#opennmt.config.load_model_from_file">load_model_from_file() (in module opennmt.config)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.config.html#opennmt.config.load_model_module">load_model_module() (in module opennmt.config)</a>
 </li>
       <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.load_pretrained_embeddings">load_pretrained_embeddings() (in module opennmt.inputters.text_inputter)</a>
 </li>
       <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook">LoadWeightsFromCheckpointHook (class in opennmt.utils.hooks)</a>
 </li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer.log">log() (opennmt.utils.evaluator.ROUGEScorer method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.log">(opennmt.utils.evaluator.Scorer method)</a>
+</li>
+      </ul></li>
       <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.logits_to_cum_log_probs">logits_to_cum_log_probs() (in module opennmt.decoders.decoder)</a>
 </li>
       <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler">LogMaxScaler (class in opennmt.optimizers.mixed_precision_wrapper)</a>
@@ -999,6 +1013,8 @@
         <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler.loss_scale">(opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler attribute)</a>
 </li>
       </ul></li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.lower_is_better">lower_is_better() (opennmt.utils.evaluator.Scorer method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1075,10 +1091,10 @@
         <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.make_inference_dataset">(opennmt.inputters.inputter.Inputter method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.estimator.html#opennmt.estimator.make_input_fn">make_input_fn() (in module opennmt.estimator)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.make_inputs">make_inputs() (opennmt.inputters.inputter.Inputter method)</a>
 
       <ul>
@@ -1102,6 +1118,8 @@
       <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.make_positions">make_positions() (in module opennmt.layers.position)</a>
 </li>
       <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.make_rnn_cell">make_rnn_cell() (in module opennmt.layers.rnn)</a>
+</li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.make_scorers">make_scorers() (in module opennmt.utils.evaluator)</a>
 </li>
       <li><a href="package/opennmt.estimator.html#opennmt.estimator.make_serving_input_fn">make_serving_input_fn() (in module opennmt.estimator)</a>
 </li>
@@ -1153,30 +1171,20 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.name">name (opennmt.utils.evaluator.ExternalEvaluator attribute)</a>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.name">name (opennmt.utils.evaluator.Scorer attribute)</a>
 </li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokEvaluator.name">name() (opennmt.utils.evaluator.BLEUDetokEvaluator method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator.name">(opennmt.utils.evaluator.BLEUEvaluator method)</a>
-</li>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator.name">(opennmt.utils.evaluator.ROUGEEvaluator method)</a>
-</li>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.name">(opennmt.utils.evaluator.SacreBLEUEvaluator method)</a>
-</li>
-      </ul></li>
       <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.name_from_variable_scope">name_from_variable_scope() (in module opennmt.utils.compat)</a>
 </li>
       <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.NMTBig">NMTBig (class in opennmt.models.catalog)</a>
 </li>
       <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.NMTMedium">NMTMedium (class in opennmt.models.catalog)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.NMTSmall">NMTSmall (class in opennmt.models.catalog)</a>
 </li>
       <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.noam_decay">noam_decay() (in module opennmt.utils.decay)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.noam_decay_v2">noam_decay_v2() (in module opennmt.utils.decay)</a>
 </li>
       <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.Noise">Noise (class in opennmt.layers.noise)</a>
@@ -1445,11 +1453,13 @@
 </li>
       <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.remove_data_field">remove_data_field() (opennmt.inputters.inputter.Inputter method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.repeat">repeat() (opennmt.utils.parallel.GraphDispatcher method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.replace_unknown_target">replace_unknown_target() (in module opennmt.models.sequence_to_sequence)</a>
+</li>
+      <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.reuse">reuse() (in module opennmt.utils.compat)</a>
 </li>
       <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.rnmtplus_decay">rnmtplus_decay() (in module opennmt.utils.decay)</a>
 </li>
@@ -1471,6 +1481,8 @@
 </li>
       <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator">ROUGEEvaluator (class in opennmt.utils.evaluator)</a>
 </li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer">ROUGEScorer (class in opennmt.utils.evaluator)</a>
+</li>
       <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.rsqrt_decay">rsqrt_decay() (in module opennmt.utils.decay)</a>
 </li>
       <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.rsqrt_decay_v2">rsqrt_decay_v2() (in module opennmt.utils.decay)</a>
@@ -1485,20 +1497,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator">SacreBLEUEvaluator (class in opennmt.utils.evaluator)</a>
 </li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUScorer">SacreBLEUScorer (class in opennmt.utils.evaluator)</a>
+</li>
       <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook">SaveEvaluationPredictionHook (class in opennmt.utils.hooks)</a>
 </li>
       <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.score">score() (opennmt.runner.Runner method)</a>
 
       <ul>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator.score">(opennmt.utils.evaluator.BLEUEvaluator method)</a>
-</li>
         <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.score">(opennmt.utils.evaluator.ExternalEvaluator method)</a>
 </li>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator.score">(opennmt.utils.evaluator.ROUGEEvaluator method)</a>
-</li>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.score">(opennmt.utils.evaluator.SacreBLEUEvaluator method)</a>
-</li>
       </ul></li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer">Scorer (class in opennmt.utils.evaluator)</a>
+</li>
       <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder">SelfAttentionDecoder (class in opennmt.decoders.self_attention_decoder)</a>
 </li>
       <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2">SelfAttentionDecoderV2 (class in opennmt.decoders.self_attention_decoder)</a>
@@ -1529,12 +1539,12 @@
 </li>
       <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.shape_list">shape_list() (in module opennmt.utils.misc)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.shard">shard() (opennmt.utils.parallel.GraphDispatcher method)</a>
 </li>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.share_input_embeddings">share_input_embeddings() (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.share_target_embeddings">share_target_embeddings() (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel static method)</a>
 </li>
       <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.shift_target_sequence">shift_target_sequence() (in module opennmt.models.sequence_to_sequence)</a>
@@ -1565,6 +1575,12 @@
         <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.step_fn">(opennmt.decoders.rnn_decoder.RNNDecoder method)</a>
 </li>
         <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.step_fn">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoder method)</a>
+</li>
+      </ul></li>
+      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer.summarize">summarize() (opennmt.utils.evaluator.ROUGEScorer method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.summarize">(opennmt.utils.evaluator.Scorer method)</a>
 </li>
       </ul></li>
       <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.SumReducer">SumReducer (class in opennmt.layers.reducer)</a>

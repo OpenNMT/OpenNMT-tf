@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.evaluator &mdash; OpenNMT-tf 1.21.1 documentation</title>
+  <title>opennmt.utils.evaluator &mdash; OpenNMT-tf 1.21.2 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.21.1',
+              VERSION:'1.21.2',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -197,16 +197,21 @@
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">get_third_party_dir</span>
 
 
-<div class="viewcode-block" id="ExternalEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">ExternalEvaluator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ExternalEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ExternalEvaluator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for external evaluators.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">scorers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">scorers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_scorers</span> <span class="o">=</span> <span class="n">scorers</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_labels_file</span> <span class="o">=</span> <span class="n">labels_file</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="o">=</span> <span class="kc">None</span>
-
     <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">FileWriterCache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExternalEvaluator.add_scorer"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.add_scorer">[docs]</a>  <span class="k">def</span> <span class="nf">add_scorer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scorer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adds a scorer to this evaluator.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_scorers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scorer</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ExternalEvaluator.__call__"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Scores the predictions and logs the result.</span>
@@ -215,90 +220,108 @@
 <span class="sd">      step: The step at which this evaluation occurs.</span>
 <span class="sd">      predictions_path: The path to the saved predictions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">return</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_score</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_log_score</span><span class="p">(</span><span class="n">score</span><span class="p">)</span></div>
+    <span class="k">for</span> <span class="n">scorer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scorers</span><span class="p">:</span>
+      <span class="n">score</span> <span class="o">=</span> <span class="n">scorer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scorer</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+      <span class="n">scorer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">score</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_summarize_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="ExternalEvaluator.score"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Kept for backward compatibility: calls the first scorer.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scorers</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Scorer"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer">[docs]</a><span class="k">class</span> <span class="nc">Scorer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Scores hypotheses against references.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The scorer name.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+<div class="viewcode-block" id="Scorer.__call__"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.__call__">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scores the predictions against the true output labels.&quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Scorer.lower_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.lower_is_better">[docs]</a>  <span class="k">def</span> <span class="nf">lower_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns ``True`` if a lower score is better.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+  <span class="k">def</span> <span class="nf">_summarize_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="n">summary</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Summary</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Summary</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span> <span class="n">simple_value</span><span class="o">=</span><span class="n">value</span><span class="p">)])</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_summary_writer</span><span class="o">.</span><span class="n">add_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">add_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
 
-  <span class="c1"># Some evaluators may return several scores so let them the ability to</span>
+  <span class="c1"># Some scorers may return several scores so let them the ability to</span>
   <span class="c1"># define how to log the score result.</span>
 
-  <span class="k">def</span> <span class="nf">_summarize_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()),</span> <span class="n">score</span><span class="p">)</span>
+<div class="viewcode-block" id="Scorer.summarize"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.summarize">[docs]</a>  <span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Summarizes the score in TensorBoard.</span>
 
-  <span class="k">def</span> <span class="nf">_log_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> evaluation score: </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span> <span class="n">score</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">      writer: A summary writer.</span>
+<span class="sd">      step: The current step.</span>
+<span class="sd">      scorer: The score to summarize.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">),</span> <span class="n">score</span><span class="p">)</span></div>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractproperty</span>
-  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the name of this evaluator.&quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-
-<div class="viewcode-block" id="ExternalEvaluator.score"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.score">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Scores the predictions against the true output labels.&quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="Scorer.log"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.log">[docs]</a>  <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Logs the score in the console output.&quot;&quot;&quot;</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> evaluation score: </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ROUGEEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ROUGEEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;ROUGE evaluator based on https://github.com/pltrdy/rouge.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ROUGEScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer">[docs]</a><span class="k">class</span> <span class="nc">ROUGEScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;ROUGE scorer based on https://github.com/pltrdy/rouge.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ROUGEEvaluator.name"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator.name">[docs]</a>  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;ROUGE&quot;</span></div>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">ROUGEScorer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ROUGE&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_summarize_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/ROUGE-1&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-1&quot;</span><span class="p">])</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/ROUGE-2&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-2&quot;</span><span class="p">])</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/ROUGE-L&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-l&quot;</span><span class="p">])</span>
+<div class="viewcode-block" id="ROUGEScorer.summarize"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer.summarize">[docs]</a>  <span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/ROUGE-1&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-1&quot;</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/ROUGE-2&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-2&quot;</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_value</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="s2">&quot;external_evaluation/ROUGE-L&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-l&quot;</span><span class="p">])</span></div>
 
-  <span class="k">def</span> <span class="nf">_log_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
+<div class="viewcode-block" id="ROUGEScorer.log"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer.log">[docs]</a>  <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Evaluation score: ROUGE-1 = </span><span class="si">%f</span><span class="s2">; ROUGE-2 = </span><span class="si">%f</span><span class="s2">; ROUGE-L = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-1&quot;</span><span class="p">],</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-2&quot;</span><span class="p">],</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-l&quot;</span><span class="p">])</span>
+                    <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-1&quot;</span><span class="p">],</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-2&quot;</span><span class="p">],</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;rouge-l&quot;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="ROUGEEvaluator.score"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">rouge</span> <span class="k">import</span> <span class="n">FilesRouge</span>
     <span class="n">files_rouge</span> <span class="o">=</span> <span class="n">FilesRouge</span><span class="p">(</span><span class="n">predictions_path</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">)</span>
     <span class="n">rouge_scores</span> <span class="o">=</span> <span class="n">files_rouge</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span><span class="n">avg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rouge_scores</span><span class="p">)}</span></div></div>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rouge_scores</span><span class="p">)}</span></div>
 
 
-<div class="viewcode-block" id="SacreBLEUEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator">[docs]</a><span class="k">class</span> <span class="nc">SacreBLEUEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Evaluator using sacreBLEU.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SacreBLEUScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUScorer">[docs]</a><span class="k">class</span> <span class="nc">SacreBLEUScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Scorer using sacreBLEU.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
       <span class="kn">import</span> <span class="nn">sacrebleu</span>  <span class="c1"># pylint: disable=unused-import, unused-variable</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;sacreBLEU evaluator requires Python 3&quot;</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SacreBLEUEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SacreBLEUScorer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;sacreBLEU&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SacreBLEUEvaluator.name"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.name">[docs]</a>  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;sacreBLEU&quot;</span></div>
-
-<div class="viewcode-block" id="SacreBLEUEvaluator.score"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">sacrebleu</span> <span class="k">import</span> <span class="n">corpus_bleu</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">ref_stream</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">predictions_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">sys_stream</span><span class="p">:</span>
       <span class="n">bleu</span> <span class="o">=</span> <span class="n">corpus_bleu</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">])</span>
-      <span class="k">return</span> <span class="n">bleu</span><span class="o">.</span><span class="n">score</span></div></div>
+      <span class="k">return</span> <span class="n">bleu</span><span class="o">.</span><span class="n">score</span></div>
 
 
-<div class="viewcode-block" id="BLEUEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator">[docs]</a><span class="k">class</span> <span class="nc">BLEUEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Evaluator calling multi-bleu.perl.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="BLEUScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUScorer">[docs]</a><span class="k">class</span> <span class="nc">BLEUScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Scorer calling multi-bleu.perl.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_get_bleu_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;multi-bleu.perl&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bleu_script</span><span class="o">=</span><span class="s2">&quot;multi-bleu.perl&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BLEU&quot;</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">BLEUScorer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_bleu_script</span> <span class="o">=</span> <span class="n">bleu_script</span>
 
-<div class="viewcode-block" id="BLEUEvaluator.name"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator.name">[docs]</a>  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;BLEU&quot;</span></div>
-
-<div class="viewcode-block" id="BLEUEvaluator.score"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
-    <span class="n">bleu_script</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bleu_script</span><span class="p">()</span>
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
       <span class="n">third_party_dir</span> <span class="o">=</span> <span class="n">get_third_party_dir</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -307,7 +330,7 @@
     <span class="k">try</span><span class="p">:</span>
       <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">predictions_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">predictions_file</span><span class="p">:</span>
         <span class="n">bleu_out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">third_party_dir</span><span class="p">,</span> <span class="n">bleu_script</span><span class="p">),</span> <span class="n">labels_file</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">third_party_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bleu_script</span><span class="p">),</span> <span class="n">labels_file</span><span class="p">],</span>
             <span class="n">stdin</span><span class="o">=</span><span class="n">predictions_file</span><span class="p">,</span>
             <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
         <span class="n">bleu_out</span> <span class="o">=</span> <span class="n">bleu_out</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
@@ -317,27 +340,56 @@
       <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> script returned non-zero exit code: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bleu_script</span><span class="p">,</span> <span class="n">msg</span><span class="p">))</span>
-      <span class="k">return</span> <span class="kc">None</span></div></div>
+            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> script returned non-zero exit code: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bleu_script</span><span class="p">,</span> <span class="n">msg</span><span class="p">))</span>
+      <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="BLEUDetokEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokEvaluator">[docs]</a><span class="k">class</span> <span class="nc">BLEUDetokEvaluator</span><span class="p">(</span><span class="n">BLEUEvaluator</span><span class="p">):</span>
+<div class="viewcode-block" id="BLEUDetokScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokScorer">[docs]</a><span class="k">class</span> <span class="nc">BLEUDetokScorer</span><span class="p">(</span><span class="n">BLEUScorer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Evaluator calling multi-bleu-detok.perl.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_get_bleu_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;multi-bleu-detok.perl&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">BLEUDetokScorer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">bleu_script</span><span class="o">=</span><span class="s2">&quot;multi-bleu-detok.perl&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BLEU-detok&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BLEUDetokEvaluator.name"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokEvaluator.name">[docs]</a>  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;BLEU-detok&quot;</span></div></div>
 
+<div class="viewcode-block" id="make_scorers"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.make_scorers">[docs]</a><span class="k">def</span> <span class="nf">make_scorers</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns a list of scorers.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    names: A list of scorer names or a single name.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A list of :class:`opennmt.utils.evaluator.Scorer` instances.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if a scorer name is invalid.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="p">]</span>
+  <span class="n">scorers</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">scorer</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bleu&quot;</span><span class="p">:</span>
+      <span class="n">scorer</span> <span class="o">=</span> <span class="n">BLEUScorer</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bleu-detok&quot;</span><span class="p">:</span>
+      <span class="n">scorer</span> <span class="o">=</span> <span class="n">BLEUDetokScorer</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;sacrebleu&quot;</span><span class="p">:</span>
+      <span class="n">scorer</span> <span class="o">=</span> <span class="n">SacreBLEUScorer</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;rouge&quot;</span><span class="p">:</span>
+      <span class="n">scorer</span> <span class="o">=</span> <span class="n">ROUGEScorer</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No scorer associated with the name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">scorers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scorer</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">scorers</span></div>
 
 <div class="viewcode-block" id="external_evaluation_fn"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.external_evaluation_fn">[docs]</a><span class="k">def</span> <span class="nf">external_evaluation_fn</span><span class="p">(</span><span class="n">evaluators_name</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns a callable to be used in</span>
 <span class="sd">  :class:`opennmt.utils.hooks.SaveEvaluationPredictionHook` that calls one or</span>
-<span class="sd">  more external evaluators.</span>
+<span class="sd">  more scorers.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    evaluators_name: An evaluator name or a list of evaluators name.</span>
+<span class="sd">    evaluators_name: A scorer name or a list of scorer names.</span>
 <span class="sd">    labels_file: The true output labels.</span>
 <span class="sd">    output_dir: The run directory.</span>
 
@@ -345,37 +397,48 @@
 <span class="sd">    A callable or ``None`` if :obj:`evaluators_name` is ``None`` or empty.</span>
 
 <span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if an evaluator name is invalid.</span>
+<span class="sd">    ValueError: if an scorer name is invalid.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">evaluators_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">return</span> <span class="kc">None</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evaluators_name</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-    <span class="n">evaluators_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluators_name</span><span class="p">]</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="n">evaluators_name</span><span class="p">:</span>
     <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">ExternalEvaluator</span><span class="p">(</span>
+      <span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span>
+      <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+      <span class="n">scorers</span><span class="o">=</span><span class="n">make_scorers</span><span class="p">(</span><span class="n">evaluators_name</span><span class="p">))</span></div>
 
-  <span class="n">evaluators</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">evaluators_name</span><span class="p">:</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="n">evaluator_class</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bleu&quot;</span><span class="p">:</span>
-      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">BLEUEvaluator</span>
-    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bleu-detok&quot;</span><span class="p">:</span>
-      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">BLEUDetokEvaluator</span>
-    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;sacrebleu&quot;</span><span class="p">:</span>
-      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">SacreBLEUEvaluator</span>
-    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;rouge&quot;</span><span class="p">:</span>
-      <span class="n">evaluator_class</span> <span class="o">=</span> <span class="n">ROUGEEvaluator</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No evaluator associated with the name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">evaluator_class</span><span class="p">(</span><span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
-    <span class="n">evaluators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_post_evaluation_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">evaluator</span> <span class="ow">in</span> <span class="n">evaluators</span><span class="p">:</span>
-      <span class="n">evaluator</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">predictions_path</span><span class="p">)</span>
+<span class="c1"># Keep scorer-specific evaluators for backward compatibility.</span>
 
-  <span class="k">return</span> <span class="n">_post_evaluation_fn</span></div>
+<div class="viewcode-block" id="ROUGEEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ROUGEEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;ROUGE evaluator based on https://github.com/pltrdy/rouge.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">ROUGEEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">ROUGEScorer</span><span class="p">()])</span></div>
+
+
+<div class="viewcode-block" id="SacreBLEUEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator">[docs]</a><span class="k">class</span> <span class="nc">SacreBLEUEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Evaluator using sacreBLEU.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SacreBLEUEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">SacreBLEUScorer</span><span class="p">()])</span></div>
+
+
+<div class="viewcode-block" id="BLEUEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator">[docs]</a><span class="k">class</span> <span class="nc">BLEUEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Evaluator calling multi-bleu.perl.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">BLEUEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">BLEUScorer</span><span class="p">()])</span></div>
+
+
+<div class="viewcode-block" id="BLEUDetokEvaluator"><a class="viewcode-back" href="../../../package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokEvaluator">[docs]</a><span class="k">class</span> <span class="nc">BLEUDetokEvaluator</span><span class="p">(</span><span class="n">ExternalEvaluator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Evaluator calling multi-bleu-detok.perl.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">BLEUDetokEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">labels_file</span><span class="o">=</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">BLEUDetokScorer</span><span class="p">()])</span></div>
 </pre></div>
 
            </div>

@@ -1,5 +1,4 @@
 ./README.html
-./_modules/abc.html
 ./_modules/index.html
 ./_modules/opennmt/bin/ark_to_records.html
 ./_modules/opennmt/bin/average_checkpoints.html
