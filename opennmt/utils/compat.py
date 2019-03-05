@@ -53,6 +53,10 @@ def name_from_variable_scope(name=""):
     compat_name = "%s/%s" % (var_scope, compat_name)
   return compat_name
 
+def reuse():
+  """Returns ``True`` if the current variable scope is marked for reuse."""
+  return tf_compat(v1="get_variable_scope")().reuse
+
 def _string_to_tf_symbol(symbol):
   modules = symbol.split(".")
   namespace = tf
