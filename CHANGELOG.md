@@ -16,6 +16,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+* Fix checkpoint restore during evaluation when using a `PositionEmbedder` or a `DenseBridge` in the decoder
+
 ## [1.21.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.1) (2019-03-04)
 
 ### Fixes and improvements
