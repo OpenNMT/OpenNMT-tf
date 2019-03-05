@@ -49,8 +49,9 @@ class Bridge(tf.keras.layers.Layer):
       The decoder initial state.
     """
     inputs = [encoder_state, decoder_zero_state]
-    # Always build for backward compatibility.
-    self.build(compat.nest.map_structure(lambda x: x.shape, inputs))
+    # Build by default for backward compatibility.
+    if not compat.reuse():
+      self.build(compat.nest.map_structure(lambda x: x.shape, inputs))
     return self.call(inputs)
 
   @abc.abstractmethod
