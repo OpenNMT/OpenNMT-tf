@@ -5,15 +5,10 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import compat
-
 
 def pad_in_time(x, padding_length):
   """Helper function to pad a tensor in the time dimension and retain the static depth dimension."""
-  depth = x.get_shape().as_list()[-1]
-  x = tf.pad(x, [[0, 0], [0, padding_length], [0, 0]])
-  x.set_shape((None, None, depth))
-  return x
+  return tf.pad(x, [[0, 0], [0, padding_length], [0, 0]])
 
 def align_in_time(x, length):
   """Aligns the time dimension of :obj:`x` with :obj:`length`."""
@@ -102,16 +97,16 @@ class Reducer(object):
   def zip_and_reduce(self, x, y):
     """Zips :obj:`x` with :obj:`y` and reduces all elements."""
     if isinstance(x, (list, tuple)):
-      compat.nest.assert_same_structure(x, y)
+      tf.nest.assert_same_structure(x, y)
 
-      x_flat = compat.nest.flatten(x)
-      y_flat = compat.nest.flatten(y)
+      x_flat = tf.nest.flatten(x)
+      y_flat = tf.nest.flatten(y)
 
       flat = []
       for x_i, y_i in zip(x_flat, y_flat):
         flat.append(self([x_i, y_i]))
 
-      return compat.nest.pack_sequence_as(x, flat)
+      return tf.nest.pack_sequence_as(x, flat)
     else:
       return self([x, y])
 
