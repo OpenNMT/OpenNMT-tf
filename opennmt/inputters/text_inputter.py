@@ -4,7 +4,6 @@ import abc
 import collections
 import os
 import six
-import yaml
 
 import numpy as np
 import tensorflow as tf
@@ -252,14 +251,7 @@ class TextInputter(Inputter):
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     if self.tokenizer is None:
       tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
-      if tokenizer_config:
-        if isinstance(tokenizer_config, six.string_types) and compat.gfile_exists(tokenizer_config):
-          with compat.gfile_open(tokenizer_config, mode="rb") as config_file:
-            tokenizer_config = yaml.load(config_file)
-        self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
-      else:
-        self.tokenizer = tokenizers.SpaceTokenizer()
-    self.tokenizer.initialize(metadata)
+      self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
     return super(TextInputter, self).initialize(
         metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
