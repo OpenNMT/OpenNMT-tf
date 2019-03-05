@@ -432,7 +432,7 @@ class RNMTPlusDecoder(RNNDecoder):
         dropout=self.dropout)
     return cell, cell.zero_state(batch_size, dtype)
 
-class _RNMTPlusDecoderCell(tf.nn.rnn_cell.RNNCell):
+class _RNMTPlusDecoderCell(tf.compat.v1.nn.rnn_cell.RNNCell):
 
   def __init__(self,
                mode,
