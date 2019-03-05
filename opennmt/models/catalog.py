@@ -12,7 +12,7 @@ class ListenAttendSpell(onmt.models.SequenceToSequence):
   """
   def __init__(self):
     super(ListenAttendSpell, self).__init__(
-        source_inputter=onmt.inputters.SequenceRecordInputter(),
+        source_inputter=onmt.inputters.SequenceRecordInputter(input_depth=40),
         target_inputter=onmt.inputters.WordEmbedder(
             vocabulary_file_key="target_vocabulary",
             embedding_size=50),
