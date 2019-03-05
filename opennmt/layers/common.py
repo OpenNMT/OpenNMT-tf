@@ -2,44 +2,14 @@
 
 import tensorflow as tf
 
-from tensorflow.python.framework import function
-
-from opennmt.utils import compat
 from opennmt.utils.misc import shape_list
 
-
-@function.Defun(
-    python_grad_func=lambda x, dy: tf.convert_to_tensor(dy),
-    shape_func=lambda op: [op.inputs[0].get_shape()])
-def convert_gradient_to_tensor(x):
-  """Wraps :obj:`x` to convert its gradient to a tensor."""
-  return x
-
-
-def embedding_lookup(params, ids):
-  """Wrapper around ``tf.nn.embedding_lookup``.
-
-  This converts gradients of the embedding variable to tensors which allows
-  to use of optimizers that don't support sparse gradients (e.g. Adafactor).
-
-  Args:
-    params: The embedding tensor.
-    ids: The ids to lookup in :obj:`params`.
-
-  Returns:
-    A ``tf.Tensor``, the embeddings that correspond to :obj:`ids`.
-  """
-  params = convert_gradient_to_tensor(params)
-  return tf.nn.embedding_lookup(params, ids)
 
 def dropout(x, rate, training=None):
   """Simple dropout layer."""
   if not training or rate == 0:
     return x
-  if compat.is_tf2():
-    return tf.nn.dropout(x, rate)
-  else:
-    return tf.nn.dropout(x, 1.0 - rate)
+  return tf.nn.dropout(x, rate)
 
 
 class Dense(tf.keras.layers.Dense):
