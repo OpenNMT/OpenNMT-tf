@@ -8,7 +8,6 @@ import tensorflow as tf
 import yaml
 
 from opennmt.models import catalog
-from opennmt.utils import compat
 from opennmt.utils.misc import merge_dict
 
 
@@ -88,7 +87,7 @@ def load_model(model_dir,
 
   if model_name_or_path:
     if tf.train.latest_checkpoint(model_dir) is not None:
-      compat.logging.warn(
+      tf.compat.v1.logging.warn(
           "You provided a model configuration but a checkpoint already exists. "
           "The model configuration must define the same model as the one used for "
           "the initial training. However, you can change non structural values like "
@@ -97,15 +96,15 @@ def load_model(model_dir,
     if model_file:
       model = load_model_from_file(model_file)
       if serialize_model:
-        compat.gfile_copy(model_file, model_description_path, overwrite=True)
+        tf.io.gfile.copy(model_file, model_description_path, overwrite=True)
     elif model_name:
       model = load_model_from_catalog(model_name)
       if serialize_model:
-        with compat.gfile_open(model_description_path, mode="w") as model_description_file:
+        with tf.io.gfile.GFile(model_description_path, mode="w") as model_description_file:
           model_description_file.write("from opennmt.models import catalog\n")
           model_description_file.write("model = catalog.%s\n" % model_name)
-  elif compat.gfile_exists(model_description_path):
-    compat.logging.info("Loading model description from %s", model_description_path)
+  elif tf.io.gfile.exists(model_description_path):
+    tf.compat.v1.logging.info("Loading model description from %s", model_description_path)
     model = load_model_from_file(model_description_path)
   else:
     raise RuntimeError("A model configuration is required: you probably need to "
@@ -127,7 +126,7 @@ def load_config(config_paths, config=None):
     config = {}
 
   for config_path in config_paths:
-    with compat.gfile_open(config_path, mode="rb") as config_file:
+    with tf.io.gfile.GFile(config_path, mode="rb") as config_file:
       subconfig = yaml.load(config_file.read())
       # Add or update section in main configuration.
       merge_dict(config, subconfig)
