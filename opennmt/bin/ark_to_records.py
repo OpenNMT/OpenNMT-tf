@@ -68,7 +68,7 @@ def write_text(text, writer):
 
 def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
   """Converts ARK and text datasets to aligned TFRecords and text datasets."""
-  record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
+  record_writer = tf.io.TFRecordWriter(out_prefix + ".records")
   text_writer = io.open(out_prefix + ".txt", encoding="utf-8", mode="w")
 
   ark_buffer = {}
@@ -134,7 +134,7 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
 
 def ark_to_records(ark_filename, out_prefix):
   """Converts ARK dataset to TFRecords."""
-  record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
+  record_writer = tf.io.TFRecordWriter(out_prefix + ".records")
   count = 0
 
   with io.open(ark_filename, encoding="utf-8") as ark_file:
