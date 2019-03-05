@@ -454,6 +454,7 @@ class ParallelInputter(MultiInputter):
             or (isinstance(attr, tf.keras.layers.Layer) and attr.variables)):
           for inputter in others:
             setattr(inputter, name, attr)
+            inputter.built = True
     else:
       for inputter, scope in zip(self.inputters, self._get_names()):
         with compat.tf_compat(v1="variable_scope")(scope):
