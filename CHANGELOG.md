@@ -16,6 +16,10 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.21.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.2) (2019-03-05)
+
+### Fixes and improvements
+
 * Fix checkpoint restore during evaluation when using a `PositionEmbedder` or a `DenseBridge` in the decoder
 * Fix inputters parameter sharing: shared variables were overriden when the layer was invoked (requires retraining)
 
