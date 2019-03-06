@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from opennmt import estimator
 from opennmt import inputters
+from opennmt.utils import compat
 from opennmt.utils.optim import optimize_loss
 
 
@@ -82,6 +83,8 @@ class Model(tf.keras.layers.Layer):
       the arguments of this function.
     """
     with tf.variable_scope(self.name, initializer=self._initializer(params)):
+      if not compat.reuse():
+        self._build()  # Always rebuild unless the scope is marked for reuse.
       return self._call(features, labels, params, mode)
 
   def _initializer(self, params):
@@ -98,6 +101,10 @@ class Model(tf.keras.layers.Layer):
       return tf.random_uniform_initializer(
           minval=-param_init, maxval=param_init, dtype=self.dtype)
     return None
+
+  def _build(self):
+    """Builds stateful layers."""
+    return
 
   @abc.abstractmethod
   def _call(self, features, labels, params, mode):
