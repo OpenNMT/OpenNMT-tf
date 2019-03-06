@@ -48,11 +48,7 @@ class LanguageModel(Model):
         }
     })
 
-  def _call(self, features, labels, params, mode):
-    training = mode == tf.estimator.ModeKeys.TRAIN
-    outputs, predictions = None, None
-
-    # Initialize input and output layers.
+  def _build(self):
     self.examples_inputter.build()
     vocab_size = self.examples_inputter.vocabulary_size
     output_layer = None
@@ -63,6 +59,10 @@ class LanguageModel(Model):
           transpose=True,
           dtype=self.examples_inputter.dtype)
     self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
+
+  def _call(self, features, labels, params, mode):
+    training = mode == tf.estimator.ModeKeys.TRAIN
+    outputs, predictions = None, None
 
     ids, length = features["ids"], features["length"]
     if mode != tf.estimator.ModeKeys.PREDICT:

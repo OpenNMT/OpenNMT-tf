@@ -135,6 +135,7 @@ class SequenceToSequence(Model):
     self.encoder = encoder
     self.decoder = decoder
     self.share_embeddings = share_embeddings
+    self.output_layer = None
 
   def auto_config(self, num_devices=1):
     config = super(SequenceToSequence, self).auto_config(num_devices=num_devices)
@@ -153,9 +154,19 @@ class SequenceToSequence(Model):
         }
     })
 
+  def _build(self):
+    self.examples_inputter.build()
+    if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
+      self.output_layer = layers.Dense(
+          self.labels_inputter.vocabulary_size,
+          weight=self.labels_inputter.embedding,
+          transpose=True,
+          dtype=self.labels_inputter.vocabulary_size.dtype)
+      with tf.name_scope(tf.get_variable_scope().name + "/"):
+        self.output_layer.build([None, self.decoder.output_size])
+
   def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
-    self.examples_inputter.build()
 
     features_length = self.features_inputter.get_length(features)
     source_inputs = self.features_inputter.make_inputs(features, training=training)
@@ -167,16 +178,6 @@ class SequenceToSequence(Model):
 
     target_vocab_size = self.labels_inputter.vocabulary_size
     target_dtype = self.labels_inputter.dtype
-    output_layer = None
-    if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
-      output_layer = layers.Dense(
-          target_vocab_size,
-          weight=self.labels_inputter.embedding,
-          transpose=True,
-          dtype=target_dtype)
-      with tf.name_scope(tf.get_variable_scope().name + "/"):
-        output_layer.build([None, self.decoder.output_size])
-
     if labels is not None:
       target_inputs = self.labels_inputter.make_inputs(labels, training=training)
       with tf.variable_scope("decoder"):
@@ -195,7 +196,7 @@ class SequenceToSequence(Model):
             initial_state=encoder_state,
             sampling_probability=sampling_probability,
             embedding=self.labels_inputter.embedding,
-            output_layer=output_layer,
+            output_layer=self.output_layer,
             mode=mode,
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length,
@@ -228,7 +229,7 @@ class SequenceToSequence(Model):
               end_token,
               vocab_size=target_vocab_size,
               initial_state=encoder_state,
-              output_layer=output_layer,
+              output_layer=self.output_layer,
               maximum_iterations=maximum_iterations,
               minimum_length=minimum_length,
               mode=mode,
@@ -247,7 +248,7 @@ class SequenceToSequence(Model):
                   end_token,
                   vocab_size=target_vocab_size,
                   initial_state=encoder_state,
-                  output_layer=output_layer,
+                  output_layer=self.output_layer,
                   beam_width=beam_width,
                   length_penalty=length_penalty,
                   maximum_iterations=maximum_iterations,
