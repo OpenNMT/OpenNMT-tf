@@ -169,55 +169,9 @@ def tokens_to_chars(tokens, padding_value=PADDING_TOKEN):
     The characters as a string ``tf.Tensor`` of shape :math:`[T, W]` and the
     length of each token as an int64 ``tf.Tensor``  of shape :math:`[T]`.
   """
-  if hasattr(tf, "strings") and hasattr(tf.strings, "unicode_split"):
-    ragged = tf.strings.unicode_split(tokens, "UTF-8")
-    chars = ragged.to_tensor(default_value=padding_value)
-    lengths = ragged.row_lengths()
-    return chars, lengths
-
-  def _split_chars(token, max_length, delimiter=" "):
-    chars = list(token.decode("utf-8"))
-    while len(chars) < max_length:
-      chars.append(padding_value)
-    return delimiter.join(chars).encode("utf-8")
-
-  def _string_len(token):
-    return len(token.decode("utf-8"))
-
-  def _apply():
-    # Get the length of each token.
-    lengths = tf.map_fn(
-        lambda x: tf.py_func(_string_len, [x], tf.int64),
-        tokens,
-        dtype=tf.int64,
-        back_prop=False)
-
-    max_length = tf.reduce_max(lengths)
-
-    # Add a delimiter between each unicode character.
-    spaced_chars = tf.map_fn(
-        lambda x: tf.py_func(_split_chars, [x, max_length], [tf.string]),
-        tokens,
-        dtype=[tf.string],
-        back_prop=False)
-
-    # Split on this delimiter
-    chars = tf.map_fn(
-        lambda x: tf.string_split(x, delimiter=" ").values,
-        spaced_chars,
-        dtype=tf.string,
-        back_prop=False)
-
-    return chars, lengths
-
-  def _none():
-    chars = tf.constant([], dtype=tf.string)
-    lengths = tf.constant([], dtype=tf.int64)
-    return chars, lengths
-
-  chars, lengths = tf.cond(tf.equal(tf.shape(tokens)[0], 0), true_fn=_none, false_fn=_apply)
-  chars.set_shape([None, None])
-  lengths.set_shape([None])
+  ragged = tf.strings.unicode_split(tokens, "UTF-8")
+  chars = ragged.to_tensor(default_value=padding_value)
+  lengths = ragged.row_lengths()
   return chars, lengths
 
 def _get_field(config, key, prefix=None, default=None, required=False):
@@ -286,6 +240,12 @@ class TextInputter(Inputter):
     features["length"] = tf.shape(tokens)[0]
     features["tokens"] = tokens
     return features
+
+  def get_receiver_tensors(self):
+    return {
+        "tokens": tf.placeholder(tf.string, shape=(None, None)),
+        "length": tf.placeholder(tf.int32, shape=(None,))
+    }
 
 
 class WordEmbedder(TextInputter):
@@ -358,12 +318,6 @@ class WordEmbedder(TextInputter):
       raise ValueError("Must either provide embedding_size or embedding_file_key")
 
     return assets
-
-  def get_receiver_tensors(self):
-    return {
-        "tokens": tf.placeholder(tf.string, shape=(None, None)),
-        "length": tf.placeholder(tf.int32, shape=(None,))
-    }
 
   def make_features(self, element=None, features=None, training=None):
     """Converts words tokens to ids."""
@@ -447,12 +401,6 @@ class CharEmbedder(TextInputter):
     self.embedding_size = embedding_size
     self.embedding = None
     self.dropout = dropout
-
-  def get_receiver_tensors(self):
-    return {
-        "chars": tf.placeholder(tf.string, shape=(None, None, None)),
-        "length": tf.placeholder(tf.int32, shape=(None,))
-    }
 
   def make_features(self, element=None, features=None, training=None):
     """Converts words to characters."""
