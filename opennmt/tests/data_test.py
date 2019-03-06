@@ -1,24 +1,13 @@
 import tensorflow as tf
 
-from opennmt.utils import compat, data
+from opennmt.utils import data
 
 
 class DataTest(tf.test.TestCase):
 
   def _iterDataset(self, dataset):
-    if compat.is_tf2():
-      for element in dataset:
-        yield element
-    else:
-      iterator = dataset.make_initializable_iterator()
-      next_element = iterator.get_next()
-      with self.test_session() as sess:
-        sess.run(iterator.initializer)
-        while True:
-          try:
-            yield sess.run(next_element)
-          except tf.errors.OutOfRangeError:
-            return
+    for element in dataset:
+      yield element
 
   def testIrregularBatches(self):
     batch_size = 12
@@ -88,9 +77,8 @@ class DataTest(tf.test.TestCase):
 
   def _testBatchTrainDataset(self, check_fn, batch_size, **kwargs):
     num_examples = 1000
-    random_normal = compat.tf_compat(v2="random.normal", v1="random_normal")
-    features = random_normal([num_examples], mean=12, stddev=6, seed=42)
-    labels_diff = random_normal([num_examples], mean=0, stddev=3, seed=42)
+    features = tf.random.normal([num_examples], mean=12, stddev=6, seed=42)
+    labels_diff = tf.random.normal([num_examples], mean=0, stddev=3, seed=42)
     labels = features + labels_diff
 
     features = tf.maximum(tf.cast(1, tf.int32), tf.cast(features, tf.int32))
@@ -152,8 +140,8 @@ class DataTest(tf.test.TestCase):
   def testReorderInferDataset(self):
     dataset = tf.data.Dataset.from_tensor_slices([8, 2, 5, 6, 7, 1, 3, 9])
     dataset = dataset.map(lambda x: {"length": x})
-    dataset = data.inference_pipeline(
-        dataset, 3, bucket_width=3, length_fn=lambda x: x["length"])
+    dataset = dataset.apply(data.inference_pipeline(
+        3, bucket_width=3, length_fn=lambda x: x["length"]))
     elements = list(self._iterDataset(dataset))
 
     def _check_element(element, length, index):

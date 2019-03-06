@@ -3,23 +3,18 @@
 import tensorflow as tf
 import numpy as np
 
-from opennmt.utils import compat
 
-
-def _experimental_data_namespace():
-  return tf.data.experimental if hasattr(tf.data, "experimental") else tf.contrib.data
-
-def get_padded_shapes(dataset):
-  """Returns the padded shapes for ``tf.data.Dataset.padded_batch``.
+def get_output_shapes(dataset):
+  """Returns the outputs shapes of the dataset.
 
   Args:
-    dataset: The dataset that will be batched with padding.
+    dataset: A ``tf.data.Dataset``.
 
   Returns:
-    The same structure as ``dataset.output_shapes`` containing the padded
-    shapes.
+    A nested structure of ``tf.TensorShape``
   """
-  return compat.nest.map_structure(lambda shape: shape.as_list(), dataset.output_shapes)
+  sample = tf.data.experimental.get_single_element(dataset.take(1))
+  return tf.nest.map_structure(lambda x: x.shape, sample)
 
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
@@ -34,30 +29,11 @@ def filter_irregular_batches(multiple):
     return lambda dataset: dataset
 
   def _predicate(*x):
-    flat = compat.nest.flatten(x)
+    flat = tf.nest.flatten(x)
     batch_size = tf.shape(flat[0])[0]
     return tf.equal(tf.mod(batch_size, multiple), 0)
 
   return lambda dataset: dataset.filter(_predicate)
-
-def prefetch_element(buffer_size=None):
-  """Transformation that prefetches elements from the dataset.
-
-  This is a small wrapper around tf.data.Dataset.prefetch to customize the
-  case :obj:`buffer_size` is ``None`` for some TensorFlow versions.
-
-  Args:
-    buffer_size: The number of batches to prefetch asynchronously. If ``None``,
-      use an automatically tuned value on TensorFlow 1.8+ and 1 on older
-      versions.
-
-  Returns:
-    A ``tf.data.Dataset`` transformation.
-  """
-  support_auto_tuning = hasattr(tf.data, "experimental") or hasattr(tf.contrib.data, "AUTOTUNE")
-  if not support_auto_tuning and buffer_size is None:
-    buffer_size = 1
-  return lambda dataset: dataset.prefetch(buffer_size)
 
 def filter_examples_by_length(maximum_features_length=None,
                               maximum_labels_length=None,
@@ -140,16 +116,16 @@ def batch_dataset(batch_size, padded_shapes=None):
     A ``tf.data.Dataset`` transformation.
   """
   return lambda dataset: dataset.padded_batch(
-      batch_size, padded_shapes=padded_shapes or get_padded_shapes(dataset))
+      batch_size, padded_shapes=padded_shapes or get_output_shapes(dataset))
 
 def batch_parallel_dataset(batch_size,
                            batch_type="examples",
                            batch_multiplier=1,
+                           batch_size_multiple=1,
                            bucket_width=None,
-                           padded_shapes=None,
                            features_length_fn=None,
                            labels_length_fn=None,
-                           batch_size_multiple=1):
+                           padded_shapes=None):
   """Transformation that batches a parallel dataset.
 
   This implements an example-based and a token-based batching strategy
@@ -168,15 +144,14 @@ def batch_parallel_dataset(batch_size,
     batch_size: The batch size.
     batch_type: The training batching strategy to use: can be "examples" or
       "tokens".
-    batch_multiplier: The batch size multiplier to prepare splitting accross
-      replicated graph parts.
+    batch_multiplier: The batch size multiplier.
+    batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
+      result batch size is a multiple of this value.
     bucket_width: The sequence length bucket width.
     padded_shapes: The padded shapes for this dataset. If ``None``, the shapes
       are automatically inferred from the dataset output shapes.
     features_length_fn: A callable mapping features to a sequence length.
     labels_length_fn: A callable mapping labels to a sequence length.
-    batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
-      result batch size is a multiple of this value.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
@@ -215,132 +190,136 @@ def batch_parallel_dataset(batch_size,
     return batch_dataset(batch_size, padded_shapes=padded_shapes)
 
   if batch_type == "examples":
-    return _experimental_data_namespace().group_by_window(
+    return tf.data.experimental.group_by_window(
         _key_func, _reduce_func, window_size=batch_size)
   elif batch_type == "tokens":
-    return _experimental_data_namespace().group_by_window(
+    return tf.data.experimental.group_by_window(
         _key_func, _reduce_func, window_size_func=_window_size_func)
   else:
     raise ValueError(
         "Invalid batch type: '{}'; should be 'examples' or 'tokens'".format(batch_type))
 
 
-def training_pipeline(dataset,
-                      batch_size,
+def training_pipeline(batch_size,
                       batch_type="examples",
                       batch_multiplier=1,
-                      bucket_width=None,
-                      single_pass=False,
+                      batch_size_multiple=1,
                       process_fn=None,
-                      num_threads=None,
-                      shuffle_buffer_size=None,
-                      prefetch_buffer_size=None,
-                      dataset_size=None,
-                      maximum_features_length=None,
-                      maximum_labels_length=None,
+                      bucket_width=None,
                       features_length_fn=None,
                       labels_length_fn=None,
-                      batch_size_multiple=1,
+                      maximum_features_length=None,
+                      maximum_labels_length=None,
+                      single_pass=False,
+                      dataset_size=None,
                       num_shards=1,
-                      shard_index=0):
-  """Defines a complete training data pipeline.
+                      shard_index=0,
+                      num_threads=None,
+                      shuffle_buffer_size=None,
+                      prefetch_buffer_size=None):
+  """Transformation that defines a complete training data pipeline.
 
   Args:
     dataset: The base dataset.
     batch_size: The batch size to use.
     batch_type: The training batching stragety to use: can be "examples" or
       "tokens".
-    batch_multiplier: The batch size multiplier to prepare splitting accross
-       replicated graph parts.
+    batch_multiplier: The batch size multiplier.
+    batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
+      result batch size is a multiple of this value.
+    process_fn: The processing function to apply on each element.
     bucket_width: The width of the length buckets to select batch candidates
       from. ``None`` to not constrain batch formation.
+    features_length_fn: A callable mapping features to a sequence length.
+    labels_length_fn: A callable mapping labels to a sequence length.
+    maximum_features_length: The maximum length or list of maximum lengths of
+      the features sequence(s). ``None`` to not constrain the length.
+    maximum_labels_length: The maximum length of the labels sequence.
+      ``None`` to not constrain the length.
     single_pass: If ``True``, makes a single pass over the training data.
-    process_fn: The processing function to apply on each element.
+    dataset_size: The total size of the dataset, if known. It is recommended to
+      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size
+      (or the shard size when sharding is configured).
+    num_shards: The number of data shards (usually the number of workers in a
+      distributed setting).
+    shard_index: The shard index this data pipeline should read from.
     num_threads: The number of elements processed in parallel.
     shuffle_buffer_size: The number of elements from which to sample.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
       older versions.
-    dataset_size: The total size of the dataset, if known. It is recommended to
-      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size
-      (or the shard size when sharding is configured).
-    maximum_features_length: The maximum length or list of maximum lengths of
-      the features sequence(s). ``None`` to not constrain the length.
-    maximum_labels_length: The maximum length of the labels sequence.
-      ``None`` to not constrain the length.
-    features_length_fn: A callable mapping features to a sequence length.
-    labels_length_fn: A callable mapping labels to a sequence length.
-    batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
-      result batch size is a multiple of this value.
-    num_shards: The number of data shards (usually the number of workers in a
-      distributed setting).
-    shard_index: The shard index this data pipeline should read from.
 
   Returns:
-    A ``tf.data.Dataset``.
+    A ``tf.data.Dataset`` transformation.
   """
-  if num_shards > 1:
-    dataset = dataset.shard(num_shards, shard_index)
-    if dataset_size is not None:
-      dataset_size //= num_shards
-  if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
-    if dataset_size is not None:
-      compat.logging.info("Training on %d examples", dataset_size)
-      if shuffle_buffer_size < 0 or shuffle_buffer_size > dataset_size:
-        shuffle_buffer_size = dataset_size
-      elif shuffle_buffer_size < dataset_size:
-        # When the sample buffer size is smaller than the dataset size, shard
-        # the dataset in a random order. This ensures that all parts of the
-        # dataset can be seen when the evaluation frequency is high.
-        dataset = dataset.apply(random_shard(shuffle_buffer_size, dataset_size))
-    dataset = dataset.shuffle(shuffle_buffer_size)
-  if process_fn is not None:
-    dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
-  dataset = dataset.apply(filter_examples_by_length(
-      maximum_features_length=maximum_features_length,
-      maximum_labels_length=maximum_labels_length,
-      features_length_fn=features_length_fn,
-      labels_length_fn=labels_length_fn))
-  dataset = dataset.apply(batch_parallel_dataset(
-      batch_size,
-      batch_type=batch_type,
-      batch_multiplier=batch_multiplier,
-      bucket_width=bucket_width,
-      features_length_fn=features_length_fn,
-      labels_length_fn=labels_length_fn,
-      batch_size_multiple=batch_size_multiple))
-  dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
-  if not single_pass:
-    dataset = dataset.repeat()
-  dataset = dataset.apply(prefetch_element(buffer_size=prefetch_buffer_size))
-  return dataset
 
-def inference_pipeline(dataset,
-                       batch_size,
+  def _pipeline(dataset):
+    if num_shards > 1:
+      dataset = dataset.shard(num_shards, shard_index)
+      if dataset_size is not None:
+        dataset_size //= num_shards
+    if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
+      if dataset_size is not None:
+        tf.compat.v1.logging.info("Training on %d examples", dataset_size)
+        if shuffle_buffer_size < 0 or shuffle_buffer_size > dataset_size:
+          shuffle_buffer_size = dataset_size
+        elif shuffle_buffer_size < dataset_size:
+          # When the shuffle buffer size is smaller than the dataset size, shard
+          # the dataset in a random order to add another level of shuffling.
+          dataset = dataset.apply(random_shard(shuffle_buffer_size, dataset_size))
+      dataset = dataset.shuffle(shuffle_buffer_size)
+    if process_fn is not None:
+      dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
+    dataset = dataset.apply(filter_examples_by_length(
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        features_length_fn=features_length_fn,
+        labels_length_fn=labels_length_fn))
+    dataset = dataset.apply(batch_parallel_dataset(
+        batch_size,
+        batch_type=batch_type,
+        batch_multiplier=batch_multiplier,
+        batch_size_multiple=batch_size_multiple,
+        bucket_width=bucket_width,
+        features_length_fn=features_length_fn,
+        labels_length_fn=labels_length_fn))
+    dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
+    if not single_pass:
+      dataset = dataset.repeat()
+    dataset = dataset.prefetch(prefetch_buffer_size)
+    return dataset
+
+  return _pipeline
+
+def inference_pipeline(batch_size,
                        process_fn=None,
-                       num_threads=None,
-                       prefetch_buffer_size=None,
                        bucket_width=None,
-                       length_fn=None):
-  """Defines a complete inference data pipeline.
+                       length_fn=None,
+                       num_threads=None,
+                       prefetch_buffer_size=None):
+  """Transformation that defines a complete inference data pipeline.
 
   Args:
     dataset: The base dataset.
     batch_size: The batch size to use.
     process_fn: The processing function to apply on each element.
-    num_threads: The number of elements processed in parallel.
-    prefetch_buffer_size: The number of batches to prefetch asynchronously. If
-      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-      older versions.
     bucket_width: The width of the length buckets to select batch candidates
       from. If set, this means the inference pipeline will be reordered based on
       the examples length, the application is then responsible to restore the
       predictions in order. An "index" key will be inserted in the examples
       dict.
     length_fn: A callable mapping features to a sequence length.
+    num_threads: The number of elements processed in parallel.
+    prefetch_buffer_size: The number of batches to prefetch asynchronously. If
+      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
+      older versions.
 
   Returns:
-    A ``tf.data.Dataset``.
+    A ``tf.data.Dataset`` transformation.
+
+  Raises:
+    ValueError: if :obj:`bucket_width` is set but not :obj:`length_fn` or the
+      dataset does not output a dictionary.
   """
 
   def _inject_index(index, x):
@@ -357,18 +336,21 @@ def inference_pipeline(dataset,
   def _reduce_func(unused_key, dataset):
     return dataset.apply(batch_dataset(batch_size))
 
-  if process_fn is not None:
-    dataset = dataset.map(process_fn, num_parallel_calls=num_threads)
-  if bucket_width is not None and bucket_width > 0:
-    if length_fn is None:
-      raise ValueError("length_fn is required when reordering by length")
-    if not isinstance(dataset.output_shapes, dict):
-      raise ValueError("Reordering by length expects dataset elements to be Python dicts")
-    dataset = dataset.apply(_experimental_data_namespace().enumerate_dataset())
-    dataset = dataset.map(_inject_index)
-    dataset = dataset.apply(_experimental_data_namespace().group_by_window(
-        _key_func, _reduce_func, window_size=batch_size))
-  else:
-    dataset = dataset.apply(batch_dataset(batch_size))
-  dataset = dataset.apply(prefetch_element(buffer_size=prefetch_buffer_size))
-  return dataset
+  def _pipeline(dataset):
+    if process_fn is not None:
+      dataset = dataset.map(process_fn, num_parallel_calls=num_threads)
+    if bucket_width is not None and bucket_width > 0:
+      if length_fn is None:
+        raise ValueError("length_fn is required when reordering by length")
+      if not isinstance(get_output_shapes(dataset), dict):
+        raise ValueError("Reordering by length expects dataset elements to be Python dicts")
+      dataset = dataset.apply(tf.data.experimental.enumerate_dataset())
+      dataset = dataset.map(_inject_index)
+      dataset = dataset.apply(tf.data.experimental.group_by_window(
+          _key_func, _reduce_func, window_size=batch_size))
+    else:
+      dataset = dataset.apply(batch_dataset(batch_size))
+    dataset = dataset.prefetch(prefetch_buffer_size)
+    return dataset
+
+  return _pipeline

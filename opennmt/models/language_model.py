@@ -158,12 +158,11 @@ class LanguageModelInputter(inputters.WordEmbedder):
     """See :meth:`opennmt.inputters.inputter.ExampleInputter.make_evaluation_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=False)
-    dataset = data.inference_pipeline(
-        dataset,
+    dataset = dataset.apply(data.inference_pipeline(
         batch_size,
         process_fn=lambda x: self._generate_example(x, training=False),
         num_threads=num_threads,
-        prefetch_buffer_size=prefetch_buffer_size)
+        prefetch_buffer_size=prefetch_buffer_size))
     return dataset
 
   def make_training_dataset(self,
@@ -185,8 +184,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
     """See :meth:`opennmt.inputters.inputter.ExampleInputter.make_training_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=True)
-    dataset = data.training_pipeline(
-        dataset,
+    dataset = dataset.apply(training_pipeline(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
@@ -201,5 +199,5 @@ class LanguageModelInputter(inputters.WordEmbedder):
         features_length_fn=self.get_length,
         batch_size_multiple=batch_size_multiple,
         num_shards=num_shards,
-        shard_index=shard_index)
+        shard_index=shard_index))
     return dataset

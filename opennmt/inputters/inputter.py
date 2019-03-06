@@ -97,14 +97,13 @@ class Inputter(tf.keras.layers.Layer):
     """
     map_func = lambda *arg: self.make_features(item_or_tuple(arg), training=False)
     dataset = self.make_dataset(features_file, training=False)
-    dataset = inference_pipeline(
-        dataset,
+    dataset = dataset.apply(inference_pipeline(
         batch_size,
         process_fn=map_func,
         num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size,
         bucket_width=bucket_width,
-        length_fn=self.get_length)
+        length_fn=self.get_length))
     return dataset
 
   def get_serving_input_receiver(self):
@@ -568,12 +567,11 @@ class ExampleInputter(ParallelInputter):
     """
     map_func = lambda *arg: self.make_features(arg, training=False)
     dataset = self.make_dataset([features_file, labels_file], training=False)
-    dataset = inference_pipeline(
-        dataset,
+    dataset = dataset.apply(inference_pipeline(
         batch_size,
         process_fn=map_func,
         num_threads=num_threads,
-        prefetch_buffer_size=prefetch_buffer_size)
+        prefetch_buffer_size=prefetch_buffer_size))
     return dataset
 
   def make_training_dataset(self,
@@ -632,8 +630,7 @@ class ExampleInputter(ParallelInputter):
     """
     map_func = lambda *arg: self.make_features(arg, training=True)
     dataset = self.make_dataset([features_file, labels_file], training=True)
-    dataset = training_pipeline(
-        dataset,
+    dataset = dataset.apply(training_pipeline(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
@@ -649,5 +646,5 @@ class ExampleInputter(ParallelInputter):
         labels_length_fn=self.labels_inputter.get_length,
         batch_size_multiple=batch_size_multiple,
         num_shards=num_shards,
-        shard_index=shard_index)
+        shard_index=shard_index))
     return dataset
