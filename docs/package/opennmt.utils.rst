@@ -22,6 +22,5 @@ Submodules
    opennmt.utils.losses
    opennmt.utils.misc
    opennmt.utils.optim
-   opennmt.utils.parallel
    opennmt.utils.vocab
 

@@ -78,7 +78,6 @@ class SequenceToSequence(Model):
                decoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
                alignment_file_key="train_alignments",
-               daisy_chain_variables=False,
                name="seq2seq"):
     """Initializes a sequence-to-sequence model.
 
@@ -95,8 +94,6 @@ class SequenceToSequence(Model):
         for possible values.
       alignment_file_key: The data configuration key of the training alignment
         file to support guided alignment.
-      daisy_chain_variables: If ``True``, copy variables in a daisy chain
-        between devices for this model. Not compatible with RNN based models.
       name: The name of this model.
 
     Raises:
@@ -129,7 +126,6 @@ class SequenceToSequence(Model):
         alignment_file_key=alignment_file_key)
     super(SequenceToSequence, self).__init__(
         name,
-        daisy_chain_variables=daisy_chain_variables,
         examples_inputter=examples_inputter)
 
     self.encoder = encoder

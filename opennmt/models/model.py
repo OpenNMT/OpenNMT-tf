@@ -21,7 +21,6 @@ class Model(tf.keras.layers.Layer):
                name,
                features_inputter=None,
                labels_inputter=None,
-               daisy_chain_variables=False,
                dtype=None,
                examples_inputter=None):
     if examples_inputter is None:
@@ -30,7 +29,6 @@ class Model(tf.keras.layers.Layer):
     if dtype is None:
       dtype = self.features_inputter.dtype
     super(Model, self).__init__(name=name, dtype=dtype)
-    self.daisy_chain_variables = daisy_chain_variables
 
   @property
   def unsupervised(self):

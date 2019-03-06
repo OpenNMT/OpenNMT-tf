@@ -99,7 +99,6 @@ class Transformer(SequenceToSequence):
         decoder,
         share_embeddings=share_embeddings,
         alignment_file_key=alignment_file_key,
-        daisy_chain_variables=True,
         name=name)
 
   def auto_config(self, num_devices=1):

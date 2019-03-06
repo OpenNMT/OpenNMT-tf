@@ -17,7 +17,6 @@ class SequenceClassifier(Model):
                encoder,
                labels_vocabulary_file_key,
                encoding="average",
-               daisy_chain_variables=False,
                name="seqclassifier"):
     """Initializes a sequence classifier.
 
@@ -29,8 +28,6 @@ class SequenceClassifier(Model):
         vocabulary file containing one label per line.
       encoding: "average" or "last" (case insensitive), the encoding vector to
         extract from the encoder outputs.
-      daisy_chain_variables: If ``True``, copy variables in a daisy chain
-        between devices for this model. Not compatible with RNN based models.
       name: The name of this model.
 
     Raises:
@@ -39,8 +36,7 @@ class SequenceClassifier(Model):
     super(SequenceClassifier, self).__init__(
         name,
         features_inputter=inputter,
-        labels_inputter=ClassInputter(labels_vocabulary_file_key),
-        daisy_chain_variables=daisy_chain_variables)
+        labels_inputter=ClassInputter(labels_vocabulary_file_key))
     self.encoder = encoder
     self.encoding = encoding.lower()
     if self.encoding not in ("average", "last"):

@@ -5,7 +5,6 @@ import copy
 import tensorflow as tf
 
 from opennmt.utils import hooks
-from opennmt.utils import parallel
 
 
 def make_serving_input_fn(model):
@@ -125,8 +124,6 @@ def make_input_fn(model,
 
 def make_model_fn(model,
                   eval_prediction_hooks_fn=None,
-                  num_devices=1,
-                  devices=None,
                   hvd=None):
   """Creates the model function.
 
@@ -135,29 +132,21 @@ def make_model_fn(model,
     eval_prediction_hooks_fn: A callable that takes the model predictions
       during evaluation and return an iterable of evaluation hooks (e.g. for
       saving predictions on disk, running external evaluators, etc.).
-    num_devices: The number of devices used for training.
-    devices: The list of devices used for training, if known.
     hvd: Optional Horovod object.
 
   See Also:
     ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
     arguments and the returned value.
   """
-  dispatcher = parallel.GraphDispatcher(
-      num_devices=num_devices,
-      daisy_chain_variables=model.daisy_chain_variables,
-      devices=devices)
 
   def _fn(features, labels, params, mode, config):
     """model_fn implementation."""
     local_model = copy.deepcopy(model)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      features_shards = dispatcher.shard(features)
-      labels_shards = dispatcher.shard(labels)
-      losses_shards = dispatcher(
-          _loss_op, local_model, features_shards, labels_shards, params, mode)
-      loss = _extract_loss(losses_shards)
+      outputs, _ = local_model(features, labels, params, mode)
+      loss = _extract_loss(
+          local_model.compute_loss(outputs, labels, training=True, params=params))
       train_op = local_model.optimize_loss(loss, params=params, hvd=hvd)
       extra_variables = []
       if isinstance(train_op, tuple):
@@ -189,8 +178,8 @@ def make_model_fn(model,
 
     elif mode == tf.estimator.ModeKeys.EVAL:
       logits, predictions = local_model(features, labels, params, mode)
-      loss = local_model.compute_loss(logits, labels, training=False, params=params)
-      loss = _extract_loss(loss)
+      loss = _extract_loss(
+          local_model.compute_loss(logits, labels, training=False, params=params))
       eval_metric_ops = local_model.compute_metrics(predictions, labels)
       evaluation_hooks = []
       if predictions is not None and eval_prediction_hooks_fn is not None:
@@ -222,21 +211,10 @@ def make_model_fn(model,
 
   return _fn
 
-def _loss_op(model, features, labels, params, mode):
-  """Single callable to compute the loss."""
-  training = mode == tf.estimator.ModeKeys.TRAIN
-  logits, _ = model(features, labels, params, mode)
-  return model.compute_loss(logits, labels, training=training, params=params)
 
 def _normalize_loss(num, den=None):
   """Normalizes the loss."""
-  if isinstance(num, list):  # Sharded mode.
-    if den is not None:
-      assert isinstance(den, list)
-      return tf.add_n(num) / tf.add_n(den)
-    else:
-      return tf.reduce_mean(num)
-  elif den is not None:
+  if den is not None:
     return num / den
   else:
     return num
@@ -244,7 +222,7 @@ def _normalize_loss(num, den=None):
 def _extract_loss(loss):
   """Extracts and summarizes the loss."""
   if not isinstance(loss, tuple):
-    actual_loss = _normalize_loss(loss)
+    actual_loss = loss
     tboard_loss = actual_loss
   else:
     actual_loss = _normalize_loss(loss[0], den=loss[1])

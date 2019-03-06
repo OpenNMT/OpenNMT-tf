@@ -22,7 +22,6 @@ from opennmt import models
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils import evaluator
 from opennmt.utils.misc import format_translation_output, OrderRestorer
-from opennmt.utils.parallel import get_devices
 
 
 # These options require a value but we can fallback to a default one.
@@ -151,12 +150,10 @@ class Runner(object):
       run_config = run_config.replace(
           keep_checkpoint_max=train_config["keep_checkpoint_max"])
 
-    devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
     return tf.estimator.Estimator(
         estimator_util.make_model_fn(
             self._model,
             eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
-            devices=devices,
             hvd=self._hvd),
         config=run_config,
         params=params)
@@ -238,7 +235,6 @@ class Runner(object):
             features_file=self._config["data"]["train_features_file"],
             labels_file=self._config["data"].get("train_labels_file"),
             batch_type=self._config["train"]["batch_type"],
-            batch_multiplier=self._num_devices,
             bucket_width=self._config["train"]["bucket_width"],
             maximum_features_length=self._config["train"].get("maximum_features_length"),
             maximum_labels_length=self._config["train"].get("maximum_labels_length"),
