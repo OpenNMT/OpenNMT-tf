@@ -3,24 +3,7 @@
 import tensorflow as tf
 
 from opennmt.layers import common
-from opennmt.utils import compat
 
-
-def tile_sequence_length(sequence_length, num_heads):
-  """Tiles lengths :obj:`num_heads` times.
-
-  Args:
-    sequence_length: The sequence length.
-    num_heads: The number of heads.
-
-  Returns:
-    A ``tf.Tensor`` where each length is replicated :obj:`num_heads` times.
-  """
-  sequence_length = tf.tile(sequence_length, [num_heads])
-  sequence_length = tf.reshape(sequence_length, [num_heads, -1])
-  sequence_length = tf.transpose(sequence_length, perm=[1, 0])
-  sequence_length = tf.reshape(sequence_length, [-1])
-  return sequence_length
 
 def build_sequence_mask(sequence_length,
                         num_heads=None,
@@ -50,13 +33,10 @@ def _lower_triangle_mask(sequence_length, maximum_length=None, dtype=tf.float32)
   if maximum_length is None:
     maximum_length = tf.reduce_max(sequence_length)
   mask = tf.ones([batch_size, maximum_length, maximum_length], dtype=dtype)
-  mask = compat.tf_compat(v2="linalg.band_part", v1="matrix_band_part")(mask, -1, 0)
+  mask = tf.linalg.band_part(mask, -1, 0)
   return mask
 
-def build_future_mask(sequence_length,
-                      num_heads=None,
-                      maximum_length=None,
-                      dtype=tf.float32):
+def future_mask(sequence_length, maximum_length=None, dtype=tf.float32):
   """Builds the dot product mask for future positions.
 
   Args:
@@ -73,53 +53,7 @@ def build_future_mask(sequence_length,
   sequence_mask = tf.sequence_mask(sequence_length, maxlen=maximum_length, dtype=dtype)
   mask = _lower_triangle_mask(sequence_length, maximum_length=maximum_length, dtype=dtype)
   mask *= tf.expand_dims(sequence_mask, axis=1)
-  if num_heads is not None:
-    mask = tf.expand_dims(mask, axis=1)
   return mask
-
-def cumulative_average_mask(sequence_length, maximum_length=None, dtype=tf.float32):
-  """Builds the mask to compute the cumulative average as described in
-  https://arxiv.org/abs/1805.00631.
-
-  Args:
-    sequence_length: The sequence length.
-    maximum_length: Optional size of the returned time dimension. Otherwise
-      it is the maximum of :obj:`sequence_length`.
-    dtype: The type of the mask tensor.
-
-  Returns:
-    A ``tf.Tensor`` of type :obj:`dtype` and shape
-    ``[batch_size, max_length, max_length]``.
-  """
-  sequence_mask = tf.sequence_mask(sequence_length, maxlen=maximum_length, dtype=dtype)
-  mask = _lower_triangle_mask(sequence_length, maximum_length=maximum_length, dtype=dtype)
-  mask *= tf.expand_dims(sequence_mask, axis=2)
-  weight = tf.range(1, tf.cast(tf.shape(mask)[1] + 1, dtype), dtype=dtype)
-  mask /= tf.expand_dims(weight, 1)
-  return mask
-
-def cumulative_average(inputs, mask_or_step, cache=None):
-  """Computes the cumulative average as described in
-  https://arxiv.org/abs/1805.00631.
-
-  Args:
-    inputs: The sequence to average. A tensor of shape :math:`[B, T, D]`.
-    mask_or_step: If :obj:`cache` is set, this is assumed to be the current step
-      of the dynamic decoding. Otherwise, it is the mask matrix used to compute
-      the cumulative average.
-    cache: A dictionnary containing the cumulative average of the previous step.
-
-  Returns:
-    The cumulative average, a tensor of the same shape and type as :obj:`inputs`.
-  """
-  if cache is not None:
-    step = tf.cast(mask_or_step, inputs.dtype)
-    aa = (inputs + step * cache["prev_g"]) / (step + 1.0)
-    cache["prev_g"] = aa
-    return aa
-  else:
-    mask = mask_or_step
-    return tf.matmul(mask, inputs)
 
 def fused_projection(inputs, num_units, num_outputs=1):
   """Projects the same input into multiple output spaces.

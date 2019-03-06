@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt import decoders
-from opennmt.decoders import decoder, self_attention_decoder
+from opennmt.decoders import decoder
 from opennmt.utils import beam_search
 from opennmt.layers import bridge
 from opennmt.tests import test_util
@@ -262,21 +262,6 @@ class DecoderTest(tf.test.TestCase):
     decoder = decoders.RNMTPlusDecoder(2, 20, 4)
     self._testDecoder(decoder)
 
-  @test_util.run_tf1_only
-  def testSelfAttentionDecoder(self):
-    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoder(decoder)
-
-  @test_util.run_tf1_only
-  def testSelfAttentionDecoderFP16(self):
-    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoder(decoder, dtype=tf.float16)
-
-  @test_util.run_tf1_only
-  def testSelfAttentionDecoderMultiSource(self):
-    decoder = decoders.SelfAttentionDecoder(2, num_units=6, num_heads=2, ffn_inner_dim=12)
-    self._testDecoder(decoder, num_sources=2)
-
   def testPenalizeToken(self):
     log_probs = tf.zeros([4, 6])
     token_id = 1
@@ -286,9 +271,8 @@ class DecoderTest(tf.test.TestCase):
     non_penalized = np.delete(log_probs, 1, token_id)
     self.assertEqual(np.sum(non_penalized), 0)
 
-  @test_util.run_tf2_only
-  def testSelfAttentionDecoderV2(self):
-    decoder = self_attention_decoder.SelfAttentionDecoderV2(
+  def testSelfAttentionDecoder(self):
+    decoder = decoders.SelfAttentionDecoder(
         2, num_units=6, num_heads=2, ffn_inner_dim=12)
     decoder.initialize(vocab_size=10)
     inputs = tf.random.uniform([3, 5, 6])
@@ -316,9 +300,8 @@ class DecoderTest(tf.test.TestCase):
     self.assertEqual(len(state), 2)
     self.assertListEqual(attention.shape.as_list(), [3, 7])
 
-  @test_util.run_tf2_only
-  def testSelfAttentionDecoderV2MultiSource(self):
-    decoder = self_attention_decoder.SelfAttentionDecoderV2(
+  def testSelfAttentionDecoderMultiSource(self):
+    decoder = decoders.SelfAttentionDecoder(
         2, num_units=6, num_heads=2, ffn_inner_dim=12, num_sources=2)
     decoder.initialize(vocab_size=10)
     inputs = tf.random.uniform([3, 5, 6])
