@@ -276,9 +276,6 @@ class TextInputter(Inputter):
     self.vocabulary = self.vocabulary_lookup()
     return tf.data.TextLineDataset(data_file)
 
-  def get_dataset_size(self, data_file):
-    return count_lines(data_file)
-
   def make_features(self, element=None, features=None, training=None):
     """Tokenizes raw text."""
     if features is None:

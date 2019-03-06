@@ -107,18 +107,6 @@ class Inputter(tf.keras.layers.Layer):
         length_fn=self.get_length)
     return dataset
 
-  @abc.abstractmethod
-  def get_dataset_size(self, data_file):
-    """Returns the size of the dataset.
-
-    Args:
-      data_file: The data file.
-
-    Returns:
-      The total size.
-    """
-    raise NotImplementedError()
-
   def get_serving_input_receiver(self):
     """Returns a serving input receiver for this inputter.
 
@@ -319,10 +307,6 @@ class MultiInputter(Inputter):
   def make_dataset(self, data_file, training=None):
     raise NotImplementedError()
 
-  @abc.abstractmethod
-  def get_dataset_size(self, data_file):
-    raise NotImplementedError()
-
   def visualize(self, log_dir):
     for inputter in self.inputters:
       inputter.visualize(log_dir)
@@ -367,18 +351,6 @@ class ParallelInputter(MultiInputter):
         inputter.make_dataset(data, training=training)
         for inputter, data in zip(self.inputters, data_file)]
     return tf.data.Dataset.zip(tuple(datasets))
-
-  def get_dataset_size(self, data_file):
-    if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
-      raise ValueError("The number of data files must be the same as the number of inputters")
-    dataset_sizes = [
-        inputter.get_dataset_size(data)
-        for inputter, data in zip(self.inputters, data_file)]
-    dataset_size = dataset_sizes[0]
-    for size in dataset_sizes:
-      if size != dataset_size:
-        raise RuntimeError("The parallel data files do not have the same size")
-    return dataset_size
 
   def get_receiver_tensors(self):
     receiver_tensors = {}
@@ -499,9 +471,6 @@ class MixedInputter(MultiInputter):
         inputter.make_dataset(data_file, training=training)
         for inputter in self.inputters]
     return datasets[0]
-
-  def get_dataset_size(self, data_file):
-    return self.inputters[0].get_dataset_size(data_file)
 
   def get_receiver_tensors(self):
     receiver_tensors = {}
@@ -661,7 +630,6 @@ class ExampleInputter(ParallelInputter):
     Returns:
       A ``tf.data.Dataset``.
     """
-    dataset_size = self.features_inputter.get_dataset_size(features_file)
     map_func = lambda *arg: self.make_features(arg, training=True)
     dataset = self.make_dataset([features_file, labels_file], training=True)
     dataset = training_pipeline(
@@ -675,7 +643,6 @@ class ExampleInputter(ParallelInputter):
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
-        dataset_size=dataset_size,
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length,
         features_length_fn=self.features_inputter.get_length,

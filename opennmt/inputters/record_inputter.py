@@ -30,9 +30,6 @@ class SequenceRecordInputter(Inputter):
   def make_dataset(self, data_file, training=None):
     return tf.data.TFRecordDataset(data_file)
 
-  def get_dataset_size(self, data_file):
-    return sum(1 for _ in tf.compat.v1.python_io.tf_record_iterator(data_file))
-
   def get_receiver_tensors(self):
     return {
         "tensor": tf.placeholder(self.dtype, shape=(None, None, self.input_depth)),

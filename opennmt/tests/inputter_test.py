@@ -154,10 +154,9 @@ class InputterTest(tf.test.TestCase):
     if metadata is not None:
       inputter.initialize(metadata)
 
-    self.assertEqual(dataset_size, inputter.get_dataset_size(data_file))
     dataset = inputter.make_dataset(data_file)
     dataset = dataset.map(lambda *arg: inputter.process(item_or_tuple(arg)))
-    dataset = dataset.padded_batch(1, padded_shapes=data.get_padded_shapes(dataset))
+    dataset = dataset.padded_batch(1, padded_shapes=data.get_output_shapes(dataset))
 
     if compat.is_tf2():
       iterator = None
