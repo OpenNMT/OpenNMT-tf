@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def get_output_shapes(dataset):
+def _get_output_shapes(dataset):
   """Returns the outputs shapes of the dataset.
 
   Args:
@@ -116,7 +116,7 @@ def batch_dataset(batch_size, padded_shapes=None):
     A ``tf.data.Dataset`` transformation.
   """
   return lambda dataset: dataset.padded_batch(
-      batch_size, padded_shapes=padded_shapes or get_output_shapes(dataset))
+      batch_size, padded_shapes=padded_shapes or _get_output_shapes(dataset))
 
 def batch_parallel_dataset(batch_size,
                            batch_type="examples",
@@ -342,7 +342,7 @@ def inference_pipeline(batch_size,
     if bucket_width is not None and bucket_width > 0:
       if length_fn is None:
         raise ValueError("length_fn is required when reordering by length")
-      if not isinstance(get_output_shapes(dataset), dict):
+      if not isinstance(_get_output_shapes(dataset), dict):
         raise ValueError("Reordering by length expects dataset elements to be Python dicts")
       dataset = dataset.apply(tf.data.experimental.enumerate_dataset())
       dataset = dataset.map(_inject_index)
