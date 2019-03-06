@@ -8,7 +8,7 @@ from opennmt.utils.checkpoint import average_checkpoints
 
 
 def main():
-  tf.logging.set_verbosity(tf.logging.INFO)
+  tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument("--model_dir", required=True,

@@ -37,7 +37,7 @@ def _prefix_paths(prefix, paths):
   else:
     path = paths
     new_path = os.path.join(prefix, path)
-    if tf.gfile.Exists(new_path):
+    if tf.io.gfile.exists(new_path):
       return new_path
     else:
       return path
@@ -108,7 +108,7 @@ def main():
                             "and used to create the TensorFlow sessions."))
   args = parser.parse_args()
 
-  tf.logging.set_verbosity(getattr(tf.logging, args.log_level))
+  tf.compat.v1.logging.set_verbosity(getattr(tf.compat.v1.logging, args.log_level))
 
   # Setup cluster if defined.
   if args.chief_host:
@@ -142,19 +142,19 @@ def main():
   if args.data_dir:
     config["data"] = _prefix_paths(args.data_dir, config["data"])
 
-  if is_chief and not tf.gfile.Exists(config["model_dir"]):
-    tf.logging.info("Creating model directory %s", config["model_dir"])
-    tf.gfile.MakeDirs(config["model_dir"])
+  if is_chief and not tf.io.gfile.exists(config["model_dir"]):
+    tf.compat.v1.logging.info("Creating model directory %s", config["model_dir"])
+    tf.io.gfile.makedirs(config["model_dir"])
 
   model = load_model(
       config["model_dir"],
       model_file=args.model,
       model_name=args.model_type,
       serialize_model=is_chief)
-  session_config = tf.ConfigProto(
+  session_config = tf.compat.v1.ConfigProto(
       intra_op_parallelism_threads=args.intra_op_parallelism_threads,
       inter_op_parallelism_threads=args.inter_op_parallelism_threads,
-      gpu_options=tf.GPUOptions(
+      gpu_options=tf.compat.v1.GPUOptions(
           allow_growth=args.gpu_allow_growth))
   if args.session_config is not None:
     with open(args.session_config, "rb") as session_config_file:

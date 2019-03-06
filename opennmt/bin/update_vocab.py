@@ -8,7 +8,7 @@ from opennmt.utils import checkpoint
 
 
 def main():
-  tf.logging.set_verbosity(tf.logging.INFO)
+  tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument("--model_dir", required=True,
@@ -33,7 +33,7 @@ def main():
                           new_src_vocab=args.new_src_vocab,
                           new_tgt_vocab=args.new_tgt_vocab,
                           mode=args.mode,
-                          session_config=tf.ConfigProto(device_count={"GPU": 0}))
+                          session_config=tf.compat.v1.ConfigProto(device_count={"GPU": 0}))
 
 
 if __name__ == "__main__":

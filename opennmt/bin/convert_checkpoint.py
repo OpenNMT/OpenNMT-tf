@@ -8,7 +8,7 @@ from opennmt.utils import checkpoint
 
 
 def main():
-  tf.logging.set_verbosity(tf.logging.INFO)
+  tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument("--model_dir", default=None,
@@ -27,17 +27,17 @@ def main():
   checkpoint_path = args.checkpoint_path
   if checkpoint_path is None:
     checkpoint_path = tf.train.latest_checkpoint(args.model_dir)
-  target_dtype = tf.as_dtype(args.target_dtype)
+  target_dtype = tf.dtypes.as_dtype(args.target_dtype)
   if args.source_dtype is None:
     source_dtype = tf.float32 if target_dtype == tf.float16 else tf.float16
   else:
-    source_dtype = tf.as_dtype(args.source_dtype)
+    source_dtype = tf.dtypes.as_dtype(args.source_dtype)
   checkpoint.convert_checkpoint(
       checkpoint_path,
       args.output_dir,
       source_dtype,
       target_dtype,
-      session_config=tf.ConfigProto(device_count={"GPU": 0}))
+      session_config=tf.compat.v1.ConfigProto(device_count={"GPU": 0}))
 
 
 if __name__ == "__main__":
