@@ -30,10 +30,10 @@ class SequenceRecordInputter(Inputter):
   def make_dataset(self, data_file, training=None):
     return tf.data.TFRecordDataset(data_file)
 
-  def get_receiver_tensors(self):
+  def input_signature(self):
     return {
-        "tensor": tf.placeholder(self.dtype, shape=(None, None, self.input_depth)),
-        "length": tf.placeholder(tf.int32, shape=(None,))
+        "tensor": tf.TensorSpec([None, None, self.input_depth], self.dtype),
+        "length": tf.TensorSpec([None], tf.int32)
     }
 
   def make_features(self, element=None, features=None, training=None):

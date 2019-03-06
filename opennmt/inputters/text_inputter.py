@@ -241,10 +241,10 @@ class TextInputter(Inputter):
     features["tokens"] = tokens
     return features
 
-  def get_receiver_tensors(self):
+  def input_signature(self):
     return {
-        "tokens": tf.placeholder(tf.string, shape=(None, None)),
-        "length": tf.placeholder(tf.int32, shape=(None,))
+        "tokens": tf.TensorSpec([None, None], tf.string),
+        "length": tf.TensorSpec([None], tf.int32)
     }
 
 

@@ -114,14 +114,16 @@ class Inputter(tf.keras.layers.Layer):
     """
     if self.is_target:
       raise ValueError("Target inputters do not define a serving input")
-    receiver_tensors = self.get_receiver_tensors()
-    if receiver_tensors is None:
-      raise NotImplementedError("This inputter does not define receiver tensors.")
+    signature = self.input_signature()
+    if signature is None:
+      raise NotImplementedError("This inputter does not define an input signature.")
+    receiver_tensors = tf.nest.map_structure(
+        lambda spec: tf.compat.v1.placeholder(spec.dtype, shape=spec.shape), signature)
     features = self.make_features(features=receiver_tensors.copy())
     return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
-  def get_receiver_tensors(self):
-    """Returns the input placeholders for serving."""
+  def input_signature(self):
+    """Returns the input signature of this inputter."""
     return None
 
   def get_length(self, features):
@@ -351,13 +353,12 @@ class ParallelInputter(MultiInputter):
         for inputter, data in zip(self.inputters, data_file)]
     return tf.data.Dataset.zip(tuple(datasets))
 
-  def get_receiver_tensors(self):
-    receiver_tensors = {}
+  def input_signature(self):
+    signature = {}
     for i, inputter in enumerate(self.inputters):
-      tensors = inputter.get_receiver_tensors()
-      for key, value in six.iteritems(tensors):
-        receiver_tensors["{}_{}".format(key, i)] = value
-    return receiver_tensors
+      for key, value in six.iteritems(inputter.input_signature()):
+        signature["{}_{}".format(key, i)] = value
+    return signature
 
   def get_length(self, features):
     lengths = []
@@ -380,7 +381,7 @@ class ParallelInputter(MultiInputter):
         prefix = "inputter_%d_" % i
         sub_features = extract_prefixed_keys(features, prefix)
         if not sub_features:
-          # Also try to read the format produced by get_receiver_tensors.
+          # Also try to read the format produced by the serving features.
           sub_features = extract_suffixed_keys(features, "_%d" % i)
         sub_features = inputter.make_features(
             element=element[i] if element is not None else None,
@@ -471,10 +472,10 @@ class MixedInputter(MultiInputter):
         for inputter in self.inputters]
     return datasets[0]
 
-  def get_receiver_tensors(self):
-    receiver_tensors = {}
+  def input_signature(self):
+    signature = {}
     for inputter in self.inputters:
-      receiver_tensors.update(inputter.get_receiver_tensors())
+      signature.update(inputter.input_signature())
     return receiver_tensors
 
   def get_length(self, features):
