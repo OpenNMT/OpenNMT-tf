@@ -6,8 +6,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.layers.reducer import ConcatReducer, JoinReducer
-from opennmt.utils import compat
+from opennmt.layers.reducer import JoinReducer
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -20,6 +19,7 @@ class Encoder(tf.keras.layers.Layer):
       return None
     return tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=dtype)
 
+  @abc.abstractmethod
   def call(self, inputs, sequence_length=None, training=None):  # pylint: disable=arguments-differ
     """Encodes an input sequence.
 
@@ -31,26 +31,7 @@ class Encoder(tf.keras.layers.Layer):
     Returns:
       A tuple ``(outputs, state, sequence_length)``.
     """
-    return self.encode(
-        inputs,
-        sequence_length=sequence_length,
-        mode=tf.estimator.ModeKeys.TRAIN if training else None)
-
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    """Encodes an input sequence.
-
-    Args:
-      inputs: The inputs to encode of shape :math:`[B, T, ...]`.
-      sequence_length: The length of each input with shape :math:`[B]`.
-      mode: A ``tf.estimator.ModeKeys`` mode.
-
-    Returns:
-      A tuple ``(outputs, state, sequence_length)``.
-    """
-    return self.call(
-        inputs,
-        sequence_length=sequence_length,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
+    raise NotImplementedError()
 
 
 class SequentialEncoder(Encoder):
@@ -86,21 +67,20 @@ class SequentialEncoder(Encoder):
     self.states_reducer = states_reducer
     self.transition_layer_fn = transition_layer_fn
 
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+  def call(self, inputs, sequence_length=None, training=None):
     encoder_state = []
 
     for i, encoder in enumerate(self.encoders):
-      with compat.tf_compat(v1="variable_scope")("encoder_{}".format(i)):
-        if i > 0 and self.transition_layer_fn is not None:
-          if isinstance(self.transition_layer_fn, list):
-            inputs = self.transition_layer_fn[i - 1](inputs)
-          else:
-            inputs = self.transition_layer_fn(inputs)
-        inputs, state, sequence_length = encoder.encode(
-            inputs,
-            sequence_length=sequence_length,
-            mode=mode)
-        encoder_state.append(state)
+      if i > 0 and self.transition_layer_fn is not None:
+        if isinstance(self.transition_layer_fn, list):
+          inputs = self.transition_layer_fn[i - 1](inputs)
+        else:
+          inputs = self.transition_layer_fn(inputs)
+      inputs, state, sequence_length = encoder(
+          inputs,
+          sequence_length=sequence_length,
+          training=training)
+      encoder_state.append(state)
 
     return (
         inputs,
@@ -124,11 +104,10 @@ class ParallelEncoder(Encoder):
 
   def __init__(self,
                encoders,
-               outputs_reducer=ConcatReducer(axis=1),
-               states_reducer=JoinReducer(),
+               outputs_reducer=None,
+               states_reducer=None,
                outputs_layer_fn=None,
-               combined_output_layer_fn=None,
-               share_parameters=False):
+               combined_output_layer_fn=None):
     """Initializes the parameters of the encoder.
 
     Args:
@@ -146,9 +125,6 @@ class ParallelEncoder(Encoder):
         output.
       combined_output_layer_fn: A callable to apply on the combined output
         (i.e. the output of :obj:`outputs_reducer`).
-      share_parameters: If ``True``, share parameters between the parallel
-        encoders. For stateful encoders, simply pass a single encoder instance
-        to :obj:`encoders` for parameter sharing.
 
     Raises:
       ValueError: if :obj:`outputs_layer_fn` is a list with a size not equal
@@ -166,9 +142,8 @@ class ParallelEncoder(Encoder):
     self.states_reducer = states_reducer if states_reducer is not None else JoinReducer()
     self.outputs_layer_fn = outputs_layer_fn
     self.combined_output_layer_fn = combined_output_layer_fn
-    self.share_parameters = share_parameters
 
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+  def call(self, inputs, sequence_length=None, training=None):
     all_outputs = []
     all_states = []
     all_sequence_lengths = []
@@ -183,30 +158,27 @@ class ParallelEncoder(Encoder):
       encoders = itertools.repeat(self.encoders, len(inputs) if parallel_inputs else 1)
 
     for i, encoder in enumerate(encoders):
-      scope_name = "encoder_{}".format(i) if not self.share_parameters else "parallel_encoder"
-      reuse = self.share_parameters and i > 0
-      with compat.tf_compat(v1="variable_scope")(scope_name, reuse=reuse):
-        if parallel_inputs:
-          encoder_inputs = inputs[i]
-          length = sequence_length[i]
+      if parallel_inputs:
+        encoder_inputs = inputs[i]
+        length = sequence_length[i]
+      else:
+        encoder_inputs = inputs
+        length = sequence_length
+
+      outputs, state, length = encoder(
+          encoder_inputs,
+          sequence_length=length,
+          training=training)
+
+      if self.outputs_layer_fn is not None:
+        if isinstance(self.outputs_layer_fn, list):
+          outputs = self.outputs_layer_fn[i](outputs)
         else:
-          encoder_inputs = inputs
-          length = sequence_length
+          outputs = self.outputs_layer_fn(outputs)
 
-        outputs, state, length = encoder.encode(
-            encoder_inputs,
-            sequence_length=length,
-            mode=mode)
-
-        if self.outputs_layer_fn is not None:
-          if isinstance(self.outputs_layer_fn, list):
-            outputs = self.outputs_layer_fn[i](outputs)
-          else:
-            outputs = self.outputs_layer_fn(outputs)
-
-        all_outputs.append(outputs)
-        all_states.append(state)
-        all_sequence_lengths.append(length)
+      all_outputs.append(outputs)
+      all_states.append(state)
+      all_sequence_lengths.append(length)
 
     outputs, sequence_length = self.outputs_reducer(
         all_outputs, sequence_length=all_sequence_lengths)
