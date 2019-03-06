@@ -45,8 +45,7 @@ def make_input_fn(model,
                   num_shards=1,
                   shard_index=0,
                   num_threads=None,
-                  prefetch_buffer_size=None,
-                  return_dataset=True):
+                  prefetch_buffer_size=None):
   """Creates the input function.
 
   Args:
@@ -74,8 +73,6 @@ def make_input_fn(model,
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
       older versions.
-    return_dataset: Make the input function return a ``tf.data.Dataset``
-      directly or the next element.
 
   Returns:
     The input function.
@@ -122,13 +119,7 @@ def make_input_fn(model,
           num_threads=num_threads,
           prefetch_buffer_size=prefetch_buffer_size)
 
-    if return_dataset:
-      return dataset
-    else:
-      iterator = dataset.make_initializable_iterator()
-      # Add the initializer to a standard collection for it to be initialized.
-      tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
-      return iterator.get_next()
+    return dataset
 
   return _fn
 
