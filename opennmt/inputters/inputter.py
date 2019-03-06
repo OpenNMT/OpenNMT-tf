@@ -5,8 +5,8 @@ import six
 
 import tensorflow as tf
 
+from opennmt.layers import common
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
-from opennmt.utils import compat
 from opennmt.utils.data import inference_pipeline, training_pipeline
 from opennmt.utils.misc import extract_prefixed_keys, extract_suffixed_keys, item_or_tuple
 
@@ -17,8 +17,6 @@ class Inputter(tf.keras.layers.Layer):
 
   def __init__(self, dtype=tf.float32):
     super(Inputter, self).__init__(dtype=dtype)
-    self.volatile = set()
-    self.process_hooks = []
     self.is_target = False
 
   @property
@@ -26,23 +24,17 @@ class Inputter(tf.keras.layers.Layer):
     """How many parallel outputs does this inputter produce."""
     return 1
 
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+  def initialize(self, metadata, asset_prefix=""):
     """Initializes the inputter.
 
     Args:
       metadata: A dictionary containing additional metadata set
         by the user.
-      asset_dir: The directory where assets can be written. If ``None``, no
-        assets are returned.
       asset_prefix: The prefix to attach to assets filename.
-
-    Returns:
-      A dictionary containing additional assets used by the inputter.
     """
     _ = metadata
-    if asset_dir is not None:
-      return self.export_assets(asset_dir, asset_prefix=asset_prefix)
-    return {}
+    _ = asset_prefix
+    return
 
   def export_assets(self, asset_dir, asset_prefix=""):
     """Exports assets used by this tokenizer.
@@ -100,10 +92,10 @@ class Inputter(tf.keras.layers.Layer):
     dataset = dataset.apply(inference_pipeline(
         batch_size,
         process_fn=map_func,
-        num_threads=num_threads,
-        prefetch_buffer_size=prefetch_buffer_size,
         bucket_width=bucket_width,
-        length_fn=self.get_length))
+        length_fn=self.get_length,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size))
     return dataset
 
   def get_serving_input_receiver(self):
@@ -171,95 +163,6 @@ class Inputter(tf.keras.layers.Layer):
     return
 
 
-  # TODO: remove the following methods at some point.
-
-  def set_data_field(self, data, key, value, volatile=False):
-    """Sets a data field.
-
-    Args:
-      data: The data dictionary.
-      key: The value key.
-      value: The value to assign.
-      volatile: If ``True``, the key/value pair will be removed once the
-        processing done.
-
-    Returns:
-      The updated data dictionary.
-    """
-    data[key] = value
-    if volatile:
-      self.volatile.add(key)
-    return data
-
-  def remove_data_field(self, data, key):
-    """Removes a data field.
-
-    Args:
-      data: The data dictionary.
-      key: The value key.
-
-    Returns:
-      The updated data dictionary.
-    """
-    del data[key]
-    return data
-
-  def add_process_hooks(self, hooks):
-    """Adds processing hooks.
-
-    Processing hooks are additional and model specific data processing
-    functions applied after calling this inputter
-    :meth:`opennmt.inputters.inputter.Inputter.process` function.
-
-    Args:
-      hooks: A list of callables with the signature
-        ``(inputter, data) -> data``.
-    """
-    self.process_hooks.extend(hooks)
-
-  def process(self, data, training=None):
-    """Prepares raw data.
-
-    Args:
-      data: The raw data.
-      training: Run in training mode.
-
-    Returns:
-      A dictionary of ``tf.Tensor``.
-
-    See Also:
-      :meth:`opennmt.inputters.inputter.Inputter.transform_data`
-    """
-    data = self.make_features(data, training=training)
-    for hook in self.process_hooks:
-      data = hook(self, data)
-    for key in self.volatile:
-      data = self.remove_data_field(data, key)
-    self.volatile.clear()
-    return data
-
-  def transform_data(self, data, mode=tf.estimator.ModeKeys.TRAIN, log_dir=None):
-    """Transforms the processed data to an input.
-
-    This is usually a simple forward of a :obj:`data` field to
-    :meth:`opennmt.inputters.inputter.Inputter.transform`.
-
-    See also `process`.
-
-    Args:
-      data: A dictionary of data fields.
-      mode: A ``tf.estimator.ModeKeys`` mode.
-      log_dir: The log directory. If set, visualization will be setup.
-
-    Returns:
-      The transformed input.
-    """
-    inputs = self.make_inputs(data, training=mode == tf.estimator.ModeKeys.TRAIN)
-    if log_dir:
-      self.visualize(log_dir)
-    return inputs
-
-
 @six.add_metaclass(abc.ABCMeta)
 class MultiInputter(Inputter):
   """An inputter that gathers multiple inputters, possibly nested."""
@@ -291,11 +194,9 @@ class MultiInputter(Inputter):
         inputters.append(inputter)
     return inputters
 
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+  def initialize(self, metadata, asset_prefix=""):
     for i, inputter in enumerate(self.inputters):
       inputter.initialize(metadata, asset_prefix="%s%d_" % (asset_prefix, i + 1))
-    return super(MultiInputter, self).initialize(
-        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
   def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}
@@ -400,27 +301,13 @@ class ParallelInputter(MultiInputter):
             training=training)
       return tuple(features)
 
-  def _get_names(self):
-    for i, _ in enumerate(self.inputters):
-      yield "inputter_%d" % i
-
-  def _get_shared_name(self):
-    return ""
-
-  def _get_scopes(self):
-    for _, name in zip(self.inputters, self._get_names()):
-      if self.share_parameters:
-        name = self._get_shared_name()
-      yield name
-
   def build(self, input_shape=None):
     if self.share_parameters:
       # When sharing parameters, build the first leaf inputter and then set
       # all attributes with parameters to the other inputters.
       leaves = self.get_leaf_inputters()
       first, others = leaves[0], leaves[1:]
-      with compat.tf_compat(v1="variable_scope")(self._get_shared_name()):
-        first.build(input_shape)
+      first.build(input_shape)
       for name, attr in six.iteritems(first.__dict__):
         if (isinstance(attr, tf.Variable)
             or (isinstance(attr, tf.keras.layers.Layer) and attr.variables)):
@@ -428,22 +315,20 @@ class ParallelInputter(MultiInputter):
             setattr(inputter, name, attr)
             inputter.built = True
     else:
-      for inputter, scope in zip(self.inputters, self._get_names()):
-        with compat.tf_compat(v1="variable_scope")(scope):
-          inputter.build(input_shape)
+      for inputter in self.inputters:
+        inputter.build(input_shape)
     super(ParallelInputter, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
     if not self.built:
       self.build()
     transformed = []
-    for i, (inputter, scope) in enumerate(zip(self.inputters, self._get_scopes())):
-      with compat.tf_compat(v1="variable_scope")(scope):
-        if self.combine_features:
-          sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
-        else:
-          sub_features = features[i]
-        transformed.append(inputter.make_inputs(sub_features, training=training))
+    for i, inputter in enumerate(self.inputters):
+      if self.combine_features:
+        sub_features = extract_prefixed_keys(features, "inputter_{}_".format(i))
+      else:
+        sub_features = features[i]
+      transformed.append(inputter.make_inputs(sub_features, training=training))
     if self.reducer is not None:
       transformed = self.reducer(transformed)
     return transformed
@@ -491,11 +376,10 @@ class MixedInputter(MultiInputter):
 
   def make_inputs(self, features, training=None):
     transformed = []
-    for i, inputter in enumerate(self.inputters):
-      with compat.tf_compat(v1="variable_scope")("inputter_{}".format(i)):
-        transformed.append(inputter.make_inputs(features, training=training))
+    for inputter in self.inputters:
+      transformed.append(inputter.make_inputs(features, training=training))
     outputs = self.reducer(transformed)
-    outputs = tf.layers.dropout(outputs, rate=self.dropout, training=training)
+    outputs = common.dropout(outputs, self.dropout, training=training)
     return outputs
 
 
@@ -518,12 +402,9 @@ class ExampleInputter(ParallelInputter):
         share_parameters=share_parameters,
         combine_features=False)
 
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+  def initialize(self, metadata, asset_prefix=""):
     self.features_inputter.initialize(metadata, asset_prefix="source_")
     self.labels_inputter.initialize(metadata, asset_prefix="target_")
-    if asset_dir is not None:
-      return self.export_assets(asset_dir, asset_prefix=asset_prefix)
-    return {}
 
   def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}
@@ -635,17 +516,17 @@ class ExampleInputter(ParallelInputter):
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
-        bucket_width=bucket_width,
-        single_pass=single_pass,
+        batch_size_multiple=batch_size_multiple,
         process_fn=map_func,
-        num_threads=num_threads,
-        shuffle_buffer_size=shuffle_buffer_size,
-        prefetch_buffer_size=prefetch_buffer_size,
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
+        bucket_width=bucket_width,
         features_length_fn=self.features_inputter.get_length,
         labels_length_fn=self.labels_inputter.get_length,
-        batch_size_multiple=batch_size_multiple,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        single_pass=single_pass,
         num_shards=num_shards,
-        shard_index=shard_index))
+        shard_index=shard_index,
+        num_threads=num_threads,
+        shuffle_buffer_size=shuffle_buffer_size,
+        prefetch_buffer_size=prefetch_buffer_size))
     return dataset

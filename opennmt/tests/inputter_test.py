@@ -7,25 +7,21 @@ import yaml
 import tensorflow as tf
 import numpy as np
 
-try:
-  from tensorflow.contrib.tensorboard.plugins import projector
-except ModuleNotFoundError:
-  from tensorboard.plugins import projector
-
+from tensorflow.python.framework import test_util as tf_test_util
+from tensorboard.plugins import projector
 from google.protobuf import text_format
 
 from opennmt import tokenizers
 from opennmt.constants import PADDING_TOKEN as PAD
 from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
-from opennmt.utils import compat, data
+from opennmt.utils import data
 from opennmt.utils.misc import item_or_tuple, count_lines
-from opennmt.tests import test_util
 
 
 class InputterTest(tf.test.TestCase):
 
-  @test_util.run_tf1_only
+  @tf_test_util.deprecated_graph_mode_only
   def testVisualizeEmbeddings(self):
     log_dir = os.path.join(self.get_temp_dir(), "log")
     if not os.path.exists(log_dir):
@@ -36,7 +32,7 @@ class InputterTest(tf.test.TestCase):
       with open(vocab_file, mode="wb") as vocab:
         for i in range(vocab_size):
           vocab.write(tf.compat.as_bytes("%d\n" % i))
-      variable = tf.get_variable(name, shape=[vocab_size + num_oov_buckets, 4])
+      variable = tf.Variable(tf.zeros([vocab_size + num_oov_buckets, 4]), name=name)
       return variable, vocab_file
 
     def _visualize(embedding, vocab_file, num_oov_buckets=1):
@@ -68,7 +64,7 @@ class InputterTest(tf.test.TestCase):
     self.assertEqual("tgt_emb.txt", projector_config.embeddings[1].metadata_path)
 
     # Update an existing variable.
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
     src_embedding, src_vocab_file = _create_embedding("src_emb", "src_vocab.txt", vocab_size=20)
     projector_config = _visualize(src_embedding, src_vocab_file)
     self.assertEqual(2, len(projector_config.embeddings))
@@ -76,7 +72,7 @@ class InputterTest(tf.test.TestCase):
     self.assertEqual("src_emb.txt", projector_config.embeddings[0].metadata_path)
 
   def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
-    expected_chars = compat.nest.map_structure(tf.compat.as_bytes, expected_chars)
+    expected_chars = tf.nest.map_structure(tf.compat.as_bytes, expected_chars)
     chars, lengths = text_inputter.tokens_to_chars(tf.constant(tokens, dtype=tf.string))
     chars, lengths = self.evaluate([chars, lengths])
     self.assertListEqual(expected_chars, chars.tolist())
@@ -150,36 +146,21 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([1, 1], embeddings[1])
     self.assertAllEqual([3, 3], embeddings[2])
 
+  def _checkFeatures(self, features, expected_shapes):
+    for name, expected_shape in six.iteritems(expected_shapes):
+      self.assertIn(name, features)
+      self.assertTrue(features[name].shape.is_compatible_with(expected_shape))
+
   def _makeDataset(self, inputter, data_file, metadata=None, dataset_size=1, shapes=None):
     if metadata is not None:
       inputter.initialize(metadata)
-
     dataset = inputter.make_dataset(data_file)
-    dataset = dataset.map(lambda *arg: inputter.process(item_or_tuple(arg)))
-    dataset = dataset.padded_batch(1, padded_shapes=data.get_output_shapes(dataset))
-
-    if compat.is_tf2():
-      iterator = None
-      features = iter(dataset).next()
-    else:
-      iterator = dataset.make_initializable_iterator()
-      features = iterator.get_next()
-
+    dataset = dataset.map(lambda *arg: inputter.make_features(item_or_tuple(arg)))
+    dataset = dataset.apply(data.batch_dataset(1))
+    features = iter(dataset).next()
     if shapes is not None:
-      all_features = [features]
-      if not compat.is_tf2() and not inputter.is_target:
-        all_features.append(inputter.get_serving_input_receiver().features)
-      for f in all_features:
-        for field, shape in six.iteritems(shapes):
-          self.assertIn(field, f)
-          self.assertTrue(f[field].shape.is_compatible_with(shape))
-
+      self._checkFeatures(features, shapes)
     inputs = inputter.make_inputs(features, training=True)
-    if not compat.is_tf2():
-      with self.test_session() as sess:
-        sess.run(tf.tables_initializer())
-        sess.run(tf.global_variables_initializer())
-        sess.run(iterator.initializer)
     return self.evaluate((features, inputs))
 
   def testWordEmbedder(self):
@@ -193,7 +174,6 @@ class InputterTest(tf.test.TestCase):
         metadata={"vocabulary_file": vocab_file},
         shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
 
-    self.assertEqual(embedder.embedding.name, "w_embs:0")
     self.assertAllEqual([3], features["length"])
     self.assertAllEqual([[2, 1, 4]], features["ids"])
     self.assertAllEqual([1, 3, 10], transformed.shape)
@@ -288,7 +268,6 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([1, 1], transformed[0][0])
     self.assertAllEqual([2, 2], transformed[0][1])
 
-  @test_util.run_tf1_only
   def testCharConvEmbedder(self):
     vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -306,7 +285,6 @@ class InputterTest(tf.test.TestCase):
         features["char_ids"])
     self.assertAllEqual([1, 3, 5], transformed.shape)
 
-  @test_util.run_tf1_only
   def testCharRNNEmbedder(self):
     vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -404,7 +382,6 @@ class InputterTest(tf.test.TestCase):
     })
     self.assertIsInstance(source_inputter.tokenizer, tokenizers.OpenNMTTokenizer)
 
-  @test_util.run_tf1_only
   def testMixedInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     vocab_alt_file = self._makeTextFile("vocab_alt.txt", ["h", "e", "l", "w", "o"])
