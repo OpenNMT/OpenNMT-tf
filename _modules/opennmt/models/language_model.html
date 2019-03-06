@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.language_model &mdash; OpenNMT-tf 1.21.2 documentation</title>
+  <title>opennmt.models.language_model &mdash; OpenNMT-tf 1.21.3 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.21.2',
+              VERSION:'1.21.3',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -232,11 +232,7 @@
         <span class="p">}</span>
     <span class="p">})</span></div>
 
-  <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
-    <span class="n">training</span> <span class="o">=</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span>
-    <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-    <span class="c1"># Initialize input and output layers.</span>
+  <span class="k">def</span> <span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
     <span class="n">vocab_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span>
     <span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span>
@@ -247,6 +243,10 @@
           <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
           <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">vocab_size</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="n">training</span> <span class="o">=</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span>
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="n">ids</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">],</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">PREDICT</span><span class="p">:</span>
