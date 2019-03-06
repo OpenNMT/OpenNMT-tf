@@ -98,22 +98,6 @@ class Inputter(tf.keras.layers.Layer):
         prefetch_buffer_size=prefetch_buffer_size))
     return dataset
 
-  def get_serving_input_receiver(self):
-    """Returns a serving input receiver for this inputter.
-
-    Returns:
-      A ``tf.estimator.export.ServingInputReceiver``.
-    """
-    if self.is_target:
-      raise ValueError("Target inputters do not define a serving input")
-    signature = self.input_signature()
-    if signature is None:
-      raise NotImplementedError("This inputter does not define an input signature.")
-    receiver_tensors = tf.nest.map_structure(
-        lambda spec: tf.compat.v1.placeholder(spec.dtype, shape=spec.shape), signature)
-    features = self.make_features(features=receiver_tensors.copy())
-    return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
-
   def input_signature(self):
     """Returns the input signature of this inputter."""
     return None

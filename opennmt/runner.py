@@ -267,7 +267,7 @@ class Runner(object):
         steps=None,
         exporters=_make_exporters(
             self._config["eval"]["exporters"],
-            estimator_util.make_serving_input_fn(self._model, metadata=self._config["data"]),
+            estimator_util.make_serving_input_fn(self._model),
             assets_extra=self._get_model_assets()),
         throttle_secs=self._config["eval"]["eval_delay"])
     return eval_spec
@@ -459,7 +459,7 @@ class Runner(object):
 
     return export_fn(
         export_dir_base,
-        estimator_util.make_serving_input_fn(self._model, metadata=self._config["data"]),
+        estimator_util.make_serving_input_fn(self._model),
         assets_extra=self._get_model_assets(),
         checkpoint_path=checkpoint_path,
         **kwargs)

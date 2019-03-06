@@ -8,13 +8,11 @@ from opennmt.utils import hooks
 from opennmt.utils import parallel
 
 
-def make_serving_input_fn(model, metadata=None):
+def make_serving_input_fn(model):
   """Returns the serving input function.
 
   Args:
     model: An initialized :class:`opennmt.models.model.Model` instance.
-    metadata: Optional data configuration (to be removed). Some inputters
-      currently require to peek into some data files to infer input sizes.
 
   Returns:
     A callable that returns a ``tf.estimator.export.ServingInputReceiver``.
@@ -22,12 +20,13 @@ def make_serving_input_fn(model, metadata=None):
 
   def _fn():
     local_model = copy.deepcopy(model)
-    # This is a hack for SequenceRecordInputter that currently infers the input
-    # depth from the data files.
-    # TODO: This function should not require the training data.
-    if metadata is not None and "train_features_file" in metadata:
-      _ = local_model.features_inputter.make_dataset(metadata["train_features_file"])
-    return local_model.features_inputter.get_serving_input_receiver()
+    input_signature = local_model.features_inputter.input_signature()
+    if input_signature is None:
+      raise NotImplementedError("This model does not define an input signature.")
+    receiver_tensors = tf.nest.map_structure(
+        lambda spec: tf.compat.v1.placeholder(spec.dtype, shape=spec.shape), input_signature)
+    features = local_model.features_inputter.make_features(features=receiver_tensors.copy())
+    return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
   return _fn
 
