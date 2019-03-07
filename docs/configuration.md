@@ -234,8 +234,8 @@ eval:
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: sacreBLEU, BLEU, BLEU-detok, ROUGE
-  external_evaluators: sacreBLEU
+  # Available evaluators: BLEU, ROUGE
+  external_evaluators: BLEU
 
   # (optional) Model exporter(s) to use during the training and evaluation loop:
   # last, final, best, or null (default: last).

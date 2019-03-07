@@ -17,32 +17,20 @@ class EvaluatorTest(tf.test.TestCase):
       hyp_file.write(text)
     return ref_path, hyp_path
 
-  def testSacreBLEUEvaluator(self):
+  def testBLEUScorer(self):
     if sys.version_info >= (3, 0):
-      bleu_evaluator = evaluator.SacreBLEUEvaluator()
+      bleu_scorer = evaluator.BLEUScorer()
       ref_path, hyp_path = self._make_perfect_hypothesis_file()
-      score = bleu_evaluator.score(ref_path, hyp_path)
+      score = bleu_scorer(ref_path, hyp_path)
       self.assertEqual(100, int(score))
     else:
       with self.assertRaises(ImportError):
-        bleu_evaluator = evaluator.SacreBLEUEvaluator()
+        bleu_scorer = evaluator.BLEUScorer()
 
-  def testBLEUEvaluator(self):
-    bleu_evaluator = evaluator.BLEUEvaluator()
+  def testROUGEScorer(self):
+    rouge_scorer = evaluator.ROUGEScorer()
     ref_path, hyp_path = self._make_perfect_hypothesis_file()
-    score = bleu_evaluator.score(ref_path, hyp_path)
-    self.assertEqual(100.0, score)
-
-  def testBLEUDetokEvaluator(self):
-    bleu_evaluator = evaluator.BLEUDetokEvaluator()
-    ref_path, hyp_path = self._make_perfect_hypothesis_file()
-    score = bleu_evaluator.score(ref_path, hyp_path)
-    self.assertEqual(100.0, score)
-
-  def testROUGEEvaluator(self):
-    rouge_evaluator = evaluator.ROUGEEvaluator()
-    ref_path, hyp_path = self._make_perfect_hypothesis_file()
-    score = rouge_evaluator.score(ref_path, hyp_path)
+    score = rouge_scorer(ref_path, hyp_path)
     self.assertIsInstance(score, dict)
     self.assertIn("rouge-l", score)
     self.assertIn("rouge-1", score)

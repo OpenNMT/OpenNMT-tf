@@ -107,16 +107,6 @@ def function_args(fun):
     return inspect.getfullargspec(fun).args
   return inspect.getargspec(fun).args  # pylint: disable=deprecated-method
 
-def get_third_party_dir():
-  """Returns a path to the third_party directory."""
-  utils_dir = os.path.dirname(__file__)
-  opennmt_dir = os.path.dirname(utils_dir)
-  root_dir = os.path.dirname(opennmt_dir)
-  third_party_dir = os.path.join(root_dir, "third_party")
-  if not os.path.isdir(third_party_dir):
-    raise RuntimeError("no third_party directory found in {}".format(root_dir))
-  return third_party_dir
-
 def count_lines(filename):
   """Returns the number of lines of the file :obj:`filename`."""
   with compat.gfile_open(filename, mode="rb") as f:
