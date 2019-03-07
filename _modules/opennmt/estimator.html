@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.estimator &mdash; OpenNMT-tf 1.21.3 documentation</title>
+  <title>opennmt.estimator &mdash; OpenNMT-tf 1.21.4 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../',
-              VERSION:'1.21.3',
+              VERSION:'1.21.4',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -192,11 +192,13 @@
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">parallel</span>
 
 
-<div class="viewcode-block" id="make_serving_input_fn"><a class="viewcode-back" href="../../package/opennmt.estimator.html#opennmt.estimator.make_serving_input_fn">[docs]</a><span class="k">def</span> <span class="nf">make_serving_input_fn</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<div class="viewcode-block" id="make_serving_input_fn"><a class="viewcode-back" href="../../package/opennmt.estimator.html#opennmt.estimator.make_serving_input_fn">[docs]</a><span class="k">def</span> <span class="nf">make_serving_input_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the serving input function.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    model: An initialized :class:`opennmt.models.model.Model` instance.</span>
+<span class="sd">    metadata: Optional data configuration (to be removed). Some inputters</span>
+<span class="sd">      currently require to peek into some data files to infer input sizes.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A callable that returns a ``tf.estimator.export.ServingInputReceiver``.</span>
@@ -204,6 +206,11 @@
 
   <span class="k">def</span> <span class="nf">_fn</span><span class="p">():</span>
     <span class="n">local_model</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="c1"># This is a hack for SequenceRecordInputter that currently infers the input</span>
+    <span class="c1"># depth from the data files.</span>
+    <span class="c1"># TODO: This function should not require the training data.</span>
+    <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;train_features_file&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+      <span class="n">_</span> <span class="o">=</span> <span class="n">local_model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;train_features_file&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">local_model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_serving_input_receiver</span><span class="p">()</span>
 
   <span class="k">return</span> <span class="n">_fn</span></div>
