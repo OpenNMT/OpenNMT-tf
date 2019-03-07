@@ -7,5 +7,4 @@ if not is_tf2():
   from opennmt.optimizers.adafactor import get_optimizer_from_params \
       as get_adafactor_optimizer_from_params
 
-  from opennmt.optimizers.multistep_adam import MultistepAdamOptimizer
   from opennmt.optimizers.mixed_precision_wrapper import MixedPrecisionOptimizerWrapper
