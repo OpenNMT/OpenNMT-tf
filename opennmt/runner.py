@@ -448,16 +448,9 @@ class Runner(object):
         # with the behavior of tf.estimator.Exporter.
         kwargs["strip_default_attrs"] = True
 
-    # This is a hack for SequenceRecordInputter that currently infers the input
-    # depth from the data files.
-    # TODO: This method should not require the training data.
-    data_config = self._config["data"]
-    if  "train_features_file" in data_config:
-      _ = model.features_inputter.make_dataset(data_config["train_features_file"])
-
     return export_fn(
         export_dir_base,
-        estimator_util.make_serving_input_fn(self._model),
+        estimator_util.make_serving_input_fn(self._model, metadata=self._config["data"]),
         assets_extra=self._get_model_assets(),
         checkpoint_path=checkpoint_path,
         **kwargs)
