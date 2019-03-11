@@ -247,7 +247,8 @@ class Runner(object):
             num_shards=self._hvd.size() if self._hvd is not None else 1,
             shard_index=self._hvd.rank() if self._hvd is not None else 0,
             num_threads=self._config["train"].get("num_threads"),
-            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size")),
+            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size"),
+            return_dataset=False),
         max_steps=train_steps,
         hooks=train_hooks)
     return train_spec
@@ -261,7 +262,8 @@ class Runner(object):
             features_file=self._config["data"]["eval_features_file"],
             labels_file=self._config["data"].get("eval_labels_file"),
             num_threads=self._config["eval"].get("num_threads"),
-            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size")),
+            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size"),
+            return_dataset=False),
         steps=None,
         exporters=_make_exporters(
             self._config["eval"]["exporters"],
@@ -388,7 +390,8 @@ class Runner(object):
         features_file=features_file,
         bucket_width=self._config["infer"]["bucket_width"],
         num_threads=self._config["infer"].get("num_threads"),
-        prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"))
+        prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"),
+        return_dataset=False)
 
     if predictions_file:
       stream = io.open(predictions_file, encoding="utf-8", mode="w")
