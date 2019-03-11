@@ -4,142 +4,105 @@ import tensorflow as tf
 import numpy as np
 
 
-# All functions must take the learning rate and the step as first arguments.
+class NoamDecay(tf.optimizers.schedules.LearningRateSchedule):
+  """Defines the decay function described in https://arxiv.org/abs/1706.03762."""
 
-def noam_decay(learning_rate,
-               global_step,
-               decay_steps,
-               decay_rate,
-               staircase=False,
-               name=None):
-  """Defines the decay function described in https://arxiv.org/abs/1706.03762.
+  def __init__(self, scale, model_dim, warmup_steps):
+    """Initializes the decay function.
 
-  The semantic of the arguments are changed accordingly.
+    Args:
+      scale: The scale constant.
+      model_dim: The model dimension.
+      warmup_steps: The number of warmup steps.
+    """
+    self.scale = tf.cast(scale, tf.float32)
+    self.model_dim = tf.cast(model_dim, tf.float32)
+    self.warmup_steps = tf.cast(warmup_steps, tf.float32)
 
-  Args:
-    learning_rate: The scale constant.
-    global_step: The current learning step.
-    decay_steps: The warmup steps.
-    decay_rate: The model dimension.
-    staircase: Ignored.
-    name: Ignored.
-
-  Returns:
-    The learning rate for the step :obj:`global_step`.
-  """
-  _ = staircase
-  _ = name
-  return noam_decay_v2(learning_rate, global_step, decay_rate, decay_steps)
-
-def noam_decay_v2(scale, step, model_dim, warmup_steps):
-  """Defines the decay function described in https://arxiv.org/abs/1706.03762.
-
-  Args:
-    scale: The scale constant.
-    step: The current step.
-    model_dim: The model dimension.
-    warmup_steps: The number of warmup steps.
-
-  Returns:
-    The learning rate for the step :obj:`global_step`.
-  """
-  step = tf.cast(step + 1, tf.float32)
-  model_dim = tf.cast(model_dim, tf.float32)
-  warmup_steps = tf.cast(warmup_steps, tf.float32)
-  return (scale
-          * tf.pow(model_dim, -0.5)
-          * tf.minimum(tf.pow(step, -0.5), step * tf.pow(warmup_steps, -1.5)))
+  def __call__(self, step):
+    step = tf.cast(step + 1, tf.float32)
+    return (self.scale
+            * tf.pow(self.model_dim, -0.5)
+            * tf.minimum(tf.pow(step, -0.5), step * tf.pow(self.warmup_steps, -1.5)))
 
 
-def rsqrt_decay(learning_rate,
-                global_step,
-                decay_steps,
-                decay_rate,
-                staircase=False,
-                name=None):
-  """Decay based on the reciprocal of the step square root.
+class RsqrtDecay(tf.optimizers.schedules.LearningRateSchedule):
+  """Decay based on the reciprocal of the step square root."""
 
-  The semantic of the arguments are changed accordingly.
+  def __init__(self, scale, warmup_steps):
+    """Initializes the decay function.
 
-  Args:
-    learning_rate: The scale constant.
-    global_step: The current learning step.
-    decay_steps: The warmup steps.
-    decay_rate: Ignored.
-    staircase: Ignored.
-    name: Ignored.
+    Args:
+      scale: The scale constant.
+      warmup_steps: The number of warmup steps.
+    """
+    self.scale = tf.cast(scale, tf.float32)
+    self.warmup_steps = tf.cast(warmup_steps, tf.float32)
 
-  Returns:
-    The learning rate for the step :obj:`global_step`.
-  """
-  _ = decay_rate
-  _ = staircase
-  _ = name
-  return rsqrt_decay_v2(learning_rate, global_step, decay_steps)
-
-def rsqrt_decay_v2(scale, step, warmup_steps):
-  """Decay based on the reciprocal of the step square root.
-
-  Args:
-    scale: The scale constant.
-    step: The current step.
-    warmup_steps: The number of warmup steps.
-
-  Returns:
-    The learning rate for the step :obj:`global_step`.
-  """
-  step = tf.cast(step, tf.float32)
-  warmup_steps = tf.cast(warmup_steps, tf.float32)
-  return scale * tf.rsqrt(tf.maximum(step, warmup_steps))
+  def __call__(self, step):
+    step = tf.cast(step, tf.float32)
+    return self.scale * tf.rsqrt(tf.maximum(step, self.warmup_steps))
 
 
-def cosine_annealing(scale, step, max_step=1000000, warmup_steps=None):
-  """Decay using a cosine annealing schedule.
+class CosineAnnealing(tf.optimizers.schedules.LearningRateSchedule):
+  """Decay using a cosine annealing schedule."""
 
-  Args:
-    scale: The initial learning rate.
-    step: The current step.
-    max_step: The last step of the scedule.
-    warmup_steps: The number of steps to increment the learning rate linearly
-      from 0 to :obj:`scale` before annealing.
+  def __init__(self, eta_max, eta_min=0, max_step=1000000, warmup_steps=None):
+    """Initializes the decay function.
 
-  Returns:
-    The learning rate for the step :obj:`step`.
-  """
-  step = tf.cast(step, tf.float32)
-  max_step = tf.cast(max_step, tf.float32)
-  eta_min = 0
-  eta_max = scale
-  annealing = lambda: eta_min + 0.5 * (eta_max - eta_min) * (1 + tf.cos(np.pi * step / max_step))
-  linear = lambda: scale * step / tf.cast(warmup_steps, tf.float32)
-  if warmup_steps is None:
-    return annealing()
-  return tf.cond(tf.less(step, warmup_steps), true_fn=linear, false_fn=annealing)
+    Args:
+      eta_max: Maximum learning rate.
+      eta_min: Minimum learning rate.
+      max_step: The last step of the scedule.
+      warmup_steps: The number of steps to increment the learning rate linearly
+        from 0 to :obj:`scale` before annealing.
+    """
+    self.eta_max = tf.cast(eta_max, tf.float32)
+    self.eta_min = tf.cast(eta_min, tf.float32)
+    self.max_step = tf.cast(max_step, tf.float32)
+    self.warmup_steps = tf.cast(warmup_steps, tf.float32) if warmup_steps is not None else None
 
-def rnmtplus_decay(scale,
-                   step,
-                   num_replicas,
-                   warmup_steps=500,
-                   start_step=600000,
-                   end_step=1200000):
-  """Defines the decay function described in https://arxiv.org/abs/1804.09849.
+  def __call__(self, step):
+    step = tf.cast(step, tf.float32)
+    annealing = lambda: (
+        self.eta_min
+        + 0.5 * (self.eta_max - self.eta_min) * (1 + tf.cos(np.pi * step / self.max_step)))
+    linear = lambda: self.eta_max * step / tf.cast(self.warmup_steps, tf.float32)
+    if self.warmup_steps is None:
+      return annealing()
+    return tf.cond(tf.less(step, self.warmup_steps), true_fn=linear, false_fn=annealing)
 
-  Args:
-    scale: The scale constant.
-    step: The current step.
-    num_replicas: The number of concurrent model replicas.
-    warmup_steps: The number of warmup steps.
-    start_step: The start step of the exponential decay.
-    end_step: The end step of the exponential decay.
 
-  Returns:
-    The learning rate for the step :obj:`step`.
-  """
-  t = tf.cast(step, tf.float32)
-  n = tf.cast(num_replicas, tf.float32)
-  p = tf.cast(warmup_steps, tf.float32)
-  s = tf.cast(start_step, tf.float32)
-  e = tf.cast(end_step, tf.float32)
-  return scale * tf.minimum(
-      tf.minimum(1 + (t * (n - 1)) / (n * p), n),
-      n * tf.pow(2 * n, (s - n * t) / (e - s)))
+class RNMTPlusDecay(tf.optimizers.schedules.LearningRateSchedule):
+  """Defines the decay function described in https://arxiv.org/abs/1804.09849."""
+
+  def __init__(self,
+               scale,
+               num_replicas,
+               warmup_steps=500,
+               start_step=600000,
+               end_step=1200000):
+    """Initializes the decay function.
+
+    Args:
+      scale: The scale constant.
+      num_replicas: The number of concurrent model replicas.
+      warmup_steps: The number of warmup steps.
+      start_step: The start step of the exponential decay.
+      end_step: The end step of the exponential decay.
+    """
+    self.scale = tf.cast(scale, tf.float32)
+    self.num_replicas = tf.cast(num_replicas, tf.float32)
+    self.warmup_steps = tf.cast(warmup_steps, tf.float32)
+    self.start_step = tf.cast(start_step, tf.float32)
+    self.end_step = tf.cast(end_step, tf.float32)
+
+  def __call__(self, step):
+    t = tf.cast(step, tf.float32)
+    n = self.num_replicas
+    p = self.warmup_steps
+    s = self.start_step
+    e = self.end_step
+    return self.scale * tf.minimum(
+        tf.minimum(1 + (t * (n - 1)) / (n * p), n),
+        n * tf.pow(2 * n, (s - n * t) / (e - s)))
