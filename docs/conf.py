@@ -12,7 +12,7 @@ author = "OpenNMT"
 language = "en"
 
 version = "1.21"  # The short X.Y version.
-release = "1.21.4"  # The full version, including alpha/beta/rc tags.
+release = "1.21.5"  # The full version, including alpha/beta/rc tags.
 
 source_suffix = ".rst"
 master_doc = "index"
