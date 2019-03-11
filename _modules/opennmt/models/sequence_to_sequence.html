@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.21.4 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.21.5 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.21.4',
+              VERSION:'1.21.5',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -194,7 +194,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.losses</span> <span class="k">import</span> <span class="n">cross_entropy_sequence_loss</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">merge_dict</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">merge_dict</span><span class="p">,</span> <span class="n">shape_list</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.decoder</span> <span class="k">import</span> <span class="n">get_sampling_probability</span>
 
 
@@ -461,7 +461,9 @@
         <span class="c1"># Merge batch and beam dimensions.</span>
         <span class="n">original_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">)</span>
         <span class="n">target_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
-        <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">alignment</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">alignment</span><span class="p">)[</span><span class="mi">2</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">alignment</span><span class="p">)[</span><span class="mi">3</span><span class="p">]])</span>
+        <span class="n">align_shape</span> <span class="o">=</span> <span class="n">shape_list</span><span class="p">(</span><span class="n">alignment</span><span class="p">)</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">alignment</span><span class="p">,</span> <span class="p">[</span><span class="n">align_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
         <span class="c1"># We don&#39;t have attention for &lt;/s&gt; but ensure that the attention time dimension matches</span>
         <span class="c1"># the tokens time dimension.</span>
         <span class="n">attention</span> <span class="o">=</span> <span class="n">reducer</span><span class="o">.</span><span class="n">align_in_time</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
