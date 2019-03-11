@@ -18,6 +18,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * Fix compatibility issue with legacy TensorFlow 1.4
 * Fix inference of language models
+* Fix inference error when using `replace_unknown_target` and the alignment vector was empty
 
 ## [1.21.4](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.4) (2019-03-07)
 
