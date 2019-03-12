@@ -14,6 +14,7 @@ except ModuleNotFoundError:
 
 from google.protobuf import text_format
 
+from opennmt import tokenizers
 from opennmt.constants import PADDING_TOKEN as PAD
 from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
@@ -391,6 +392,18 @@ class InputterTest(tf.test.TestCase):
       self.assertIn(field, features)
     for field in ("ids", "ids_out", "length", "tokens"):
       self.assertIn(field, labels)
+
+  def testExampleInputterAsset(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    source_inputter = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    target_inputter = text_inputter.WordEmbedder("vocabulary_file_1", embedding_size=10)
+    example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+    example_inputter.initialize({
+        "vocabulary_file_1": vocab_file,
+        "vocabulary_file_2": vocab_file,
+        "source_tokenization": {"mode": "conservative"}
+    })
+    self.assertIsInstance(source_inputter.tokenizer, tokenizers.OpenNMTTokenizer)
 
   @test_util.run_tf1_only
   def testMixedInputter(self):
