@@ -181,25 +181,15 @@ def _get_field(config, key, prefix=None, default=None, required=False):
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self,
-               tokenizer=None,
-               dtype=tf.float32,
-               vocabulary_file_key=None,
-               num_oov_buckets=1):
+  def __init__(self, num_oov_buckets=1, dtype=tf.float32):
     super(TextInputter, self).__init__(dtype=dtype)
-    self.tokenizer = tokenizer
-    self.vocabulary_file_key = vocabulary_file_key
     self.num_oov_buckets = num_oov_buckets
-    self.vocabulary = None
-    self.vocabulary_size = None
-    self.vocabulary_file = None
 
   def initialize(self, metadata, asset_prefix=""):
-    self.vocabulary_file = metadata[self.vocabulary_file_key]
+    self.vocabulary_file = _get_field(metadata, "vocabulary", prefix=asset_prefix)
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    if self.tokenizer is None:
-      tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
-      self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
+    tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
+    self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
 
   def export_assets(self, asset_dir, asset_prefix=""):
     return self.tokenizer.export_assets(asset_dir, asset_prefix=asset_prefix)
@@ -243,70 +233,30 @@ class TextInputter(Inputter):
 class WordEmbedder(TextInputter):
   """Simple word embedder."""
 
-  def __init__(self,
-               vocabulary_file_key,
-               embedding_size=None,
-               embedding_file_key=None,
-               embedding_file_with_header=True,
-               case_insensitive_embeddings=True,
-               trainable=True,
-               dropout=0.0,
-               tokenizer=None,
-               dtype=tf.float32):
+  def __init__(self, embedding_size=None, dropout=0.0, dtype=tf.float32):
     """Initializes the parameters of the word embedder.
 
     Args:
-      vocabulary_file_key: The data configuration key of the vocabulary file
-        containing one word per line.
       embedding_size: The size of the resulting embedding.
         If ``None``, an embedding file must be provided.
-      embedding_file_key: The data configuration key of the embedding file.
-      embedding_file_with_header: ``True`` if the embedding file starts with a
-        header line like in GloVe embedding files.
-      case_insensitive_embeddings: ``True`` if embeddings are trained on
-        lowercase data.
-      trainable: If ``False``, do not optimize embeddings.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
-
-    Raises:
-      ValueError: if neither :obj:`embedding_size` nor :obj:`embedding_file_key`
-        are set.
-
-    See Also:
-      The :meth:`opennmt.inputters.text_inputter.load_pretrained_embeddings`
-      function for details about the pretrained embedding format and behavior.
     """
-    super(WordEmbedder, self).__init__(
-        tokenizer=tokenizer,
-        dtype=dtype,
-        vocabulary_file_key=vocabulary_file_key)
-    self.embedding = None
+    super(WordEmbedder, self).__init__(dtype=dtype)
     self.embedding_size = embedding_size
     self.embedding_file = None
-    self.embedding_file_key = embedding_file_key
-    self.embedding_file_with_header = embedding_file_with_header
-    self.case_insensitive_embeddings = case_insensitive_embeddings
-    self.trainable = trainable
     self.dropout = dropout
 
   def initialize(self, metadata, asset_prefix=""):
     super(WordEmbedder, self).initialize(metadata, asset_prefix=asset_prefix)
-    if self.embedding_file_key is not None:
-      self.embedding_file = metadata[self.embedding_file_key]
-    else:
-      embedding = _get_field(metadata, "embedding", prefix=asset_prefix)
-      if embedding is None and self.embedding_size is None:
-        raise ValueError("embedding_size must be set")
-      if embedding is not None:
-        self.embedding_file = embedding["path"]
-        self.trainable = embedding.get("trainable", True)
-        self.embedding_file_with_header = embedding.get("with_header", True)
-        self.case_insensitive_embeddings = embedding.get("case_insensitive", True)
-    if self.embedding_file is None and self.embedding_size is None:
-      raise ValueError("Must either provide embedding_size or embedding_file_key")
+    embedding = _get_field(metadata, "embedding", prefix=asset_prefix)
+    if embedding is None and self.embedding_size is None:
+      raise ValueError("embedding_size must be set")
+    if embedding is not None:
+      self.embedding_file = embedding["path"]
+      self.trainable = embedding.get("trainable", True)
+      self.embedding_file_with_header = embedding.get("with_header", True)
+      self.case_insensitive_embeddings = embedding.get("case_insensitive", True)
 
   def make_features(self, element=None, features=None, training=None):
     """Converts words tokens to ids."""
@@ -365,27 +315,15 @@ class WordEmbedder(TextInputter):
 class CharEmbedder(TextInputter):
   """Base class for character-aware inputters."""
 
-  def __init__(self,
-               vocabulary_file_key,
-               embedding_size,
-               dropout=0.0,
-               tokenizer=None,
-               dtype=tf.float32):
+  def __init__(self, embedding_size, dropout=0.0, dtype=tf.float32):
     """Initializes the parameters of the character embedder.
 
     Args:
-      vocabulary_file_key: The meta configuration key of the vocabulary file
-        containing one character per line.
       embedding_size: The size of the character embedding.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
-    super(CharEmbedder, self).__init__(
-        tokenizer=tokenizer,
-        dtype=dtype,
-        vocabulary_file_key=vocabulary_file_key)
+    super(CharEmbedder, self).__init__(dtype=dtype)
     self.embedding_size = embedding_size
     self.embedding = None
     self.dropout = dropout
@@ -436,33 +374,25 @@ class CharConvEmbedder(CharEmbedder):
   """An inputter that applies a convolution on characters embeddings."""
 
   def __init__(self,
-               vocabulary_file_key,
                embedding_size,
                num_outputs,
                kernel_size=5,
                stride=3,
                dropout=0.0,
-               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character convolution embedder.
 
     Args:
-      vocabulary_file_key: The meta configuration key of the vocabulary file
-        containing one character per line.
       embedding_size: The size of the character embedding.
       num_outputs: The dimension of the convolution output space.
       kernel_size: Length of the convolution window.
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
-      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
     """
     super(CharConvEmbedder, self).__init__(
-        vocabulary_file_key,
         embedding_size,
         dropout=dropout,
-        tokenizer=tokenizer,
         dtype=dtype)
     self.output_size = num_outputs
     self.conv = tf.keras.layers.Conv1D(
@@ -485,36 +415,28 @@ class CharRNNEmbedder(CharEmbedder):
   """An inputter that runs a single RNN layer over character embeddings."""
 
   def __init__(self,
-               vocabulary_file_key,
                embedding_size,
                num_units,
                dropout=0.2,
                cell_class=None,
-               tokenizer=None,
                dtype=tf.float32):
     """Initializes the parameters of the character RNN embedder.
 
     Args:
-      vocabulary_file_key: The meta configuration key of the vocabulary file
-        containing one character per line.
       embedding_size: The size of the character embedding.
       num_units: The number of units in the RNN layer.
       dropout: The probability to drop units in the embedding and the RNN
         outputs.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell. Defaults to a LSTM cell.
-      tokenizer: An optional :class:`opennmt.tokenizers.tokenizer.Tokenizer` to
-        tokenize the input text. Defaults to a space tokenization.
       dtype: The embedding type.
 
     Raises:
       ValueError: if :obj:`encoding` is invalid.
     """
     super(CharRNNEmbedder, self).__init__(
-        vocabulary_file_key,
         embedding_size,
         dropout=dropout,
-        tokenizer=tokenizer,
         dtype=dtype)
     if cell_class is None:
       cell_class = tf.keras.layers.LSTMCell
