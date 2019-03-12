@@ -8,7 +8,7 @@ import six
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.ops import lookup_ops as lookup
+from tensorflow.python.ops.lookup_ops import TextFileIndex
 from tensorboard.plugins import projector
 from google.protobuf import text_format
 
@@ -196,17 +196,25 @@ class TextInputter(Inputter):
 
   def vocabulary_lookup(self):
     """Returns a lookup table mapping string to index."""
-    return lookup.index_table_from_file(
+    initializer = tf.lookup.TextFileInitializer(
         self.vocabulary_file,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets,
-        num_oov_buckets=self.num_oov_buckets)
+        tf.string,
+        TextFileIndex.WHOLE_LINE,
+        tf.int64,
+        TextFileIndex.LINE_NUMBER,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets)
+    return tf.lookup.StaticVocabularyTable(initializer, self.num_oov_buckets)
 
   def vocabulary_lookup_reverse(self):
     """Returns a lookup table mapping index to string."""
-    return lookup.index_to_string_table_from_file(
+    initializer = tf.lookup.TextFileInitializer(
         self.vocabulary_file,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets,
-        default_value=constants.UNKNOWN_TOKEN)
+        tf.int64,
+        TextFileIndex.LINE_NUMBER,
+        tf.string,
+        TextFileIndex.WHOLE_LINE,
+        vocab_size=self.vocabulary_size - self.num_oov_buckets)
+    return tf.lookup.StaticHashTable(initializer, constants.UNKNOWN_TOKEN)
 
   def make_dataset(self, data_file, training=None):
     self.vocabulary = self.vocabulary_lookup()
