@@ -303,8 +303,8 @@ class MultiInputter(Inputter):
     return inputters
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
-    for inputter in self.inputters:
-      inputter.initialize(metadata)
+    for i, inputter in enumerate(self.inputters):
+      inputter.initialize(metadata, asset_prefix="%s%d_" % (asset_prefix, i + 1))
     return super(MultiInputter, self).initialize(
         metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
 
@@ -548,6 +548,13 @@ class ExampleInputter(ParallelInputter):
         [self.features_inputter, self.labels_inputter],
         share_parameters=share_parameters,
         combine_features=False)
+
+  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
+    self.features_inputter.initialize(metadata, asset_prefix="source_")
+    self.labels_inputter.initialize(metadata, asset_prefix="target_")
+    if asset_dir is not None:
+      return self.export_assets(asset_dir, asset_prefix=asset_prefix)
+    return {}
 
   def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}
