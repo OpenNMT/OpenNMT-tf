@@ -16,6 +16,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.21.6](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.6) (2019-03-12)
+
+### Fixes and improvements
+
+* Fix inputter initialization from the configuration file: fields such as `source_tokenization`, `target_embedding`, etc. were ignored in 1.21.0.
+
 ## [1.21.5](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.5) (2019-03-11)
 
 ### Fixes and improvements
