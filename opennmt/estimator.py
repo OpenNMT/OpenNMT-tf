@@ -142,6 +142,7 @@ def make_model_fn(model,
   def _fn(features, labels, params, mode, config):
     """model_fn implementation."""
     local_model = copy.deepcopy(model)
+    global_step = tf.compat.v1.train.get_or_create_global_step()
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       outputs, _ = local_model(features, labels, params, mode)
@@ -168,6 +169,7 @@ def make_model_fn(model,
           num_words["target"] = tf.reduce_sum(labels_length)
         training_hooks.append(hooks.LogWordsPerSecondHook(
             num_words,
+            global_step,
             every_n_steps=config.save_summary_steps,
             output_dir=config.model_dir))
       return tf.estimator.EstimatorSpec(
@@ -183,7 +185,7 @@ def make_model_fn(model,
       eval_metric_ops = local_model.compute_metrics(predictions, labels)
       evaluation_hooks = []
       if predictions is not None and eval_prediction_hooks_fn is not None:
-        evaluation_hooks.extend(eval_prediction_hooks_fn(predictions))
+        evaluation_hooks.extend(eval_prediction_hooks_fn(predictions, global_step))
       return tf.estimator.EstimatorSpec(
           mode,
           loss=loss,

@@ -182,12 +182,13 @@ class Runner(object):
         labels_file=self._config["data"]["eval_labels_file"],
         output_dir=save_path,
         scorers=scorers)
-    return lambda predictions: [
+    return lambda predictions, step: [
         hooks.SaveEvaluationPredictionHook(
             self._model,
+            predictions,
+            step,
             os.path.join(save_path, "predictions.txt"),
-            post_evaluation_fn=external_evaluator,
-            predictions=predictions)]
+            post_evaluation_fn=external_evaluator)]
 
   def _finalize_training_parameters(self):
     train_config = self._config["train"]
@@ -220,6 +221,7 @@ class Runner(object):
         hooks.LogParametersCountHook()]
 
     if checkpoint_path is not None:
+      # TODO: reimplement this hook for V2.
       train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
     if self._hvd is not None:
       train_hooks.append(self._hvd.BroadcastGlobalVariablesHook(0))
