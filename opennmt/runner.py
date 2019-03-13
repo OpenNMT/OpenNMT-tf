@@ -303,6 +303,9 @@ class Runner(object):
 
     Args:
       checkpoint_path: The checkpoint path to load the model weights from it.
+
+    Returns:
+      The path to the final model directory.
     """
     if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
@@ -311,7 +314,10 @@ class Runner(object):
     estimator = self._make_estimator()
     estimator.train(
         train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
-    self._maybe_average_checkpoints(estimator)
+    output_dir = self._maybe_average_checkpoints(estimator)
+    if output_dir is None:
+      output_dir = estimator.model_dir
+    return output
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation.
