@@ -4,8 +4,6 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import compat
-
 
 class Vocab(object):
   """Vocabulary class."""
@@ -64,7 +62,7 @@ class Vocab(object):
       filename: The file to load from.
       tokenizer: A callable to tokenize a line of text.
     """
-    with compat.gfile_open(filename, mode="rb") as text:
+    with tf.io.gfile.GFile(filename, mode="rb") as text:
       for line in text:
         line = tf.compat.as_text(line.strip())
         if tokenizer:
@@ -80,7 +78,7 @@ class Vocab(object):
     Args:
       path: The path where the vocabulary will be saved.
     """
-    with compat.gfile_open(path, mode="wb") as vocab:
+    with tf.io.gfile.GFile(path, mode="wb") as vocab:
       for token in self._id_to_token:
         vocab.write(tf.compat.as_bytes(token))
         vocab.write(b"\n")
@@ -96,7 +94,7 @@ class Vocab(object):
     Raises:
       ValueError: if :obj:`file_format` is invalid.
     """
-    with compat.gfile_open(path, mode="rb") as vocab:
+    with tf.io.gfile.GFile(path, mode="rb") as vocab:
       for line in vocab:
         if file_format == "default":
           self.add(line[:-1])
