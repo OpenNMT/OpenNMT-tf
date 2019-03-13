@@ -1,8 +1,5 @@
 """Various utility functions to use throughout the project."""
 
-from __future__ import print_function
-
-import os
 import sys
 import inspect
 import heapq
@@ -12,8 +9,6 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow.python.client import device_lib
-
-from opennmt.utils import compat
 
 
 def get_devices(num_devices=None, session_config=None):
@@ -109,15 +104,11 @@ def function_args(fun):
 
 def count_lines(filename):
   """Returns the number of lines of the file :obj:`filename`."""
-  with compat.gfile_open(filename, mode="rb") as f:
+  with tf.io.gfile.GFile(filename, mode="rb") as f:
     i = 0
     for i, _ in enumerate(f):
       pass
     return i + 1
-
-def count_parameters():
-  """Returns the total number of trainable parameters."""
-  return sum(variable.get_shape().num_elements() for variable in tf.trainable_variables())
 
 def shape_list(x):
   """Return list of dims, statically where possible."""
