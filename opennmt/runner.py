@@ -317,7 +317,7 @@ class Runner(object):
     output_dir = self._maybe_average_checkpoints(estimator)
     if output_dir is None:
       output_dir = estimator.model_dir
-    return output
+    return output_dir
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation.
