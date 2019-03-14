@@ -254,20 +254,22 @@ def training_pipeline(batch_size,
   """
 
   def _pipeline(dataset):
+    num_examples = dataset_size
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
-      if dataset_size is not None:
-        dataset_size //= num_shards
+      if num_examples is not None:
+        num_examples //= num_shards
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
-      if dataset_size is not None:
-        tf.compat.v1.logging.info("Training on %d examples", dataset_size)
-        if shuffle_buffer_size < 0 or shuffle_buffer_size > dataset_size:
-          shuffle_buffer_size = dataset_size
-        elif shuffle_buffer_size < dataset_size:
+      shuffle_size = shuffle_buffer_size
+      if num_examples is not None:
+        tf.compat.v1.logging.info("Training on %d examples", num_examples)
+        if shuffle_buffer_size < 0 or shuffle_buffer_size > num_examples:
+          shuffle_size = num_examples
+        elif shuffle_buffer_size < num_examples:
           # When the shuffle buffer size is smaller than the dataset size, shard
           # the dataset in a random order to add another level of shuffling.
-          dataset = dataset.apply(random_shard(shuffle_buffer_size, dataset_size))
-      dataset = dataset.shuffle(shuffle_buffer_size)
+          dataset = dataset.apply(random_shard(shuffle_buffer_size, num_examples))
+      dataset = dataset.shuffle(shuffle_size)
     if process_fn is not None:
       dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
     dataset = dataset.apply(filter_examples_by_length(
