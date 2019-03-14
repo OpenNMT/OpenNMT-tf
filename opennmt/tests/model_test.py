@@ -195,15 +195,10 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.TRAIN],
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])
-  @test_util.run_tf1_only
   def testSequenceTagger(self, mode):
-    model = models.SequenceTagger(
-        inputters.WordEmbedder("source_vocabulary", 10),
-        encoders.MeanEncoder(),
-        "target_vocabulary",
-        crf_decoding=True,
-        tagging_scheme="bioes")
+    model = models.SequenceTagger(inputters.WordEmbedder(10), encoders.MeanEncoder())
     features_file, labels_file, metadata = self._makeToyTaggerData()
+    metadata["tagging_scheme"] = "bioes"
     params = {
         "optimizer": "GradientDescentOptimizer",
         "learning_rate": 0.1}
