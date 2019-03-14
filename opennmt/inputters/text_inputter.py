@@ -203,7 +203,10 @@ class TextInputter(Inputter):
         tf.int64,
         TextFileIndex.LINE_NUMBER,
         vocab_size=self.vocabulary_size - self.num_oov_buckets)
-    return tf.lookup.StaticVocabularyTable(initializer, self.num_oov_buckets)
+    if self.num_oov_buckets > 0:
+      return tf.lookup.StaticVocabularyTable(initializer, self.num_oov_buckets)
+    else:
+      return tf.lookup.StaticHashTable(initializer, 0)
 
   def vocabulary_lookup_reverse(self):
     """Returns a lookup table mapping index to string."""
