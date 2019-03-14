@@ -69,9 +69,7 @@ def get_optimizer_class(classname):
   optimizer_class = None
 
   if optimizer_class is None:
-    optimizer_class = getattr(tf.train, classname, None)
-  if optimizer_class is None:
-    optimizer_class = getattr(tf.contrib.opt, classname, None)
+    optimizer_class = getattr(tf.compat.v1.train, classname, None)
   if optimizer_class is None:
     optimizer_class = getattr(optimizers, classname, None)
   if optimizer_class is None:
@@ -103,8 +101,8 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None, hvd=None):
     loss += regularization_penalty(
         regularization["type"], regularization["scale"], weights_list=var_list)
 
-  global_step = tf.train.get_or_create_global_step()
-  with tf.variable_scope("optim"):
+  global_step = tf.compat.v1.train.get_or_create_global_step()
+  with tf.compat.v1.variable_scope("optim"):
     learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
     if params.get("decay_type") is not None:
       decay_params = params.get("decay_params", {})
@@ -182,7 +180,7 @@ def delayed_update(optimizer, grads_and_vars, global_step, accum_count=1):
       kwargs["decay_var_list"] = [var for _, var in grads_and_vars if not _is_bias(var)]
     return optimizer.apply_gradients(grads_and_vars, global_step=global_step, **kwargs)
 
-  if not tf.contrib.framework.is_tensor(accum_count) and accum_count == 1:
+  if not tf.is_tensor(accum_count) and accum_count == 1:
     return _apply_gradients(grads_and_vars, global_step=global_step), []
 
   model_step = tf.Variable(0, trainable=False, collections=[], dtype=tf.int64)
@@ -270,4 +268,4 @@ def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
 
 def _summarize_gradients_norm(name, gradients):
   """Summarizes global norm of gradients."""
-  tf.summary.scalar(name, tf.global_norm(list(zip(*gradients))[0]))
+  tf.compat.v1.summary.scalar(name, tf.linalg.global_norm(list(zip(*gradients))[0]))
