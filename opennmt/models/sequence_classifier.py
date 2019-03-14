@@ -33,10 +33,9 @@ class SequenceClassifier(Model):
     Raises:
       ValueError: if :obj:`encoding` is invalid.
     """
-    super(SequenceClassifier, self).__init__(
-        name,
-        features_inputter=inputter,
-        labels_inputter=ClassInputter(labels_vocabulary_file_key))
+    example_inputter = inputters.ExampleInputter(
+        inputter, ClassInputter(labels_vocabulary_file_key))
+    super(SequenceClassifier, self).__init__(example_inputter, name=name)
     self.encoder = encoder
     self.encoding = encoding.lower()
     if self.encoding not in ("average", "last"):

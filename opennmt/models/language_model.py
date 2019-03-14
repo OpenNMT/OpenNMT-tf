@@ -36,7 +36,7 @@ class LanguageModel(Model):
     if not isinstance(decoder, decoder_util.DecoderV2):
       raise ValueError("Language model only supports DecoderV2")
     inputter = LanguageModelInputter("vocabulary", embedding_size=embedding_size)
-    super(LanguageModel, self).__init__(name, examples_inputter=inputter)
+    super(LanguageModel, self).__init__(inputter, name=name)
     self.decoder = decoder
     self.reuse_embedding = reuse_embedding
 

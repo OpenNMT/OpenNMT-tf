@@ -124,10 +124,7 @@ class SequenceToSequence(Model):
         target_inputter,
         share_parameters=EmbeddingsSharingLevel.share_input_embeddings(share_embeddings),
         alignment_file_key=alignment_file_key)
-    super(SequenceToSequence, self).__init__(
-        name,
-        examples_inputter=examples_inputter)
-
+    super(SequenceToSequence, self).__init__(examples_inputter, name=name)
     self.encoder = encoder
     self.decoder = decoder
     self.share_embeddings = share_embeddings

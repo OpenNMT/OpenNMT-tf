@@ -33,10 +33,9 @@ class SequenceTagger(Model):
       crf_decoding: If ``True``, add a CRF layer after the encoder.
       name: The name of this model.
     """
-    super(SequenceTagger, self).__init__(
-        name,
-        features_inputter=inputter,
-        labels_inputter=TagsInputter(labels_vocabulary_file_key))
+    example_inputter = inputters.ExampleInputter(
+        inputter, TagsInputter(labels_vocabulary_file_key))
+    super(SequenceTagger, self).__init__(example_inputter, name=name)
     self.encoder = encoder
     self.crf_decoding = crf_decoding
     self.transition_params = None

@@ -129,7 +129,3 @@ class Transformer(SequenceToSequence):
             "average_last_checkpoints": 8
         }
     })
-
-  def _initializer(self, params):
-    return tf.variance_scaling_initializer(
-        mode="fan_avg", distribution="uniform", dtype=self.dtype)
