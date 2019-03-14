@@ -200,7 +200,7 @@ def make_model_fn(model,
         predictions["index"] = features["index"]
 
       export_outputs = {}
-      export_outputs[tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
+      export_outputs[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
           tf.estimator.export.PredictOutput(predictions))
 
       return tf.estimator.EstimatorSpec(

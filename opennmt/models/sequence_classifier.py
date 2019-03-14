@@ -4,7 +4,6 @@ import tensorflow as tf
 
 from opennmt import inputters
 from opennmt.models.model import Model
-from opennmt.utils.cell import last_encoding_from_state
 from opennmt.utils.misc import print_bytes
 from opennmt.utils.losses import cross_entropy_loss
 
@@ -12,60 +11,45 @@ from opennmt.utils.losses import cross_entropy_loss
 class SequenceClassifier(Model):
   """A sequence classifier."""
 
-  def __init__(self,
-               inputter,
-               encoder,
-               labels_vocabulary_file_key,
-               encoding="average",
-               name="seqclassifier"):
+  def __init__(self, inputter, encoder, name="seqclassifier"):
     """Initializes a sequence classifier.
 
     Args:
       inputter: A :class:`opennmt.inputters.inputter.Inputter` to process the
         input data.
       encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
-      labels_vocabulary_file_key: The data configuration key of the labels
-        vocabulary file containing one label per line.
-      encoding: "average" or "last" (case insensitive), the encoding vector to
-        extract from the encoder outputs.
       name: The name of this model.
 
     Raises:
       ValueError: if :obj:`encoding` is invalid.
     """
-    example_inputter = inputters.ExampleInputter(
-        inputter, ClassInputter(labels_vocabulary_file_key))
+    example_inputter = inputters.ExampleInputter(inputter, ClassInputter())
     super(SequenceClassifier, self).__init__(example_inputter, name=name)
     self.encoder = encoder
-    self.encoding = encoding.lower()
-    if self.encoding not in ("average", "last"):
-      raise ValueError("Invalid encoding vector: {}".format(self.encoding))
+
+  def _build(self):
+    self.id_to_class = self.labels_inputter.vocabulary_lookup_reverse()
+    self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
+    super(SequenceClassifier, self)._build()
 
   def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
-    with tf.variable_scope("encoder"):
-      inputs = self.features_inputter.make_inputs(features, training=training)
-      encoder_outputs, encoder_state, _ = self.encoder.encode(
-          inputs,
-          sequence_length=self.features_inputter.get_length(features),
-          mode=mode)
+    inputs = self.features_inputter.make_inputs(features, training=training)
+    _, state, _ = self.encoder(
+        inputs,
+        sequence_length=self.features_inputter.get_length(features),
+        training=training)
 
-    if self.encoding == "average":
-      encoding = tf.reduce_mean(encoder_outputs, axis=1)
-    elif self.encoding == "last":
-      encoding = last_encoding_from_state(encoder_state)
+    last_state = state[-1] if isinstance(state, (list, tuple)) else state
+    encoding = last_state if not isinstance(state, (list, tuple)) else last_state[0]
+    logits = self.output_layer(encoding)
 
-    with tf.variable_scope("generator"):
-      logits = tf.layers.dense(
-          encoding,
-          self.labels_inputter.vocabulary_size)
-
-    if mode != tf.estimator.ModeKeys.TRAIN:
-      labels_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
+    if not training:
       classes_prob = tf.nn.softmax(logits)
       classes_id = tf.argmax(classes_prob, axis=1)
       predictions = {
-          "classes": labels_vocab_rev.lookup(classes_id)
+          "classes": self.id_to_class.lookup(classes_id),
+          "classes_id": classes_id
       }
     else:
       predictions = None
@@ -82,8 +66,10 @@ class SequenceClassifier(Model):
         training=training)
 
   def compute_metrics(self, predictions, labels):
+    accuracy = tf.metrics.Accuracy()
+    accuracy.update_state(labels["classes_id"], predictions["classes_id"])
     return {
-        "accuracy": tf.metrics.accuracy(labels["classes"], predictions["classes"])
+        "accuracy": accuracy
     }
 
   def print_prediction(self, prediction, params=None, stream=None):
@@ -93,9 +79,8 @@ class SequenceClassifier(Model):
 class ClassInputter(inputters.TextInputter):
   """Reading class from a text file."""
 
-  def __init__(self, vocabulary_file_key):
-    super(ClassInputter, self).__init__(
-        vocabulary_file_key=vocabulary_file_key, num_oov_buckets=0)
+  def __init__(self):
+    super(ClassInputter, self).__init__(num_oov_buckets=0)
 
   def make_features(self, element=None, features=None, training=None):
     return {
