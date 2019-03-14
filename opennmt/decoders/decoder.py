@@ -779,8 +779,7 @@ def greedy_decode(symbols_to_logits_fn,
           tf.TensorShape(None),
           lengths.get_shape(),
           cum_log_probs.get_shape(),
-          tf.contrib.framework.nest.map_structure(
-              beam_search.get_state_shape_invariants, state)),
+          tf.nest.map_structure(beam_search.get_state_shape_invariants, state)),
       parallel_iterations=1)
 
   outputs = tf.transpose(outputs.stack())

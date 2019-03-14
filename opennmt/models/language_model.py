@@ -35,7 +35,7 @@ class LanguageModel(Model):
     """
     if not isinstance(decoder, decoder_util.DecoderV2):
       raise ValueError("Language model only supports DecoderV2")
-    inputter = LanguageModelInputter("vocabulary", embedding_size=embedding_size)
+    inputter = LanguageModelInputter(embedding_size=embedding_size)
     super(LanguageModel, self).__init__(inputter, name=name)
     self.decoder = decoder
     self.reuse_embedding = reuse_embedding
@@ -49,7 +49,7 @@ class LanguageModel(Model):
     })
 
   def _build(self):
-    self.examples_inputter.build()
+    super(LanguageModel, self)._build()
     vocab_size = self.examples_inputter.vocabulary_size
     output_layer = None
     if self.reuse_embedding:
@@ -59,6 +59,7 @@ class LanguageModel(Model):
           transpose=True,
           dtype=self.examples_inputter.dtype)
     self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
+    self.id_to_token = self.examples_inputter.vocabulary_lookup_reverse()
 
   def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
@@ -83,27 +84,24 @@ class LanguageModel(Model):
         state = tf.cond(
             tf.equal(tf.reduce_sum(context_length), 0),
             true_fn=lambda: self.decoder.get_initial_state(batch_size=batch_size, dtype=self.dtype),
-            false_fn=lambda: self._decode(context_ids, context_length)[1],
-            name=self.name + "/")  # Force the name scope.
+            false_fn=lambda: self._decode(context_ids, context_length)[1])
 
       # Iteratively decode from the last decoder state.
-      with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-        sampled_ids, sampled_length, _ = decoder_util.greedy_decode(
-            self._decode,
-            tf.squeeze(start_ids, 1),
-            constants.END_OF_SENTENCE_ID,
-            decode_length=params.get("maximum_iterations", 250),
-            state=state,
-            min_decode_length=params.get("minimum_decoding_length", 0),
-            last_step_as_input=True,
-            sample_from=params.get("sampling_topk", 1),
-            sample_temperature=params.get("sampling_temperature", 1))
+      sampled_ids, sampled_length, _ = decoder_util.greedy_decode(
+          self._decode,
+          tf.squeeze(start_ids, 1),
+          constants.END_OF_SENTENCE_ID,
+          decode_length=params.get("maximum_iterations", 250),
+          state=state,
+          min_decode_length=params.get("minimum_decoding_length", 0),
+          last_step_as_input=True,
+          sample_from=params.get("sampling_topk", 1),
+          sample_temperature=params.get("sampling_temperature", 1))
 
       # Build the full prediction.
       full_ids = tf.concat([ids, sampled_ids], 1)
       full_length = length + sampled_length
-      vocab_rev = self.examples_inputter.vocabulary_lookup_reverse()
-      tokens = vocab_rev.lookup(tf.cast(full_ids, tf.int64))
+      tokens = self.id_to_token.lookup(tf.cast(full_ids, tf.int64))
       predictions = dict(tokens=tokens, length=full_length)
 
     return outputs, predictions
@@ -184,7 +182,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
     """See :meth:`opennmt.inputters.inputter.ExampleInputter.make_training_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=True)
-    dataset = dataset.apply(training_pipeline(
+    dataset = dataset.apply(data.training_pipeline(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,

@@ -7,7 +7,11 @@ from numbers import Number
 
 import tensorflow as tf
 
-from opennmt import models, inputters, encoders, estimator
+from opennmt import decoders
+from opennmt import encoders
+from opennmt import estimator
+from opennmt import inputters
+from opennmt import models
 from opennmt.models import catalog
 from opennmt.tests import test_util
 
@@ -34,9 +38,9 @@ class ModelTest(tf.test.TestCase):
          "Die Neuregelung , die den Weg zur Befreiung der inhaftierten Expremierministerin hätte "
          "ebnen können , lehnten die Abgeordneten bei der zweiten Lesung des Antrags auf Milderung "
          "der Strafen für wirtschaftliche Delikte ab ."])
-    metadata["source_words_vocabulary"] = test_util.make_vocab_from_file(
+    metadata["source_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
-    metadata["target_words_vocabulary"] = test_util.make_vocab_from_file(
+    metadata["target_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "tgt_vocab.txt"), labels_file)
     if with_alignments:
       # Dummy and incomplete alignments.
@@ -46,6 +50,10 @@ class ModelTest(tf.test.TestCase):
            "0-1 1-1 1-3 2-3 4-4",
            "0-0 1-0 2-2 3-4 4-4 5-6"])
     return features_file, labels_file, metadata
+
+  def _makeToyLMData(self):
+    features_file, _, metadata = self._makeToyEnDeData()
+    return features_file, {"vocabulary": metadata["source_vocabulary"]}
 
   def _makeToyTaggerData(self):
     metadata = {}
@@ -83,8 +91,8 @@ class ModelTest(tf.test.TestCase):
                         model,
                         mode,
                         features_file,
-                        labels_file,
-                        metadata,
+                        labels_file=None,
+                        metadata=None,
                         batch_size=16,
                         prediction_heads=None,
                         metrics=None,
@@ -92,6 +100,8 @@ class ModelTest(tf.test.TestCase):
     # Mainly test that the code does not throw.
     if params is None:
       params = model.auto_config()["params"]
+    if metadata is None:
+      metadata = {}
     model.initialize(metadata)
     with tf.Graph().as_default():
       dataset = estimator.make_input_fn(
@@ -190,6 +200,28 @@ class ModelTest(tf.test.TestCase):
       _, predictions = model(
           features, None, model.auto_config()["params"], tf.estimator.ModeKeys.PREDICT)
       self.assertIsInstance(predictions, dict)
+
+  @parameterized.expand([
+      [tf.estimator.ModeKeys.TRAIN],
+      [tf.estimator.ModeKeys.EVAL],
+      [tf.estimator.ModeKeys.PREDICT]])
+  def testLanguageModel(self, mode):
+    # Mainly test that the code does not throw.
+    decoder = decoders.SelfAttentionDecoder(
+        2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0)
+    model = models.LanguageModel(decoder, embedding_size=16)
+    features_file, metadata = self._makeToyLMData()
+    params = {
+        "optimizer": "GradientDescentOptimizer",
+        "learning_rate": 0.1}
+    self._testGenericModel(
+        model,
+        mode,
+        features_file,
+        metadata=metadata,
+        batch_size=1 if mode == tf.estimator.ModeKeys.PREDICT else 16,
+        prediction_heads=["tokens", "length"],
+        params=params)
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
