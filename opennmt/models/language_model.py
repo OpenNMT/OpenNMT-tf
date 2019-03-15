@@ -87,14 +87,13 @@ class LanguageModel(Model):
             false_fn=lambda: self._decode(context_ids, context_length)[1])
 
       # Iteratively decode from the last decoder state.
-      sampled_ids, sampled_length, _ = decoder_util.greedy_decode(
+      sampled_ids, sampled_length, _, _ = decoder_util.greedy_decode(
           self._decode,
           tf.squeeze(start_ids, 1),
           constants.END_OF_SENTENCE_ID,
-          decode_length=params.get("maximum_iterations", 250),
           state=state,
+          max_decode_length=params.get("maximum_iterations", 250) - 1,
           min_decode_length=params.get("minimum_decoding_length", 0),
-          last_step_as_input=True,
           sample_from=params.get("sampling_topk", 1),
           sample_temperature=params.get("sampling_temperature", 1))
 

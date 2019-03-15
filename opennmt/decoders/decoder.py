@@ -692,27 +692,22 @@ class DecoderV2(tf.keras.layers.Layer):
 def greedy_decode(symbols_to_logits_fn,
                   initial_ids,
                   end_id,
-                  decode_length=None,
                   state=None,
-                  return_state=False,
+                  max_decode_length=None,
                   min_decode_length=0,
-                  last_step_as_input=False,
                   sample_from=1,
                   sample_temperature=1):
   """Greedily decodes from :obj:`initial_ids`.
 
   Args:
     symbols_to_logits_fn: Interface to the model, to provide logits.
-        Shoud take [batch_size, decoded_ids] and return [batch_size, vocab_size].
+      Shoud take [batch_size] and return [batch_size, vocab_size].
     initial_ids: Ids to start off the decoding, this will be the first thing
-        handed to symbols_to_logits_fn.
+      handed to symbols_to_logits_fn.
     eos_id: ID for end of sentence.
-    decode_length: Maximum number of steps to decode for (EOS included).
     states: A dictionnary of (possibly nested) decoding states.
-    return_state: If ``True``, also return the updated decoding states.
+    max_decode_length: Maximum length of decoded hypotheses (EOS excluded).
     min_decode_length: Minimum length of decoded hypotheses (EOS excluded).
-    last_step_as_input: If ``True``, only feed the last predicted ids into
-      :obj:`symbols_to_logits_fn`.
     sample_from: Sample from the :obj:`sample_from` most likely tokens. If 0,
       sample from the full output distribution.
     sample_temperature: Value dividing logits. In random sampling, a high value
@@ -720,7 +715,7 @@ def greedy_decode(symbols_to_logits_fn,
 
   Returns:
     A tuple with the decoded output, the decoded lengths, the log probabilities,
-    and the decoding states (if :obj:`return_state` is ``True``).
+    and the decoding states.
   """
   batch_size = tf.shape(initial_ids)[0]
   batch_ids = tf.range(tf.cast(batch_size, initial_ids.dtype))
@@ -728,8 +723,8 @@ def greedy_decode(symbols_to_logits_fn,
   def _condition(step, finished, unused_inputs, unused_outputs,
                  unused_lengths, unused_cum_log_probs, unused_state):
     cond = tf.logical_not(tf.reduce_all(finished))
-    if decode_length is not None:
-      cond = tf.logical_and(cond, step < decode_length)
+    if max_decode_length is not None:
+      cond = tf.logical_and(cond, step <= max_decode_length)
     return cond
 
   def _body(step, finished, inputs, outputs, lengths, cum_log_probs, state):
@@ -764,19 +759,13 @@ def greedy_decode(symbols_to_logits_fn,
     lengths += 1 - tf.cast(finished, lengths.dtype)
     cum_log_probs += sampled_log_probs * (1.0 - tf.cast(finished, sampled_log_probs.dtype))
     finished = tf.logical_or(finished, tf.equal(sampled_ids, end_id))
-    if last_step_as_input:
-      next_inputs = sampled_ids
-    else:
-      next_inputs = tf.concat([inputs, tf.expand_dims(sampled_ids, 1)], axis=1)
-    return step + 1, finished, next_inputs, outputs, lengths, cum_log_probs, state
+    return step + 1, finished, sampled_ids, outputs, lengths, cum_log_probs, state
 
   step = tf.constant(0)
   finished = tf.zeros([batch_size], dtype=tf.bool)
   outputs = tf.TensorArray(initial_ids.dtype, size=0, dynamic_size=True)
   lengths = tf.zeros([batch_size], dtype=tf.int32)
   cum_log_probs = tf.zeros([batch_size], dtype=tf.float32)
-  if not last_step_as_input:
-    initial_ids = tf.expand_dims(initial_ids, 1)
 
   _, _, _, outputs, lengths, cum_log_probs, state = tf.while_loop(
       _condition,
@@ -785,7 +774,7 @@ def greedy_decode(symbols_to_logits_fn,
       shape_invariants=(
           step.get_shape(),
           finished.get_shape(),
-          tf.TensorShape([None] if last_step_as_input else [None, None]),
+          initial_ids.get_shape(),
           tf.TensorShape(None),
           lengths.get_shape(),
           cum_log_probs.get_shape(),
@@ -793,6 +782,4 @@ def greedy_decode(symbols_to_logits_fn,
       parallel_iterations=1)
 
   outputs = tf.transpose(outputs.stack())
-  if return_state:
-    return outputs, lengths, cum_log_probs, state
-  return outputs, lengths, cum_log_probs
+  return outputs, lengths, cum_log_probs, state
