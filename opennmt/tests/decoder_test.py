@@ -279,23 +279,16 @@ class DecoderTest(tf.test.TestCase):
     sequence_length = tf.constant([5, 5, 4], dtype=tf.int32)
     memory = tf.random.uniform([3, 7, 6])
     memory_sequence_length = tf.constant([5, 7, 3], dtype=tf.int32)
+    _ = decoder.initial_state(memory, memory_sequence_length)
     logits, state, attention = decoder(
-        inputs,
-        sequence_length,
-        memory=memory,
-        memory_sequence_length=memory_sequence_length,
-        training=True)
+        inputs, sequence_length, training=True)
     self.assertEqual(logits.shape[-1], 10)
     self.assertEqual(len(state), 2)
     self.assertListEqual(attention.shape.as_list(), [3, 5, 7])
-    state = decoder.get_initial_state(batch_size=3)
+    state = decoder.initial_state(memory, memory_sequence_length)
     inputs = tf.random.uniform([3, 6])
     logits, state, attention = decoder(
-        inputs,
-        tf.constant(0),
-        state=state,
-        memory=memory,
-        memory_sequence_length=memory_sequence_length)
+        inputs, tf.constant(0), state=state)
     self.assertEqual(logits.shape[-1], 10)
     self.assertEqual(len(state), 2)
     self.assertListEqual(attention.shape.as_list(), [3, 7])
@@ -309,22 +302,15 @@ class DecoderTest(tf.test.TestCase):
     memory = [tf.random.uniform([3, 7, 6]), tf.random.uniform([3, 2, 6])]
     memory_sequence_length = [
           tf.constant([5, 7, 3], dtype=tf.int32), tf.constant([1, 1, 2], dtype=tf.int32)]
+    _ = decoder.initial_state(memory, memory_sequence_length)
     logits, state, attention = decoder(
-        inputs,
-        sequence_length,
-        memory=memory,
-        memory_sequence_length=memory_sequence_length,
-        training=True)
+        inputs, sequence_length, training=True)
     self.assertEqual(logits.shape[-1], 10)
     self.assertIsNone(attention)
-    state = decoder.get_initial_state(batch_size=3)
+    state = decoder.initial_state(memory, memory_sequence_length)
     inputs = tf.random.uniform([3, 6])
     logits, state, attention = decoder(
-        inputs,
-        tf.constant(0),
-        state=state,
-        memory=memory,
-        memory_sequence_length=memory_sequence_length)
+        inputs, tf.constant(0), state=state)
     self.assertEqual(logits.shape[-1], 10)
     self.assertEqual(len(state), 2)
     self.assertEqual(len(state[0]["memory_kv"]), 2)

@@ -83,7 +83,7 @@ class LanguageModel(Model):
         batch_size = tf.shape(context_length)[0]
         state = tf.cond(
             tf.equal(tf.reduce_sum(context_length), 0),
-            true_fn=lambda: self.decoder.get_initial_state(batch_size=batch_size, dtype=self.dtype),
+            true_fn=lambda: self.decoder.initial_state(batch_size=batch_size, dtype=self.dtype),
             false_fn=lambda: self._decode(context_ids, context_length)[1])
 
       # Iteratively decode from the last decoder state.

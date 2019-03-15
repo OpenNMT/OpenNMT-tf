@@ -490,6 +490,8 @@ class DecoderV2(tf.keras.layers.Layer):
     super(DecoderV2, self).__init__(**kwargs)
     self.num_sources = num_sources
     self.output_layer = None
+    self.memory = None
+    self.memory_sequence_length = None
 
   @property
   def minimum_sources(self):
@@ -518,10 +520,17 @@ class DecoderV2(tf.keras.layers.Layer):
         raise ValueError("One of vocab_size and output_layer must be set")
       self.output_layer = tf.keras.layers.Dense(vocab_size, name="logits")
 
-  def get_initial_state(self, initial_state=None, batch_size=None, dtype=tf.float32):
+  def initial_state(self,
+                    memory=None,
+                    memory_sequence_length=None,
+                    initial_state=None,
+                    batch_size=None,
+                    dtype=tf.float32):
     """Returns the initial decoder state.
 
     Args:
+      memory: Memory values to query.
+      memory_sequence_length: Memory values length.
       initial_state: An initial state to start from, e.g. the last encoder
         state.
       batch_size: The batch size to use.
@@ -532,19 +541,27 @@ class DecoderV2(tf.keras.layers.Layer):
 
     Raises:
       RuntimeError: if the decoder was not initialized.
-      ValueError: if one of :obj:`batch_size` or :obj:`dtype` is not set but
-        :obj:`initial_state` is not passed.
+      ValueError: if one of :obj:`batch_size` or :obj:`dtype` is not set and
+        neither :obj:`initial_state` nor :obj:`memory` are not passed.
+      ValueError: if the number of source contexts (:obj:`memory`) does not
+        match the number defined at the decoder initialization.
     """
     self._assert_is_initialized()
+    self._assert_memory_is_compatible(memory, memory_sequence_length)
+    self.memory = memory
+    self.memory_sequence_length = memory_sequence_length
     if batch_size is None or dtype is None:
-      if initial_state is None:
-        raise ValueError("Either initial_state should be set, or batch_size and "
-                         "dtype should be set")
-      first_state = tf.nest.flatten(initial_state)[0]
+      if initial_state is None and memory is None:
+        raise ValueError("If batch_size or dtype are not set, then either "
+                         "memory or initial_state should be set")
+      template = initial_state
+      if template is None:
+        template = memory
+      sentinel = tf.nest.flatten(template)[0]
       if batch_size is None:
-        batch_size = tf.shape(first_state)[0]
+        batch_size = tf.shape(sentinel)[0]
       if dtype is None:
-        dtype = first_state.dtype
+        dtype = sentinel.dtype
     return self._get_initial_state(batch_size, dtype, initial_state=initial_state)
 
   # pylint: disable=arguments-differ
@@ -552,8 +569,6 @@ class DecoderV2(tf.keras.layers.Layer):
            inputs,
            length_or_step=None,
            state=None,
-           memory=None,
-           memory_sequence_length=None,
            training=None):
     """Runs the decoder layer on either a complete sequence (e.g. for training
     or scoring), or a single timestep (e.g. for iterative decoding).
@@ -564,8 +579,6 @@ class DecoderV2(tf.keras.layers.Layer):
       length_or_step: For 3D :obj:`inputs`, the length of each sequence. For 2D
         :obj:`inputs`, the current decoding timestep.
       state: The decoder state.
-      memory: Memory values to query.
-      memory_sequence_length: Memory values length.
       training: Run in training mode.
 
     Returns:
@@ -575,11 +588,8 @@ class DecoderV2(tf.keras.layers.Layer):
       RuntimeError: if the decoder was not initialized.
       ValueError: if the :obj:`inputs` rank is different than 2 or 3.
       ValueError: if :obj:`length_or_step` is invalid.
-      ValueError: if the number of source contexts (:obj:`memory`) does not
-        match the number defined at the decoder initialization.
     """
     self._assert_is_initialized()
-    self._assert_memory_is_compatible(memory, memory_sequence_length)
     rank = inputs.shape.ndims
     if rank == 2:
       if length_or_step.shape.ndims != 0:
@@ -588,8 +598,8 @@ class DecoderV2(tf.keras.layers.Layer):
           inputs,
           length_or_step,
           state=state,
-          memory=memory,
-          memory_sequence_length=memory_sequence_length,
+          memory=self.memory,
+          memory_sequence_length=self.memory_sequence_length,
           training=training)
     elif rank == 3:
       if length_or_step.shape.ndims != 1:
@@ -598,8 +608,8 @@ class DecoderV2(tf.keras.layers.Layer):
           inputs,
           sequence_length=length_or_step,
           initial_state=state,
-          memory=memory,
-          memory_sequence_length=memory_sequence_length,
+          memory=self.memory,
+          memory_sequence_length=self.memory_sequence_length,
           training=training)
     else:
       raise ValueError("Unsupported input rank %d" % rank)
