@@ -16,6 +16,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.21.7](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.7) (2019-03-20)
+
+### Fixes and improvements
+
+* Fix error when sharing target embedding and softmax weights
+* Run checkpoint utilities in a separate graph to avoid possible variables collision
+
 ## [1.21.6](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.6) (2019-03-12)
 
 ### Fixes and improvements

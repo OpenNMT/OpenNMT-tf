@@ -161,7 +161,7 @@ class SequenceToSequence(Model):
           self.labels_inputter.vocabulary_size,
           weight=self.labels_inputter.embedding,
           transpose=True,
-          dtype=self.labels_inputter.vocabulary_size.dtype)
+          dtype=self.labels_inputter.dtype)
       with tf.name_scope(tf.get_variable_scope().name + "/"):
         self.output_layer.build([None, self.decoder.output_size])
 

@@ -79,29 +79,30 @@ def _create_checkpoint_from_variables(variables, output_dir, latest_step=None, s
   if "global_step" in variables:
     latest_step = variables["global_step"]
     del variables["global_step"]
-  tf_vars = [
-      tf.get_variable(
-          name,
-          shape=value.shape,
-          dtype=tf.as_dtype(value.dtype),
-          trainable=_variable_is_trainable(name, value))
-      for name, value in six.iteritems(variables)]
-  placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
-  assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, placeholders)]
+  with tf.Graph().as_default():
+    tf_vars = [
+        tf.get_variable(
+            name,
+            shape=value.shape,
+            dtype=tf.as_dtype(value.dtype),
+            trainable=_variable_is_trainable(name, value))
+        for name, value in six.iteritems(variables)]
+    placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
+    assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, placeholders)]
 
-  out_base_file = os.path.join(output_dir, "model.ckpt")
-  global_step = tf.get_variable(
-      "global_step",
-      initializer=tf.constant(latest_step, dtype=tf.int64),
-      trainable=False)
-  saver = tf.train.Saver(tf.global_variables(), save_relative_paths=True)
+    out_base_file = os.path.join(output_dir, "model.ckpt")
+    global_step = tf.get_variable(
+        "global_step",
+        initializer=tf.constant(latest_step, dtype=tf.int64),
+        trainable=False)
+    saver = tf.train.Saver(tf.global_variables(), save_relative_paths=True)
 
-  with tf.Session(config=session_config) as sess:
-    sess.run(tf.global_variables_initializer())
-    for p, assign_op, value in zip(placeholders, assign_ops, six.itervalues(variables)):
-      sess.run(assign_op, {p: value})
-    tf.logging.info("Saving new checkpoint to %s" % output_dir)
-    saver.save(sess, out_base_file, global_step=global_step)
+    with tf.Session(config=session_config) as sess:
+      sess.run(tf.global_variables_initializer())
+      for p, assign_op, value in zip(placeholders, assign_ops, six.itervalues(variables)):
+        sess.run(assign_op, {p: value})
+      tf.logging.info("Saving new checkpoint to %s" % output_dir)
+      saver.save(sess, out_base_file, global_step=global_step)
 
   return output_dir
 
