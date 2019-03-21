@@ -212,7 +212,7 @@ class ModelTest(tf.test.TestCase):
     model = models.LanguageModel(decoder, embedding_size=16)
     features_file, metadata = self._makeToyLMData()
     params = {
-        "optimizer": "GradientDescentOptimizer",
+        "optimizer": "SGD",
         "learning_rate": 0.1}
     self._testGenericModel(
         model,
@@ -232,7 +232,7 @@ class ModelTest(tf.test.TestCase):
     features_file, labels_file, metadata = self._makeToyTaggerData()
     metadata["tagging_scheme"] = "bioes"
     params = {
-        "optimizer": "GradientDescentOptimizer",
+        "optimizer": "SGD",
         "learning_rate": 0.1}
     self._testGenericModel(
         model,
@@ -252,7 +252,7 @@ class ModelTest(tf.test.TestCase):
     model = models.SequenceClassifier(inputters.WordEmbedder(10), encoders.MeanEncoder())
     features_file, labels_file, metadata = self._makeToyClassifierData()
     params = {
-        "optimizer": "GradientDescentOptimizer",
+        "optimizer": "SGD",
         "learning_rate": 0.1}
     self._testGenericModel(
         model,

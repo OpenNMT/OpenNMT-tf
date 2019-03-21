@@ -35,9 +35,10 @@ class LogWordsPerSecondHook(tf.estimator.SessionRunHook):
     self._num_words = num_words
 
   def _create_variable(self, name, dtype=tf.int64):
-    return tf.Variable(
+    return tf.compat.v1.Variable(
         initial_value=0,
         trainable=False,
+        collections=[],
         name="%s_words_counter" % name,
         dtype=dtype)
 

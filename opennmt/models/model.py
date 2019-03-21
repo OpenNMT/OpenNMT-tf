@@ -7,7 +7,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils.optim import optimize_loss
+from opennmt.utils import optim
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -109,22 +109,6 @@ class Model(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
-  def optimize_loss(self, loss, params=None, hvd=None):
-    """Returns the loss optimization op.
-
-    Args:
-      loss: The loss to optimize.
-      params: A dictionary of hyperparameters.
-      hvd: Optional Horovod object.
-
-    Returns:
-      The training op and optionally a list of extra variables to initialize.
-    """
-    if params is None:
-      params = {}
-    mixed_precision = self.dtype == tf.float16
-    return optimize_loss(loss, params, mixed_precision=mixed_precision, hvd=hvd)
-
   def compute_metrics(self, predictions, labels):  # pylint: disable=unused-argument
     """Computes additional metrics on the predictions.
 
@@ -137,6 +121,25 @@ class Model(tf.keras.layers.Layer):
       ``tf.estimator.EstimatorSpec``.
     """
     return None
+
+  def get_optimizer(self, step, params=None):
+    if params is None:
+      params = {}
+    learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
+    if params.get("decay_type") is not None:
+      decay_params = params.get("decay_params", {})
+      learning_rate = optim.get_learning_rate_schedule(
+          learning_rate,
+          params["decay_type"],
+          decay_params=decay_params,
+          decay_step_duration=params.get("decay_step_duration", 1),
+          start_decay_step=params.get("start_decay_steps", 0),
+          minimum_learning_rate=params.get("minimum_learning_rate", 0))
+
+    optimizer_class = optim.get_optimizer_class(params["optimizer"])
+    optimizer_params = params.get("optimizer_params", {})
+    optimizer = optimizer_class(learning_rate=learning_rate, **optimizer_params)
+    return optimizer
 
   def get_assets(self, asset_dir):
     """Returns additional assets used by this model.

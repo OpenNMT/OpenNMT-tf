@@ -4,6 +4,35 @@ import tensorflow as tf
 import numpy as np
 
 
+class ScheduleWrapper(tf.optimizers.schedules.LearningRateSchedule):
+  """Wrapper to augment a learning rate scheduler behavior."""
+
+  def __init__(self,
+               schedule,
+               step_start=0,
+               step_duration=1,
+               minimum_learning_rate=0):
+    """Initializes the decay function.
+
+    Args:
+      schedule: A :class:`tf.optimizers.schedules.LearningRateSchedule`.
+      step_duration: The number of training steps that make 1 decay step.
+      start_step: Start decay after this many steps.
+      minimum_learning_rate: Do not decay past this learning rate value.
+    """
+    self.schedule = schedule
+    self.step_start = step_start
+    self.step_duration = step_duration
+    self.minimum_learning_rate = minimum_learning_rate
+
+  def __call__(self, step):
+    # Map the training step to a decay step.
+    step = tf.maximum(step - self.step_start, 0)
+    step //= self.step_duration
+    learning_rate = self.schedule(step)
+    return tf.maximum(learning_rate, self.minimum_learning_rate)
+
+
 class NoamDecay(tf.optimizers.schedules.LearningRateSchedule):
   """Defines the decay function described in https://arxiv.org/abs/1706.03762."""
 

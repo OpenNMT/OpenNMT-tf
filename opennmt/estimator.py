@@ -128,7 +128,8 @@ def make_model_fn(model,
   """Creates the model function.
 
   Args:
-    model: An initialized :class:`opennmt.models.model.Model` instance.
+    model: An initialized but not built :class:`opennmt.models.model.Model`
+      instance.
     eval_prediction_hooks_fn: A callable that takes the model predictions
       during evaluation and return an iterable of evaluation hooks (e.g. for
       saving predictions on disk, running external evaluators, etc.).
@@ -141,27 +142,43 @@ def make_model_fn(model,
 
   def _fn(features, labels, params, mode, config):
     """model_fn implementation."""
+    eval_metric_ops = None
+    evaluation_hooks = None
+    export_outputs = None
+    loss = None
+    train_op = None
+    training_hooks = None
+
+    step = tf.compat.v1.train.get_or_create_global_step()
     local_model = copy.deepcopy(model)
-    global_step = tf.compat.v1.train.get_or_create_global_step()
+    optimizer = local_model.get_optimizer(step, params=params)
+    checkpoint = tf.train.Checkpoint(
+        step=step,
+        model=local_model,
+        optimizer=optimizer)
+
+    outputs, predictions = local_model(features, labels, params, mode)
+    if labels is not None:
+      loss = local_model.compute_loss(
+          outputs,
+          labels,
+          training=mode == tf.estimator.ModeKeys.TRAIN,
+          params=params)
+      loss = _extract_loss(loss)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      outputs, _ = local_model(features, labels, params, mode)
-      loss = _extract_loss(
-          local_model.compute_loss(outputs, labels, training=True, params=params))
-      train_op = local_model.optimize_loss(loss, params=params, hvd=hvd)
-      extra_variables = []
-      if isinstance(train_op, tuple):
-        train_op, extra_variables = train_op
-
+      variables = local_model.trainable_variables
+      gradients = optimizer.get_gradients(loss, variables)
+      train_op = tf.group(
+          optimizer.apply_gradients(zip(gradients, variables)),
+          step.assign_add(1))
       training_hooks = []
-      if extra_variables:
-        training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
       if config is not None:
         local_model.examples_inputter.visualize(config.model_dir)
         features_length = local_model.features_inputter.get_length(features)
         labels_length = (
             local_model.labels_inputter.get_length(labels)
-            if not model.unsupervised else None)
+            if not local_model.unsupervised else None)
         num_words = {}
         if features_length is not None:
           num_words["source"] = tf.reduce_sum(features_length)
@@ -169,47 +186,34 @@ def make_model_fn(model,
           num_words["target"] = tf.reduce_sum(labels_length)
         training_hooks.append(hooks.LogWordsPerSecondHook(
             num_words,
-            global_step,
+            step,
             every_n_steps=config.save_summary_steps,
             output_dir=config.model_dir))
-      return tf.estimator.EstimatorSpec(
-          mode,
-          loss=loss,
-          train_op=train_op,
-          training_hooks=training_hooks)
 
     elif mode == tf.estimator.ModeKeys.EVAL:
-      logits, predictions = local_model(features, labels, params, mode)
-      loss = _extract_loss(
-          local_model.compute_loss(logits, labels, training=False, params=params))
       eval_metric_ops = local_model.compute_metrics(predictions, labels)
       evaluation_hooks = []
       if predictions is not None and eval_prediction_hooks_fn is not None:
-        evaluation_hooks.extend(eval_prediction_hooks_fn(predictions, global_step))
-      return tf.estimator.EstimatorSpec(
-          mode,
-          loss=loss,
-          eval_metric_ops=eval_metric_ops,
-          evaluation_hooks=evaluation_hooks)
+        evaluation_hooks.extend(eval_prediction_hooks_fn(predictions, step))
 
     elif mode == tf.estimator.ModeKeys.PREDICT:
-      _, predictions = local_model(features, labels, params, mode)
-
       # Forward example index for reordering predictions.
       if "index" in features:
         predictions["index"] = features["index"]
-
       export_outputs = {}
       export_outputs[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
           tf.estimator.export.PredictOutput(predictions))
 
-      return tf.estimator.EstimatorSpec(
-          mode,
-          predictions=predictions,
-          export_outputs=export_outputs)
-
-    else:
-      raise ValueError("Invalid mode")
+    return tf.estimator.EstimatorSpec(
+        mode,
+        predictions=predictions,
+        loss=loss,
+        train_op=train_op,
+        eval_metric_ops=eval_metric_ops,
+        export_outputs=export_outputs,
+        training_hooks=training_hooks,
+        scaffold=tf.compat.v1.train.Scaffold(saver=checkpoint),
+        evaluation_hooks=evaluation_hooks)
 
   return _fn
 

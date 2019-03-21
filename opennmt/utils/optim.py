@@ -9,14 +9,16 @@ from opennmt.utils import decay
 from opennmt.utils import misc
 
 
-def learning_rate_decay_fn(decay_type,
-                           decay_params=None,
-                           decay_step_duration=1,
-                           start_decay_step=0,
-                           minimum_learning_rate=0.0):
-  """Returns the learning rate decay function.
+def get_learning_rate_schedule(initial_learning_rate,
+                               decay_type,
+                               decay_params=None,
+                               decay_step_duration=1,
+                               start_decay_step=0,
+                               minimum_learning_rate=0):
+  """Returns the learning rate schedule.
 
   Args:
+    initial_learning_rate: The initial learning rate value or scale.
     decay_type: The type of decay. A function from ``tf.optimizers.schedules``
       or :mod:`opennmt.utils.decay` as a string.
     decay_params: Additional parameters for the decay function.
@@ -31,37 +33,32 @@ def learning_rate_decay_fn(decay_type,
   Raises:
     ValueError: if :obj:`decay_type` can not be resolved.
   """
+  schedule_name = None
+  if schedule_name is None:
+    schedule_name = getattr(tf.optimizers.schedules, decay_type, None)
+  if schedule_name is None:
+    schedule_name = getattr(decay, decay_type, None)
+  if schedule_name is None:
+    raise ValueError("Unknown decay function: {}".format(decay_type))
+
   if decay_params is None:
     decay_params = {}
-
-  def _decay_fn(learning_rate, global_step):
-    decay_op_name = None
-
-    if decay_op_name is None:
-      decay_op_name = getattr(tf.optimizers.schedules, decay_type, None)
-    if decay_op_name is None:
-      decay_op_name = getattr(decay, decay_type, None)
-    if decay_op_name is None:
-      raise ValueError("Unknown decay function: {}".format(decay_type))
-
-    # Map the training step to a decay step.
-    step = tf.maximum(global_step - start_decay_step, 0)
-    step //= decay_step_duration
-
-    learning_rate = decay_op_name(learning_rate, **decay_params)(step)
-    return tf.maximum(learning_rate, minimum_learning_rate)
-
-  return _decay_fn
+  schedule = schedule_name(initial_learning_rate, **decay_params)
+  schedule = decay.ScheduleWrapper(
+      schedule,
+      step_start=start_decay_step,
+      step_duration=decay_step_duration,
+      minimum_learning_rate=minimum_learning_rate)
+  return schedule
 
 def get_optimizer_class(classname):
   """Returns the optimizer class.
 
   Args:
-    classname: The name of the optimizer class in ``tf.train``,
-      ``tf.contrib.opt``, or ``opennmt.optimizers`` as a string.
+    classname: The name of the optimizer class in ``tf.optimizers`` as a string.
 
   Returns:
-    A class inheriting from ``tf.train.Optimizer``.
+    A class inheriting from ``tf.optimizers.Optimizer``.
 
   Raises:
     ValueError: if :obj:`classname` can not be resolved.
@@ -69,9 +66,7 @@ def get_optimizer_class(classname):
   optimizer_class = None
 
   if optimizer_class is None:
-    optimizer_class = getattr(tf.compat.v1.train, classname, None)
-  if optimizer_class is None:
-    optimizer_class = getattr(optimizers, classname, None)
+    optimizer_class = getattr(tf.optimizers, classname, None)
   if optimizer_class is None:
     raise ValueError("Unknown optimizer class: {}".format(classname))
 
