@@ -13,8 +13,6 @@ import yaml
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.estimator.util import fn_args
-
 from google.protobuf import text_format
 
 from opennmt import estimator as estimator_util
@@ -57,7 +55,6 @@ class Runner(object):
                config,
                seed=None,
                num_devices=1,
-               gpu_allow_growth=False,
                session_config=None,
                auto_config=False,
                hvd=None):
@@ -68,8 +65,7 @@ class Runner(object):
       config: The run configuration.
       seed: The random seed to set.
       num_devices: The number of devices (GPUs) to use for training.
-      gpu_allow_growth: Allow GPU memory to grow dynamically.
-      session_config: ``tf.ConfigProto`` overrides.
+      session_config: ``tf.compat.v1.ConfigProto`` overrides.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
       hvd: Optional Horovod object.
@@ -93,33 +89,14 @@ class Runner(object):
       misc.merge_dict(self._config, model_config)
     misc.merge_dict(self._config, config)
     self._model.initialize(self._config["data"])
-    tf.logging.info(
+    tf.compat.v1.logging.info(
         "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
 
-    session_config_base = tf.ConfigProto(
+    session_config_base = tf.compat.v1.ConfigProto(
         allow_soft_placement=True,
-        log_device_placement=False,
-        gpu_options=tf.GPUOptions(
-            allow_growth=gpu_allow_growth))
+        log_device_placement=False)
     if self._hvd is not None:
       session_config_base.gpu_options.visible_device_list = str(self._hvd.local_rank())
-
-    # Disable layout optimizer for better conv1d performance, see:
-    # https://github.com/tensorflow/tensorflow/issues/20309
-    # This field does not exist in TensorFlow 1.4, so guard against the
-    # exception.
-    try:
-      rewrite_options = text_format.Parse("""
-          graph_options {
-            rewrite_options {
-              layout_optimizer: OFF
-            }
-          }
-          """, tf.ConfigProto())
-      session_config_base.MergeFrom(rewrite_options)
-    except text_format.ParseError:
-      pass
-
     if session_config is not None:
       session_config_base.MergeFrom(session_config)
     self._session_config = session_config_base
@@ -175,8 +152,8 @@ class Runner(object):
     if self._model.unsupervised:
       raise RuntimeError("This model does not support saving evaluation predictions")
     save_path = os.path.join(self._config["model_dir"], "eval")
-    if not tf.gfile.Exists(save_path):
-      tf.gfile.MakeDirs(save_path)
+    if not tf.io.gfile.exists(save_path):
+      tf.io.gfile.makedirs(save_path)
     scorers = evaluator.make_scorers(self._config["eval"].get("external_evaluators"))
     external_evaluator = evaluator.ExternalEvaluator(
         labels_file=self._config["data"]["eval_labels_file"],
@@ -212,14 +189,13 @@ class Runner(object):
           train_config["batch_size"],
           train_config["effective_batch_size"],
           num_replicas=self._num_replicas)
-      tf.logging.info("Accumulate gradients of %d iterations to reach effective batch size of %d",
-                      self._config["params"]["gradients_accum"],
-                      train_config["effective_batch_size"])
+      tf.compat.v1.logging.info(
+          "Accumulate gradients of %d iterations to reach effective batch size of %d",
+          self._config["params"]["gradients_accum"],
+          train_config["effective_batch_size"])
 
   def _build_train_spec(self, checkpoint_path):
-    train_hooks = [
-        hooks.LogParametersCountHook()]
-
+    train_hooks = []
     if checkpoint_path is not None:
       # TODO: reimplement this hook for V2.
       train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
@@ -245,8 +221,7 @@ class Runner(object):
             num_shards=self._hvd.size() if self._hvd is not None else 1,
             shard_index=self._hvd.rank() if self._hvd is not None else 0,
             num_threads=self._config["train"].get("num_threads"),
-            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size"),
-            return_dataset=False),
+            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size")),
         max_steps=train_steps,
         hooks=train_hooks)
     return train_spec
@@ -260,8 +235,7 @@ class Runner(object):
             features_file=self._config["data"]["eval_features_file"],
             labels_file=self._config["data"].get("eval_labels_file"),
             num_threads=self._config["eval"].get("num_threads"),
-            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size"),
-            return_dataset=False),
+            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size")),
         steps=None,
         exporters=_make_exporters(
             self._config["eval"]["exporters"],
@@ -272,8 +246,8 @@ class Runner(object):
 
   def _get_model_assets(self):
     generated_assets_path = os.path.join(self._config["model_dir"], "assets")
-    if not tf.gfile.Exists(generated_assets_path):
-      tf.gfile.MakeDirs(generated_assets_path)
+    if not tf.io.gfile.exists(generated_assets_path):
+      tf.io.gfile.makedirs(generated_assets_path)
     return self._model.get_assets(asset_dir=generated_assets_path)
 
   def train_and_evaluate(self, checkpoint_path=None):
@@ -286,7 +260,7 @@ class Runner(object):
       A tuple with a dict of evaluation metrics and the export result or
       ``None`` in TensorFlow 1.8 and older.
     """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+    if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     self._finalize_training_parameters()
     train_spec = self._build_train_spec(checkpoint_path)
@@ -305,7 +279,7 @@ class Runner(object):
     Returns:
       The path to the final model directory.
     """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+    if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     self._finalize_training_parameters()
     train_spec = self._build_train_spec(checkpoint_path)
@@ -326,7 +300,7 @@ class Runner(object):
     Returns:
       A dict of evaluation metrics.
     """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+    if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     eval_spec = self._build_eval_spec()
     estimator = self._make_estimator()
@@ -384,7 +358,7 @@ class Runner(object):
       log_time: If ``True``, several time metrics will be printed in the logs at
         the end of the inference loop.
     """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+    if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
 
     input_fn = estimator_util.make_input_fn(
@@ -394,8 +368,7 @@ class Runner(object):
         features_file=features_file,
         bucket_width=self._config["infer"]["bucket_width"],
         num_threads=self._config["infer"].get("num_threads"),
-        prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"),
-        return_dataset=False)
+        prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"))
 
     if predictions_file:
       stream = io.open(predictions_file, encoding="utf-8", mode="w")
@@ -440,27 +413,16 @@ class Runner(object):
       The string path to the exported directory.
     """
     estimator = self._make_estimator()
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
+    if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if export_dir_base is None:
       export_dir_base = os.path.join(estimator.model_dir, "export", "manual")
 
-    kwargs = {}
-    if hasattr(estimator, "export_saved_model"):
-      export_fn = estimator.export_saved_model
-    else:
-      export_fn = estimator.export_savedmodel
-      if "strip_default_attrs" in fn_args(estimator.export_savedmodel):
-        # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
-        # with the behavior of tf.estimator.Exporter.
-        kwargs["strip_default_attrs"] = True
-
-    return export_fn(
+    return estimator.export_saved_model(
         export_dir_base,
         estimator_util.make_serving_input_fn(self._model),
         assets_extra=self._get_model_assets(),
-        checkpoint_path=checkpoint_path,
-        **kwargs)
+        checkpoint_path=checkpoint_path)
 
   def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.
@@ -482,7 +444,7 @@ class Runner(object):
 
     if checkpoint_path is None:
       checkpoint_path = tf.train.latest_checkpoint(self._config["model_dir"])
-    elif tf.gfile.IsDirectory(checkpoint_path):
+    elif tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     if checkpoint_path is None:
       raise ValueError("could not find a trained model in %s" % self._config["model_dir"])
@@ -495,7 +457,7 @@ class Runner(object):
           self._config["score"]["batch_size"],
           num_threads=self._config["score"].get("num_threads"),
           prefetch_buffer_size=self._config["score"].get("prefetch_buffer_size"))
-      iterator = dataset.make_initializable_iterator()
+      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
       features, labels = iterator.get_next()
       labels["alignment"] = None  # Add alignment key to force the model to return attention.
       outputs, _ = model(
@@ -526,8 +488,8 @@ class Runner(object):
       output_tokenizer = (
           self._model.labels_inputter.tokenizer if not self._model.unsupervised
           else self._model.features_inputter.tokenizer)
-      with tf.train.MonitoredSession(
-          session_creator=tf.train.ChiefSessionCreator(
+      with tf.compat.v1.train.MonitoredSession(
+          session_creator=tf.compat.v1.train.ChiefSessionCreator(
               checkpoint_filename_with_path=checkpoint_path,
               config=self._session_config)) as sess:
         sess.run(iterator.initializer)
@@ -568,8 +530,6 @@ def _make_exporters(exporters_type, serving_input_fn, assets_extra=None):
       exporters.append(tf.estimator.FinalExporter(
           "final", serving_input_fn, assets_extra=assets_extra))
     elif exporter_type == "best":
-      if not hasattr(tf.estimator, "BestExporter"):
-        raise ValueError("BestExporter is only available starting from TensorFlow 1.9")
       exporters.append(tf.estimator.BestExporter(
           name="best", serving_input_receiver_fn=serving_input_fn, assets_extra=assets_extra))
     else:
@@ -624,10 +584,10 @@ def _auto_tune_batch_size(config,
   # Define the TensorFlow session config, if needed.
   session_config_path = None
   if gpu_memory_fraction < 1:
-    session_config = tf.ConfigProto(
-        gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction))
+    session_config = tf.compat.v1.ConfigProto(
+        gpu_options=tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction))
     session_config_path = os.path.join(config["model_dir"], "batch_size_autotuner.proto")
-    with tf.gfile.Open(session_config_path, mode="w") as session_config_file:
+    with tf.io.gfile.GFile(session_config_path, mode="w") as session_config_file:
       session_config_file.write(text_format.MessageToString(session_config))
 
   args = [
@@ -636,8 +596,9 @@ def _auto_tune_batch_size(config,
   if session_config_path is not None:
     args += ["--session_config", session_config_path]
 
-  tf.logging.info("Searching the largest batch size between %d and %d with a precision of %d...",
-                  min_batch_size, max_batch_size, min_range)
+  tf.compat.v1.logging.info(
+      "Searching the largest batch size between %d and %d with a precision of %d...",
+      min_batch_size, max_batch_size, min_range)
 
   while max_batch_size - min_batch_size > min_range:
     batch_size = (max_batch_size + min_batch_size) // 2
@@ -648,23 +609,23 @@ def _auto_tune_batch_size(config,
     if config["train"].get("effective_batch_size") is not None:
       config["params"]["gradients_accum"] = _count_batch_accum(
           batch_size, config["train"]["effective_batch_size"], num_replicas=num_devices)
-    with tf.gfile.Open(config_path, mode="wb") as config_file:
+    with tf.io.gfile.GFile(config_path, mode="wb") as config_file:
       yaml.dump(config, config_file)
 
-    tf.logging.info("Trying training with batch size %d...", batch_size)
+    tf.compat.v1.logging.info("Trying training with batch size %d...", batch_size)
     with open(os.devnull, "w") as devnull:
       process = subprocess.Popen(args, stdout=devnull, stderr=devnull)
       exit_code = process.wait()
 
     if exit_code != 0:
-      tf.logging.info("... failed.")
+      tf.compat.v1.logging.info("... failed.")
       max_batch_size = batch_size - 1
     else:
-      tf.logging.info(
+      tf.compat.v1.logging.info(
           "... succeeded, continue until the search range is smaller than %d.", min_range)
       min_batch_size = batch_size
 
-  tf.logging.info("Batch size auto tuned to %d.", min_batch_size)
+  tf.compat.v1.logging.info("Batch size auto tuned to %d.", min_batch_size)
 
   # Cleanup temporary files.
   os.remove(config_path)
