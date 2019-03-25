@@ -18,8 +18,7 @@ class LanguageModel(Model):
   def __init__(self,
                decoder,
                embedding_size=None,
-               reuse_embedding=True,
-               name="lm"):
+               reuse_embedding=True):
     """Initializes the language model.
 
     Args:
@@ -28,7 +27,6 @@ class LanguageModel(Model):
         embeddings should be defined in the configuration.
       reuse_embedding: If ``True``, reuse the embedding weights in the output
         layer.
-      name: The name of this model.
 
     Raises:
       ValueError: if the decoder type is invalid.
@@ -36,7 +34,7 @@ class LanguageModel(Model):
     if not isinstance(decoder, decoder_util.DecoderV2):
       raise ValueError("Language model only supports DecoderV2")
     inputter = LanguageModelInputter(embedding_size=embedding_size)
-    super(LanguageModel, self).__init__(inputter, name=name)
+    super(LanguageModel, self).__init__(inputter)
     self.decoder = decoder
     self.reuse_embedding = reuse_embedding
 

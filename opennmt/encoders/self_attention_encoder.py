@@ -49,7 +49,7 @@ class SelfAttentionEncoder(Encoder):
     self.position_encoder = None
     if position_encoder_class is not None:
       self.position_encoder = position_encoder_class()
-    self.layer_norm = common.LayerNorm(name="output_norm")
+    self.layer_norm = common.LayerNorm()
     self.layers = [
         _SelfAttentionEncoderLayer(
             num_units,
@@ -58,8 +58,7 @@ class SelfAttentionEncoder(Encoder):
             dropout=dropout,
             attention_dropout=attention_dropout,
             ffn_dropout=ffn_dropout,
-            ffn_activation=ffn_activation,
-            name="layer_%d" % i)
+            ffn_activation=ffn_activation)
         for i in range(num_layers)]
 
   def call(self, inputs, sequence_length=None, training=None):
@@ -107,17 +106,16 @@ class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
     """
     super(_SelfAttentionEncoderLayer, self).__init__(**kwargs)
     self.self_attention = transformer.MultiHeadAttention(
-        num_heads, num_units, dropout=attention_dropout, name="multi_head_attention")
+        num_heads, num_units, dropout=attention_dropout)
     self.self_attention = transformer.TransformerLayerWrapper(
-        self.self_attention, dropout, name="sub_layer_0")
+        self.self_attention, dropout)
     self.ffn = transformer.FeedForwardNetwork(
         ffn_inner_dim,
         num_units,
         dropout=ffn_dropout,
-        activation=ffn_activation,
-        name="feed_forward")
+        activation=ffn_activation)
     self.ffn = transformer.TransformerLayerWrapper(
-        self.ffn, dropout, name="sub_layer_1")
+        self.ffn, dropout)
 
   def call(self, x, mask=None, training=None):  # pylint: disable=arguments-differ
     """Runs the encoder layer."""

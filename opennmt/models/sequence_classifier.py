@@ -11,20 +11,19 @@ from opennmt.utils.losses import cross_entropy_loss
 class SequenceClassifier(Model):
   """A sequence classifier."""
 
-  def __init__(self, inputter, encoder, name="seqclassifier"):
+  def __init__(self, inputter, encoder):
     """Initializes a sequence classifier.
 
     Args:
       inputter: A :class:`opennmt.inputters.inputter.Inputter` to process the
         input data.
       encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
-      name: The name of this model.
 
     Raises:
       ValueError: if :obj:`encoding` is invalid.
     """
     example_inputter = inputters.ExampleInputter(inputter, ClassInputter())
-    super(SequenceClassifier, self).__init__(example_inputter, name=name)
+    super(SequenceClassifier, self).__init__(example_inputter)
     self.encoder = encoder
 
   def _build(self):

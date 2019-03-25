@@ -88,8 +88,8 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
       kwargs: Additional layer arguments.
     """
     super(FeedForwardNetwork, self).__init__(**kwargs)
-    self.inner = tf.keras.layers.Dense(inner_dim, activation=activation, name="inner")
-    self.outer = tf.keras.layers.Dense(output_dim, name="outer")
+    self.inner = tf.keras.layers.Dense(inner_dim, activation=activation)
+    self.outer = tf.keras.layers.Dense(output_dim)
     self.dropout = dropout
 
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ
@@ -126,10 +126,10 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                        " multiple of %s" % num_heads)
     self.num_heads = num_heads
     self.num_units = num_units
-    self.linear_queries = tf.keras.layers.Dense(num_units, name="linear_queries")
-    self.linear_keys = tf.keras.layers.Dense(num_units, name="linear_keys")
-    self.linear_values = tf.keras.layers.Dense(num_units, name="linear_values")
-    self.linear_output = tf.keras.layers.Dense(num_units, name="linear_output")
+    self.linear_queries = tf.keras.layers.Dense(num_units)
+    self.linear_keys = tf.keras.layers.Dense(num_units)
+    self.linear_values = tf.keras.layers.Dense(num_units)
+    self.linear_output = tf.keras.layers.Dense(num_units)
     self.dropout = dropout
     self.return_attention = return_attention
 

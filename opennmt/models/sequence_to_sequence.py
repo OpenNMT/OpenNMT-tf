@@ -48,8 +48,7 @@ class SequenceToSequence(Model):
                target_inputter,
                encoder,
                decoder,
-               share_embeddings=EmbeddingsSharingLevel.NONE,
-               name="seq2seq"):
+               share_embeddings=EmbeddingsSharingLevel.NONE):
     """Initializes a sequence-to-sequence model.
 
     Args:
@@ -92,7 +91,7 @@ class SequenceToSequence(Model):
         source_inputter,
         target_inputter,
         share_parameters=EmbeddingsSharingLevel.share_input_embeddings(share_embeddings))
-    super(SequenceToSequence, self).__init__(examples_inputter, name=name)
+    super(SequenceToSequence, self).__init__(examples_inputter)
     self.encoder = encoder
     self.decoder = decoder
     self.share_embeddings = share_embeddings

@@ -12,11 +12,7 @@ from opennmt.utils.losses import cross_entropy_sequence_loss
 class SequenceTagger(Model):
   """A sequence tagger."""
 
-  def __init__(self,
-               inputter,
-               encoder,
-               crf_decoding=False,
-               name="seqtagger"):
+  def __init__(self, inputter, encoder, crf_decoding=False):
     """Initializes a sequence tagger.
 
     Args:
@@ -24,12 +20,11 @@ class SequenceTagger(Model):
         input data.
       encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
       crf_decoding: If ``True``, add a CRF layer after the encoder.
-      name: The name of this model.
     """
     if crf_decoding:
       raise ValueError("CRF is currently not supported in V2")
     example_inputter = inputters.ExampleInputter(inputter, TagsInputter())
-    super(SequenceTagger, self).__init__(example_inputter, name=name)
+    super(SequenceTagger, self).__init__(example_inputter)
     self.encoder = encoder
     self.crf_decoding = crf_decoding
     self.tagging_scheme = None

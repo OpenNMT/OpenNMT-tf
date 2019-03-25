@@ -28,8 +28,7 @@ class Transformer(SequenceToSequence):
                ffn_activation=tf.nn.relu,
                position_encoder_class=SinusoidalPositionEncoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
-               share_encoders=False,
-               name="transformer"):
+               share_encoders=False):
     """Initializes a Transformer model.
 
     Args:
@@ -60,7 +59,6 @@ class Transformer(SequenceToSequence):
         separate encoders parameters or not.
       alignment_file_key: The data configuration key of the training alignment
         file to support guided alignment.
-      name: The name of this model.
     """
     encoders = [
         SelfAttentionEncoder(
@@ -99,8 +97,7 @@ class Transformer(SequenceToSequence):
         target_inputter,
         encoder,
         decoder,
-        share_embeddings=share_embeddings,
-        name=name)
+        share_embeddings=share_embeddings)
 
   def auto_config(self, num_devices=1):
     config = super(Transformer, self).auto_config(num_devices=num_devices)

@@ -14,14 +14,11 @@ from opennmt.utils import optim
 class Model(tf.keras.layers.Layer):
   """Base class for models."""
 
-  def __init__(self,
-               examples_inputter,
-               dtype=None,
-               name=None):
+  def __init__(self, examples_inputter, dtype=None):
     self.examples_inputter = examples_inputter
     if dtype is None:
       dtype = self.features_inputter.dtype
-    super(Model, self).__init__(name=name, dtype=dtype)
+    super(Model, self).__init__(dtype=dtype)
 
   @property
   def unsupervised(self):
