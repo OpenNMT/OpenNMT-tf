@@ -184,6 +184,7 @@ class TextInputter(Inputter):
   def __init__(self, num_oov_buckets=1, dtype=tf.float32):
     super(TextInputter, self).__init__(dtype=dtype)
     self.num_oov_buckets = num_oov_buckets
+    self.vocabulary = None
 
   def initialize(self, data_config, asset_prefix=""):
     self.vocabulary_file = _get_field(

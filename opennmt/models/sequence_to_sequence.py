@@ -8,10 +8,9 @@ from opennmt import layers
 
 from opennmt.layers import reducer
 from opennmt.models.model import Model
-from opennmt.utils import compat
 from opennmt.utils.losses import cross_entropy_sequence_loss
 from opennmt.utils.misc import print_bytes, format_translation_output, merge_dict, shape_list
-from opennmt.decoders.decoder import get_sampling_probability
+from opennmt.decoders import decoder as decoder_util
 
 
 class EmbeddingsSharingLevel(object):
@@ -95,7 +94,6 @@ class SequenceToSequence(Model):
     self.encoder = encoder
     self.decoder = decoder
     self.share_embeddings = share_embeddings
-    self.output_layer = None
 
   def auto_config(self, num_devices=1):
     config = super(SequenceToSequence, self).auto_config(num_devices=num_devices)
@@ -116,113 +114,85 @@ class SequenceToSequence(Model):
 
   def _build(self):
     self.examples_inputter.build()
+    output_layer = None
     if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
-      self.output_layer = layers.Dense(
+      output_layer = layers.Dense(
           self.labels_inputter.vocabulary_size,
           weight=self.labels_inputter.embedding,
           transpose=True,
           dtype=self.labels_inputter.dtype)
-      with tf.name_scope(tf.get_variable_scope().name + "/"):
-        self.output_layer.build([None, self.decoder.output_size])
+    self.decoder.initialize(
+        vocab_size=self.labels_inputter.vocabulary_size,
+        output_layer=output_layer)
+    self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
 
   def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
 
     features_length = self.features_inputter.get_length(features)
     source_inputs = self.features_inputter.make_inputs(features, training=training)
-    with tf.variable_scope("encoder"):
-      encoder_outputs, encoder_state, encoder_sequence_length = self.encoder.encode(
-          source_inputs,
-          sequence_length=features_length,
-          mode=mode)
+    encoder_outputs, encoder_state, encoder_sequence_length = self.encoder(
+        source_inputs,
+        sequence_length=features_length,
+        training=training)
 
-    target_vocab_size = self.labels_inputter.vocabulary_size
-    target_dtype = self.labels_inputter.dtype
     if labels is not None:
       target_inputs = self.labels_inputter.make_inputs(labels, training=training)
-      with tf.variable_scope("decoder"):
-        sampling_probability = None
-        if mode == tf.estimator.ModeKeys.TRAIN:
-          sampling_probability = get_sampling_probability(
-              tf.train.get_or_create_global_step(),
-              read_probability=params.get("scheduled_sampling_read_probability"),
-              schedule_type=params.get("scheduled_sampling_type"),
-              k=params.get("scheduled_sampling_k"))
+      sampling_probability = None
+      if mode == tf.estimator.ModeKeys.TRAIN:
+        sampling_probability = decoder_util.get_sampling_probability(
+            tf.compat.v1.train.get_or_create_global_step(),
+            read_probability=params.get("scheduled_sampling_read_probability"),
+            schedule_type=params.get("scheduled_sampling_type"),
+            k=params.get("scheduled_sampling_k"))
+        if sampling_probability is not None:
+          raise NotImplementedError("Scheduled sampling is currently not supported in V2")
 
-        logits, _, _, attention = self.decoder.decode(
-            target_inputs,
-            self.labels_inputter.get_length(labels),
-            vocab_size=target_vocab_size,
-            initial_state=encoder_state,
-            sampling_probability=sampling_probability,
-            embedding=self.labels_inputter.embedding,
-            output_layer=self.output_layer,
-            mode=mode,
-            memory=encoder_outputs,
-            memory_sequence_length=encoder_sequence_length,
-            return_alignment_history=True)
-        if "alignment" in labels:
-          outputs = {
-              "logits": logits,
-              "attention": attention
-          }
-        else:
-          outputs = logits
+      initial_state = self.decoder.initial_state(
+          memory=encoder_outputs,
+          memory_sequence_length=encoder_sequence_length,
+          initial_state=encoder_state)
+      logits, _, attention = self.decoder(
+          target_inputs,
+          self.labels_inputter.get_length(labels),
+          state=initial_state,
+          training=training)
+      outputs = dict(logits=logits, attention=attention)
     else:
       outputs = None
 
     if mode != tf.estimator.ModeKeys.TRAIN:
-      with tf.variable_scope("decoder", reuse=labels is not None):
-        batch_size = tf.shape(tf.contrib.framework.nest.flatten(encoder_outputs)[0])[0]
-        beam_width = params.get("beam_width", 1)
-        maximum_iterations = params.get("maximum_iterations", 250)
-        minimum_length = params.get("minimum_decoding_length", 0)
-        sample_from = params.get("sampling_topk", 1)
-        sample_temperature = params.get("sampling_temperature", 1)
-        start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
-        end_token = constants.END_OF_SENTENCE_ID
+      batch_size = tf.shape(tf.nest.flatten(encoder_outputs)[0])[0]
+      beam_width = params.get("beam_width", 1)
+      if beam_width > 1:
+        raise NotImplementedError("Beam search is currently not supported in V2")
+      maximum_length = params.get("maximum_iterations", 250) - 1
+      minimum_length = params.get("minimum_decoding_length", 0)
+      sample_from = params.get("sampling_topk", 1)
+      sample_temperature = params.get("sampling_temperature", 1)
+      start_ids = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
+      end_id = constants.END_OF_SENTENCE_ID
 
-        if beam_width <= 1:
-          sampled_ids, _, sampled_length, log_probs, alignment = self.decoder.dynamic_decode(
-              self.labels_inputter.embedding,
-              start_tokens,
-              end_token,
-              vocab_size=target_vocab_size,
-              initial_state=encoder_state,
-              output_layer=self.output_layer,
-              maximum_iterations=maximum_iterations,
-              minimum_length=minimum_length,
-              mode=mode,
-              memory=encoder_outputs,
-              memory_sequence_length=encoder_sequence_length,
-              dtype=target_dtype,
-              return_alignment_history=True,
-              sample_from=sample_from,
-              sample_temperature=sample_temperature)
-        else:
-          length_penalty = params.get("length_penalty", 0)
-          sampled_ids, _, sampled_length, log_probs, alignment = (
-              self.decoder.dynamic_decode_and_search(
-                  self.labels_inputter.embedding,
-                  start_tokens,
-                  end_token,
-                  vocab_size=target_vocab_size,
-                  initial_state=encoder_state,
-                  output_layer=self.output_layer,
-                  beam_width=beam_width,
-                  length_penalty=length_penalty,
-                  maximum_iterations=maximum_iterations,
-                  minimum_length=minimum_length,
-                  mode=mode,
-                  memory=encoder_outputs,
-                  memory_sequence_length=encoder_sequence_length,
-                  dtype=target_dtype,
-                  return_alignment_history=True,
-                  sample_from=sample_from,
-                  sample_temperature=sample_temperature))
+      initial_state = self.decoder.initial_state(
+          memory=encoder_outputs,
+          memory_sequence_length=encoder_sequence_length,
+          initial_state=encoder_state)
+      sampled_ids, sampled_length, log_probs, _ = decoder_util.greedy_decode(
+          self._decode,
+          start_ids,
+          end_id,
+          state=initial_state,
+          max_decode_length=maximum_length,
+          min_decode_length=minimum_length,
+          sample_from=sample_from,
+          sample_temperature=sample_temperature)
+      # Make shape consistent with beam search.
+      sampled_ids = tf.expand_dims(sampled_ids, 1)
+      sampled_length = tf.expand_dims(sampled_length, 1)
+      log_probs = tf.expand_dims(log_probs, 1)
+      alignment = None
 
-      target_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
-      target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
+      target_tokens = self.id_to_token.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):
         if alignment is None:
@@ -258,6 +228,12 @@ class SequenceToSequence(Model):
 
     return outputs, predictions
 
+  def _decode(self, ids, length_or_step, state=None, training=None):
+    # Decode from ids.
+    inputs = self.labels_inputter.make_inputs({"ids": ids}, training=training)
+    logits, state, _ = self.decoder(inputs, length_or_step, state=state, training=training)
+    return logits, state
+
   def compute_loss(self, outputs, labels, training=True, params=None):
     if params is None:
       params = {}
@@ -280,8 +256,8 @@ class SequenceToSequence(Model):
       guided_alignment_type = params.get("guided_alignment_type")
       if gold_alignments is not None and guided_alignment_type is not None:
         if attention is None:
-          tf.logging.warning("This model did not return attention vectors; "
-                             "guided alignment will not be applied")
+          tf.compat.v1.logging.warning("This model did not return attention vectors; "
+                                       "guided alignment will not be applied")
         else:
           # Note: the first decoder input is <s> for which we don't want any alignment.
           loss += guided_alignment_cost(
@@ -416,11 +392,11 @@ def guided_alignment_cost(attention_probs,
   weights = tf.sequence_mask(
       sequence_length, maxlen=tf.shape(attention_probs)[1], dtype=attention_probs.dtype)
   if guided_alignment_type == "ce":
-    cross_entropy = -tf.reduce_sum(tf.log(attention_probs + 1e-6) * gold_alignment, axis=-1)
+    cross_entropy = -tf.reduce_sum(tf.math.log(attention_probs + 1e-6) * gold_alignment, axis=-1)
     loss = tf.reduce_sum(cross_entropy * weights)
   elif guided_alignment_type == "mse":
-    loss = tf.losses.mean_squared_error(
-        gold_alignment, attention_probs, weights=tf.expand_dims(weights, -1))
+    loss = tf.losses.MeanSquaredError()(
+        gold_alignment, attention_probs, sample_weight=tf.expand_dims(weights, -1))
   else:
     raise ValueError("invalid guided_alignment_type: %s" % guided_alignment_type)
   return guided_alignment_weight * loss

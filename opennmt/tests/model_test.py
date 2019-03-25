@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import unittest
 
 from parameterized import parameterized
 from numbers import Number
@@ -14,6 +15,19 @@ from opennmt import inputters
 from opennmt import models
 from opennmt.models import catalog
 from opennmt.tests import test_util
+
+
+def _seq2seq_model():
+  model = models.SequenceToSequence(
+      inputters.WordEmbedder(16),
+      inputters.WordEmbedder(16),
+      encoders.SelfAttentionEncoder(2, 16, 4, 32),
+      decoders.SelfAttentionDecoder(2, 16, 4, 32))
+  params = {
+      "optimizer": "SGD",
+      "learning_rate": 0.1
+  }
+  return model, params
 
 
 class ModelTest(tf.test.TestCase):
@@ -145,10 +159,8 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.TRAIN],
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])
-  @test_util.run_tf1_only
   def testSequenceToSequence(self, mode):
-    # Mainly test that the code does not throw.
-    model = catalog.NMTSmall()
+    model, params = _seq2seq_model()
     features_file, labels_file, data_config = self._makeToyEnDeData()
     self._testGenericModel(
         model,
@@ -156,49 +168,58 @@ class ModelTest(tf.test.TestCase):
         features_file,
         labels_file,
         data_config,
-        prediction_heads=["tokens", "length", "log_probs"])
+        prediction_heads=["tokens", "length", "log_probs"],
+        params=params)
 
-  @test_util.run_tf1_only
-  def testSequenceToSequenceWithGuidedAlignment(self):
+  @parameterized.expand([["ce"], ["mse"]])
+  def testSequenceToSequenceWithGuidedAlignment(self, ga_type):
     mode = tf.estimator.ModeKeys.TRAIN
-    model = catalog.NMTSmall()
-    params = model.auto_config()["params"]
-    params["guided_alignment_type"] = "ce"
+    model, params = _seq2seq_model()
+    params["guided_alignment_type"] = ga_type
     features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
-    features, labels = model.input_fn(mode, 16, data_config, features_file, labels_file)()
-    self.assertIn("alignment", labels)
-    estimator_spec = model.model_fn()(features, labels, params, mode, None)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      sess.run(tf.local_variables_initializer())
-      sess.run(tf.tables_initializer())
-      loss = sess.run(estimator_spec.loss)
-      self.assertIsInstance(loss, Number)
+    model.initialize(data_config)
+    with tf.Graph().as_default():
+      dataset = estimator.make_input_fn(model, mode, 16, features_file, labels_file)()
+      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
+      features, labels = iterator.get_next()
+      self.assertIn("alignment", labels)
+      estimator_spec = estimator.make_model_fn(model)(features, labels, params, mode, None)
+      with self.session() as sess:
+        sess.run(tf.compat.v1.global_variables_initializer())
+        sess.run(tf.compat.v1.local_variables_initializer())
+        sess.run(tf.compat.v1.tables_initializer())
+        sess.run(iterator.initializer)
+        loss = sess.run(estimator_spec.loss)
+        self.assertIsInstance(loss, Number)
 
-  @test_util.run_tf1_only
+  @unittest.skip("Missing alignment history during inference")
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
     mode = tf.estimator.ModeKeys.PREDICT
-    model = catalog.NMTSmall()
-    params = model.auto_config()["params"]
+    model, params = _seq2seq_model()
     params["replace_unknown_target"] = True
-    features_file, _, data_config = self._makeToyEnDeData()
-    features = model.input_fn(mode, 16, data_config, features_file)()
-    estimator_spec = model.model_fn()(features, None, params, mode, None)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      sess.run(tf.local_variables_initializer())
-      sess.run(tf.tables_initializer())
-      _ = sess.run(estimator_spec.predictions)
+    features_file, labels_file, data_config = self._makeToyEnDeData()
+    model.initialize(data_config)
+    with tf.Graph().as_default():
+      dataset = estimator.make_input_fn(model, mode, 16, features_file, labels_file)()
+      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
+      features = iterator.get_next()
+      estimator_spec = estimator.make_model_fn(model)(features, None, params, mode, None)
+      with self.session() as sess:
+        sess.run(tf.compat.v1.global_variables_initializer())
+        sess.run(tf.compat.v1.local_variables_initializer())
+        sess.run(tf.compat.v1.tables_initializer())
+        sess.run(iterator.initializer)
+        _ = sess.run(estimator_spec.predictions)
 
-  @test_util.run_tf1_only
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
-    model = catalog.NMTSmall()
     _, _, data_config = self._makeToyEnDeData()
-    features = model.serving_input_fn(data_config)().features
-    with tf.variable_scope(model.name):
+    model, params = _seq2seq_model()
+    model.initialize(data_config)
+    with tf.Graph().as_default():
+      features = estimator.make_serving_input_fn(model)().features
       _, predictions = model(
-          features, None, model.auto_config()["params"], tf.estimator.ModeKeys.PREDICT)
+          features, None, params, tf.estimator.ModeKeys.PREDICT)
       self.assertIsInstance(predictions, dict)
 
   @parameterized.expand([

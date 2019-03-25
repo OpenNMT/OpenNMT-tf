@@ -105,13 +105,13 @@ class Transformer(SequenceToSequence):
         "params": {
             "average_loss_in_time": True,
             "label_smoothing": 0.1,
-            "optimizer": "LazyAdamOptimizer",
+            "optimizer": "Adam",
             "optimizer_params": {
-                "beta1": 0.9,
-                "beta2": 0.998
+                "beta_1": 0.9,
+                "beta_2": 0.998
             },
             "learning_rate": 2.0,
-            "decay_type": "noam_decay_v2",
+            "decay_type": "NoamDecay",
             "decay_params": {
                 "model_dim": self._num_units,
                 "warmup_steps": 8000
