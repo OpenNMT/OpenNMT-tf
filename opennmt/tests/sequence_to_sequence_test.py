@@ -5,32 +5,9 @@ import tensorflow as tf
 from opennmt import constants
 from opennmt.models import sequence_to_sequence
 from opennmt.inputters.text_inputter import WordEmbedder
-from opennmt.tests import test_util
 
 
 class SequenceToSequenceTest(tf.test.TestCase):
-
-  @test_util.run_tf1_only
-  def testShiftTargetSequenceHook(self):
-    vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
-    with open(vocab_file, "wb") as vocab:
-      vocab.write(b"<blank>\n"
-                  b"<s>\n"
-                  b"</s>\n"
-                  b"the\n"
-                  b"world\n"
-                  b"hello\n"
-                  b"toto\n")
-    inputter = WordEmbedder("vocabulary_file", embedding_size=10)
-    inputter.add_process_hooks([sequence_to_sequence.shift_target_sequence])
-    inputter.initialize({"vocabulary_file": vocab_file})
-    data = inputter.process(tf.constant("hello world !"))
-    with self.test_session() as sess:
-      sess.run(tf.tables_initializer())
-      data = sess.run(data)
-      self.assertAllEqual(data["ids"], [1, 5, 4, 7])
-      self.assertAllEqual(data["ids_out"], [5, 4, 7, 2])
-      self.assertEqual(data["length"], 4)
 
   def testReplaceUnknownTarget(self):
     target_tokens = [

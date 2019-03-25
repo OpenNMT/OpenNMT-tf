@@ -14,34 +14,6 @@ from opennmt.utils.misc import print_bytes, format_translation_output, merge_dic
 from opennmt.decoders.decoder import get_sampling_probability
 
 
-def shift_target_sequence(inputter, data):
-  """Prepares shifted target sequences.
-
-  Given a target sequence ``a b c``, the decoder input should be
-  ``<s> a b c`` and the output should be ``a b c </s>`` for the dynamic
-  decoding to start on ``<s>`` and stop on ``</s>``.
-
-  Args:
-    inputter: The :class:`opennmt.inputters.inputter.Inputter` that processed
-      :obj:`data`.
-    data: A dict of ``tf.Tensor`` containing ``ids`` and ``length`` keys.
-
-  Returns:
-    The updated :obj:`data` dictionary with ``ids`` the sequence prefixed
-    with the start token id and ``ids_out`` the sequence suffixed with
-    the end token id. Additionally, the ``length`` is increased by 1
-    to reflect the added token on both sequences.
-  """
-  _ = inputter
-  ids = data["ids"]
-  bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=ids.dtype)
-  eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=ids.dtype)
-  data["ids_out"] = tf.concat([ids, eos], axis=0)
-  data["ids"] = tf.concat([bos, ids], axis=0)
-  data["length"] += 1  # Increment length accordingly.
-  return data
-
-
 class EmbeddingsSharingLevel(object):
   """Level of embeddings sharing.
 
@@ -77,7 +49,6 @@ class SequenceToSequence(Model):
                encoder,
                decoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
-               alignment_file_key="train_alignments",
                name="seq2seq"):
     """Initializes a sequence-to-sequence model.
 
@@ -92,8 +63,6 @@ class SequenceToSequence(Model):
       share_embeddings: Level of embeddings sharing, see
         :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
         for possible values.
-      alignment_file_key: The data configuration key of the training alignment
-        file to support guided alignment.
       name: The name of this model.
 
     Raises:
@@ -122,8 +91,7 @@ class SequenceToSequence(Model):
     examples_inputter = SequenceToSequenceInputter(
         source_inputter,
         target_inputter,
-        share_parameters=EmbeddingsSharingLevel.share_input_embeddings(share_embeddings),
-        alignment_file_key=alignment_file_key)
+        share_parameters=EmbeddingsSharingLevel.share_input_embeddings(share_embeddings))
     super(SequenceToSequence, self).__init__(examples_inputter, name=name)
     self.encoder = encoder
     self.decoder = decoder
@@ -360,18 +328,14 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
   def __init__(self,
                features_inputter,
                labels_inputter,
-               share_parameters=False,
-               alignment_file_key=None):
+               share_parameters=False):
     super(SequenceToSequenceInputter, self).__init__(
         features_inputter, labels_inputter, share_parameters=share_parameters)
-    self.alignment_file_key = alignment_file_key
     self.alignment_file = None
 
-  def initialize(self, metadata, asset_dir=None, asset_prefix=""):
-    if self.alignment_file_key is not None and self.alignment_file_key in metadata:
-      self.alignment_file = metadata[self.alignment_file_key]
-    return super(SequenceToSequenceInputter, self).initialize(
-        metadata, asset_dir=asset_dir, asset_prefix=asset_prefix)
+  def initialize(self, metadata, asset_prefix=""):
+    super(SequenceToSequenceInputter, self).initialize(metadata, asset_prefix=asset_prefix)
+    self.alignment_file = metadata.get("train_alignments")
 
   def make_dataset(self, data_file, training=None):
     dataset = super(SequenceToSequenceInputter, self).make_dataset(
@@ -418,28 +382,16 @@ def alignment_matrix_from_pharaoh(alignment_line,
     ``[target_length, source_length]``, where ``[i, j] = 1`` if the ``i`` th
     target word is aligned with the ``j`` th source word.
   """
-  if compat.tf_supports("strings.split"):
-    align_pairs_str = tf.strings.split([alignment_line]).values
-    align_pairs_flat_str = tf.strings.split(align_pairs_str, sep="-").values
-  else:
-    align_pairs_str = tf.string_split([alignment_line], delimiter=" ").values
-    align_pairs_flat_str = tf.string_split(align_pairs_str, delimiter="-").values
-  align_pairs_flat = compat.tf_compat(v2="strings.to_number", v1="string_to_number")(
-      align_pairs_flat_str, out_type=tf.int64)
+  align_pairs_str = tf.strings.split([alignment_line]).values
+  align_pairs_flat_str = tf.strings.split(align_pairs_str, sep="-").values
+  align_pairs_flat = tf.strings.to_number(align_pairs_flat_str, out_type=tf.int64)
   sparse_indices = tf.reshape(align_pairs_flat, [-1, 2])
   sparse_values = tf.ones([tf.shape(sparse_indices)[0]], dtype=dtype)
   source_length = tf.cast(source_length, tf.int64)
   target_length = tf.cast(target_length, tf.int64)
-  if compat.tf_supports("sparse.to_dense"):
-    alignment_matrix_sparse = tf.sparse.SparseTensor(
-        sparse_indices, sparse_values, [source_length, target_length])
-    alignment_matrix = tf.sparse.to_dense(alignment_matrix_sparse, validate_indices=False)
-  else:
-    alignment_matrix = tf.sparse_to_dense(
-        sparse_indices,
-        [source_length, target_length],
-        sparse_values,
-        validate_indices=False)
+  alignment_matrix_sparse = tf.sparse.SparseTensor(
+      sparse_indices, sparse_values, [source_length, target_length])
+  alignment_matrix = tf.sparse.to_dense(alignment_matrix_sparse, validate_indices=False)
   return tf.transpose(alignment_matrix)
 
 def guided_alignment_cost(attention_probs,

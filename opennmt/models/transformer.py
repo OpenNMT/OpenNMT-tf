@@ -24,12 +24,11 @@ class Transformer(SequenceToSequence):
                ffn_inner_dim,
                dropout=0.1,
                attention_dropout=0.1,
-               relu_dropout=0.1,
-               position_encoder=SinusoidalPositionEncoder(),
-               decoder_self_attention_type="scaled_dot",
+               ffn_dropout=0.1,
+               ffn_activation=tf.nn.relu,
+               position_encoder_class=SinusoidalPositionEncoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
                share_encoders=False,
-               alignment_file_key="train_alignments",
                name="transformer"):
     """Initializes a Transformer model.
 
@@ -46,8 +45,10 @@ class Transformer(SequenceToSequence):
       ffn_inner_dim: The inner dimension of the feed forward layers.
       dropout: The probability to drop units in each layer output.
       attention_dropout: The probability to drop units from the attention.
-      relu_dropout: The probability to drop units from the ReLU activation in
+      ffn_dropout: The probability to drop units from the ReLU activation in
         the feed forward layer.
+      ffn_activation: The activation function to apply between the two linear
+        transformations of the feed forward layer.
       position_encoder: A :class:`opennmt.layers.position.PositionEncoder` to
         apply on the inputs.
       decoder_self_attention_type: Type of self attention in the decoder,
@@ -69,15 +70,15 @@ class Transformer(SequenceToSequence):
             ffn_inner_dim=ffn_inner_dim,
             dropout=dropout,
             attention_dropout=attention_dropout,
-            relu_dropout=relu_dropout,
-            position_encoder=position_encoder)
+            ffn_dropout=ffn_dropout,
+            ffn_activation=ffn_activation,
+            position_encoder_class=position_encoder_class)
         for _ in range(source_inputter.num_outputs)]
     if len(encoders) > 1:
       encoder = ParallelEncoder(
-          encoders,
+          encoders if not share_encoders else encoders[0],
           outputs_reducer=None,
-          states_reducer=None,
-          share_parameters=share_encoders)
+          states_reducer=None)
     else:
       encoder = encoders[0]
     decoder = SelfAttentionDecoder(
@@ -87,9 +88,10 @@ class Transformer(SequenceToSequence):
         ffn_inner_dim=ffn_inner_dim,
         dropout=dropout,
         attention_dropout=attention_dropout,
-        relu_dropout=relu_dropout,
-        position_encoder=position_encoder,
-        self_attention_type=decoder_self_attention_type)
+        ffn_dropout=ffn_dropout,
+        ffn_activation=ffn_activation,
+        position_encoder_class=position_encoder_class,
+        num_sources=source_inputter.num_outputs)
 
     self._num_units = num_units
     super(Transformer, self).__init__(
@@ -98,7 +100,6 @@ class Transformer(SequenceToSequence):
         encoder,
         decoder,
         share_embeddings=share_embeddings,
-        alignment_file_key=alignment_file_key,
         name=name)
 
   def auto_config(self, num_devices=1):
