@@ -333,9 +333,9 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
         features_inputter, labels_inputter, share_parameters=share_parameters)
     self.alignment_file = None
 
-  def initialize(self, metadata, asset_prefix=""):
-    super(SequenceToSequenceInputter, self).initialize(metadata, asset_prefix=asset_prefix)
-    self.alignment_file = metadata.get("train_alignments")
+  def initialize(self, data_config, asset_prefix=""):
+    super(SequenceToSequenceInputter, self).initialize(data_config, asset_prefix=asset_prefix)
+    self.alignment_file = data_config.get("train_alignments")
 
   def make_dataset(self, data_file, training=None):
     dataset = super(SequenceToSequenceInputter, self).make_dataset(

@@ -24,15 +24,15 @@ class Inputter(tf.keras.layers.Layer):
     """How many parallel outputs does this inputter produce."""
     return 1
 
-  def initialize(self, metadata, asset_prefix=""):
+  def initialize(self, data_config, asset_prefix=""):
     """Initializes the inputter.
 
     Args:
-      metadata: A dictionary containing additional metadata set
+      data_config: A dictionary containing the data configuration set
         by the user.
       asset_prefix: The prefix to attach to assets filename.
     """
-    _ = metadata
+    _ = data_config
     _ = asset_prefix
     return
 
@@ -178,9 +178,9 @@ class MultiInputter(Inputter):
         inputters.append(inputter)
     return inputters
 
-  def initialize(self, metadata, asset_prefix=""):
+  def initialize(self, data_config, asset_prefix=""):
     for i, inputter in enumerate(self.inputters):
-      inputter.initialize(metadata, asset_prefix="%s%d_" % (asset_prefix, i + 1))
+      inputter.initialize(data_config, asset_prefix="%s%d_" % (asset_prefix, i + 1))
 
   def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}
@@ -386,9 +386,9 @@ class ExampleInputter(ParallelInputter):
         share_parameters=share_parameters,
         combine_features=False)
 
-  def initialize(self, metadata, asset_prefix=""):
-    self.features_inputter.initialize(metadata, asset_prefix="source_")
-    self.labels_inputter.initialize(metadata, asset_prefix="target_")
+  def initialize(self, data_config, asset_prefix=""):
+    self.features_inputter.initialize(data_config, asset_prefix="source_")
+    self.labels_inputter.initialize(data_config, asset_prefix="target_")
 
   def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}

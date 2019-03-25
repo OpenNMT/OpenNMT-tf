@@ -185,10 +185,10 @@ class TextInputter(Inputter):
     super(TextInputter, self).__init__(dtype=dtype)
     self.num_oov_buckets = num_oov_buckets
 
-  def initialize(self, metadata, asset_prefix=""):
-    self.vocabulary_file = _get_field(metadata, "vocabulary", prefix=asset_prefix)
+  def initialize(self, data_config, asset_prefix=""):
+    self.vocabulary_file = _get_field(data_config, "vocabulary", prefix=asset_prefix)
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
-    tokenizer_config = _get_field(metadata, "tokenization", prefix=asset_prefix)
+    tokenizer_config = _get_field(data_config, "tokenization", prefix=asset_prefix)
     self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
 
   def export_assets(self, asset_dir, asset_prefix=""):
@@ -258,9 +258,9 @@ class WordEmbedder(TextInputter):
     self.embedding_file = None
     self.dropout = dropout
 
-  def initialize(self, metadata, asset_prefix=""):
-    super(WordEmbedder, self).initialize(metadata, asset_prefix=asset_prefix)
-    embedding = _get_field(metadata, "embedding", prefix=asset_prefix)
+  def initialize(self, data_config, asset_prefix=""):
+    super(WordEmbedder, self).initialize(data_config, asset_prefix=asset_prefix)
+    embedding = _get_field(data_config, "embedding", prefix=asset_prefix)
     if embedding is None and self.embedding_size is None:
       raise ValueError("embedding_size must be set")
     if embedding is not None:

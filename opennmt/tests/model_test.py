@@ -19,7 +19,7 @@ from opennmt.tests import test_util
 class ModelTest(tf.test.TestCase):
 
   def _makeToyEnDeData(self, with_alignments=False):
-    metadata = {}
+    data_config = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
         ["Parliament Does Not Support Amendment Freeing Tymoshenko",
@@ -38,25 +38,25 @@ class ModelTest(tf.test.TestCase):
          "Die Neuregelung , die den Weg zur Befreiung der inhaftierten Expremierministerin hätte "
          "ebnen können , lehnten die Abgeordneten bei der zweiten Lesung des Antrags auf Milderung "
          "der Strafen für wirtschaftliche Delikte ab ."])
-    metadata["source_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["source_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
-    metadata["target_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["target_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "tgt_vocab.txt"), labels_file)
     if with_alignments:
       # Dummy and incomplete alignments.
-      metadata["train_alignments"] = test_util.make_data_file(
+      data_config["train_alignments"] = test_util.make_data_file(
           os.path.join(self.get_temp_dir(), "aligne.txt"),
           ["0-0 1-0 2-2 3-4 4-4 5-6",
            "0-1 1-1 1-3 2-3 4-4",
            "0-0 1-0 2-2 3-4 4-4 5-6"])
-    return features_file, labels_file, metadata
+    return features_file, labels_file, data_config
 
   def _makeToyLMData(self):
-    features_file, _, metadata = self._makeToyEnDeData()
-    return features_file, {"vocabulary": metadata["source_vocabulary"]}
+    features_file, _, data_config = self._makeToyEnDeData()
+    return features_file, {"vocabulary": data_config["source_vocabulary"]}
 
   def _makeToyTaggerData(self):
-    metadata = {}
+    data_config = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
         ["M . Smith went to Washington .",
@@ -65,15 +65,15 @@ class ModelTest(tf.test.TestCase):
         os.path.join(self.get_temp_dir(), "labels.txt"),
         ["B-PER I-PER E-PER O O S-LOC O",
          "O O O B-LOC E-LOC O"])
-    metadata["source_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["source_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
-    metadata["target_vocabulary"] = test_util.make_data_file(
+    data_config["target_vocabulary"] = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "labels_vocab.txt"),
         ["O", "B-LOC", "I-LOC", "E-LOC", "S-LOC", "B-PER", "I-PER", "E-PER", "S-PER"])
-    return features_file, labels_file, metadata
+    return features_file, labels_file, data_config
 
   def _makeToyClassifierData(self):
-    metadata = {}
+    data_config = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
         ["This product was not good at all , it broke on the first use !",
@@ -81,18 +81,18 @@ class ModelTest(tf.test.TestCase):
          "How do I change the battery ?"])
     labels_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "labels.txt"), ["negative", "positive", "neutral"])
-    metadata["source_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["source_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
-    metadata["target_vocabulary"] = test_util.make_data_file(
+    data_config["target_vocabulary"] = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "labels_vocab.txt"), ["negative", "positive", "neutral"])
-    return features_file, labels_file, metadata
+    return features_file, labels_file, data_config
 
   def _testGenericModel(self,
                         model,
                         mode,
                         features_file,
                         labels_file=None,
-                        metadata=None,
+                        data_config=None,
                         batch_size=16,
                         prediction_heads=None,
                         metrics=None,
@@ -100,9 +100,9 @@ class ModelTest(tf.test.TestCase):
     # Mainly test that the code does not throw.
     if params is None:
       params = model.auto_config()["params"]
-    if metadata is None:
-      metadata = {}
-    model.initialize(metadata)
+    if data_config is None:
+      data_config = {}
+    model.initialize(data_config)
     with tf.Graph().as_default():
       dataset = estimator.make_input_fn(
           model,
@@ -149,13 +149,13 @@ class ModelTest(tf.test.TestCase):
   def testSequenceToSequence(self, mode):
     # Mainly test that the code does not throw.
     model = catalog.NMTSmall()
-    features_file, labels_file, metadata = self._makeToyEnDeData()
+    features_file, labels_file, data_config = self._makeToyEnDeData()
     self._testGenericModel(
         model,
         mode,
         features_file,
         labels_file,
-        metadata,
+        data_config,
         prediction_heads=["tokens", "length", "log_probs"])
 
   @test_util.run_tf1_only
@@ -164,8 +164,8 @@ class ModelTest(tf.test.TestCase):
     model = catalog.NMTSmall()
     params = model.auto_config()["params"]
     params["guided_alignment_type"] = "ce"
-    features_file, labels_file, metadata = self._makeToyEnDeData(with_alignments=True)
-    features, labels = model.input_fn(mode, 16, metadata, features_file, labels_file)()
+    features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
+    features, labels = model.input_fn(mode, 16, data_config, features_file, labels_file)()
     self.assertIn("alignment", labels)
     estimator_spec = model.model_fn()(features, labels, params, mode, None)
     with self.test_session() as sess:
@@ -181,8 +181,8 @@ class ModelTest(tf.test.TestCase):
     model = catalog.NMTSmall()
     params = model.auto_config()["params"]
     params["replace_unknown_target"] = True
-    features_file, _, metadata = self._makeToyEnDeData()
-    features = model.input_fn(mode, 16, metadata, features_file)()
+    features_file, _, data_config = self._makeToyEnDeData()
+    features = model.input_fn(mode, 16, data_config, features_file)()
     estimator_spec = model.model_fn()(features, None, params, mode, None)
     with self.test_session() as sess:
       sess.run(tf.global_variables_initializer())
@@ -194,8 +194,8 @@ class ModelTest(tf.test.TestCase):
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
     model = catalog.NMTSmall()
-    _, _, metadata = self._makeToyEnDeData()
-    features = model.serving_input_fn(metadata)().features
+    _, _, data_config = self._makeToyEnDeData()
+    features = model.serving_input_fn(data_config)().features
     with tf.variable_scope(model.name):
       _, predictions = model(
           features, None, model.auto_config()["params"], tf.estimator.ModeKeys.PREDICT)
@@ -210,7 +210,7 @@ class ModelTest(tf.test.TestCase):
     decoder = decoders.SelfAttentionDecoder(
         2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0)
     model = models.LanguageModel(decoder, embedding_size=16)
-    features_file, metadata = self._makeToyLMData()
+    features_file, data_config = self._makeToyLMData()
     params = {
         "optimizer": "SGD",
         "learning_rate": 0.1}
@@ -218,7 +218,7 @@ class ModelTest(tf.test.TestCase):
         model,
         mode,
         features_file,
-        metadata=metadata,
+        data_config=data_config,
         batch_size=1 if mode == tf.estimator.ModeKeys.PREDICT else 16,
         prediction_heads=["tokens", "length"],
         params=params)
@@ -229,8 +229,8 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.PREDICT]])
   def testSequenceTagger(self, mode):
     model = models.SequenceTagger(inputters.WordEmbedder(10), encoders.MeanEncoder())
-    features_file, labels_file, metadata = self._makeToyTaggerData()
-    metadata["tagging_scheme"] = "bioes"
+    features_file, labels_file, data_config = self._makeToyTaggerData()
+    data_config["tagging_scheme"] = "bioes"
     params = {
         "optimizer": "SGD",
         "learning_rate": 0.1}
@@ -239,7 +239,7 @@ class ModelTest(tf.test.TestCase):
         mode,
         features_file,
         labels_file,
-        metadata,
+        data_config,
         prediction_heads=["tags", "length"],
         metrics=["accuracy", "precision", "recall", "f1"],
         params=params)
@@ -250,7 +250,7 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.PREDICT]])
   def testSequenceClassifier(self, mode):
     model = models.SequenceClassifier(inputters.WordEmbedder(10), encoders.MeanEncoder())
-    features_file, labels_file, metadata = self._makeToyClassifierData()
+    features_file, labels_file, data_config = self._makeToyClassifierData()
     params = {
         "optimizer": "SGD",
         "learning_rate": 0.1}
@@ -259,7 +259,7 @@ class ModelTest(tf.test.TestCase):
         mode,
         features_file,
         labels_file,
-        metadata,
+        data_config,
         prediction_heads=["classes"],
         metrics=["accuracy"],
         params=params)

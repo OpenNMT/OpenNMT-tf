@@ -34,11 +34,11 @@ class SequenceTagger(Model):
     self.crf_decoding = crf_decoding
     self.tagging_scheme = None
 
-  def initialize(self, metadata):
-    self.tagging_scheme = metadata.get("tagging_scheme")
+  def initialize(self, data_config):
+    self.tagging_scheme = data_config.get("tagging_scheme")
     if self.tagging_scheme:
       self.tagging_scheme = self.tagging_scheme.lower()
-    super(SequenceTagger, self).initialize(metadata)
+    super(SequenceTagger, self).initialize(data_config)
 
   def _build(self):
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
