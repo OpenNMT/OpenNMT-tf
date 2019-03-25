@@ -186,7 +186,8 @@ class TextInputter(Inputter):
     self.num_oov_buckets = num_oov_buckets
 
   def initialize(self, data_config, asset_prefix=""):
-    self.vocabulary_file = _get_field(data_config, "vocabulary", prefix=asset_prefix)
+    self.vocabulary_file = _get_field(
+        data_config, "vocabulary", prefix=asset_prefix, required=True)
     self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
     tokenizer_config = _get_field(data_config, "tokenization", prefix=asset_prefix)
     self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
