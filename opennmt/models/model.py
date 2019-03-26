@@ -119,24 +119,63 @@ class Model(tf.keras.layers.Layer):
     """
     return None
 
-  def get_optimizer(self, step, params=None):
+  def get_optimizer(self, params=None):
+    """Returns the optimizer for this model.
+
+    Args:
+      params: A dictionary of hyperparameters.
+
+    Returns:
+      A ``tf.optimizers.Optimizer`` instance.
+    """
     if params is None:
       params = {}
     learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
     if params.get("decay_type") is not None:
       decay_params = params.get("decay_params", {})
-      learning_rate = optim.get_learning_rate_schedule(
+      learning_rate = optim.make_learning_rate_schedule(
           learning_rate,
           params["decay_type"],
           decay_params=decay_params,
           decay_step_duration=params.get("decay_step_duration", 1),
           start_decay_step=params.get("start_decay_steps", 0),
           minimum_learning_rate=params.get("minimum_learning_rate", 0))
-
-    optimizer_class = optim.get_optimizer_class(params["optimizer"])
-    optimizer_params = params.get("optimizer_params", {})
-    optimizer = optimizer_class(learning_rate=learning_rate, **optimizer_params)
+    optimizer = optim.make_optimizer(
+        params["optimizer"],
+        learning_rate,
+        **params.get("optimizer_params", {}))
     return optimizer
+
+  def optimize_loss(self, loss, optimizer, params=None, step=None):
+    """Optimizes the loss.
+
+    Args:
+      loss: The loss to optimizer.
+      optimizer: The ``tf.optimizers.Optimizer`` instance.
+      params: A dictionary of hyperparameters.
+      step: An optional step counter to increment when the parameters are
+        updated.
+
+    Returns:
+      An operation that applies the gradients and optionally a list of internal
+      variables to initialize.
+    """
+    variables = self.trainable_variables
+    regularization = params.get("regularization")
+    if regularization is not None:
+      loss += optim.regularization_penalty(
+          regularization["type"], regularization["scale"], variables)
+    gradients = optimizer.get_gradients(loss, variables)
+    _summarize_gradients_norm("gradients/global_norm", gradients)
+    clip_gradients = params.get("clip_gradients")
+    if clip_gradients is not None:
+      gradients, _ = tf.clip_by_global_norm(gradients, float(clip_gradients))
+      _summarize_gradients_norm("gradients/clipped_global_norm", gradients)
+    return optim.delayed_update(
+        optimizer,
+        list(zip(gradients, variables)),
+        accum_count=params.get("gradients_accum", 1),
+        global_step=step)
 
   def get_assets(self, asset_dir):
     """Returns additional assets used by this model.
@@ -159,3 +198,8 @@ class Model(tf.keras.layers.Layer):
     """
     _ = params
     print(prediction, file=stream)
+
+
+def _summarize_gradients_norm(name, gradients):
+  """Summarizes global norm of gradients."""
+  tf.compat.v1.summary.scalar(name, tf.linalg.global_norm(gradients))

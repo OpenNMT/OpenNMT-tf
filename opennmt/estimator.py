@@ -151,11 +151,16 @@ def make_model_fn(model,
 
     step = tf.compat.v1.train.get_or_create_global_step()
     local_model = copy.deepcopy(model)
-    optimizer = local_model.get_optimizer(step, params=params)
+    optimizer = local_model.get_optimizer(params=params)
     checkpoint = tf.train.Checkpoint(
         step=step,
         model=local_model,
         optimizer=optimizer)
+
+    learning_rate = optimizer.learning_rate
+    if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
+      learning_rate = learning_rate(step)
+    tf.compat.v1.summary.scalar("learning_rate", learning_rate)
 
     outputs, predictions = local_model(features, labels, params, mode)
     if labels is not None:
@@ -167,12 +172,13 @@ def make_model_fn(model,
       loss = _extract_loss(loss)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
-      variables = local_model.trainable_variables
-      gradients = optimizer.get_gradients(loss, variables)
-      train_op = tf.group(
-          optimizer.apply_gradients(zip(gradients, variables)),
-          step.assign_add(1))
+      train_op = local_model.optimize_loss(loss, optimizer, params=params, step=step)
+      extra_variables = []
+      if isinstance(train_op, tuple):
+        train_op, extra_variables = train_op
       training_hooks = []
+      if extra_variables:
+        training_hooks.append(hooks.VariablesInitializerHook(extra_variables))
       if config is not None:
         local_model.examples_inputter.visualize(config.model_dir)
         features_length = local_model.features_inputter.get_length(features)
@@ -233,5 +239,5 @@ def _extract_loss(loss):
   else:
     actual_loss = _normalize_loss(loss[0], den=loss[1])
     tboard_loss = _normalize_loss(loss[0], den=loss[2]) if len(loss) > 2 else actual_loss
-  tf.summary.scalar("loss", tboard_loss)
+  tf.compat.v1.summary.scalar("loss", tboard_loss)
   return actual_loss
