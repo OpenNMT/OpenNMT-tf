@@ -1,7 +1,9 @@
 """Functions for reading data."""
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+
+from tensorflow.python.data.ops import dataset_ops
 
 
 def _get_output_shapes(dataset):
@@ -13,8 +15,8 @@ def _get_output_shapes(dataset):
   Returns:
     A nested structure of ``tf.TensorShape``
   """
-  sample = tf.data.experimental.get_single_element(dataset.take(1))
-  return tf.nest.map_structure(lambda x: x.shape, sample)
+  # TODO: replace this by a public API.
+  return dataset_ops.get_legacy_output_shapes(dataset)
 
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
