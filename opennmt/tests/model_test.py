@@ -17,16 +17,16 @@ from opennmt.models import catalog
 from opennmt.tests import test_util
 
 
-def _seq2seq_model():
+def _seq2seq_model(mode):
   model = models.SequenceToSequence(
       inputters.WordEmbedder(16),
       inputters.WordEmbedder(16),
       encoders.SelfAttentionEncoder(2, 16, 4, 32),
       decoders.SelfAttentionDecoder(2, 16, 4, 32))
-  params = {
-      "optimizer": "SGD",
-      "learning_rate": 0.1
-  }
+  params = {}
+  if mode == tf.estimator.ModeKeys.TRAIN:
+    params["optimizer"] = "SGD"
+    params["learning_rate"] = 0.1
   return model, params
 
 
@@ -160,7 +160,7 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])
   def testSequenceToSequence(self, mode):
-    model, params = _seq2seq_model()
+    model, params = _seq2seq_model(mode)
     features_file, labels_file, data_config = self._makeToyEnDeData()
     self._testGenericModel(
         model,
@@ -174,7 +174,7 @@ class ModelTest(tf.test.TestCase):
   @parameterized.expand([["ce"], ["mse"]])
   def testSequenceToSequenceWithGuidedAlignment(self, ga_type):
     mode = tf.estimator.ModeKeys.TRAIN
-    model, params = _seq2seq_model()
+    model, params = _seq2seq_model(mode)
     params["guided_alignment_type"] = ga_type
     features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
     model.initialize(data_config)
@@ -195,7 +195,7 @@ class ModelTest(tf.test.TestCase):
   @unittest.skip("Missing alignment history during inference")
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
     mode = tf.estimator.ModeKeys.PREDICT
-    model, params = _seq2seq_model()
+    model, params = _seq2seq_model(mode)
     params["replace_unknown_target"] = True
     features_file, labels_file, data_config = self._makeToyEnDeData()
     model.initialize(data_config)
@@ -213,13 +213,13 @@ class ModelTest(tf.test.TestCase):
 
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
+    mode = tf.estimator.ModeKeys.PREDICT
     _, _, data_config = self._makeToyEnDeData()
-    model, params = _seq2seq_model()
+    model, params = _seq2seq_model(mode)
     model.initialize(data_config)
     with tf.Graph().as_default():
       features = estimator.make_serving_input_fn(model)().features
-      _, predictions = model(
-          features, None, params, tf.estimator.ModeKeys.PREDICT)
+      _, predictions = model(features, None, params, mode)
       self.assertIsInstance(predictions, dict)
 
   @parameterized.expand([

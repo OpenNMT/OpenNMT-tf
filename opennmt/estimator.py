@@ -151,16 +151,7 @@ def make_model_fn(model,
 
     step = tf.compat.v1.train.get_or_create_global_step()
     local_model = copy.deepcopy(model)
-    optimizer = local_model.get_optimizer(params=params)
-    checkpoint = tf.train.Checkpoint(
-        step=step,
-        model=local_model,
-        optimizer=optimizer)
-
-    learning_rate = optimizer.learning_rate
-    if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
-      learning_rate = learning_rate(step)
-    tf.compat.v1.summary.scalar("learning_rate", learning_rate)
+    saveable_objects = dict(step=step, model=local_model)
 
     outputs, predictions = local_model(features, labels, params, mode)
     if labels is not None:
@@ -172,6 +163,12 @@ def make_model_fn(model,
       loss = _extract_loss(loss)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
+      optimizer = local_model.get_optimizer(params=params)
+      saveable_objects.update(dict(optimizer=optimizer))
+      learning_rate = optimizer.learning_rate
+      if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
+        learning_rate = learning_rate(step)
+      tf.compat.v1.summary.scalar("learning_rate", learning_rate)
       train_op = local_model.optimize_loss(loss, optimizer, params=params, step=step)
       extra_variables = []
       if isinstance(train_op, tuple):
@@ -210,6 +207,7 @@ def make_model_fn(model,
       export_outputs[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY] = (
           tf.estimator.export.PredictOutput(predictions))
 
+    checkpoint = tf.train.Checkpoint(**saveable_objects)
     return tf.estimator.EstimatorSpec(
         mode,
         predictions=predictions,
