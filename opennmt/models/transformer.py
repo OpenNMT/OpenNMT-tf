@@ -99,8 +99,8 @@ class Transformer(SequenceToSequence):
         decoder,
         share_embeddings=share_embeddings)
 
-  def auto_config(self, num_devices=1):
-    config = super(Transformer, self).auto_config(num_devices=num_devices)
+  def auto_config(self, num_replicas=1):
+    config = super(Transformer, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
             "average_loss_in_time": True,

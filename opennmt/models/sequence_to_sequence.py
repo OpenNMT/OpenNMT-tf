@@ -95,8 +95,8 @@ class SequenceToSequence(Model):
     self.decoder = decoder
     self.share_embeddings = share_embeddings
 
-  def auto_config(self, num_devices=1):
-    config = super(SequenceToSequence, self).auto_config(num_devices=num_devices)
+  def auto_config(self, num_replicas=1):
+    config = super(SequenceToSequence, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
             "beam_width": 4,

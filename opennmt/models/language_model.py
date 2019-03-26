@@ -38,8 +38,8 @@ class LanguageModel(Model):
     self.decoder = decoder
     self.reuse_embedding = reuse_embedding
 
-  def auto_config(self, num_devices=1):
-    config = super(LanguageModel, self).auto_config(num_devices=num_devices)
+  def auto_config(self, num_replicas=1):
+    config = super(LanguageModel, self).auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "infer": {
             "bucket_width": 1  # To ensure fixed length in each batch.

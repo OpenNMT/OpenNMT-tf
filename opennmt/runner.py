@@ -83,7 +83,7 @@ class Runner(object):
     # Configuration priority: user config > auto config > default config.
     self._config = copy.deepcopy(_CONFIG_FALLBACK)
     if auto_config:
-      model_config = self._model.auto_config(num_devices=self._num_replicas)
+      model_config = self._model.auto_config(num_replicas=self._num_replicas)
       if not model_config:
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(self._config, model_config)

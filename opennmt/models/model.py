@@ -35,16 +35,17 @@ class Model(tf.keras.layers.Layer):
     """The inputter producing labels."""
     return self.examples_inputter.labels_inputter
 
-  def auto_config(self, num_devices=1):
+  def auto_config(self, num_replicas=1):
     """Returns automatic configuration values specific to this model.
 
     Args:
-      num_devices: The number of devices used for the training.
+      num_replicas: The number of concurrent model replicas used for the
+        training.
 
     Returns:
       A partial training configuration.
     """
-    _ = num_devices
+    _ = num_replicas
     return {}
 
   def initialize(self, data_config):
