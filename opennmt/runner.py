@@ -436,11 +436,16 @@ class Runner(object):
         printed on the standard output.
 
     Raises:
-      ValueError: if no checkpoint are found or if the model is not a sequence to
-        sequence model.
+      ValueError: if the model is not a sequence to sequence model or a
+        language model.
+      ValueError: if no checkpoint are found.
+      ValueError: if :obj:`predictions_file` is not given.
     """
     if not isinstance(self._model, (models.LanguageModel, models.SequenceToSequence)):
       raise ValueError("scoring only works for sequence to sequence or language models")
+    if isinstance(self._model, models.SequenceToSequence) and not predictions_file:
+      raise ValueError("predictions_file is required when scoring with a "
+                       "sequence to sequence model")
 
     if checkpoint_path is None:
       checkpoint_path = tf.train.latest_checkpoint(self._config["model_dir"])
@@ -488,8 +493,10 @@ class Runner(object):
       output_tokenizer = (
           self._model.labels_inputter.tokenizer if not self._model.unsupervised
           else self._model.features_inputter.tokenizer)
+      checkpoint_saver = tf.train.Checkpoint(model=model)
       with tf.compat.v1.train.MonitoredSession(
           session_creator=tf.compat.v1.train.ChiefSessionCreator(
+              scaffold=tf.compat.v1.train.Scaffold(saver=checkpoint_saver),
               checkpoint_filename_with_path=checkpoint_path,
               config=self._session_config)) as sess:
         sess.run(iterator.initializer)
