@@ -164,12 +164,10 @@ def make_model_fn(model,
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = local_model.get_optimizer(params=params)
+      gradients = local_model.compute_gradients(loss, optimizer, params=params)
+      train_op = local_model.apply_gradients(gradients, optimizer, params=params, step=step)
       saveable_objects.update(dict(optimizer=optimizer))
-      learning_rate = optimizer.learning_rate
-      if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
-        learning_rate = learning_rate(step)
-      tf.compat.v1.summary.scalar("learning_rate", learning_rate)
-      train_op = local_model.optimize_loss(loss, optimizer, params=params, step=step)
+      _log_optimization(step, optimizer, gradients)
       extra_variables = []
       if isinstance(train_op, tuple):
         train_op, extra_variables = train_op
@@ -239,3 +237,11 @@ def _extract_loss(loss):
     tboard_loss = _normalize_loss(loss[0], den=loss[2]) if len(loss) > 2 else actual_loss
   tf.compat.v1.summary.scalar("loss", tboard_loss)
   return actual_loss
+
+def _log_optimization(step, optimizer, gradients):
+  """Logs some optimization information in TensorBoard."""
+  learning_rate = optimizer.learning_rate
+  if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
+    learning_rate = learning_rate(step)
+  tf.compat.v1.summary.scalar("learning_rate", learning_rate)
+  tf.compat.v1.summary.scalar("gradients/global_norm", tf.linalg.global_norm(gradients))
