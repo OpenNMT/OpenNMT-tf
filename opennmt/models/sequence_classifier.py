@@ -26,14 +26,14 @@ class SequenceClassifier(Model):
     super(SequenceClassifier, self).__init__(example_inputter)
     self.encoder = encoder
 
-  def _build(self):
+  def build(self, input_shape):
+    super(SequenceClassifier, self).build(input_shape)
     self.id_to_class = self.labels_inputter.vocabulary_lookup_reverse()
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
-    super(SequenceClassifier, self)._build()
 
-  def _call(self, features, labels, params, mode):
+  def call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
-    inputs = self.features_inputter.make_inputs(features, training=training)
+    inputs = self.features_inputter(features, training=training)
     _, state, _ = self.encoder(
         inputs,
         sequence_length=self.features_inputter.get_length(features),

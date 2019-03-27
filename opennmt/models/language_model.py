@@ -46,8 +46,8 @@ class LanguageModel(Model):
         }
     })
 
-  def _build(self):
-    super(LanguageModel, self)._build()
+  def build(self, input_shape):
+    super(LanguageModel, self).build(input_shape)
     vocab_size = self.examples_inputter.vocabulary_size
     output_layer = None
     if self.reuse_embedding:
@@ -59,7 +59,7 @@ class LanguageModel(Model):
     self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
     self.id_to_token = self.examples_inputter.vocabulary_lookup_reverse()
 
-  def _call(self, features, labels, params, mode):
+  def call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
     outputs, predictions = None, None
 
@@ -105,7 +105,7 @@ class LanguageModel(Model):
 
   def _decode(self, ids, length_or_step, state=None, training=None):
     # Decode from ids.
-    inputs = self.examples_inputter.make_inputs({"ids": ids}, training=training)
+    inputs = self.examples_inputter({"ids": ids}, training=training)
     logits, state, _ = self.decoder(inputs, length_or_step, state=state, training=training)
     return logits, state
 

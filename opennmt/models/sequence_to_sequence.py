@@ -112,8 +112,8 @@ class SequenceToSequence(Model):
         }
     })
 
-  def _build(self):
-    self.examples_inputter.build()
+  def build(self, input_shape):
+    super(SequenceToSequence, self).build(input_shape)
     output_layer = None
     if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
       output_layer = layers.Dense(
@@ -126,18 +126,18 @@ class SequenceToSequence(Model):
         output_layer=output_layer)
     self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
 
-  def _call(self, features, labels, params, mode):
+  def call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
 
     features_length = self.features_inputter.get_length(features)
-    source_inputs = self.features_inputter.make_inputs(features, training=training)
+    source_inputs = self.features_inputter(features, training=training)
     encoder_outputs, encoder_state, encoder_sequence_length = self.encoder(
         source_inputs,
         sequence_length=features_length,
         training=training)
 
     if labels is not None:
-      target_inputs = self.labels_inputter.make_inputs(labels, training=training)
+      target_inputs = self.labels_inputter(labels, training=training)
       sampling_probability = None
       if mode == tf.estimator.ModeKeys.TRAIN:
         sampling_probability = decoder_util.get_sampling_probability(
@@ -230,7 +230,7 @@ class SequenceToSequence(Model):
 
   def _decode(self, ids, length_or_step, state=None, training=None):
     # Decode from ids.
-    inputs = self.labels_inputter.make_inputs({"ids": ids}, training=training)
+    inputs = self.labels_inputter({"ids": ids}, training=training)
     logits, state, _ = self.decoder(inputs, length_or_step, state=state, training=training)
     return logits, state
 

@@ -35,15 +35,15 @@ class SequenceTagger(Model):
       self.tagging_scheme = self.tagging_scheme.lower()
     super(SequenceTagger, self).initialize(data_config)
 
-  def _build(self):
+  def build(self, input_shape):
+    super(SequenceTagger, self).build(input_shape)
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
     self.id_to_tag = self.labels_inputter.vocabulary_lookup_reverse()
-    super(SequenceTagger, self)._build()
 
-  def _call(self, features, labels, params, mode):
+  def call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN
     length = self.features_inputter.get_length(features)
-    inputs = self.features_inputter.make_inputs(features, training=training)
+    inputs = self.features_inputter(features, training=training)
     outputs, _, length = self.encoder(
         inputs, sequence_length=length, training=training)
     logits = self.output_layer(outputs)

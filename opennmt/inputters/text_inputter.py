@@ -321,7 +321,7 @@ class WordEmbedder(TextInputter):
       features["length"] += 1 # Increment length accordingly.
     return features
 
-  def build(self, input_shape=None):
+  def build(self, input_shape):
     if self.embedding_file:
       pretrained = load_pretrained_embeddings(
           self.embedding_file,
@@ -341,8 +341,6 @@ class WordEmbedder(TextInputter):
     super(WordEmbedder, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
-    if not self.built:
-      self.build()
     outputs = tf.nn.embedding_lookup(self.embedding, features["ids"])
     outputs = common.dropout(outputs, self.dropout, training=training)
     return outputs
@@ -389,7 +387,7 @@ class CharEmbedder(TextInputter):
     features["char_ids"] = self.vocabulary.lookup(chars)
     return features
 
-  def build(self, input_shape=None):
+  def build(self, input_shape):
     self.embedding = self.add_weight(
         "char_embedding", [self.vocabulary_size, self.embedding_size])
     super(CharEmbedder, self).build(input_shape)
@@ -406,8 +404,6 @@ class CharEmbedder(TextInputter):
         num_oov_buckets=self.num_oov_buckets)
 
   def _embed(self, inputs, training):
-    if not self.built:
-      self.build()
     mask = tf.math.not_equal(inputs, 0)
     outputs = tf.nn.embedding_lookup(self.embedding, inputs)
     outputs = common.dropout(outputs, self.dropout, training=training)

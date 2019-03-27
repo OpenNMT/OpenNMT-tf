@@ -285,7 +285,7 @@ class ParallelInputter(MultiInputter):
             training=training)
       return tuple(features)
 
-  def build(self, input_shape=None):
+  def build(self, input_shape):
     if self.share_parameters:
       # When sharing parameters, build the first leaf inputter and then set
       # all attributes with parameters to the other inputters.
@@ -304,8 +304,6 @@ class ParallelInputter(MultiInputter):
     super(ParallelInputter, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
-    if not self.built:
-      self.build()
     transformed = []
     for i, inputter in enumerate(self.inputters):
       if self.combine_features:
@@ -357,6 +355,11 @@ class MixedInputter(MultiInputter):
       features = inputter.make_features(
           element=element, features=features, training=training)
     return features
+
+  def build(self, input_shape):
+    for inputter in self.inputters:
+      inputter.build(input_shape)
+    super(MixedInputter, self).build(input_shape)
 
   def make_inputs(self, features, training=None):
     transformed = []

@@ -183,7 +183,7 @@ class InputterTest(tf.test.TestCase):
     features = iter(dataset).next()
     if shapes is not None:
       self._checkFeatures(features, shapes)
-    inputs = inputter.make_inputs(features, training=True)
+    inputs = inputter(features, training=True)
     return self.evaluate((features, inputs))
 
   def testWordEmbedder(self):
@@ -352,7 +352,7 @@ class InputterTest(tf.test.TestCase):
         text_inputter.WordEmbedder(embedding_size=10)]
     parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
     parallel_inputter.initialize(data_config)
-    parallel_inputter.build()
+    parallel_inputter.build(None)
     self.assertEqual(inputters[0].embedding, inputters[1].embedding)
 
   def testNestedParallelInputterShareParameters(self):
@@ -371,7 +371,7 @@ class InputterTest(tf.test.TestCase):
         target_inputter]
     parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
     parallel_inputter.initialize(data_config)
-    parallel_inputter.build()
+    parallel_inputter.build(None)
     self.assertEqual(source_inputters[0].embedding, target_inputter.embedding)
     self.assertEqual(source_inputters[1].embedding, target_inputter.embedding)
 

@@ -11,29 +11,24 @@ from opennmt.utils import optim
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Model(tf.keras.layers.Layer):
+class Model(tf.keras.Model):
   """Base class for models."""
 
-  def __init__(self, examples_inputter, dtype=None):
+  def __init__(self, examples_inputter):
+    super(Model, self).__init__()
     self.examples_inputter = examples_inputter
-    if dtype is None:
-      dtype = self.features_inputter.dtype
-    super(Model, self).__init__(dtype=dtype)
+    self.features_inputter = getattr(examples_inputter, "features_inputter", examples_inputter)
+    self.labels_inputter = getattr(examples_inputter, "labels_inputter", None)
+
+  @property
+  def dtype(self):
+    """The model dtype."""
+    return self.examples_inputter.dtype
 
   @property
   def unsupervised(self):
     """Unsupervised model."""
-    return not hasattr(self.examples_inputter, "labels_inputter")
-
-  @property
-  def features_inputter(self):
-    """The inputter producing features."""
-    return getattr(self.examples_inputter, "features_inputter", self.examples_inputter)
-
-  @property
-  def labels_inputter(self):
-    """The inputter producing labels."""
-    return self.examples_inputter.labels_inputter
+    return self.labels_inputter is None
 
   def auto_config(self, num_replicas=1):
     """Returns automatic configuration values specific to this model.
@@ -58,31 +53,19 @@ class Model(tf.keras.layers.Layer):
     """
     self.examples_inputter.initialize(data_config)
 
-  def __call__(self, features, labels, params, mode, config=None):  # pylint: disable=arguments-differ
-    """Calls the model function.
-
-    Returns:
-      outputs: The model outputs (usually unscaled probabilities).
-        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.PREDICT``.
-      predictions: The model predictions.
-        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.TRAIN``.
-
-    See Also:
-      ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about
-      the arguments of this function.
-    """
-    if not self.built:
-      self._build()
-    return self._call(features, labels, params, mode)
-
-  def _build(self):
-    """Builds stateful layers."""
-    self.examples_inputter.build()
+  def build(self, input_shape):
+    self.examples_inputter.build(input_shape)
     self.built = True
 
   @abc.abstractmethod
-  def _call(self, features, labels, params, mode):
-    """Creates the graph.
+  def call(self, features, labels, params, mode):
+    """Runs the model.
+
+    Args:
+      features: A nested structure of features ``tf.Tensor``.
+      labels: A nested structure of labels ``tf.Tensor``.
+      params: A dictionary of hyperparameters.
+      mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
       outputs: The model outputs (usually unscaled probabilities).
