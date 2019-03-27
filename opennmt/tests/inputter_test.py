@@ -7,6 +7,7 @@ import yaml
 import tensorflow as tf
 import numpy as np
 
+from parameterized import parameterized
 from tensorflow.python.framework import test_util as tf_test_util
 from tensorboard.plugins import projector
 from google.protobuf import text_format
@@ -89,6 +90,28 @@ class InputterTest(tf.test.TestCase):
         ["Just", "a", "测试"],
         [["J", "u", "s", "t"], ["a", PAD, PAD, PAD], ["测", "试", PAD, PAD]],
         [4, 1, 2])
+
+  @parameterized.expand([
+    [["a￭", "b", "c￭", "d", "￭e"], [["a￭", "b", ""], ["c￭", "d", "￭e"]]],
+    [["a", "￭", "b", "c￭", "d", "￭", "e"], [["a", "￭", "b", ""], ["c￭", "d", "￭", "e"]]],
+  ])
+  def testToWordsWithJoiner(self, tokens, expected):
+    tokens = tf.constant(tokens)
+    expected = tf.constant(expected)
+    words = text_inputter.tokens_to_words(tokens)
+    words, expected = self.evaluate([words, expected])
+    self.assertAllEqual(words, expected)
+
+  @parameterized.expand([
+    [["▁a", "b", "▁c", "d", "e"], [["▁a", "b", ""], ["▁c", "d", "e"]]],
+    [["▁", "a", "b", "▁", "c", "d", "e"], [["▁", "a", "b", ""], ["▁", "c", "d", "e"]]],
+  ])
+  def testToWordsWithSpacer(self, tokens, expected):
+    tokens = tf.constant(tokens)
+    expected = tf.constant(expected)
+    words = text_inputter.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
+    words, expected = self.evaluate([words, expected])
+    self.assertAllEqual(words, expected)
 
   def _makeTextFile(self, name, lines):
     path = os.path.join(self.get_temp_dir(), name)

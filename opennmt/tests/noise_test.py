@@ -5,33 +5,9 @@ from parameterized import parameterized
 import tensorflow as tf
 
 from opennmt.layers import noise
-from opennmt.tests import test_util
 
 
-@test_util.skip_if_unsupported("RaggedTensor")
 class NoiseTest(tf.test.TestCase):
-
-  @parameterized.expand([
-    [["a￭", "b", "c￭", "d", "￭e"], [["a￭", "b", ""], ["c￭", "d", "￭e"]]],
-    [["a", "￭", "b", "c￭", "d", "￭", "e"], [["a", "￭", "b", ""], ["c￭", "d", "￭", "e"]]],
-  ])
-  def testToWordsWithJoiner(self, tokens, expected):
-    tokens = tf.constant(tokens)
-    expected = tf.constant(expected)
-    words = noise.tokens_to_words(tokens)
-    words, expected = self.evaluate([words, expected])
-    self.assertAllEqual(words, expected)
-
-  @parameterized.expand([
-    [["▁a", "b", "▁c", "d", "e"], [["▁a", "b", ""], ["▁c", "d", "e"]]],
-    [["▁", "a", "b", "▁", "c", "d", "e"], [["▁", "a", "b", ""], ["▁", "c", "d", "e"]]],
-  ])
-  def testToWordsWithSpacer(self, tokens, expected):
-    tokens = tf.constant(tokens)
-    expected = tf.constant(expected)
-    words = noise.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
-    words, expected = self.evaluate([words, expected])
-    self.assertAllEqual(words, expected)
 
   @parameterized.expand([
     [["a", "b", "c", "e", "f"]],

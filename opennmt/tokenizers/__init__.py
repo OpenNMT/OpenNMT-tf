@@ -15,7 +15,9 @@ try:
 except ImportError:
   pass
 
-from opennmt.tokenizers.tokenizer import SpaceTokenizer, CharacterTokenizer
+from opennmt.tokenizers.tokenizer import Tokenizer
+from opennmt.tokenizers.tokenizer import SpaceTokenizer
+from opennmt.tokenizers.tokenizer import CharacterTokenizer
 
 
 def make_tokenizer(config):
