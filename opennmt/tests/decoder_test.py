@@ -6,7 +6,6 @@ import numpy as np
 
 from opennmt import decoders
 from opennmt.decoders import decoder
-from opennmt.utils import beam_search
 from opennmt.layers import bridge
 from opennmt.tests import test_util
 
@@ -261,15 +260,6 @@ class DecoderTest(tf.test.TestCase):
   def testRNMTPlusDecoder(self):
     decoder = decoders.RNMTPlusDecoder(2, 20, 4)
     self._testDecoder(decoder)
-
-  def testPenalizeToken(self):
-    log_probs = tf.zeros([4, 6])
-    token_id = 1
-    log_probs = beam_search.penalize_token(log_probs, token_id)
-    log_probs = self.evaluate(log_probs)
-    self.assertTrue(np.all(log_probs[:, token_id] < 0))
-    non_penalized = np.delete(log_probs, 1, token_id)
-    self.assertEqual(np.sum(non_penalized), 0)
 
   def testSelfAttentionDecoder(self):
     decoder = decoders.SelfAttentionDecoder(

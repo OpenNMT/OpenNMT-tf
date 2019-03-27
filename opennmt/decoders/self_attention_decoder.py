@@ -72,6 +72,10 @@ class SelfAttentionDecoder(decoder.DecoderV2):
   def maximum_sources(self):
     return 1e6  # An arbitrary large number.
 
+  @property
+  def support_alignment_history(self):
+    return self.num_sources == 1
+
   def _run(self,
            inputs,
            sequence_length=None,

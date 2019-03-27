@@ -1,6 +1,7 @@
 """Standard sequence-to-sequence model."""
 
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 from opennmt import constants
 from opennmt import inputters
@@ -8,6 +9,7 @@ from opennmt import layers
 
 from opennmt.layers import reducer
 from opennmt.models.model import Model
+from opennmt.utils import decoding
 from opennmt.utils.losses import cross_entropy_sequence_loss
 from opennmt.utils.misc import print_bytes, format_translation_output, merge_dict, shape_list
 from opennmt.decoders import decoder as decoder_util
@@ -163,35 +165,26 @@ class SequenceToSequence(Model):
 
     if mode != tf.estimator.ModeKeys.TRAIN:
       batch_size = tf.shape(tf.nest.flatten(encoder_outputs)[0])[0]
-      beam_width = params.get("beam_width", 1)
-      if beam_width > 1:
-        raise NotImplementedError("Beam search is currently not supported in V2")
-      maximum_length = params.get("maximum_iterations", 250) - 1
-      minimum_length = params.get("minimum_decoding_length", 0)
-      sample_from = params.get("sampling_topk", 1)
-      sample_temperature = params.get("sampling_temperature", 1)
       start_ids = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
-      end_id = constants.END_OF_SENTENCE_ID
-
+      beam_size = params.get("beam_width", 1)
+      if beam_size > 1:
+        encoder_outputs = tfa.seq2seq.beam_search_decoder.tile_batch(
+            encoder_outputs, beam_size)
+        encoder_sequence_length = tfa.seq2seq.beam_search_decoder.tile_batch(
+            encoder_sequence_length, beam_size)
+        if encoder_state is not None:
+          encoder_state = tfa.seq2seq.beam_search_decoder.tile_batch(
+              encoder_state, beam_size)
       initial_state = self.decoder.initial_state(
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length,
           initial_state=encoder_state)
-      sampled_ids, sampled_length, log_probs, _ = decoder_util.greedy_decode(
-          self._decode,
+      sampled_ids, sampled_length, log_probs, alignment, _ = decoding.dynamic_decode_from_params(
+          self.decoder,
+          self.labels_inputter,
           start_ids,
-          end_id,
-          state=initial_state,
-          max_decode_length=maximum_length,
-          min_decode_length=minimum_length,
-          sample_from=sample_from,
-          sample_temperature=sample_temperature)
-      # Make shape consistent with beam search.
-      sampled_ids = tf.expand_dims(sampled_ids, 1)
-      sampled_length = tf.expand_dims(sampled_length, 1)
-      log_probs = tf.expand_dims(log_probs, 1)
-      alignment = None
-
+          initial_state=initial_state,
+          params=params)
       target_tokens = self.id_to_token.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):
@@ -202,8 +195,8 @@ class SequenceToSequence(Model):
           raise TypeError("replace_unknown_target is only defined when the source "
                           "inputter is a WordEmbedder")
         source_tokens = features["tokens"]
-        if beam_width > 1:
-          source_tokens = tf.contrib.seq2seq.tile_batch(source_tokens, multiplier=beam_width)
+        if beam_size > 1:
+          source_tokens = tfa.seq2seq.beam_search_decoder.tile_batch(source_tokens, beam_size)
         # Merge batch and beam dimensions.
         original_shape = tf.shape(target_tokens)
         target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
@@ -227,12 +220,6 @@ class SequenceToSequence(Model):
       predictions = None
 
     return outputs, predictions
-
-  def _decode(self, ids, length_or_step, state=None, training=None):
-    # Decode from ids.
-    inputs = self.labels_inputter({"ids": ids}, training=training)
-    logits, state, _ = self.decoder(inputs, length_or_step, state=state, training=training)
-    return logits, state
 
   def compute_loss(self, outputs, labels, training=True, params=None):
     if params is None:
@@ -276,7 +263,7 @@ class SequenceToSequence(Model):
       raise ValueError("n_best cannot be greater than beam_width")
 
     for i in range(n_best):
-      target_length = prediction["length"][i] - 1  # Ignore </s>.
+      target_length = prediction["length"][i]
       tokens = prediction["tokens"][i][:target_length]
       sentence = self.labels_inputter.tokenizer.detokenize(tokens)
       score = None

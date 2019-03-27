@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import unittest
 
 from parameterized import parameterized
 from numbers import Number
@@ -192,7 +191,6 @@ class ModelTest(tf.test.TestCase):
         loss = sess.run(estimator_spec.loss)
         self.assertIsInstance(loss, Number)
 
-  @unittest.skip("Missing alignment history during inference")
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
     mode = tf.estimator.ModeKeys.PREDICT
     model, params = _seq2seq_model(mode)

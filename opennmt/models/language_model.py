@@ -8,6 +8,7 @@ from opennmt import layers
 from opennmt.decoders import decoder as decoder_util
 from opennmt.models.model import Model
 from opennmt.utils import data
+from opennmt.utils import decoding
 from opennmt.utils import losses
 from opennmt.utils import misc
 
@@ -85,20 +86,19 @@ class LanguageModel(Model):
             false_fn=lambda: self._decode(context_ids, context_length)[1])
 
       # Iteratively decode from the last decoder state.
-      sampled_ids, sampled_length, _, _ = decoder_util.greedy_decode(
-          self._decode,
+      sampled_ids, sampled_length, _, _, _ = decoding.dynamic_decode_from_params(
+          self.decoder,
+          self.examples_inputter,
           tf.squeeze(start_ids, 1),
-          constants.END_OF_SENTENCE_ID,
-          state=state,
-          max_decode_length=params.get("maximum_iterations", 250) - 1,
-          min_decode_length=params.get("minimum_decoding_length", 0),
-          sample_from=params.get("sampling_topk", 1),
-          sample_temperature=params.get("sampling_temperature", 1))
+          initial_state=state,
+          params=params)
+      sampled_ids = tf.reshape(sampled_ids, [batch_size, -1])
+      sampled_length = tf.reshape(sampled_length, [batch_size])
 
       # Build the full prediction.
       full_ids = tf.concat([ids, sampled_ids], 1)
       full_length = length + sampled_length
-      tokens = self.id_to_token.lookup(tf.cast(full_ids, tf.int64))
+      tokens = self.id_to_token.lookup(full_ids)
       predictions = dict(tokens=tokens, length=full_length)
 
     return outputs, predictions
@@ -121,7 +121,7 @@ class LanguageModel(Model):
         training=training)
 
   def print_prediction(self, prediction, params=None, stream=None):
-    target_length = prediction["length"] - 1  # Ignore </s>.
+    target_length = prediction["length"]
     tokens = prediction["tokens"][:target_length]
     sentence = self.examples_inputter.tokenizer.detokenize(tokens)
     sentence = misc.format_translation_output(sentence)
