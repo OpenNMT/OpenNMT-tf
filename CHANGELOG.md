@@ -14,7 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Unified dynamic decoding implementation
+* Support random sampling during beam search
+
 ### Fixes and improvements
+
+* More than 3x faster beam search decoding
 
 ## [1.21.7](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.7) (2019-03-20)
 

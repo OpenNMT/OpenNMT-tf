@@ -6,9 +6,9 @@ import numpy as np
 
 from opennmt import decoders
 from opennmt.decoders import decoder, self_attention_decoder
-from opennmt.utils import beam_search
 from opennmt.layers import bridge
 from opennmt.tests import test_util
+from opennmt.utils import decoding
 
 
 def _generate_source_context(batch_size,
@@ -280,7 +280,7 @@ class DecoderTest(tf.test.TestCase):
   def testPenalizeToken(self):
     log_probs = tf.zeros([4, 6])
     token_id = 1
-    log_probs = beam_search.penalize_token(log_probs, token_id)
+    log_probs = decoding._penalize_token(log_probs, token_id)
     log_probs = self.evaluate(log_probs)
     self.assertTrue(np.all(log_probs[:, token_id] < 0))
     non_penalized = np.delete(log_probs, 1, token_id)
