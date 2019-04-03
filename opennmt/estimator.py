@@ -185,11 +185,12 @@ def make_model_fn(model,
           num_words["source"] = tf.reduce_sum(features_length)
         if labels_length is not None:
           num_words["target"] = tf.reduce_sum(labels_length)
-        training_hooks.append(hooks.LogWordsPerSecondHook(
-            num_words,
-            step,
-            every_n_steps=config.save_summary_steps,
-            output_dir=config.model_dir))
+        if num_words:
+          training_hooks.append(hooks.LogWordsPerSecondHook(
+              num_words,
+              step,
+              every_n_steps=config.save_summary_steps,
+              output_dir=config.model_dir))
 
     elif mode == tf.estimator.ModeKeys.EVAL:
       eval_metric_ops = local_model.compute_metrics(predictions, labels)

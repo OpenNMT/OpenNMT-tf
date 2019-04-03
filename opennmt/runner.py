@@ -109,12 +109,17 @@ class Runner(object):
     train_config = self._config["train"]
     summary_steps = train_config["save_summary_steps"]
 
+    train_distribute = None
+    if self._num_devices > 1:
+      devices = misc.get_devices(num_devices=self._num_devices, session_config=self._session_config)
+      train_distribute = tf.distribute.MirroredStrategy(devices=devices)
     run_config = tf.estimator.RunConfig(
         model_dir=self._config["model_dir"],
         tf_random_seed=self._seed,
         save_summary_steps=summary_steps,
         session_config=self._session_config,
-        log_step_count_steps=params.get("gradients_accum", 1) * summary_steps)
+        log_step_count_steps=params.get("gradients_accum", 1) * summary_steps,
+        train_distribute=train_distribute)
     if "save_checkpoints_steps" in train_config or "save_checkpoints_secs" in train_config:
       run_config = run_config.replace(
           save_checkpoints_secs=train_config.get("save_checkpoints_secs"),
