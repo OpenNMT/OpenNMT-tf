@@ -17,8 +17,6 @@ class Model(tf.keras.Model):
   def __init__(self, examples_inputter):
     super(Model, self).__init__()
     self.examples_inputter = examples_inputter
-    self.features_inputter = getattr(examples_inputter, "features_inputter", examples_inputter)
-    self.labels_inputter = getattr(examples_inputter, "labels_inputter", None)
 
   @property
   def dtype(self):
@@ -29,6 +27,16 @@ class Model(tf.keras.Model):
   def unsupervised(self):
     """Unsupervised model."""
     return self.labels_inputter is None
+
+  @property
+  def features_inputter(self):
+    """The inputter producing features."""
+    return getattr(self.examples_inputter, "features_inputter", self.examples_inputter)
+
+  @property
+  def labels_inputter(self):
+    """The inputter producing labels."""
+    return getattr(self.examples_inputter, "labels_inputter", None)
 
   def auto_config(self, num_replicas=1):
     """Returns automatic configuration values specific to this model.
