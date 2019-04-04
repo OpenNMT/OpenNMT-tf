@@ -1,6 +1,7 @@
 """Optimization related functions."""
 
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 from opennmt.utils import decay
 
@@ -63,6 +64,8 @@ def make_optimizer(name, learning_rate, **kwargs):
   optimizer_class = None
   if optimizer_class is None:
     optimizer_class = getattr(tf.optimizers, name, None)
+  if optimizer_class is None:
+    optimizer_class = getattr(tfa.optimizers, name, None)
   if optimizer_class is None:
     raise ValueError("Unknown optimizer class: {}".format(name))
   optimizer = optimizer_class(learning_rate=learning_rate, **kwargs)
