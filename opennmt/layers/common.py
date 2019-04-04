@@ -36,8 +36,6 @@ class Dense(tf.keras.layers.Dense):
     return super(Dense, self).add_weight(name, *args, **kwargs)
 
   def call(self, inputs):
-    if self.weight is None:
-      return super(Dense, self).call(inputs)
     shape = shape_list(inputs)
     rank = len(shape)
     if rank > 2:

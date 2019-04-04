@@ -6,6 +6,7 @@ import six
 import tensorflow as tf
 
 from opennmt import constants
+from opennmt.layers import common
 
 
 def logits_to_cum_log_probs(logits, sequence_length):
@@ -524,7 +525,7 @@ class DecoderV2(tf.keras.layers.Layer):
     else:
       if vocab_size is None:
         raise ValueError("One of vocab_size and output_layer must be set")
-      self.output_layer = tf.keras.layers.Dense(vocab_size, name="logits")
+      self.output_layer = common.Dense(vocab_size, name="logits")
 
   def initial_state(self,
                     memory=None,
