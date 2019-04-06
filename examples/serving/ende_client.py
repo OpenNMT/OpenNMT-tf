@@ -55,9 +55,9 @@ def send_request(stub, model_name, batch_tokens, timeout=5.0):
   request = predict_pb2.PredictRequest()
   request.model_spec.name = model_name
   request.inputs["tokens"].CopyFrom(
-      tf.make_tensor_proto(batch_tokens, shape=(batch_size, max_length)))
+      tf.make_tensor_proto(batch_tokens, dtype=tf.string, shape=(batch_size, max_length)))
   request.inputs["length"].CopyFrom(
-      tf.make_tensor_proto(lengths, shape=(batch_size,)))
+      tf.make_tensor_proto(lengths, dtype=tf.int32, shape=(batch_size,)))
   return stub.Predict.future(request, timeout)
 
 def translate(stub, model_name, batch_text, tokenizer, timeout=5.0):
@@ -97,10 +97,11 @@ def main():
   stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
   tokenizer = pyonmttok.Tokenizer("none", sp_model_path=args.sentencepiece_model)
 
-  batch_input = ["Hello world!", "My name is John.", "I live on the West coast."]
-  batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
-  for input_text, output_text in zip(batch_input, batch_output):
-    print("{} ||| {}".format(input_text, output_text))
+  while True:
+    text = input("Source: ")
+    output = translate(stub, args.model_name, [text], tokenizer, timeout=args.timeout)
+    print("Target: %s" % output[0])
+    print("")
 
 
 if __name__ == "__main__":
