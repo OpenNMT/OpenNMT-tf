@@ -42,7 +42,7 @@ pip install -r requirements.txt
 **5\. Run the interactive client:**
 
 ```bash
-python ende_client.py --port 9000 --model_name ende
+python ende_client.py --port 9000 --model_name ende \
   --sentencepiece_model averaged-ende-export500k/1539080952/assets.extra/wmtende.model
 ```
 
