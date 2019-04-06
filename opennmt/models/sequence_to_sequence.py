@@ -215,51 +215,27 @@ class SequenceToSequence(Model):
       with tf.variable_scope("decoder", reuse=labels is not None):
         batch_size = tf.shape(tf.contrib.framework.nest.flatten(encoder_outputs)[0])[0]
         beam_width = params.get("beam_width", 1)
-        maximum_iterations = params.get("maximum_iterations", 250)
-        minimum_length = params.get("minimum_decoding_length", 0)
-        sample_from = params.get("sampling_topk", 1)
-        sample_temperature = params.get("sampling_temperature", 1)
         start_tokens = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
         end_token = constants.END_OF_SENTENCE_ID
-
-        if beam_width <= 1:
-          sampled_ids, _, sampled_length, log_probs, alignment = self.decoder.dynamic_decode(
-              self.labels_inputter.embedding,
-              start_tokens,
-              end_token,
-              vocab_size=target_vocab_size,
-              initial_state=encoder_state,
-              output_layer=self.output_layer,
-              maximum_iterations=maximum_iterations,
-              minimum_length=minimum_length,
-              mode=mode,
-              memory=encoder_outputs,
-              memory_sequence_length=encoder_sequence_length,
-              dtype=target_dtype,
-              return_alignment_history=True,
-              sample_from=sample_from,
-              sample_temperature=sample_temperature)
-        else:
-          length_penalty = params.get("length_penalty", 0)
-          sampled_ids, _, sampled_length, log_probs, alignment = (
-              self.decoder.dynamic_decode_and_search(
-                  self.labels_inputter.embedding,
-                  start_tokens,
-                  end_token,
-                  vocab_size=target_vocab_size,
-                  initial_state=encoder_state,
-                  output_layer=self.output_layer,
-                  beam_width=beam_width,
-                  length_penalty=length_penalty,
-                  maximum_iterations=maximum_iterations,
-                  minimum_length=minimum_length,
-                  mode=mode,
-                  memory=encoder_outputs,
-                  memory_sequence_length=encoder_sequence_length,
-                  dtype=target_dtype,
-                  return_alignment_history=True,
-                  sample_from=sample_from,
-                  sample_temperature=sample_temperature))
+        sampled_ids, _, sampled_length, log_probs, alignment = (
+            self.decoder.dynamic_decode_and_search(
+                self.labels_inputter.embedding,
+                start_tokens,
+                end_token,
+                vocab_size=target_vocab_size,
+                initial_state=encoder_state,
+                output_layer=self.output_layer,
+                beam_width=beam_width,
+                length_penalty=params.get("length_penalty", 0),
+                maximum_iterations=params.get("maximum_iterations", 250),
+                minimum_length=params.get("minimum_decoding_length", 0),
+                mode=mode,
+                memory=encoder_outputs,
+                memory_sequence_length=encoder_sequence_length,
+                dtype=target_dtype,
+                return_alignment_history=True,
+                sample_from=params.get("sampling_topk"),
+                sample_temperature=params.get("sampling_temperature")))
 
       target_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
       target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
