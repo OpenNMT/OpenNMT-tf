@@ -26,6 +26,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * More than 3x faster beam search decoding
+* Improve correctness of alignment vectors for the other hypotheses
 
 ## [1.21.7](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.7) (2019-03-20)
 
