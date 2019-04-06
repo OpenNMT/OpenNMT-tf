@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 1.21.7 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 1.22.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.21.7',
+              VERSION:'1.22.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.21
+                1.22
               </div>
             
           
@@ -189,7 +189,7 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">beam_search</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">decoding</span>
 
 
 <div class="viewcode-block" id="logits_to_cum_log_probs"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.logits_to_cum_log_probs">[docs]</a><span class="k">def</span> <span class="nf">logits_to_cum_log_probs</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
@@ -397,8 +397,8 @@
                      <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                     <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                     <span class="n">sample_temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                     <span class="n">sample_from</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">sample_temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_tokens` with greedy search.</span>
 
 <span class="sd">    Usually used for inference.</span>
@@ -468,8 +468,8 @@
                                 <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                                <span class="n">sample_temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                                <span class="n">sample_from</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">sample_temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_tokens` with beam search.</span>
 
 <span class="sd">    Usually used for inference.</span>
@@ -505,9 +505,6 @@
 <span class="sd">      ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``</span>
 <span class="sd">      if :obj:`return_alignment_history` is ``True``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">sample_from</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">beam_width</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sampling decoding is not compatible with beam search, &quot;</span>
-                       <span class="s2">&quot;set beam_width to 1 instead.&quot;</span><span class="p">)</span>
     <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">start_tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">beam_width</span>
     <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -536,68 +533,44 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vocab_size must be known when the output_layer is not set&quot;</span><span class="p">)</span>
       <span class="n">output_layer</span> <span class="o">=</span> <span class="n">build_output_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
-    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;decoder&quot;</span><span class="p">:</span> <span class="n">initial_state</span><span class="p">}</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">is_sequence</span><span class="p">(</span><span class="n">memory</span><span class="p">):</span>
-      <span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_symbols_to_logits_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-      <span class="k">if</span> <span class="n">ids</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">ids</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
       <span class="n">inputs</span> <span class="o">=</span> <span class="n">embedding_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
-      <span class="n">returned_values</span> <span class="o">=</span> <span class="n">step_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="p">)</span>
+      <span class="n">returned_values</span> <span class="o">=</span> <span class="n">step_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">:</span>
-        <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">attention</span> <span class="o">=</span> <span class="n">returned_values</span>
-        <span class="k">if</span> <span class="s2">&quot;attention&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
-          <span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="n">returned_values</span>
       <span class="k">else</span><span class="p">:</span>
-        <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">returned_values</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">returned_values</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
       <span class="n">logits</span> <span class="o">=</span> <span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">state</span>
+      <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span>
 
     <span class="k">if</span> <span class="n">beam_width</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">greedy_decode</span><span class="p">(</span>
-          <span class="n">_symbols_to_logits_fn</span><span class="p">,</span>
-          <span class="n">start_tokens</span><span class="p">,</span>
-          <span class="n">end_token</span><span class="p">,</span>
-          <span class="n">decode_length</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
-          <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-          <span class="n">return_state</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">min_decode_length</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">,</span>
-          <span class="n">last_step_as_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">,</span>
-          <span class="n">sample_temperature</span><span class="o">=</span><span class="n">sample_temperature</span><span class="p">)</span>
+      <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">GreedySearch</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">outputs</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">beam_search</span><span class="o">.</span><span class="n">beam_search</span><span class="p">(</span>
-          <span class="n">_symbols_to_logits_fn</span><span class="p">,</span>
-          <span class="n">start_tokens</span><span class="p">,</span>
-          <span class="n">beam_width</span><span class="p">,</span>
-          <span class="n">maximum_iterations</span><span class="p">,</span>
-          <span class="n">vocab_size</span><span class="p">,</span>
-          <span class="n">length_penalty</span><span class="p">,</span>
-          <span class="n">states</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-          <span class="n">eos_id</span><span class="o">=</span><span class="n">end_token</span><span class="p">,</span>
-          <span class="n">return_states</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">tile_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">min_decode_length</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">)</span>
-      <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-      <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-      <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Ignore &lt;/s&gt;</span>
-      <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Ignore &lt;s&gt;.</span>
+      <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">BeamSearch</span><span class="p">(</span><span class="n">beam_width</span><span class="p">,</span> <span class="n">length_penalty</span><span class="o">=</span><span class="n">length_penalty</span><span class="p">)</span>
 
-    <span class="n">attention</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attention&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">beam_width</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="c1"># Make shape consistent with beam search.</span>
-      <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-      <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-      <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Ignore attention for &lt;s&gt;.</span>
+    <span class="k">if</span> <span class="n">sample_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sample_from</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">sampler</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">RandomSampler</span><span class="p">(</span>
+          <span class="n">from_top_k</span><span class="o">=</span><span class="n">sample_from</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">sample_temperature</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">sampler</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">BestSampler</span><span class="p">()</span>
 
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
+        <span class="n">_symbols_to_logits_fn</span><span class="p">,</span>
+        <span class="n">start_tokens</span><span class="p">,</span>
+        <span class="n">end_id</span><span class="o">=</span><span class="n">end_token</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">decoding_strategy</span><span class="o">=</span><span class="n">decoding_strategy</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
+        <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
+        <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">,</span>
+        <span class="n">attention_history</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)))</span>
+
+    <span class="c1"># For backward compatibility, include &lt;/s&gt; in length.</span>
+    <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">lengths</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">outputs</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">return_alignment_history</span><span class="p">:</span>
-      <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">attention</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">],</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">)</span></div>
+      <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">attention</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Decoder.decode_from_inputs"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.decode_from_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">decode_from_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                          <span class="n">inputs</span><span class="p">,</span>
@@ -861,116 +834,6 @@
     <span class="k">if</span> <span class="n">num_memory</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expected </span><span class="si">%d</span><span class="s2"> source contexts, but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">,</span> <span class="n">num_memory</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="greedy_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.greedy_decode">[docs]</a><span class="k">def</span> <span class="nf">greedy_decode</span><span class="p">(</span><span class="n">symbols_to_logits_fn</span><span class="p">,</span>
-                  <span class="n">initial_ids</span><span class="p">,</span>
-                  <span class="n">end_id</span><span class="p">,</span>
-                  <span class="n">decode_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">return_state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">min_decode_length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                  <span class="n">last_step_as_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">sample_from</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                  <span class="n">sample_temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Greedily decodes from :obj:`initial_ids`.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    symbols_to_logits_fn: Interface to the model, to provide logits.</span>
-<span class="sd">        Shoud take [batch_size, decoded_ids] and return [batch_size, vocab_size].</span>
-<span class="sd">    initial_ids: Ids to start off the decoding, this will be the first thing</span>
-<span class="sd">        handed to symbols_to_logits_fn.</span>
-<span class="sd">    eos_id: ID for end of sentence.</span>
-<span class="sd">    decode_length: Maximum number of steps to decode for (EOS included).</span>
-<span class="sd">    states: A dictionnary of (possibly nested) decoding states.</span>
-<span class="sd">    return_state: If ``True``, also return the updated decoding states.</span>
-<span class="sd">    min_decode_length: Minimum length of decoded hypotheses (EOS excluded).</span>
-<span class="sd">    last_step_as_input: If ``True``, only feed the last predicted ids into</span>
-<span class="sd">      :obj:`symbols_to_logits_fn`.</span>
-<span class="sd">    sample_from: Sample from the :obj:`sample_from` most likely tokens. If 0,</span>
-<span class="sd">      sample from the full output distribution.</span>
-<span class="sd">    sample_temperature: Value dividing logits. In random sampling, a high value</span>
-<span class="sd">      generates more random samples.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    A tuple with the decoded output, the decoded lengths, the log probabilities,</span>
-<span class="sd">    and the decoding states (if :obj:`return_state` is ``True``).</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">initial_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">batch_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">initial_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
-
-  <span class="k">def</span> <span class="nf">_condition</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">unused_inputs</span><span class="p">,</span> <span class="n">unused_outputs</span><span class="p">,</span>
-                 <span class="n">unused_lengths</span><span class="p">,</span> <span class="n">unused_cum_log_probs</span><span class="p">,</span> <span class="n">unused_state</span><span class="p">):</span>
-    <span class="n">cond</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span><span class="n">finished</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">decode_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">cond</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="n">decode_length</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">cond</span>
-
-  <span class="k">def</span> <span class="nf">_body</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-    <span class="c1"># Run next step.</span>
-    <span class="n">logits</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">symbols_to_logits_fn</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
-    <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">sample_temperature</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="n">logits</span> <span class="o">/=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sample_temperature</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">min_decode_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
-          <span class="n">step</span> <span class="o">&lt;</span> <span class="n">min_decode_length</span><span class="p">,</span>
-          <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">beam_search</span><span class="o">.</span><span class="n">penalize_token</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">),</span>
-          <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">log_probs</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">sample_from</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Sample best prediction.</span>
-      <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">sample_from</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Sample from the full output distribution.</span>
-      <span class="n">distribution</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_probs</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-      <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Sample from the top K.</span>
-      <span class="n">topk_log_probs</span><span class="p">,</span> <span class="n">topk_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">sample_from</span><span class="p">)</span>
-      <span class="n">topk_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">topk_ids</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-      <span class="n">distribution</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">logits</span><span class="o">=</span><span class="n">topk_log_probs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-      <span class="n">topk_sampled_ids</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
-      <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">topk_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_ids</span><span class="p">,</span> <span class="n">topk_sampled_ids</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-
-    <span class="n">sampled_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_ids</span><span class="p">,</span> <span class="n">sampled_ids</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">sampled_ids</span><span class="p">)</span>
-
-    <span class="c1"># Don&#39;t update finished batches.</span>
-    <span class="n">lengths</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">lengths</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="n">cum_log_probs</span> <span class="o">+=</span> <span class="n">sampled_log_probs</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">sampled_log_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
-    <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="n">end_id</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">last_step_as_input</span><span class="p">:</span>
-      <span class="n">next_inputs</span> <span class="o">=</span> <span class="n">sampled_ids</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">next_inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">next_inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">state</span>
-
-  <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-  <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
-  <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">initial_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-  <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-  <span class="n">cum_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">last_step_as_input</span><span class="p">:</span>
-    <span class="n">initial_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">initial_ids</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-  <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span>
-      <span class="n">_condition</span><span class="p">,</span>
-      <span class="n">_body</span><span class="p">,</span>
-      <span class="n">loop_vars</span><span class="o">=</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">initial_ids</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
-      <span class="n">shape_invariants</span><span class="o">=</span><span class="p">(</span>
-          <span class="n">step</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span>
-          <span class="n">finished</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([</span><span class="kc">None</span><span class="p">]</span> <span class="k">if</span> <span class="n">last_step_as_input</span> <span class="k">else</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]),</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
-          <span class="n">lengths</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span>
-          <span class="n">cum_log_probs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
-              <span class="n">beam_search</span><span class="o">.</span><span class="n">get_state_shape_invariants</span><span class="p">,</span> <span class="n">state</span><span class="p">)),</span>
-      <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-  <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">stack</span><span class="p">())</span>
-  <span class="k">if</span> <span class="n">return_state</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">state</span>
-  <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">cum_log_probs</span></div>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.21.7 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.22.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.21.7',
+              VERSION:'1.22.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.21
+                1.22
               </div>
             
           
@@ -399,51 +399,27 @@
       <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;decoder&quot;</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">encoder_outputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">beam_width</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beam_width&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">maximum_iterations</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_iterations&quot;</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
-        <span class="n">minimum_length</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_decoding_length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">sample_from</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_topk&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">sample_temperature</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_temperature&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">start_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">constants</span><span class="o">.</span><span class="n">START_OF_SENTENCE_ID</span><span class="p">)</span>
         <span class="n">end_token</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span>
-
-        <span class="k">if</span> <span class="n">beam_width</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
-          <span class="n">sampled_ids</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">sampled_length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">alignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
-              <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
-              <span class="n">start_tokens</span><span class="p">,</span>
-              <span class="n">end_token</span><span class="p">,</span>
-              <span class="n">vocab_size</span><span class="o">=</span><span class="n">target_vocab_size</span><span class="p">,</span>
-              <span class="n">initial_state</span><span class="o">=</span><span class="n">encoder_state</span><span class="p">,</span>
-              <span class="n">output_layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">,</span>
-              <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
-              <span class="n">minimum_length</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">,</span>
-              <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-              <span class="n">memory</span><span class="o">=</span><span class="n">encoder_outputs</span><span class="p">,</span>
-              <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">encoder_sequence_length</span><span class="p">,</span>
-              <span class="n">dtype</span><span class="o">=</span><span class="n">target_dtype</span><span class="p">,</span>
-              <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-              <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">,</span>
-              <span class="n">sample_temperature</span><span class="o">=</span><span class="n">sample_temperature</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">length_penalty</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-          <span class="n">sampled_ids</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">sampled_length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">alignment</span> <span class="o">=</span> <span class="p">(</span>
-              <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">dynamic_decode_and_search</span><span class="p">(</span>
-                  <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
-                  <span class="n">start_tokens</span><span class="p">,</span>
-                  <span class="n">end_token</span><span class="p">,</span>
-                  <span class="n">vocab_size</span><span class="o">=</span><span class="n">target_vocab_size</span><span class="p">,</span>
-                  <span class="n">initial_state</span><span class="o">=</span><span class="n">encoder_state</span><span class="p">,</span>
-                  <span class="n">output_layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">,</span>
-                  <span class="n">beam_width</span><span class="o">=</span><span class="n">beam_width</span><span class="p">,</span>
-                  <span class="n">length_penalty</span><span class="o">=</span><span class="n">length_penalty</span><span class="p">,</span>
-                  <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
-                  <span class="n">minimum_length</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">,</span>
-                  <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-                  <span class="n">memory</span><span class="o">=</span><span class="n">encoder_outputs</span><span class="p">,</span>
-                  <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">encoder_sequence_length</span><span class="p">,</span>
-                  <span class="n">dtype</span><span class="o">=</span><span class="n">target_dtype</span><span class="p">,</span>
-                  <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                  <span class="n">sample_from</span><span class="o">=</span><span class="n">sample_from</span><span class="p">,</span>
-                  <span class="n">sample_temperature</span><span class="o">=</span><span class="n">sample_temperature</span><span class="p">))</span>
+        <span class="n">sampled_ids</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">sampled_length</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">alignment</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">dynamic_decode_and_search</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
+                <span class="n">start_tokens</span><span class="p">,</span>
+                <span class="n">end_token</span><span class="p">,</span>
+                <span class="n">vocab_size</span><span class="o">=</span><span class="n">target_vocab_size</span><span class="p">,</span>
+                <span class="n">initial_state</span><span class="o">=</span><span class="n">encoder_state</span><span class="p">,</span>
+                <span class="n">output_layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">,</span>
+                <span class="n">beam_width</span><span class="o">=</span><span class="n">beam_width</span><span class="p">,</span>
+                <span class="n">length_penalty</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_iterations&quot;</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span>
+                <span class="n">minimum_length</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_decoding_length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+                <span class="n">memory</span><span class="o">=</span><span class="n">encoder_outputs</span><span class="p">,</span>
+                <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">encoder_sequence_length</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">target_dtype</span><span class="p">,</span>
+                <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">sample_from</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_topk&quot;</span><span class="p">),</span>
+                <span class="n">sample_temperature</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_temperature&quot;</span><span class="p">)))</span>
 
       <span class="n">target_vocab_rev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_lookup_reverse</span><span class="p">()</span>
       <span class="n">target_tokens</span> <span class="o">=</span> <span class="n">target_vocab_rev</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>

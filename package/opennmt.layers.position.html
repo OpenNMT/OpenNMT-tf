@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.position module &mdash; OpenNMT-tf 1.21.7 documentation</title>
+  <title>opennmt.layers.position module &mdash; OpenNMT-tf 1.22.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.21.7',
+              VERSION:'1.22.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.21
+                1.22
               </div>
             
           
@@ -370,7 +370,21 @@ position encodings.</li>
 <dl class="method">
 <dt id="opennmt.layers.position.PositionEmbedder.build">
 <code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEmbedder.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.position.PositionEmbedder.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the variables of the layer.</p>
+<dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
+<p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
+can override if they need a state-creation step in-between
+layer instantiation and layer call.</p>
+<p>This is typically used to create the weights of <cite>Layer</cite> subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_shape</strong> – Instance of <cite>TensorShape</cite>, or list of instances of
+<cite>TensorShape</cite> if the layer expects a list of inputs
+(one instance per input).</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">

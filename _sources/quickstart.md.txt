@@ -76,5 +76,5 @@ To go further, here are some pointers:
 * Download larger training sets, for example from a [WMT task](http://www.statmt.org/wmt16/translation-task.html)
 * Train a bigger model, like the [`Transformer`](https://arxiv.org/abs/1706.03762)
 * Run existing [training recipes](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts)
-* Discover the [configuration reference](configuration_reference.html) to tune hyperparameters
+* Discover the [configuration reference](configuration.html) to tune hyperparameters
 * Explore the other sections to learn about advanced topics
