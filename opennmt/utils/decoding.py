@@ -259,6 +259,10 @@ def dynamic_decode(symbols_to_logits_fn,
     attention_history: The attention history of shape :math:`[B, H, T_t, T_s]`.
     state: The final decoding state.
   """
+  if "maximum_iterations" not in misc.function_args(tf.while_loop):
+    raise NotImplementedError("Unified decoding does not support TensorFlow 1.4. "
+                              "Please update your TensorFlow installation or open "
+                              "an issue for assistance.")
   if decoding_strategy is None:
     decoding_strategy = GreedySearch()
   if sampler is None:
