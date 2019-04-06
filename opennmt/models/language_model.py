@@ -8,6 +8,7 @@ from opennmt import layers
 from opennmt.decoders import decoder as decoder_util
 from opennmt.models.model import Model
 from opennmt.utils import data
+from opennmt.utils import decoding
 from opennmt.utils import losses
 from opennmt.utils import misc
 
@@ -86,24 +87,30 @@ class LanguageModel(Model):
             false_fn=lambda: self._decode(context_ids, context_length)[1],
             name=self.name + "/")  # Force the name scope.
 
+      sampling_topk = params.get("sampling_topk")
+      if sampling_topk is not None and sampling_topk != 1:
+        sampler = decoding.RandomSampler(
+            from_top_k=sampling_topk, temperature=params.get("sampling_temperature"))
+      else:
+        sampler = decoding.BestSampler()
+
       # Iteratively decode from the last decoder state.
       with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-        sampled_ids, sampled_length, _ = decoder_util.greedy_decode(
+        sampled_ids, sampled_length, _, _, _ = decoding.dynamic_decode(
             self._decode,
             tf.squeeze(start_ids, 1),
-            constants.END_OF_SENTENCE_ID,
-            decode_length=params.get("maximum_iterations", 250),
-            state=state,
-            min_decode_length=params.get("minimum_decoding_length", 0),
-            last_step_as_input=True,
-            sample_from=params.get("sampling_topk", 1),
-            sample_temperature=params.get("sampling_temperature", 1))
+            initial_state=state,
+            sampler=sampler,
+            maximum_iterations=params.get("maximum_iterations", 250),
+            minimum_iterations=params.get("minimum_decoding_length", 0))
+        sampled_ids = tf.squeeze(sampled_ids, 1)
+        sampled_length = tf.squeeze(sampled_length, 1)
 
       # Build the full prediction.
       full_ids = tf.concat([ids, sampled_ids], 1)
       full_length = length + sampled_length
       vocab_rev = self.examples_inputter.vocabulary_lookup_reverse()
-      tokens = vocab_rev.lookup(tf.cast(full_ids, tf.int64))
+      tokens = vocab_rev.lookup(full_ids)
       predictions = dict(tokens=tokens, length=full_length)
 
     return outputs, predictions

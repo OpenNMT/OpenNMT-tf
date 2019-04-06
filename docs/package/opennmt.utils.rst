@@ -12,12 +12,12 @@ Submodules
 .. toctree::
 
    opennmt.utils.adafactor
-   opennmt.utils.beam_search
    opennmt.utils.cell
    opennmt.utils.checkpoint
    opennmt.utils.compat
    opennmt.utils.data
    opennmt.utils.decay
+   opennmt.utils.decoding
    opennmt.utils.evaluator
    opennmt.utils.hooks
    opennmt.utils.losses
