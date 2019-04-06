@@ -407,11 +407,11 @@ def _lengths_from_ids(ids, end_id):
   lengths = tf.reduce_sum(lengths, axis=-1)
   return lengths
 
-def _gather_tree_from_array(t, parent_ids, sequence_length):
+def _gather_tree_from_array(array, parent_ids, sequence_length):
   """Calculates the full beams for `TensorArray`s.
 
   Args:
-    t: A stacked `TensorArray` of size `max_time` that contains `Tensor`s of
+    array: A stacked `TensorArray` of size `max_time` that contains `Tensor`s of
       shape `[batch_size, beam_width, s]` or `[batch_size * beam_width, s]`
       where `s` is the depth shape.
     parent_ids: The parent ids of shape `[max_time, batch_size, beam_width]`.
@@ -419,7 +419,7 @@ def _gather_tree_from_array(t, parent_ids, sequence_length):
 
   Returns:
     A `Tensor` which is a stacked `TensorArray` of the same size and type as
-    `t` and where beams are sorted in each `Tensor` according to
+    `array` and where beams are sorted in each `Tensor` according to
     `parent_ids`.
   """
   max_time = parent_ids.shape.dims[0].value or tf.shape(parent_ids)[0]
@@ -454,9 +454,8 @@ def _gather_tree_from_array(t, parent_ids, sequence_length):
   indices = tf.stack([time_ind, batch_ind, sorted_beam_ids], -1)
 
   # Gather from a tensor with collapsed additional dimensions.
-  gather_from = t
-  final_shape = tf.shape(gather_from)
-  gather_from = tf.reshape(gather_from, [max_time, batch_size, beam_width, -1])
-  ordered = tf.gather_nd(gather_from, indices)
+  final_shape = tf.shape(array)
+  array = tf.reshape(array, [max_time, batch_size, beam_width, -1])
+  ordered = tf.gather_nd(array, indices)
   ordered = tf.reshape(ordered, final_shape)
   return ordered
