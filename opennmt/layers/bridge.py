@@ -57,8 +57,10 @@ class CopyBridge(Bridge):
   """A bridge that passes the encoder state as is."""
 
   def call(self, states):
-    assert_state_is_compatible(states[0], states[1])
-    return states[0]
+    encoder_state, decoder_state = states
+    assert_state_is_compatible(encoder_state, decoder_state)
+    flat_encoder_state = tf.nest.flatten(encoder_state)
+    return tf.nest.pack_sequence_as(decoder_state, flat_encoder_state)
 
 
 class ZeroBridge(Bridge):
