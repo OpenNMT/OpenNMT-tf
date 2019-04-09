@@ -10,12 +10,6 @@ from opennmt.layers.common import LayerNorm
 from opennmt.layers.common import LayerWrapper
 from opennmt.layers.common import dropout
 
-from opennmt.layers.noise import Noise
-from opennmt.layers.noise import WordDropout
-from opennmt.layers.noise import WordNoiser
-from opennmt.layers.noise import WordPermutation
-from opennmt.layers.noise import WordReplacement
-
 from opennmt.layers.position import PositionEmbedder
 from opennmt.layers.position import PositionEncoder
 from opennmt.layers.position import SinusoidalPositionEncoder

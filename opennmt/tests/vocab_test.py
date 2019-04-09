@@ -4,7 +4,7 @@ import os
 
 import tensorflow as tf
 
-from opennmt.utils import Vocab
+from opennmt.data.vocab import Vocab
 from opennmt.tests import test_util
 
 

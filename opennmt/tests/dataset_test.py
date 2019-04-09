@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from opennmt.utils import data
+from opennmt.data import dataset as dataset_util
 
 
 class DataTest(tf.test.TestCase):
@@ -14,7 +14,7 @@ class DataTest(tf.test.TestCase):
     dataset = tf.data.Dataset.range(batch_size * 2 - 1)
     dataset = dataset.map(lambda x: {"x": x, "y": x + 1})
     dataset = dataset.batch(batch_size)
-    dataset = dataset.apply(data.filter_irregular_batches(batch_size))
+    dataset = dataset.apply(dataset_util.filter_irregular_batches(batch_size))
     iterator = self._iterDataset(dataset)
     single_element = next(iterator)
     self.assertEqual(batch_size, single_element["x"].shape[0])
@@ -26,7 +26,7 @@ class DataTest(tf.test.TestCase):
     shard_size = 3
 
     dataset = tf.data.Dataset.range(dataset_size)
-    dataset = dataset.apply(data.random_shard(shard_size, dataset_size))
+    dataset = dataset.apply(dataset_util.random_shard(shard_size, dataset_size))
     gather = list(self._iterDataset(dataset))
     self.assertAllEqual(list(range(dataset_size)), sorted(gather))
 
@@ -39,7 +39,7 @@ class DataTest(tf.test.TestCase):
     dataset = tf.data.Dataset.zip((
         tf.data.Dataset.from_tensors(tf.constant(features_length)),
         tf.data.Dataset.from_tensors(tf.constant(labels_length))))
-    dataset = dataset.apply(data.filter_examples_by_length(
+    dataset = dataset.apply(dataset_util.filter_examples_by_length(
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length,
         features_length_fn=lambda _: features_length,
@@ -87,7 +87,7 @@ class DataTest(tf.test.TestCase):
     dataset = tf.data.Dataset.zip((
         tf.data.Dataset.from_tensor_slices(features),
         tf.data.Dataset.from_tensor_slices(labels)))
-    dataset = dataset.apply(data.batch_parallel_dataset(
+    dataset = dataset.apply(dataset_util.batch_parallel_dataset(
         batch_size,
         features_length_fn=lambda x: x,
         labels_length_fn=lambda x: x,
@@ -140,7 +140,7 @@ class DataTest(tf.test.TestCase):
   def testReorderInferDataset(self):
     dataset = tf.data.Dataset.from_tensor_slices([8, 2, 5, 6, 7, 1, 3, 9])
     dataset = dataset.map(lambda x: {"length": x})
-    dataset = dataset.apply(data.inference_pipeline(
+    dataset = dataset.apply(dataset_util.inference_pipeline(
         3, bucket_width=3, length_fn=lambda x: x["length"]))
     elements = list(self._iterDataset(dataset))
 

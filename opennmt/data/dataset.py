@@ -1,4 +1,4 @@
-"""Functions for reading data."""
+"""Dataset creation and transformations."""
 
 import numpy as np
 import tensorflow as tf

@@ -19,5 +19,3 @@ from opennmt.inputters.text_inputter import CharRNNEmbedder
 from opennmt.inputters.text_inputter import TextInputter
 from opennmt.inputters.text_inputter import WordEmbedder
 from opennmt.inputters.text_inputter import load_pretrained_embeddings
-from opennmt.inputters.text_inputter import tokens_to_chars
-from opennmt.inputters.text_inputter import tokens_to_words

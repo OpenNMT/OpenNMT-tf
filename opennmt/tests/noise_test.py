@@ -4,7 +4,7 @@ from parameterized import parameterized
 
 import tensorflow as tf
 
-from opennmt.layers import noise
+from opennmt.data import noise
 
 
 class NoiseTest(tf.test.TestCase):

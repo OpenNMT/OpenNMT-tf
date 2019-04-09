@@ -5,9 +5,9 @@ import tensorflow as tf
 from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
+from opennmt.data import dataset as dataset_util
 from opennmt.decoders import decoder as decoder_util
 from opennmt.models.model import Model
-from opennmt.utils import data
 from opennmt.utils import decoding
 from opennmt.utils import losses
 from opennmt.utils import misc
@@ -153,7 +153,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
     """See :meth:`opennmt.inputters.inputter.ExampleInputter.make_evaluation_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=False)
-    dataset = dataset.apply(data.inference_pipeline(
+    dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         process_fn=lambda x: self._generate_example(x, training=False),
         num_threads=num_threads,
@@ -179,7 +179,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
     """See :meth:`opennmt.inputters.inputter.ExampleInputter.make_training_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=True)
-    dataset = dataset.apply(data.training_pipeline(
+    dataset = dataset.apply(dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,

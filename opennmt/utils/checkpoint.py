@@ -6,7 +6,7 @@ import six
 import tensorflow as tf
 import numpy as np
 
-from opennmt.utils.vocab import Vocab
+from opennmt.data.vocab import Vocab
 from opennmt.utils.misc import count_lines
 
 

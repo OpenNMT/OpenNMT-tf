@@ -5,8 +5,8 @@ import time
 import tensorflow as tf
 import numpy as np
 
+from opennmt.data.vocab import Vocab
 from opennmt.utils import checkpoint
-from opennmt.utils.vocab import Vocab
 from opennmt.tests import test_util
 
 

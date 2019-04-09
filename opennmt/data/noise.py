@@ -8,7 +8,7 @@ import six
 import tensorflow as tf
 
 from opennmt import constants
-from opennmt.inputters import text_inputter
+from opennmt.data import text
 
 
 class WordNoiser(object):
@@ -56,7 +56,7 @@ class WordNoiser(object):
         tokens = tokens[:sequence_length]
       else:
         tokens = tokens[:tf.math.count_nonzero(tokens)]
-      words = text_inputter.tokens_to_words(
+      words = text.tokens_to_words(
           tokens,
           subword_token=self.subword_token,
           is_spacer=self.is_spacer)

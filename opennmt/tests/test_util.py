@@ -1,7 +1,8 @@
 import unittest
 
 from opennmt import constants
-from opennmt.utils import compat, vocab
+from opennmt.data import vocab
+from opennmt.utils import compat
 
 
 def run_tf1_only(func):

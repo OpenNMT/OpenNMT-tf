@@ -5,9 +5,9 @@ import six
 
 import tensorflow as tf
 
+from opennmt.data import dataset as dataset_util
 from opennmt.layers import common
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
-from opennmt.utils.data import inference_pipeline, training_pipeline
 from opennmt.utils.misc import item_or_tuple
 
 
@@ -89,7 +89,7 @@ class Inputter(tf.keras.layers.Layer):
     """
     map_func = lambda *arg: self.make_features(item_or_tuple(arg), training=False)
     dataset = self.make_dataset(features_file, training=False)
-    dataset = dataset.apply(inference_pipeline(
+    dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         process_fn=map_func,
         bucket_width=bucket_width,
@@ -436,7 +436,7 @@ class ExampleInputter(ParallelInputter):
     """
     map_func = lambda *arg: self.make_features(arg, training=False)
     dataset = self.make_dataset([features_file, labels_file], training=False)
-    dataset = dataset.apply(inference_pipeline(
+    dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         process_fn=map_func,
         num_threads=num_threads,
@@ -499,7 +499,7 @@ class ExampleInputter(ParallelInputter):
     """
     map_func = lambda *arg: self.make_features(arg, training=True)
     dataset = self.make_dataset([features_file, labels_file], training=True)
-    dataset = dataset.apply(training_pipeline(
+    dataset = dataset.apply(dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,

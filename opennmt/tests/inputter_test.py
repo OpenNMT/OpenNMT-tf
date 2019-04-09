@@ -7,16 +7,14 @@ import yaml
 import tensorflow as tf
 import numpy as np
 
-from parameterized import parameterized
 from tensorflow.python.framework import test_util as tf_test_util
 from tensorboard.plugins import projector
 from google.protobuf import text_format
 
 from opennmt import tokenizers
-from opennmt.constants import PADDING_TOKEN as PAD
+from opennmt.data import dataset as dataset_util
 from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
-from opennmt.utils import data
 from opennmt.utils.misc import item_or_tuple, count_lines
 
 
@@ -71,47 +69,6 @@ class InputterTest(tf.test.TestCase):
     self.assertEqual(2, len(projector_config.embeddings))
     self.assertEqual(src_embedding.name, projector_config.embeddings[0].tensor_name)
     self.assertEqual("src_emb.txt", projector_config.embeddings[0].metadata_path)
-
-  def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
-    expected_chars = tf.nest.map_structure(tf.compat.as_bytes, expected_chars)
-    chars, lengths = text_inputter.tokens_to_chars(tf.constant(tokens, dtype=tf.string))
-    chars, lengths = self.evaluate([chars, lengths])
-    self.assertListEqual(expected_chars, chars.tolist())
-    self.assertListEqual(expected_lengths, lengths.tolist())
-
-  def testTokensToCharsEmpty(self):
-    self._testTokensToChars([], [], [])
-
-  def testTokensToCharsSingle(self):
-    self._testTokensToChars(["Hello"], [["H", "e", "l", "l", "o"]], [5])
-
-  def testTokensToCharsMixed(self):
-    self._testTokensToChars(
-        ["Just", "a", "测试"],
-        [["J", "u", "s", "t"], ["a", PAD, PAD, PAD], ["测", "试", PAD, PAD]],
-        [4, 1, 2])
-
-  @parameterized.expand([
-    [["a￭", "b", "c￭", "d", "￭e"], [["a￭", "b", ""], ["c￭", "d", "￭e"]]],
-    [["a", "￭", "b", "c￭", "d", "￭", "e"], [["a", "￭", "b", ""], ["c￭", "d", "￭", "e"]]],
-  ])
-  def testToWordsWithJoiner(self, tokens, expected):
-    tokens = tf.constant(tokens)
-    expected = tf.constant(expected)
-    words = text_inputter.tokens_to_words(tokens)
-    words, expected = self.evaluate([words, expected])
-    self.assertAllEqual(words, expected)
-
-  @parameterized.expand([
-    [["▁a", "b", "▁c", "d", "e"], [["▁a", "b", ""], ["▁c", "d", "e"]]],
-    [["▁", "a", "b", "▁", "c", "d", "e"], [["▁", "a", "b", ""], ["▁", "c", "d", "e"]]],
-  ])
-  def testToWordsWithSpacer(self, tokens, expected):
-    tokens = tf.constant(tokens)
-    expected = tf.constant(expected)
-    words = text_inputter.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
-    words, expected = self.evaluate([words, expected])
-    self.assertAllEqual(words, expected)
 
   def _makeTextFile(self, name, lines):
     path = os.path.join(self.get_temp_dir(), name)
@@ -179,7 +136,7 @@ class InputterTest(tf.test.TestCase):
       inputter.initialize(data_config)
     dataset = inputter.make_dataset(data_file)
     dataset = dataset.map(lambda *arg: inputter.make_features(item_or_tuple(arg)))
-    dataset = dataset.apply(data.batch_dataset(1))
+    dataset = dataset.apply(dataset_util.batch_dataset(1))
     features = iter(dataset).next()
     if shapes is not None:
       self._checkFeatures(features, shapes)
