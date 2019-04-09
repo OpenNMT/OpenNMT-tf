@@ -3,24 +3,24 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from opennmt.utils import decay
+from opennmt.optimizers import lr_schedules
 
 
 def make_learning_rate_schedule(initial_learning_rate,
-                                decay_type,
-                                decay_params=None,
-                                decay_step_duration=1,
-                                start_decay_step=0,
+                                schedule_type,
+                                schedule_params=None,
+                                schedule_step_duration=1,
+                                start_step=0,
                                 minimum_learning_rate=0):
   """Creates the learning rate schedule.
 
   Args:
     initial_learning_rate: The initial learning rate value or scale.
-    decay_type: The type of decay. A function from ``tf.optimizers.schedules``
-      or :mod:`opennmt.utils.decay` as a string.
-    decay_params: Additional parameters for the decay function.
-    decay_step_duration: The number of training steps that make 1 decay step.
-    start_decay_step: Start decay after this many steps.
+    schedule_type: The type of decay. A function from ``tf.optimizers.schedules``
+      or :mod:`opennmt.optimizers.lr_schedules` as a string.
+    schedule_params: Additional parameters for the decay function.
+    schedule_step_duration: The number of training steps that make 1 decay step.
+    start_step: Start the schedule after this many steps.
     minimum_learning_rate: Do not decay past this learning rate value.
 
   Returns:
@@ -31,19 +31,19 @@ def make_learning_rate_schedule(initial_learning_rate,
   """
   schedule_name = None
   if schedule_name is None:
-    schedule_name = getattr(tf.optimizers.schedules, decay_type, None)
+    schedule_name = getattr(tf.optimizers.schedules, schedule_type, None)
   if schedule_name is None:
-    schedule_name = getattr(decay, decay_type, None)
+    schedule_name = getattr(lr_schedules, schedule_type, None)
   if schedule_name is None:
-    raise ValueError("Unknown decay function: {}".format(decay_type))
+    raise ValueError("Unknown learning rate schedule: {}".format(schedule_type))
 
-  if decay_params is None:
-    decay_params = {}
-  schedule = schedule_name(initial_learning_rate, **decay_params)
-  schedule = decay.ScheduleWrapper(
+  if schedule_params is None:
+    schedule_params = {}
+  schedule = schedule_name(initial_learning_rate, **schedule_params)
+  schedule = lr_schedules.ScheduleWrapper(
       schedule,
-      step_start=start_decay_step,
-      step_duration=decay_step_duration,
+      step_start=start_step,
+      step_duration=schedule_step_duration,
       minimum_learning_rate=minimum_learning_rate)
   return schedule
 

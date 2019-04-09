@@ -8,3 +8,9 @@ if not is_tf2():
       as get_adafactor_optimizer_from_params
 
   from opennmt.optimizers.mixed_precision_wrapper import MixedPrecisionOptimizerWrapper
+
+from opennmt.optimizers.lr_schedules import CosineAnnealing
+from opennmt.optimizers.lr_schedules import NoamDecay
+from opennmt.optimizers.lr_schedules import RNMTPlusDecay
+from opennmt.optimizers.lr_schedules import RsqrtDecay
+from opennmt.optimizers.lr_schedules import ScheduleWrapper
