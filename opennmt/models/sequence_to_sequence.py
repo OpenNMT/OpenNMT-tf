@@ -147,8 +147,6 @@ class SequenceToSequence(Model):
             read_probability=params.get("scheduled_sampling_read_probability"),
             schedule_type=params.get("scheduled_sampling_type"),
             k=params.get("scheduled_sampling_k"))
-        if sampling_probability is not None:
-          raise NotImplementedError("Scheduled sampling is currently not supported in V2")
 
       initial_state = self.decoder.initial_state(
           memory=encoder_outputs,
@@ -158,6 +156,8 @@ class SequenceToSequence(Model):
           target_inputs,
           self.labels_inputter.get_length(labels),
           state=initial_state,
+          input_fn=lambda ids: self.labels_inputter({"ids": ids}, training=training),
+          sampling_probability=sampling_probability,
           training=training)
       outputs = dict(logits=logits, attention=attention)
     else:

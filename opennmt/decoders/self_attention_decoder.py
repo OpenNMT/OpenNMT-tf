@@ -130,14 +130,21 @@ class SelfAttentionDecoder(decoder.DecoderV2):
               initial_state=None,
               memory=None,
               memory_sequence_length=None,
+              input_fn=None,
+              sampling_probability=None,
               training=None):
     _ = initial_state
-    return self._run(
+    _ = input_fn
+    if sampling_probability is not None:
+      raise ValueError("Scheduled sampling is not supported by this decoder")
+    outputs, state, attention = self._run(
         inputs,
         sequence_length=sequence_length,
         memory=memory,
         memory_sequence_length=memory_sequence_length,
         training=training)
+    logits = self.output_layer(outputs)
+    return logits, state, attention
 
   def step(self,
            inputs,

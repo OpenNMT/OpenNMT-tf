@@ -576,6 +576,8 @@ class DecoderV2(tf.keras.layers.Layer):
            inputs,
            length_or_step=None,
            state=None,
+           input_fn=None,
+           sampling_probability=None,
            training=None):
     """Runs the decoder layer on either a complete sequence (e.g. for training
     or scoring), or a single timestep (e.g. for iterative decoding).
@@ -586,6 +588,9 @@ class DecoderV2(tf.keras.layers.Layer):
       length_or_step: For 3D :obj:`inputs`, the length of each sequence. For 2D
         :obj:`inputs`, the current decoding timestep.
       state: The decoder state.
+      input_fn: A callable taking sampled ids and returning the decoding inputs.
+      sampling_probability: When :obj:`inputs` is the full sequence, the
+        probability to read from the last sample instead of the true target.
       training: Run in training mode.
 
     Returns:
@@ -608,19 +613,21 @@ class DecoderV2(tf.keras.layers.Layer):
           memory=self.memory,
           memory_sequence_length=self.memory_sequence_length,
           training=training)
+      logits = self.output_layer(outputs)
     elif rank == 3:
       if length_or_step.shape.ndims != 1:
         raise ValueError("length_or_step should contain the length of each sequence")
-      outputs, state, attention = self.forward(
+      logits, state, attention = self.forward(
           inputs,
           sequence_length=length_or_step,
           initial_state=state,
           memory=self.memory,
           memory_sequence_length=self.memory_sequence_length,
+          input_fn=input_fn,
+          sampling_probability=sampling_probability,
           training=training)
     else:
       raise ValueError("Unsupported input rank %d" % rank)
-    logits = self.output_layer(outputs)
     return logits, state, attention
 
   def forward(self,
@@ -629,6 +636,8 @@ class DecoderV2(tf.keras.layers.Layer):
               initial_state=None,
               memory=None,
               memory_sequence_length=None,
+              input_fn=None,
+              sampling_probability=None,
               training=None):
     """Runs the decoder on full sequences.
 
@@ -638,14 +647,77 @@ class DecoderV2(tf.keras.layers.Layer):
       initial_state: The initial decoder state.
       memory: Memory values to query.
       memory_sequence_length: Memory values length.
+      input_fn: A callable taking sampled ids and returning the decoding inputs.
+      sampling_probability: The probability to read from the last sample instead
+        of the true target.
       training: Run in training mode.
 
     Returns:
-      A tuple with the decoder outputs, the decoder state, and the attention
+      A tuple with the logits, the decoder state, and the attention
       vector.
     """
-    # TODO: implement this using step().
-    raise NotImplementedError()
+    _ = sequence_length
+    fused_projection = True
+    if sampling_probability is not None:
+      if input_fn is None:
+        raise ValueError("input_fn is required when a sampling probability is set")
+      if not tf.is_tensor(sampling_probability) and sampling_probability == 0:
+        sampling_probability = None
+      else:
+        fused_projection = False
+
+    batch_size, max_step, _ = misc.shape_list(inputs)
+    inputs_ta = tf.TensorArray(inputs.dtype, size=max_step)
+    inputs_ta = inputs_ta.unstack(tf.transpose(inputs, perm=[1, 0, 2]))
+
+    def _maybe_sample(true_inputs, logits):
+      # Read from samples with a probability.
+      draw = tf.random.uniform([batch_size])
+      read_sample = tf.less(draw, sampling_probability)
+      sampled_ids = tf.random.categorical(logits, 1)
+      sampled_inputs = input_fn(tf.squeeze(sampled_ids, 1))
+      inputs = tf.where(read_sample, x=sampled_inputs, y=true_inputs)
+      return inputs
+
+    def _body(step, state, inputs, outputs_ta, attention_ta):
+      outputs, state, attention = self.step(
+          inputs,
+          step,
+          state=state,
+          memory=memory,
+          memory_sequence_length=memory_sequence_length,
+          training=training)
+      next_inputs = tf.cond(
+          step + 1 < max_step,
+          true_fn=lambda: inputs_ta.read(step + 1),
+          false_fn=lambda: tf.zeros_like(inputs))
+      if not fused_projection:
+        outputs = self.output_layer(outputs)
+      if sampling_probability is not None:
+        next_inputs = _maybe_sample(next_inputs, outputs)
+      outputs_ta = outputs_ta.write(step, outputs)
+      if attention is not None:
+        attention_ta = attention_ta.write(step, attention)
+      return step + 1, state, next_inputs, outputs_ta, attention_ta
+
+    step = tf.constant(0, dtype=tf.int32)
+    outputs_ta = tf.TensorArray(inputs.dtype, size=max_step)
+    attention_ta = tf.TensorArray(tf.float32, size=max_step)
+
+    _, state, _, outputs_ta, attention_ta = tf.while_loop(
+        lambda *arg: True,
+        _body,
+        loop_vars=(step, initial_state, inputs_ta.read(0), outputs_ta, attention_ta),
+        parallel_iterations=32,
+        swap_memory=True,
+        maximum_iterations=max_step)
+
+    outputs = tf.transpose(outputs_ta.stack(), perm=[1, 0, 2])
+    logits = self.output_layer(outputs) if fused_projection else outputs
+    attention = None
+    if self.support_alignment_history:
+      attention = tf.transpose(attention_ta.stack(), perm=[1, 0, 2])
+    return logits, state, attention
 
   @abc.abstractmethod
   def step(self,
@@ -668,6 +740,20 @@ class DecoderV2(tf.keras.layers.Layer):
     Returns:
       A tuple with the decoder outputs, the decoder state, and the attention
       vector.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def _get_initial_state(self, batch_size, dtype, initial_state=None):
+    """Returns the decoder initial state.
+
+    Args:
+      batch_size: The batch size of the returned state.
+      dtype; The data type of the state.
+      initial_state: A state to start from.
+
+    Returns:
+      The decoder state as a nested structure of tensors.
     """
     raise NotImplementedError()
 
