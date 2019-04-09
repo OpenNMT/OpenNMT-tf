@@ -427,9 +427,7 @@ def _sample_from(logits, num_samples, temperature=None):
   """Sample N values from the unscaled probability distribution."""
   if temperature is not None:
     logits /= tf.cast(temperature, logits.dtype)
-  distribution = tf.compat.v1.distributions.Categorical(logits=logits)  # TODO: use tfp library.
-  samples = distribution.sample([num_samples])
-  return tf.transpose(samples)
+  return tf.random.categorical(logits, num_samples, dtype=tf.int32)
 
 def _gather_from_word_indices(tensor, indices):
   """Index the depth dim of a 2D tensor."""
