@@ -41,7 +41,7 @@ class LogWordsPerSecondHook(tf.estimator.SessionRunHook):
     self._last_count = [None for _ in counters]
 
   def _create_variable(self, name, dtype=tf.int64):
-    return tf.Variable(
+    return misc.create_local_variable(
         initial_value=0,
         trainable=False,
         name="%s_words_counter" % name,

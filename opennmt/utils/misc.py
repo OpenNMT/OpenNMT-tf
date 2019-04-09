@@ -51,6 +51,13 @@ def print_bytes(str_as_bytes, stream=None):
   write_buffer.write(b"\n")
   stream.flush()
 
+def create_local_variable(**kwargs):
+  """Create a new variable but remove it from the implicit global collection."""
+  variable = tf.Variable(**kwargs)
+  collection = tf.compat.v1.get_collection_ref(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES)
+  collection.remove(variable)
+  return variable
+
 def format_translation_output(sentence,
                               score=None,
                               token_level_scores=None,
