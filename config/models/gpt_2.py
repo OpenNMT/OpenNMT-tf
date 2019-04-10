@@ -36,7 +36,6 @@ class GPT2Small(onmt.models.LanguageModel):
         "params": {
             "average_loss_in_time": True,
             "optimizer": "AdamOptimizer",
-            "weight_decay": 0.01,
             "learning_rate": 2.5e-4,
             "decay_type": "cosine_annealing",
             "decay_params": {
