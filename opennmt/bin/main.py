@@ -7,8 +7,6 @@ import six
 
 import tensorflow as tf
 
-from google.protobuf import text_format
-
 from opennmt import __version__
 from opennmt.models import catalog
 from opennmt.runner import Runner
@@ -76,9 +74,6 @@ def main():
   parser.add_argument("--inter_op_parallelism_threads", type=int, default=0,
                       help=("Number of inter op threads (0 means the system picks "
                             "an appropriate number)."))
-  parser.add_argument("--session_config", default=None,
-                      help=("Path to a file containing a tf.ConfigProto message in text format "
-                            "and used to create the TensorFlow sessions."))
 
   subparsers = parser.add_subparsers(help="Run type.", dest="run")
   parser_train = subparsers.add_parser("train", help="Training.")
@@ -131,6 +126,11 @@ def main():
   args = parser.parse_args()
 
   tf.compat.v1.logging.set_verbosity(getattr(tf.compat.v1.logging, args.log_level))
+  tf.config.threading.set_intra_op_parallelism_threads(args.intra_op_parallelism_threads)
+  tf.config.threading.set_inter_op_parallelism_threads(args.inter_op_parallelism_threads)
+  if args.gpu_allow_growth:
+    for device in tf.config.experimental.list_physical_devices(device_type="GPU"):
+      tf.config.experimental.set_memory_growth(device, enable=True)
 
   # Setup cluster if defined.
   if args.run == "train_and_eval" and args.chief_host:
@@ -165,20 +165,11 @@ def main():
       model_file=args.model,
       model_name=args.model_type,
       serialize_model=is_chief)
-  session_config = tf.compat.v1.ConfigProto(
-      intra_op_parallelism_threads=args.intra_op_parallelism_threads,
-      inter_op_parallelism_threads=args.inter_op_parallelism_threads,
-      gpu_options=tf.compat.v1.GPUOptions(
-          allow_growth=args.gpu_allow_growth))
-  if args.session_config is not None:
-    with open(args.session_config, "rb") as session_config_file:
-      text_format.Merge(session_config_file.read(), session_config)
   runner = Runner(
       model,
       config,
       seed=args.seed,
       num_devices=args.num_gpus,
-      session_config=session_config,
       auto_config=args.auto_config)
 
   if args.run == "train_and_eval":

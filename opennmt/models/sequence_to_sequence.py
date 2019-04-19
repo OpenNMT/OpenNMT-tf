@@ -146,12 +146,12 @@ class SequenceToSequence(Model):
     if labels is not None:
       target_inputs = self.labels_inputter(labels, training=training)
       sampling_probability = None
-      if mode == tf.estimator.ModeKeys.TRAIN:
-        sampling_probability = decoder_util.get_sampling_probability(
-            tf.compat.v1.train.get_or_create_global_step(),
-            read_probability=params.get("scheduled_sampling_read_probability"),
-            schedule_type=params.get("scheduled_sampling_type"),
-            k=params.get("scheduled_sampling_k"))
+      # if mode == tf.estimator.ModeKeys.TRAIN:
+      #   sampling_probability = decoder_util.get_sampling_probability(
+      #       tf.compat.v1.train.get_or_create_global_step(),
+      #       read_probability=params.get("scheduled_sampling_read_probability"),
+      #       schedule_type=params.get("scheduled_sampling_type"),
+      #       k=params.get("scheduled_sampling_k"))
 
       initial_state = self.decoder.initial_state(
           memory=encoder_outputs,

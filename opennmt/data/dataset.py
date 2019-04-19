@@ -15,6 +15,20 @@ def _get_output_shapes(dataset):
   """
   return tf.compat.v1.data.get_output_shapes(dataset)
 
+def input_signature_from_dataset(dataset):
+  """Returns a nested structure of ``tf.TensorSpec``.
+
+  Args:
+    dataset: A ``tf.data.Dataset``.
+
+  Returns:
+    A nested structure of ``tf.TensorSpec``.
+  """
+  return tf.nest.map_structure(
+      lambda shape, dtype: tf.TensorSpec(shape, dtype=dtype),
+      tf.compat.v1.data.get_output_shapes(dataset),
+      tf.compat.v1.data.get_output_types(dataset))
+
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
 

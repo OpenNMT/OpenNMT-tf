@@ -185,12 +185,8 @@ train:
   # (default: null).
   effective_batch_size: 25000
 
-  # (optional) Save a checkpoint every this many steps (default: null). Can not be
-  # specified with save_checkpoints_secs.
+  # (optional) Save a checkpoint every this many steps (default: 5000).
   save_checkpoints_steps: null
-  # (optional) Save a checkpoint every this many seconds (default: 600). Can not be
-  # specified with save_checkpoints_steps.
-  save_checkpoints_secs: 600
   # (optional) How many checkpoints to keep on disk.
   keep_checkpoint_max: 3
 

@@ -9,6 +9,8 @@ import math
 import subprocess
 import json
 import yaml
+import time
+import six
 
 import numpy as np
 import tensorflow as tf
@@ -17,6 +19,7 @@ from google.protobuf import text_format
 
 from opennmt import estimator as estimator_util
 from opennmt import models
+from opennmt.data import dataset as dataset_util
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils import evaluator
 from opennmt.utils.misc import format_translation_output, OrderRestorer
@@ -55,7 +58,6 @@ class Runner(object):
                config,
                seed=None,
                num_devices=1,
-               session_config=None,
                auto_config=False):
     """Initializes the runner parameters.
 
@@ -64,7 +66,6 @@ class Runner(object):
       config: The run configuration.
       seed: The random seed to set.
       num_devices: The number of devices (GPUs) to use for training.
-      session_config: ``tf.compat.v1.ConfigProto`` overrides.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
 
@@ -86,18 +87,13 @@ class Runner(object):
       misc.merge_dict(self._config, model_config)
     misc.merge_dict(self._config, config)
     self._model.initialize(self._config["data"])
-    tf.compat.v1.logging.info(
+    tf.get_logger().info(
         "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
 
-    session_config_base = tf.compat.v1.ConfigProto(
-        allow_soft_placement=True,
-        log_device_placement=False)
-    if session_config is not None:
-      session_config_base.MergeFrom(session_config)
-    self._session_config = session_config_base
-
-    np.random.seed(seed)
-    random.seed(seed)
+    if seed is not None:
+      np.random.seed(seed)
+      random.seed(seed)
+      tf.random.set_seed(seed)
 
   def _make_estimator(self):
     params = self._config["params"]
@@ -274,16 +270,105 @@ class Runner(object):
     Returns:
       The path to the final model directory.
     """
+    self._finalize_training_parameters()
+    params = self._config["params"]
+    data_config = self._config["data"]
+    train_config = self._config["train"]
+
+    dataset = self._model.examples_inputter.make_training_dataset(
+        data_config["train_features_file"],
+        data_config.get("train_labels_file"),
+        train_config["batch_size"],
+        batch_type=train_config["batch_type"],
+        shuffle_buffer_size=train_config["sample_buffer_size"],
+        bucket_width=train_config["bucket_width"],
+        maximum_features_length=train_config.get("maximum_features_length"),
+        maximum_labels_length=train_config.get("maximum_labels_length"),
+        single_pass=train_config.get("single_pass", False),
+        num_threads=train_config.get("num_threads", 4),
+        prefetch_buffer_size=train_config.get("prefetch_buffer_size"))
+
+    optimizer = self._model.get_optimizer(params=params)
+    gradients = []
+
+    @tf.function(input_signature=dataset_util.input_signature_from_dataset(dataset))
+    def _step(source, target):
+      outputs, _ = self._model(source, target, params, tf.estimator.ModeKeys.TRAIN)
+      loss = self._model.compute_loss(outputs, target, training=True, params=params)
+      loss = loss[0] / loss[1]
+      variables = self._model.trainable_variables
+      step_gradients = optimizer.get_gradients(loss, variables)
+      if not gradients:
+        for step_gradient in step_gradients:
+          gradients.append(tf.Variable(tf.zeros_like(step_gradient), trainable=False))
+      for gradient, step_gradient in zip(gradients, step_gradients):
+        gradient.assign_add(step_gradient)
+
+      num_words = {}
+      if "length" in source:
+        num_words["source"] = tf.reduce_sum(source["length"])
+      if "length" in target:
+        num_words["target"] = tf.reduce_sum(target["length"])
+      return loss, num_words
+
+    @tf.function
+    def _apply_gradients():
+      variables = self._model.trainable_variables
+      optimizer.apply_gradients(zip(gradients, variables))
+      for gradient in gradients:
+        gradient.assign(tf.zeros_like(gradient))
+
+    train_steps = train_config.get("train_steps")
+    output_dir = self._config["model_dir"]
+    save_checkpoints_steps = train_config.get("save_checkpoints_steps", 5000)
+    checkpoint = tf.train.Checkpoint(model=self._model, optimizer=optimizer)
+    checkpoint_manager = tf.train.CheckpointManager(
+        checkpoint,
+        output_dir,
+        train_config["keep_checkpoint_max"])
     if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    self._finalize_training_parameters()
-    train_spec = self._build_train_spec(checkpoint_path)
-    estimator = self._make_estimator()
-    estimator.train(
-        train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
-    output_dir = self._maybe_average_checkpoints(estimator)
-    if output_dir is None:
-      output_dir = estimator.model_dir
+    elif checkpoint_path is None and checkpoint_manager.latest_checkpoint is not None:
+      checkpoint_path = checkpoint_manager.latest_checkpoint
+    if checkpoint_path is not None:
+      checkpoint.restore(checkpoint_path)
+      tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
+      if train_steps is not None and optimizer.iterations.numpy() >= train_steps:
+        tf.get_logger().warn("Model already reached train_steps = %d. Exiting.", train_steps)
+        return output_dir
+
+    accum_num_words = {}
+    last_report_time = time.time()
+    report_every = train_config.get("save_summary_steps", 100)
+    accum_count = params.get("gradients_accum", 1)
+
+    for i, (source, target) in enumerate(dataset):
+      loss, num_words = _step(source, target)
+      if i == 0 or (i + 1) % accum_count == 0:
+        _apply_gradients()
+
+      for key, value in six.iteritems(num_words):
+        value = value.numpy()
+        if key not in accum_num_words:
+          accum_num_words[key] = value
+        else:
+          accum_num_words[key] += value
+
+      step = optimizer.iterations.numpy()
+      if step % report_every == 0:
+        last_report_time = _report_training_status(
+            step,
+            loss,
+            optimizer.learning_rate,
+            accum_num_words,
+            last_report_time)
+      if step % save_checkpoints_steps == 0 or step == train_steps:
+        path = checkpoint_manager.save(checkpoint_number=step)
+        tf.get_logger().info("Saved checkpoint %s", path)
+      if step == train_steps:
+        break
+
+    # TODO: auto averaging.
     return output_dir
 
   def evaluate(self, checkpoint_path=None):
@@ -353,45 +438,64 @@ class Runner(object):
       log_time: If ``True``, several time metrics will be printed in the logs at
         the end of the inference loop.
     """
-    if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    params = self._config["params"]
+    infer_config = self._config["infer"]
+    dataset = self._model.examples_inputter.make_inference_dataset(
+        features_file,
+        infer_config["batch_size"],
+        bucket_width=infer_config["bucket_width"],
+        num_threads=infer_config.get("num_threads", 1),
+        prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
-    input_fn = estimator_util.make_input_fn(
-        self._model,
-        tf.estimator.ModeKeys.PREDICT,
-        self._config["infer"]["batch_size"],
-        features_file=features_file,
-        bucket_width=self._config["infer"]["bucket_width"],
-        num_threads=self._config["infer"].get("num_threads"),
-        prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"))
+    @tf.function(input_signature=(dataset_util.input_signature_from_dataset(dataset),))
+    def _infer(source):
+      _, predictions = self._model(source, None, params, tf.estimator.ModeKeys.PREDICT)
+      return predictions
+
+    _restore_checkpoint(self._model, self._config["model_dir"], checkpoint_path=checkpoint_path)
 
     if predictions_file:
       stream = io.open(predictions_file, encoding="utf-8", mode="w")
     else:
       stream = sys.stdout
 
-    infer_hooks = []
-    if log_time:
-      infer_hooks.append(hooks.LogPredictionTimeHook())
-
     ordered_writer = None
     write_fn = lambda prediction: (
-        self._model.print_prediction(prediction, params=self._config["infer"], stream=stream))
+        self._model.print_prediction(prediction, params=infer_config, stream=stream))
 
-    estimator = self._make_estimator()
-    for prediction in estimator.predict(
-        input_fn=input_fn,
-        checkpoint_path=checkpoint_path,
-        hooks=infer_hooks):
-      # If the index is part of the prediction, they may be out of order.
-      if "index" in prediction:
-        if ordered_writer is None:
-          ordered_writer = OrderRestorer(
-              index_fn=lambda prediction: prediction["index"], callback_fn=write_fn)
-        ordered_writer.push(prediction)
-      else:
-        write_fn(prediction)
+    total_time = 0
+    total_tokens = 0
+    total_examples = 0
 
+    for source in dataset:
+      start_time = time.time()
+      predictions = _infer(source)
+      end_time = time.time()
+      predictions = {k:v.numpy() for k, v in six.iteritems(predictions)}
+      if log_time:
+        total_time += end_time - start_time
+        batch_size = next(six.itervalues(predictions)).shape[0]
+        total_examples += batch_size
+        length = predictions.get("length")
+        if length is not None:
+          if len(length.shape) == 2:
+            length = length[:, 0]
+          total_tokens += sum(length)
+      for prediction in misc.extract_batches(predictions):
+        if "index" in prediction:
+          if ordered_writer is None:
+            ordered_writer = OrderRestorer(
+                index_fn=lambda prediction: prediction["index"], callback_fn=write_fn)
+          ordered_writer.push(prediction)
+        else:
+          write_fn(prediction)
+
+    if log_time:
+      tf.get_logger().info("Total prediction time (s): %f", total_time)
+      tf.get_logger().info(
+          "Average prediction time (s): %f", total_time / total_examples)
+      if total_tokens > 0:
+        tf.get_logger().info("Tokens per second: %f", total_tokens / total_time)
     if predictions_file:
       stream.close()
 
@@ -634,3 +738,31 @@ def _auto_tune_batch_size(config,
   if session_config_path is not None:
     os.remove(session_config_path)
   return min_batch_size
+
+def _report_training_status(step, loss, learning_rate, accum_num_words, last_report_time):
+  new_report_time = time.time()
+  words_per_sec_fmt = []
+  for key, value in six.iteritems(accum_num_words):
+    avg = value / (new_report_time - last_report_time)
+    accum_num_words[key] = 0
+    fmt = "%s words/s = %d" % (key, int(avg))
+    words_per_sec_fmt.append(fmt)
+  if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
+    learning_rate = learning_rate(step)
+  tf.get_logger().info(
+      "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
+      step,
+      ", ".join(words_per_sec_fmt),
+      learning_rate,
+      loss)
+  return new_report_time
+
+def _restore_checkpoint(model, model_dir, checkpoint_path=None):
+  checkpoint = tf.train.Checkpoint(model=model)
+  if checkpoint_path is None:
+    checkpoint_path = model_dir
+  if tf.io.gfile.isdir(checkpoint_path):
+    checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+  checkpoint.restore(checkpoint_path)
+  tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
+  return checkpoint_path
