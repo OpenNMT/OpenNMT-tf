@@ -302,6 +302,12 @@ class MultiInputter(Inputter):
         inputters.append(inputter)
     return inputters
 
+  def __getattribute__(self, name):
+    if name == "built":
+      return all(inputter.built for inputter in self.inputters)
+    else:
+      return super(MultiInputter, self).__getattribute__(name)
+
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     for i, inputter in enumerate(self.inputters):
       inputter.initialize(metadata, asset_prefix="%s%d_" % (asset_prefix, i + 1))
