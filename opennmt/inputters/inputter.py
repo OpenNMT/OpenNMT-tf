@@ -447,6 +447,15 @@ class ParallelInputter(MultiInputter):
       # all attributes with parameters to the other inputters.
       leaves = self.get_leaf_inputters()
       first, others = leaves[0], leaves[1:]
+      # When the first leaf is also PrallelInputter and sharing parameters,
+      # build the first leaf inputter of it and then set all attributes with
+      # parameters to the other inputters.
+      if isinstance(first, ParallelInputter):
+        if first.share_parameters:
+          first.built = True
+          first_leaves = first.get_leaf_inputters()
+          others.append(first_leaves[1:])
+          first = first_leaves[0]
       with compat.tf_compat(v1="variable_scope")(self._get_shared_name()):
         first.build(input_shape)
       for name, attr in six.iteritems(first.__dict__):
