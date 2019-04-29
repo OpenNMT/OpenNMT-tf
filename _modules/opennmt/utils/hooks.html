@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.hooks &mdash; OpenNMT-tf 1.22.0 documentation</title>
+  <title>opennmt.utils.hooks &mdash; OpenNMT-tf 1.22.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.22.0',
+              VERSION:'1.22.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -455,36 +455,28 @@
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">checkpoint_path</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assign_pairs</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="LoadWeightsFromCheckpointHook.begin"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.begin">[docs]</a>  <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">var_list</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">list_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_path</span><span class="p">)</span>
-
-    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">list_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_path</span><span class="p">):</span>
       <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;optim&quot;</span><span class="p">)</span>
           <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;global_step&quot;</span><span class="p">)</span>
           <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;words_per_sec&quot;</span><span class="p">)):</span>
-        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">reader</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_path</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="n">tf_vars</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">current_scope</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span>
-    <span class="n">reuse</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">AUTO_REUSE</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span> <span class="s2">&quot;AUTO_REUSE&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">True</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">current_scope</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="n">reuse</span><span class="p">):</span>
-      <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
-        <span class="n">tf_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">as_dtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">)))</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">placeholders</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tf_vars</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">assign_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tf_vars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">placeholders</span><span class="p">)]</span></div>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+      <span class="n">name</span> <span class="o">=</span> <span class="n">variable</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">name</span>
+      <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assign_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">variable</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="LoadWeightsFromCheckpointHook.after_create_session"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session">[docs]</a>  <span class="k">def</span> <span class="nf">after_create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">coord</span>
-    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">placeholders</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">assign_ops</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">itervalues</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)):</span>
-      <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span></div></div>
+    <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">assign_pairs</span><span class="p">:</span>
+      <span class="n">variable</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="VariablesInitializerHook"><a class="viewcode-back" href="../../../package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook">[docs]</a><span class="k">class</span> <span class="nc">VariablesInitializerHook</span><span class="p">(</span><span class="n">_SESSION_RUN_HOOK</span><span class="p">):</span>

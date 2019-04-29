@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 1.22.0 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 1.22.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.22.0',
+              VERSION:'1.22.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -485,6 +485,12 @@
       <span class="k">else</span><span class="p">:</span>
         <span class="n">inputters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputter</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">inputters</span></div>
+
+  <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;built&quot;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">built</span> <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
