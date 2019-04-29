@@ -271,36 +271,28 @@ class LoadWeightsFromCheckpointHook(_SESSION_RUN_HOOK):
 
   def __init__(self, checkpoint_path):
     self.checkpoint_path = checkpoint_path
+    self.assign_pairs = []
 
   def begin(self):
-    var_list = tf.train.list_variables(self.checkpoint_path)
-
-    names = []
-    for name, _ in var_list:
+    names = set()
+    for name, _ in tf.train.list_variables(self.checkpoint_path):
       if (not name.startswith("optim")
           and not name.startswith("global_step")
           and not name.startswith("words_per_sec")):
-        names.append(name)
+        names.add(name)
 
-    self.values = {}
     reader = tf.train.load_checkpoint(self.checkpoint_path)
-    for name in names:
-      self.values[name] = reader.get_tensor(name)
-
-    tf_vars = []
-    current_scope = tf.get_variable_scope()
-    reuse = tf.AUTO_REUSE if hasattr(tf, "AUTO_REUSE") else True
-    with tf.variable_scope(current_scope, reuse=reuse):
-      for name, value in six.iteritems(self.values):
-        tf_vars.append(tf.get_variable(name, shape=value.shape, dtype=tf.as_dtype(value.dtype)))
-
-    self.placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
-    self.assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, self.placeholders)]
+    variables = tf.trainable_variables()
+    for variable in variables:
+      name = variable.op.name
+      if name in names:
+        value = reader.get_tensor(name)
+        self.assign_pairs.append((variable, value))
 
   def after_create_session(self, session, coord):
     _ = coord
-    for p, op, value in zip(self.placeholders, self.assign_ops, six.itervalues(self.values)):
-      session.run(op, {p: value})
+    for variable, value in self.assign_pairs:
+      variable.load(value, session=session)
 
 
 class VariablesInitializerHook(_SESSION_RUN_HOOK):
