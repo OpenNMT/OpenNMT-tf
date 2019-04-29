@@ -16,6 +16,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+* Fix usage of `--checkpoint_path` during training
+
 ## [1.22.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.22.0) (2019-04-06)
 
 ### New features
