@@ -168,13 +168,10 @@ class SequenceToSequence(Model):
       start_ids = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
       beam_size = params.get("beam_width", 1)
       if beam_size > 1:
-        encoder_outputs = tfa.seq2seq.beam_search_decoder.tile_batch(
-            encoder_outputs, beam_size)
-        encoder_sequence_length = tfa.seq2seq.beam_search_decoder.tile_batch(
-            encoder_sequence_length, beam_size)
+        encoder_outputs = tfa.seq2seq.tile_batch(encoder_outputs, beam_size)
+        encoder_sequence_length = tfa.seq2seq.tile_batch(encoder_sequence_length, beam_size)
         if encoder_state is not None:
-          encoder_state = tfa.seq2seq.beam_search_decoder.tile_batch(
-              encoder_state, beam_size)
+          encoder_state = tfa.seq2seq.tile_batch(encoder_state, beam_size)
       initial_state = self.decoder.initial_state(
           memory=encoder_outputs,
           memory_sequence_length=encoder_sequence_length,
@@ -196,7 +193,7 @@ class SequenceToSequence(Model):
                           "inputter is a WordEmbedder")
         source_tokens = features["tokens"]
         if beam_size > 1:
-          source_tokens = tfa.seq2seq.beam_search_decoder.tile_batch(source_tokens, beam_size)
+          source_tokens = tfa.seq2seq.tile_batch(source_tokens, beam_size)
         # Merge batch and beam dimensions.
         original_shape = tf.shape(target_tokens)
         target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])

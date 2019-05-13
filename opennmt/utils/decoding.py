@@ -166,7 +166,7 @@ class BeamSearch(DecodingStrategy):
     return self.beam_size
 
   def initialize(self, batch_size, start_ids):
-    start_ids = tfa.seq2seq.beam_search_decoder.tile_batch(start_ids, self.beam_size)
+    start_ids = tfa.seq2seq.tile_batch(start_ids, self.beam_size)
     finished = tf.zeros([batch_size * self.beam_size], dtype=tf.bool)
     # Give all probability to first beam for the first iteration.
     initial_log_probs = tf.tile([0.] + [-float("inf")] * (self.beam_size - 1), [batch_size])
@@ -214,12 +214,11 @@ class BeamSearch(DecodingStrategy):
     array_shape = [max_time, -1, self.beam_size]
     step_ids = tf.reshape(outputs.stack(), array_shape)
     parent_ids = tf.reshape(parent_ids.stack(), array_shape)
-    ids = tfa.seq2seq.beam_search_decoder.gather_tree(
-        step_ids, parent_ids, maximum_lengths, end_id)
+    ids = tfa.seq2seq.gather_tree(step_ids, parent_ids, maximum_lengths, end_id)
     ids = tf.transpose(ids, perm=[1, 2, 0])
     lengths = _lengths_from_ids(ids, end_id)
     if attention is not None:
-      attention = tfa.seq2seq.beam_search_decoder.gather_tree_from_array(
+      attention = tfa.seq2seq.gather_tree_from_array(
           attention.stack(), parent_ids, lengths)
       attention = tf.transpose(attention, perm=[1, 0, 2])
       attention = tf.reshape(
