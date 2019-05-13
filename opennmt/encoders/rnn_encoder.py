@@ -1,6 +1,7 @@
 """Define RNN-based encoders."""
 
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 from opennmt.encoders.encoder import Encoder, SequentialEncoder
 from opennmt.layers.reducer import ConcatReducer, JoinReducer, pad_in_time
@@ -87,7 +88,7 @@ class RNMTPlusEncoder(SequentialEncoder):
   def __init__(self,
                num_layers=6,
                num_units=1024,
-               cell_class=None,  # TODO: defaults to a layer normalized LSTM cell.
+               cell_class=None,
                dropout=0.3):
     """Initializes the parameters of the encoder.
 
@@ -98,6 +99,8 @@ class RNMTPlusEncoder(SequentialEncoder):
         argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
     """
+    if cell_class is None:
+      cell_class = tfa.rnn.LayerNormLSTMCell
     layers = [
         RNNEncoder(
             1,
