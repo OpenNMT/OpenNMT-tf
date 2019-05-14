@@ -44,7 +44,7 @@ class Tokenizer(object):
       if configuration_file_or_key is not None and compat.gfile_exists(configuration_file_or_key):
         configuration_file = configuration_file_or_key
         with compat.gfile_open(configuration_file, mode="rb") as conf_file:
-          self._config = yaml.load(conf_file)
+          self._config = yaml.load(conf_file, Loader=yaml.UnsafeLoader)
       else:
         self._configuration_key = configuration_file_or_key
 
@@ -67,7 +67,7 @@ class Tokenizer(object):
         self._config = configuration
       else:
         with compat.gfile_open(configuration, mode="rb") as conf_file:
-          self._config = yaml.load(conf_file)
+          self._config = yaml.load(conf_file, Loader=yaml.UnsafeLoader)
     if asset_dir is not None:
       return self.export_assets(asset_dir, asset_prefix=asset_prefix)
     return {}
