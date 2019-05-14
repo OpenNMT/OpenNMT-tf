@@ -592,7 +592,7 @@ def _auto_tune_batch_size(config,
                           min_range=256,
                           sample_iterations=5,
                           num_devices=1,
-                          gpu_memory_fraction=0.9):
+                          gpu_memory_fraction=0.8):
   """Find the largest token-based batch size that can be used with this
   configuration.
 
