@@ -255,7 +255,7 @@ class TextInputter(Inputter):
       if tokenizer_config:
         if isinstance(tokenizer_config, six.string_types) and compat.gfile_exists(tokenizer_config):
           with compat.gfile_open(tokenizer_config, mode="rb") as config_file:
-            tokenizer_config = yaml.load(config_file)
+            tokenizer_config = yaml.load(config_file, Loader=yaml.UnsafeLoader)
         self.tokenizer = tokenizers.OpenNMTTokenizer(params=tokenizer_config)
       else:
         self.tokenizer = tokenizers.SpaceTokenizer()
