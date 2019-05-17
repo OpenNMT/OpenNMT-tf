@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>Embeddings &mdash; OpenNMT-tf 1.22.2 documentation</title>
   
 
   
@@ -48,8 +48,8 @@
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Model" href="model.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+    <link rel="next" title="Training" href="training.html" />
+    <link rel="prev" title="Tokenization" href="tokenization.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -101,21 +101,21 @@
             
             
               <p class="caption"><span class="caption-text">Getting started</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#via-pip-recommended">Via pip (recommended)</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Configuration</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Embeddings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pretrained">Pretrained</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sharing">Sharing</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -172,7 +172,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Installation</li>
+      <li>Embeddings</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -189,27 +189,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf requires:</p>
-<ul class="simple">
-<li>Python (&gt;= 2.7)</li>
-<li>TensorFlow (&gt;= 1.4, &lt; 2.0)</li>
-</ul>
-<p>Some features added after the initial release may require newer TensorFlow versions. Please consult the changelog to know about new features availability.</p>
-</div>
-<div class="section" id="via-pip-recommended">
-<h2>Via pip (recommended)<a class="headerlink" href="#via-pip-recommended" title="Permalink to this headline">¶</a></h2>
-<p>Each tagged version of the project is automatically pushed to <a class="reference external" href="https://pypi.org/project/OpenNMT-tf/">PyPi</a>. We recommend installing this package via <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install OpenNMT-tf
+  <div class="section" id="embeddings">
+<h1>Embeddings<a class="headerlink" href="#embeddings" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pretrained">
+<h2>Pretrained<a class="headerlink" href="#pretrained" title="Permalink to this headline">¶</a></h2>
+<p>Pretrained embeddings can be configured in the <code class="docutils literal notranslate"><span class="pre">data</span></code> section of the YAML configuration, e.g.:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">source_embedding</span><span class="p">:</span>
+    <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/glove/glove-100000.txt</span>
+    <span class="nt">with_header</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+    <span class="nt">case_insensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+    <span class="nt">trainable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+
+  <span class="c1"># target_embedding: ...</span>
 </pre></div>
 </div>
-<p>To confirm that the package is correctly installed, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main -h
-</pre></div>
+<p>The format of the embedding file and the options are described in the <a class="reference external" href="http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.load_pretrained_embeddings">load_pretrained_embeddings</a> function.</p>
 </div>
+<div class="section" id="sharing">
+<h2>Sharing<a class="headerlink" href="#sharing" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SequenceToSequence</span></code> models take a <code class="docutils literal notranslate"><span class="pre">share_embeddings</span></code> argument in the constructor that accepts a <a class="reference external" href="http://opennmt.net/OpenNMT-tf/package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel"><code class="docutils literal notranslate"><span class="pre">EmbeddingsSharingLevel</span></code></a> value to enable different level of embeddings sharing.</p>
+<p>See for example the custom model definition <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/models/transformer_shared_embedding.py"><code class="docutils literal notranslate"><span class="pre">transformer_shared_embedding.py</span></code></a> that shares all embeddings, including the output softmax weights, for a Transformer model.</p>
 </div>
 </div>
 
@@ -221,10 +221,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="model.html" class="btn btn-neutral float-right" title="Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="training.html" class="btn btn-neutral float-right" title="Training" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tokenization.html" class="btn btn-neutral float-left" title="Tokenization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

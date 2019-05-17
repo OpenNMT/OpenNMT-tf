@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data &mdash; OpenNMT-tf 1.22.1 documentation</title>
+  <title>Data &mdash; OpenNMT-tf 1.22.2 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.22.1',
+              VERSION:'1.22.2',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -123,7 +123,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#alignments">Alignments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pretrained-embeddings">Pretrained embeddings</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#data-location">Data location</a></li>
@@ -131,12 +130,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
@@ -307,19 +308,6 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
   <span class="nt">guided_alignment_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ce</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pretrained-embeddings">
-<h3>Pretrained embeddings<a class="headerlink" href="#pretrained-embeddings" title="Permalink to this headline">¶</a></h3>
-<p>Pretrained embeddings can be configured in the <code class="docutils literal notranslate"><span class="pre">data</span></code> section, e.g.:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">source_embedding</span><span class="p">:</span>
-    <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/glove/glove-100000.txt</span>
-    <span class="nt">with_header</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
-    <span class="nt">case_insensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
-    <span class="nt">trainable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
-</pre></div>
-</div>
-<p>The format of the embedding file and the options are described in the <a class="reference external" href="http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.load_pretrained_embeddings">load_pretrained_embeddings</a> function.</p>
 </div>
 </div>
 <div class="section" id="data-location">

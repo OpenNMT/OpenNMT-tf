@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>Frequently Asked Questions &mdash; OpenNMT-tf 1.22.2 documentation</title>
   
 
   
@@ -48,8 +48,8 @@
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Model" href="model.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+    <link rel="next" title="opennmt package" href="package/opennmt.html" />
+    <link rel="prev" title="Serving" href="serving.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -101,13 +101,9 @@
             
             
               <p class="caption"><span class="caption-text">Getting started</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#via-pip-recommended">Via pip (recommended)</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Configuration</span></p>
 <ul>
@@ -118,11 +114,15 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Frequently Asked Questions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-count-the-number-of-epochs">How to count the number of epochs?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-continue-training-with-different-optimization-settings">How to continue training with different optimization settings?</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
@@ -172,7 +172,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Installation</li>
+      <li>Frequently Asked Questions</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -189,27 +189,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf requires:</p>
-<ul class="simple">
-<li>Python (&gt;= 2.7)</li>
-<li>TensorFlow (&gt;= 1.4, &lt; 2.0)</li>
-</ul>
-<p>Some features added after the initial release may require newer TensorFlow versions. Please consult the changelog to know about new features availability.</p>
-</div>
-<div class="section" id="via-pip-recommended">
-<h2>Via pip (recommended)<a class="headerlink" href="#via-pip-recommended" title="Permalink to this headline">¶</a></h2>
-<p>Each tagged version of the project is automatically pushed to <a class="reference external" href="https://pypi.org/project/OpenNMT-tf/">PyPi</a>. We recommend installing this package via <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install OpenNMT-tf
+  <div class="section" id="frequently-asked-questions">
+<h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-count-the-number-of-epochs">
+<h2>How to count the number of epochs?<a class="headerlink" href="#how-to-count-the-number-of-epochs" title="Permalink to this headline">¶</a></h2>
+<p>OpenNMT-tf uses a step-based training that makes it difficult to track the number of epochs over the dataset. However, it is possible to run the training epoch by epoch with the following configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span>
+  <span class="nt">train_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">single_pass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
-<p>To confirm that the package is correctly installed, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main -h
+<p>and then:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>onmt-main train [...]  # 1st epoch
+onmt-main train [...]  # 2nd epoch
+...
 </pre></div>
 </div>
+<p>which you can wrap in a shell loop for example.</p>
+</div>
+<div class="section" id="how-to-continue-training-with-different-optimization-settings">
+<h2>How to continue training with different optimization settings?<a class="headerlink" href="#how-to-continue-training-with-different-optimization-settings" title="Permalink to this headline">¶</a></h2>
+<p>By default, OpenNMT-tf continues the training where it left off, including the state of the optimizer. To change the optimization settings, the recommended approach is to start a fresh training and only load the model weights from the previous checkpoint:</p>
+<ol class="simple">
+<li>In your configuration, set <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> to a new directory to start a new training</li>
+<li>On the command line, set <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> to the checkpoint from where to load the model weights</li>
+</ol>
 </div>
 </div>
 
@@ -221,10 +225,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="model.html" class="btn btn-neutral float-right" title="Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="package/opennmt.html" class="btn btn-neutral float-right" title="opennmt package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="serving.html" class="btn btn-neutral float-left" title="Serving" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -59,6 +59,8 @@
 ./_sources/README.md.txt
 ./_sources/configuration.md.txt
 ./_sources/data.md.txt
+./_sources/embeddings.md.txt
+./_sources/faq.md.txt
 ./_sources/index.rst.txt
 ./_sources/inference.md.txt
 ./_sources/installation.md.txt
@@ -202,6 +204,8 @@
 ./_static/websupport.js
 ./configuration.html
 ./data.html
+./embeddings.html
+./faq.html
 ./genindex.html
 ./index.html
 ./inference.html

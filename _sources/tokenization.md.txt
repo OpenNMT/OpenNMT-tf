@@ -11,7 +11,7 @@ However, OpenNMT-tf provides tokenization tools based on the C++ OpenNMT [Tokeni
 
 ## Configuration files
 
-YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines in simple word-based tokenization using the OpenNMT tokenizer:
+YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines a simple word-based tokenization using the OpenNMT tokenizer:
 
 ```yaml
 mode: aggressive
