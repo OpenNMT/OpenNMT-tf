@@ -18,6 +18,7 @@ Content
    configuration.md
    data.md
    tokenization.md
+   embeddings.md
 
 .. toctree::
    :caption: Usage
@@ -26,6 +27,7 @@ Content
    training.md
    inference.md
    serving.md
+   faq.md
 
 .. toctree::
    :caption: API
