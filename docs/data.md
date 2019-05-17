@@ -117,21 +117,6 @@ params:
   guided_alignment_type: ce
 ```
 
-### Pretrained embeddings
-
-Pretrained embeddings can be configured in the `data` section, e.g.:
-
-```yaml
-data:
-  source_embedding:
-    path: data/glove/glove-100000.txt
-    with_header: True
-    case_insensitive: True
-    trainable: False
-```
-
-The format of the embedding file and the options are described in the [load_pretrained_embeddings](http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.load_pretrained_embeddings) function.
-
 ## Data location
 
 By default, the data are expected to be on the same filesystem. However, it is possible to reference data stored in HDFS, Amazon S3, or any other remote storages supported by TensorFlow. For example:

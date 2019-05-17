@@ -61,4 +61,4 @@ Depending on your production requirements, you might need to build a simple prox
 * manage multiple TensorFlow Serving instances (possibly running on multiple hosts) and keep persistent channels to them
 * apply tokenization and detokenization
 
-For example, take a look at the OpenNMT-tf integration in the project [`nmt-wizard-docker`](https://github.com/OpenNMT/nmt-wizard-docker/blob/master/frameworks/opennmt_tf/entrypoint.py) which wraps a TensorFlow serving instance with a custom processing layer and REST API.
+For example, take a look at the OpenNMT-tf integration in the project [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker/blob/master/frameworks/opennmt_tf/entrypoint.py) which wraps a TensorFlow serving instance with a custom processing layer and REST API. It is possible to use exported OpenNMT-tf with nmt-wizard-docker with the [following approach](https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844).
