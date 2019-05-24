@@ -11,7 +11,7 @@ setup(
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
-    author_email="guillaume.klein@opennmt.net",
+    author_email="guillaume.klein@systrangroup.com",
     url="http://opennmt.net",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
