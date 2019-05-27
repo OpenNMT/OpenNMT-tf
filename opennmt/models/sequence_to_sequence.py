@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+
 """Standard sequence-to-sequence model."""
+
+import six
 
 import tensorflow as tf
 
@@ -6,6 +10,7 @@ from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
 
+from opennmt.layers import noise
 from opennmt.layers import reducer
 from opennmt.models.model import Model
 from opennmt.utils import compat
@@ -262,6 +267,17 @@ class SequenceToSequence(Model):
         replaced_target_tokens = replace_unknown_target(target_tokens, source_tokens, attention)
         target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
+      decoding_noise = params.get("decoding_noise")
+      if decoding_noise:
+        sampled_length -= 1  # Ignore </s>
+        target_tokens, sampled_length = _add_noise(
+            target_tokens,
+            sampled_length,
+            decoding_noise,
+            params.get("decoding_subword_token", "￭"))
+        sampled_length += 1
+        alignment = None  # Invalidate alignments.
+
       predictions = {
           "tokens": target_tokens,
           "length": sampled_length,
@@ -502,3 +518,27 @@ def replace_unknown_target(target_tokens,
       tf.equal(target_tokens, unknown_token),
       x=aligned_source_tokens,
       y=target_tokens)
+
+def _add_noise(tokens, lengths, params, subword_token):
+  if not isinstance(params, list):
+    raise ValueError("Expected a list of noise modules")
+  noises = []
+  for module in params:
+    noise_type, args = six.next(six.iteritems(module))
+    if not isinstance(args, list):
+      args = [args]
+    noise_type = noise_type.lower()
+    if noise_type == "dropout":
+      noise_class = noise.WordDropout
+    elif noise_type == "replacement":
+      noise_class = noise.WordReplacement
+    elif noise_type == "permutation":
+      noise_class = noise.WordPermutation
+    else:
+      raise ValueError("Invalid noise type: %s" % noise_type)
+    noises.append(noise_class(*args))
+  noiser = noise.WordNoiser(
+      noises=noises,
+      subword_token=subword_token,
+      is_spacer=subword_token == "▁")
+  return noiser(tokens, lengths, keep_shape=True)

@@ -151,6 +151,17 @@ params:
   sampling_topk: 1
   # (optional) High temperatures generate more random samples (default: 1).
   sampling_temperature: 1
+  # (optional) Sequence of noise to apply to the decoding output. Each element
+  # should be a noise type (can be: "dropout", "replacement", "permutation") and
+  # the module arguments
+  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html)
+  decoding_noise:
+    - dropout: 0.1
+    - replacement: [0.1, ｟unk｠]
+    - permutation: 3
+  # (optional) Define the subword marker. This is useful to apply noise at the
+  # word level instead of the subword level (default: ￭).
+  decoding_subword_token: ￭
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
   # (optional) Maximum decoding iterations before stopping (default: 250).

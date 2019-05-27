@@ -8,6 +8,7 @@ import six
 import tensorflow as tf
 
 from opennmt import constants
+from opennmt.utils import misc
 
 
 class WordNoiser(object):
@@ -40,7 +41,7 @@ class WordNoiser(object):
 
     Args:
       tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.
-      sequence_length: When :obj:`tokens` is 2D, the length of each sequence in
+      sequence_length: When :obj:`tokens` is ND, the length of each sequence in
         the batch.
       keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the
         new lengths.
@@ -77,7 +78,16 @@ class WordNoiser(object):
         tokens = tokens[:, :tf.reduce_max(sequence_length)]
       return tokens, sequence_length
     else:
-      raise NotImplementedError("unsupported input rank %d" % rank)
+      if sequence_length is None:
+        raise ValueError("sequence_length must be passed for ND inputs")
+      original_shape = misc.shape_list(tokens)
+      tokens = tf.reshape(tokens, [-1, original_shape[-1]])
+      sequence_length = tf.reshape(sequence_length, [-1])
+      tokens, sequence_length = self(tokens, sequence_length, keep_shape=keep_shape)
+      print(original_shape[:-1] + [-1])
+      tokens = tf.reshape(tokens, original_shape[:-1] + [-1])
+      sequence_length = tf.reshape(sequence_length, original_shape[:-1])
+      return tokens, sequence_length
 
 
 @six.add_metaclass(abc.ABCMeta)
