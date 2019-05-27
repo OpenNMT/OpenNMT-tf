@@ -19,7 +19,11 @@ def get_padded_shapes(dataset):
     The same structure as ``dataset.output_shapes`` containing the padded
     shapes.
   """
-  return compat.nest.map_structure(lambda shape: shape.as_list(), dataset.output_shapes)
+  if compat.tf_supports("data.get_output_shapes"):
+    output_shapes = tf.data.get_output_shapes(dataset)
+  else:
+    output_shapes = dataset.output_shapes
+  return compat.nest.map_structure(lambda shape: shape.as_list(), output_shapes)
 
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
