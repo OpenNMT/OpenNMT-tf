@@ -33,7 +33,7 @@ train:
   keep_checkpoint_max: 10
 ```
 
-## Sampling
+## Random sampling
 
 Sampling predictions from the output distribution can be an effective decoding strategy for back-translation, as described by [Edunov et al. 2018](https://arxiv.org/abs/1808.09381). To enable this feature, you should configure the parameter `sampling_topk`. Possible values are:
 
@@ -49,6 +49,27 @@ params:
   sampling_topk: 0
   sampling_temperature: 1
 ```
+
+## Noising
+
+Noising the decoded output is also a possible decoding strategy for back-translation, as described in [Edunov et al. 2018](https://arxiv.org/abs/1808.09381). 3 types of noise are currently implemented:
+
+* [`dropout`](http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html#opennmt.layers.noise.WordDropout): randomly drop words in the sequence
+* [`replacement`](http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html#opennmt.layers.noise.WordReplacement): randomly replace words by a filler token
+* [`permutation`](http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html#opennmt.layers.noise.WordPermutation): randomly permute words with a maximum distance
+
+which can be combined in sequence, e.g.:
+
+```yaml
+params:
+  decoding_subword_token: ▁
+  decoding_noise:
+    - dropout: 0.1
+    - replacement: [0.1, ｟unk｠]
+    - permutation: 3
+```
+
+The parameter `decoding_subword_token` (here set to the SentencePiece spacer) is useful to apply noise at the word level instead of the subword level.
 
 ## N-best list
 
