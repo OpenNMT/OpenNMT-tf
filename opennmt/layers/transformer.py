@@ -206,6 +206,122 @@ def dot_product_attention(queries,
 
   return context, attn
 
+def _generate_relative_positions_matrix(length_q, length_k,
+                                        max_relative_position,
+                                        cache=False):
+  """Generates matrix of relative positions between inputs."""
+  if not cache:
+    if length_q == length_k:
+      range_vec_q = range_vec_k = tf.range(length_q)
+    else:
+      range_vec_k = tf.range(length_k)
+      range_vec_q = range_vec_k[-length_q:]
+    distance_mat = range_vec_k[None, :] - range_vec_q[:, None]
+  else:
+    distance_mat = tf.expand_dims(tf.range(-length_k+1, 1, 1), 0)
+  distance_mat_clipped = tf.clip_by_value(distance_mat, -max_relative_position,
+                                          max_relative_position)
+  # Shift values to be >= 0. Each integer still uniquely identifies a relative
+  # position difference.
+  final_mat = distance_mat_clipped + max_relative_position
+  return final_mat
+
+
+def _generate_relative_positions_embeddings(length_q, length_k, depth,
+                                            max_relative_position, name,
+                                            cache=False):
+  """Generates tensor of size [1 if cache else length_q, length_k, depth]."""
+  with tf.variable_scope(name):
+    relative_positions_matrix = _generate_relative_positions_matrix(
+        length_q, length_k, max_relative_position, cache=cache)
+    vocab_size = max_relative_position * 2 + 1
+    # Generates embedding for each relative position of dimension depth.
+    embeddings_table = tf.get_variable("embeddings", [vocab_size, depth])
+    embeddings = tf.gather(embeddings_table, relative_positions_matrix)
+    return embeddings
+
+
+def _relative_attention_inner(x, y, z, transpose):
+  """Relative position-aware dot-product attention inner calculation.
+
+  This batches matrix multiply calculations to avoid unnecessary broadcasting.
+
+  Args:
+    x: Tensor with shape [batch_size, heads, length or 1, length or depth].
+    y: Tensor with shape [batch_size, heads, length or 1, depth].
+    z: Tensor with shape [length or 1, length, depth].
+    transpose: Whether to transpose inner matrices of y and z. Should be true if
+        last dimension of x is depth, not length.
+
+  Returns:
+    A Tensor with shape [batch_size, heads, length, length or depth].
+  """
+  batch_size = tf.shape(x)[0]
+  heads = x.get_shape().as_list()[1]
+  length = tf.shape(x)[2]
+
+  # xy_matmul is [batch_size, heads, length or 1, length or depth]
+  xy_matmul = tf.matmul(x, y, transpose_b=transpose)
+  # x_t is [length or 1, batch_size, heads, length or depth]
+  x_t = tf.transpose(x, [2, 0, 1, 3])
+  # x_t_r is [length or 1, batch_size * heads, length or depth]
+  x_t_r = tf.reshape(x_t, [length, heads * batch_size, -1])
+  # x_tz_matmul is [length or 1, batch_size * heads, length or depth]
+  x_tz_matmul = tf.matmul(x_t_r, z, transpose_b=transpose)
+  # x_tz_matmul_r is [length or 1, batch_size, heads, length or depth]
+  x_tz_matmul_r = tf.reshape(x_tz_matmul, [length, batch_size, heads, -1])
+  # x_tz_matmul_r_t is [batch_size, heads, length or 1, length or depth]
+  x_tz_matmul_r_t = tf.transpose(x_tz_matmul_r, [1, 2, 0, 3])
+  return xy_matmul + x_tz_matmul_r_t
+
+def shape_list(x):
+  """Return list of dims, statically where possible."""
+  x = tf.convert_to_tensor(x)
+
+  # If unknown rank, return dynamic shape
+  if x.get_shape().dims is None:
+    return tf.shape(x)
+
+  static = x.get_shape().as_list()
+  shape = tf.shape(x)
+
+  ret = []
+  for i, dim in enumerate(static):
+    if dim is None:
+      dim = shape[i]
+    ret.append(dim)
+  return ret
+
+
+def dot_product_attention_relative(q, k, v, mode, mask=None, dropout=0.0,max_relative_position=1):
+
+  if not max_relative_position:
+    raise ValueError("Max relative position (%s) should be > 0 when using "
+                     "relative self attention." % (max_relative_position))
+  with tf.variable_scope(
+      None, default_name="dot_product_attention_relative",
+      values=[q, k, v]) as scope:
+
+    # Use separate embeddings suitable for keys and values.
+    depth = k.get_shape().as_list()[3]
+    length_k = shape_list(k)[2]
+    length_q = shape_list(q)[2]
+    relations_keys = _generate_relative_positions_embeddings(
+        length_q, length_k, depth, max_relative_position,
+        "relative_positions_keys")
+    relations_values = _generate_relative_positions_embeddings(
+        length_q, length_k, depth, max_relative_position,
+        "relative_positions_values")
+
+    # Compute self attention considering the relative position embeddings.
+    logits = _relative_attention_inner(q, k, relations_keys, True)
+    weights = tf.nn.softmax(logits, name="attention_weights")
+    weights_drop = tf.layers.dropout(
+      weights,
+      rate=dropout,
+      training=mode == tf.estimator.ModeKeys.TRAIN)
+
+    return _relative_attention_inner(weights_drop, v, relations_values, False), weights,relations_keys
 
 def multi_head_attention(num_heads,
                          queries,
@@ -215,7 +331,8 @@ def multi_head_attention(num_heads,
                          mask=None,
                          cache=None,
                          dropout=0.0,
-                         return_attention=False):
+                         return_attention=False,
+                         max_relative_positions=0):
   """Computes the multi-head attention as described in
   https://arxiv.org/abs/1706.03762.
 
@@ -276,13 +393,23 @@ def multi_head_attention(num_heads,
   queries = split_heads(queries, num_heads)
   queries *= (num_units // num_heads)**-0.5
 
-  heads, attn = dot_product_attention(
-      queries,
-      keys,
-      values,
-      mode,
-      mask=mask,
-      dropout=dropout)
+  if max_relative_positions == 0:
+    heads, attn = dot_product_attention(
+        queries,
+        keys,
+        values,
+        mode,
+        mask=mask,
+        dropout=dropout)
+  else:
+    heads, attn = dot_product_attention_relative(
+        queries,
+        keys,
+        values,
+        mode,
+        mask=mask,
+        dropout=dropout,
+        max_relative_positions= max_relative_positions)
 
   # Concatenate all heads output.
   combined = combine_heads(heads)

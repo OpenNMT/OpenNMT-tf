@@ -22,6 +22,7 @@ class Transformer(SequenceToSequence):
                num_units,
                num_heads,
                ffn_inner_dim,
+               max_relative_positions=0,
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
@@ -70,7 +71,8 @@ class Transformer(SequenceToSequence):
             dropout=dropout,
             attention_dropout=attention_dropout,
             relu_dropout=relu_dropout,
-            position_encoder=position_encoder)
+            position_encoder=position_encoder,
+            max_relative_positions=max_relative_positions)
         for _ in range(source_inputter.num_outputs)]
     if len(encoders) > 1:
       encoder = ParallelEncoder(

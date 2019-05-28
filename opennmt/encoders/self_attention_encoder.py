@@ -22,7 +22,8 @@ class SelfAttentionEncoder(Encoder):
                dropout=0.1,
                attention_dropout=0.1,
                relu_dropout=0.1,
-               position_encoder=SinusoidalPositionEncoder()):
+               position_encoder=SinusoidalPositionEncoder(),
+               max_relative_positions=0):
     """Initializes the parameters of the encoder.
 
     Args:
@@ -47,6 +48,9 @@ class SelfAttentionEncoder(Encoder):
     self.attention_dropout = attention_dropout
     self.relu_dropout = relu_dropout
     self.position_encoder = position_encoder
+    self.max_relative_positions = max_relative_positions
+    if max_relative_positions < 0:
+      raise ValueError("invalid value for max_relative_positions: %s" % self.max_relative_positions)
 
   def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
     inputs *= self.num_units**0.5
@@ -74,7 +78,8 @@ class SelfAttentionEncoder(Encoder):
               mode,
               num_units=self.num_units,
               mask=mask,
-              dropout=self.attention_dropout)
+              dropout=self.attention_dropout,
+              max_relative_positions=self.max_relative_positions)
           context = transformer.drop_and_add(
               inputs,
               context,
@@ -118,6 +123,7 @@ class SelfAttentionEncoderV2(Encoder):
                ffn_dropout=0.1,
                ffn_activation=tf.nn.relu,
                position_encoder=SinusoidalPositionEncoder(),
+               max_relative_positions=0,
                **kwargs):
     """Initializes the parameters of the encoder.
 
