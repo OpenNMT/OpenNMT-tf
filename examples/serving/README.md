@@ -19,7 +19,6 @@ cd examples/serving
 ```bash
 wget https://s3.amazonaws.com/opennmt-models/averaged-ende-export500k.tar.gz
 tar xf averaged-ende-export500k.tar.gz
-mv averaged-ende-export500k ende
 ```
 
 **3\. Start a TensorFlow Serving GPU instance in the background:**
@@ -27,9 +26,9 @@ mv averaged-ende-export500k ende
 ```bash
 nvidia-docker run -d --rm -p 9000:9000 -v $PWD:/models \
   --name tensorflow_serving --entrypoint tensorflow_model_server \
-  tensorflow/serving:1.11.0-gpu \
+  tensorflow/serving:1.13.0-gpu \
   --enable_batching=true --batching_parameters_file=/models/batching_parameters.txt \
-  --port=9000 --model_base_path=/models/ende --model_name=ende
+  --port=9000 --model_base_path=/models/averaged-ende-export500k --model_name=ende
 ```
 
 *For more information about the `batching_parameters.txt` file, see the [TensorFlow Serving Batching Guide](https://github.com/tensorflow/serving/tree/master/tensorflow_serving/batching).*
@@ -40,20 +39,14 @@ nvidia-docker run -d --rm -p 9000:9000 -v $PWD:/models \
 pip install -r requirements.txt
 ```
 
-**5\. Run the client:**
+**5\. Run the interactive client:**
 
 ```bash
 python ende_client.py --port 9000 --model_name ende \
-  --sentencepiece_model ende/1539080952/assets.extra/wmtende.model
+  --sentencepiece_model averaged-ende-export500k/1539080952/assets.extra/wmtende.model
 ```
 
-The output of this command should look like this (the model and client initialization might take some time):
-
-```text
-Hello world! ||| Hallo Welt!
-My name is John. ||| Mein Name ist John.
-I live on the West coast. ||| Ich lebe an der Westküste.
-```
+The client will read your input and outputs the translation. You can terminate it with Ctrl-C.
 
 **6\. Stop TensorFlow Serving:**
 
@@ -68,4 +61,4 @@ Depending on your production requirements, you might need to build a simple prox
 * manage multiple TensorFlow Serving instances (possibly running on multiple hosts) and keep persistent channels to them
 * apply tokenization and detokenization
 
-For example, take a look at the OpenNMT-tf integration in the project [`nmt-wizard-docker`](https://github.com/OpenNMT/nmt-wizard-docker/blob/master/frameworks/opennmt_tf/entrypoint.py) which wraps a TensorFlow serving instance with a custom processing layer and REST API.
+For example, take a look at the OpenNMT-tf integration in the project [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker/blob/master/frameworks/opennmt_tf/entrypoint.py) which wraps a TensorFlow serving instance with a custom processing layer and REST API. It is possible to use exported OpenNMT-tf with nmt-wizard-docker with the [following approach](https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844).

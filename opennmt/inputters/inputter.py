@@ -178,6 +178,12 @@ class MultiInputter(Inputter):
         inputters.append(inputter)
     return inputters
 
+  def __getattribute__(self, name):
+    if name == "built":
+      return all(inputter.built for inputter in self.inputters)
+    else:
+      return super(MultiInputter, self).__getattribute__(name)
+
   def initialize(self, data_config, asset_prefix=""):
     for i, inputter in enumerate(self.inputters):
       inputter.initialize(data_config, asset_prefix="%s%d_" % (asset_prefix, i + 1))

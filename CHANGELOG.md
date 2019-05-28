@@ -16,6 +16,32 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.22.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.22.2) (2019-05-17)
+
+### Fixes and improvements
+
+* Update PyYAML to 5.1 and silence warnings
+* Reduce default visible memory for batch size auto-tuning to handle larger memory usage variations during training
+
+## [1.22.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.22.1) (2019-04-29)
+
+### Fixes and improvements
+
+* Fix usage of `--checkpoint_path` during training
+* Fix embedding sharing with a `ParallelInputter` as input
+
+## [1.22.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.22.0) (2019-04-06)
+
+### New features
+
+* Unified dynamic decoding implementation
+* Support random sampling during beam search
+
+### Fixes and improvements
+
+* More than 3x faster beam search decoding
+* Improve correctness of alignment vectors for the other hypotheses
+
 ## [1.21.7](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.21.7) (2019-03-20)
 
 ### Fixes and improvements

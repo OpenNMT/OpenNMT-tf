@@ -300,7 +300,7 @@ def dynamic_decode(symbols_to_logits_fn,
     if attention_history:
       if attn is None:
         raise ValueError("attention_history is set but the model did not return attention")
-      attention = attention.write(step, attn)
+      attention = attention.write(step, tf.cast(attn, tf.float32))
     outputs = outputs.write(step, output)
     cum_log_probs = tf.where(finished, x=cum_log_probs, y=next_cum_log_probs)
     finished = tf.logical_or(finished, tf.equal(output, end_id))

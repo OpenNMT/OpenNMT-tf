@@ -127,7 +127,7 @@ def load_config(config_paths, config=None):
 
   for config_path in config_paths:
     with tf.io.gfile.GFile(config_path, mode="rb") as config_file:
-      subconfig = yaml.load(config_file.read())
+      subconfig = yaml.load(config_file.read(), Loader=yaml.UnsafeLoader)
       # Add or update section in main configuration.
       merge_dict(config, subconfig)
 

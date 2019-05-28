@@ -49,7 +49,7 @@ Models are defined from Python code to allow a high level of modeling freedom. T
 
 For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).
 
-Some examples are available in the directory `config/models` in the Git repository. The custom model file should be selected with the `--model` command line option, e.g.:
+Some examples are available in the directory [`config/models`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models) in the Git repository. The custom model file should be selected with the `--model` command line option, e.g.:
 
 ```bash
 onmt-main train --model config/models/custom_model.py [...]

@@ -7,11 +7,11 @@ tests_require = [
 
 setup(
     name="OpenNMT-tf",
-    version="1.21.7",
+    version="1.22.2",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
-    author_email="guillaume.klein@opennmt.net",
+    author_email="guillaume.klein@systrangroup.com",
     url="http://opennmt.net",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -35,7 +35,7 @@ setup(
     keywords="tensorflow opennmt nmt neural machine translation",
     install_requires=[
         "pyonmttok>=1.11.0,<2;platform_system=='Linux'",
-        "pyyaml",
+        "pyyaml>=5.1",
         "rouge==0.3.1",
         "sacrebleu==1.*;python_version>='3.0'"
     ],

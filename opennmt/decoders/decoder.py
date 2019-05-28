@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from opennmt import constants
 from opennmt.layers import common
+from opennmt.utils import decoding
 
 
 def logits_to_cum_log_probs(logits, sequence_length):
@@ -214,8 +215,8 @@ class Decoder(object):
                      memory_sequence_length=None,
                      dtype=None,
                      return_alignment_history=False,
-                     sample_from=1,
-                     sample_temperature=1):
+                     sample_from=None,
+                     sample_temperature=None):
     """Decodes dynamically from :obj:`start_tokens` with greedy search.
 
     Usually used for inference.
@@ -285,8 +286,8 @@ class Decoder(object):
                                 memory_sequence_length=None,
                                 dtype=None,
                                 return_alignment_history=False,
-                                sample_from=1,
-                                sample_temperature=1):
+                                sample_from=None,
+                                sample_temperature=None):
     """Decodes dynamically from :obj:`start_tokens` with beam search.
 
     Usually used for inference.
@@ -322,9 +323,6 @@ class Decoder(object):
       ``(predicted_ids, state, sequence_length, log_probs, alignment_history)``
       if :obj:`return_alignment_history` is ``True``.
     """
-    if sample_from != 1 and beam_width > 1:
-      raise ValueError("Sampling decoding is not compatible with beam search, "
-                       "set beam_width to 1 instead.")
     batch_size = tf.shape(start_tokens)[0] * beam_width
     if dtype is None:
       if memory is None:
@@ -353,68 +351,44 @@ class Decoder(object):
         raise ValueError("vocab_size must be known when the output_layer is not set")
       output_layer = build_output_layer(self.output_size, vocab_size, dtype=dtype)
 
-    state = {"decoder": initial_state}
-    if self.support_alignment_history and not tf.contrib.framework.nest.is_sequence(memory):
-      state["attention"] = tf.zeros([batch_size, 0, tf.shape(memory)[1]], dtype=dtype)
-
     def _symbols_to_logits_fn(ids, step, state):
-      if ids.shape.ndims == 2:
-        ids = ids[:, -1]
       inputs = embedding_fn(ids)
-      returned_values = step_fn(step, inputs, state["decoder"], mode)
+      returned_values = step_fn(step, inputs, state, mode)
       if self.support_alignment_history:
-        outputs, state["decoder"], attention = returned_values
-        if "attention" in state:
-          state["attention"] = tf.concat([state["attention"], tf.expand_dims(attention, 1)], 1)
+        outputs, state, attention = returned_values
       else:
-        outputs, state["decoder"] = returned_values
+        outputs, state = returned_values
+        attention = None
       logits = output_layer(outputs)
-      return logits, state
+      return logits, state, attention
 
     if beam_width == 1:
-      outputs, lengths, log_probs, state = greedy_decode(
-          _symbols_to_logits_fn,
-          start_tokens,
-          end_token,
-          decode_length=maximum_iterations,
-          state=state,
-          return_state=True,
-          min_decode_length=minimum_length,
-          last_step_as_input=True,
-          sample_from=sample_from,
-          sample_temperature=sample_temperature)
+      decoding_strategy = decoding.GreedySearch()
     else:
-      outputs, log_probs, state = beam_search.beam_search(
-          _symbols_to_logits_fn,
-          start_tokens,
-          beam_width,
-          maximum_iterations,
-          vocab_size,
-          length_penalty,
-          states=state,
-          eos_id=end_token,
-          return_states=True,
-          tile_states=False,
-          min_decode_length=minimum_length)
-      lengths = tf.not_equal(outputs, 0)
-      lengths = tf.cast(lengths, tf.int32)
-      lengths = tf.reduce_sum(lengths, axis=-1) - 1  # Ignore </s>
-      outputs = outputs[:, :, 1:]  # Ignore <s>.
+      decoding_strategy = decoding.BeamSearch(beam_width, length_penalty=length_penalty)
 
-    attention = state.get("attention")
-    if beam_width == 1:
-      # Make shape consistent with beam search.
-      outputs = tf.expand_dims(outputs, 1)
-      lengths = tf.expand_dims(lengths, 1)
-      log_probs = tf.expand_dims(log_probs, 1)
-      if attention is not None:
-        attention = tf.expand_dims(attention, 1)
-    if attention is not None:
-      attention = attention[:, :, 1:]  # Ignore attention for <s>.
+    if sample_from is not None and sample_from != 1:
+      sampler = decoding.RandomSampler(
+          from_top_k=sample_from, temperature=sample_temperature)
+    else:
+      sampler = decoding.BestSampler()
 
+    outputs, lengths, log_probs, attention, state = decoding.dynamic_decode(
+        _symbols_to_logits_fn,
+        start_tokens,
+        end_id=end_token,
+        initial_state=initial_state,
+        decoding_strategy=decoding_strategy,
+        sampler=sampler,
+        maximum_iterations=maximum_iterations,
+        minimum_iterations=minimum_length,
+        attention_history=self.support_alignment_history and not isinstance(memory, (list, tuple)))
+
+    # For backward compatibility, include </s> in length.
+    lengths = tf.minimum(lengths + 1, tf.shape(outputs)[2])
     if return_alignment_history:
-      return (outputs, state["decoder"], lengths, log_probs, attention)
-    return (outputs, state["decoder"], lengths, log_probs)
+      return (outputs, state, lengths, log_probs, attention)
+    return (outputs, state, lengths, log_probs)
 
   def decode_from_inputs(self,
                          inputs,

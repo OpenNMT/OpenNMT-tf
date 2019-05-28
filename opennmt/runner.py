@@ -151,19 +151,21 @@ class Runner(object):
     return cluster_spec["task"]["type"] == "chief"
 
   def _make_eval_prediction_hooks_fn(self):
-    if (not self._config["eval"].get("save_eval_predictions", False)
-        and self._config["eval"].get("external_evaluators") is None):
+    external_scorers = self._config["eval"].get("external_evaluators")
+    if not self._config["eval"].get("save_eval_predictions", False) and external_scorers is None:
       return None
     if self._model.unsupervised:
       raise RuntimeError("This model does not support saving evaluation predictions")
     save_path = os.path.join(self._config["model_dir"], "eval")
     if not tf.io.gfile.exists(save_path):
       tf.io.gfile.makedirs(save_path)
-    scorers = evaluator.make_scorers(self._config["eval"].get("external_evaluators"))
-    external_evaluator = evaluator.ExternalEvaluator(
-        labels_file=self._config["data"]["eval_labels_file"],
-        output_dir=save_path,
-        scorers=scorers)
+    if external_scorers is not None:
+      external_evaluator = evaluator.ExternalEvaluator(
+          labels_file=self._config["data"]["eval_labels_file"],
+          output_dir=save_path,
+          scorers=evaluator.make_scorers(external_scorers))
+    else:
+      external_evaluator = None
     return lambda predictions, step: [
         hooks.SaveEvaluationPredictionHook(
             self._model,
@@ -562,7 +564,7 @@ def _auto_tune_batch_size(config,
                           min_range=256,
                           sample_iterations=5,
                           num_devices=1,
-                          gpu_memory_fraction=0.9):
+                          gpu_memory_fraction=0.8):
   """Find the largest token-based batch size that can be used with this
   configuration.
 
