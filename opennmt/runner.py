@@ -151,6 +151,8 @@ class Runner(object):
       run_config = run_config.replace(
           keep_checkpoint_max=train_config["keep_checkpoint_max"])
 
+    params.setdefault("num_hypotheses", self._config["infer"].get("n_best", 1))
+
     devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
     return tf.estimator.Estimator(
         estimator_util.make_model_fn(
@@ -172,19 +174,21 @@ class Runner(object):
     return cluster_spec["task"]["type"] == "chief"
 
   def _make_eval_prediction_hooks_fn(self):
-    if (not self._config["eval"].get("save_eval_predictions", False)
-        and self._config["eval"].get("external_evaluators") is None):
+    external_scorers = self._config["eval"].get("external_evaluators")
+    if not self._config["eval"].get("save_eval_predictions", False) and external_scorers is None:
       return None
     if self._model.unsupervised:
       raise RuntimeError("This model does not support saving evaluation predictions")
     save_path = os.path.join(self._config["model_dir"], "eval")
     if not tf.gfile.Exists(save_path):
       tf.gfile.MakeDirs(save_path)
-    scorers = evaluator.make_scorers(self._config["eval"].get("external_evaluators"))
-    external_evaluator = evaluator.ExternalEvaluator(
-        labels_file=self._config["data"]["eval_labels_file"],
-        output_dir=save_path,
-        scorers=scorers)
+    if external_scorers is not None:
+      external_evaluator = evaluator.ExternalEvaluator(
+          labels_file=self._config["data"]["eval_labels_file"],
+          output_dir=os.path.join(self._config["model_dir"], "external_eval"),
+          scorers=evaluator.make_scorers(external_scorers))
+    else:
+      external_evaluator = None
     return lambda predictions: [
         hooks.SaveEvaluationPredictionHook(
             self._model,

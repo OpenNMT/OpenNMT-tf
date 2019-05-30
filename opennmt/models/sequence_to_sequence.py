@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+
 """Standard sequence-to-sequence model."""
+
+import six
 
 import tensorflow as tf
 
@@ -6,6 +10,7 @@ from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
 
+from opennmt.layers import noise
 from opennmt.layers import reducer
 from opennmt.models.model import Model
 from opennmt.utils import compat
@@ -262,6 +267,17 @@ class SequenceToSequence(Model):
         replaced_target_tokens = replace_unknown_target(target_tokens, source_tokens, attention)
         target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
+      decoding_noise = params.get("decoding_noise")
+      if decoding_noise:
+        sampled_length -= 1  # Ignore </s>
+        target_tokens, sampled_length = _add_noise(
+            target_tokens,
+            sampled_length,
+            decoding_noise,
+            params.get("decoding_subword_token", "￭"))
+        sampled_length += 1
+        alignment = None  # Invalidate alignments.
+
       predictions = {
           "tokens": target_tokens,
           "length": sampled_length,
@@ -269,6 +285,13 @@ class SequenceToSequence(Model):
       }
       if alignment is not None:
         predictions["alignment"] = alignment
+
+      num_hypotheses = params.get("num_hypotheses", 1)
+      if num_hypotheses > 0:
+        if num_hypotheses > beam_width:
+          raise ValueError("n_best cannot be greater than beam_width")
+        for key, value in six.iteritems(predictions):
+          predictions[key] = value[:, :num_hypotheses]
     else:
       predictions = None
 
@@ -309,22 +332,19 @@ class SequenceToSequence(Model):
     return loss, loss_normalizer, loss_token_normalizer
 
   def print_prediction(self, prediction, params=None, stream=None):
-    n_best = params and params.get("n_best")
-    n_best = n_best or 1
-
-    if n_best > len(prediction["tokens"]):
-      raise ValueError("n_best cannot be greater than beam_width")
-
-    for i in range(n_best):
+    if params is None:
+      params = {}
+    num_hypotheses = len(prediction["tokens"])
+    for i in range(num_hypotheses):
       target_length = prediction["length"][i] - 1  # Ignore </s>.
       tokens = prediction["tokens"][i][:target_length]
       sentence = self.labels_inputter.tokenizer.detokenize(tokens)
       score = None
       attention = None
       alignment_type = None
-      if params is not None and params.get("with_scores"):
+      if params.get("with_scores"):
         score = prediction["log_probs"][i]
-      if params is not None and params.get("with_alignments"):
+      if params.get("with_alignments"):
         attention = prediction["alignment"][i][:target_length]
         alignment_type = params["with_alignments"]
       sentence = format_translation_output(
@@ -502,3 +522,27 @@ def replace_unknown_target(target_tokens,
       tf.equal(target_tokens, unknown_token),
       x=aligned_source_tokens,
       y=target_tokens)
+
+def _add_noise(tokens, lengths, params, subword_token):
+  if not isinstance(params, list):
+    raise ValueError("Expected a list of noise modules")
+  noises = []
+  for module in params:
+    noise_type, args = six.next(six.iteritems(module))
+    if not isinstance(args, list):
+      args = [args]
+    noise_type = noise_type.lower()
+    if noise_type == "dropout":
+      noise_class = noise.WordDropout
+    elif noise_type == "replacement":
+      noise_class = noise.WordReplacement
+    elif noise_type == "permutation":
+      noise_class = noise.WordPermutation
+    else:
+      raise ValueError("Invalid noise type: %s" % noise_type)
+    noises.append(noise_class(*args))
+  noiser = noise.WordNoiser(
+      noises=noises,
+      subword_token=subword_token,
+      is_spacer=subword_token == "▁")
+  return noiser(tokens, lengths, keep_shape=True)

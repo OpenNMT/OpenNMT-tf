@@ -37,7 +37,7 @@ Additionally, models can be manually exported using the `export` run type. This 
 Manually exported models are located by default in `export/manual/` within the model directory; a custom destination can be configured with the command line option `--export_dir_base`, e.g.:
 
 ```bash
-onmt-main export --export_dir_base ~/my-models/ende --auto-config --config my_config.yml
+onmt-main export --export_dir_base ~/my-models/ende --auto_config --config my_config.yml
 ```
 
 ## Running a SavedModel

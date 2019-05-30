@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import six
 
 from parameterized import parameterized
 from numbers import Number
@@ -182,6 +183,7 @@ class ModelTest(tf.test.TestCase):
       _, predictions = model(
           features, None, model.auto_config()["params"], tf.estimator.ModeKeys.PREDICT)
       self.assertIsInstance(predictions, dict)
+      self.assertEqual(six.next(six.itervalues(predictions)).shape[1], 1)
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
