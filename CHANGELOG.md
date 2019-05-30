@@ -14,6 +14,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [1.23.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.23.0) (2019-05-30)
+
+### New features
+
 * Support applying noise on the decoding output ("beam+noise" strategy from [Edunov et al. 2018](https://arxiv.org/abs/1808.09381))
 
 ### Fixes and improvements
