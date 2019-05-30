@@ -14,7 +14,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Support applying noise on the decoding output ("beam+noise" strategy from [Edunov et al. 2018](https://arxiv.org/abs/1808.09381))
+
 ### Fixes and improvements
+
+* Fix crash on TensorFlow 1.14 due to an [API change](https://github.com/tensorflow/tensorflow/issues/29024)
+* Fix unexpected number of hypotheses returned by exported models: by default only the best is returned and the number should be configured by either `params/num_hypotheses` or `infer/n_best`
+* Do not require setting an external evaluator when saving evaluation predictions
 
 ## [1.22.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.22.2) (2019-05-17)
 
