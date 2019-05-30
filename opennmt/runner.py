@@ -151,6 +151,8 @@ class Runner(object):
       run_config = run_config.replace(
           keep_checkpoint_max=train_config["keep_checkpoint_max"])
 
+    params.setdefault("num_hypotheses", self._config["infer"].get("n_best", 1))
+
     devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
     return tf.estimator.Estimator(
         estimator_util.make_model_fn(
