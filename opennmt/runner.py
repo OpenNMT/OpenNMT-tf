@@ -185,7 +185,7 @@ class Runner(object):
     if external_scorers is not None:
       external_evaluator = evaluator.ExternalEvaluator(
           labels_file=self._config["data"]["eval_labels_file"],
-          output_dir=save_path,
+          output_dir=os.path.join(self._config["model_dir"], "external_eval"),
           scorers=evaluator.make_scorers(external_scorers))
     else:
       external_evaluator = None
