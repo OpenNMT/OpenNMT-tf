@@ -144,6 +144,9 @@ params:
 
   # (optional) Width of the beam search (default: 1).
   beam_width: 5
+  # (optional) Number of hypotheses to return (default: 1). Set 0 to return all
+  # available hypotheses. This value is also set by infer/n_best.
+  num_hypotheses: 1
   # (optional) Length penaly weight to apply on hypotheses (default: 0).
   length_penalty: 0.2
   # (optional) Sample predictions from the top K most likely tokens (requires
@@ -270,6 +273,7 @@ infer:
   prefetch_buffer_size: 1
 
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
+  # This sets the parameter params/num_hypotheses.
   n_best: 1
   # (optional) For compatible models, also output the score (default: false).
   with_scores: false

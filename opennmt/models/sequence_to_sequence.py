@@ -285,6 +285,13 @@ class SequenceToSequence(Model):
       }
       if alignment is not None:
         predictions["alignment"] = alignment
+
+      num_hypotheses = params.get("num_hypotheses", 1)
+      if num_hypotheses > 0:
+        if num_hypotheses > beam_width:
+          raise ValueError("n_best cannot be greater than beam_width")
+        for key, value in six.iteritems(predictions):
+          predictions[key] = value[:, :num_hypotheses]
     else:
       predictions = None
 
@@ -325,22 +332,19 @@ class SequenceToSequence(Model):
     return loss, loss_normalizer, loss_token_normalizer
 
   def print_prediction(self, prediction, params=None, stream=None):
-    n_best = params and params.get("n_best")
-    n_best = n_best or 1
-
-    if n_best > len(prediction["tokens"]):
-      raise ValueError("n_best cannot be greater than beam_width")
-
-    for i in range(n_best):
+    if params is None:
+      params = {}
+    num_hypotheses = len(prediction["tokens"])
+    for i in range(num_hypotheses):
       target_length = prediction["length"][i] - 1  # Ignore </s>.
       tokens = prediction["tokens"][i][:target_length]
       sentence = self.labels_inputter.tokenizer.detokenize(tokens)
       score = None
       attention = None
       alignment_type = None
-      if params is not None and params.get("with_scores"):
+      if params.get("with_scores"):
         score = prediction["log_probs"][i]
-      if params is not None and params.get("with_alignments"):
+      if params.get("with_alignments"):
         attention = prediction["alignment"][i][:target_length]
         alignment_type = params["with_alignments"]
       sentence = format_translation_output(
