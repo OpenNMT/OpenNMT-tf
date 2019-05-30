@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 1.23.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.22.2',
+              VERSION:'1.23.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.22
+                1.23
               </div>
             
           
@@ -332,6 +332,9 @@
 
   <span class="c1"># (optional) Width of the beam search (default: 1).</span>
   <span class="nt">beam_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+  <span class="c1"># (optional) Number of hypotheses to return (default: 1). Set 0 to return all</span>
+  <span class="c1"># available hypotheses. This value is also set by infer/n_best.</span>
+  <span class="nt">num_hypotheses</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) Length penaly weight to apply on hypotheses (default: 0).</span>
   <span class="nt">length_penalty</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>
   <span class="c1"># (optional) Sample predictions from the top K most likely tokens (requires</span>
@@ -339,6 +342,17 @@
   <span class="nt">sampling_topk</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) High temperatures generate more random samples (default: 1).</span>
   <span class="nt">sampling_temperature</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+  <span class="c1"># (optional) Sequence of noise to apply to the decoding output. Each element</span>
+  <span class="c1"># should be a noise type (can be: &quot;dropout&quot;, &quot;replacement&quot;, &quot;permutation&quot;) and</span>
+  <span class="c1"># the module arguments</span>
+  <span class="c1"># (see http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html)</span>
+  <span class="nt">decoding_noise</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">dropout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
+    <span class="p p-Indicator">-</span> <span class="nt">replacement</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0.1</span><span class="p p-Indicator">,</span> <span class="nv">｟unk｠</span><span class="p p-Indicator">]</span>
+    <span class="p p-Indicator">-</span> <span class="nt">permutation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+  <span class="c1"># (optional) Define the subword marker. This is useful to apply noise at the</span>
+  <span class="c1"># word level instead of the subword level (default: ￭).</span>
+  <span class="nt">decoding_subword_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">￭</span>
   <span class="c1"># (optional) Minimum length of decoded sequences, end token excluded (default: 0).</span>
   <span class="nt">minimum_decoding_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
   <span class="c1"># (optional) Maximum decoding iterations before stopping (default: 250).</span>
@@ -447,6 +461,7 @@
   <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) For compatible models, the number of hypotheses to output (default: 1).</span>
+  <span class="c1"># This sets the parameter params/num_hypotheses.</span>
   <span class="nt">n_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) For compatible models, also output the score (default: false).</span>
   <span class="nt">with_scores</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>

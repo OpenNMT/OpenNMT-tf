@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 1.23.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../',
-              VERSION:'1.22.2',
+              VERSION:'1.23.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.22
+                1.23
               </div>
             
           
@@ -337,6 +337,8 @@
       <span class="n">run_config</span> <span class="o">=</span> <span class="n">run_config</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
           <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">])</span>
 
+    <span class="n">params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;num_hypotheses&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_best&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
     <span class="n">devices</span> <span class="o">=</span> <span class="n">get_devices</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_devices</span><span class="p">,</span> <span class="n">session_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_session_config</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">Estimator</span><span class="p">(</span>
         <span class="n">estimator_util</span><span class="o">.</span><span class="n">make_model_fn</span><span class="p">(</span>
@@ -358,19 +360,21 @@
     <span class="k">return</span> <span class="n">cluster_spec</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;chief&quot;</span></div>
 
   <span class="k">def</span> <span class="nf">_make_eval_prediction_hooks_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;save_eval_predictions&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;external_evaluators&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">external_scorers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;external_evaluators&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;save_eval_predictions&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="n">external_scorers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">unsupervised</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;This model does not support saving evaluation predictions&quot;</span><span class="p">)</span>
     <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">],</span> <span class="s2">&quot;eval&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">save_path</span><span class="p">):</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">MakeDirs</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
-    <span class="n">scorers</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">make_scorers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;external_evaluators&quot;</span><span class="p">))</span>
-    <span class="n">external_evaluator</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">ExternalEvaluator</span><span class="p">(</span>
-        <span class="n">labels_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;eval_labels_file&quot;</span><span class="p">],</span>
-        <span class="n">output_dir</span><span class="o">=</span><span class="n">save_path</span><span class="p">,</span>
-        <span class="n">scorers</span><span class="o">=</span><span class="n">scorers</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">external_scorers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">external_evaluator</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">ExternalEvaluator</span><span class="p">(</span>
+          <span class="n">labels_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;eval_labels_file&quot;</span><span class="p">],</span>
+          <span class="n">output_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">],</span> <span class="s2">&quot;external_eval&quot;</span><span class="p">),</span>
+          <span class="n">scorers</span><span class="o">=</span><span class="n">evaluator</span><span class="o">.</span><span class="n">make_scorers</span><span class="p">(</span><span class="n">external_scorers</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">external_evaluator</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">predictions</span><span class="p">:</span> <span class="p">[</span>
         <span class="n">hooks</span><span class="o">.</span><span class="n">SaveEvaluationPredictionHook</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span>

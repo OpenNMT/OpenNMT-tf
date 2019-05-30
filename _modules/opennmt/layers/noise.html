@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.noise &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>opennmt.layers.noise &mdash; OpenNMT-tf 1.23.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.22.2',
+              VERSION:'1.23.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.22
+                1.23
               </div>
             
           
@@ -194,6 +194,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
 
 
 <div class="viewcode-block" id="WordNoiser"><a class="viewcode-back" href="../../../package/opennmt.layers.noise.html#opennmt.layers.noise.WordNoiser">[docs]</a><span class="k">class</span> <span class="nc">WordNoiser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -226,7 +227,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">      tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.</span>
-<span class="sd">      sequence_length: When :obj:`tokens` is 2D, the length of each sequence in</span>
+<span class="sd">      sequence_length: When :obj:`tokens` is ND, the length of each sequence in</span>
 <span class="sd">        the batch.</span>
 <span class="sd">      keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the</span>
 <span class="sd">        new lengths.</span>
@@ -263,7 +264,16 @@
         <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:,</span> <span class="p">:</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)]</span>
       <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;unsupported input rank </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span></div></div>
+      <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for ND inputs&quot;</span><span class="p">)</span>
+      <span class="n">original_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+      <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+      <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+      <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="n">keep_shape</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+      <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+      <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+      <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span></div></div>
 
 
 <div class="viewcode-block" id="Noise"><a class="viewcode-back" href="../../../package/opennmt.layers.noise.html#opennmt.layers.noise.Noise">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>

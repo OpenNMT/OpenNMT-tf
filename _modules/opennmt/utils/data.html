@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.data &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>opennmt.utils.data &mdash; OpenNMT-tf 1.23.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.22.2',
+              VERSION:'1.23.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.22
+                1.23
               </div>
             
           
@@ -205,7 +205,11 @@
 <span class="sd">    The same structure as ``dataset.output_shapes`` containing the padded</span>
 <span class="sd">    shapes.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="n">compat</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">shape</span><span class="p">:</span> <span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">output_shapes</span><span class="p">)</span></div>
+  <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;data.get_output_shapes&quot;</span><span class="p">):</span>
+    <span class="n">output_shapes</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">output_shapes</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">output_shapes</span>
+  <span class="k">return</span> <span class="n">compat</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">shape</span><span class="p">:</span> <span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">(),</span> <span class="n">output_shapes</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="filter_irregular_batches"><a class="viewcode-back" href="../../../package/opennmt.utils.data.html#opennmt.utils.data.filter_irregular_batches">[docs]</a><span class="k">def</span> <span class="nf">filter_irregular_batches</span><span class="p">(</span><span class="n">multiple</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Transformation that filters out batches based on their size.</span>

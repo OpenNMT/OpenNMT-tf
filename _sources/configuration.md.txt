@@ -144,6 +144,9 @@ params:
 
   # (optional) Width of the beam search (default: 1).
   beam_width: 5
+  # (optional) Number of hypotheses to return (default: 1). Set 0 to return all
+  # available hypotheses. This value is also set by infer/n_best.
+  num_hypotheses: 1
   # (optional) Length penaly weight to apply on hypotheses (default: 0).
   length_penalty: 0.2
   # (optional) Sample predictions from the top K most likely tokens (requires
@@ -151,6 +154,17 @@ params:
   sampling_topk: 1
   # (optional) High temperatures generate more random samples (default: 1).
   sampling_temperature: 1
+  # (optional) Sequence of noise to apply to the decoding output. Each element
+  # should be a noise type (can be: "dropout", "replacement", "permutation") and
+  # the module arguments
+  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html)
+  decoding_noise:
+    - dropout: 0.1
+    - replacement: [0.1, ｟unk｠]
+    - permutation: 3
+  # (optional) Define the subword marker. This is useful to apply noise at the
+  # word level instead of the subword level (default: ￭).
+  decoding_subword_token: ￭
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
   # (optional) Maximum decoding iterations before stopping (default: 250).
@@ -259,6 +273,7 @@ infer:
   prefetch_buffer_size: 1
 
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
+  # This sets the parameter params/num_hypotheses.
   n_best: 1
   # (optional) For compatible models, also output the score (default: false).
   with_scores: false

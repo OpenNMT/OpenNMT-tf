@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 1.23.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.22.2',
+              VERSION:'1.23.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.22
+                1.23
               </div>
             
           
@@ -184,7 +184,11 @@
            <div itemprop="articleBody">
             
   <h1>Source code for opennmt.models.sequence_to_sequence</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Standard sequence-to-sequence model.&quot;&quot;&quot;</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Standard sequence-to-sequence model.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -192,6 +196,7 @@
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">inputters</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">layers</span>
 
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">noise</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">reducer</span>
 <span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
@@ -448,6 +453,17 @@
         <span class="n">replaced_target_tokens</span> <span class="o">=</span> <span class="n">replace_unknown_target</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">,</span> <span class="n">source_tokens</span><span class="p">,</span> <span class="n">attention</span><span class="p">)</span>
         <span class="n">target_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">replaced_target_tokens</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">)</span>
 
+      <span class="n">decoding_noise</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decoding_noise&quot;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">decoding_noise</span><span class="p">:</span>
+        <span class="n">sampled_length</span> <span class="o">-=</span> <span class="mi">1</span>  <span class="c1"># Ignore &lt;/s&gt;</span>
+        <span class="n">target_tokens</span><span class="p">,</span> <span class="n">sampled_length</span> <span class="o">=</span> <span class="n">_add_noise</span><span class="p">(</span>
+            <span class="n">target_tokens</span><span class="p">,</span>
+            <span class="n">sampled_length</span><span class="p">,</span>
+            <span class="n">decoding_noise</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decoding_subword_token&quot;</span><span class="p">,</span> <span class="s2">&quot;￭&quot;</span><span class="p">))</span>
+        <span class="n">sampled_length</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">alignment</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Invalidate alignments.</span>
+
       <span class="n">predictions</span> <span class="o">=</span> <span class="p">{</span>
           <span class="s2">&quot;tokens&quot;</span><span class="p">:</span> <span class="n">target_tokens</span><span class="p">,</span>
           <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">sampled_length</span><span class="p">,</span>
@@ -455,6 +471,13 @@
       <span class="p">}</span>
       <span class="k">if</span> <span class="n">alignment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alignment</span>
+
+      <span class="n">num_hypotheses</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_hypotheses&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">num_hypotheses</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">num_hypotheses</span> <span class="o">&gt;</span> <span class="n">beam_width</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_best cannot be greater than beam_width&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">predictions</span><span class="p">):</span>
+          <span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:,</span> <span class="p">:</span><span class="n">num_hypotheses</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -495,22 +518,19 @@
     <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span><span class="p">,</span> <span class="n">loss_token_normalizer</span></div>
 
 <div class="viewcode-block" id="SequenceToSequence.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.print_prediction">[docs]</a>  <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">n_best</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_best&quot;</span><span class="p">)</span>
-    <span class="n">n_best</span> <span class="o">=</span> <span class="n">n_best</span> <span class="ow">or</span> <span class="mi">1</span>
-
-    <span class="k">if</span> <span class="n">n_best</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]):</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_best cannot be greater than beam_width&quot;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_best</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">num_hypotheses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_hypotheses</span><span class="p">):</span>
       <span class="n">target_length</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Ignore &lt;/s&gt;.</span>
       <span class="n">tokens</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][:</span><span class="n">target_length</span><span class="p">]</span>
       <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
       <span class="n">score</span> <span class="o">=</span> <span class="kc">None</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
       <span class="n">alignment_type</span> <span class="o">=</span> <span class="kc">None</span>
-      <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_scores&quot;</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_scores&quot;</span><span class="p">):</span>
         <span class="n">score</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;log_probs&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-      <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_alignments&quot;</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_alignments&quot;</span><span class="p">):</span>
         <span class="n">attention</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][:</span><span class="n">target_length</span><span class="p">]</span>
         <span class="n">alignment_type</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;with_alignments&quot;</span><span class="p">]</span>
       <span class="n">sentence</span> <span class="o">=</span> <span class="n">format_translation_output</span><span class="p">(</span>
@@ -688,6 +708,30 @@
       <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">,</span> <span class="n">unknown_token</span><span class="p">),</span>
       <span class="n">x</span><span class="o">=</span><span class="n">aligned_source_tokens</span><span class="p">,</span>
       <span class="n">y</span><span class="o">=</span><span class="n">target_tokens</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_add_noise</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">subword_token</span><span class="p">):</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected a list of noise modules&quot;</span><span class="p">)</span>
+  <span class="n">noises</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+    <span class="n">noise_type</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">module</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
+    <span class="n">noise_type</span> <span class="o">=</span> <span class="n">noise_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">noise_type</span> <span class="o">==</span> <span class="s2">&quot;dropout&quot;</span><span class="p">:</span>
+      <span class="n">noise_class</span> <span class="o">=</span> <span class="n">noise</span><span class="o">.</span><span class="n">WordDropout</span>
+    <span class="k">elif</span> <span class="n">noise_type</span> <span class="o">==</span> <span class="s2">&quot;replacement&quot;</span><span class="p">:</span>
+      <span class="n">noise_class</span> <span class="o">=</span> <span class="n">noise</span><span class="o">.</span><span class="n">WordReplacement</span>
+    <span class="k">elif</span> <span class="n">noise_type</span> <span class="o">==</span> <span class="s2">&quot;permutation&quot;</span><span class="p">:</span>
+      <span class="n">noise_class</span> <span class="o">=</span> <span class="n">noise</span><span class="o">.</span><span class="n">WordPermutation</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid noise type: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">noise_type</span><span class="p">)</span>
+    <span class="n">noises</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">noise_class</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
+  <span class="n">noiser</span> <span class="o">=</span> <span class="n">noise</span><span class="o">.</span><span class="n">WordNoiser</span><span class="p">(</span>
+      <span class="n">noises</span><span class="o">=</span><span class="n">noises</span><span class="p">,</span>
+      <span class="n">subword_token</span><span class="o">=</span><span class="n">subword_token</span><span class="p">,</span>
+      <span class="n">is_spacer</span><span class="o">=</span><span class="n">subword_token</span> <span class="o">==</span> <span class="s2">&quot;▁&quot;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">noiser</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
            </div>

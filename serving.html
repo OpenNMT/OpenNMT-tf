@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 1.22.2 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 1.23.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'./',
-              VERSION:'1.22.2',
+              VERSION:'1.23.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.22
+                1.23
               </div>
             
           
@@ -227,7 +227,7 @@
 <h3>Manual export<a class="headerlink" href="#manual-export" title="Permalink to this headline">¶</a></h3>
 <p>Additionally, models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type. This step is for example needed for changing some decoding configurations (e.g. beam size, minimum decoding length, etc.). Re-exporting your model with a more recent version can also improve its performance.</p>
 <p>Manually exported models are located by default in <code class="docutils literal notranslate"><span class="pre">export/manual/</span></code> within the model directory; a custom destination can be configured with the command line option <code class="docutils literal notranslate"><span class="pre">--export_dir_base</span></code>, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="nb">export</span> --export_dir_base ~/my-models/ende --auto-config --config my_config.yml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="nb">export</span> --export_dir_base ~/my-models/ende --auto_config --config my_config.yml
 </pre></div>
 </div>
 </div>
