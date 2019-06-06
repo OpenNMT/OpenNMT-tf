@@ -8,7 +8,6 @@ import six
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.ops.lookup_ops import TextFileIndex
 from tensorboard.plugins import projector
 from google.protobuf import text_format
 
@@ -185,9 +184,9 @@ class TextInputter(Inputter):
     initializer = tf.lookup.TextFileInitializer(
         self.vocabulary_file,
         tf.string,
-        TextFileIndex.WHOLE_LINE,
+        tf.lookup.TextFileIndex.WHOLE_LINE,
         tf.int64,
-        TextFileIndex.LINE_NUMBER,
+        tf.lookup.TextFileIndex.LINE_NUMBER,
         vocab_size=self.vocabulary_size - self.num_oov_buckets)
     if self.num_oov_buckets > 0:
       return tf.lookup.StaticVocabularyTable(initializer, self.num_oov_buckets)
@@ -199,9 +198,9 @@ class TextInputter(Inputter):
     initializer = tf.lookup.TextFileInitializer(
         self.vocabulary_file,
         tf.int64,
-        TextFileIndex.LINE_NUMBER,
+        tf.lookup.TextFileIndex.LINE_NUMBER,
         tf.string,
-        TextFileIndex.WHOLE_LINE,
+        tf.lookup.TextFileIndex.WHOLE_LINE,
         vocab_size=self.vocabulary_size - self.num_oov_buckets)
     return tf.lookup.StaticHashTable(initializer, constants.UNKNOWN_TOKEN)
 
