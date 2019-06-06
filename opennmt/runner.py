@@ -132,6 +132,8 @@ class Runner(object):
       run_config = run_config.replace(
           keep_checkpoint_max=train_config["keep_checkpoint_max"])
 
+    params.setdefault("num_hypotheses", self._config["infer"].get("n_best", 1))
+
     return tf.estimator.Estimator(
         estimator_util.make_model_fn(
             self._model,
@@ -162,7 +164,7 @@ class Runner(object):
     if external_scorers is not None:
       external_evaluator = evaluator.ExternalEvaluator(
           labels_file=self._config["data"]["eval_labels_file"],
-          output_dir=save_path,
+          output_dir=os.path.join(self._config["model_dir"], "external_eval"),
           scorers=evaluator.make_scorers(external_scorers))
     else:
       external_evaluator = None

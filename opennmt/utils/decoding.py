@@ -346,7 +346,7 @@ def dynamic_decode(symbols_to_logits_fn,
       extra_vars,
       attention=attention if attention_history else None)
   if attention is not None:
-    attention = attention[:, :, 1:]  # Ignore attention for <s>.
+    attention = attention[:, :, :-1]  # Ignore attention for </s>.
   log_probs = tf.reshape(log_probs, [batch_size, decoding_strategy.num_hypotheses])
   ids = tf.cast(ids, ids_dtype)
   return ids, lengths, log_probs, attention, state

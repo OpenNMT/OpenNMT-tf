@@ -3,8 +3,6 @@
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.data.ops import dataset_ops
-
 
 def _get_output_shapes(dataset):
   """Returns the outputs shapes of the dataset.
@@ -15,8 +13,7 @@ def _get_output_shapes(dataset):
   Returns:
     A nested structure of ``tf.TensorShape``
   """
-  # TODO: replace this by a public API.
-  return dataset_ops.get_legacy_output_shapes(dataset)
+  return tf.compat.v1.data.get_output_shapes(dataset)
 
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
