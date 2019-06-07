@@ -322,9 +322,8 @@ class SequenceToSequence(Model):
           tf.logging.warning("This model did not return attention vectors; "
                              "guided alignment will not be applied")
         else:
-          # Note: the first decoder input is <s> for which we don't want any alignment.
           loss += guided_alignment_cost(
-              attention[:, 1:],
+              attention[:, :-1],  # Do not constrain last timestep.
               gold_alignments,
               labels_lengths - 1,
               guided_alignment_type,
