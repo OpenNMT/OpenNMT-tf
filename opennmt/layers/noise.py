@@ -84,7 +84,6 @@ class WordNoiser(object):
       tokens = tf.reshape(tokens, [-1, original_shape[-1]])
       sequence_length = tf.reshape(sequence_length, [-1])
       tokens, sequence_length = self(tokens, sequence_length, keep_shape=keep_shape)
-      print(original_shape[:-1] + [-1])
       tokens = tf.reshape(tokens, original_shape[:-1] + [-1])
       sequence_length = tf.reshape(sequence_length, original_shape[:-1])
       return tokens, sequence_length
