@@ -6,7 +6,6 @@ import tensorflow as tf
 
 from opennmt import config
 from opennmt.models.model import Model
-from opennmt.tests import test_util
 
 
 class ConfigTest(tf.test.TestCase):
@@ -40,13 +39,11 @@ class ConfigTest(tf.test.TestCase):
     model = model_module.model()
     self.assertEqual(42, model)
 
-  @test_util.run_tf1_only
   def testLoadModelFromCatalog(self):
     model_name = "NMTSmall"
     model = config.load_model_from_catalog(model_name)
     self.assertIsInstance(model, Model)
 
-  @test_util.run_tf1_only
   def testLoadModel(self):
     model_name = "NMTSmall"
     model_dir = self.get_temp_dir()
