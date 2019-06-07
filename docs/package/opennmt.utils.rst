@@ -11,7 +11,6 @@ Submodules
 
 .. toctree::
 
-   opennmt.utils.cell
    opennmt.utils.checkpoint
    opennmt.utils.compat
    opennmt.utils.data
