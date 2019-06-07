@@ -1,7 +1,7 @@
-opennmt.utils.data module
+opennmt.data.noise module
 =========================
 
-.. automodule:: opennmt.utils.data
+.. automodule:: opennmt.data.noise
     :members:
     :undoc-members:
     :show-inheritance:

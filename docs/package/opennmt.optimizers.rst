@@ -13,5 +13,6 @@ Submodules
 
    opennmt.optimizers.adafactor
    opennmt.optimizers.distributed_optimizer
+   opennmt.optimizers.lr_schedules
    opennmt.optimizers.mixed_precision_wrapper
 

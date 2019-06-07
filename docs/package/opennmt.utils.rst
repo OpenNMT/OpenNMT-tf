@@ -13,13 +13,10 @@ Submodules
 
    opennmt.utils.checkpoint
    opennmt.utils.compat
-   opennmt.utils.data
-   opennmt.utils.decay
    opennmt.utils.decoding
    opennmt.utils.evaluator
    opennmt.utils.hooks
    opennmt.utils.losses
    opennmt.utils.misc
    opennmt.utils.optim
-   opennmt.utils.vocab
 

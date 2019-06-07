@@ -1,7 +1,7 @@
-opennmt.layers.noise module
+opennmt.data.dataset module
 ===========================
 
-.. automodule:: opennmt.layers.noise
+.. automodule:: opennmt.data.dataset
     :members:
     :undoc-members:
     :show-inheritance:
