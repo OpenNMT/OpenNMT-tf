@@ -15,7 +15,7 @@ from opennmt.utils import misc
 class WordNoiser(object):
   """Applies noise to words sequences."""
 
-  def __init__(self, noises=None, subword_token="￭", is_spacer=False):
+  def __init__(self, noises=None, subword_token="￭", is_spacer=None):
     """Initializes the noising class.
 
     Args:
@@ -25,7 +25,8 @@ class WordNoiser(object):
         required when the noise should be applied at the word level and not the
         subword level.
       is_spacer: Whether :obj:`subword_token` is used as a spacer (as in
-        SentencePiece) or a joiner (as in BPE).
+        SentencePiece) or a joiner (as in BPE). If ``None``, will infer
+        directly from :obj:`subword_token`.
     """
     if noises is None:
       noises = []
@@ -57,7 +58,7 @@ class WordNoiser(object):
         tokens = tokens[:sequence_length]
       else:
         tokens = tokens[:tf.math.count_nonzero(tokens)]
-      words = text.tokens_to_words(
+      words, _ = text.tokens_to_words(
           tokens,
           subword_token=self.subword_token,
           is_spacer=self.is_spacer)

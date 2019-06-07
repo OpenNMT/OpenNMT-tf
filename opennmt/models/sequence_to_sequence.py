@@ -466,8 +466,5 @@ def _add_noise(tokens, lengths, params, subword_token):
     else:
       raise ValueError("Invalid noise type: %s" % noise_type)
     noises.append(noise_class(*args))
-  noiser = noise.WordNoiser(
-      noises=noises,
-      subword_token=subword_token,
-      is_spacer=subword_token == "▁")
+  noiser = noise.WordNoiser(noises=noises, subword_token=subword_token)
   return noiser(tokens, lengths, keep_shape=True)
