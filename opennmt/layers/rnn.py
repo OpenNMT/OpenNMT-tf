@@ -5,6 +5,12 @@ import tensorflow as tf
 from opennmt.layers import common
 
 
+def _register_keras_custom_object(cls):
+  tf.keras.utils.get_custom_objects()[cls.__name__] = cls
+  return cls
+
+
+@_register_keras_custom_object
 class RNNCellWrapper(common.LayerWrapper):
   """A wrapper for RNN cells."""
 
@@ -46,11 +52,6 @@ class RNNCellWrapper(common.LayerWrapper):
     """Returns the initial cell state."""
     return self.cell.get_initial_state(
         inputs=inputs, batch_size=batch_size, dtype=dtype)
-
-
-_CUSTOM_OBJECTS = {
-    "RNNCellWrapper": RNNCellWrapper,
-}
 
 
 def make_rnn_cell(num_layers,
@@ -102,8 +103,7 @@ class RNN(tf.keras.layers.Layer):
     self.reducer = reducer
     self.rnn = tf.keras.layers.RNN(cell, return_sequences=True, return_state=True)
     if bidirectional:
-      with tf.keras.utils.custom_object_scope(_CUSTOM_OBJECTS):
-        self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode=None)
+      self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode=None)
 
   def call(self, *args, **kwargs):  # pylint: disable=arguments-differ
     """Forwards the arguments the RNN layer.
