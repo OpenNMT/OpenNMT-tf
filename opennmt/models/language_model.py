@@ -6,7 +6,6 @@ from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
 from opennmt.data import dataset as dataset_util
-from opennmt.decoders import decoder as decoder_util
 from opennmt.models.model import Model
 from opennmt.utils import decoding
 from opennmt.utils import losses
@@ -23,7 +22,7 @@ class LanguageModel(Model):
     """Initializes the language model.
 
     Args:
-      decoder: A :class:`opennmt.decoders.decoder.DecoderV2` instance.
+      decoder: A :class:`opennmt.decoders.decoder.Decoder` instance.
       embedding_size: The size of the word embedding. If not set, pretrained
         embeddings should be defined in the configuration.
       reuse_embedding: If ``True``, reuse the embedding weights in the output
@@ -32,8 +31,6 @@ class LanguageModel(Model):
     Raises:
       ValueError: if the decoder type is invalid.
     """
-    if not isinstance(decoder, decoder_util.DecoderV2):
-      raise ValueError("Language model only supports DecoderV2")
     inputter = LanguageModelInputter(embedding_size=embedding_size)
     super(LanguageModel, self).__init__(inputter)
     self.decoder = decoder

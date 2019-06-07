@@ -96,7 +96,7 @@ class RNMTPlusEncoder(SequentialEncoder):
       num_layers: The number of layers.
       num_units: The number of units in each RNN layer and the final output.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
-        argument and returning a cell. Defaults to a LSTM cell.
+        argument and returning a cell. Defaults to a layer normalized LSTM cell.
       dropout: The probability to drop units in each layer output.
     """
     if cell_class is None:
