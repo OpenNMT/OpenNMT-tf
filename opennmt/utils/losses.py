@@ -19,11 +19,9 @@ def _softmax_cross_entropy(logits, labels, label_smoothing, training):
     logits = tf.cast(logits, tf.float32)
   if training and label_smoothing > 0.0:
     smoothed_labels = _smooth_one_hot_labels(logits, labels, label_smoothing)
-    return tf.nn.softmax_cross_entropy_with_logits(
-        smoothed_labels, logits)
+    return tf.nn.softmax_cross_entropy_with_logits(smoothed_labels, logits)
   else:
-    return tf.nn.sparse_softmax_cross_entropy_with_logits(
-        logits=logits, labels=labels)
+    return tf.nn.sparse_softmax_cross_entropy_with_logits(labels, logits)
 
 def cross_entropy_sequence_loss(logits,
                                 labels,
