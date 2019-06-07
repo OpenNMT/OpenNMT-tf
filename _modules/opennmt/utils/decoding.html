@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 1.23.0 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 1.23.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.23.0',
+              VERSION:'1.23.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -537,7 +537,7 @@
       <span class="n">extra_vars</span><span class="p">,</span>
       <span class="n">attention</span><span class="o">=</span><span class="n">attention</span> <span class="k">if</span> <span class="n">attention_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Ignore attention for &lt;s&gt;.</span>
+    <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Ignore attention for &lt;/s&gt;.</span>
   <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">num_hypotheses</span><span class="p">])</span>
   <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">ids_dtype</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">state</span></div>
