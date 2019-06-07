@@ -11,7 +11,7 @@ from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
 
-from opennmt.layers import noise
+from opennmt.data import noise
 from opennmt.layers import reducer
 from opennmt.models.model import Model
 from opennmt.utils import decoding
