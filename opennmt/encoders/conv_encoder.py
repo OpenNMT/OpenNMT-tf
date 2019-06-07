@@ -13,7 +13,8 @@ class ConvEncoder(Encoder):
   """
 
   def __init__(self,
-               num_layers,
+               num_layers_a,
+               num_layers_c,
                num_units,
                kernel_size=3,
                dropout=0.3,
@@ -21,7 +22,8 @@ class ConvEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      num_layers: The number of convolutional layers.
+      num_layers_a: The number of layers in CNN-a.
+      num_layers_c: The number of layers in CNN-c.
       num_units: The number of output filters.
       kernel_size: The kernel size.
       dropout: The probability to drop units from the inputs.
@@ -36,10 +38,10 @@ class ConvEncoder(Encoder):
       self.position_encoder = position_encoder_class()
     self.cnn_a = [
         tf.keras.layers.Conv1D(num_units, kernel_size, padding="same")
-        for _ in range(num_layers)]
+        for _ in range(num_layers_a)]
     self.cnn_c = [
         tf.keras.layers.Conv1D(num_units, kernel_size, padding="same")
-        for _ in range(num_layers)]
+        for _ in range(num_layers_c)]
 
   def call(self, inputs, sequence_length=None, training=None):
     if self.position_encoder is not None:

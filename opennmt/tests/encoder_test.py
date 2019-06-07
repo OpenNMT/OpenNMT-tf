@@ -36,7 +36,7 @@ class EncoderTest(tf.test.TestCase):
   def testConvEncoder(self):
     sequence_length = [17, 21, 20]
     inputs = tf.zeros([3, 21, 5])
-    encoder = encoders.ConvEncoder(3, 10)
+    encoder = encoders.ConvEncoder(3, 3, 10)
     outputs, _, encoded_length = encoder(
         inputs, sequence_length=tf.constant(sequence_length))
     outputs, encoded_length = self.evaluate([outputs, encoded_length])
