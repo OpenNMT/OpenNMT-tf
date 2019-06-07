@@ -16,6 +16,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.23.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.23.1) (2019-06-07)
+
+### Fixes and improvements
+
+* Fix invalid offset in alignment vectors
+* Remove debug print in noise module
+
 ## [1.23.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.23.0) (2019-05-30)
 
 ### New features
