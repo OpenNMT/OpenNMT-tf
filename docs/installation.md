@@ -4,7 +4,7 @@
 
 OpenNMT-tf requires:
 
-* Python (>= 2.7)
+* Python (>= 3.5)
 * TensorFlow (>= 1.4, < 2.0)
 
 Some features added after the initial release may require newer TensorFlow versions. Please consult the changelog to know about new features availability.
