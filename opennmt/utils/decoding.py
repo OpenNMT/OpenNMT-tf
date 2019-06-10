@@ -185,11 +185,11 @@ class BeamSearch(DecodingStrategy):
     scores = total_probs
     if self.length_penalty != 0:
       expand_sequence_lengths = tf.tile(tf.expand_dims(sequence_lengths, 1),
-                                   multiples=[1, vocab_size])
+                                        multiples=[1, vocab_size])
       expand_sequence_lengths = tf.reshape(expand_sequence_lengths,
-                                  [-1, self.beam_size * vocab_size])
+                                           [-1, self.beam_size * vocab_size])
       scores /= tf.pow(((5. + tf.cast(expand_sequence_lengths + 1, tf.float32)) / 6.),
-                          self.length_penalty)
+                       self.length_penalty)
 
     # Sample predictions.
     sample_ids, sample_scores = sampler(scores, num_samples=self.beam_size)
