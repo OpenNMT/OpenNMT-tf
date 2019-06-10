@@ -172,10 +172,11 @@ class BeamSearch(DecodingStrategy):
     initial_log_probs = tf.tile([0.] + [-float("inf")] * (self.beam_size - 1), [batch_size])
     parent_ids = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
     maximum_lengths = tf.zeros([batch_size], dtype=tf.int32)
-    return start_ids, finished, initial_log_probs, (parent_ids, maximum_lengths)
+    sequence_lengths = tf.zeros([batch_size * self.beam_size], dtype=tf.int32)
+    return start_ids, finished, initial_log_probs, (parent_ids, maximum_lengths, sequence_lengths)
 
   def step(self, step, sampler, log_probs, cum_log_probs, finished, state, extra_vars):
-    parent_ids, maximum_lengths = extra_vars
+    parent_ids, maximum_lengths, sequence_lengths = extra_vars
 
     # Compute scores from log probabilities.
     vocab_size = log_probs.shape.as_list()[-1]
@@ -183,7 +184,12 @@ class BeamSearch(DecodingStrategy):
     total_probs = tf.reshape(total_probs, [-1, self.beam_size * vocab_size])
     scores = total_probs
     if self.length_penalty != 0:
-      scores /= tf.pow(((5. + tf.cast(step + 1, tf.float32)) / 6.), self.length_penalty)
+      expand_sequence_lengths = tf.tile(tf.expand_dims(sequence_lengths, 1),
+                                   multiples=[1, vocab_size])
+      expand_sequence_lengths = tf.reshape(expand_sequence_lengths,
+                                  [-1, self.beam_size * vocab_size])
+      scores /= tf.pow(((5. + tf.cast(expand_sequence_lengths + 1, tf.float32)) / 6.),
+                          self.length_penalty)
 
     # Sample predictions.
     sample_ids, sample_scores = sampler(scores, num_samples=self.beam_size)
@@ -201,15 +207,19 @@ class BeamSearch(DecodingStrategy):
     finished_batch = tf.reduce_all(tf.reshape(finished, [-1, self.beam_size]), axis=-1)
     maximum_lengths = tf.where(finished_batch, x=maximum_lengths, y=maximum_lengths + 1)
 
+    # Update sequence_length of unfinished sequence.
+    sequence_lengths = tf.where(finished, x=sequence_lengths, y=sequence_lengths + 1)
+
     # Update state and flags.
     cum_log_probs = _gather_from_word_indices(total_probs, sample_ids)
     finished = tf.gather(finished, beam_indices)
+    sequence_lengths = tf.gather(sequence_lengths, beam_indices)
     parent_ids = parent_ids.write(step, beam_ids)
     state = compat.nest.map_structure(lambda s: _gather_state(s, beam_indices), state)
-    return word_ids, cum_log_probs, finished, state, (parent_ids, maximum_lengths)
+    return word_ids, cum_log_probs, finished, state, (parent_ids, maximum_lengths, sequence_lengths)
 
   def finalize(self, outputs, end_id, extra_vars, attention=None):
-    parent_ids, maximum_lengths = extra_vars
+    parent_ids, maximum_lengths, _ = extra_vars
     max_time = outputs.size()
     array_shape = [max_time, -1, self.beam_size]
     step_ids = tf.reshape(outputs.stack(), array_shape)
