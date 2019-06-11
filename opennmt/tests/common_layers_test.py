@@ -3,10 +3,8 @@ from parameterized import parameterized
 import tensorflow as tf
 
 from opennmt.layers import common
-from opennmt.tests import test_util
 
 
-@test_util.run_tf2_only
 class CommonLayersTest(tf.test.TestCase):
 
   @parameterized.expand([

@@ -2,10 +2,8 @@ import tensorflow as tf
 
 from opennmt.layers import rnn
 from opennmt.layers import reducer
-from opennmt.tests import test_util
 
 
-@test_util.run_tf2_only
 class RNNTest(tf.test.TestCase):
 
   def testRNNCell(self):
