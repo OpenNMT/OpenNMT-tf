@@ -345,7 +345,7 @@ def inference_pipeline(batch_size,
         raise ValueError("length_fn is required when reordering by length")
       if not isinstance(_get_output_shapes(dataset), dict):
         raise ValueError("Reordering by length expects dataset elements to be Python dicts")
-      dataset = dataset.apply(tf.data.experimental.enumerate_dataset())
+      dataset = dataset.enumerate()
       dataset = dataset.map(_inject_index)
       dataset = dataset.apply(tf.data.experimental.group_by_window(
           _key_func, _reduce_func, window_size=batch_size))
