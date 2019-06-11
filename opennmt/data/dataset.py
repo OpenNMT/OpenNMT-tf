@@ -30,7 +30,7 @@ def filter_irregular_batches(multiple):
   def _predicate(*x):
     flat = tf.nest.flatten(x)
     batch_size = tf.shape(flat[0])[0]
-    return tf.equal(tf.mod(batch_size, multiple), 0)
+    return tf.equal(batch_size % multiple, 0)
 
   return lambda dataset: dataset.filter(_predicate)
 
