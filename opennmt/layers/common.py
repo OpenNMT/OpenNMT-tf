@@ -68,9 +68,9 @@ class LayerNorm(tf.keras.layers.Layer):
   def build(self, input_shape):
     """Creates the variables."""
     depth = input_shape[-1]
-    self.bias = self.add_variable(
+    self.bias = self.add_weight(
         "beta", [depth], initializer=tf.keras.initializers.Constant(0))
-    self.scale = self.add_variable(
+    self.scale = self.add_weight(
         "gamma", [depth], initializer=tf.keras.initializers.Constant(1))
     super(LayerNorm, self).build(input_shape)
 
