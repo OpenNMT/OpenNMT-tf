@@ -5,17 +5,13 @@ from opennmt.data import dataset as dataset_util
 
 class DataTest(tf.test.TestCase):
 
-  def _iterDataset(self, dataset):
-    for element in dataset:
-      yield element
-
   def testIrregularBatches(self):
     batch_size = 12
     dataset = tf.data.Dataset.range(batch_size * 2 - 1)
     dataset = dataset.map(lambda x: {"x": x, "y": x + 1})
     dataset = dataset.batch(batch_size)
     dataset = dataset.apply(dataset_util.filter_irregular_batches(batch_size))
-    iterator = self._iterDataset(dataset)
+    iterator = iter(dataset)
     single_element = next(iterator)
     self.assertEqual(batch_size, single_element["x"].shape[0])
     with self.assertRaises(StopIteration):
@@ -27,7 +23,7 @@ class DataTest(tf.test.TestCase):
 
     dataset = tf.data.Dataset.range(dataset_size)
     dataset = dataset.apply(dataset_util.random_shard(shard_size, dataset_size))
-    gather = list(self._iterDataset(dataset))
+    gather = list(iter(dataset))
     self.assertAllEqual(list(range(dataset_size)), sorted(gather))
 
   def _testFilterByLength(self,
@@ -45,7 +41,7 @@ class DataTest(tf.test.TestCase):
         features_length_fn=lambda _: features_length,
         labels_length_fn=lambda _: labels_length))
 
-    iterator = self._iterDataset(dataset)
+    iterator = iter(dataset)
     if filtered:
       with self.assertRaises(StopIteration):
         next(iterator)
@@ -93,7 +89,7 @@ class DataTest(tf.test.TestCase):
         labels_length_fn=lambda x: x,
         **kwargs))
 
-    iterator = self._iterDataset(dataset)
+    iterator = iter(dataset)
     check_fn(iterator)
 
   def testBatchTrainDatasetSimple(self):
@@ -142,7 +138,7 @@ class DataTest(tf.test.TestCase):
     dataset = dataset.map(lambda x: {"length": x})
     dataset = dataset.apply(dataset_util.inference_pipeline(
         3, bucket_width=3, length_fn=lambda x: x["length"]))
-    elements = list(self._iterDataset(dataset))
+    elements = list(iter(dataset))
 
     def _check_element(element, length, index):
       self.assertAllEqual(element["length"], length)
