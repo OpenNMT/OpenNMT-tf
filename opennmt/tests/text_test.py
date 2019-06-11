@@ -4,7 +4,6 @@ from parameterized import parameterized
 
 import tensorflow as tf
 
-from opennmt.constants import PADDING_TOKEN as PAD
 from opennmt.data import text
 
 
@@ -26,7 +25,7 @@ class TextTest(tf.test.TestCase):
   def testTokensToCharsMixed(self):
     self._testTokensToChars(
         ["Just", "a", "测试"],
-        [["J", "u", "s", "t"], ["a", PAD, PAD, PAD], ["测", "试", PAD, PAD]],
+        [["J", "u", "s", "t"], ["a", "", "", ""], ["测", "试", "", ""]],
         [4, 1, 2])
 
   @parameterized.expand([
@@ -36,7 +35,7 @@ class TextTest(tf.test.TestCase):
   def testToWordsWithJoiner(self, tokens, expected):
     tokens = tf.constant(tokens)
     expected = tf.constant(expected)
-    words = text.tokens_to_words(tokens)
+    words, _ = text.tokens_to_words(tokens)
     words, expected = self.evaluate([words, expected])
     self.assertAllEqual(words, expected)
 
@@ -47,7 +46,7 @@ class TextTest(tf.test.TestCase):
   def testToWordsWithSpacer(self, tokens, expected):
     tokens = tf.constant(tokens)
     expected = tf.constant(expected)
-    words = text.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
+    words, _ = text.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
     words, expected = self.evaluate([words, expected])
     self.assertAllEqual(words, expected)
 
