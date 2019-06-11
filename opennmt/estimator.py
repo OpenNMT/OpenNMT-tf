@@ -242,7 +242,7 @@ def _extract_loss(loss):
 def _log_optimization(step, optimizer, gradients):
   """Logs some optimization information in TensorBoard."""
   learning_rate = optimizer.learning_rate
-  if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
+  if isinstance(learning_rate, tf.keras.optimizers.schedules.LearningRateSchedule):
     learning_rate = learning_rate(step)
   tf.compat.v1.summary.scalar("learning_rate", learning_rate)
   tf.compat.v1.summary.scalar("gradients/global_norm", tf.linalg.global_norm(gradients))

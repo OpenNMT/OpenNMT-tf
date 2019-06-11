@@ -32,7 +32,7 @@ class OptimTest(tf.test.TestCase):
 
   def testDelayedUpdate(self):
     with tf.Graph().as_default():
-      optimizer = tf.optimizers.SGD(1.0)
+      optimizer = tf.keras.optimizers.SGD(1.0)
       gradient = tf.compat.v1.placeholder(tf.float32, shape=[2])
       variable = tf.Variable([1.0, 2.0])
       train_op, extra_variables = optim.delayed_update(
@@ -57,10 +57,10 @@ class OptimTest(tf.test.TestCase):
   def testDelayedUpdateSparseGradients(self):
     with tf.Graph().as_default():
       # Test that delayed update does not crash on sparse gradients.
-      optimizer = tf.optimizers.SGD(1.0)
+      optimizer = tf.keras.optimizers.SGD(1.0)
       embeddings = tf.Variable([[1.0, 2.0], [3.0, 4.0]])
       x = tf.nn.embedding_lookup(embeddings, [0])
-      loss = tf.losses.MeanSquaredError()([[1.1, 2.1]], x)
+      loss = tf.keras.losses.MeanSquaredError()([[1.1, 2.1]], x)
       gradients = optimizer.get_gradients(loss, embeddings)
       _ = optim.delayed_update(
           optimizer,

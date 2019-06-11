@@ -16,7 +16,8 @@ def make_learning_rate_schedule(initial_learning_rate,
 
   Args:
     initial_learning_rate: The initial learning rate value or scale.
-    schedule_type: The type of decay. A function from ``tf.optimizers.schedules``
+    schedule_type: The type of decay. A function from
+      ``tf.keras.optimizers.schedules``
       or :mod:`opennmt.optimizers.lr_schedules` as a string.
     schedule_params: Additional parameters for the decay function.
     schedule_step_duration: The number of training steps that make 1 decay step.
@@ -24,14 +25,14 @@ def make_learning_rate_schedule(initial_learning_rate,
     minimum_learning_rate: Do not decay past this learning rate value.
 
   Returns:
-    A ``tf.optimizers.schedules.LearningRateSchedule`` instance.
+    A ``tf.keras.optimizers.schedules.LearningRateSchedule`` instance.
 
   Raises:
     ValueError: if :obj:`decay_type` can not be resolved.
   """
   schedule_name = None
   if schedule_name is None:
-    schedule_name = getattr(tf.optimizers.schedules, schedule_type, None)
+    schedule_name = getattr(tf.keras.optimizers.schedules, schedule_type, None)
   if schedule_name is None:
     schedule_name = getattr(lr_schedules, schedule_type, None)
   if schedule_name is None:
@@ -51,19 +52,19 @@ def make_optimizer(name, learning_rate, **kwargs):
   """Creates the optimizer.
 
   Args:
-    name: The name of the optimizer class in ``tf.optimizers`` as a string.
+    name: The name of the optimizer class in ``tf.keras.optimizers`` as a string.
     learning_rate: The learning rate or learning rate schedule to use.
     **kwargs: Additional optimizer arguments.
 
   Returns:
-    A ``tf.optimizers.Optimizer`` instance.
+    A ``tf.keras.optimizers.Optimizer`` instance.
 
   Raises:
     ValueError: if :obj:`name` can not be resolved to an optimizer class.
   """
   optimizer_class = None
   if optimizer_class is None:
-    optimizer_class = getattr(tf.optimizers, name, None)
+    optimizer_class = getattr(tf.keras.optimizers, name, None)
   if optimizer_class is None:
     optimizer_class = getattr(tfa.optimizers, name, None)
   if optimizer_class is None:

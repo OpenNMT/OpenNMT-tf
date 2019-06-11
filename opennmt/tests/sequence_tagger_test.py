@@ -17,9 +17,9 @@ class SequenceTaggerTest(tf.test.TestCase):
     predicted = np.array([[tf.compat.as_bytes(c) for c in predicted]])
     gold_flags, predicted_flags = tag_fn(labels, predicted)
 
-    true_positives = tf.metrics.TruePositives()
-    false_positives = tf.metrics.FalsePositives()
-    false_negatives = tf.metrics.FalseNegatives()
+    true_positives = tf.keras.metrics.TruePositives()
+    false_positives = tf.keras.metrics.FalsePositives()
+    false_negatives = tf.keras.metrics.FalseNegatives()
     true_positives.update_state(gold_flags, predicted_flags)
     false_positives.update_state(gold_flags, predicted_flags)
     false_negatives.update_state(gold_flags, predicted_flags)

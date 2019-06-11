@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 
 
-class ScheduleWrapper(tf.optimizers.schedules.LearningRateSchedule):
+class ScheduleWrapper(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Wrapper to augment a learning rate scheduler behavior."""
 
   def __init__(self,
@@ -15,7 +15,7 @@ class ScheduleWrapper(tf.optimizers.schedules.LearningRateSchedule):
     """Initializes the decay function.
 
     Args:
-      schedule: A :class:`tf.optimizers.schedules.LearningRateSchedule`.
+      schedule: A :class:`tf.keras.optimizers.schedules.LearningRateSchedule`.
       step_duration: The number of training steps that make 1 decay step.
       start_step: Start decay after this many steps.
       minimum_learning_rate: Do not decay past this learning rate value.
@@ -33,7 +33,7 @@ class ScheduleWrapper(tf.optimizers.schedules.LearningRateSchedule):
     return tf.maximum(learning_rate, self.minimum_learning_rate)
 
 
-class NoamDecay(tf.optimizers.schedules.LearningRateSchedule):
+class NoamDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Defines the decay function described in https://arxiv.org/abs/1706.03762."""
 
   def __init__(self, scale, model_dim, warmup_steps):
@@ -55,7 +55,7 @@ class NoamDecay(tf.optimizers.schedules.LearningRateSchedule):
             * tf.minimum(tf.pow(step, -0.5), step * tf.pow(self.warmup_steps, -1.5)))
 
 
-class RsqrtDecay(tf.optimizers.schedules.LearningRateSchedule):
+class RsqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Decay based on the reciprocal of the step square root."""
 
   def __init__(self, scale, warmup_steps):
@@ -73,7 +73,7 @@ class RsqrtDecay(tf.optimizers.schedules.LearningRateSchedule):
     return self.scale * tf.rsqrt(tf.maximum(step, self.warmup_steps))
 
 
-class CosineAnnealing(tf.optimizers.schedules.LearningRateSchedule):
+class CosineAnnealing(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Decay using a cosine annealing schedule."""
 
   def __init__(self, eta_max, eta_min=0, max_step=1000000, warmup_steps=None):
@@ -102,7 +102,7 @@ class CosineAnnealing(tf.optimizers.schedules.LearningRateSchedule):
     return tf.cond(tf.less(step, self.warmup_steps), true_fn=linear, false_fn=annealing)
 
 
-class RNMTPlusDecay(tf.optimizers.schedules.LearningRateSchedule):
+class RNMTPlusDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Defines the decay function described in https://arxiv.org/abs/1804.09849."""
 
   def __init__(self,

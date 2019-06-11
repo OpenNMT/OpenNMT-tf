@@ -65,7 +65,7 @@ class SequenceClassifier(Model):
         training=training)
 
   def compute_metrics(self, predictions, labels):
-    accuracy = tf.metrics.Accuracy()
+    accuracy = tf.keras.metrics.Accuracy()
     accuracy.update_state(labels["classes_id"], predictions["classes_id"])
     return {
         "accuracy": accuracy

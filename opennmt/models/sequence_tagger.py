@@ -74,7 +74,7 @@ class SequenceTagger(Model):
     weights = tf.sequence_mask(
         labels["length"], maxlen=tf.shape(labels["tags"])[1], dtype=tf.float32)
 
-    accuracy = tf.metrics.Accuracy()
+    accuracy = tf.keras.metrics.Accuracy()
     accuracy.update_state(labels["tags_id"], predictions["tags_id"], sample_weight=weights)
 
     eval_metric_ops = {}
@@ -120,7 +120,7 @@ class TagsInputter(inputters.TextInputter):
     }
 
 
-class F1(tf.metrics.Metric):
+class F1(tf.keras.metrics.Metric):
   """Defines a F1 metric."""
 
   def __init__(self, **kwargs):
@@ -130,8 +130,8 @@ class F1(tf.metrics.Metric):
       **kwargs: Base class arguments.
     """
     super(F1, self).__init__(**kwargs)
-    self.precision = tf.metrics.Precision()
-    self.recall = tf.metrics.Recall()
+    self.precision = tf.keras.metrics.Precision()
+    self.recall = tf.keras.metrics.Recall()
 
   def __new__(cls, *args, **kwargs):  # pylint: disable=unused-argument
     # TODO: remove this hack if possible.

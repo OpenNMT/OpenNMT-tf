@@ -118,7 +118,7 @@ class Model(tf.keras.Model):
       params: A dictionary of hyperparameters.
 
     Returns:
-      A ``tf.optimizers.Optimizer`` instance.
+      A ``tf.keras.optimizers.Optimizer`` instance.
     """
     if params is None:
       params = {}
@@ -143,7 +143,7 @@ class Model(tf.keras.Model):
 
     Args:
       loss: The loss.
-      optimizer: The ``tf.optimizers.Optimizer`` instance.
+      optimizer: The ``tf.keras.optimizers.Optimizer`` instance.
       variables: List of variables.
       params: A dictionary of hyperparameters.
 
@@ -169,7 +169,7 @@ class Model(tf.keras.Model):
 
     Args:
       gradients: The list of gradients to apply.
-      optimizer: The ``tf.optimizers.Optimizer`` instance.
+      optimizer: The ``tf.keras.optimizers.Optimizer`` instance.
       variables: List of variables.
       params: A dictionary of hyperparameters.
       step: An optional step counter to increment when the parameters are
