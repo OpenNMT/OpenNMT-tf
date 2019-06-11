@@ -178,7 +178,7 @@ class WordReplacement(Noise):
     replace_mask = random_mask(shape[:1], self.probability)
     filler = tf.fill([shape[0], 1], self.filler)
     filler = tf.pad(filler, [[0, 0], [0, shape[-1] - 1]])
-    return tf.where(replace_mask, x=filler, y=words)
+    return tf.where(tf.expand_dims(replace_mask, -1), x=filler, y=words)
 
 
 class WordPermutation(Noise):

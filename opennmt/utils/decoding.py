@@ -283,7 +283,7 @@ def dynamic_decode(symbols_to_logits_fn,
     logits = tf.cond(
         step < minimum_iterations,
         true_fn=lambda: _penalize_token(logits, end_id),
-        false_fn=lambda: tf.where(finished, x=eos_max_prob, y=logits))
+        false_fn=lambda: tf.where(tf.expand_dims(finished, -1), x=eos_max_prob, y=logits))
     log_probs = tf.nn.log_softmax(logits)
 
     # Run one decoding strategy step.
