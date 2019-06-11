@@ -230,7 +230,7 @@ class SequenceToSequence(Model):
 
       num_hypotheses = params.get("num_hypotheses", 1)
       if num_hypotheses > 0:
-        if num_hypotheses > beam_width:
+        if num_hypotheses > beam_size:
           raise ValueError("n_best cannot be greater than beam_width")
         for key, value in six.iteritems(predictions):
           predictions[key] = value[:, :num_hypotheses]
