@@ -138,12 +138,13 @@ class Model(tf.keras.Model):
         **params.get("optimizer_params", {}))
     return optimizer
 
-  def compute_gradients(self, loss, optimizer, params=None):
+  def compute_gradients(self, loss, optimizer, variables=None, params=None):
     """Computes the gradients.
 
     Args:
       loss: The loss.
       optimizer: The ``tf.optimizers.Optimizer`` instance.
+      variables: List of variables.
       params: A dictionary of hyperparameters.
 
     Returns:
@@ -151,7 +152,8 @@ class Model(tf.keras.Model):
     """
     if params is None:
       params = {}
-    variables = self.trainable_variables
+    if variables is None:
+      variables = self.trainable_variables
     regularization = params.get("regularization")
     if regularization is not None:
       loss += optim.regularization_penalty(
@@ -162,12 +164,13 @@ class Model(tf.keras.Model):
       gradients, _ = tf.clip_by_global_norm(gradients, float(clip_gradients))
     return gradients
 
-  def apply_gradients(self, gradients, optimizer, params=None, step=None):
+  def apply_gradients(self, gradients, optimizer, variables=None, params=None, step=None):
     """Applies the gradients.
 
     Args:
       gradients: The list of gradients to apply.
       optimizer: The ``tf.optimizers.Optimizer`` instance.
+      variables: List of variables.
       params: A dictionary of hyperparameters.
       step: An optional step counter to increment when the parameters are
         updated.
@@ -178,9 +181,11 @@ class Model(tf.keras.Model):
     """
     if params is None:
       params = {}
+    if variables is None:
+      variables = self.trainable_variables
     return optim.delayed_update(
         optimizer,
-        list(zip(gradients, self.trainable_variables)),
+        list(zip(gradients, variables)),
         accum_count=params.get("gradients_accum", 1),
         global_step=step)
 
