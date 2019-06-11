@@ -131,7 +131,7 @@ class ModelTest(tf.test.TestCase):
       else:
         features, labels = data, None
       estimator_spec = estimator.make_model_fn(model)(features, labels, params, mode, None)
-      with self.test_session() as sess:
+      with self.session() as sess:
         sess.run(tf.compat.v1.global_variables_initializer())
         sess.run(tf.compat.v1.local_variables_initializer())
         sess.run(tf.compat.v1.tables_initializer())
