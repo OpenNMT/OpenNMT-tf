@@ -17,7 +17,7 @@ root_dir = os.path.join(test_dir, "..", "..")
 test_data = os.path.join(root_dir, "testdata")
 
 
-@test_util.run_tf1_only
+@unittest.skip
 class RunnerTest(tf.test.TestCase):
 
   def _getTransliterationRunner(self, base_config=None):
