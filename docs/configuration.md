@@ -151,8 +151,10 @@ params:
   # (optional) Number of hypotheses to return (default: 1). Set 0 to return all
   # available hypotheses. This value is also set by infer/n_best.
   num_hypotheses: 1
-  # (optional) Length penaly weight to apply on hypotheses (default: 0).
+  # (optional) Length penaly weight to use during beam search (default: 0).
   length_penalty: 0.2
+  # (optional) Coverage penaly weight to use during beam search (default: 0).
+  coverage_penalty: 0.2
   # (optional) Sample predictions from the top K most likely tokens (requires
   # beam_width to 1). If 0, sample from the full output distribution (default: 1).
   sampling_topk: 1
