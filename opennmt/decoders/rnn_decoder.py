@@ -147,8 +147,7 @@ class AttentionalRNNDecoder(RNNDecoder):
            memory=None,
            memory_sequence_length=None,
            training=None):
-    # TODO: pass training flag after https://github.com/tensorflow/addons/pull/272.
-    outputs, state = self.cell(inputs, state)
+    outputs, state = self.cell(inputs, state, training=training)
     outputs = common.dropout(outputs, self.dropout, training=training)
     if self.first_layer_attention:
       attention = state[0].alignments
