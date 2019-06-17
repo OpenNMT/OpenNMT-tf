@@ -90,13 +90,6 @@ params:
     scale_min: 1.0
     step_factor: 2.0
 
-  # (optional) Horovod parameters.
-  horovod:
-    # (optional) Compression type for gradients (can be: "none", "fp16", default: "none").
-    compression: none
-    # (optional) Average the reduced gradients (default: false).
-    average_gradients: false
-
   # (optional) Weights regularization penalty (default: null).
   regularization:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).

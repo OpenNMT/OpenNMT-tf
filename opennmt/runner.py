@@ -56,8 +56,7 @@ class Runner(object):
                seed=None,
                num_devices=1,
                session_config=None,
-               auto_config=False,
-               hvd=None):
+               auto_config=False):
     """Initializes the runner parameters.
 
     Args:
@@ -68,7 +67,6 @@ class Runner(object):
       session_config: ``tf.compat.v1.ConfigProto`` overrides.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
-      hvd: Optional Horovod object.
 
     Raises:
       NotImplementedError: If :obj:`auto_config` is ``True`` but :obj:`model`
@@ -76,9 +74,8 @@ class Runner(object):
     """
     self._model = model
     self._num_devices = num_devices
-    self._num_replicas = hvd.size() if hvd is not None else num_devices
+    self._num_replicas = num_devices
     self._seed = seed
-    self._hvd = hvd
 
     # Configuration priority: user config > auto config > default config.
     self._config = copy.deepcopy(_CONFIG_FALLBACK)
@@ -95,8 +92,6 @@ class Runner(object):
     session_config_base = tf.compat.v1.ConfigProto(
         allow_soft_placement=True,
         log_device_placement=False)
-    if self._hvd is not None:
-      session_config_base.gpu_options.visible_device_list = str(self._hvd.local_rank())
     if session_config is not None:
       session_config_base.MergeFrom(session_config)
     self._session_config = session_config_base
@@ -137,15 +132,12 @@ class Runner(object):
     return tf.estimator.Estimator(
         estimator_util.make_model_fn(
             self._model,
-            eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
-            hvd=self._hvd),
+            eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn()),
         config=run_config,
         params=params)
 
   def is_chief(self):
     """Returns ``True`` if this runner is the master runner."""
-    if self._hvd is not None:
-      return self._hvd.rank() == 0
     cluster_spec = os.getenv("TF_CONFIG")
     if cluster_spec is None:
       return True
@@ -208,12 +200,8 @@ class Runner(object):
     if checkpoint_path is not None:
       # TODO: reimplement this hook for V2.
       train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
-    if self._hvd is not None:
-      train_hooks.append(self._hvd.BroadcastGlobalVariablesHook(0))
 
     train_steps = self._config["train"].get("train_steps")
-    if train_steps is not None and self._hvd is not None:
-      train_steps //= self._hvd.size()
     train_spec = tf.estimator.TrainSpec(
         input_fn=estimator_util.make_input_fn(
             self._model,
@@ -227,8 +215,6 @@ class Runner(object):
             maximum_labels_length=self._config["train"].get("maximum_labels_length"),
             shuffle_buffer_size=self._config["train"]["sample_buffer_size"],
             single_pass=self._config["train"].get("single_pass", False),
-            num_shards=self._hvd.size() if self._hvd is not None else 1,
-            shard_index=self._hvd.rank() if self._hvd is not None else 0,
             num_threads=self._config["train"].get("num_threads"),
             prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size")),
         max_steps=train_steps,

@@ -122,9 +122,7 @@ def make_input_fn(model,
 
   return _fn
 
-def make_model_fn(model,
-                  eval_prediction_hooks_fn=None,
-                  hvd=None):
+def make_model_fn(model, eval_prediction_hooks_fn=None):
   """Creates the model function.
 
   Args:
@@ -133,7 +131,6 @@ def make_model_fn(model,
     eval_prediction_hooks_fn: A callable that takes the model predictions
       during evaluation and return an iterable of evaluation hooks (e.g. for
       saving predictions on disk, running external evaluators, etc.).
-    hvd: Optional Horovod object.
 
   See Also:
     ``tf.estimator.Estimator`` 's ``model_fn`` argument for more details about

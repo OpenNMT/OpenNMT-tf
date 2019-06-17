@@ -30,7 +30,7 @@ and all of the above can be used simultaneously to train novel and complex archi
 OpenNMT-tf is also compatible with some of the best TensorFlow features:
 
 * multi-GPU training
-* distributed training via [Horovod](https://github.com/uber/horovod) or TensorFlow asynchronous training
+* distributed training TensorFlow asynchronous training
 * monitoring with [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard)
 * inference with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) and the [TensorFlow C++ API](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/cpp)
 
