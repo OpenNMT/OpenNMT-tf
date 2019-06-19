@@ -5,21 +5,21 @@
 The script `onmt-average-checkpoints` can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:
 
 ```bash
-onmt-average-checkpoints \
-    --model_dir run/baseline-enfr \
+onmt-main average-checkpoints \
+    --config config/my_config.yml --auto_config \
     --output_dir run/baseline-enfr/avg \
     --max_count 5
 ```
 
-will average the parameters of the 5 latest checkpoints in the `run/baseline-enfr` model directory and save a new checkpoint in the directory `run/baseline-enfr/avg`.
+will average the parameters of the 5 latest checkpoints from the model directory configured in `config/my_config.yml` and save a new checkpoint in the directory `run/baseline-enfr/avg`.
 
 Then, execute the inference by setting the `--checkpoint_path` option, e.g.:
 
 ```bash
 onmt-main \
-    --config config/my_config.yml \
-    --checkpoint_path run/baseline-enfr/avg/model.ckpt-200000 \
-    infer --features_file newstest2014.en.tok --predictions_file newstest2014.en.tok.out \
+    --config config/my_config.yml --auto_config \
+    --checkpoint_path run/baseline-enfr/avg/ckpt-200000 \
+    infer --features_file newstest2014.en.tok --predictions_file newstest2014.en.tok.out
 ```
 
 To control the saving of checkpoints during the training, configure the following options in your configuration file:

@@ -211,48 +211,75 @@ def update_vocab(model_dir,
       output_dir,
       session_config=session_config)
 
-
-def average_checkpoints(model_dir, output_dir, max_count=8, session_config=None):
-  """Averages checkpoints.
+def average_checkpoints(model_dir,
+                        output_dir,
+                        trackables,
+                        max_count=8,
+                        model_key="model"):
+  """Averages object-based checkpoints.
 
   Args:
     model_dir: The directory containing checkpoints.
     output_dir: The directory that will contain the averaged checkpoint.
+    trackables: A dictionary containing the trackable objects included in the
+      checkpoint.
     max_count: The maximum number of checkpoints to average.
-    session_config: Configuration to use when creating the session.
+    model_key: The key in :obj:`trackables` that references the model.
 
   Returns:
     The path to the directory containing the averaged checkpoint.
 
   Raises:
     ValueError: if :obj:`output_dir` is the same as :obj:`model_dir`.
+    ValueError: if a model is not found in :obj:`trackables` or is not already
+      built.
+    ValueError: if no checkpoints are found in :obj:`model_dir`.
   """
   if model_dir == output_dir:
     raise ValueError("Model and output directory must be different")
+  model = trackables.get(model_key)
+  if model is None:
+    raise ValueError("%s not found in trackables %s" % (model_key, trackables))
+  if not model.built:
+    raise ValueError("The model should be built before calling this function")
 
-  checkpoints_path = tf.train.get_checkpoint_state(model_dir).all_model_checkpoint_paths
+  checkpoint = tf.train.Checkpoint(**trackables)
+  checkpoint_manager = tf.train.CheckpointManager(checkpoint, model_dir, max_to_keep=None)
+
+  checkpoints_path = checkpoint_manager.checkpoints
+  if not checkpoints_path:
+    raise ValueError("No checkpoints found in %s" % model_dir)
   if len(checkpoints_path) > max_count:
     checkpoints_path = checkpoints_path[-max_count:]
   num_checkpoints = len(checkpoints_path)
+  last_step = int(checkpoints_path[-1].split("-")[-1])
 
-  tf.logging.info("Averaging %d checkpoints..." % num_checkpoints)
-  tf.logging.info("Listing variables...")
+  tf.get_logger().info("Averaging %d checkpoints...", num_checkpoints)
+  for i, checkpoint_path in enumerate(reversed(checkpoints_path)):
+    tf.get_logger().info("Reading checkpoint %s...", checkpoint_path)
+    if i == 0:
+      checkpoint.restore(checkpoint_path).assert_existing_objects_matched()
+      for variable in model.variables:
+        variable.assign(variable / num_checkpoints)
+    else:
+      for path, _ in tf.train.list_variables(checkpoint_path):
+        if not path.startswith(model_key) or ".OPTIMIZER_SLOT" in path:
+          continue
+        variable = _get_variable_from_path(trackables, path)
+        if variable is None:
+          continue
+        value = tf.train.load_variable(checkpoint_path, path)
+        variable.assign_add(value / num_checkpoints)
 
-  new_variables = {}
-  for i, checkpoint_path in enumerate(checkpoints_path):
-    tf.logging.info("Loading checkpoint %s" % checkpoint_path)
-    variables = get_checkpoint_variables(checkpoint_path)
-    for name, value in six.iteritems(variables):
-      if _variable_is_trainable(name, value):
-        scaled_value = value / num_checkpoints
-        if name in new_variables:
-          new_variables[name] += scaled_value
-        else:
-          new_variables[name] = scaled_value
-      elif i + 1 == num_checkpoints:  # Take non trainable variables from the last checkpoint.
-        new_variables[name] = value
+  new_checkpoint_manager = tf.train.CheckpointManager(checkpoint, output_dir, max_to_keep=None)
+  new_checkpoint_manager.save(checkpoint_number=last_step)
+  return output_dir
 
-  return _create_checkpoint_from_variables(
-      new_variables,
-      output_dir,
-      session_config=session_config)
+def _get_variable_from_path(trackables, path):
+  fields = path.split("/")
+  value = trackables[fields[0]]
+  for key in fields[1:]:
+    value = getattr(value, key, None)
+    if value is None or isinstance(value, tf.Variable):
+      return value
+  return None

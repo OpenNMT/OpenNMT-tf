@@ -258,7 +258,7 @@ class Runner(object):
     eval_spec = self._build_eval_spec()
     estimator = self._make_estimator()
     result = tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
-    self._maybe_average_checkpoints(estimator)
+    self._maybe_average_checkpoints()
     return result
 
   def train(self, checkpoint_path=None):
@@ -368,8 +368,7 @@ class Runner(object):
       if step == train_steps:
         break
 
-    # TODO: auto averaging.
-    return output_dir
+    return self._maybe_average_checkpoints()
 
   def evaluate(self, checkpoint_path=None):
     """Runs evaluation.
@@ -387,25 +386,24 @@ class Runner(object):
     return estimator.evaluate(
         eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
 
-  def _maybe_average_checkpoints(self, estimator, avg_subdirectory="avg"):
+  def _maybe_average_checkpoints(self, avg_subdirectory="avg"):
     """Averages checkpoints if enabled in the training configuration and if the
     current training instance is the chief.
 
     Args:
-      estimator: The ``tf.estimator.Estimator`` instance used for the training.
       avg_subdirectory: The directory within the model directory that will
         contain the averaged checkpoint.
 
     Returns:
-      The path to the directory containing the averaged checkpoint or ``None``
-      if no checkpoints were averaged.
+      The path to the latest model directory.
     """
     average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
+    model_dir = self._config["model_dir"]
     if average_last_checkpoints > 0 and self.is_chief():
       return self.average_checkpoints(
-          os.path.join(estimator.model_dir, avg_subdirectory),
+          os.path.join(model_dir, avg_subdirectory),
           max_count=average_last_checkpoints)
-    return None
+    return model_dir
 
   def average_checkpoints(self, output_dir, max_count=8):
     """Averages checkpoints.
@@ -417,11 +415,18 @@ class Runner(object):
     Returns:
       The path to the directory containing the averaged checkpoint.
     """
+    optimizer = self._model.get_optimizer(params=self._config["params"])
+    # Create all variables.
+    self._model.create_variables()
+    _ = optimizer.iterations
+    optimizer._create_hypers()
+    optimizer._create_slots(self._model.trainable_variables)
+    trackables = dict(model=self._model, optimizer=optimizer)
     return checkpoint.average_checkpoints(
         self._config["model_dir"],
         output_dir,
-        max_count=max_count,
-        session_config=self._session_config)
+        trackables,
+        max_count=max_count)
 
   def infer(self,
             features_file,

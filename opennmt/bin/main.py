@@ -123,6 +123,15 @@ def main():
   parser_score.add_argument("--predictions_file", required=True,
                             help="Predictions to score.")
 
+  parser_average_checkpoints = subparsers.add_parser(
+      "average_checkpoints", help="Checkpoint averaging.")
+  parser_average_checkpoints.add_argument(
+      "--output_dir", required=True,
+      help="The output directory for the averaged checkpoint.")
+  parser_average_checkpoints.add_argument(
+      "--max_count", type=int, default=8,
+      help="The maximal number of checkpoints to average.")
+
   args = parser.parse_args()
 
   tf.compat.v1.logging.set_verbosity(getattr(tf.compat.v1.logging, args.log_level))
@@ -195,6 +204,8 @@ def main():
         args.features_file,
         args.predictions_file,
         checkpoint_path=args.checkpoint_path)
+  elif args.run == "average_checkpoints":
+    runner.average_checkpoints(args.output_dir, max_count=args.max_count)
 
 
 if __name__ == "__main__":

@@ -189,6 +189,20 @@ class Model(tf.keras.Model):
         accum_count=params.get("gradients_accum", 1),
         global_step=step)
 
+  def create_variables(self, params=None):
+    """Creates the model variables by running it once."""
+    if self.built:
+      return
+    if params is None:
+      params = {}
+
+    @tf.function(input_signature=(self.features_inputter.input_signature(),))
+    def _run(features):
+      features = self.features_inputter.make_features(features=features.copy())
+      self(features, None, params, tf.estimator.ModeKeys.PREDICT)
+
+    _run.get_concrete_function()
+
   def get_assets(self, asset_dir):
     """Returns additional assets used by this model.
 

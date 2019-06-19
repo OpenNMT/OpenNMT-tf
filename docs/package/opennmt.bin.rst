@@ -12,7 +12,6 @@ Submodules
 .. toctree::
 
    opennmt.bin.ark_to_records
-   opennmt.bin.average_checkpoints
    opennmt.bin.build_vocab
    opennmt.bin.convert_checkpoint
    opennmt.bin.detokenize_text

@@ -285,5 +285,13 @@ class ModelTest(tf.test.TestCase):
         metrics=["accuracy"],
         params=params)
 
+  def testCreateVariables(self):
+    _, _, data_config = self._makeToyEnDeData()
+    model, params = _seq2seq_model(tf.estimator.ModeKeys.PREDICT)
+    model.initialize(data_config)
+    model.create_variables(params=params)
+    self.assertTrue(len(model.trainable_variables) > 0)
+
+
 if __name__ == "__main__":
   tf.test.main()
