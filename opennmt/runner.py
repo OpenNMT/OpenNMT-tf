@@ -22,7 +22,6 @@ from opennmt import models
 from opennmt.data import dataset as dataset_util
 from opennmt.utils import hooks, checkpoint, misc
 from opennmt.utils import evaluator
-from opennmt.utils.misc import format_translation_output, OrderRestorer
 
 
 # These options require a value but we can fallback to a default one.
@@ -325,7 +324,7 @@ class Runner(object):
     checkpoint_manager = tf.train.CheckpointManager(
         checkpoint,
         output_dir,
-        train_config["keep_checkpoint_max"])
+        train_config.get("keep_checkpoint_max", 8))
     if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
     elif checkpoint_path is None and checkpoint_manager.latest_checkpoint is not None:
@@ -489,7 +488,7 @@ class Runner(object):
       for prediction in misc.extract_batches(predictions):
         if "index" in prediction:
           if ordered_writer is None:
-            ordered_writer = OrderRestorer(
+            ordered_writer = misc.OrderRestorer(
                 index_fn=lambda prediction: prediction["index"], callback_fn=write_fn)
           ordered_writer.push(prediction)
         else:
@@ -551,32 +550,22 @@ class Runner(object):
       raise ValueError("predictions_file is required when scoring with a "
                        "sequence to sequence model")
 
-    if checkpoint_path is None:
-      checkpoint_path = tf.train.latest_checkpoint(self._config["model_dir"])
-    elif tf.io.gfile.isdir(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    if checkpoint_path is None:
-      raise ValueError("could not find a trained model in %s" % self._config["model_dir"])
+    _restore_checkpoint(self._model, self._config["model_dir"], checkpoint_path=checkpoint_path)
 
-    model = copy.deepcopy(self._model)
-    with tf.Graph().as_default():
-      dataset = model.examples_inputter.make_evaluation_dataset(
-          features_file,
-          predictions_file,
-          self._config["score"]["batch_size"],
-          num_threads=self._config["score"].get("num_threads"),
-          prefetch_buffer_size=self._config["score"].get("prefetch_buffer_size"))
-      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
-      features, labels = iterator.get_next()
-      labels["alignment"] = None  # Add alignment key to force the model to return attention.
-      outputs, _ = model(
-          features,
-          labels,
-          self._config["params"],
-          tf.estimator.ModeKeys.EVAL)
+    params = self._config["params"]
+    score_config = self._config["score"]
+    dataset = self._model.examples_inputter.make_evaluation_dataset(
+        features_file,
+        predictions_file,
+        score_config["batch_size"],
+        num_threads=score_config.get("num_threads"),
+        prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
 
+    @tf.function(input_signature=dataset_util.input_signature_from_dataset(dataset))
+    def _score(features, labels):
+      outputs, _ = self._model(source, target, params, tf.estimator.ModeKeys.EVAL)
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-          logits=outputs["logits"], labels=labels["ids_out"])
+          labels["ids_out"], outputs["logits"])
       weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
       masked_cross_entropy = cross_entropy * weights
       scores = tf.reduce_sum(masked_cross_entropy, axis=1)
@@ -588,43 +577,40 @@ class Runner(object):
       }
       if "attention" in outputs:
         results["attention"] = outputs["attention"]
+      return results
 
-      if output_file:
-        stream = io.open(output_file, encoding="utf-8", mode="w")
-      else:
-        stream = sys.stdout
+    if output_file:
+      stream = io.open(output_file, encoding="utf-8", mode="w")
+    else:
+      stream = sys.stdout
 
-      output_tokenizer = (
-          self._model.labels_inputter.tokenizer if not self._model.unsupervised
-          else self._model.features_inputter.tokenizer)
-      checkpoint_saver = tf.train.Checkpoint(model=model)
-      with tf.compat.v1.train.MonitoredSession(
-          session_creator=tf.compat.v1.train.ChiefSessionCreator(
-              scaffold=tf.compat.v1.train.Scaffold(saver=checkpoint_saver),
-              checkpoint_filename_with_path=checkpoint_path,
-              config=self._session_config)) as sess:
-        sess.run(iterator.initializer)
-        while not sess.should_stop():
-          for batch in misc.extract_batches(sess.run(results)):
-            tokens = batch["tokens"][:batch["length"]]
-            sentence = output_tokenizer.detokenize(tokens)
-            token_level_scores = None
-            attention = None
-            if self._config["score"].get("with_token_level"):
-              token_level_scores = batch["cross_entropy"][:batch["length"]]
-            if "attention" in batch:
-              attention = batch["attention"][:batch["length"]]
-            alignment_type = self._config["score"].get("with_alignments")
-            sentence = format_translation_output(
-                sentence,
-                score=batch["score"],
-                token_level_scores=token_level_scores,
-                attention=attention,
-                alignment_type=alignment_type)
-            misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+    output_tokenizer = (
+        self._model.labels_inputter.tokenizer if not self._model.unsupervised
+        else self._model.features_inputter.tokenizer)
 
-      if output_file:
-        stream.close()
+    for source, target in dataset:
+      results = _score(source, target)
+      results = {k:v.numpy() for k, v in six.iteritems(results)}
+      for batch in misc.extract_batches(results):
+        tokens = batch["tokens"][:batch["length"]]
+        sentence = output_tokenizer.detokenize(tokens)
+        token_level_scores = None
+        attention = None
+        if score_config.get("with_token_level"):
+          token_level_scores = batch["cross_entropy"][:batch["length"]]
+        if "attention" in batch:
+          attention = batch["attention"][:batch["length"]]
+        alignment_type = score_config.get("with_alignments")
+        sentence = misc.format_translation_output(
+            sentence,
+            score=batch["score"],
+            token_level_scores=token_level_scores,
+            attention=attention,
+            alignment_type=alignment_type)
+        misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+
+    if output_file:
+      stream.close()
 
 def _make_exporters(exporters_type, serving_input_fn, assets_extra=None):
   if exporters_type is None:

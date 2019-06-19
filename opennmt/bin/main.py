@@ -120,7 +120,7 @@ def main():
   parser_score = subparsers.add_parser("score", help="Scoring.")
   parser_score.add_argument("--features_file", nargs="+", required=True,
                             help="Features file.")
-  parser_score.add_argument("--predictions_file", required=True,
+  parser_score.add_argument("--predictions_file", default=None,
                             help="Predictions to score.")
 
   parser_average_checkpoints = subparsers.add_parser(
