@@ -13,8 +13,8 @@ train:
 and then:
 
 ```text
-onmt-main train [...]  # 1st epoch
-onmt-main train [...]  # 2nd epoch
+onmt-main [...] train  # 1st epoch
+onmt-main [...] train  # 2nd epoch
 ...
 ```
 

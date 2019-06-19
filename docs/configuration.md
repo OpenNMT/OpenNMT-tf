@@ -295,7 +295,7 @@ score:
 Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the `--auto_config` flag:
 
 ```bash
-onmt-main train_and_eval --model_type Transformer --config my_data.yml --auto_config
+onmt-main --model_type Transformer --config my_data.yml --auto_config train_and_eval
 ```
 
 The user provided `my_data.yml` file will minimaly require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
@@ -312,8 +312,8 @@ At the start of the training, the configuration values actually used will be log
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
 
 ```bash
-onmt-main [...] --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
-    config/data/toy-ende.yml
+onmt-main --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
+    config/data/toy-ende.yml [...]
 ```
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
@@ -339,7 +339,7 @@ gpu_options {
 ```
 
 ```bash
-onmt-main [...] --session_config config/session_config.txt
+onmt-main --session_config config/session_config.txt [...]
 ```
 
 For possible options and values, see the [`tf.ConfigProto`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto) file.

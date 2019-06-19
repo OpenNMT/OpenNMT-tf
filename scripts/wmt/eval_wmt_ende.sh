@@ -25,9 +25,10 @@ perl input-from-sgm.perl < $DATA_PATH/test/$testset-src.$sl.sgm \
 perl input-from-sgm.perl < $DATA_PATH/test/$testset-ref.$tl.sgm > data/$testset-ref.$tl
 
 if true; then
-  onmt-main infer \
+  onmt-main \
             --config config/wmt_ende.yml --auto_config \
             --checkpoint_path=$runconfig/avg \
+            infer \
             --features_file data/$testset-src.$sl \
             > data/$testset-src.hyp.$tl
 fi

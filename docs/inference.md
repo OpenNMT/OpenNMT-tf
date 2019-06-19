@@ -16,11 +16,10 @@ will average the parameters of the 5 latest checkpoints in the `run/baseline-enf
 Then, execute the inference by setting the `--checkpoint_path` option, e.g.:
 
 ```bash
-onmt-main infer \
+onmt-main \
     --config config/my_config.yml \
-    --features_file newstest2014.en.tok \
-    --predictions_file newstest2014.en.tok.out \
-    --checkpoint_path run/baseline-enfr/avg/model.ckpt-200000
+    --checkpoint_path run/baseline-enfr/avg/model.ckpt-200000 \
+    infer --features_file newstest2014.en.tok --predictions_file newstest2014.en.tok.out \
 ```
 
 To control the saving of checkpoints during the training, configure the following options in your configuration file:

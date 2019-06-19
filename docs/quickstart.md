@@ -46,7 +46,7 @@ data:
 ## Step 2: Train the model
 
 ```
-onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+onmt-main --model_type NMTSmall --auto_config --config data.yml train_and_eval
 ```
 
 This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The `--auto_config` flag selects the best settings for this type of model.
@@ -60,7 +60,7 @@ tensorboard --logdir="run"
 ## Step 3: Translate
 
 ```
-onmt-main infer --auto_config --config data.yml --features_file src-test.txt
+onmt-main --auto_config --config data.yml --features_file src-test.txt infer
 ```
 
 This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.

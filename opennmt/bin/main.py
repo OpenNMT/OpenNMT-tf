@@ -45,9 +45,6 @@ def _prefix_paths(prefix, paths):
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument("-v", "--version", action="version", version="OpenNMT-tf %s" % __version__)
-  parser.add_argument("run",
-                      choices=["train_and_eval", "train", "eval", "infer", "export", "score"],
-                      help="Run type.")
   parser.add_argument("--config", required=True, nargs="+",
                       help="List of configuration files.")
   parser.add_argument("--auto_config", default=False, action="store_true",
@@ -61,33 +58,11 @@ def main():
                       help="If set, model_dir will be created relative to this location.")
   parser.add_argument("--data_dir", default="",
                       help="If set, data files are expected to be relative to this location.")
-  parser.add_argument("--features_file", default=[], nargs="+",
-                      help="Run inference on this file.")
-  parser.add_argument("--predictions_file", default="",
-                      help=("File used to save predictions. If not set, predictions are printed "
-                            "on the standard output."))
-  parser.add_argument("--log_prediction_time", default=False, action="store_true",
-                      help="Logs some prediction time metrics.")
   parser.add_argument("--checkpoint_path", default=None,
-                      help=("Checkpoint or directory to use for inference or export "
+                      help=("Specific checkpoint or model directory to load "
                             "(when a directory is set, the latest checkpoint is used)."))
-  parser.add_argument("--export_dir_base", default=None,
-                      help="The base directory of the exported model.")
   parser.add_argument("--num_gpus", type=int, default=1,
                       help="Number of GPUs to use for in-graph replication.")
-  parser.add_argument("--chief_host", default="",
-                      help="hostname:port of the chief worker (for distributed training).")
-  parser.add_argument("--worker_hosts", default="",
-                      help=("Comma-separated list of hostname:port of workers "
-                            "(for distributed training)."))
-  parser.add_argument("--ps_hosts", default="",
-                      help=("Comma-separated list of hostname:port of parameter servers "
-                            "(for distributed training)."))
-  parser.add_argument("--task_type", default="chief",
-                      choices=["chief", "worker", "ps", "evaluator"],
-                      help="Type of the task to run (for distributed training).")
-  parser.add_argument("--task_index", type=int, default=0,
-                      help="ID of the task (for distributed training).")
   parser.add_argument("--log_level", default="INFO",
                       choices=["DEBUG", "ERROR", "FATAL", "INFO", "WARN"],
                       help="Logs verbosity.")
@@ -104,14 +79,61 @@ def main():
   parser.add_argument("--session_config", default=None,
                       help=("Path to a file containing a tf.ConfigProto message in text format "
                             "and used to create the TensorFlow sessions."))
+
+  subparsers = parser.add_subparsers(help="Run type.", dest="run")
+  parser_train = subparsers.add_parser("train", help="Training.")
+
+  parser_train_and_eval = subparsers.add_parser("train_and_eval", help="Training and evaluation.")
+  parser_train_and_eval.add_argument(
+      "--chief_host", default="",
+      help="hostname:port of the chief worker (for distributed training).")
+  parser_train_and_eval.add_argument(
+      "--worker_hosts", default="",
+      help=("Comma-separated list of hostname:port of workers "
+            "(for distributed training)."))
+  parser_train_and_eval.add_argument(
+      "--ps_hosts", default="",
+      help=("Comma-separated list of hostname:port of parameter servers "
+            "(for distributed training)."))
+  parser_train_and_eval.add_argument(
+      "--task_type", default="chief",
+      choices=["chief", "worker", "ps", "evaluator"],
+      help="Type of the task to run (for distributed training).")
+  parser_train_and_eval.add_argument(
+      "--task_index", type=int, default=0,
+      help="ID of the task (for distributed training).")
+
+  parser_eval = subparsers.add_parser("eval", help="Evaluation.")
+
+  parser_infer = subparsers.add_parser("infer", help="Inference.")
+  parser_infer.add_argument(
+      "--features_file", nargs="+", required=True,
+      help="Run inference on this file.")
+  parser_infer.add_argument(
+      "--predictions_file", default="",
+      help=("File used to save predictions. If not set, predictions are printed "
+            "on the standard output."))
+  parser_infer.add_argument(
+      "--log_prediction_time", default=False, action="store_true",
+      help="Logs some prediction time metrics.")
+
+  parser_export = subparsers.add_parser("export", help="Model export.")
+  parser_export.add_argument(
+      "--export_dir_base", default=None,
+      help="The base directory of the exported model.")
+
+  parser_score = subparsers.add_parser("score", help="Scoring.")
+  parser_score.add_argument("--features_file", nargs="+", required=True,
+                            help="Features file.")
+  parser_score.add_argument("--predictions_file", required=True,
+                            help="Predictions to score.")
+
   args = parser.parse_args()
 
   tf.compat.v1.logging.set_verbosity(getattr(tf.compat.v1.logging, args.log_level))
 
   # Setup cluster if defined.
-  if args.chief_host:
-    if args.run != "train_and_eval":
-      raise ValueError("Distributed training is only supported with the train_and_eval run type")
+  if args.run == "train_and_eval" and args.chief_host:
     os.environ["TF_CONFIG"] = json.dumps({
         "cluster": {
             "chief": [args.chief_host],
@@ -123,8 +145,9 @@ def main():
             "index": args.task_index
         }
     })
-
-  is_chief = args.task_type == "chief"
+    is_chief = args.task_type == "chief"
+  else:
+    is_chief = True
 
   # Load and merge run configurations.
   config = load_config(args.config)
@@ -165,9 +188,7 @@ def main():
   elif args.run == "eval":
     runner.evaluate(checkpoint_path=args.checkpoint_path)
   elif args.run == "infer":
-    if not args.features_file:
-      parser.error("--features_file is required for inference.")
-    elif len(args.features_file) == 1:
+    if len(args.features_file) == 1:
       args.features_file = args.features_file[0]
     runner.infer(
         args.features_file,
@@ -179,8 +200,6 @@ def main():
         checkpoint_path=args.checkpoint_path,
         export_dir_base=args.export_dir_base)
   elif args.run == "score":
-    if not args.features_file:
-      parser.error("--features_file is required for scoring.")
     runner.score(
         args.features_file,
         args.predictions_file,

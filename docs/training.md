@@ -25,7 +25,7 @@ OpenNMT-tf training can make use of multiple GPUs with *in-graph replication*. I
 For example, if your machine has 4 GPUs, simply add the `--num_gpus` option:
 
 ```bash
-onmt-main train [...] --num_gpus 4
+onmt-main --num_gpus 4 [...] train
 ```
 
 Note that evaluation and inference will run on a single device.
@@ -45,7 +45,7 @@ To enable distributed training, the user should use the `train_and_eval` run typ
 Then a training instance should be started on each host with a selected task, e.g.:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 onmt-main train_and_eval [...] \
+CUDA_VISIBLE_DEVICES=0 onmt-main [...] train_and_eval \
     --ps_hosts localhost:2222 \
     --chief_host localhost:2223 \
     --worker_hosts localhost:2224,localhost:2225 \
@@ -64,7 +64,7 @@ For more details, see the documentation of [`tf.estimator.train_and_evaluate`](h
 Thanks to [work from NVIDIA](https://github.com/NVIDIA/OpenSeq2Seq), OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the [inputters](package/opennmt.inputters.inputter.html) is defined to be `tf.float16`. See for example the predefined model `TransformerFP16`, which is up to [1.8x faster](https://github.com/OpenNMT/OpenNMT-tf/pull/211#issuecomment-455605090) than the FP32 version on compatible hardware:
 
 ```bash
-onmt-main train_and_eval --model_type TransformerFP16 --auto_config --config data.yml
+onmt-main --model_type TransformerFP16 --auto_config --config data.yml train_and_eval
 ```
 
 Additional training configurations are available to tune the loss scaling algorithm:
@@ -111,12 +111,12 @@ This is the most common case of retrainings: the training was interrupted but sh
 
 ```bash
 # Start the training.
-onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+onmt-main --model_type NMTSmall --auto_config --config data.yml train_and_eval
 
 # ... the training is interrupted or stopped ...
 
 # Continue from the latest checkpoint.
-onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+onmt-main --model_type NMTSmall --auto_config --config data.yml train_and_eval
 ```
 
 **Note:** If the train was stopped because `train_steps` was reached, you should first increase this value before continuing.

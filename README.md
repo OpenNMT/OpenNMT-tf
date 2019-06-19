@@ -55,14 +55,14 @@ OpenNMT-tf comes with several command line utilities to prepare data, train, and
 
 For all tasks involving a model execution, OpenNMT-tf uses a unique entrypoint: `onmt-main`. A typical OpenNMT-tf run consists of 3 elements:
 
-* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, `export`, or `score`
 * the **model** type
 * the **parameters** described in a YAML file
+* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, `export`, or `score`
 
 that are passed to the main script:
 
 ```
-onmt-main <run_type> --model_type <model> --auto_config --config <config_file.yml>
+onmt-main --model_type <model> --auto_config --config <config_file.yml> <run_type> <run_options>
 ```
 
 *For more information and examples on how to use OpenNMT-tf, please visit [our documentation](http://opennmt.net/OpenNMT-tf).*
