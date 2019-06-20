@@ -454,6 +454,8 @@ class Runner(object):
     @tf.function(input_signature=(dataset_util.input_signature_from_dataset(dataset),))
     def _infer(source):
       _, predictions = self._model(source, None, params, tf.estimator.ModeKeys.PREDICT)
+      if "index" in source:
+        predictions["index"] = source["index"]
       return predictions
 
     _restore_checkpoint(self._model, self._config["model_dir"], checkpoint_path=checkpoint_path)
