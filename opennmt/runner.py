@@ -289,13 +289,21 @@ class Runner(object):
 
     optimizer = self._model.get_optimizer(params=params)
     gradients = []
+    variables = []
 
     @tf.function(input_signature=dataset_util.input_signature_from_dataset(dataset))
     def _step(source, target):
       outputs, _ = self._model(source, target, params, tf.estimator.ModeKeys.TRAIN)
       loss = self._model.compute_loss(outputs, target, training=True, params=params)
       loss = loss[0] / loss[1]
-      variables = self._model.trainable_variables
+
+      if not variables:
+        trainable_variables = self._model.trainable_variables
+        freeze_variables = params.get("freeze_variables")
+        if freeze_variables:
+          trainable_variables = _get_trainable_variables(trainable_variables, freeze_variables)
+        variables.extend(trainable_variables)
+
       step_gradients = optimizer.get_gradients(loss, variables)
       if not gradients:
         for step_gradient in step_gradients:
@@ -312,8 +320,7 @@ class Runner(object):
 
     @tf.function
     def _apply_gradients():
-      variables = self._model.trainable_variables
-      optimizer.apply_gradients(zip(gradients, variables))
+      optimizer.apply_gradients(list(zip(gradients, variables)))
       for gradient in gradients:
         gradient.assign(tf.zeros_like(gradient))
 
@@ -731,6 +738,27 @@ def _auto_tune_batch_size(config,
   if session_config_path is not None:
     os.remove(session_config_path)
   return min_batch_size
+
+def _print_variables(variables, name=None):
+  if name is not None:
+    tf.get_logger().info("%s variables:", name.capitalize())
+  for variable in variables:
+    tf.get_logger().info(" * %s", variable.name)
+
+def _get_trainable_variables(variables, freeze_variables):
+  if not isinstance(freeze_variables, list):
+    freeze_variables = [freeze_variables]
+  regexs = list(map(re.compile, freeze_variables))
+  frozen_variables = []
+  trainable_variables = []
+  for variable in variables:
+    if any(regex.match(variable.name) for regex in regexs):
+      frozen_variables.append(variable)
+    else:
+      trainable_variables.append(variable)
+  _print_variables(frozen_variables, name="frozen")
+  _print_variables(trainable_variables, name="trainable")
+  return trainable_variables
 
 def _report_training_status(step, loss, learning_rate, accum_num_words, last_report_time):
   new_report_time = time.time()
