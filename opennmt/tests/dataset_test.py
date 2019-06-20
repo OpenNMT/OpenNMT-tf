@@ -1,9 +1,20 @@
+import os
+
 import tensorflow as tf
 
 from opennmt.data import dataset as dataset_util
+from opennmt.tests import test_util
 
 
 class DataTest(tf.test.TestCase):
+
+  def testDatasetSize(self):
+    path = test_util.make_data_file(
+        os.path.join(self.get_temp_dir(), "file.txt"),
+        list(map(str, range(15))))
+    dataset = tf.data.TextLineDataset(path)
+    size = dataset_util.get_dataset_size(dataset)
+    self.assertEqual(self.evaluate(size), 15)
 
   def testIrregularBatches(self):
     batch_size = 12

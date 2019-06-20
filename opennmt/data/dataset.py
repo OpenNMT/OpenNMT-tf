@@ -29,6 +29,26 @@ def input_signature_from_dataset(dataset):
       tf.compat.v1.data.get_output_shapes(dataset),
       tf.compat.v1.data.get_output_types(dataset))
 
+def get_dataset_size(dataset, batch_size=5000):
+  """Get the dataset size.
+
+  Args:
+    dataset: A finite dataset.
+    batch_size: The batch size to use or ``None`` to scan the dataset as-is.
+
+  Returns:
+    The dataset size.
+  """
+  if batch_size is not None:
+    dataset = dataset.batch(batch_size)
+
+  def _reduce_func(count, element):
+    element = tf.nest.flatten(element)[0]
+    batch_size = tf.shape(element)[0]
+    return count + tf.cast(batch_size, count.dtype)
+
+  return dataset.reduce(tf.constant(0, dtype=tf.int64), _reduce_func)
+
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
 
@@ -116,6 +136,33 @@ def random_shard(shard_size, dataset_size):
     return sharded_dataset
 
   return _random_shard
+
+def shuffle_dataset(buffer_size, shuffle_shards=True):
+  """Transformation that shuffles the dataset based on its size.
+
+  Args:
+    buffer_size: The number of elements from which to sample.
+    shuffle_shards: When :obj:`buffer_size` is smaller than the dataset size,
+      the dataset is first sharded in a random order to add another level of
+      shuffling.
+
+  Returns:
+    A ``tf.data.Dataset`` transformation.
+  """
+
+  def _shuffle(dataset):
+    sample_size = buffer_size
+    if sample_size < 0 or shuffle_shards:
+      dataset_size = get_dataset_size(dataset)
+      tf.get_logger().info("Training on %d examples", dataset_size)
+      if sample_size < 0:
+        sample_size = dataset_size
+      elif sample_size < dataset_size:
+        dataset = dataset.apply(random_shard(sample_size, dataset_size))
+    dataset = dataset.shuffle(sample_size)
+    return dataset
+
+  return _shuffle
 
 def batch_dataset(batch_size, padded_shapes=None):
   """Transformation that batches a dataset.
@@ -224,7 +271,6 @@ def training_pipeline(batch_size,
                       maximum_features_length=None,
                       maximum_labels_length=None,
                       single_pass=False,
-                      dataset_size=None,
                       num_shards=1,
                       shard_index=0,
                       num_threads=None,
@@ -250,9 +296,6 @@ def training_pipeline(batch_size,
     maximum_labels_length: The maximum length of the labels sequence.
       ``None`` to not constrain the length.
     single_pass: If ``True``, makes a single pass over the training data.
-    dataset_size: The total size of the dataset, if known. It is recommended to
-      set it when :obj:`shuffle_buffer_size` is smaller than the dataset size
-      (or the shard size when sharding is configured).
     num_shards: The number of data shards (usually the number of workers in a
       distributed setting).
     shard_index: The shard index this data pipeline should read from.
@@ -267,22 +310,10 @@ def training_pipeline(batch_size,
   """
 
   def _pipeline(dataset):
-    num_examples = dataset_size
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
-      if num_examples is not None:
-        num_examples //= num_shards
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
-      shuffle_size = shuffle_buffer_size
-      if num_examples is not None:
-        tf.compat.v1.logging.info("Training on %d examples", num_examples)
-        if shuffle_buffer_size < 0 or shuffle_buffer_size > num_examples:
-          shuffle_size = num_examples
-        elif shuffle_buffer_size < num_examples:
-          # When the shuffle buffer size is smaller than the dataset size, shard
-          # the dataset in a random order to add another level of shuffling.
-          dataset = dataset.apply(random_shard(shuffle_buffer_size, num_examples))
-      dataset = dataset.shuffle(shuffle_size)
+      dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
     if process_fn is not None:
       dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
     dataset = dataset.apply(filter_examples_by_length(
