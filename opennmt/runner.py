@@ -11,6 +11,8 @@ import json
 import yaml
 import time
 import six
+import itertools
+import collections
 
 import numpy as np
 import tensorflow as tf
@@ -286,13 +288,15 @@ class Runner(object):
         single_pass=train_config.get("single_pass", False),
         num_threads=train_config.get("num_threads", 4),
         prefetch_buffer_size=train_config.get("prefetch_buffer_size"))
+    iterator = iter(dataset)
 
     optimizer = self._model.get_optimizer(params=params)
     gradients = []
     variables = []
 
-    @tf.function(input_signature=dataset_util.input_signature_from_dataset(dataset))
-    def _step(source, target):
+    @tf.function
+    def _step():
+      source, target = next(iterator)
       outputs, _ = self._model(source, target, params, tf.estimator.ModeKeys.TRAIN)
       loss = self._model.compute_loss(outputs, target, training=True, params=params)
       loss = loss[0] / loss[1]
@@ -343,37 +347,44 @@ class Runner(object):
         tf.get_logger().warn("Model already reached train_steps = %d. Exiting.", train_steps)
         return output_dir
 
-    accum_num_words = {}
+    def _save_checkpoint(step):
+      tf.get_logger().info("Saved checkpoint %s", checkpoint_manager.save(checkpoint_number=step))
+
+    accum_num_words = collections.defaultdict(int)
     last_report_time = time.time()
+    last_step = -1
     report_every = train_config.get("save_summary_steps", 100)
     accum_count = params.get("gradients_accum", 1)
 
-    for i, (source, target) in enumerate(dataset):
-      loss, num_words = _step(source, target)
+    for i in itertools.count():
+      try:
+        loss, num_words = _step()
+      except tf.errors.OutOfRangeError:
+        break
+
       if i == 0 or (i + 1) % accum_count == 0:
         _apply_gradients()
 
       for key, value in six.iteritems(num_words):
-        value = value.numpy()
-        if key not in accum_num_words:
-          accum_num_words[key] = value
-        else:
-          accum_num_words[key] += value
-
+        accum_num_words[key] += value.numpy()
       step = optimizer.iterations.numpy()
+      if step == last_step:
+        continue
+      last_step = step
       if step % report_every == 0:
         last_report_time = _report_training_status(
             step,
             loss,
             optimizer.learning_rate,
+            gradients,
             accum_num_words,
             last_report_time)
-      if step % save_checkpoints_steps == 0 or step == train_steps:
-        path = checkpoint_manager.save(checkpoint_number=step)
-        tf.get_logger().info("Saved checkpoint %s", path)
+      if step % save_checkpoints_steps == 0:
+        _save_checkpoint(step)
       if step == train_steps:
         break
 
+    _save_checkpoint(step)
     return self._maybe_average_checkpoints()
 
   def evaluate(self, checkpoint_path=None):
