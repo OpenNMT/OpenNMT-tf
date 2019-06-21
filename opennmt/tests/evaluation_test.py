@@ -3,7 +3,7 @@ import sys
 
 import tensorflow as tf
 
-from opennmt.utils import evaluator
+from opennmt import evaluation
 
 
 class EvaluatorTest(tf.test.TestCase):
@@ -19,16 +19,16 @@ class EvaluatorTest(tf.test.TestCase):
 
   def testBLEUScorer(self):
     if sys.version_info >= (3, 0):
-      bleu_scorer = evaluator.BLEUScorer()
+      bleu_scorer = evaluation.BLEUScorer()
       ref_path, hyp_path = self._make_perfect_hypothesis_file()
       score = bleu_scorer(ref_path, hyp_path)
       self.assertEqual(100, int(score))
     else:
       with self.assertRaises(ImportError):
-        bleu_scorer = evaluator.BLEUScorer()
+        bleu_scorer = evaluation.BLEUScorer()
 
   def testROUGEScorer(self):
-    rouge_scorer = evaluator.ROUGEScorer()
+    rouge_scorer = evaluation.ROUGEScorer()
     ref_path, hyp_path = self._make_perfect_hypothesis_file()
     score = rouge_scorer(ref_path, hyp_path)
     self.assertIsInstance(score, dict)

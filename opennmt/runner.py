@@ -20,10 +20,10 @@ import tensorflow as tf
 from google.protobuf import text_format
 
 from opennmt import estimator as estimator_util
+from opennmt import evaluation
 from opennmt import models
 from opennmt.data import dataset as dataset_util
 from opennmt.utils import hooks, checkpoint, misc
-from opennmt.utils import evaluator
 
 
 # These options require a value but we can fallback to a default one.
@@ -396,12 +396,11 @@ class Runner(object):
     Returns:
       A dict of evaluation metrics.
     """
-    if checkpoint_path is not None and tf.io.gfile.isdir(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    eval_spec = self._build_eval_spec()
-    estimator = self._make_estimator()
-    return estimator.evaluate(
-        eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
+    checkpoint_path = _restore_checkpoint(
+        self._model, self._config["model_dir"], checkpoint_path=checkpoint_path)
+    step = int(checkpoint_path.split("-")[-1])
+    evaluator = evaluation.Evaluator.from_config(self._model, self._config)
+    return evaluator(step)
 
   def _maybe_average_checkpoints(self, avg_subdirectory="avg"):
     """Averages checkpoints if enabled in the training configuration and if the

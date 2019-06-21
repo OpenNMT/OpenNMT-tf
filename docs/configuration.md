@@ -226,11 +226,6 @@ eval:
   # (optional) The batch size to use (default: 32).
   batch_size: 30
 
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
-
   # (optional) Evaluate every this many seconds (default: 18000).
   eval_delay: 7200
 
