@@ -23,7 +23,7 @@ from opennmt import evaluation
 from opennmt import models
 from opennmt import training
 from opennmt.data import dataset as dataset_util
-from opennmt.utils import hooks, checkpoint, misc
+from opennmt.utils import checkpoint, misc
 
 
 # These options require a value but we can fallback to a default one.
