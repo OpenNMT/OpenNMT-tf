@@ -16,6 +16,17 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.24.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.24.0) (2019-06-26)
+
+### New features
+
+* Coverage penalty during beam search
+* `freeze_variables` parameters to not update selected weights
+
+### Fixes and improvements
+
+* Improve length penalty correctness
+
 ## [1.23.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.23.1) (2019-06-07)
 
 ### Fixes and improvements
