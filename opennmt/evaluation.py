@@ -18,7 +18,6 @@ class Evaluator(object):
                features_file,
                labels_file,
                batch_size,
-               params=None,
                scorers=None,
                save_predictions=False,
                eval_dir=None):
@@ -29,7 +28,6 @@ class Evaluator(object):
       features_file: Path to the evaluation features.
       labels_file: Path to the evaluation labels.
       batch_size: The evaluation batch size.
-      params: Dictionary of hyperparameters.
       scorers: A list of scorers, callables taking the path to the reference and
         the hypothesis and return one or more scores.
       save_predictions: Save evaluation predictions to a file. This is ``True``
@@ -40,8 +38,6 @@ class Evaluator(object):
       ValueError: If predictions should be saved but the model is not compatible.
       ValueError: If predictions should be saved but :obj:`eval_dir` is ``None``.
     """
-    if params is None:
-      params = {}
     if scorers is None:
       scorers = []
     if scorers:
@@ -55,7 +51,6 @@ class Evaluator(object):
         tf.io.gfile.makedirs(eval_dir)
     self._model = model
     self._labels_file = labels_file
-    self._params = params
     self._save_predictions = save_predictions
     self._scorers = scorers
     self._eval_dir = eval_dir
@@ -68,8 +63,8 @@ class Evaluator(object):
 
     @tf.function(input_signature=dataset_lib.input_signature_from_dataset(self._dataset))
     def _eval(source, target):
-      outputs, predictions = model(source, target, params, tf.estimator.ModeKeys.EVAL)
-      loss = model.compute_loss(outputs, target, training=False, params=params)
+      outputs, predictions = model(source, labels=target, mode=tf.estimator.ModeKeys.EVAL)
+      loss = model.compute_loss(outputs, target, training=False)
       return loss, predictions
 
     self._eval_function = _eval
@@ -93,7 +88,6 @@ class Evaluator(object):
         config["data"]["eval_features_file"],
         config["data"].get("eval_labels_file"),
         config["eval"]["batch_size"],
-        params=config.get("params"),
         scorers=scorers,
         save_predictions=config["eval"].get("save_eval_predictions", False),
         eval_dir=os.path.join(config["model_dir"], "eval"))
@@ -116,10 +110,13 @@ class Evaluator(object):
 
     loss_num = 0
     loss_den = 0
+    metrics = self._model.get_metrics()
     for source, target in self._dataset:
       loss, predictions = self._eval_function(source, target)
       loss_num += loss[0]
       loss_den += loss[1]
+      if metrics:
+        self._model.update_metrics(metrics, predictions, target)
       if output_file is not None:
         predictions = {k:v.numpy() for k, v in six.iteritems(predictions)}
         for prediction in misc.extract_batches(predictions):
@@ -127,6 +124,9 @@ class Evaluator(object):
     loss = loss_num / loss_den
 
     results = dict(loss=loss)
+    if metrics:
+      for name, metric in six.iteritems(metrics):
+        results[name] = metric.result()
     if self._save_predictions:
       tf.get_logger().info("Evaluation predictions saved to %s", output_path)
       output_file.close()

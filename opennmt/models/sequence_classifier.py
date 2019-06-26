@@ -31,7 +31,7 @@ class SequenceClassifier(Model):
     self.id_to_class = self.labels_inputter.vocabulary_lookup_reverse()
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
 
-  def call(self, features, labels, params, mode):
+  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
     training = mode == tf.estimator.ModeKeys.TRAIN
     inputs = self.features_inputter(features, training=training)
     _, state, _ = self.encoder(
@@ -55,21 +55,18 @@ class SequenceClassifier(Model):
 
     return logits, predictions
 
-  def compute_loss(self, outputs, labels, training=True, params=None):
-    if params is None:
-      params = {}
+  def compute_loss(self, outputs, labels, training=True):
     return cross_entropy_loss(
         outputs,
         labels["classes_id"],
-        label_smoothing=params.get("label_smoothing", 0.0),
+        label_smoothing=self.params.get("label_smoothing", 0.0),
         training=training)
 
-  def compute_metrics(self, predictions, labels):
-    accuracy = tf.keras.metrics.Accuracy()
-    accuracy.update_state(labels["classes_id"], predictions["classes_id"])
-    return {
-        "accuracy": accuracy
-    }
+  def get_metrics(self):
+    return {"accuracy": tf.keras.metrics.Accuracy()}
+
+  def update_metrics(self, metrics, predictions, labels):
+    metrics["accuracy"].update_state(labels["classes_id"], predictions["classes_id"])
 
   def print_prediction(self, prediction, params=None, stream=None):
     print_bytes(prediction["classes"], stream=stream)

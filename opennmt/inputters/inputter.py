@@ -15,10 +15,6 @@ from opennmt.utils.misc import item_or_tuple
 class Inputter(tf.keras.layers.Layer):
   """Base class for inputters."""
 
-  def __init__(self, dtype=tf.float32):
-    super(Inputter, self).__init__(dtype=dtype)
-    self.is_target = False
-
   @property
   def num_outputs(self):
     """How many parallel outputs does this inputter produce."""
@@ -389,7 +385,6 @@ class ExampleInputter(ParallelInputter):
     """
     self.features_inputter = features_inputter
     self.labels_inputter = labels_inputter
-    self.labels_inputter.is_target = True
     super(ExampleInputter, self).__init__(
         [self.features_inputter, self.labels_inputter],
         share_parameters=share_parameters,

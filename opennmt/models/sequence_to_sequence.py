@@ -133,7 +133,8 @@ class SequenceToSequence(Model):
         output_layer=output_layer)
     self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
 
-  def call(self, features, labels, params, mode):
+  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
+    params = self.params
     training = mode == tf.estimator.ModeKeys.TRAIN
 
     features_length = self.features_inputter.get_length(features)
@@ -146,12 +147,12 @@ class SequenceToSequence(Model):
     if labels is not None:
       target_inputs = self.labels_inputter(labels, training=training)
       sampling_probability = None
-      # if mode == tf.estimator.ModeKeys.TRAIN:
-      #   sampling_probability = decoder_util.get_sampling_probability(
-      #       tf.compat.v1.train.get_or_create_global_step(),
-      #       read_probability=params.get("scheduled_sampling_read_probability"),
-      #       schedule_type=params.get("scheduled_sampling_type"),
-      #       k=params.get("scheduled_sampling_k"))
+      if mode == tf.estimator.ModeKeys.TRAIN:
+        sampling_probability = decoder_util.get_sampling_probability(
+            step,
+            read_probability=params.get("scheduled_sampling_read_probability"),
+            schedule_type=params.get("scheduled_sampling_type"),
+            k=params.get("scheduled_sampling_k"))
 
       initial_state = self.decoder.initial_state(
           memory=encoder_outputs,
@@ -239,9 +240,8 @@ class SequenceToSequence(Model):
 
     return outputs, predictions
 
-  def compute_loss(self, outputs, labels, training=True, params=None):
-    if params is None:
-      params = {}
+  def compute_loss(self, outputs, labels, training=True):
+    params = self.params
     if isinstance(outputs, dict):
       logits = outputs["logits"]
       attention = outputs.get("attention")
@@ -321,16 +321,23 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
     return tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(self.alignment_file)))
 
   def make_features(self, element=None, features=None, training=None):
-    if self.alignment_file is None or not training:
-      return super(SequenceToSequenceInputter, self).make_features(
-          element=element, features=features, training=training)
-    text, alignment = element
+    if training and self.alignment_file is not None:
+      element, alignment = element
+    else:
+      alignment = None
     features, labels = super(SequenceToSequenceInputter, self).make_features(
-        text, features=features, training=training)
-    labels["alignment"] = alignment_matrix_from_pharaoh(
-        alignment,
-        self.features_inputter.get_length(features),
-        self.labels_inputter.get_length(labels) - 1)  # Ignore special token.
+        element=element, features=features, training=training)
+    if alignment is not None:
+      labels["alignment"] = alignment_matrix_from_pharaoh(
+          alignment,
+          self.features_inputter.get_length(features),
+          self.labels_inputter.get_length(labels))
+    labels_ids = labels["ids"]
+    bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=labels_ids.dtype)
+    eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=labels_ids.dtype)
+    labels["ids"] = tf.concat([bos, labels_ids], axis=0)
+    labels["ids_out"] = tf.concat([labels_ids, eos], axis=0)
+    labels["length"] += 1
     return features, labels
 
   def _get_names(self):

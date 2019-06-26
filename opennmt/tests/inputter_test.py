@@ -158,28 +158,6 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([[2, 1, 4]], features["ids"])
     self.assertAllEqual([1, 3, 10], transformed.shape)
 
-  def testWordEmbedderTarget(self):
-    vocab_file = self._makeTextFile(
-        "vocab.txt", ["<blank>", "<s>", "</s>", "the", "world", "hello", "toto"])
-    data_file = self._makeTextFile("data.txt", ["hello world !"])
-
-    embedder = text_inputter.WordEmbedder(embedding_size=10)
-    embedder.is_target = True
-    features, transformed = self._makeDataset(
-        embedder,
-        data_file,
-        data_config={"vocabulary": vocab_file},
-        shapes={
-            "tokens": [None, None],
-            "ids": [None, None],
-            "ids_out": [None, None],
-            "length": [None]
-        })
-
-    self.assertAllEqual([4], features["length"])
-    self.assertAllEqual([[1, 5, 4, 7]], features["ids"])
-    self.assertAllEqual([[5, 4, 7, 2]], features["ids_out"])
-
   def testWordEmbedderWithTokenizer(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])
     data_file = self._makeTextFile("data.txt", ["hello world!"])
@@ -352,7 +330,7 @@ class InputterTest(tf.test.TestCase):
     features, labels = features
     for field in ("ids", "length", "tokens"):
       self.assertIn(field, features)
-    for field in ("ids", "ids_out", "length", "tokens"):
+    for field in ("ids", "length", "tokens"):
       self.assertIn(field, labels)
 
   def testExampleInputterAsset(self):

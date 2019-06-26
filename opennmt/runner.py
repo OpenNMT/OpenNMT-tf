@@ -85,13 +85,13 @@ class Runner(object):
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(self._config, model_config)
     misc.merge_dict(self._config, config)
-    self._model.initialize(self._config["data"])
-    self._config["params"].setdefault("num_hypotheses", self._config["infer"].get("n_best", 1))
     tf.get_logger().info(
         "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
 
+    self._config["params"].setdefault("num_hypotheses", self._config["infer"].get("n_best", 1))
+    self._model.initialize(self._config["data"], params=self._config["params"])
     if "optimizer" in self._config["params"]:
-      self._optimizer = self._model.get_optimizer(params=self._config["params"])
+      self._optimizer = self._model.get_optimizer()
     else:
       self._optimizer = None
     self._checkpoint = checkpoint.Checkpoint(
@@ -174,7 +174,7 @@ class Runner(object):
       evaluator = evaluation.Evaluator.from_config(self._model, self._config)
     else:
       evaluator = None
-    trainer = training.Trainer(self._checkpoint, params=params)
+    trainer = training.Trainer(self._checkpoint)
     trainer(
         dataset,
         max_step=train_config.get("train_steps"),
@@ -252,7 +252,6 @@ class Runner(object):
       log_time: If ``True``, several time metrics will be printed in the logs at
         the end of the inference loop.
     """
-    params = self._config["params"]
     infer_config = self._config["infer"]
     dataset = self._model.examples_inputter.make_inference_dataset(
         features_file,
@@ -263,7 +262,7 @@ class Runner(object):
 
     @tf.function(input_signature=(dataset_util.input_signature_from_dataset(dataset),))
     def _infer(source):
-      _, predictions = self._model(source, None, params, tf.estimator.ModeKeys.PREDICT)
+      _, predictions = self._model(source)
       if "index" in source:
         predictions["index"] = source["index"]
       return predictions
@@ -353,7 +352,6 @@ class Runner(object):
                        "sequence to sequence model")
 
     self._checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    params = self._config["params"]
     score_config = self._config["score"]
     dataset = self._model.examples_inputter.make_evaluation_dataset(
         features_file,
@@ -364,7 +362,7 @@ class Runner(object):
 
     @tf.function(input_signature=dataset_util.input_signature_from_dataset(dataset))
     def _score(features, labels):
-      outputs, _ = self._model(source, target, params, tf.estimator.ModeKeys.EVAL)
+      outputs, _ = self._model(features, labels=labels, mode=tf.estimator.ModeKeys.EVAL)
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
           labels["ids_out"], outputs["logits"])
       weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)

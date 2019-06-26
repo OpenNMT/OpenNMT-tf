@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import unittest
 import six
 
 from parameterized import parameterized
@@ -10,7 +11,6 @@ import tensorflow as tf
 
 from opennmt import decoders
 from opennmt import encoders
-from opennmt import estimator
 from opennmt import inputters
 from opennmt import models
 from opennmt.models import catalog
@@ -116,44 +116,35 @@ class ModelTest(tf.test.TestCase):
       params = model.auto_config()["params"]
     if data_config is None:
       data_config = {}
-    model.initialize(data_config)
-    with tf.Graph().as_default():
-      dataset = estimator.make_input_fn(
-          model,
-          mode,
-          batch_size,
-          features_file,
-          labels_file=labels_file if mode != tf.estimator.ModeKeys.PREDICT else None)()
-      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
-      data = iterator.get_next()
-      if mode != tf.estimator.ModeKeys.PREDICT:
-        features, labels = data
-      else:
-        features, labels = data, None
-      estimator_spec = estimator.make_model_fn(model)(features, labels, params, mode, None)
-      with self.session() as sess:
-        sess.run(tf.compat.v1.global_variables_initializer())
-        sess.run(tf.compat.v1.local_variables_initializer())
-        sess.run(tf.compat.v1.tables_initializer())
-        sess.run(iterator.initializer)
-        if mode == tf.estimator.ModeKeys.TRAIN:
-          loss = sess.run(estimator_spec.loss)
-          self.assertIsInstance(loss, Number)
-        elif mode == tf.estimator.ModeKeys.EVAL:
-          fetches = [estimator_spec.loss]
-          if estimator_spec.eval_metric_ops is not None:
-            fetches.append(estimator_spec.eval_metric_ops)
-          result = sess.run(fetches)
-          self.assertIsInstance(result[0], Number)
-          if metrics is not None:
-            for metric in metrics:
-              self.assertIn(metric, result[1])
-        else:
-          predictions = sess.run(estimator_spec.predictions)
-          self.assertIsInstance(predictions, dict)
-          if prediction_heads is not None:
-            for head in prediction_heads:
-              self.assertIn(head, predictions)
+    model.initialize(data_config, params=params)
+    if mode == tf.estimator.ModeKeys.PREDICT:
+      dataset = model.examples_inputter.make_inference_dataset(
+          features_file, batch_size)
+    elif mode == tf.estimator.ModeKeys.EVAL:
+      dataset = model.examples_inputter.make_evaluation_dataset(
+          features_file, labels_file, batch_size)
+    elif mode == tf.estimator.ModeKeys.TRAIN:
+      dataset = model.examples_inputter.make_training_dataset(
+          features_file, labels_file, batch_size)
+    data = iter(dataset).next()
+    if mode != tf.estimator.ModeKeys.PREDICT:
+      features, labels = data
+    else:
+      features, labels = data, None
+    outputs, predictions = model(features, labels=labels, mode=mode)
+    if mode != tf.estimator.ModeKeys.PREDICT:
+      loss = model.compute_loss(outputs, labels, training=mode == tf.estimator.ModeKeys.TRAIN)
+      if mode == tf.estimator.ModeKeys.EVAL:
+        eval_metrics = model.get_metrics()
+        if eval_metrics is not None:
+          model.update_metrics(eval_metrics, predictions, labels)
+          for metric in metrics:
+            self.assertIn(metric, eval_metrics)
+    else:
+      self.assertIsInstance(predictions, dict)
+      if prediction_heads is not None:
+        for head in prediction_heads:
+          self.assertIn(head, predictions)
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
@@ -177,19 +168,21 @@ class ModelTest(tf.test.TestCase):
     model, params = _seq2seq_model(mode)
     params["guided_alignment_type"] = ga_type
     features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
-    model.initialize(data_config)
+    model.initialize(data_config, params=params)
     with tf.Graph().as_default():
-      dataset = estimator.make_input_fn(model, mode, 16, features_file, labels_file)()
+      dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
       iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
       features, labels = iterator.get_next()
       self.assertIn("alignment", labels)
-      estimator_spec = estimator.make_model_fn(model)(features, labels, params, mode, None)
+      outputs, _ = model(features, labels=labels, mode=mode)
+      loss = model.compute_loss(outputs, labels, training=True)
+      loss = loss[0] / loss[1]
       with self.session() as sess:
         sess.run(tf.compat.v1.global_variables_initializer())
         sess.run(tf.compat.v1.local_variables_initializer())
         sess.run(tf.compat.v1.tables_initializer())
         sess.run(iterator.initializer)
-        loss = sess.run(estimator_spec.loss)
+        loss = sess.run(loss)
         self.assertIsInstance(loss, Number)
 
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
@@ -199,17 +192,18 @@ class ModelTest(tf.test.TestCase):
     features_file, labels_file, data_config = self._makeToyEnDeData()
     model.initialize(data_config)
     with tf.Graph().as_default():
-      dataset = estimator.make_input_fn(model, mode, 16, features_file, labels_file)()
+      dataset = model.examples_inputter.make_inference_dataset(features_file, 16)
       iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
       features = iterator.get_next()
-      estimator_spec = estimator.make_model_fn(model)(features, None, params, mode, None)
+      _, predictions = model(features)
       with self.session() as sess:
         sess.run(tf.compat.v1.global_variables_initializer())
         sess.run(tf.compat.v1.local_variables_initializer())
         sess.run(tf.compat.v1.tables_initializer())
         sess.run(iterator.initializer)
-        _ = sess.run(estimator_spec.predictions)
+        _ = sess.run(predictions)
 
+  @unittest.skip("TODO")
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
     mode = tf.estimator.ModeKeys.PREDICT
@@ -288,8 +282,8 @@ class ModelTest(tf.test.TestCase):
   def testCreateVariables(self):
     _, _, data_config = self._makeToyEnDeData()
     model, params = _seq2seq_model(tf.estimator.ModeKeys.PREDICT)
-    model.initialize(data_config)
-    model.create_variables(params=params)
+    model.initialize(data_config, params=params)
+    model.create_variables()
     self.assertTrue(len(model.trainable_variables) > 0)
 
 

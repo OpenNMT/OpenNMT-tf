@@ -29,18 +29,18 @@ class SequenceTagger(Model):
     self.crf_decoding = crf_decoding
     self.tagging_scheme = None
 
-  def initialize(self, data_config):
+  def initialize(self, data_config, params=None):
     self.tagging_scheme = data_config.get("tagging_scheme")
     if self.tagging_scheme:
       self.tagging_scheme = self.tagging_scheme.lower()
-    super(SequenceTagger, self).initialize(data_config)
+    super(SequenceTagger, self).initialize(data_config, params=params)
 
   def build(self, input_shape):
     super(SequenceTagger, self).build(input_shape)
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
     self.id_to_tag = self.labels_inputter.vocabulary_lookup_reverse()
 
-  def call(self, features, labels, params, mode):
+  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
     training = mode == tf.estimator.ModeKeys.TRAIN
     length = self.features_inputter.get_length(features)
     inputs = self.features_inputter(features, training=training)
@@ -59,26 +59,30 @@ class SequenceTagger(Model):
       predictions = None
     return logits, predictions
 
-  def compute_loss(self, outputs, labels, training=True, params=None):
-    if params is None:
-      params = {}
+  def compute_loss(self, outputs, labels, training=True):
     return cross_entropy_sequence_loss(
         outputs,
         labels["tags_id"],
         labels["length"],
-        label_smoothing=params.get("label_smoothing", 0.0),
-        average_in_time=params.get("average_loss_in_time", False),
+        label_smoothing=self.params.get("label_smoothing", 0.0),
+        average_in_time=self.params.get("average_loss_in_time", False),
         training=training)
 
-  def compute_metrics(self, predictions, labels):
+  def get_metrics(self):
+    metrics = {"accuracy": tf.keras.metrics.Accuracy()}
+    if self.tagging_scheme in ("bioes",):
+      f1 = F1()
+      metrics["f1"] = f1
+      metrics["precision"] = f1.precision
+      metrics["recall"] = f1.recall
+    return metrics
+
+  def update_metrics(self, metrics, predictions, labels):
     weights = tf.sequence_mask(
         labels["length"], maxlen=tf.shape(labels["tags"])[1], dtype=tf.float32)
 
-    accuracy = tf.keras.metrics.Accuracy()
-    accuracy.update_state(labels["tags_id"], predictions["tags_id"], sample_weight=weights)
-
-    eval_metric_ops = {}
-    eval_metric_ops["accuracy"] = accuracy
+    metrics["accuracy"].update_state(
+        labels["tags_id"], predictions["tags_id"], sample_weight=weights)
 
     if self.tagging_scheme in ("bioes",):
       flag_fn = None
@@ -90,13 +94,7 @@ class SequenceTagger(Model):
           [labels["tags"], predictions["tags"], labels["length"]],
           [tf.bool, tf.bool])
 
-      f1 = F1()
-      f1.update_state(gold_flags, predicted_flags)
-      eval_metric_ops["precision"] = f1.precision
-      eval_metric_ops["recall"] = f1.recall
-      eval_metric_ops["f1"] = f1
-
-    return eval_metric_ops
+      metrics["f1"].update_state(gold_flags, predicted_flags)
 
   def print_prediction(self, prediction, params=None, stream=None):
     tags = prediction["tags"][:prediction["length"]]

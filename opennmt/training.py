@@ -12,21 +12,17 @@ import tensorflow as tf
 class Trainer(object):
   """Model trainer."""
 
-  def __init__(self, checkpoint, params=None):
+  def __init__(self, checkpoint):
     """Initializes the trainer.
 
     Args:
       checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance.
-      params: A dictionary of hyperparameters.
     """
     if checkpoint.optimizer is None:
       raise ValueError("No optimizer is defined")
-    if params is None:
-      params = {}
     self._checkpoint = checkpoint
     self._model = checkpoint.model
     self._optimizer = checkpoint.optimizer
-    self._params = params
 
   def __call__(self,
                dataset,
@@ -59,24 +55,21 @@ class Trainer(object):
     @tf.function
     def _step():
       source, target = next(iterator)
-      outputs, _ = self._model(source, target, self._params, tf.estimator.ModeKeys.TRAIN)
-      loss = self._model.compute_loss(outputs, target, training=True, params=self._params)
+      outputs, _ = self._model(
+          source,
+          labels=target,
+          step=self._optimizer.iterations,
+          mode=tf.estimator.ModeKeys.TRAIN)
+      loss = self._model.compute_loss(outputs, target, training=True)
       loss = loss[0] / loss[1]
-
       if not variables:
-        trainable_variables = self._model.trainable_variables
-        freeze_variables = self._params.get("freeze_variables")
-        if freeze_variables:
-          trainable_variables = _get_trainable_variables(trainable_variables, freeze_variables)
-        variables.extend(trainable_variables)
-
-      step_gradients = self._optimizer.get_gradients(loss, variables)
+        variables.extend(self._model.trainable_variables)
+      step_gradients = self._model.compute_gradients(loss, self._optimizer, variables=variables)
       if not gradients:
         for step_gradient in step_gradients:
           gradients.append(tf.Variable(tf.zeros_like(step_gradient), trainable=False))
       for gradient, step_gradient in zip(gradients, step_gradients):
         gradient.assign_add(step_gradient)
-
       num_words = {}
       if "length" in source:
         num_words["source"] = tf.reduce_sum(source["length"])
@@ -143,24 +136,3 @@ def _report_training_status(step, loss, learning_rate, accum_num_words, last_rep
       learning_rate,
       loss)
   return new_report_time
-
-def _print_variables(variables, name=None):
-  if name is not None:
-    tf.get_logger().info("%s variables:", name.capitalize())
-  for variable in variables:
-    tf.get_logger().info(" * %s", variable.name)
-
-def _get_trainable_variables(variables, freeze_variables):
-  if not isinstance(freeze_variables, list):
-    freeze_variables = [freeze_variables]
-  regexs = list(map(re.compile, freeze_variables))
-  frozen_variables = []
-  trainable_variables = []
-  for variable in variables:
-    if any(regex.match(variable.name) for regex in regexs):
-      frozen_variables.append(variable)
-    else:
-      trainable_variables.append(variable)
-  _print_variables(frozen_variables, name="frozen")
-  _print_variables(trainable_variables, name="trainable")
-  return trainable_variables

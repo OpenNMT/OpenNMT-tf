@@ -57,7 +57,7 @@ class LanguageModel(Model):
     self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
     self.id_to_token = self.examples_inputter.vocabulary_lookup_reverse()
 
-  def call(self, features, labels, params, mode):
+  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
     training = mode == tf.estimator.ModeKeys.TRAIN
     outputs, predictions = None, None
 
@@ -88,7 +88,7 @@ class LanguageModel(Model):
           self.examples_inputter,
           tf.squeeze(start_ids, 1),
           initial_state=state,
-          params=params)
+          params=self.params)
       sampled_ids = tf.reshape(sampled_ids, [batch_size, -1])
       sampled_length = tf.reshape(sampled_length, [batch_size])
 
@@ -106,15 +106,13 @@ class LanguageModel(Model):
     logits, state, _ = self.decoder(inputs, length_or_step, state=state, training=training)
     return logits, state
 
-  def compute_loss(self, outputs, labels, training=True, params=None):
-    if params is None:
-      params = {}
+  def compute_loss(self, outputs, labels, training=True):
     return losses.cross_entropy_sequence_loss(
         outputs["logits"],
         labels["ids_out"],
         labels["length"],
-        label_smoothing=params.get("label_smoothing", 0.0),
-        average_in_time=params.get("average_loss_in_time", False),
+        label_smoothing=self.params.get("label_smoothing", 0.0),
+        average_in_time=self.params.get("average_loss_in_time", False),
         training=training)
 
   def print_prediction(self, prediction, params=None, stream=None):

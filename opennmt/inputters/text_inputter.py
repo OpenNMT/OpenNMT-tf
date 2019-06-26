@@ -262,15 +262,7 @@ class WordEmbedder(TextInputter):
       return features
     if self.vocabulary is None:
       self.vocabulary = self.vocabulary_lookup()
-    ids = self.vocabulary.lookup(features["tokens"])
-    if not self.is_target:
-      features["ids"] = ids
-    else:
-      bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=ids.dtype)
-      eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=ids.dtype)
-      features["ids"] = tf.concat([bos, ids], axis=0)
-      features["ids_out"] = tf.concat([ids, eos], axis=0)
-      features["length"] += 1 # Increment length accordingly.
+    features["ids"] = self.vocabulary.lookup(features["tokens"])
     return features
 
   def build(self, input_shape):

@@ -17,6 +17,7 @@ class Model(tf.keras.Model):
   def __init__(self, examples_inputter):
     super(Model, self).__init__()
     self.examples_inputter = examples_inputter
+    self.params = {}
 
   @property
   def dtype(self):
@@ -38,6 +39,14 @@ class Model(tf.keras.Model):
     """The inputter producing labels."""
     return getattr(self.examples_inputter, "labels_inputter", None)
 
+  @property
+  def trainable_variables(self):
+    trainable_variables = super(Model, self).trainable_variables
+    freeze_variables = self.params.get("freeze_variables")
+    if freeze_variables:
+      trainable_variables = _get_trainable_variables(trainable_variables, freeze_variables)
+    return trainable_variables
+
   def auto_config(self, num_replicas=1):
     """Returns automatic configuration values specific to this model.
 
@@ -51,14 +60,18 @@ class Model(tf.keras.Model):
     _ = num_replicas
     return {}
 
-  def initialize(self, data_config):
+  def initialize(self, data_config, params=None):
     """Initializes the model from the data configuration.
 
     Args:
       data_config: A dictionary containing the data configuration set
         by the user (e.g. vocabularies, tokenization, pretrained embeddings,
         etc.).
+      params: A dictionary of hyperparameters.
     """
+    if params is None:
+      params = {}
+    self.params.update(params)
     self.examples_inputter.initialize(data_config)
 
   def build(self, input_shape):
@@ -66,13 +79,13 @@ class Model(tf.keras.Model):
     self.built = True
 
   @abc.abstractmethod
-  def call(self, features, labels, params, mode):
+  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
     """Runs the model.
 
     Args:
       features: A nested structure of features ``tf.Tensor``.
       labels: A nested structure of labels ``tf.Tensor``.
-      params: A dictionary of hyperparameters.
+      step: The current training step.
       mode: A ``tf.estimator.ModeKeys`` mode.
 
     Returns:
@@ -84,44 +97,44 @@ class Model(tf.keras.Model):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def compute_loss(self, outputs, labels, training=True, params=None):
+  def compute_loss(self, outputs, labels, training=True):
     """Computes the loss.
 
     Args:
       outputs: The model outputs (usually unscaled probabilities).
       labels: The dict of labels ``tf.Tensor``.
       training: Compute training loss.
-      params: A dictionary of hyperparameters.
 
     Returns:
       The loss or a tuple containing the computed loss and the loss to display.
     """
     raise NotImplementedError()
 
-  def compute_metrics(self, predictions, labels):  # pylint: disable=unused-argument
-    """Computes additional metrics on the predictions.
-
-    Args:
-      predictions: The model predictions.
-      labels: The dict of labels ``tf.Tensor``.
+  def get_metrics(self):
+    """Returns the metrics for this model.
 
     Returns:
-      A dict of metrics. See the ``eval_metric_ops`` field of
-      ``tf.estimator.EstimatorSpec``.
+      A dictionary of ``tf.keras.metrics.Metric`` metrics.
     """
     return None
 
-  def get_optimizer(self, params=None):
-    """Returns the optimizer for this model.
+  def update_metrics(self, metrics, predictions, labels):
+    """Computes additional metrics on the predictions.
 
     Args:
-      params: A dictionary of hyperparameters.
+      metrics: A dictionary of metrics to update.
+      predictions: The model predictions.
+      labels: The dict of labels ``tf.Tensor``.
+    """
+    pass
+
+  def get_optimizer(self):
+    """Returns the optimizer for this model.
 
     Returns:
       A ``tf.keras.optimizers.Optimizer`` instance.
     """
-    if params is None:
-      params = {}
+    params = self.params
     learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
     if params.get("decay_type") is not None:
       schedule_params = params.get("decay_params", {})
@@ -138,20 +151,18 @@ class Model(tf.keras.Model):
         **params.get("optimizer_params", {}))
     return optimizer
 
-  def compute_gradients(self, loss, optimizer, variables=None, params=None):
+  def compute_gradients(self, loss, optimizer, variables=None):
     """Computes the gradients.
 
     Args:
       loss: The loss.
       optimizer: The ``tf.keras.optimizers.Optimizer`` instance.
       variables: List of variables.
-      params: A dictionary of hyperparameters.
 
     Returns:
       The list of gradients.
     """
-    if params is None:
-      params = {}
+    params = self.params
     if variables is None:
       variables = self.trainable_variables
     regularization = params.get("regularization")
@@ -164,42 +175,15 @@ class Model(tf.keras.Model):
       gradients, _ = tf.clip_by_global_norm(gradients, float(clip_gradients))
     return gradients
 
-  def apply_gradients(self, gradients, optimizer, variables=None, params=None, step=None):
-    """Applies the gradients.
-
-    Args:
-      gradients: The list of gradients to apply.
-      optimizer: The ``tf.keras.optimizers.Optimizer`` instance.
-      variables: List of variables.
-      params: A dictionary of hyperparameters.
-      step: An optional step counter to increment when the parameters are
-        updated.
-
-    Returns:
-      An operation that applies the gradients and optionally a list of internal
-      variables to initialize.
-    """
-    if params is None:
-      params = {}
-    if variables is None:
-      variables = self.trainable_variables
-    return optim.delayed_update(
-        optimizer,
-        list(zip(gradients, variables)),
-        accum_count=params.get("gradients_accum", 1),
-        global_step=step)
-
-  def create_variables(self, optimizer=None, params=None):
+  def create_variables(self, optimizer=None):
     """Creates the model variables by running it once."""
     if self.built:
       return
-    if params is None:
-      params = {}
 
     @tf.function(input_signature=(self.features_inputter.input_signature(),))
     def _run(features):
       features = self.features_inputter.make_features(features=features.copy())
-      self(features, None, params, tf.estimator.ModeKeys.PREDICT)
+      self(features)
 
     _run.get_concrete_function()
     if optimizer is not None:
@@ -228,3 +212,25 @@ class Model(tf.keras.Model):
     """
     _ = params
     print(prediction, file=stream)
+
+
+def _print_variables(variables, name=None):
+  if name is not None:
+    tf.get_logger().info("%s variables:", name.capitalize())
+  for variable in variables:
+    tf.get_logger().info(" * %s", variable.name)
+
+def _get_trainable_variables(variables, freeze_variables):
+  if not isinstance(freeze_variables, list):
+    freeze_variables = [freeze_variables]
+  regexs = list(map(re.compile, freeze_variables))
+  frozen_variables = []
+  trainable_variables = []
+  for variable in variables:
+    if any(regex.match(variable.name) for regex in regexs):
+      frozen_variables.append(variable)
+    else:
+      trainable_variables.append(variable)
+  _print_variables(frozen_variables, name="frozen")
+  _print_variables(trainable_variables, name="trainable")
+  return trainable_variables
