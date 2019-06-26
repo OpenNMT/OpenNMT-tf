@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding module &mdash; OpenNMT-tf 1.23.1 documentation</title>
+  <title>opennmt.utils.decoding module &mdash; OpenNMT-tf 1.24.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.23.1',
+              VERSION:'1.24.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.23
+                1.24
               </div>
             
           
@@ -290,7 +290,7 @@ random samples.</li>
 
 <dl class="method">
 <dt id="opennmt.utils.decoding.DecodingStrategy.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>batch_size</em>, <em>start_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#DecodingStrategy.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.DecodingStrategy.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>batch_size</em>, <em>start_ids</em>, <em>attention_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#DecodingStrategy.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.DecodingStrategy.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the strategy.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -299,6 +299,8 @@ random samples.</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>batch_size</strong> – The batch size.</li>
 <li><strong>start_ids</strong> – The start decoding ids.</li>
+<li><strong>attention_size</strong> – If known, the size of the attention vectors (i.e. the
+maximum source length).</li>
 </ul>
 </td>
 </tr>
@@ -317,7 +319,7 @@ extra_vars: A sequence of additional tensors used during the decoding.</p>
 
 <dl class="method">
 <dt id="opennmt.utils.decoding.DecodingStrategy.step">
-<code class="descname">step</code><span class="sig-paren">(</span><em>step</em>, <em>sampler</em>, <em>log_probs</em>, <em>cum_log_probs</em>, <em>finished</em>, <em>state</em>, <em>extra_vars</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#DecodingStrategy.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.DecodingStrategy.step" title="Permalink to this definition">¶</a></dt>
+<code class="descname">step</code><span class="sig-paren">(</span><em>step</em>, <em>sampler</em>, <em>log_probs</em>, <em>cum_log_probs</em>, <em>finished</em>, <em>state</em>, <em>extra_vars</em>, <em>attention=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#DecodingStrategy.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.DecodingStrategy.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the strategy state.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -331,6 +333,7 @@ extra_vars: A sequence of additional tensors used during the decoding.</p>
 <li><strong>finished</strong> – The current finished flags.</li>
 <li><strong>state</strong> – The decoder state.</li>
 <li><strong>extra_vars</strong> – Additional tensors from this decoding strategy.</li>
+<li><strong>attention</strong> – The attention vector for the current step.</li>
 </ul>
 </td>
 </tr>
@@ -385,7 +388,7 @@ final_lengths: The final sequence lengths of shape [B, H].</p>
 <p>A basic greedy search strategy.</p>
 <dl class="method">
 <dt id="opennmt.utils.decoding.GreedySearch.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>batch_size</em>, <em>start_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#GreedySearch.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.GreedySearch.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>batch_size</em>, <em>start_ids</em>, <em>attention_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#GreedySearch.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.GreedySearch.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the strategy.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -394,6 +397,8 @@ final_lengths: The final sequence lengths of shape [B, H].</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>batch_size</strong> – The batch size.</li>
 <li><strong>start_ids</strong> – The start decoding ids.</li>
+<li><strong>attention_size</strong> – If known, the size of the attention vectors (i.e. the
+maximum source length).</li>
 </ul>
 </td>
 </tr>
@@ -412,7 +417,7 @@ extra_vars: A sequence of additional tensors used during the decoding.</p>
 
 <dl class="method">
 <dt id="opennmt.utils.decoding.GreedySearch.step">
-<code class="descname">step</code><span class="sig-paren">(</span><em>step</em>, <em>sampler</em>, <em>log_probs</em>, <em>cum_log_probs</em>, <em>finished</em>, <em>state</em>, <em>extra_vars</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#GreedySearch.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.GreedySearch.step" title="Permalink to this definition">¶</a></dt>
+<code class="descname">step</code><span class="sig-paren">(</span><em>step</em>, <em>sampler</em>, <em>log_probs</em>, <em>cum_log_probs</em>, <em>finished</em>, <em>state</em>, <em>extra_vars</em>, <em>attention=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#GreedySearch.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.GreedySearch.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the strategy state.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -426,6 +431,7 @@ extra_vars: A sequence of additional tensors used during the decoding.</p>
 <li><strong>finished</strong> – The current finished flags.</li>
 <li><strong>state</strong> – The decoder state.</li>
 <li><strong>extra_vars</strong> – Additional tensors from this decoding strategy.</li>
+<li><strong>attention</strong> – The attention vector for the current step.</li>
 </ul>
 </td>
 </tr>
@@ -475,7 +481,7 @@ final_lengths: The final sequence lengths of shape [B, H].</p>
 
 <dl class="class">
 <dt id="opennmt.utils.decoding.BeamSearch">
-<em class="property">class </em><code class="descclassname">opennmt.utils.decoding.</code><code class="descname">BeamSearch</code><span class="sig-paren">(</span><em>beam_size</em>, <em>length_penalty=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.BeamSearch" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">opennmt.utils.decoding.</code><code class="descname">BeamSearch</code><span class="sig-paren">(</span><em>beam_size</em>, <em>length_penalty=0</em>, <em>coverage_penalty=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.BeamSearch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#opennmt.utils.decoding.DecodingStrategy" title="opennmt.utils.decoding.DecodingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.decoding.DecodingStrategy</span></code></a></p>
 <p>A beam search strategy.</p>
 <dl class="attribute">
@@ -486,7 +492,7 @@ final_lengths: The final sequence lengths of shape [B, H].</p>
 
 <dl class="method">
 <dt id="opennmt.utils.decoding.BeamSearch.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>batch_size</em>, <em>start_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.BeamSearch.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>batch_size</em>, <em>start_ids</em>, <em>attention_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.BeamSearch.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the strategy.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -495,6 +501,8 @@ final_lengths: The final sequence lengths of shape [B, H].</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>batch_size</strong> – The batch size.</li>
 <li><strong>start_ids</strong> – The start decoding ids.</li>
+<li><strong>attention_size</strong> – If known, the size of the attention vectors (i.e. the
+maximum source length).</li>
 </ul>
 </td>
 </tr>
@@ -513,7 +521,7 @@ extra_vars: A sequence of additional tensors used during the decoding.</p>
 
 <dl class="method">
 <dt id="opennmt.utils.decoding.BeamSearch.step">
-<code class="descname">step</code><span class="sig-paren">(</span><em>step</em>, <em>sampler</em>, <em>log_probs</em>, <em>cum_log_probs</em>, <em>finished</em>, <em>state</em>, <em>extra_vars</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.BeamSearch.step" title="Permalink to this definition">¶</a></dt>
+<code class="descname">step</code><span class="sig-paren">(</span><em>step</em>, <em>sampler</em>, <em>log_probs</em>, <em>cum_log_probs</em>, <em>finished</em>, <em>state</em>, <em>extra_vars</em>, <em>attention=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.BeamSearch.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the strategy state.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -527,6 +535,7 @@ extra_vars: A sequence of additional tensors used during the decoding.</p>
 <li><strong>finished</strong> – The current finished flags.</li>
 <li><strong>state</strong> – The decoder state.</li>
 <li><strong>extra_vars</strong> – Additional tensors from this decoding strategy.</li>
+<li><strong>attention</strong> – The attention vector for the current step.</li>
 </ul>
 </td>
 </tr>
@@ -576,7 +585,7 @@ final_lengths: The final sequence lengths of shape [B, H].</p>
 
 <dl class="function">
 <dt id="opennmt.utils.decoding.dynamic_decode">
-<code class="descclassname">opennmt.utils.decoding.</code><code class="descname">dynamic_decode</code><span class="sig-paren">(</span><em>symbols_to_logits_fn</em>, <em>start_ids</em>, <em>end_id=2</em>, <em>initial_state=None</em>, <em>decoding_strategy=None</em>, <em>sampler=None</em>, <em>maximum_iterations=None</em>, <em>minimum_iterations=0</em>, <em>attention_history=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.dynamic_decode" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">opennmt.utils.decoding.</code><code class="descname">dynamic_decode</code><span class="sig-paren">(</span><em>symbols_to_logits_fn</em>, <em>start_ids</em>, <em>end_id=2</em>, <em>initial_state=None</em>, <em>decoding_strategy=None</em>, <em>sampler=None</em>, <em>maximum_iterations=None</em>, <em>minimum_iterations=0</em>, <em>attention_history=False</em>, <em>attention_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.decoding.dynamic_decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dynamic decoding.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -595,6 +604,8 @@ predictions from the model output. Defaults to an argmax sampling.</li>
 <li><strong>maximum_iterations</strong> – The maximum number of iterations to decode for.</li>
 <li><strong>minimum_iterations</strong> – The minimum number of iterations to decode for.</li>
 <li><strong>attention_history</strong> – Gather attention history during the decoding.</li>
+<li><strong>attention_size</strong> – If known, the size of the attention vectors (i.e. the
+maximum source length).</li>
 </ul>
 </td>
 </tr>

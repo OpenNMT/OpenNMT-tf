@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 1.23.1 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 1.24.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.23.1',
+              VERSION:'1.24.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.23
+                1.24
               </div>
             
           
@@ -471,7 +471,8 @@
                                 <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">return_alignment_history</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                 <span class="n">sample_from</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                <span class="n">sample_temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                                <span class="n">sample_temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">coverage_penalty</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_tokens` with beam search.</span>
 
 <span class="sd">    Usually used for inference.</span>
@@ -501,6 +502,7 @@
 <span class="sd">        tokens. If 0, sample from the full output distribution.</span>
 <span class="sd">      sample_temperature: Value dividing logits. In random sampling, a high</span>
 <span class="sd">        value generates more random samples.</span>
+<span class="sd">      coverage_penalty: The coverage penalty weight during beam search.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or</span>
@@ -549,7 +551,10 @@
     <span class="k">if</span> <span class="n">beam_width</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
       <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">GreedySearch</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">BeamSearch</span><span class="p">(</span><span class="n">beam_width</span><span class="p">,</span> <span class="n">length_penalty</span><span class="o">=</span><span class="n">length_penalty</span><span class="p">)</span>
+      <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">BeamSearch</span><span class="p">(</span>
+          <span class="n">beam_width</span><span class="p">,</span>
+          <span class="n">length_penalty</span><span class="o">=</span><span class="n">length_penalty</span><span class="p">,</span>
+          <span class="n">coverage_penalty</span><span class="o">=</span><span class="n">coverage_penalty</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">sample_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sample_from</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
       <span class="n">sampler</span> <span class="o">=</span> <span class="n">decoding</span><span class="o">.</span><span class="n">RandomSampler</span><span class="p">(</span>
@@ -566,7 +571,8 @@
         <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
         <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
         <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">minimum_length</span><span class="p">,</span>
-        <span class="n">attention_history</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)))</span>
+        <span class="n">attention_history</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)),</span>
+        <span class="n">attention_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="c1"># For backward compatibility, include &lt;/s&gt; in length.</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">lengths</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">outputs</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>

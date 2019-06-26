@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder module &mdash; OpenNMT-tf 1.23.1 documentation</title>
+  <title>opennmt.decoders.decoder module &mdash; OpenNMT-tf 1.24.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.23.1',
+              VERSION:'1.24.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.23
+                1.24
               </div>
             
           
@@ -408,7 +408,7 @@ if <code class="xref py py-obj docutils literal notranslate"><span class="pre">r
 
 <dl class="method">
 <dt id="opennmt.decoders.decoder.Decoder.dynamic_decode_and_search">
-<code class="descname">dynamic_decode_and_search</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>beam_width=5</em>, <em>length_penalty=0.0</em>, <em>maximum_iterations=250</em>, <em>minimum_length=0</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em>, <em>sample_from=None</em>, <em>sample_temperature=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode_and_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode_and_search" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dynamic_decode_and_search</code><span class="sig-paren">(</span><em>embedding</em>, <em>start_tokens</em>, <em>end_token</em>, <em>vocab_size=None</em>, <em>initial_state=None</em>, <em>output_layer=None</em>, <em>beam_width=5</em>, <em>length_penalty=0.0</em>, <em>maximum_iterations=250</em>, <em>minimum_length=0</em>, <em>mode='infer'</em>, <em>memory=None</em>, <em>memory_sequence_length=None</em>, <em>dtype=None</em>, <em>return_alignment_history=False</em>, <em>sample_from=None</em>, <em>sample_temperature=None</em>, <em>coverage_penalty=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode_and_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.decoder.Decoder.dynamic_decode_and_search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_tokens</span></code> with beam search.</p>
 <p>Usually used for inference.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -440,6 +440,7 @@ unsupported by the decoder).</li>
 tokens. If 0, sample from the full output distribution.</li>
 <li><strong>sample_temperature</strong> – Value dividing logits. In random sampling, a high
 value generates more random samples.</li>
+<li><strong>coverage_penalty</strong> – The coverage penalty weight during beam search.</li>
 </ul>
 </td>
 </tr>

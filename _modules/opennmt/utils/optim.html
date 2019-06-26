@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.23.1 documentation</title>
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.24.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.23.1',
+              VERSION:'1.24.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.23
+                1.24
               </div>
             
           
@@ -187,6 +187,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;Optimization related functions.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -369,6 +370,8 @@
       <span class="n">optimizer</span> <span class="o">=</span> <span class="n">DistributedOptimizer</span><span class="o">.</span><span class="n">from_params</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;horovod&quot;</span><span class="p">))</span>
 
     <span class="c1"># Gradients.</span>
+    <span class="n">var_list</span> <span class="o">=</span> <span class="n">_get_trainable_variables</span><span class="p">(</span>
+        <span class="n">var_list</span><span class="o">=</span><span class="n">var_list</span><span class="p">,</span> <span class="n">freeze_variables</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;freeze_variables&quot;</span><span class="p">))</span>
     <span class="n">gradients</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">compute_gradients</span><span class="p">(</span>
         <span class="n">loss</span><span class="p">,</span> <span class="n">var_list</span><span class="o">=</span><span class="n">var_list</span><span class="p">,</span> <span class="n">colocate_gradients_with_ops</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
@@ -495,6 +498,31 @@
 <span class="k">def</span> <span class="nf">_summarize_gradients_norm</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">gradients</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Summarizes global norm of gradients.&quot;&quot;&quot;</span>
   <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_norm</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">gradients</span><span class="p">))[</span><span class="mi">0</span><span class="p">]))</span>
+
+<span class="k">def</span> <span class="nf">_print_var_list</span><span class="p">(</span><span class="n">var_list</span><span class="p">):</span>
+  <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; * </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_get_trainable_variables</span><span class="p">(</span><span class="n">var_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freeze_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">var_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">var_list</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span>
+  <span class="k">if</span> <span class="n">freeze_variables</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">freeze_variables</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">freeze_variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">freeze_variables</span><span class="p">]</span>
+    <span class="n">regexs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="n">freeze_variables</span><span class="p">))</span>
+    <span class="n">frozen_variables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">trainable_variables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">regex</span> <span class="ow">in</span> <span class="n">regexs</span><span class="p">):</span>
+        <span class="n">frozen_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">trainable_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Frozen variables:&quot;</span><span class="p">)</span>
+    <span class="n">_print_var_list</span><span class="p">(</span><span class="n">frozen_variables</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Trainable variables:&quot;</span><span class="p">)</span>
+    <span class="n">_print_var_list</span><span class="p">(</span><span class="n">trainable_variables</span><span class="p">)</span>
+    <span class="n">var_list</span> <span class="o">=</span> <span class="n">trainable_variables</span>
+  <span class="k">return</span> <span class="n">var_list</span>
 </pre></div>
 
            </div>
