@@ -285,7 +285,8 @@ class Decoder(object):
                                 dtype=None,
                                 return_alignment_history=False,
                                 sample_from=None,
-                                sample_temperature=None):
+                                sample_temperature=None,
+                                coverage_penalty=0.0):
     """Decodes dynamically from :obj:`start_tokens` with beam search.
 
     Usually used for inference.
@@ -315,6 +316,7 @@ class Decoder(object):
         tokens. If 0, sample from the full output distribution.
       sample_temperature: Value dividing logits. In random sampling, a high
         value generates more random samples.
+      coverage_penalty: The coverage penalty weight during beam search.
 
     Returns:
       A tuple ``(predicted_ids, state, sequence_length, log_probs)`` or
@@ -363,7 +365,10 @@ class Decoder(object):
     if beam_width == 1:
       decoding_strategy = decoding.GreedySearch()
     else:
-      decoding_strategy = decoding.BeamSearch(beam_width, length_penalty=length_penalty)
+      decoding_strategy = decoding.BeamSearch(
+          beam_width,
+          length_penalty=length_penalty,
+          coverage_penalty=coverage_penalty)
 
     if sample_from is not None and sample_from != 1:
       sampler = decoding.RandomSampler(
@@ -380,7 +385,8 @@ class Decoder(object):
         sampler=sampler,
         maximum_iterations=maximum_iterations,
         minimum_iterations=minimum_length,
-        attention_history=self.support_alignment_history and not isinstance(memory, (list, tuple)))
+        attention_history=self.support_alignment_history and not isinstance(memory, (list, tuple)),
+        attention_size=tf.shape(memory)[1] if self.support_alignment_history else None)
 
     # For backward compatibility, include </s> in length.
     lengths = tf.minimum(lengths + 1, tf.shape(outputs)[2])

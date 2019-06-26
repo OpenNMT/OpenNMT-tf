@@ -1,6 +1,7 @@
 """Optimization related functions."""
 
 import collections
+import re
 
 import tensorflow as tf
 
@@ -183,6 +184,8 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None, hvd=None):
       optimizer = DistributedOptimizer.from_params(optimizer, params=params.get("horovod"))
 
     # Gradients.
+    var_list = _get_trainable_variables(
+        var_list=var_list, freeze_variables=params.get("freeze_variables"))
     gradients = optimizer.compute_gradients(
         loss, var_list=var_list, colocate_gradients_with_ops=True)
     _summarize_gradients_norm("global_norm/gradient_norm", gradients)
@@ -309,3 +312,28 @@ def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
 def _summarize_gradients_norm(name, gradients):
   """Summarizes global norm of gradients."""
   tf.summary.scalar(name, tf.global_norm(list(zip(*gradients))[0]))
+
+def _print_var_list(var_list):
+  for variable in var_list:
+    tf.logging.info(" * %s", variable.name)
+
+def _get_trainable_variables(var_list=None, freeze_variables=None):
+  if var_list is None:
+    var_list = tf.trainable_variables()
+  if freeze_variables:
+    if not isinstance(freeze_variables, list):
+      freeze_variables = [freeze_variables]
+    regexs = list(map(re.compile, freeze_variables))
+    frozen_variables = []
+    trainable_variables = []
+    for variable in var_list:
+      if any(regex.match(variable.name) for regex in regexs):
+        frozen_variables.append(variable)
+      else:
+        trainable_variables.append(variable)
+    tf.logging.info("Frozen variables:")
+    _print_var_list(frozen_variables)
+    tf.logging.info("Trainable variables:")
+    _print_var_list(trainable_variables)
+    var_list = trainable_variables
+  return var_list

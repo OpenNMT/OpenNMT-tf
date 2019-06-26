@@ -146,8 +146,7 @@ class SequenceToSequence(Model):
     config = super(SequenceToSequence, self).auto_config(num_devices=num_devices)
     return merge_dict(config, {
         "params": {
-            "beam_width": 4,
-            "length_penalty": 0.6
+            "beam_width": 4
         },
         "train": {
             "sample_buffer_size": -1,
@@ -240,7 +239,8 @@ class SequenceToSequence(Model):
                 dtype=target_dtype,
                 return_alignment_history=True,
                 sample_from=params.get("sampling_topk"),
-                sample_temperature=params.get("sampling_temperature")))
+                sample_temperature=params.get("sampling_temperature"),
+                coverage_penalty=params.get("coverage_penalty", 0)))
 
       target_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
       target_tokens = target_vocab_rev.lookup(tf.cast(sampled_ids, tf.int64))
