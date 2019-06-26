@@ -189,7 +189,7 @@ class Model(tf.keras.Model):
         accum_count=params.get("gradients_accum", 1),
         global_step=step)
 
-  def create_variables(self, params=None):
+  def create_variables(self, optimizer=None, params=None):
     """Creates the model variables by running it once."""
     if self.built:
       return
@@ -202,6 +202,10 @@ class Model(tf.keras.Model):
       self(features, None, params, tf.estimator.ModeKeys.PREDICT)
 
     _run.get_concrete_function()
+    if optimizer is not None:
+      _ = optimizer.iterations
+      optimizer._create_hypers()
+      optimizer._create_slots(self.trainable_variables)
 
   def get_assets(self, asset_dir):
     """Returns additional assets used by this model.

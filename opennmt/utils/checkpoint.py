@@ -10,6 +10,90 @@ from opennmt.data.vocab import Vocab
 from opennmt.utils.misc import count_lines
 
 
+class Checkpoint(object):
+  """Wrapper around TensorFlow checkpoints utilities."""
+
+  def __init__(self, model, optimizer=None, model_dir=None, keep_checkpoint_max=8):
+    """Initializes the wrapper.
+
+    Args:
+      model: A :class:`opennmt.models.model.Model` to save.
+      optimizer: The optimizer instance.
+      model_dir: The directory where checkpoints will be saved. If not set, a
+        temporary directory will be used.
+      keep_checkpoint_max: The maximum number of checkpoints to keep.
+    """
+    if model_dir is None:
+      model_dir = tempfile.mkdtemp()
+    trackables = {}
+    trackables["model"] = model
+    if optimizer is not None:
+      trackables["optimizer"] = optimizer
+    self._model = model
+    self._optimizer = optimizer
+    self._model_dir = model_dir
+    self._checkpoint = tf.train.Checkpoint(**trackables)
+    self._checkpoint_manager = tf.train.CheckpointManager(
+        self._checkpoint, model_dir, keep_checkpoint_max)
+
+  @property
+  def model(self):
+    """The managed model."""
+    return self._model
+
+  @property
+  def optimizer(self):
+    """The managed optimizer."""
+    return self._optimizer
+
+  @property
+  def model_dir(self):
+    """The model directory."""
+    return self._model_dir
+
+  def save(self, step):
+    """Saves a checkpoint for :obj:`step`."""
+    path = self._checkpoint_manager.save(checkpoint_number=step)
+    tf.get_logger().info("Saved checkpoint %s", path)
+
+  def restore(self, checkpoint_path=None, weights_only=False):
+    """Restores a checkpoint:
+
+    Args:
+      checkpoint_path: Path a checkpoint to restore. If not set, the latest
+        checkpoint from :obj:`model_dir` will be restored.
+      weights_only: Only restore model weights.
+
+    Returns:
+      Path to the restored checkpoint.
+    """
+    if weights_only:
+      checkpoint = tf.train.Checkpoint(model=self._model)
+    else:
+      checkpoint = self._checkpoint
+    if checkpoint_path is not None:
+      if tf.io.gfile.isdir(checkpoint_path):
+        checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    elif self._checkpoint_manager.latest_checkpoint is not None:
+      checkpoint_path = self._checkpoint_manager.latest_checkpoint
+    if checkpoint_path is None:
+      tf.get_logger().warning("No checkpoint to restore in %s", self._model_dir)
+      return None
+    is_v1 = os.path.basename(checkpoint_path).startswith("model")
+    if is_v1:
+      _restore_v1_checkpoint(
+          checkpoint_path,
+          self._model,
+          optimizer=self._optimizer if not weights_only else None)
+    else:
+      checkpoint.restore(checkpoint_path)
+    tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
+    return checkpoint_path
+
+
+def _restore_v1_checkpoint(checkpoint_path, model, optimizer=None):
+  raise NotImplementedError("V1 checkpoints are currently unsupported")
+
 def _get_vocabulary_mapping(current_vocab_path, new_vocab_path, mode):
   """Maps vocabulary new indices to old ones. -1 means that the entry is new."""
   current_vocab = Vocab(from_file=current_vocab_path)

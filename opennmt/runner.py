@@ -90,6 +90,16 @@ class Runner(object):
     tf.get_logger().info(
         "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
 
+    if "optimizer" in self._config["params"]:
+      self._optimizer = self._model.get_optimizer(params=self._config["params"])
+    else:
+      self._optimizer = None
+    self._checkpoint = checkpoint.Checkpoint(
+        self._model,
+        optimizer=self._optimizer,
+        model_dir=self._config.get("model_dir"),
+        keep_checkpoint_max=self._config["train"].get("keep_checkpoint_max", 8))
+
     if seed is not None:
       np.random.seed(seed)
       random.seed(seed)
@@ -141,6 +151,8 @@ class Runner(object):
       The path to the final model directory.
     """
     self._finalize_training_parameters()
+    self._checkpoint.restore(
+        checkpoint_path=checkpoint_path, weights_only=checkpoint_path is not None)
     params = self._config["params"]
     data_config = self._config["data"]
     train_config = self._config["train"]
@@ -162,8 +174,7 @@ class Runner(object):
       evaluator = evaluation.Evaluator.from_config(self._model, self._config)
     else:
       evaluator = None
-    trainer = training.Trainer.from_config(self._model, self._config)
-    trainer.restore_checkpoint(checkpoint_path=checkpoint_path)
+    trainer = training.Trainer(self._checkpoint, params=params)
     trainer(
         dataset,
         max_step=train_config.get("train_steps"),
@@ -183,8 +194,7 @@ class Runner(object):
     Returns:
       A dict of evaluation metrics.
     """
-    checkpoint_path = _restore_checkpoint(
-        self._model, self._config["model_dir"], checkpoint_path=checkpoint_path)
+    checkpoint_path = self._checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
     step = int(checkpoint_path.split("-")[-1])
     evaluator = evaluation.Evaluator.from_config(self._model, self._config)
     return evaluator(step)
@@ -218,13 +228,9 @@ class Runner(object):
     Returns:
       The path to the directory containing the averaged checkpoint.
     """
-    optimizer = self._model.get_optimizer(params=self._config["params"])
     # Create all variables.
-    self._model.create_variables()
-    _ = optimizer.iterations
-    optimizer._create_hypers()
-    optimizer._create_slots(self._model.trainable_variables)
-    trackables = dict(model=self._model, optimizer=optimizer)
+    self._model.create_variables(optimizer=self._optimizer)
+    trackables = dict(model=self._model, optimizer=self._optimizer)
     return checkpoint.average_checkpoints(
         self._config["model_dir"],
         output_dir,
@@ -262,7 +268,7 @@ class Runner(object):
         predictions["index"] = source["index"]
       return predictions
 
-    _restore_checkpoint(self._model, self._config["model_dir"], checkpoint_path=checkpoint_path)
+    self._checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
 
     if predictions_file:
       stream = io.open(predictions_file, encoding="utf-8", mode="w")
@@ -346,8 +352,7 @@ class Runner(object):
       raise ValueError("predictions_file is required when scoring with a "
                        "sequence to sequence model")
 
-    _restore_checkpoint(self._model, self._config["model_dir"], checkpoint_path=checkpoint_path)
-
+    self._checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
     params = self._config["params"]
     score_config = self._config["score"]
     dataset = self._model.examples_inputter.make_evaluation_dataset(
@@ -503,13 +508,3 @@ def _auto_tune_batch_size(config,
   if session_config_path is not None:
     os.remove(session_config_path)
   return min_batch_size
-
-def _restore_checkpoint(model, model_dir, checkpoint_path=None):
-  checkpoint = tf.train.Checkpoint(model=model)
-  if checkpoint_path is None:
-    checkpoint_path = model_dir
-  if tf.io.gfile.isdir(checkpoint_path):
-    checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-  checkpoint.restore(checkpoint_path)
-  tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
-  return checkpoint_path

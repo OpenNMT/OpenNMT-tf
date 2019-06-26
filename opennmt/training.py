@@ -12,81 +12,21 @@ import tensorflow as tf
 class Trainer(object):
   """Model trainer."""
 
-  def __init__(self, model, optimizer, params=None, model_dir=None, keep_checkpoint_max=8):
+  def __init__(self, checkpoint, params=None):
     """Initializes the trainer.
 
     Args:
-      model: A :class:`opennmt.models.model.Model` to train.
-      optimizer: The optimizer instance.
+      checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance.
       params: A dictionary of hyperparameters.
-      model_dir: The directory where checkpoints will be saved. If not set, a
-        temporary directory will be used.
-      keep_checkpoint_max: The maximum number of checkpoints to keep.
     """
+    if checkpoint.optimizer is None:
+      raise ValueError("No optimizer is defined")
     if params is None:
       params = {}
-    if model_dir is None:
-      model_dir = tempfile.mkdtemp()
-    self._model = model
-    self._optimizer = optimizer
+    self._checkpoint = checkpoint
+    self._model = checkpoint.model
+    self._optimizer = checkpoint.optimizer
     self._params = params
-    self._model_dir = model_dir
-    self._checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
-    self._checkpoint_manager = tf.train.CheckpointManager(
-        self._checkpoint, model_dir, keep_checkpoint_max)
-
-  @classmethod
-  def from_config(cls, model, config):
-    """Creates a trainer from the user configuration.
-
-    Args:
-      model: A :class:`opennmt.models.model.Model` to train.
-      config: The global user configuration.
-
-    Returns:
-      A :class:`opennmt.training.Trainer` instance.
-    """
-    params = config["params"]
-    train_config = config["train"]
-    optimizer = model.get_optimizer(params=params)
-    return cls(
-        model,
-        optimizer,
-        params=params,
-        model_dir=config.get("model_dir"),
-        keep_checkpoint_max=train_config.get("keep_checkpoint_max", 8))
-
-  def save_checkpoint(self, step):
-    """Saves a checkpoint for :obj:`step`."""
-    path = self._checkpoint_manager.save(checkpoint_number=step)
-    tf.get_logger().info("Saved checkpoint %s", path)
-
-  def restore_checkpoint(self, checkpoint_path=None):
-    """Restores a checkpoint.
-
-    When :obj:`checkpoint_path` is not set, the training will continue from the
-    last checkpoint of ``model_dir``. Otherwise, model weights will be loaded
-    from :obj:`checkpoint_path`.
-
-    Args:
-      checkpoint_path: Path to a checkpoint or a directory containing
-        checkpoints.
-
-    Returns:
-      Path to the checkpoint that was restored.
-    """
-    if checkpoint_path is not None:
-      checkpoint = tf.train.Checkpoint(model=self._model)
-      if tf.io.gfile.isdir(checkpoint_path):
-        checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    else:
-      checkpoint = self._checkpoint
-      if self._checkpoint_manager.latest_checkpoint is not None:
-        checkpoint_path = self._checkpoint_manager.latest_checkpoint
-    if checkpoint_path is not None:
-      checkpoint.restore(checkpoint_path)
-      tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
-    return checkpoint_path
 
   def __call__(self,
                dataset,
@@ -177,13 +117,13 @@ class Trainer(object):
             accum_num_words,
             last_report_time)
       if save_steps is not None and step % save_steps == 0:
-        self.save_checkpoint(step)
+        self._checkpoint.save(step)
       if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
         evaluator(step)
       if step == max_step:
         break
 
-    self.save_checkpoint(step)
+    self._checkpoint.save(step)
 
 
 def _report_training_status(step, loss, learning_rate, accum_num_words, last_report_time):
