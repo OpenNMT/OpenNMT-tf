@@ -45,8 +45,8 @@ class SequentialEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of :class:`opennmt.encoders.encoder.Encoder`.
-      states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
+      encoders: A list of :class:`opennmt.encoders.Encoder`.
+      states_reducer: A :class:`opennmt.layers.Reducer` to merge all
         states.
       transition_layer_fn: A callable or list of callables applied to the
         output of an encoder before passing it as input to the next. If it is a
@@ -96,7 +96,7 @@ class ParallelEncoder(Encoder):
 
   If the input is a single ``tf.Tensor``, the same input will be encoded by
   every encoders. Otherwise, when the input is a Python sequence (e.g. the non
-  reduced output of a :class:`opennmt.inputters.inputter.ParallelInputter`),
+  reduced output of a :class:`opennmt.inputters.ParallelInputter`),
   each encoder will encode its corresponding input in the sequence.
 
   See for example "Multi-Columnn Encoder" in https://arxiv.org/abs/1804.09849.
@@ -111,14 +111,14 @@ class ParallelEncoder(Encoder):
     """Initializes the parameters of the encoder.
 
     Args:
-      encoders: A list of :class:`opennmt.encoders.encoder.Encoder` or a single
+      encoders: A list of :class:`opennmt.encoders.Encoder` or a single
         one, in which case the same encoder is applied to each input.
-      outputs_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
+      outputs_reducer: A :class:`opennmt.layers.Reducer` to merge all
         outputs. If ``None``, defaults to
-        :class:`opennmt.layers.reducer.JoinReducer`.
-      states_reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all
+        :class:`opennmt.layers.JoinReducer`.
+      states_reducer: A :class:`opennmt.layers.Reducer` to merge all
         states. If ``None``, defaults to
-        :class:`opennmt.layers.reducer.JoinReducer`.
+        :class:`opennmt.layers.JoinReducer`.
       outputs_layer_fn: A callable or list of callables applied to the
         encoders outputs If it is a single callable, it is on each encoder
         output. Otherwise, the ``i`` th callable is applied on encoder ``i``

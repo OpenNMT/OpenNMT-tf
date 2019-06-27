@@ -19,7 +19,7 @@ class WordNoiser(object):
     """Initializes the noising class.
 
     Args:
-      noises: A list of :class:`opennmt.layers.noise.Noise` instances to apply
+      noises: A list of :class:`opennmt.layers.Noise` instances to apply
         sequentially.
       subword_token: The special token used by the subword tokenizer. This is
         required when the noise should be applied at the word level and not the

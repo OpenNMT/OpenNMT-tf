@@ -61,7 +61,7 @@ class Runner(object):
     """Initializes the runner parameters.
 
     Args:
-      model: A :class:`opennmt.models.model.Model` instance to run.
+      model: A :class:`opennmt.models.Model` instance to run.
       config: The run configuration.
       seed: The random seed to set.
       num_devices: The number of devices (GPUs) to use for training.

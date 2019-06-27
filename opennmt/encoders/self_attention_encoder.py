@@ -39,7 +39,7 @@ class SelfAttentionEncoder(Encoder):
         the feed forward layer.
       ffn_activation: The activation function to apply between the two linear
         transformations of the feed forward layer.
-      position_encoder: The :class:`opennmt.layers.position.PositionEncoder`
+      position_encoder: The :class:`opennmt.layers.PositionEncoder`
         class to use for position encoding (or a callable that returns such
         class).
     """

@@ -19,7 +19,6 @@ from opennmt.layers.reducer import JoinReducer
 from opennmt.layers.reducer import MultiplyReducer
 from opennmt.layers.reducer import Reducer
 from opennmt.layers.reducer import SumReducer
-from opennmt.layers.reducer import align_in_time
 
 from opennmt.layers.rnn import RNN
 from opennmt.layers.rnn import RNNCellWrapper

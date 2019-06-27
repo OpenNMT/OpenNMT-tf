@@ -32,12 +32,12 @@ class Transformer(SequenceToSequence):
     """Initializes a Transformer model.
 
     Args:
-      source_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+      source_inputter: A :class:`opennmt.inputters.Inputter` to process
         the source data. If this inputter returns parallel inputs, a multi
         source Transformer architecture will be constructed.
-      target_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+      target_inputter: A :class:`opennmt.inputters.Inputter` to process
         the target data. Currently, only the
-        :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.
+        :class:`opennmt.inputters.WordEmbedder` is supported.
       num_layers: The shared number of layers.
       num_units: The number of hidden units.
       num_heads: The number of heads in each self-attention layers.
@@ -48,13 +48,12 @@ class Transformer(SequenceToSequence):
         the feed forward layer.
       ffn_activation: The activation function to apply between the two linear
         transformations of the feed forward layer.
-      position_encoder: A :class:`opennmt.layers.position.PositionEncoder` to
+      position_encoder: A :class:`opennmt.layers.PositionEncoder` to
         apply on the inputs.
       decoder_self_attention_type: Type of self attention in the decoder,
         "scaled_dot" or "average" (case insensitive).
       share_embeddings: Level of embeddings sharing, see
-        :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
-        for possible values.
+        :class:`opennmt.models.EmbeddingsSharingLevel` for possible values.
       share_encoders: In case of multi source architecture, whether to share the
         separate encoders parameters or not.
       alignment_file_key: The data configuration key of the training alignment

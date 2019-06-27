@@ -68,7 +68,7 @@ class Inputter(tf.keras.layers.Layer):
     """Builds a dataset to be used for inference.
 
     For evaluation and training datasets, see
-    :class:`opennmt.inputters.inputter.ExampleInputter`.
+    :class:`opennmt.inputters.ExampleInputter`.
 
     Args:
       features_file: The test file.
@@ -211,8 +211,8 @@ class ParallelInputter(MultiInputter):
     """Initializes a parallel inputter.
 
     Args:
-      inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
-      reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs. If
+      inputters: A list of :class:`opennmt.inputters.Inputter`.
+      reducer: A :class:`opennmt.layers.Reducer` to merge all inputs. If
         set, parallel inputs are assumed to have the same length.
       share_parameters: Share the inputters parameters.
       combine_features: Combine each inputter features in a single dict or
@@ -328,8 +328,8 @@ class MixedInputter(MultiInputter):
     """Initializes a mixed inputter.
 
     Args:
-      inputters: A list of :class:`opennmt.inputters.inputter.Inputter`.
-      reducer: A :class:`opennmt.layers.reducer.Reducer` to merge all inputs.
+      inputters: A list of :class:`opennmt.inputters.Inputter`.
+      reducer: A :class:`opennmt.layers.Reducer` to merge all inputs.
       dropout: The probability to drop units in the merged inputs.
     """
     super(MixedInputter, self).__init__(inputters, reducer=reducer)

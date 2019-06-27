@@ -45,5 +45,6 @@ matrix:
         - pip install git+git://github.com/drdoctr/doctr@3288a31b66522312a1c541486613b14389dc73f0
       script:
         - set -e
+        - python docs/generate-apidoc.py docs/package
         - sphinx-build docs docs/build
         - doctr deploy --build-tags --branch-whitelist --built-docs docs/build .

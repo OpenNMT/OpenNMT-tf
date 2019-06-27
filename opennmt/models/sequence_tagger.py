@@ -16,9 +16,9 @@ class SequenceTagger(Model):
     """Initializes a sequence tagger.
 
     Args:
-      inputter: A :class:`opennmt.inputters.inputter.Inputter` to process the
+      inputter: A :class:`opennmt.inputters.Inputter` to process the
         input data.
-      encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
+      encoder: A :class:`opennmt.encoders.Encoder` to encode the input.
       crf_decoding: If ``True``, add a CRF layer after the encoder.
     """
     if crf_decoding:

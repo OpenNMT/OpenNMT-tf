@@ -58,21 +58,21 @@ class SequenceToSequence(Model):
     """Initializes a sequence-to-sequence model.
 
     Args:
-      source_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+      source_inputter: A :class:`opennmt.inputters.Inputter` to process
         the source data.
-      target_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+      target_inputter: A :class:`opennmt.inputters.Inputter` to process
         the target data. Currently, only the
-        :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.
-      encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the source.
-      decoder: A :class:`opennmt.decoders.decoder.Decoder` to decode the target.
+        :class:`opennmt.inputters.WordEmbedder` is supported.
+      encoder: A :class:`opennmt.encoders.Encoder` to encode the source.
+      decoder: A :class:`opennmt.decoders.Decoder` to decode the target.
       share_embeddings: Level of embeddings sharing, see
-        :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
+        :class:`opennmt.models.EmbeddingsSharingLevel`
         for possible values.
       name: The name of this model.
 
     Raises:
       TypeError: if :obj:`target_inputter` is not a
-        :class:`opennmt.inputters.text_inputter.WordEmbedder` (same for
+        :class:`opennmt.inputters.WordEmbedder` (same for
         :obj:`source_inputter` when embeddings sharing is enabled) or if
         :obj:`source_inputter` and :obj:`target_inputter` do not have the same
         ``dtype``.
@@ -297,7 +297,7 @@ class SequenceToSequence(Model):
 
 
 class SequenceToSequenceInputter(inputters.ExampleInputter):
-  """A custom :class:`opennmt.inputters.inputter.ExampleInputter` that possibly
+  """A custom :class:`opennmt.inputters.ExampleInputter` that possibly
   injects alignment information during training.
   """
 

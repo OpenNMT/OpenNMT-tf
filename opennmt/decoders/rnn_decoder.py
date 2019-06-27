@@ -26,9 +26,9 @@ class RNNDecoder(decoder.Decoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge_class: A :class:`opennmt.layers.bridge.Bridge` class to pass the
+      bridge_class: A :class:`opennmt.layers.Bridge` class to pass the
         encoder state to the decoder. Default to
-        :class:`opennmt.layers.bridge.ZeroBridge`.
+        :class:`opennmt.layers.ZeroBridge`.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
@@ -83,7 +83,7 @@ class AttentionalRNNDecoder(RNNDecoder):
     Args:
       num_layers: The number of layers.
       num_units: The number of units in each layer.
-      bridge: A :class:`opennmt.layers.bridge.Bridge` to pass the encoder state
+      bridge: A :class:`opennmt.layers.Bridge` to pass the encoder state
         to the decoder.
       attention_mechanism_class: A class inheriting from
         ``tfa.seq2seq.AttentionMechanism``. Defaults to

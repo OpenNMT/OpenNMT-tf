@@ -22,7 +22,7 @@ class LanguageModel(Model):
     """Initializes the language model.
 
     Args:
-      decoder: A :class:`opennmt.decoders.decoder.Decoder` instance.
+      decoder: A :class:`opennmt.decoders.Decoder` instance.
       embedding_size: The size of the word embedding. If not set, pretrained
         embeddings should be defined in the configuration.
       reuse_embedding: If ``True``, reuse the embedding weights in the output
@@ -145,7 +145,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
                               batch_size,
                               num_threads=1,
                               prefetch_buffer_size=None):
-    """See :meth:`opennmt.inputters.inputter.ExampleInputter.make_evaluation_dataset`."""
+    """See :meth:`opennmt.inputters.ExampleInputter.make_evaluation_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
@@ -171,7 +171,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
                             shard_index=0,
                             num_threads=4,
                             prefetch_buffer_size=None):
-    """See :meth:`opennmt.inputters.inputter.ExampleInputter.make_training_dataset`."""
+    """See :meth:`opennmt.inputters.ExampleInputter.make_training_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=True)
     dataset = dataset.apply(dataset_util.training_pipeline(

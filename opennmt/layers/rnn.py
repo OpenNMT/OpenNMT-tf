@@ -95,7 +95,7 @@ class RNN(tf.keras.layers.Layer):
     Args:
       cell: The RNN cell to use.
       bidirectional: Make this layer bidirectional.
-      reducer: A :class:`opennmt.layers.reducer.Reducer` instance to merge
+      reducer: A :class:`opennmt.layers.Reducer` instance to merge
         bidirectional state and outputs.
       kwargs: Additional layer arguments.
     """
