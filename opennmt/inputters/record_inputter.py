@@ -7,15 +7,7 @@ from opennmt.inputters.inputter import Inputter
 
 
 class SequenceRecordInputter(Inputter):
-  """Inputter that reads variable-length tensors.
-
-  Each record contains the following fields:
-
-   * ``shape``: the shape of the tensor as a ``int64`` list.
-   * ``values``: the flattened tensor values as a :obj:`dtype` list.
-
-  Tensors are expected to be of shape ``[time, depth]``.
-  """
+  """Inputter that reads ``tf.train.SequenceExample``."""
 
   def __init__(self, input_depth, dtype=tf.float32):
     """Initializes the parameters of the record inputter.
