@@ -1,7 +1,52 @@
 """Define learning rate decay functions."""
 
+import sys
+
 import tensorflow as tf
 import numpy as np
+
+
+def make_learning_rate_schedule(initial_learning_rate,
+                                schedule_type,
+                                schedule_params=None,
+                                schedule_step_duration=1,
+                                start_step=0,
+                                minimum_learning_rate=0):
+  """Creates the learning rate schedule.
+
+  Args:
+    initial_learning_rate: The initial learning rate value or scale.
+    schedule_type: The type of decay. A function from
+      ``tf.keras.optimizers.schedules``
+      or :mod:`opennmt.schedules` as a string.
+    schedule_params: Additional parameters for the decay function.
+    schedule_step_duration: The number of training steps that make 1 decay step.
+    start_step: Start the schedule after this many steps.
+    minimum_learning_rate: Do not decay past this learning rate value.
+
+  Returns:
+    A ``tf.keras.optimizers.schedules.LearningRateSchedule`` instance.
+
+  Raises:
+    ValueError: if :obj:`decay_type` can not be resolved.
+  """
+  schedule_name = None
+  if schedule_name is None:
+    schedule_name = getattr(tf.keras.optimizers.schedules, schedule_type, None)
+  if schedule_name is None:
+    schedule_name = getattr(sys.modules[__name__], schedule_type, None)
+  if schedule_name is None:
+    raise ValueError("Unknown learning rate schedule: {}".format(schedule_type))
+
+  if schedule_params is None:
+    schedule_params = {}
+  schedule = schedule_name(initial_learning_rate, **schedule_params)
+  schedule = ScheduleWrapper(
+      schedule,
+      step_start=start_step,
+      step_duration=schedule_step_duration,
+      minimum_learning_rate=minimum_learning_rate)
+  return schedule
 
 
 class ScheduleWrapper(tf.keras.optimizers.schedules.LearningRateSchedule):

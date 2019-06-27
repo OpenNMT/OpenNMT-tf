@@ -7,7 +7,7 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import optim
+from opennmt import optimizers
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -138,14 +138,14 @@ class Model(tf.keras.Model):
     learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
     if params.get("decay_type") is not None:
       schedule_params = params.get("decay_params", {})
-      learning_rate = optim.make_learning_rate_schedule(
+      learning_rate = optimizers.schedules.make_learning_rate_schedule(
           learning_rate,
           params["decay_type"],
           schedule_params=schedule_params,
           schedule_step_duration=params.get("decay_step_duration", 1),
           start_step=params.get("start_decay_steps", 0),
           minimum_learning_rate=params.get("minimum_learning_rate", 0))
-    optimizer = optim.make_optimizer(
+    optimizer = optimizers.make_optimizer(
         params["optimizer"],
         learning_rate,
         **params.get("optimizer_params", {}))
