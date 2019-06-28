@@ -12,17 +12,24 @@ import tensorflow as tf
 class Trainer(object):
   """Model trainer."""
 
-  def __init__(self, checkpoint):
+  def __init__(self, checkpoint, devices=None):
     """Initializes the trainer.
 
     Args:
       checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance.
+      devices: List of device strings to use for training.
     """
     if checkpoint.optimizer is None:
       raise ValueError("No optimizer is defined")
+    if not devices:
+      devices = tf.config.experimental.list_logical_devices(device_type="GPU")
+      if not devices:
+        devices = tf.config.experimental.list_logical_devices(device_type="CPU")
+      devices = [devices[0].name]
     self._checkpoint = checkpoint
     self._model = checkpoint.model
     self._optimizer = checkpoint.optimizer
+    self._strategy = tf.distribute.MirroredStrategy(devices=devices)
 
   def __call__(self,
                dataset,
@@ -48,13 +55,17 @@ class Trainer(object):
       tf.get_logger().warn("Model already reached train_steps = %d. Exiting.", max_step)
       return
 
-    iterator = iter(dataset)
-    gradients = []
-    variables = []
+    with self._strategy.scope():
+      self._model.create_variables(optimizer=self._optimizer)
+      dataset = self._strategy.experimental_distribute_dataset(dataset)
 
-    @tf.function
-    def _step():
-      source, target = next(iterator)
+    iterator = iter(dataset)
+    variables = self._model.variables
+    gradients = []
+    for variable in variables:
+      gradients.append(tf.Variable(tf.zeros_like(variable), trainable=False))
+
+    def _accumulate_gradients(source, target):
       outputs, _ = self._model(
           source,
           labels=target,
@@ -62,12 +73,7 @@ class Trainer(object):
           mode=tf.estimator.ModeKeys.TRAIN)
       loss = self._model.compute_loss(outputs, target, training=True)
       loss = loss[0] / loss[1]
-      if not variables:
-        variables.extend(self._model.trainable_variables)
       step_gradients = self._model.compute_gradients(loss, self._optimizer, variables=variables)
-      if not gradients:
-        for step_gradient in step_gradients:
-          gradients.append(tf.Variable(tf.zeros_like(step_gradient), trainable=False))
       for gradient, step_gradient in zip(gradients, step_gradients):
         gradient.assign_add(step_gradient)
       num_words = {}
@@ -77,11 +83,27 @@ class Trainer(object):
         num_words["target"] = tf.reduce_sum(target["length"])
       return loss, num_words
 
-    @tf.function
     def _apply_gradients():
       self._optimizer.apply_gradients(list(zip(gradients, variables)))
       for gradient in gradients:
         gradient.assign(tf.zeros_like(gradient))
+
+    @tf.function
+    def _forward():
+      with self._strategy.scope():
+        per_replica_source, per_replica_target = next(iterator)
+        per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
+          _accumulate_gradients, args=(per_replica_source, per_replica_target))
+        loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
+        num_words = {
+            k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
+            for k, v in six.iteritems(per_replica_words)}
+      return loss, num_words
+
+    @tf.function
+    def _step():
+      with self._strategy.scope():
+        self._strategy.experimental_run_v2(_apply_gradients)
 
     accum_num_words = collections.defaultdict(int)
     last_report_time = time.time()
@@ -89,12 +111,12 @@ class Trainer(object):
 
     for i in itertools.count():
       try:
-        loss, num_words = _step()
+        loss, num_words = _forward()
       except tf.errors.OutOfRangeError:
         break
 
       if i == 0 or (i + 1) % accum_steps == 0:
-        _apply_gradients()
+        _step()
 
       for key, value in six.iteritems(num_words):
         accum_num_words[key] += value.numpy()

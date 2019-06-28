@@ -77,6 +77,15 @@ class Runner(object):
     self._num_replicas = num_devices
     self._seed = seed
 
+    if num_devices == 1:
+      self._devices = None
+    else:
+      devices = tf.config.experimental.list_logical_devices(device_type="GPU")
+      if len(devices) < num_devices:
+        raise ValueError("Requested %d devices but only %d are visible" % (
+            num_devices, len(devices)))
+      self._devices = [device.name for device in devices[0:num_devices]]
+
     # Configuration priority: user config > auto config > default config.
     self._config = copy.deepcopy(_CONFIG_FALLBACK)
     if auto_config:
@@ -174,7 +183,7 @@ class Runner(object):
       evaluator = evaluation.Evaluator.from_config(self._model, self._config)
     else:
       evaluator = None
-    trainer = training.Trainer(self._checkpoint)
+    trainer = training.Trainer(self._checkpoint, devices=self._devices)
     trainer(
         dataset,
         max_step=train_config.get("train_steps"),

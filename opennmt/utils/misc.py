@@ -8,34 +8,6 @@ import six
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.client import device_lib
-
-
-def get_devices(num_devices=None, session_config=None):
-  """Returns available devices.
-
-  Args:
-    num_devices: The number of devices to get.
-    session_config: An optional session configuration to use when querying
-      available devices.
-
-  Returns:
-    A list of devices.
-
-  Raises:
-    ValueError: if :obj:`num_devices` is set but the number of visible devices
-      is lower than it.
-  """
-  local_devices = device_lib.list_local_devices(session_config=session_config)
-  devices = [x.name for x in local_devices if x.device_type == "GPU"]
-  if not devices:
-    return [None]
-  elif num_devices is None:
-    return devices
-  elif len(devices) < num_devices:
-    raise ValueError("Only %d devices are visible but %d were requested"
-                     % (len(devices), num_devices))
-  return devices[:num_devices]
 
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.
@@ -50,13 +22,6 @@ def print_bytes(str_as_bytes, stream=None):
   write_buffer.write(str_as_bytes)
   write_buffer.write(b"\n")
   stream.flush()
-
-def create_local_variable(**kwargs):
-  """Create a new variable but remove it from the implicit global collection."""
-  variable = tf.Variable(**kwargs)
-  collection = tf.compat.v1.get_collection_ref(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES)
-  collection.remove(variable)
-  return variable
 
 def format_translation_output(sentence,
                               score=None,
