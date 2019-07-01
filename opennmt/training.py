@@ -149,6 +149,7 @@ def _report_training_status(step, loss, learning_rate, accum_num_words, last_rep
     accum_num_words[key] = 0
     fmt = "%s words/s = %d" % (key, int(avg))
     words_per_sec_fmt.append(fmt)
+  words_per_sec_fmt = sorted(words_per_sec_fmt)
   if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
     learning_rate = learning_rate(step)
   tf.get_logger().info(
