@@ -322,19 +322,19 @@ class Runner(object):
     if predictions_file:
       stream.close()
 
-  def export(self, checkpoint_path=None, export_dir_base=None):
+  def export(self, export_dir, checkpoint_path=None):
     """Exports a model.
 
     Args:
+      export_dir: The export directory.
       checkpoint_path: The checkpoint path to export. If ``None``, the latest is used.
-      export_dir_base: The base directory in which a timestamped subdirectory
-        containing the exported model will be created. Defaults to
-        ``$MODEL_DIR/export/manual``.
-
-    Returns:
-      The string path to the exported directory.
-    """
-    raise NotImplementedError()
+   """
+    checkpoint, config = self._init_run()
+    checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
+    tf.saved_model.save(
+        checkpoint.model,
+        export_dir,
+        signatures=checkpoint.model.serve_function())
 
   def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.

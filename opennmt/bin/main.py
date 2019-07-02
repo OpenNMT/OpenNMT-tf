@@ -98,8 +98,8 @@ def main():
 
   parser_export = subparsers.add_parser("export", help="Model export.")
   parser_export.add_argument(
-      "--export_dir_base", default=None,
-      help="The base directory of the exported model.")
+      "--export_dir", required=True,
+      help="The directory of the exported model.")
 
   parser_score = subparsers.add_parser("score", help="Scoring.")
   parser_score.add_argument("--features_file", nargs="+", required=True,
@@ -163,8 +163,8 @@ def main():
         log_time=args.log_prediction_time)
   elif args.run == "export":
     runner.export(
-        checkpoint_path=args.checkpoint_path,
-        export_dir_base=args.export_dir_base)
+        args.export_dir,
+        checkpoint_path=args.checkpoint_path)
   elif args.run == "score":
     runner.score(
         args.features_file,

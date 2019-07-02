@@ -12,7 +12,7 @@ from opennmt import schedules
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Model(tf.keras.Model):
+class Model(tf.keras.layers.Layer):
   """Base class for models."""
 
   def __init__(self, examples_inputter):
@@ -176,17 +176,32 @@ class Model(tf.keras.Model):
       gradients, _ = tf.clip_by_global_norm(gradients, float(clip_gradients))
     return gradients
 
+  def serve_function(self):
+    """Returns a function for serving this model.
+
+    Returns:
+      A ``tf.function``.
+    """
+    input_signature = self.features_inputter.input_signature()
+    # Set name attribute of the input TensorSpec.
+    input_signature = {
+        name:tf.TensorSpec.from_spec(spec, name=name)
+        for name, spec in six.iteritems(input_signature)}
+
+    @tf.function(input_signature=(input_signature,))
+    def _run(features):
+      features = self.features_inputter.make_features(features=features.copy())
+      _, predictions = self(features)
+      return predictions
+
+    return _run
+
   def create_variables(self, optimizer=None):
     """Creates the model variables by running it once."""
     if self.built:
       return
 
-    @tf.function(input_signature=(self.features_inputter.input_signature(),))
-    def _run(features):
-      features = self.features_inputter.make_features(features=features.copy())
-      self(features)
-
-    _run.get_concrete_function()
+    self.serve_function().get_concrete_function()
     if optimizer is not None:
       _ = optimizer.iterations
       optimizer._create_hypers()
