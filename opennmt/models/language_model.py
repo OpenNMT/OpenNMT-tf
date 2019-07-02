@@ -133,10 +133,11 @@ class LanguageModelInputter(inputters.WordEmbedder):
   def _generate_example(self, element, training=None):
     features = self.make_features(element, training=training)
     labels = {
-        "tokens": tf.concat([features["tokens"][1:], [constants.END_OF_SENTENCE_TOKEN]], 0),
         "ids_out": tf.concat([features["ids"][1:], [constants.END_OF_SENTENCE_ID]], 0),
         "length": tf.identity(features["length"])
     }
+    if not training:
+      labels["tokens"] = tf.concat([features["tokens"][1:], [constants.END_OF_SENTENCE_TOKEN]], 0)
     return features, labels
 
   def make_evaluation_dataset(self,
