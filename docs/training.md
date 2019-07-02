@@ -25,46 +25,17 @@ OpenNMT-tf training can make use of multiple GPUs with *in-graph replication*. I
 For example, if your machine has 4 GPUs, simply add the `--num_gpus` option:
 
 ```bash
-onmt-main --num_gpus 4 [...] train
+onmt-main [...] train --num_gpus 4
 ```
 
 Note that evaluation and inference will run on a single device.
-
-## Distributed training
-
-### via TensorFlow asynchronous training
-
-OpenNMT-tf also supports asynchronous distributed training with *between-graph replication*. In this mode, each graph replica processes a batch independently, compute the gradients, and asynchronously update a shared set of parameters.
-
-To enable distributed training, the user should use the `train_and_eval` run type and set on the command line:
-
-* a **chief worker** host that runs a training loop and manages checkpoints, summaries, etc.
-* a list of **worker** hosts that run a training loop
-* a list of **parameter server** hosts that synchronize the parameters
-
-Then a training instance should be started on each host with a selected task, e.g.:
-
-```bash
-CUDA_VISIBLE_DEVICES=0 onmt-main [...] train_and_eval \
-    --ps_hosts localhost:2222 \
-    --chief_host localhost:2223 \
-    --worker_hosts localhost:2224,localhost:2225 \
-    --task_type worker \
-    --task_index 1
-```
-
-will start the worker 1 on the current machine and first GPU. By setting `CUDA_VISIBLE_DEVICES` correctly, asynchronous distributed training can be run on a single multi-GPU machine.
-
-For more details, see the documentation of [`tf.estimator.train_and_evaluate`](https://www.tensorflow.org/api_docs/python/tf/estimator/train_and_evaluate). Also see [tensorflow/ecosystem](https://github.com/tensorflow/ecosystem) to integrate distributed training with open-source frameworks like Docker or Kubernetes.
-
-**Note:** distributed training will also split the training directory `model_dir` accross the instances. This could impact features that restore checkpoints like inference, manual export, or checkpoint averaging. The recommend approach to properly support these features while running distributed training is to store the `model_dir` on a shared filesystem, e.g. by using [HDFS](https://www.tensorflow.org/deploy/hadoop).
 
 ## Mixed precision training
 
 Thanks to [work from NVIDIA](https://github.com/NVIDIA/OpenSeq2Seq), OpenNMT-tf supports training models using FP16 computation. Mixed precision training is automatically enabled when the data type of the [inputters](package/opennmt.inputters.inputter.html) is defined to be `tf.float16`. See for example the predefined model `TransformerFP16`, which is up to [1.8x faster](https://github.com/OpenNMT/OpenNMT-tf/pull/211#issuecomment-455605090) than the FP32 version on compatible hardware:
 
 ```bash
-onmt-main --model_type TransformerFP16 --auto_config --config data.yml train_and_eval
+onmt-main --model_type TransformerFP16 --auto_config --config data.yml train
 ```
 
 Additional training configurations are available to tune the loss scaling algorithm:
@@ -111,12 +82,12 @@ This is the most common case of retrainings: the training was interrupted but sh
 
 ```bash
 # Start the training.
-onmt-main --model_type NMTSmall --auto_config --config data.yml train_and_eval
+onmt-main --model_type NMTSmall --auto_config --config data.yml train
 
 # ... the training is interrupted or stopped ...
 
 # Continue from the latest checkpoint.
-onmt-main --model_type NMTSmall --auto_config --config data.yml train_and_eval
+onmt-main --model_type NMTSmall --auto_config --config data.yml train
 ```
 
 **Note:** If the train was stopped because `train_steps` was reached, you should first increase this value before continuing.

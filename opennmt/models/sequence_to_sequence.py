@@ -189,7 +189,8 @@ class SequenceToSequence(Model):
           initial_state=initial_state,
           params=params)
       if self.id_to_token is None:
-        self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
+        with tf.init_scope():
+          self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
       target_tokens = self.id_to_token.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):

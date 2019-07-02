@@ -59,8 +59,6 @@ def main():
   parser.add_argument("--checkpoint_path", default=None,
                       help=("Specific checkpoint or model directory to load "
                             "(when a directory is set, the latest checkpoint is used)."))
-  parser.add_argument("--num_gpus", type=int, default=1,
-                      help="Number of GPUs to use for in-graph replication.")
   parser.add_argument("--log_level", default="INFO",
                       choices=["DEBUG", "ERROR", "FATAL", "INFO", "WARN"],
                       help="Logs verbosity.")
@@ -77,26 +75,12 @@ def main():
 
   subparsers = parser.add_subparsers(help="Run type.", dest="run")
   parser_train = subparsers.add_parser("train", help="Training.")
-
-  parser_train_and_eval = subparsers.add_parser("train_and_eval", help="Training and evaluation.")
-  parser_train_and_eval.add_argument(
-      "--chief_host", default="",
-      help="hostname:port of the chief worker (for distributed training).")
-  parser_train_and_eval.add_argument(
-      "--worker_hosts", default="",
-      help=("Comma-separated list of hostname:port of workers "
-            "(for distributed training)."))
-  parser_train_and_eval.add_argument(
-      "--ps_hosts", default="",
-      help=("Comma-separated list of hostname:port of parameter servers "
-            "(for distributed training)."))
-  parser_train_and_eval.add_argument(
-      "--task_type", default="chief",
-      choices=["chief", "worker", "ps", "evaluator"],
-      help="Type of the task to run (for distributed training).")
-  parser_train_and_eval.add_argument(
-      "--task_index", type=int, default=0,
-      help="ID of the task (for distributed training).")
+  parser_train.add_argument(
+      "--with_eval", default=False, action="store_true",
+      help="Enable automatic evaluation.")
+  parser_train.add_argument(
+      "--num_gpus", type=int, default=1,
+      help="Number of GPUs to use for in-graph replication.")
 
   parser_eval = subparsers.add_parser("eval", help="Evaluation.")
 
@@ -141,23 +125,6 @@ def main():
     for device in tf.config.experimental.list_physical_devices(device_type="GPU"):
       tf.config.experimental.set_memory_growth(device, enable=True)
 
-  # Setup cluster if defined.
-  if args.run == "train_and_eval" and args.chief_host:
-    os.environ["TF_CONFIG"] = json.dumps({
-        "cluster": {
-            "chief": [args.chief_host],
-            "worker": args.worker_hosts.split(","),
-            "ps": args.ps_hosts.split(",")
-        },
-        "task": {
-            "type": args.task_type,
-            "index": args.task_index
-        }
-    })
-    is_chief = args.task_type == "chief"
-  else:
-    is_chief = True
-
   # Load and merge run configurations.
   config = load_config(args.config)
   if args.run_dir:
@@ -165,26 +132,25 @@ def main():
   if args.data_dir:
     config["data"] = _prefix_paths(args.data_dir, config["data"])
 
-  if is_chief and not tf.io.gfile.exists(config["model_dir"]):
-    tf.compat.v1.logging.info("Creating model directory %s", config["model_dir"])
+  if not tf.io.gfile.exists(config["model_dir"]):
+    tf.get_logger().info("Creating model directory %s", config["model_dir"])
     tf.io.gfile.makedirs(config["model_dir"])
 
   model = load_model(
       config["model_dir"],
       model_file=args.model,
-      model_name=args.model_type,
-      serialize_model=is_chief)
+      model_name=args.model_type)
   runner = Runner(
       model,
       config,
       seed=args.seed,
-      num_devices=args.num_gpus,
       auto_config=args.auto_config)
 
-  if args.run == "train_and_eval":
-    runner.train(checkpoint_path=args.checkpoint_path, with_eval=True)
-  elif args.run == "train":
-    runner.train(checkpoint_path=args.checkpoint_path)
+  if args.run == "train":
+    runner.train(
+        num_devices=args.num_gpus,
+        with_eval=args.with_eval,
+        checkpoint_path=args.checkpoint_path)
   elif args.run == "eval":
     runner.evaluate(checkpoint_path=args.checkpoint_path)
   elif args.run == "infer":

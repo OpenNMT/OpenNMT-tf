@@ -57,7 +57,7 @@ For all tasks involving a model execution, OpenNMT-tf uses a unique entrypoint: 
 
 * the **model** type
 * the **parameters** described in a YAML file
-* the **run** type: `train_and_eval`, `train`, `eval`, `infer`, `export`, or `score`
+* the **run** type: `train`, `eval`, `infer`, `export`, or `score`
 
 that are passed to the main script:
 

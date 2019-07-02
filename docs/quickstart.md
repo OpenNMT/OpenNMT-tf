@@ -46,7 +46,7 @@ data:
 ## Step 2: Train the model
 
 ```
-onmt-main --model_type NMTSmall --auto_config --config data.yml train_and_eval
+onmt-main --model_type NMTSmall --auto_config --config data.yml train --with_eval
 ```
 
 This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The `--auto_config` flag selects the best settings for this type of model.

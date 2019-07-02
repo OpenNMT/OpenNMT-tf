@@ -26,7 +26,7 @@ Here is an exhaustive and documented configuration:
 model_dir: toy-ende
 
 data:
-  # (required for train_and_eval and train run types).
+  # (required for train run type).
   train_features_file: data/toy-ende/src-train.txt
   train_labels_file: data/toy-ende/tgt-train.txt
 
@@ -286,7 +286,7 @@ score:
 Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the `--auto_config` flag:
 
 ```bash
-onmt-main --model_type Transformer --config my_data.yml --auto_config train_and_eval
+onmt-main --model_type Transformer --config my_data.yml --auto_config train
 ```
 
 The user provided `my_data.yml` file will minimaly require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
