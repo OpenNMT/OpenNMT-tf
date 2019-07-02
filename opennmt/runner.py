@@ -233,6 +233,7 @@ class Runner(object):
       The path to the directory containing the averaged checkpoint.
     """
     checkpoint, config = self._init_run()
+    checkpoint.restore()
     model = checkpoint.model
     optimizer = checkpoint.optimizer
     model.create_variables(optimizer=optimizer)
