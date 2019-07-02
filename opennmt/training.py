@@ -30,6 +30,7 @@ class Trainer(object):
     self._model = checkpoint.model
     self._optimizer = checkpoint.optimizer
     self._strategy = tf.distribute.MirroredStrategy(devices=devices)
+    self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
 
   def __call__(self,
                dataset,
@@ -109,45 +110,51 @@ class Trainer(object):
     last_report_time = time.time()
     last_step = 0
 
-    for i in itertools.count():
-      try:
-        loss, num_words = _forward()
-      except tf.errors.OutOfRangeError:
-        break
+    with self._summary_writer.as_default():
+      for i in itertools.count():
+        try:
+          loss, num_words = _forward()
+        except tf.errors.OutOfRangeError:
+          break
 
-      if i == 0 or (i + 1) % accum_steps == 0:
-        _step()
+        if i == 0 or (i + 1) % accum_steps == 0:
+          _step()
 
-      for key, value in six.iteritems(num_words):
-        accum_num_words[key] += value.numpy()
-      step = self._optimizer.iterations.numpy()
-      if step == last_step:
-        continue  # Do not process same step twice.
-      last_step = step
-      if step % report_steps == 0:
-        last_report_time = _report_training_status(
-            step,
-            loss,
-            self._optimizer.learning_rate,
-            accum_num_words,
-            last_report_time)
-      if save_steps is not None and step % save_steps == 0:
-        self._checkpoint.save(step)
-      if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
-        evaluator(step)
-      if step == max_step:
-        break
+        for key, value in six.iteritems(num_words):
+          accum_num_words[key] += value.numpy()
+        step = self._optimizer.iterations.numpy()
+        if step == last_step:
+          continue  # Do not process same step twice.
+        last_step = step
+        if step % report_steps == 0:
+          last_report_time = _report_training_status(
+              step,
+              loss,
+              self._optimizer.learning_rate,
+              accum_num_words,
+              last_report_time)
+        if save_steps is not None and step % save_steps == 0:
+          self._checkpoint.save(step)
+        if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
+          evaluator(step)
+        if step == max_step:
+          break
 
     self._checkpoint.save(step)
 
 
 def _report_training_status(step, loss, learning_rate, accum_num_words, last_report_time):
+  tf.summary.experimental.set_step(step)
   new_report_time = time.time()
   words_per_sec_fmt = []
   for key, value in six.iteritems(accum_num_words):
-    avg = value / (new_report_time - last_report_time)
+    avg = int(value / (new_report_time - last_report_time))
     accum_num_words[key] = 0
-    fmt = "%s words/s = %d" % (key, int(avg))
+    tf.summary.scalar(
+        "words_per_sec/%s" % key,
+        avg,
+        description="%s words per second" % key.capitalize())
+    fmt = "%s words/s = %d" % (key, avg)
     words_per_sec_fmt.append(fmt)
   words_per_sec_fmt = sorted(words_per_sec_fmt)
   if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
@@ -158,4 +165,6 @@ def _report_training_status(step, loss, learning_rate, accum_num_words, last_rep
       ", ".join(words_per_sec_fmt),
       learning_rate,
       loss)
+  tf.summary.scalar("loss", loss, description="Training loss")
+  tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
   return new_report_time

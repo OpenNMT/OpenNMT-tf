@@ -54,6 +54,10 @@ class Evaluator(object):
     self._save_predictions = save_predictions
     self._scorers = scorers
     self._eval_dir = eval_dir
+    if eval_dir is not None:
+      self._summary_writer = tf.summary.create_file_writer(eval_dir)
+    else:
+      self._summary_writer = tf.summary.create_noop_writer()
     self._dataset = model.examples_inputter.make_evaluation_dataset(
         features_file,
         labels_file,
@@ -141,6 +145,9 @@ class Evaluator(object):
         "Evaluation result for step %d: %s",
         step,
         " ; ".join("%s = %f" % (k, v) for k, v in six.iteritems(results)))
+    with self._summary_writer.as_default():
+      for key, value in six.iteritems(results):
+        tf.summary.scalar("metrics/%s" % key, value, step=step)
     return results
 
 
