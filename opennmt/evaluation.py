@@ -74,23 +74,33 @@ class Evaluator(object):
     self._eval_function = _eval
 
   @classmethod
-  def from_config(cls, model, config):
+  def from_config(cls, model, config, features_file=None, labels_file=None):
     """Creates an evaluator from the configuration.
 
     Args:
       model: A :class:`opennmt.models.model.Model` to evaluate.
       config: The global user configuration.
+      features_file: Optional input features file to evaluate. If not set, will
+        load ``eval_features_file`` from the data configuration.
+      labels_file: Optional output labels file to evaluate. If not set, will load
+        ``eval_labels_file`` from the data configuration.
 
     Returns:
       A :class:`opennmt.evaluation.Evaluator` instance.
+
+    Raises:
+      ValueError: if one of :obj:`features_file` and :obj:`labels_file` is set
+        but not the other.
     """
+    if (features_file is None) != (labels_file is None):
+      raise ValueError("features_file and labels_file should be both set for evaluation")
     scorers = config["eval"].get("external_evaluators")
     if scorers is not None:
       scorers = make_scorers(scorers)
     return cls(
         model,
-        config["data"]["eval_features_file"],
-        config["data"].get("eval_labels_file"),
+        features_file or config["data"]["eval_features_file"],
+        labels_file or config["data"].get("eval_labels_file"),
         config["eval"]["batch_size"],
         scorers=scorers,
         save_predictions=config["eval"].get("save_eval_predictions", False),
@@ -141,6 +151,9 @@ class Evaluator(object):
         else:
           results[scorer.name] = score
 
+    for name, value in six.iteritems(results):
+      if isinstance(value, tf.Tensor):
+        results[name] = value.numpy()
     tf.get_logger().info(
         "Evaluation result for step %d: %s",
         step,

@@ -188,10 +188,14 @@ class Runner(object):
         eval_steps=eval_config.get("steps", 5000))
     return self._maybe_average_checkpoints()
 
-  def evaluate(self, checkpoint_path=None):
+  def evaluate(self, features_file=None, labels_file=None, checkpoint_path=None):
     """Runs evaluation.
 
     Args:
+      features_file: The input features file to evaluate. If not set, will load
+        ``eval_features_file`` from the data configuration.
+      labels_file: The output labels file to evaluate. If not set, will load
+        ``eval_labels_file`` from the data configuration.
       checkpoint_path: The checkpoint path to load the model weights from it.
 
     Returns:
@@ -200,7 +204,11 @@ class Runner(object):
     checkpoint, config = self._init_run()
     checkpoint_path = checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
     step = int(checkpoint_path.split("-")[-1])
-    evaluator = evaluation.Evaluator.from_config(checkpoint.model, config)
+    evaluator = evaluation.Evaluator.from_config(
+        checkpoint.model,
+        config,
+        features_file=features_file,
+        labels_file=labels_file)
     return evaluator(step)
 
   def _maybe_average_checkpoints(self, avg_subdirectory="avg"):

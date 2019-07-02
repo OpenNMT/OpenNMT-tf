@@ -83,6 +83,12 @@ def main():
       help="Number of GPUs to use for in-graph replication.")
 
   parser_eval = subparsers.add_parser("eval", help="Evaluation.")
+  parser_eval.add_argument(
+      "--features_file", nargs="+", default=None,
+      help="Input features files.")
+  parser_eval.add_argument(
+      "--labels_file", default=None,
+      help="Output labels files.")
 
   parser_infer = subparsers.add_parser("infer", help="Inference.")
   parser_infer.add_argument(
@@ -152,7 +158,11 @@ def main():
         with_eval=args.with_eval,
         checkpoint_path=args.checkpoint_path)
   elif args.run == "eval":
-    runner.evaluate(checkpoint_path=args.checkpoint_path)
+    metrics = runner.evaluate(
+        checkpoint_path=args.checkpoint_path,
+        features_file=args.features_file,
+        labels_file=args.labels_file)
+    print(metrics)
   elif args.run == "infer":
     if len(args.features_file) == 1:
       args.features_file = args.features_file[0]
