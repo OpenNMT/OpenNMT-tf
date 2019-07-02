@@ -120,7 +120,7 @@ class Decoder(tf.keras.layers.Layer):
                     memory_sequence_length=None,
                     initial_state=None,
                     batch_size=None,
-                    dtype=tf.float32):
+                    dtype=None):
     """Returns the initial decoder state.
 
     Args:
