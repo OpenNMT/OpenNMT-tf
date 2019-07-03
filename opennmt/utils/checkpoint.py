@@ -346,13 +346,14 @@ def average_checkpoints(model_dir,
       for variable in model.variables:
         variable.assign(variable / num_checkpoints)
     else:
-      for path, _ in tf.train.list_variables(checkpoint_path):
+      reader = tf.train.load_checkpoint(checkpoint_path)
+      for path in six.iterkeys(reader.get_variable_to_shape_map()):
         if not path.startswith(model_key) or ".OPTIMIZER_SLOT" in path:
           continue
         variable = _get_variable_from_path(trackables, path)
         if variable is None:
           continue
-        value = tf.train.load_variable(checkpoint_path, path)
+        value = reader.get_tensor(path)
         variable.assign_add(value / num_checkpoints)
 
   new_checkpoint_manager = tf.train.CheckpointManager(checkpoint, output_dir, max_to_keep=None)
