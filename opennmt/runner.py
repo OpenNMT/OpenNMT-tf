@@ -278,8 +278,9 @@ class Runner(object):
         num_threads=infer_config.get("num_threads", 1),
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
-    @tf.function(input_signature=(dataset_util.input_signature_from_dataset(dataset),))
-    def _infer(source):
+    @dataset_util.function_on_next(dataset)
+    def _predict(next_fn):
+      source = next_fn()
       _, predictions = model(source)
       if "index" in source:
         predictions["index"] = source["index"]
@@ -297,10 +298,9 @@ class Runner(object):
     total_time = 0
     total_tokens = 0
     total_examples = 0
+    start_time = time.time()
 
-    for source in dataset:
-      start_time = time.time()
-      predictions = _infer(source)
+    for predictions in _predict():
       end_time = time.time()
       predictions = {k:v.numpy() for k, v in six.iteritems(predictions)}
       if log_time:
@@ -320,6 +320,7 @@ class Runner(object):
           ordered_writer.push(prediction)
         else:
           write_fn(prediction)
+      start_time = time.time()
 
     if log_time:
       tf.get_logger().info("Total prediction time (s): %f", total_time)
@@ -378,8 +379,9 @@ class Runner(object):
         num_threads=score_config.get("num_threads"),
         prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
 
-    @tf.function(input_signature=dataset_util.input_signature_from_dataset(dataset))
-    def _score(features, labels):
+    @dataset_util.function_on_next(dataset)
+    def _score(next_fn):
+      features, labels = next_fn()
       outputs, _ = model(features, labels=labels, mode=tf.estimator.ModeKeys.EVAL)
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
           labels["ids_out"], outputs["logits"])
@@ -405,8 +407,7 @@ class Runner(object):
         model.labels_inputter.tokenizer if not model.unsupervised
         else model.features_inputter.tokenizer)
 
-    for source, target in dataset:
-      results = _score(source, target)
+    for results in _score():
       results = {k:v.numpy() for k, v in six.iteritems(results)}
       for batch in misc.extract_batches(results):
         tokens = batch["tokens"][:batch["length"]]

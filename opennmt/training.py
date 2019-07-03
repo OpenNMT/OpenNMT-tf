@@ -1,12 +1,13 @@
 """Training related classes and functions."""
 
 import collections
-import itertools
 import tempfile
 import time
 import six
 
 import tensorflow as tf
+
+from opennmt.data import dataset as dataset_util
 
 
 class Trainer(object):
@@ -89,10 +90,10 @@ class Trainer(object):
       for gradient in gradients:
         gradient.assign(tf.zeros_like(gradient))
 
-    @tf.function
-    def _forward():
+    @dataset_util.function_on_next(dataset)
+    def _forward(next_fn):
       with self._strategy.scope():
-        per_replica_source, per_replica_target = next(iterator)
+        per_replica_source, per_replica_target = next_fn()
         per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
           _accumulate_gradients, args=(per_replica_source, per_replica_target))
         loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
@@ -111,12 +112,7 @@ class Trainer(object):
     last_step = 0
 
     with self._summary_writer.as_default():
-      for i in itertools.count():
-        try:
-          loss, num_words = _forward()
-        except tf.errors.OutOfRangeError:
-          break
-
+      for i, (loss, num_words) in enumerate(_forward()):
         if i == 0 or (i + 1) % accum_steps == 0:
           _step()
 

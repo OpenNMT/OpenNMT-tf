@@ -58,20 +58,21 @@ class Evaluator(object):
       self._summary_writer = tf.summary.create_file_writer(eval_dir)
     else:
       self._summary_writer = tf.summary.create_noop_writer()
-    self._dataset = model.examples_inputter.make_evaluation_dataset(
+    dataset = model.examples_inputter.make_evaluation_dataset(
         features_file,
         labels_file,
         batch_size,
         num_threads=1,
         prefetch_buffer_size=1)
 
-    @tf.function(input_signature=dataset_lib.input_signature_from_dataset(self._dataset))
-    def _eval(source, target):
+    @dataset_lib.function_on_next(dataset)
+    def _eval(next_fn):
+      source, target = next_fn()
       outputs, predictions = model(source, labels=target, mode=tf.estimator.ModeKeys.EVAL)
       loss = model.compute_loss(outputs, target, training=False)
-      return loss, predictions
+      return loss, predictions, target
 
-    self._eval_function = _eval
+    self._eval = _eval
 
   @classmethod
   def from_config(cls, model, config, features_file=None, labels_file=None):
@@ -125,8 +126,7 @@ class Evaluator(object):
     loss_num = 0
     loss_den = 0
     metrics = self._model.get_metrics()
-    for source, target in self._dataset:
-      loss, predictions = self._eval_function(source, target)
+    for loss, predictions, target in self._eval():
       loss_num += loss[0]
       loss_den += loss[1]
       if metrics:
