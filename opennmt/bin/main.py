@@ -122,6 +122,18 @@ def main():
       "--max_count", type=int, default=8,
       help="The maximal number of checkpoints to average.")
 
+  parser_update_vocab = subparsers.add_parser(
+      "update_vocab", help="Update model vocabularies in checkpoint.")
+  parser_update_vocab.add_argument(
+      "--output_dir", required=True,
+      help="The output directory for the updated checkpoint.")
+  parser_update_vocab.add_argument(
+      "--src_vocab", default=None,
+      help="Path to the new source vocabulary.")
+  parser_update_vocab.add_argument(
+      "--tgt_vocab", default=None,
+      help="Path to the new target vocabulary.")
+
   args = parser.parse_args()
 
   tf.compat.v1.logging.set_verbosity(getattr(tf.compat.v1.logging, args.log_level))
@@ -182,6 +194,11 @@ def main():
         checkpoint_path=args.checkpoint_path)
   elif args.run == "average_checkpoints":
     runner.average_checkpoints(args.output_dir, max_count=args.max_count)
+  elif args.run == "update_vocab":
+    runner.update_vocab(
+        args.output_dir,
+        src_vocab=args.src_vocab,
+        tgt_vocab=args.tgt_vocab)
 
 
 if __name__ == "__main__":

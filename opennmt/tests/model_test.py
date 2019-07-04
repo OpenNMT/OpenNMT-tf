@@ -8,6 +8,7 @@ from parameterized import parameterized
 from numbers import Number
 
 import tensorflow as tf
+import numpy as np
 
 from opennmt import decoders
 from opennmt import encoders
@@ -285,6 +286,66 @@ class ModelTest(tf.test.TestCase):
     model.initialize(data_config, params=params)
     model.create_variables()
     self.assertTrue(len(model.trainable_variables) > 0)
+
+  def testTransferWeightsNewVocab(self):
+
+    def _make_model(name, src_vocab, tgt_vocab, random_slots=False):
+      model, _ = _seq2seq_model(tf.estimator.ModeKeys.TRAIN)
+      optimizer = tf.keras.optimizers.Adam()
+      data = {}
+      data["source_vocabulary"] = test_util.make_data_file(
+          os.path.join(self.get_temp_dir(), "%s-src-vocab.txt" % name),
+          src_vocab)
+      data["target_vocabulary"] = test_util.make_data_file(
+          os.path.join(self.get_temp_dir(), "%s-tgt-vocab.txt" % name),
+          tgt_vocab)
+      model.initialize(data)
+      model.create_variables(optimizer=optimizer)
+      if random_slots:
+        for variable in model.trainable_variables:
+          for slot_name in optimizer.get_slot_names():
+            slot = optimizer.get_slot(variable, slot_name)
+            slot.assign(tf.random.uniform(slot.shape))
+      return model, optimizer
+
+    model_a, optimizer_a = _make_model(
+        "a", ["a", "b", "c", "d", "e"], ["1", "2", "3", "4", "5", "6"], random_slots=True)
+    model_b, optimizer_b = _make_model(
+        "b", ["c", "a", "e", "f"], ["1", "3", "2", "6", "7"])
+    src_mapping = [2, 0, 4, -1]
+    tgt_mapping = [0, 2, 1, 5, -1]
+
+    def _check_weight(weight_a, weight_b, mapping, vocab_axis=0):
+      weight_a = self.evaluate(weight_a)
+      weight_b = self.evaluate(weight_b)
+      if vocab_axis != 0:
+        perm = list(range(len(weight_a.shape)))
+        perm[0], perm[vocab_axis] = perm[vocab_axis], perm[0]
+        weight_a = np.transpose(weight_a, axes=perm)
+        weight_b = np.transpose(weight_b, axes=perm)
+      self.assertEqual(weight_b.shape[0], len(mapping) + 1)
+      for index_b, index_a in enumerate(mapping):
+        if index_a >= 0:
+          self.assertAllEqual(weight_b[index_b], weight_a[index_a])
+
+    def _check_weight_and_slots(weight_fn, mapping, vocab_axis=0):
+      weight_a = weight_fn(model_a)
+      weight_b = weight_fn(model_b)
+      _check_weight(weight_a, weight_b, mapping, vocab_axis=vocab_axis)
+      for slot_name in optimizer_b.get_slot_names():
+        slot_a = optimizer_a.get_slot(weight_a, slot_name)
+        slot_b = optimizer_b.get_slot(weight_b, slot_name)
+        _check_weight(slot_a, slot_b, mapping, vocab_axis=vocab_axis)
+
+    model_a.transfer_weights(model_b, new_optimizer=optimizer_b, optimizer=optimizer_a)
+    _check_weight_and_slots(
+        lambda model: model.features_inputter.embedding, src_mapping)
+    _check_weight_and_slots(
+        lambda model: model.labels_inputter.embedding, tgt_mapping)
+    _check_weight_and_slots(
+        lambda model: model.decoder.output_layer.bias, tgt_mapping)
+    _check_weight_and_slots(
+        lambda model: model.decoder.output_layer.kernel, tgt_mapping, vocab_axis=1)
 
 
 if __name__ == "__main__":

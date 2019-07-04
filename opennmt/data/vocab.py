@@ -3,6 +3,7 @@
 import six
 
 import tensorflow as tf
+import numpy as np
 
 
 class Vocab(object):
@@ -201,3 +202,70 @@ class Vocab(object):
     while (self.size + num_oov_buckets) % multiple != 0:
       self.add("averyunlikelytoken%d" % i)
       i += 1
+
+
+def get_mapping(current_vocab_path, new_vocab_path, mode="replace"):
+  """Maps vocabulary new indices to old ones. -1 means that the entry is new."""
+  mode = mode.lower()
+  if mode not in ("merge", "replace"):
+    raise ValueError("invalid vocab update mode: %s" % mode)
+  current_vocab = Vocab(from_file=current_vocab_path)
+  new_vocab = Vocab(from_file=new_vocab_path)
+  mapping = []
+  if mode == "merge":
+    final_vocab = Vocab(from_file=current_vocab_path)
+    mapping = [i for i in range(current_vocab.size)]
+    for new_word in new_vocab.words:
+      if current_vocab.lookup(new_word) is None:
+        mapping.append(-1)
+        final_vocab.add(new_word)
+  elif mode == "replace":
+    final_vocab = new_vocab
+    for new_word in new_vocab.words:
+      idx = current_vocab.lookup(new_word)
+      if idx is not None:
+        mapping.append(idx)
+      else:
+        mapping.append(-1)
+  mapping.append(current_vocab.size)  # <unk> token is always the last entry.
+  return mapping, final_vocab
+
+def update_variable(ref_variable, new_variable, mapping, vocab_axis=0):
+  """Update a vocabulary variable, possibly copying previous entries based on
+  mapping.
+  """
+  ref = ref_variable.numpy()
+  new = new_variable.numpy()
+  perm = None
+  if vocab_axis != 0:
+    # Make the dimension to index the first.
+    perm = list(range(len(ref.shape)))
+    perm[0], perm[vocab_axis] = perm[vocab_axis], perm[0]
+    ref = np.transpose(ref, axes=perm)
+    new = np.transpose(new, axes=perm)
+  for i, j in enumerate(mapping):
+    if j >= 0:
+      new[i] = ref[j]
+  if perm is not None:
+    new = np.transpose(new, axes=perm)
+  new_variable.assign(new)
+  return new_variable
+
+def update_variable_and_slots(ref_variable,
+                              new_variable,
+                              ref_optimizer,
+                              new_optimizer,
+                              mapping,
+                              vocab_axis=0):
+  """Update a vocabulary variable and its associated optimizer slots (if any)."""
+  variables = []
+  variables.append(update_variable(ref_variable, new_variable, mapping, vocab_axis=vocab_axis))
+  ref_slot_names = ref_optimizer.get_slot_names()
+  new_slot_names = new_optimizer.get_slot_names()
+  for slot_name in ref_slot_names:
+    if slot_name not in new_slot_names:
+      continue
+    ref_slot = ref_optimizer.get_slot(ref_variable, slot_name)
+    new_slot = new_optimizer.get_slot(new_variable, slot_name)
+    variables.append(update_variable(ref_slot, new_slot, mapping, vocab_axis=vocab_axis))
+  return variables

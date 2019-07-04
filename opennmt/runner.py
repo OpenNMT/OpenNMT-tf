@@ -115,8 +115,7 @@ class Runner(object):
         "Using parameters:\n%s", yaml.dump(config, indent=2, default_flow_style=False))
     return config
 
-  def _init_run(self, training=False, num_devices=1):
-    config = self._finalize_config(training=training, num_devices=num_devices)
+  def _init_model(self, config):
     model = copy.deepcopy(self._model)
     model.initialize(config["data"], params=config["params"])
     if "optimizer" in config["params"]:
@@ -128,7 +127,11 @@ class Runner(object):
         optimizer=optimizer,
         model_dir=config.get("model_dir"),
         keep_checkpoint_max=config["train"].get("keep_checkpoint_max", 8))
-    return checkpoint, config
+    return checkpoint
+
+  def _init_run(self, training=False, num_devices=1):
+    config = self._finalize_config(training=training, num_devices=num_devices)
+    return self._init_model(config), config
 
   def train(self, num_devices=1, with_eval=False, checkpoint_path=None):
     """Runs the training loop.
@@ -246,11 +249,47 @@ class Runner(object):
     optimizer = checkpoint.optimizer
     model.create_variables(optimizer=optimizer)
     trackables = dict(model=model, optimizer=optimizer)
-    return checkpoint.average_checkpoints(
+    return checkpoint_util.average_checkpoints(
         config["model_dir"],
         output_dir,
         trackables,
         max_count=max_count)
+
+  def update_vocab(self, output_dir, src_vocab=None, tgt_vocab=None):
+    """Updates model vocabularies.
+
+    Args:
+      output_dir: Directory where the update checkpoint will be saved.
+      src_vocab: Path to the new source vocabulary.
+      tgt_vocab: Path to the new tagret vocabulary.
+
+    Returns:
+      Path to the new checkpoint directory.
+    """
+    if not isinstance(self._model, models.SequenceToSequence):
+      raise ValueError("Updating vocabularies is only supported for sequence to sequence models")
+    if src_vocab is None and tgt_vocab is None:
+      return config["model_dir"]
+    config = self._finalize_config()
+
+    cur_checkpoint = self._init_model(config)
+    cur_checkpoint.restore()
+    model, optimizer = cur_checkpoint.model, cur_checkpoint.optimizer
+    model.create_variables(optimizer=optimizer)
+
+    new_config = copy.deepcopy(config)
+    new_config["model_dir"] = output_dir
+    if src_vocab is not None:
+      new_config["data"]["source_vocabulary"] = src_vocab
+    if tgt_vocab is not None:
+      new_config["data"]["target_vocabulary"] = tgt_vocab
+    new_checkpoint = self._init_model(new_config)
+    new_model, new_optimizer = new_checkpoint.model, new_checkpoint.optimizer
+    new_model.create_variables(optimizer=new_optimizer)
+
+    model.transfer_weights(new_model, new_optimizer=new_optimizer, optimizer=optimizer)
+    new_checkpoint.save(optimizer.iterations)
+    return output_dir
 
   def infer(self,
             features_file,

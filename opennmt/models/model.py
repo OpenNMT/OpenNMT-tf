@@ -207,6 +207,38 @@ class Model(tf.keras.layers.Layer):
       optimizer._create_hypers()
       optimizer._create_slots(self.trainable_variables)
 
+  def transfer_weights(self, new_model, new_optimizer=None, optimizer=None, ignore_weights=None):
+    """Transfers weights (and optionally optimizer slots) from this model to
+    another.
+
+    This default implementation assumes that :obj:`self` and :obj:`new_model`
+    have exactly the same variables. Subclasses can override this method to
+    transfer weights to another model type or architecture. For example,
+    :class:`opennmt.models.SequenceToSequence` can transfer weights to a model
+    with a different vocabulary.
+
+    All model and optimizer variables are expected to be initialized.
+
+    Args:
+      new_model: The new model to transfer weights to.
+      new_optimizer: The new optimizer.
+      optimizer: The optimizer used for the current model.
+      ignore_weights: Optional set of weights to not transfer.
+    """
+    if type(self) is not type(new_model):
+      raise ValueError("Transferring weights to another model type is not supported")
+    if ignore_weights is None:
+      ignore_weights = set()
+    weights = self.trainable_weights
+    new_weights = new_model.weights
+    if (new_optimizer is not None and optimizer is not None
+        and len(new_optimizer.weights) == len(optimizer.weights)):
+      weights += optimizer.weights
+      new_weights += new_optimizer.weights
+    for weight, new_weight in zip(weights, new_weights):
+      if new_weight not in ignore_weights:
+        new_weight.assign(weight)
+
   def get_assets(self, asset_dir):
     """Returns additional assets used by this model.
 
