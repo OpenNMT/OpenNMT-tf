@@ -245,8 +245,8 @@ class Model(tf.keras.layers.Layer):
       if new_weight not in ignore_weights:
         new_weight.assign(weight)
 
-  def get_assets(self, asset_dir):
-    """Returns additional assets used by this model.
+  def export_assets(self, asset_dir):
+    """Exports additional assets used by this model.
 
     Args:
       asset_dir: The directory where assets can be written.
