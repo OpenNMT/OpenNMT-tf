@@ -268,9 +268,9 @@ class Runner(object):
     """
     if not isinstance(self._model, models.SequenceToSequence):
       raise ValueError("Updating vocabularies is only supported for sequence to sequence models")
+    config = self._finalize_config()
     if src_vocab is None and tgt_vocab is None:
       return config["model_dir"]
-    config = self._finalize_config()
 
     cur_checkpoint = self._init_model(config)
     cur_checkpoint.restore()
@@ -377,7 +377,7 @@ class Runner(object):
       export_dir: The export directory.
       checkpoint_path: The checkpoint path to export. If ``None``, the latest is used.
    """
-    checkpoint, config = self._init_run()
+    checkpoint, _ = self._init_run()
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
     tf.saved_model.save(
         checkpoint.model,

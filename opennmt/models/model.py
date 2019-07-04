@@ -87,7 +87,7 @@ class Model(tf.keras.layers.Layer):
     self.built = True
 
   @abc.abstractmethod
-  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
+  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):  # pylint: disable=arguments-differ
     """Runs the model.
 
     Args:
@@ -211,8 +211,8 @@ class Model(tf.keras.layers.Layer):
     self.serve_function().get_concrete_function()
     if optimizer is not None:
       _ = optimizer.iterations
-      optimizer._create_hypers()
-      optimizer._create_slots(self.trainable_variables)
+      optimizer._create_hypers()  # pylint: disable=protected-access
+      optimizer._create_slots(self.trainable_variables)  # pylint: disable=protected-access
 
   def transfer_weights(self, new_model, new_optimizer=None, optimizer=None, ignore_weights=None):
     """Transfers weights (and optionally optimizer slots) from this model to

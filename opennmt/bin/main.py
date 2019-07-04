@@ -1,7 +1,6 @@
 """Main script."""
 
 import argparse
-import json
 import os
 import six
 

@@ -1,7 +1,6 @@
 """Training related classes and functions."""
 
 import collections
-import tempfile
 import time
 import six
 
@@ -54,14 +53,13 @@ class Trainer(object):
       eval_steps: Evaluate every this many steps.
     """
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
-      tf.get_logger().warn("Model already reached train_steps = %d. Exiting.", max_step)
+      tf.get_logger().warning("Model already reached train_steps = %d. Exiting.", max_step)
       return
 
     with self._strategy.scope():
       self._model.create_variables(optimizer=self._optimizer)
       dataset = self._strategy.experimental_distribute_dataset(dataset)
 
-    iterator = iter(dataset)
     variables = self._model.variables
     gradients = []
     for variable in variables:
@@ -95,7 +93,7 @@ class Trainer(object):
       with self._strategy.scope():
         per_replica_source, per_replica_target = next_fn()
         per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
-          _accumulate_gradients, args=(per_replica_source, per_replica_target))
+            _accumulate_gradients, args=(per_replica_source, per_replica_target))
         loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
         num_words = {
             k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
