@@ -189,11 +189,10 @@ class Model(tf.keras.layers.Layer):
     Returns:
       A ``tf.function``.
     """
-    input_signature = self.features_inputter.input_signature()
     # Set name attribute of the input TensorSpec.
     input_signature = {
         name:tf.TensorSpec.from_spec(spec, name=name)
-        for name, spec in six.iteritems(input_signature)}
+        for name, spec in six.iteritems(self.features_inputter.input_signature())}
 
     @tf.function(input_signature=(input_signature,))
     def _run(features):

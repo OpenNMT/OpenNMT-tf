@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import unittest
 import six
 
 from parameterized import parameterized
@@ -204,18 +203,14 @@ class ModelTest(tf.test.TestCase):
         sess.run(iterator.initializer)
         _ = sess.run(predictions)
 
-  @unittest.skip("TODO")
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
     mode = tf.estimator.ModeKeys.PREDICT
     _, _, data_config = self._makeToyEnDeData()
     model, params = _seq2seq_model(mode)
-    model.initialize(data_config)
-    with tf.Graph().as_default():
-      features = estimator.make_serving_input_fn(model)().features
-      _, predictions = model(features, None, params, mode)
-      self.assertIsInstance(predictions, dict)
-      self.assertEqual(six.next(six.itervalues(predictions)).shape[1], 1)
+    model.initialize(data_config, params=params)
+    function = model.serve_function()
+    function.get_concrete_function()
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
