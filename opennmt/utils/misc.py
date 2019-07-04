@@ -101,6 +101,25 @@ def shape_list(x):
     ret.append(dim)
   return ret
 
+def index_structure(structure, path):
+  """Follows :obj:`path` in a nested structure of objects, lists, and dicts,
+  starting from :obj:`obj`.
+  """
+  for key in path.split("/"):
+    if isinstance(structure, list):
+      try:
+        index = int(key)
+        structure = structure[index] if index < len(structure) else None
+      except ValueError:
+        raise ValueError("Expected a list index, got %s instead" % key)
+    elif isinstance(structure, dict):
+      structure = structure.get(key)
+    else:
+      structure = getattr(structure, key, None)
+    if structure is None:
+      raise ValueError("Invalid path in structure: %s" % path)
+  return structure
+
 def extract_batches(tensors):
   """Returns a generator to iterate on each batch of a Numpy array or dict of
   Numpy arrays."""

@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from opennmt import optimizers
 from opennmt import schedules
+from opennmt.utils import misc
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -50,7 +51,7 @@ class Model(tf.keras.layers.Layer):
         if not isinstance(freeze_layers, list):
           freeze_layers = [freeze_layers]
         for layer_path in freeze_layers:
-          layer = _layer_from_path(self, layer_path)
+          layer = misc.index_structure(self, layer_path)
           layer.trainable = False
           self._frozen_layers.append(layer)
     return super(Model, self).trainable_weights
@@ -266,15 +267,3 @@ class Model(tf.keras.layers.Layer):
     """
     _ = params
     print(prediction, file=stream)
-
-
-def _layer_from_path(layer, path):
-  for key in path.split("/"):
-    try:
-      index = int(key)
-      layer = layer[index] if index < len(layer) else None
-    except ValueError:
-      layer = getattr(layer, key, None)
-    if layer is None:
-      raise ValueError("Invalid layer path: %s" % path)
-  return layer

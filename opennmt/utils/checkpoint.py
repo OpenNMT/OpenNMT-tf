@@ -6,6 +6,8 @@ import six
 import tensorflow as tf
 import numpy as np
 
+from opennmt.utils import misc
+
 
 class Checkpoint(object):
   """Wrapper around TensorFlow checkpoints utilities."""
@@ -233,21 +235,11 @@ def average_checkpoints(model_dir,
       for path in six.iterkeys(reader.get_variable_to_shape_map()):
         if not path.startswith(model_key) or ".OPTIMIZER_SLOT" in path:
           continue
-        variable = _get_variable_from_path(trackables, path)
-        if variable is None:
-          continue
+        variable_path = path.replace("/.ATTRIBUTES/VARIABLE_VALUE", "")
+        variable = misc.index_structure(trackables, variable_path)
         value = reader.get_tensor(path)
         variable.assign_add(value / num_checkpoints)
 
   new_checkpoint_manager = tf.train.CheckpointManager(checkpoint, output_dir, max_to_keep=None)
   new_checkpoint_manager.save(checkpoint_number=last_step)
   return output_dir
-
-def _get_variable_from_path(trackables, path):
-  fields = path.split("/")
-  value = trackables[fields[0]]
-  for key in fields[1:]:
-    value = getattr(value, key, None)
-    if value is None or isinstance(value, tf.Variable):
-      return value
-  return None
