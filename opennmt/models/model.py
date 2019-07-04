@@ -19,6 +19,7 @@ class Model(tf.keras.layers.Layer):
     super(Model, self).__init__()
     self.examples_inputter = examples_inputter
     self.params = {}
+    self._frozen_layers = None
 
   @property
   def dtype(self):
@@ -41,12 +42,18 @@ class Model(tf.keras.layers.Layer):
     return getattr(self.examples_inputter, "labels_inputter", None)
 
   @property
-  def trainable_variables(self):
-    trainable_variables = super(Model, self).trainable_variables
-    freeze_variables = self.params.get("freeze_variables")
-    if freeze_variables:
-      trainable_variables = _get_trainable_variables(trainable_variables, freeze_variables)
-    return trainable_variables
+  def trainable_weights(self):
+    if self._frozen_layers is None:
+      self._frozen_layers = []
+      freeze_layers = self.params.get("freeze_layers")
+      if freeze_layers:
+        if not isinstance(freeze_layers, list):
+          freeze_layers = [freeze_layers]
+        for layer_path in freeze_layers:
+          layer = _layer_from_path(self, layer_path)
+          layer.trainable = False
+          self._frozen_layers.append(layer)
+    return super(Model, self).trainable_weights
 
   def auto_config(self, num_replicas=1):
     """Returns automatic configuration values specific to this model.
@@ -262,23 +269,13 @@ class Model(tf.keras.layers.Layer):
     print(prediction, file=stream)
 
 
-def _print_variables(variables, name=None):
-  if name is not None:
-    tf.get_logger().info("%s variables:", name.capitalize())
-  for variable in variables:
-    tf.get_logger().info(" * %s", variable.name)
-
-def _get_trainable_variables(variables, freeze_variables):
-  if not isinstance(freeze_variables, list):
-    freeze_variables = [freeze_variables]
-  regexs = list(map(re.compile, freeze_variables))
-  frozen_variables = []
-  trainable_variables = []
-  for variable in variables:
-    if any(regex.match(variable.name) for regex in regexs):
-      frozen_variables.append(variable)
-    else:
-      trainable_variables.append(variable)
-  _print_variables(frozen_variables, name="frozen")
-  _print_variables(trainable_variables, name="trainable")
-  return trainable_variables
+def _layer_from_path(layer, path):
+  for key in path.split("/"):
+    try:
+      index = int(key)
+      layer = layer[index] if index < len(layer) else None
+    except ValueError:
+      layer = getattr(layer, key, None)
+    if layer is None:
+      raise ValueError("Invalid layer path: %s" % path)
+  return layer

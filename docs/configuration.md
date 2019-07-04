@@ -72,9 +72,10 @@ params:
     beta2: 0.998
   learning_rate: 1.0
 
-  # (optional) Regexp or list of regexp matching variable names to not optimize.
-  freeze_variables:
-    - "transformer/encoder"
+  # (optional) List of layer to not optimize.
+  freeze_layers:
+    - "encoder/layers/0"
+    - "decoder/output_layer"
 
   # (optional) Global parameter initialization [-param_init, param_init].
   param_init: 0.1

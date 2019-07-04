@@ -287,6 +287,23 @@ class ModelTest(tf.test.TestCase):
     model.create_variables()
     self.assertTrue(len(model.trainable_variables) > 0)
 
+  def testFreezeLayers(self):
+    model, _ = _seq2seq_model(tf.estimator.ModeKeys.TRAIN)
+    params = {"freeze_layers": ["decoder/output_layer", "encoder/layers/0"]}
+    _, _, data_config = self._makeToyEnDeData()
+    model.initialize(data_config, params=params)
+    model.create_variables()
+    trainable_variables = model.trainable_variables
+    self.assertNotEmpty(trainable_variables)
+
+    def _assert_layer_not_trainable(layer):
+      self.assertFalse(layer.trainable)
+      for variable in layer.variables:
+        self.assertNotIn(variable, trainable_variables)
+
+    _assert_layer_not_trainable(model.decoder.output_layer)
+    _assert_layer_not_trainable(model.encoder.layers[0])
+
   def testTransferWeightsNewVocab(self):
 
     def _make_model(name, src_vocab, tgt_vocab, random_slots=False):
