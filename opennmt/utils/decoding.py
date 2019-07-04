@@ -74,12 +74,14 @@ class DecodingStrategy(object):
     return 1
 
   @abc.abstractmethod
-  def initialize(self, batch_size, start_ids):
+  def initialize(self, batch_size, start_ids, attention_size=None):
     """Initializes the strategy.
 
     Args:
       batch_size: The batch size.
       start_ids: The start decoding ids.
+      attention_size: If known, the size of the attention vectors (i.e. the
+        maximum source length).
 
     Returns:
       start_ids: The (possibly transformed) start decoding ids.
@@ -90,7 +92,15 @@ class DecodingStrategy(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def step(self, step, sampler, log_probs, cum_log_probs, finished, state, extra_vars):
+  def step(self,
+           step,
+           sampler,
+           log_probs,
+           cum_log_probs,
+           finished,
+           state,
+           extra_vars,
+           attention=None):
     """Updates the strategy state.
 
     Args:
@@ -101,6 +111,7 @@ class DecodingStrategy(object):
       finished: The current finished flags.
       state: The decoder state.
       extra_vars: Additional tensors from this decoding strategy.
+      attention: The attention vector for the current step.
 
     Returns:
       ids: The predicted word ids.
@@ -132,12 +143,20 @@ class DecodingStrategy(object):
 class GreedySearch(DecodingStrategy):
   """A basic greedy search strategy."""
 
-  def initialize(self, batch_size, start_ids):
+  def initialize(self, batch_size, start_ids, attention_size=None):
     finished = tf.zeros([batch_size], dtype=tf.bool)
     initial_log_probs = tf.zeros([batch_size], dtype=tf.float32)
     return start_ids, finished, initial_log_probs, []
 
-  def step(self, step, sampler, log_probs, cum_log_probs, finished, state, extra_vars):
+  def step(self,
+           step,
+           sampler,
+           log_probs,
+           cum_log_probs,
+           finished,
+           state,
+           extra_vars,
+           attention=None):
     sample_ids, sample_log_probs = sampler(log_probs)
     sample_ids = tf.reshape(sample_ids, [-1])
     sample_log_probs = tf.reshape(sample_log_probs, [-1])
@@ -157,33 +176,81 @@ class GreedySearch(DecodingStrategy):
 class BeamSearch(DecodingStrategy):
   """A beam search strategy."""
 
-  def __init__(self, beam_size, length_penalty=0):
+  def __init__(self, beam_size, length_penalty=0, coverage_penalty=0):
     self.beam_size = beam_size
     self.length_penalty = length_penalty
+    self.coverage_penalty = coverage_penalty
 
   @property
   def num_hypotheses(self):
     return self.beam_size
 
-  def initialize(self, batch_size, start_ids):
+  def initialize(self, batch_size, start_ids, attention_size=None):
     start_ids = tfa.seq2seq.tile_batch(start_ids, self.beam_size)
     finished = tf.zeros([batch_size * self.beam_size], dtype=tf.bool)
     # Give all probability to first beam for the first iteration.
     initial_log_probs = tf.tile([0.] + [-float("inf")] * (self.beam_size - 1), [batch_size])
     parent_ids = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
-    maximum_lengths = tf.zeros([batch_size], dtype=tf.int32)
-    return start_ids, finished, initial_log_probs, (parent_ids, maximum_lengths)
+    sequence_lengths = tf.zeros([batch_size * self.beam_size], dtype=tf.int32)
+    extra_vars = [parent_ids, sequence_lengths]
+    if self.coverage_penalty != 0:
+      if attention_size is None:
+        raise ValueError("The attention size should be known to support coverage penalty")
+      accumulated_attention = tf.zeros([batch_size * self.beam_size, attention_size])
+      extra_vars.append(accumulated_attention)
+    return start_ids, finished, initial_log_probs, tuple(extra_vars)
 
-  def step(self, step, sampler, log_probs, cum_log_probs, finished, state, extra_vars):
-    parent_ids, maximum_lengths = extra_vars
+  def _get_scores(self, log_probs, sequence_lengths, finished, accumulated_attention=None):
+    scores = log_probs
+    if self.length_penalty != 0:
+      expand_sequence_lengths = tf.expand_dims(sequence_lengths, 1)
+      scores /= tf.pow(((5. + tf.cast(expand_sequence_lengths + 1, scores.dtype)) / 6.),
+                       self.length_penalty)
+    if self.coverage_penalty != 0:
+      # Mask out of range steps with ones (log(1) == 0).
+      accumulated_attention = tf.where(
+          tf.equal(accumulated_attention, 0.0),
+          x=tf.ones_like(accumulated_attention),
+          y=accumulated_attention)
+      coverage_penalty = tf.reduce_sum(
+          tf.math.log(tf.minimum(accumulated_attention, 1.0)), 1)
+      # Apply coverage penalty to finished predictions.
+      coverage_penalty *= tf.cast(finished, coverage_penalty.dtype)
+      scores += self.coverage_penalty * tf.expand_dims(coverage_penalty, 1)
+    return scores
+
+  def step(self,
+           step,
+           sampler,
+           log_probs,
+           cum_log_probs,
+           finished,
+           state,
+           extra_vars,
+           attention=None):
+    parent_ids = extra_vars[0]
+    sequence_lengths = extra_vars[1]
+
+    if self.coverage_penalty != 0:
+      if attention is None:
+        raise ValueError("Coverage penalty is enabled but the model did not "
+                         "return an attention vector")
+      not_finished = tf.math.logical_not(finished)
+      attention *= tf.expand_dims(tf.cast(not_finished, attention.dtype), 1)
+      accumulated_attention = extra_vars[2] + attention
+    else:
+      accumulated_attention = None
 
     # Compute scores from log probabilities.
     vocab_size = log_probs.shape.as_list()[-1]
     total_probs = log_probs + tf.expand_dims(cum_log_probs, 1)  # Add current beam probability.
+    scores = self._get_scores(
+        total_probs,
+        sequence_lengths,
+        finished,
+        accumulated_attention=accumulated_attention)
+    scores = tf.reshape(scores, [-1, self.beam_size * vocab_size])
     total_probs = tf.reshape(total_probs, [-1, self.beam_size * vocab_size])
-    scores = total_probs
-    if self.length_penalty != 0:
-      scores /= tf.pow(((5. + tf.cast(step + 1, tf.float32)) / 6.), self.length_penalty)
 
     # Sample predictions.
     sample_ids, sample_scores = sampler(scores, num_samples=self.beam_size)
@@ -197,19 +264,25 @@ class BeamSearch(DecodingStrategy):
         (tf.range(tf.shape(word_ids)[0]) // self.beam_size)
         * self.beam_size + beam_ids)
 
-    # Update maximum length of unfinished batches.
-    finished_batch = tf.reduce_all(tf.reshape(finished, [-1, self.beam_size]), axis=-1)
-    maximum_lengths = tf.where(finished_batch, x=maximum_lengths, y=maximum_lengths + 1)
+    # Update sequence_length of unfinished sequence.
+    sequence_lengths = tf.where(finished, x=sequence_lengths, y=sequence_lengths + 1)
 
     # Update state and flags.
     cum_log_probs = _gather_from_word_indices(total_probs, sample_ids)
     finished = tf.gather(finished, beam_indices)
+    sequence_lengths = tf.gather(sequence_lengths, beam_indices)
     parent_ids = parent_ids.write(step, beam_ids)
+    extra_vars = [parent_ids, sequence_lengths]
+    if accumulated_attention is not None:
+      accumulated_attention = tf.gather(accumulated_attention, beam_indices)
+      extra_vars.append(accumulated_attention)
     state = tf.nest.map_structure(lambda s: _gather_state(s, beam_indices), state)
-    return word_ids, cum_log_probs, finished, state, (parent_ids, maximum_lengths)
+    return word_ids, cum_log_probs, finished, state, tuple(extra_vars)
 
   def finalize(self, outputs, end_id, extra_vars, attention=None):
-    parent_ids, maximum_lengths = extra_vars
+    parent_ids = extra_vars[0]
+    sequence_lengths = extra_vars[1]
+    maximum_lengths = tf.reduce_max(tf.reshape(sequence_lengths, [-1, self.beam_size]), axis=-1)
     max_time = outputs.size()
     array_shape = [max_time, -1, self.beam_size]
     step_ids = tf.reshape(outputs.stack(), array_shape)
@@ -234,7 +307,8 @@ def dynamic_decode(symbols_to_logits_fn,
                    sampler=None,
                    maximum_iterations=None,
                    minimum_iterations=0,
-                   attention_history=False):
+                   attention_history=False,
+                   attention_size=None):
   """Dynamic decoding.
 
   Args:
@@ -250,6 +324,8 @@ def dynamic_decode(symbols_to_logits_fn,
     maximum_iterations: The maximum number of iterations to decode for.
     minimum_iterations: The minimum number of iterations to decode for.
     attention_history: Gather attention history during the decoding.
+    attention_size: If known, the size of the attention vectors (i.e. the
+      maximum source length).
 
   Returns:
     ids: The predicted ids of shape :math:`[B, H, T]`.
@@ -294,7 +370,8 @@ def dynamic_decode(symbols_to_logits_fn,
         cum_log_probs,
         finished,
         state,
-        extra_vars)
+        extra_vars,
+        attention=attn)
 
     # Update loop vars.
     if attention_history:
@@ -310,7 +387,7 @@ def dynamic_decode(symbols_to_logits_fn,
   ids_dtype = start_ids.dtype
   start_ids = tf.cast(start_ids, tf.int32)
   start_ids, finished, initial_log_probs, extra_vars = decoding_strategy.initialize(
-      batch_size, start_ids)
+      batch_size, start_ids, attention_size=attention_size)
   step = tf.constant(0, dtype=tf.int32)
   outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
   attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
@@ -378,7 +455,10 @@ def dynamic_decode_from_params(decoder,
   if beam_size == 1:
     decoding_strategy = GreedySearch()
   else:
-    decoding_strategy = BeamSearch(beam_size, length_penalty=params.get("length_penalty", 0))
+    decoding_strategy = BeamSearch(
+        beam_size,
+        length_penalty=params.get("length_penalty", 0),
+        coverage_penalty=params.get("coverage_penalty", 0))
 
   sampling_topk = params.get("sampling_topk", 1)
   if sampling_topk == 1:
@@ -397,7 +477,8 @@ def dynamic_decode_from_params(decoder,
       sampler=sampler,
       maximum_iterations=params.get("maximum_iterations", 250),
       minimum_iterations=params.get("minimum_decoding_length", 0),
-      attention_history=decoder.support_alignment_history)
+      attention_history=decoder.support_alignment_history,
+      attention_size=tf.shape(decoder.memory)[1] if decoder.support_alignment_history else None)
 
 
 def _gather_state(tensor, indices):

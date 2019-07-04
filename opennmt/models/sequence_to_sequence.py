@@ -107,8 +107,7 @@ class SequenceToSequence(Model):
     config = super(SequenceToSequence, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
-            "beam_width": 4,
-            "length_penalty": 0.6
+            "beam_width": 4
         },
         "train": {
             "sample_buffer_size": -1,
