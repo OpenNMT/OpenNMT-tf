@@ -32,15 +32,15 @@ setup(
     },
     keywords="tensorflow opennmt nmt neural machine translation",
     install_requires=[
-        "pyonmttok>=1.11.0,<2;platform_system=='Linux'",
+        "pyonmttok>=1.13.0,<2;platform_system=='Linux'",
         "pyyaml>=5.1",
         "rouge==0.3.1",
-        "sacrebleu==1.*;python_version>='3.0'"
+        "sacrebleu==1.*;python_version>='3.0'",
+        "tensorflow-gpu==2.0.0b1",
+        "tensorflow-addons==0.4.0"
     ],
     extras_require={
         "tests": tests_require,
-        "tensorflow": ["tensorflow>=1.4.0,<2"],
-        "tensorflow_gpu": ["tensorflow-gpu>=1.4.0,<2"]
     },
     tests_require=tests_require,
     test_suite="nose2.collector.collector",
@@ -48,14 +48,12 @@ setup(
     entry_points={
         "console_scripts": [
             "onmt-ark-to-records=opennmt.bin.ark_to_records:main",
-            "onmt-average-checkpoints=opennmt.bin.average_checkpoints:main",
             "onmt-build-vocab=opennmt.bin.build_vocab:main",
             "onmt-convert-checkpoint=opennmt.bin.convert_checkpoint:main",
             "onmt-detokenize-text=opennmt.bin.detokenize_text:main",
             "onmt-main=opennmt.bin.main:main",
             "onmt-merge-config=opennmt.bin.merge_config:main",
             "onmt-tokenize-text=opennmt.bin.tokenize_text:main",
-            "onmt-update-vocab=opennmt.bin.update_vocab:main",
         ],
     }
 )
