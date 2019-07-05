@@ -133,7 +133,7 @@ class SequenceToSequence(Model):
         output_layer=output_layer)
     self.id_to_token = None
 
-  def call(self, features, labels=None, step=None, training=None):
+  def call(self, features, labels=None, training=None, step=None):
     params = self.params
 
     features_length = self.features_inputter.get_length(features)

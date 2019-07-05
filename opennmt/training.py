@@ -76,8 +76,8 @@ class Trainer(object):
       outputs, _ = self._model(
           source,
           labels=target,
-          step=self._optimizer.iterations,
-          training=True)
+          training=True,
+          step=self._optimizer.iterations)
       loss = self._model.compute_loss(outputs, target, training=True)
       loss = loss[0] / loss[1]
       step_gradients = self._model.compute_gradients(loss, optimizer, variables=variables)

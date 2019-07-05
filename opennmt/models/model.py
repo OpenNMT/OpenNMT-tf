@@ -88,14 +88,14 @@ class Model(tf.keras.layers.Layer):
     self.built = True
 
   @abc.abstractmethod
-  def call(self, features, labels=None, step=None, training=None):  # pylint: disable=arguments-differ
+    def call(self, features, labels=None, training=None, step=None):  # pylint: disable=arguments-differ
     """Runs the model.
 
     Args:
       features: A nested structure of features ``tf.Tensor``.
       labels: A nested structure of labels ``tf.Tensor``.
-      step: The current training step.
       training: Run in training mode.
+      step: The current training step.
 
     Returns:
       outputs: The model outputs (usually unscaled probabilities).
