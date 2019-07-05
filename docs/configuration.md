@@ -38,8 +38,8 @@ data:
   eval_labels_file: data/toy-ende/tgt-val.txt
 
   # (optional) Models may require additional resource files (e.g. vocabularies).
-  source_words_vocabulary: data/toy-ende/src-vocab.txt
-  target_words_vocabulary: data/toy-ende/tgt-vocab.txt
+  source_vocabulary: data/toy-ende/src-vocab.txt
+  target_vocabulary: data/toy-ende/tgt-vocab.txt
 
   # (optional) OpenNMT tokenization configuration (or path to a configuration file).
   # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
@@ -64,12 +64,12 @@ data:
 
 # Model and optimization parameters.
 params:
-  # The optimizer class name in tf.train, tf.contrib.opt, or opennmt.optimizers.
-  optimizer: AdamOptimizer
+  # The optimizer class name in tf.keras.optimizers, tfa.optimizers, or opennmt.optimizers.
+  optimizer: Adam
   # (optional) Additional optimizer parameters as defined in their documentation.
   optimizer_params:
-    beta1: 0.8
-    beta2: 0.998
+    beta_1: 0.8
+    beta_2: 0.998
   learning_rate: 1.0
 
   # (optional) List of layer to not optimize.
@@ -77,47 +77,29 @@ params:
     - "encoder/layers/0"
     - "decoder/output_layer"
 
-  # (optional) Global parameter initialization [-param_init, param_init].
-  param_init: 0.1
-
   # (optional) Maximum gradients norm (default: null).
   clip_gradients: 5.0
   # (optional) 1 training step will process this many batches and accumulates
   # their gradients (default: 1).
   gradients_accum: 1
 
-  # (optional) For mixed precision training, the loss scaling to apply (a constant value or
-  # an automatic scaling algorithm: "backoff", "logmax", default: "backoff")
-  loss_scale: backoff
-  # (optional) For mixed precision training, the additional parameters to pass the loss scale
-  # (see the source file opennmt/optimizers/mixed_precision_wrapper.py).
-  loss_scale_params:
-    scale_min: 1.0
-    step_factor: 2.0
-
   # (optional) Weights regularization penalty (default: null).
   regularization:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).
     scale: 1e-4  # if using "l1_l2" regularization, this should be a YAML list.
-  # (optional) Decoupled weight decay (default: null).
-  weight_decay: 0.01
 
   # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
   average_loss_in_time: false
 
   # (optional) The type of learning rate decay (default: null). See:
-  #  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate
-  #  * opennmt/utils/decay.py
+  #  * https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/schedules
+  #  * opennmt/schedules/lr_schedules.py
   # This value may change the semantics of other decay options. See the documentation or the code.
-  decay_type: exponential_decay
+  decay_type: NoamDecay
   # (optional unless decay_type is set) Decay parameters.
   decay_params:
-    # The learning rate decay rate.
-    decay_rate: 0.7
-    # Decay every this many steps.
-    decay_steps: 10000
-    # (optional) If true, the learning rate is decayed in a staircase fashion (default: true).
-    staircase: true
+    model_dim: 512
+      warmup_steps: 4000
   # (optional) The number of training steps that make 1 decay step (default: 1).
   decay_step_duration: 1
   # (optional) After how many steps to start the decay (default: 0).
@@ -125,8 +107,6 @@ params:
 
   # (optional) The learning rate minimum value (default: 0).
   minimum_learning_rate: 0.0001
-  # (optional) The learning rate maximum value (default: 1e6).
-  maximum_learning_rate: 1e6
 
   # (optional) Type of scheduled sampling (can be "constant", "linear", "exponential",
   # or "inverse_sigmoid", default: "constant").
@@ -157,7 +137,7 @@ params:
   # (optional) Sequence of noise to apply to the decoding output. Each element
   # should be a noise type (can be: "dropout", "replacement", "permutation") and
   # the module arguments
-  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html)
+  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.data.noise.html)
   decoding_noise:
     - dropout: 0.1
     - replacement: [0.1, ｟unk｠]
@@ -167,8 +147,8 @@ params:
   decoding_subword_token: ￭
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
-  # (optional) Maximum decoding iterations before stopping (default: 250).
-  maximum_iterations: 200
+  # (optional) Maximum length of decoded sequences, end token excluded (default: 250).
+  maximum_decoding_length: 250
 
   # (optional) Replace unknown target tokens by the original source token with the
   # highest attention (default: false).
@@ -233,18 +213,14 @@ eval:
   # (optional) The batch size to use (default: 32).
   batch_size: 30
 
-  # (optional) Evaluate every this many seconds (default: 18000).
-  eval_delay: 7200
+  # (optional) Evaluate every this many steps (default: 5000).
+  steps: 5000
 
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
   # Available evaluators: BLEU, ROUGE
   external_evaluators: BLEU
-
-  # (optional) Model exporter(s) to use during the training and evaluation loop:
-  # last, final, best, or null (default: last).
-  exporters: last
 
 
 # (optional) Inference options.
@@ -296,7 +272,7 @@ Predefined models declare default parameters that should give solid performance 
 onmt-main --model_type Transformer --config my_data.yml --auto_config train
 ```
 
-The user provided `my_data.yml` file will minimaly require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
+The user provided `my_data.yml` file will minimally require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
 
 At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.
 
@@ -322,22 +298,3 @@ If you are unsure about the configuration that is actually used or simply prefer
 onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
     config/data/toy-ende.yml > config/my_config.yml
 ```
-
-## TensorFlow session
-
-The command line option `--session_config` can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a [`tf.ConfigProto`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto) message serialized in text format.
-
-Here is an example to enable the `allow_growth` GPU option:
-
-```text
-$ cat config/session_config.txt
-gpu_options {
-  allow_growth: true
-}
-```
-
-```bash
-onmt-main --session_config config/session_config.txt [...]
-```
-
-For possible options and values, see the [`tf.ConfigProto`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto) file.

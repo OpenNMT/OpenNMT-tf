@@ -33,9 +33,7 @@ _CONFIG_FALLBACK = {
         "save_summary_steps": 100
     },
     "eval": {
-        "batch_size": 32,
-        "eval_delay": 18000,
-        "exporters": "last"
+        "batch_size": 32
     },
     "infer": {
         "bucket_width": None,

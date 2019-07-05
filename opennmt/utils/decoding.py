@@ -475,7 +475,7 @@ def dynamic_decode_from_params(decoder,
       initial_state=initial_state,
       decoding_strategy=decoding_strategy,
       sampler=sampler,
-      maximum_iterations=params.get("maximum_iterations", 250),
+      maximum_iterations=params.get("maximum_decoding_length", 250),
       minimum_iterations=params.get("minimum_decoding_length", 0),
       attention_history=decoder.support_alignment_history,
       attention_size=tf.shape(decoder.memory)[1] if decoder.support_alignment_history else None)
