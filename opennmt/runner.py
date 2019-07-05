@@ -53,6 +53,7 @@ class Runner(object):
                model,
                config,
                auto_config=False,
+               mixed_precision=False,
                seed=None):
     """Initializes the runner parameters.
 
@@ -61,13 +62,16 @@ class Runner(object):
       config: The run configuration.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
+      mixed_precision: Enable mixed precision.
       seed: The random seed to set.
     """
     self._model = model
     self._optimizer = None
     self._config = config
     self._auto_config = auto_config
-
+    self._mixed_precision = mixed_precision
+    if mixed_precision:
+      tf.config.optimizer.set_experimental_options({"auto_mixed_precision": True})
     if seed is not None:
       np.random.seed(seed)
       random.seed(seed)
@@ -153,11 +157,19 @@ class Runner(object):
     data_config = config["data"]
     train_config = config["train"]
     eval_config = config["eval"]
+
+    batch_type = train_config["batch_type"]
+    if batch_type == "tokens" and self._mixed_precision:
+      batch_size_multiple = 8
+    else:
+      batch_size_multiple = 1
+
     dataset = model.examples_inputter.make_training_dataset(
         data_config["train_features_file"],
         data_config.get("train_labels_file"),
         train_config["batch_size"],
-        batch_type=train_config["batch_type"],
+        batch_type=batch_type,
+        batch_size_multiple=batch_size_multiple,
         shuffle_buffer_size=train_config["sample_buffer_size"],
         bucket_width=train_config["bucket_width"],
         maximum_features_length=train_config.get("maximum_features_length"),
@@ -180,7 +192,10 @@ class Runner(object):
             num_devices, len(devices)))
       devices = [device.name for device in devices[0:num_devices]]
 
-    trainer = training_util.Trainer(checkpoint, devices=devices)
+    trainer = training_util.Trainer(
+        checkpoint,
+        devices=devices,
+        mixed_precision=self._mixed_precision)
     trainer(
         dataset,
         max_step=train_config.get("train_steps"),

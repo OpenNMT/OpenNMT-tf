@@ -194,11 +194,6 @@ class Transformer(onmt.models.Transformer):
         attention_dropout=0.1,
         ffn_dropout=0.1)
 
-class TransformerFP16(Transformer):
-  """Defines a Transformer model that uses half-precision floating points."""
-  def __init__(self):
-    super(TransformerFP16, self).__init__(dtype=tf.float16)
-
 class TransformerBig(onmt.models.Transformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
   def __init__(self, dtype=tf.float32):
@@ -216,8 +211,3 @@ class TransformerBig(onmt.models.Transformer):
         dropout=0.3,
         attention_dropout=0.1,
         ffn_dropout=0.1)
-
-class TransformerBigFP16(TransformerBig):
-  """Defines a large Transformer model that uses half-precision floating points."""
-  def __init__(self):
-    super(TransformerBigFP16, self).__init__(dtype=tf.float16)

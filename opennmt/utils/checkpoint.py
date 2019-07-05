@@ -93,47 +93,6 @@ class Checkpoint(object):
 def _restore_v1_checkpoint(checkpoint_path, model, optimizer=None):
   raise NotImplementedError("V1 checkpoints are currently unsupported")
 
-def _variable_is_trainable(name, value):
-  _ = name
-  return value.dtype not in (np.int32, np.int64)  # Assume that int variables are not trainable.
-
-def _create_checkpoint_from_variables(variables, output_dir, latest_step=None, session_config=None):
-  # The straightforward approach would be to create new variables using a
-  # constant_initializer. However, this would save the constant value in the
-  # checkpoint meta file which would increase its size dramatically. Instead, we
-  # create variables with their default initializer but run an assignment op
-  # that writes the new value. Inspired by:
-  # github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/bin/t2t_avg_all.py
-  if "global_step" in variables:
-    latest_step = variables["global_step"]
-    del variables["global_step"]
-  with tf.Graph().as_default():
-    tf_vars = [
-        tf.get_variable(
-            name,
-            shape=value.shape,
-            dtype=tf.as_dtype(value.dtype),
-            trainable=_variable_is_trainable(name, value))
-        for name, value in six.iteritems(variables)]
-    placeholders = [tf.placeholder(v.dtype, shape=v.shape) for v in tf_vars]
-    assign_ops = [tf.assign(v, p) for (v, p) in zip(tf_vars, placeholders)]
-
-    out_base_file = os.path.join(output_dir, "model.ckpt")
-    global_step = tf.get_variable(
-        "global_step",
-        initializer=tf.constant(latest_step, dtype=tf.int64),
-        trainable=False)
-    saver = tf.train.Saver(tf.global_variables(), save_relative_paths=True)
-
-    with tf.Session(config=session_config) as sess:
-      sess.run(tf.global_variables_initializer())
-      for p, assign_op, value in zip(placeholders, assign_ops, six.itervalues(variables)):
-        sess.run(assign_op, {p: value})
-      tf.logging.info("Saving new checkpoint to %s" % output_dir)
-      saver.save(sess, out_base_file, global_step=global_step)
-
-  return output_dir
-
 def get_checkpoint_variables(checkpoint_path):
   """Returns variables included in a checkpoint.
 
@@ -147,38 +106,6 @@ def get_checkpoint_variables(checkpoint_path):
   return {
       name:reader.get_tensor(name)
       for name in six.iterkeys(reader.get_variable_to_shape_map())}
-
-def convert_checkpoint(checkpoint_path,
-                       output_dir,
-                       source_dtype,
-                       target_type,
-                       session_config=None):
-  """Converts checkpoint variables from one dtype to another.
-
-  Args:
-    checkpoint_path: The path to the checkpoint to convert.
-    output_dir: The directory that will contain the converted checkpoint.
-    source_dtype: The data type to convert from.
-    target_dtype: The data type to convert to.
-    session_config: Optional configuration to use when creating the session.
-
-  Returns:
-    The path to the directory containing the converted checkpoint.
-
-  Raises:
-    ValueError: if :obj:`output_dir` points to the same directory as
-      :obj:`checkpoint_path`.
-  """
-  if os.path.dirname(checkpoint_path) == output_dir:
-    raise ValueError("Checkpoint and output directory must be different")
-  variables = get_checkpoint_variables(checkpoint_path)
-  for name, value in six.iteritems(variables):
-    if not name.startswith("optim") and tf.as_dtype(value.dtype) == source_dtype:
-      variables[name] = value.astype(target_type.as_numpy_dtype())
-  return _create_checkpoint_from_variables(
-      variables,
-      output_dir,
-      session_config=session_config)
 
 def average_checkpoints(model_dir,
                         output_dir,

@@ -12,12 +12,13 @@ from opennmt.data import dataset as dataset_util
 class Trainer(object):
   """Model trainer."""
 
-  def __init__(self, checkpoint, devices=None):
+  def __init__(self, checkpoint, devices=None, mixed_precision=False):
     """Initializes the trainer.
 
     Args:
       checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance.
       devices: List of device strings to use for training.
+      mixed_precision: Whether mixed precision is enabled or not.
     """
     if checkpoint.optimizer is None:
       raise ValueError("No optimizer is defined")
@@ -27,6 +28,7 @@ class Trainer(object):
         devices = tf.config.experimental.list_logical_devices(device_type="CPU")
       devices = [devices[0].name]
     self._checkpoint = checkpoint
+    self._mixed_precision = mixed_precision
     self._model = checkpoint.model
     self._optimizer = checkpoint.optimizer
     self._strategy = tf.distribute.MirroredStrategy(devices=devices)
@@ -60,7 +62,12 @@ class Trainer(object):
       self._model.create_variables(optimizer=self._optimizer)
       dataset = self._strategy.experimental_distribute_dataset(dataset)
 
-    variables = self._model.variables
+    if self._mixed_precision:
+      optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(self._optimizer, "dynamic")
+    else:
+      optimizer = self._optimizer
+
+    variables = self._model.trainable_variables
     gradients = []
     for variable in variables:
       gradients.append(tf.Variable(tf.zeros_like(variable), trainable=False))
@@ -73,7 +80,7 @@ class Trainer(object):
           mode=tf.estimator.ModeKeys.TRAIN)
       loss = self._model.compute_loss(outputs, target, training=True)
       loss = loss[0] / loss[1]
-      step_gradients = self._model.compute_gradients(loss, self._optimizer, variables=variables)
+      step_gradients = self._model.compute_gradients(loss, optimizer, variables=variables)
       for gradient, step_gradient in zip(gradients, step_gradients):
         gradient.assign_add(step_gradient)
       num_words = {}
@@ -84,7 +91,7 @@ class Trainer(object):
       return loss, num_words
 
     def _apply_gradients():
-      self._optimizer.apply_gradients(list(zip(gradients, variables)))
+      optimizer.apply_gradients(list(zip(gradients, variables)))
       for gradient in gradients:
         gradient.assign(tf.zeros_like(gradient))
 

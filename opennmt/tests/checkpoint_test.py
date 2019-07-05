@@ -1,10 +1,6 @@
 import os
-import six
-import time
-import unittest
 
 import tensorflow as tf
-import numpy as np
 
 from opennmt.utils import checkpoint as checkpoint_util
 
@@ -22,39 +18,6 @@ class _DummyModel(tf.keras.layers.Layer):
 
 
 class CheckpointTest(tf.test.TestCase):
-
-  def _generateCheckpoint(self,
-                          model_dir,
-                          step,
-                          variables,
-                          last_checkpoints=None,
-                          prefix="model.ckpt"):
-    with tf.Graph().as_default() as graph:
-      for name, value in six.iteritems(variables):
-        if isinstance(value, tuple):
-          dtype = None
-          initializer = tf.random_uniform_initializer()
-          shape = value
-        else:
-          dtype = tf.as_dtype(value.dtype)
-          initializer = tf.constant_initializer(value, dtype=dtype)
-          shape = value.shape
-        _ = tf.get_variable(
-            name,
-            shape=shape,
-            dtype=dtype,
-            initializer=initializer)
-      global_step = tf.get_variable(
-          "global_step",
-          initializer=tf.constant(step, dtype=tf.int64),
-          trainable=False)
-      saver = tf.train.Saver(tf.global_variables())
-      if last_checkpoints:
-        saver.set_last_checkpoints_with_time(last_checkpoints)
-      with self.test_session(graph=graph) as sess:
-        sess.run(tf.global_variables_initializer())
-        saver.save(sess, os.path.join(model_dir, prefix), global_step=global_step)
-      return saver.last_checkpoints[0], time.time()
 
   def testCheckpointAveraging(self):
     model = _DummyModel()
@@ -103,24 +66,6 @@ class CheckpointTest(tf.test.TestCase):
     self.assertListEqual(
         _get_var_list(avg_checkpoint),
         _get_var_list(checkpoint_manager.latest_checkpoint))
-
-  @unittest.skip
-  def testCheckpointDTypeConversion(self):
-    model_dir = os.path.join(self.get_temp_dir(), "ckpt-fp32")
-    os.makedirs(model_dir)
-    variables = {
-      "x": np.ones((2, 3), dtype=np.float32),
-      "optim/x": np.ones((2, 3), dtype=np.float32),
-      "counter": np.int64(42)
-    }
-    checkpoint_path, _ = self._generateCheckpoint(model_dir, 10, variables)
-    half_dir = os.path.join(model_dir, "fp16")
-    checkpoint.convert_checkpoint(checkpoint_path, half_dir, tf.float32, tf.float16)
-    half_var = checkpoint.get_checkpoint_variables(half_dir)
-    self.assertEqual(half_var["global_step"], 10)
-    self.assertEqual(half_var["x"].dtype, np.float16)
-    self.assertEqual(half_var["optim/x"].dtype, np.float32)
-    self.assertEqual(half_var["counter"].dtype, np.int64)
 
 
 if __name__ == "__main__":

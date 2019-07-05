@@ -49,7 +49,6 @@ setup(
         "console_scripts": [
             "onmt-ark-to-records=opennmt.bin.ark_to_records:main",
             "onmt-build-vocab=opennmt.bin.build_vocab:main",
-            "onmt-convert-checkpoint=opennmt.bin.convert_checkpoint:main",
             "onmt-detokenize-text=opennmt.bin.detokenize_text:main",
             "onmt-main=opennmt.bin.main:main",
             "onmt-merge-config=opennmt.bin.merge_config:main",

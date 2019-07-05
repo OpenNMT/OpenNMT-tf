@@ -71,6 +71,8 @@ def main():
   parser.add_argument("--inter_op_parallelism_threads", type=int, default=0,
                       help=("Number of inter op threads (0 means the system picks "
                             "an appropriate number)."))
+  parser.add_argument("--mixed_precision", default=False, action="store_true",
+                      help="Enable mixed precision.")
 
   subparsers = parser.add_subparsers(help="Run type.", dest="run")
   parser_train = subparsers.add_parser("train", help="Training.")
@@ -160,8 +162,9 @@ def main():
   runner = Runner(
       model,
       config,
-      seed=args.seed,
-      auto_config=args.auto_config)
+      auto_config=args.auto_config,
+      mixed_precision=args.mixed_precision,
+      seed=args.seed)
 
   if args.run == "train":
     runner.train(
