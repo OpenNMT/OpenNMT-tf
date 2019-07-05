@@ -9,7 +9,7 @@ from opennmt.layers import common
 from opennmt.utils import misc
 
 
-def get_sampling_probability(global_step,
+def get_sampling_probability(step,
                              read_probability=None,
                              schedule_type=None,
                              k=None):
@@ -17,9 +17,10 @@ def get_sampling_probability(global_step,
   https://arxiv.org/abs/1506.03099.
 
   Args:
-    global_step: The training step.
+    step: The training step.
     read_probability: The probability to read from the inputs.
-    schedule_type: The type of schedule.
+    schedule_type: The type of schedule: "constant", "linear", "exponential",
+      or "inverse_sigmoid".
     k: The convergence constant.
 
   Returns:
@@ -39,7 +40,7 @@ def get_sampling_probability(global_step,
     if k is None:
       raise ValueError("scheduled_sampling_k is required when scheduled_sampling_type is set")
 
-    step = tf.cast(global_step, tf.float32)
+    step = tf.cast(step, tf.float32)
     k = tf.constant(k, tf.float32)
 
     if schedule_type == "linear":
