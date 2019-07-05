@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import six
 
 from parameterized import parameterized
-from numbers import Number
 
 import tensorflow as tf
 import numpy as np
@@ -13,7 +11,6 @@ from opennmt import decoders
 from opennmt import encoders
 from opennmt import inputters
 from opennmt import models
-from opennmt.models import catalog
 from opennmt.tests import test_util
 
 
@@ -169,38 +166,21 @@ class ModelTest(tf.test.TestCase):
     params["guided_alignment_type"] = ga_type
     features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
     model.initialize(data_config, params=params)
-    with tf.Graph().as_default():
-      dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
-      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
-      features, labels = iterator.get_next()
-      self.assertIn("alignment", labels)
-      outputs, _ = model(features, labels=labels, training=True)
-      loss = model.compute_loss(outputs, labels, training=True)
-      loss = loss[0] / loss[1]
-      with self.session() as sess:
-        sess.run(tf.compat.v1.global_variables_initializer())
-        sess.run(tf.compat.v1.local_variables_initializer())
-        sess.run(tf.compat.v1.tables_initializer())
-        sess.run(iterator.initializer)
-        loss = sess.run(loss)
-        self.assertIsInstance(loss, Number)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = next(iter(dataset))
+    self.assertIn("alignment", labels)
+    outputs, _ = model(features, labels=labels, training=True)
+    loss = model.compute_loss(outputs, labels, training=True)
+    loss = loss[0] / loss[1]
 
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
     model, params = _seq2seq_model()
     params["replace_unknown_target"] = True
     features_file, labels_file, data_config = self._makeToyEnDeData()
     model.initialize(data_config)
-    with tf.Graph().as_default():
-      dataset = model.examples_inputter.make_inference_dataset(features_file, 16)
-      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
-      features = iterator.get_next()
-      _, predictions = model(features)
-      with self.session() as sess:
-        sess.run(tf.compat.v1.global_variables_initializer())
-        sess.run(tf.compat.v1.local_variables_initializer())
-        sess.run(tf.compat.v1.tables_initializer())
-        sess.run(iterator.initializer)
-        _ = sess.run(predictions)
+    dataset = model.examples_inputter.make_inference_dataset(features_file, 16)
+    features = next(iter(dataset))
+    _, predictions = model(features)
 
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
