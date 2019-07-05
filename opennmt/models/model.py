@@ -88,7 +88,7 @@ class Model(tf.keras.layers.Layer):
     self.built = True
 
   @abc.abstractmethod
-    def call(self, features, labels=None, training=None, step=None):  # pylint: disable=arguments-differ
+  def call(self, features, labels=None, training=None, step=None):  # pylint: disable=arguments-differ
     """Runs the model.
 
     Args:
