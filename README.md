@@ -2,7 +2,7 @@
 
 # OpenNMT-tf
 
-OpenNMT-tf is a general purpose sequence learning toolkit using TensorFlow. While neural machine translation is the main target task, it has been designed to more generally support:
+OpenNMT-tf is a general purpose sequence learning toolkit using TensorFlow 2.0. While neural machine translation is the main target task, it has been designed to more generally support:
 
 * sequence to sequence mapping
 * sequence tagging
@@ -30,7 +30,6 @@ and all of the above can be used simultaneously to train novel and complex archi
 OpenNMT-tf is also compatible with some of the best TensorFlow features:
 
 * multi-GPU training
-* distributed training TensorFlow asynchronous training
 * monitoring with [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard)
 * inference with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) and the [TensorFlow C++ API](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/cpp)
 
@@ -39,7 +38,7 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 OpenNMT-tf requires:
 
 * Python >= 3.5
-* TensorFlow >= 1.4, < 2.0
+* TensorFlow 2.0
 
 We recommend installing it with `pip`:
 
@@ -57,7 +56,7 @@ For all tasks involving a model execution, OpenNMT-tf uses a unique entrypoint: 
 
 * the **model** type
 * the **parameters** described in a YAML file
-* the **run** type: `train`, `eval`, `infer`, `export`, or `score`
+* the **run** type such as `train`, `eval`, `infer`, `export`, or `score`
 
 that are passed to the main script:
 
@@ -75,18 +74,13 @@ OpenNMT-tf also exposes well-defined and stable APIs. Here is an example using t
 import tensorflow as tf
 import opennmt as onmt
 
-tf.enable_eager_execution()
-
 # Build a random batch of input sequences.
 inputs = tf.random.uniform([3, 6, 256])
 sequence_length = tf.constant([4, 6, 5], dtype=tf.int32)
 
 # Encode with a self-attentional encoder.
 encoder = onmt.encoders.SelfAttentionEncoder(num_layers=6)
-outputs, _, _ = encoder.encode(
-    inputs,
-    sequence_length=sequence_length,
-    mode=tf.estimator.ModeKeys.TRAIN)
+outputs, _, _ = encoder(inputs, sequence_length=sequence_length)
 
 print(outputs)
 ```
@@ -98,15 +92,6 @@ For more advanced examples, some online resources are using OpenNMT-tf as a libr
 * [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `onmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
 
 *For a complete overview of the APIs, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html).*
-
-## Acknowledgments
-
-The implementation is inspired by the following:
-
-* [TensorFlow's NMT tutorial](https://github.com/tensorflow/nmt)
-* [Tensor2Tensor](https://github.com/tensorflow/tensor2tensor)
-* [Google's seq2seq](https://github.com/google/seq2seq)
-* [OpenSeq2Seq](https://github.com/NVIDIA/OpenSeq2Seq)
 
 ## Additional resources
 
