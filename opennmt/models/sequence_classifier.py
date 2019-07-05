@@ -31,8 +31,7 @@ class SequenceClassifier(Model):
     self.id_to_class = self.labels_inputter.vocabulary_lookup_reverse()
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
 
-  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
-    training = mode == tf.estimator.ModeKeys.TRAIN
+  def call(self, features, labels=None, step=None, training=None):
     inputs = self.features_inputter(features, training=training)
     _, state, _ = self.encoder(
         inputs,

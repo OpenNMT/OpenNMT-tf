@@ -68,7 +68,7 @@ class Evaluator(object):
     @dataset_lib.function_on_next(dataset)
     def _eval(next_fn):
       source, target = next_fn()
-      outputs, predictions = model(source, labels=target, mode=tf.estimator.ModeKeys.EVAL)
+      outputs, predictions = model(source, labels=target)
       loss = model.compute_loss(outputs, target, training=False)
       return loss, predictions, target
 

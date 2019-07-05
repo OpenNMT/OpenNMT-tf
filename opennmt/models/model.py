@@ -88,20 +88,18 @@ class Model(tf.keras.layers.Layer):
     self.built = True
 
   @abc.abstractmethod
-  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):  # pylint: disable=arguments-differ
+  def call(self, features, labels=None, step=None, training=None):  # pylint: disable=arguments-differ
     """Runs the model.
 
     Args:
       features: A nested structure of features ``tf.Tensor``.
       labels: A nested structure of labels ``tf.Tensor``.
       step: The current training step.
-      mode: A ``tf.estimator.ModeKeys`` mode.
+      training: Run in training mode.
 
     Returns:
       outputs: The model outputs (usually unscaled probabilities).
-        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.PREDICT``.
       predictions: The model predictions.
-        Optional if :obj:`mode` is ``tf.estimator.ModeKeys.TRAIN``.
     """
     raise NotImplementedError()
 

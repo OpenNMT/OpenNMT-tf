@@ -77,7 +77,7 @@ class Trainer(object):
           source,
           labels=target,
           step=self._optimizer.iterations,
-          mode=tf.estimator.ModeKeys.TRAIN)
+          training=True)
       loss = self._model.compute_loss(outputs, target, training=True)
       loss = loss[0] / loss[1]
       step_gradients = self._model.compute_gradients(loss, optimizer, variables=variables)

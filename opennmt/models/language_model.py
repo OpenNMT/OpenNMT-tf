@@ -57,12 +57,11 @@ class LanguageModel(Model):
     self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
     self.id_to_token = self.examples_inputter.vocabulary_lookup_reverse()
 
-  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
-    training = mode == tf.estimator.ModeKeys.TRAIN
+  def call(self, features, labels=None, step=None, training=None):
     outputs, predictions = None, None
 
     ids, length = features["ids"], features["length"]
-    if mode != tf.estimator.ModeKeys.PREDICT:
+    if labels is not None:
       # For training and evaluation, forward the full sequence.
       logits, _ = self._decode(ids, length, training=training)
       outputs = dict(logits=logits)

@@ -17,14 +17,14 @@ from opennmt.models import catalog
 from opennmt.tests import test_util
 
 
-def _seq2seq_model(mode):
+def _seq2seq_model(training=None):
   model = models.SequenceToSequence(
       inputters.WordEmbedder(16),
       inputters.WordEmbedder(16),
       encoders.SelfAttentionEncoder(2, 16, 4, 32),
       decoders.SelfAttentionDecoder(2, 16, 4, 32))
   params = {}
-  if mode == tf.estimator.ModeKeys.TRAIN:
+  if training:
     params["optimizer"] = "SGD"
     params["learning_rate"] = 0.1
   return model, params
@@ -131,9 +131,10 @@ class ModelTest(tf.test.TestCase):
       features, labels = data
     else:
       features, labels = data, None
-    outputs, predictions = model(features, labels=labels, mode=mode)
+    training = mode == tf.estimator.ModeKeys.TRAIN
+    outputs, predictions = model(features, labels=labels, training=training)
     if mode != tf.estimator.ModeKeys.PREDICT:
-      loss = model.compute_loss(outputs, labels, training=mode == tf.estimator.ModeKeys.TRAIN)
+      loss = model.compute_loss(outputs, labels, training=training)
       if mode == tf.estimator.ModeKeys.EVAL:
         eval_metrics = model.get_metrics()
         if eval_metrics is not None:
@@ -164,8 +165,7 @@ class ModelTest(tf.test.TestCase):
 
   @parameterized.expand([["ce"], ["mse"]])
   def testSequenceToSequenceWithGuidedAlignment(self, ga_type):
-    mode = tf.estimator.ModeKeys.TRAIN
-    model, params = _seq2seq_model(mode)
+    model, params = _seq2seq_model(training=True)
     params["guided_alignment_type"] = ga_type
     features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
     model.initialize(data_config, params=params)
@@ -174,7 +174,7 @@ class ModelTest(tf.test.TestCase):
       iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
       features, labels = iterator.get_next()
       self.assertIn("alignment", labels)
-      outputs, _ = model(features, labels=labels, mode=mode)
+      outputs, _ = model(features, labels=labels, training=True)
       loss = model.compute_loss(outputs, labels, training=True)
       loss = loss[0] / loss[1]
       with self.session() as sess:
@@ -186,8 +186,7 @@ class ModelTest(tf.test.TestCase):
         self.assertIsInstance(loss, Number)
 
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
-    mode = tf.estimator.ModeKeys.PREDICT
-    model, params = _seq2seq_model(mode)
+    model, params = _seq2seq_model()
     params["replace_unknown_target"] = True
     features_file, labels_file, data_config = self._makeToyEnDeData()
     model.initialize(data_config)
@@ -205,9 +204,8 @@ class ModelTest(tf.test.TestCase):
 
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
-    mode = tf.estimator.ModeKeys.PREDICT
     _, _, data_config = self._makeToyEnDeData()
-    model, params = _seq2seq_model(mode)
+    model, params = _seq2seq_model()
     model.initialize(data_config, params=params)
     function = model.serve_function()
     function.get_concrete_function()
@@ -277,13 +275,13 @@ class ModelTest(tf.test.TestCase):
 
   def testCreateVariables(self):
     _, _, data_config = self._makeToyEnDeData()
-    model, params = _seq2seq_model(tf.estimator.ModeKeys.PREDICT)
+    model, params = _seq2seq_model()
     model.initialize(data_config, params=params)
     model.create_variables()
     self.assertTrue(len(model.trainable_variables) > 0)
 
   def testFreezeLayers(self):
-    model, _ = _seq2seq_model(tf.estimator.ModeKeys.TRAIN)
+    model, _ = _seq2seq_model(training=True)
     params = {"freeze_layers": ["decoder/output_layer", "encoder/layers/0"]}
     _, _, data_config = self._makeToyEnDeData()
     model.initialize(data_config, params=params)
@@ -302,7 +300,7 @@ class ModelTest(tf.test.TestCase):
   def testTransferWeightsNewVocab(self):
 
     def _make_model(name, src_vocab, tgt_vocab, random_slots=False):
-      model, _ = _seq2seq_model(tf.estimator.ModeKeys.TRAIN)
+      model, _ = _seq2seq_model(training=True)
       optimizer = tf.keras.optimizers.Adam()
       data = {}
       data["source_vocabulary"] = test_util.make_data_file(

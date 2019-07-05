@@ -443,7 +443,7 @@ class Runner(object):
     @dataset_util.function_on_next(dataset)
     def _score(next_fn):
       features, labels = next_fn()
-      outputs, _ = model(features, labels=labels, mode=tf.estimator.ModeKeys.EVAL)
+      outputs, _ = model(features, labels=labels)
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
           labels["ids_out"], outputs["logits"])
       weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)

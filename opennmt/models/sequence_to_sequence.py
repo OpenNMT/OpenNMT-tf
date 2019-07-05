@@ -133,9 +133,8 @@ class SequenceToSequence(Model):
         output_layer=output_layer)
     self.id_to_token = None
 
-  def call(self, features, labels=None, step=None, mode=tf.estimator.ModeKeys.PREDICT):
+  def call(self, features, labels=None, step=None, training=None):
     params = self.params
-    training = mode == tf.estimator.ModeKeys.TRAIN
 
     features_length = self.features_inputter.get_length(features)
     source_inputs = self.features_inputter(features, training=training)
@@ -147,7 +146,7 @@ class SequenceToSequence(Model):
     if labels is not None:
       target_inputs = self.labels_inputter(labels, training=training)
       sampling_probability = None
-      if mode == tf.estimator.ModeKeys.TRAIN:
+      if training:
         sampling_probability = decoder_util.get_sampling_probability(
             step,
             read_probability=params.get("scheduled_sampling_read_probability"),
@@ -169,7 +168,7 @@ class SequenceToSequence(Model):
     else:
       outputs = None
 
-    if mode != tf.estimator.ModeKeys.TRAIN:
+    if not training:
       batch_size = tf.shape(tf.nest.flatten(encoder_outputs)[0])[0]
       start_ids = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
       beam_size = params.get("beam_width", 1)
