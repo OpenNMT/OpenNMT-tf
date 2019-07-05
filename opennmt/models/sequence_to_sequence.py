@@ -263,8 +263,8 @@ class SequenceToSequence(Model):
       guided_alignment_type = params.get("guided_alignment_type")
       if gold_alignments is not None and guided_alignment_type is not None:
         if attention is None:
-          tf.compat.v1.logging.warning("This model did not return attention vectors; "
-                                       "guided alignment will not be applied")
+          tf.get_logger().warning("This model did not return attention vectors; "
+                                  "guided alignment will not be applied")
         else:
           loss += guided_alignment_cost(
               attention[:, :-1],  # Do not constrain last timestep.

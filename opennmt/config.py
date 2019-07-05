@@ -87,7 +87,7 @@ def load_model(model_dir,
 
   if model_name_or_path:
     if tf.train.latest_checkpoint(model_dir) is not None:
-      tf.compat.v1.logging.warn(
+      tf.get_logger().warning(
           "You provided a model configuration but a checkpoint already exists. "
           "The model configuration must define the same model as the one used for "
           "the initial training. However, you can change non structural values like "
@@ -104,7 +104,7 @@ def load_model(model_dir,
           model_description_file.write("from opennmt.models import catalog\n")
           model_description_file.write("model = catalog.%s\n" % model_name)
   elif tf.io.gfile.exists(model_description_path):
-    tf.compat.v1.logging.info("Loading model description from %s", model_description_path)
+    tf.get_logger().info("Loading model description from %s", model_description_path)
     model = load_model_from_file(model_description_path)
   else:
     raise RuntimeError("A model configuration is required: you probably need to "
