@@ -133,12 +133,14 @@ class Inputter(tf.keras.layers.Layer):
     _ = training
     return features
 
-  def visualize(self, log_dir):
+  def visualize(self, model_root, log_dir):
     """Visualizes the transformation, usually embeddings.
 
     Args:
+      model_root: The root model object.
       log_dir: The active log directory.
     """
+    _ = model_root
     _ = log_dir
     return
 
@@ -195,9 +197,9 @@ class MultiInputter(Inputter):
   def make_dataset(self, data_file, training=None):
     raise NotImplementedError()
 
-  def visualize(self, log_dir):
+  def visualize(self, model_root, log_dir):
     for inputter in self.inputters:
-      inputter.visualize(log_dir)
+      inputter.visualize(model_root, log_dir)
 
 
 class ParallelInputter(MultiInputter):

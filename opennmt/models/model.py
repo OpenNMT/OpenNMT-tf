@@ -255,6 +255,16 @@ class Model(tf.keras.layers.Layer):
     """
     return self.examples_inputter.export_assets(asset_dir)
 
+  def visualize(self, log_dir):
+    """Setups model visualization (e.g. word embedding projections).
+
+    Args:
+      log_dir: The log directory.
+    """
+    self.features_inputter.visualize(self, log_dir)
+    if not self.unsupervised:
+      self.labels_inputter.visualize(self, log_dir)
+
   def print_prediction(self, prediction, params=None, stream=None):
     """Prints the model prediction.
 

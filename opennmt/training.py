@@ -119,6 +119,7 @@ class Trainer(object):
     with self._summary_writer.as_default():
       if self._optimizer.iterations.numpy() == 0:
         self._checkpoint.save(0)
+      self._model.visualize(self._checkpoint.model_dir)
 
       for i, (loss, num_words) in enumerate(_forward()):
         if i == 0 or (i + 1) % accum_steps == 0:

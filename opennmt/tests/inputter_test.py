@@ -7,7 +7,6 @@ import yaml
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.python.framework import test_util as tf_test_util
 from tensorboard.plugins import projector
 from google.protobuf import text_format
 
@@ -20,55 +19,54 @@ from opennmt.utils.misc import item_or_tuple, count_lines
 
 class InputterTest(tf.test.TestCase):
 
-  @tf_test_util.deprecated_graph_mode_only
-  def testVisualizeEmbeddings(self):
+  def testSaveEmbeddingMetadata(self):
     log_dir = os.path.join(self.get_temp_dir(), "log")
     if not os.path.exists(log_dir):
       os.mkdir(log_dir)
 
-    def _create_embedding(name, vocab_filename, vocab_size=10, num_oov_buckets=1):
+    def _create_vocab(vocab_filename, vocab_size=10):
       vocab_file = os.path.join(self.get_temp_dir(), vocab_filename)
       with open(vocab_file, mode="wb") as vocab:
         for i in range(vocab_size):
           vocab.write(tf.compat.as_bytes("%d\n" % i))
-      variable = tf.Variable(tf.zeros([vocab_size + num_oov_buckets, 4]), name=name)
-      return variable, vocab_file
+      return vocab_file
 
     def _visualize(embedding, vocab_file, num_oov_buckets=1):
-      text_inputter.visualize_embeddings(
+      text_inputter.save_embeddings_metadata(
           log_dir, embedding, vocab_file, num_oov_buckets=num_oov_buckets)
       projector_config = projector.ProjectorConfig()
       projector_config_path = os.path.join(log_dir, "projector_config.pbtxt")
-      vocab_file = os.path.join(log_dir, "%s.txt" % embedding.op.name)
       self.assertTrue(os.path.exists(projector_config_path))
-      self.assertTrue(os.path.exists(vocab_file))
-      self.assertEqual(embedding.get_shape().as_list()[0], count_lines(vocab_file))
       with open(projector_config_path) as projector_config_file:
         text_format.Merge(projector_config_file.read(), projector_config)
       return projector_config
 
+    def _check_vocab(config, filename, expected_size):
+      self.assertEqual(config.metadata_path, filename)
+      self.assertEqual(count_lines(os.path.join(log_dir, filename)), expected_size)
+
     # Register an embedding variable.
-    src_embedding, src_vocab_file = _create_embedding("src_emb", "src_vocab.txt")
+    src_embedding = "model/src_emb/.ATTRIBUTES/VALUE"
+    src_vocab_file = _create_vocab("src_vocab.txt")
     projector_config = _visualize(src_embedding, src_vocab_file)
     self.assertEqual(1, len(projector_config.embeddings))
-    self.assertEqual(src_embedding.name, projector_config.embeddings[0].tensor_name)
-    self.assertEqual("src_emb.txt", projector_config.embeddings[0].metadata_path)
+    self.assertEqual(src_embedding, projector_config.embeddings[0].tensor_name)
+    _check_vocab(projector_config.embeddings[0], "model_src_emb.txt", 10 + 1)
 
     # Register a second embedding variable.
-    tgt_embedding, tgt_vocab_file = _create_embedding(
-        "tgt_emb", "tgt_vocab.txt", num_oov_buckets=2)
+    tgt_embedding = "model/tgt_emb/.ATTRIBUTES/VALUE"
+    tgt_vocab_file = _create_vocab("tgt_vocab.txt")
     projector_config = _visualize(tgt_embedding, tgt_vocab_file, num_oov_buckets=2)
     self.assertEqual(2, len(projector_config.embeddings))
-    self.assertEqual(tgt_embedding.name, projector_config.embeddings[1].tensor_name)
-    self.assertEqual("tgt_emb.txt", projector_config.embeddings[1].metadata_path)
+    self.assertEqual(tgt_embedding, projector_config.embeddings[1].tensor_name)
+    _check_vocab(projector_config.embeddings[1], "model_tgt_emb.txt", 10 + 2)
 
     # Update an existing variable.
-    tf.compat.v1.reset_default_graph()
-    src_embedding, src_vocab_file = _create_embedding("src_emb", "src_vocab.txt", vocab_size=20)
+    src_vocab_file = _create_vocab("src_vocab.txt", vocab_size=20)
     projector_config = _visualize(src_embedding, src_vocab_file)
     self.assertEqual(2, len(projector_config.embeddings))
-    self.assertEqual(src_embedding.name, projector_config.embeddings[0].tensor_name)
-    self.assertEqual("src_emb.txt", projector_config.embeddings[0].metadata_path)
+    self.assertEqual(src_embedding, projector_config.embeddings[0].tensor_name)
+    _check_vocab(projector_config.embeddings[0], "model_src_emb.txt", 20 + 1)
 
   def _makeTextFile(self, name, lines):
     path = os.path.join(self.get_temp_dir(), name)

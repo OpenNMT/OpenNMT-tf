@@ -8,6 +8,16 @@ import six
 import numpy as np
 import tensorflow as tf
 
+from tensorflow.python.training.tracking import graph_view
+
+
+def get_variable_name(variable, root, model_key="model"):
+  """Gets the variable name in the object-based representation."""
+  named_variables, _, _ = graph_view.ObjectGraphView(root).serialize_object_graph()
+  for saveable_object in named_variables:
+    if saveable_object.op.name == variable.name:
+      return "%s/%s" % (model_key, saveable_object.name)
+  return None
 
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.

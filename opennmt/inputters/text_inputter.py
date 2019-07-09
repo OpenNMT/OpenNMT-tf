@@ -15,58 +15,66 @@ from opennmt import constants, tokenizers
 from opennmt.data import text
 from opennmt.inputters.inputter import Inputter
 from opennmt.layers import common
-from opennmt.utils.misc import count_lines
+from opennmt.utils import misc
 
 
-def visualize_embeddings(log_dir, embedding_var, vocabulary_file, num_oov_buckets=1):
+def save_embeddings_metadata(log_dir, variable_name, vocabulary_file, num_oov_buckets=1):
   """Registers an embedding variable for visualization in TensorBoard.
 
-  This function registers :obj:`embedding_var` in the ``projector_config.pbtxt``
+  This function registers :obj:`variable_name` in the ``projector_config.pbtxt``
   file and generates metadata from :obj:`vocabulary_file` to attach a label
   to each word ID.
 
   Args:
     log_dir: The active log directory.
-    embedding_var: The embedding variable to visualize.
+    variable_name: The variable name in the checkpoint.
     vocabulary_file: The associated vocabulary file.
     num_oov_buckets: The number of additional unknown tokens.
   """
-  # Copy vocabulary file to log_dir.
-  basename = "%s.txt" % embedding_var.name[:-2].replace("/", "_")
-  destination = os.path.join(log_dir, basename)
-  tf.io.gfile.copy(vocabulary_file, destination, overwrite=True)
+  # Assume it ends with /.ATTRIBUTES/VALUE
+  filename = "%s.txt" % "_".join(variable_name.split("/")[:-2])
+  metadata_path = os.path.join(log_dir, filename)
 
-  # Append <unk> tokens.
-  with tf.io.gfile.GFile(destination, mode="ab") as vocab:
+  with tf.io.gfile.GFile(vocabulary_file, mode="rb") as src, \
+       tf.io.gfile.GFile(metadata_path, mode="wb") as dst:
+    ws_index = 0
+    for line in src:
+      # The TensorBoard code checks line.trim().length == 0 when loading the
+      # metadata file so make sure lines are not dropped.
+      if not line.decode("utf-8").replace(u"\uFEFF", u"").strip():
+        dst.write(tf.compat.as_bytes("<whitespace%d>\n" % ws_index))
+        ws_index += 1
+      else:
+        dst.write(line)
     if num_oov_buckets == 1:
-      vocab.write(b"<unk>\n")
+      dst.write(b"<unk>\n")
     else:
       for i in range(num_oov_buckets):
-        vocab.write(tf.compat.as_bytes("<unk%d>\n" % i))
+        dst.write(tf.compat.as_bytes("<unk%d>\n" % i))
 
   config = projector.ProjectorConfig()
 
   # If the projector file exists, load it.
-  target = os.path.join(log_dir, "projector_config.pbtxt")
-  if tf.io.gfile.exists(target):
-    with tf.io.gfile.GFile(target, mode="rb") as target_file:
-      text_format.Merge(target_file.read(), config)
+  config_path = os.path.join(log_dir, "projector_config.pbtxt")
+  if tf.io.gfile.exists(config_path):
+    with tf.io.gfile.GFile(config_path, mode="rb") as config_file:
+      text_format.Merge(config_file.read(), config)
 
   # If this embedding is already registered, just update the metadata path.
   exists = False
   for meta in config.embeddings:
-    if meta.tensor_name == embedding_var.name:
-      meta.metadata_path = basename
+    if meta.tensor_name == variable_name:
+      meta.metadata_path = filename
       exists = True
       break
 
   if not exists:
     embedding = config.embeddings.add()
-    embedding.tensor_name = embedding_var.name
-    embedding.metadata_path = basename
+    embedding.tensor_name = variable_name
+    embedding.metadata_path = filename
 
-  summary_writer = tf.compat.v1.summary.FileWriter(log_dir)
-  projector.visualize_embeddings(summary_writer, config)
+  with open(config_path, "w") as config_file:
+    config_file.write(text_format.MessageToString(config))
 
 def load_pretrained_embeddings(embedding_file,
                                vocabulary_file,
@@ -172,7 +180,7 @@ class TextInputter(Inputter):
   def initialize(self, data_config, asset_prefix=""):
     self.vocabulary_file = _get_field(
         data_config, "vocabulary", prefix=asset_prefix, required=True)
-    self.vocabulary_size = count_lines(self.vocabulary_file) + self.num_oov_buckets
+    self.vocabulary_size = misc.count_lines(self.vocabulary_file) + self.num_oov_buckets
     tokenizer_config = _get_field(data_config, "tokenization", prefix=asset_prefix)
     self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
 
@@ -291,10 +299,10 @@ class WordEmbedder(TextInputter):
     outputs = common.dropout(outputs, self.dropout, training=training)
     return outputs
 
-  def visualize(self, log_dir):
-    visualize_embeddings(
+  def visualize(self, model_root, log_dir):
+    save_embeddings_metadata(
         log_dir,
-        self.embedding,
+        misc.get_variable_name(self.embedding, model_root),
         self.vocabulary_file,
         num_oov_buckets=self.num_oov_buckets)
 
@@ -343,10 +351,10 @@ class CharEmbedder(TextInputter):
   def make_inputs(self, features, training=None):
     raise NotImplementedError()
 
-  def visualize(self, log_dir):
-    visualize_embeddings(
+  def visualize(self, model_root, log_dir):
+    save_embeddings_metadata(
         log_dir,
-        self.embedding,
+        misc.get_variable_name(self.embedding, model_root),
         self.vocabulary_file,
         num_oov_buckets=self.num_oov_buckets)
 
