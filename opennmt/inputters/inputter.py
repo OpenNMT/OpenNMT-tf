@@ -117,10 +117,6 @@ class Inputter(tf.keras.layers.Layer):
     raise NotImplementedError()
 
   def call(self, features, training=None):  # pylint: disable=arguments-differ
-    """Forwards call to ``make_inputs().``"""
-    return self.make_inputs(features, training=training)
-
-  def make_inputs(self, features, training=None):
     """Creates the model input from the features.
 
     Args:
@@ -307,14 +303,14 @@ class ParallelInputter(MultiInputter):
         inputter.build(input_shape)
     super(ParallelInputter, self).build(input_shape)
 
-  def make_inputs(self, features, training=None):
+  def call(self, features, training=None):
     transformed = []
     for i, inputter in enumerate(self.inputters):
       if self.combine_features:
         sub_features = _extract_prefixed_keys(features, "inputter_{}_".format(i))
       else:
         sub_features = features[i]
-      transformed.append(inputter.make_inputs(sub_features, training=training))
+      transformed.append(inputter(sub_features, training=training))
     if self.reducer is not None:
       transformed = self.reducer(transformed)
     return transformed
@@ -365,10 +361,10 @@ class MixedInputter(MultiInputter):
       inputter.build(input_shape)
     super(MixedInputter, self).build(input_shape)
 
-  def make_inputs(self, features, training=None):
+  def call(self, features, training=None):
     transformed = []
     for inputter in self.inputters:
-      transformed.append(inputter.make_inputs(features, training=training))
+      transformed.append(inputter(features, training=training))
     outputs = self.reducer(transformed)
     outputs = common.dropout(outputs, self.dropout, training=training)
     return outputs

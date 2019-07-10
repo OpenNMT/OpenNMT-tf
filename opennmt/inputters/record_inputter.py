@@ -40,7 +40,7 @@ class SequenceRecordInputter(Inputter):
     features["tensor"] = tf.cast(tensor, self.dtype)
     return features
 
-  def make_inputs(self, features, training=None):
+  def call(self, features, training=None):
     return features["tensor"]
 
 

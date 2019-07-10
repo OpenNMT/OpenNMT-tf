@@ -294,7 +294,7 @@ class WordEmbedder(TextInputter):
         trainable=self.trainable)
     super(WordEmbedder, self).build(input_shape)
 
-  def make_inputs(self, features, training=None):
+  def call(self, features, training=None):
     outputs = tf.nn.embedding_lookup(self.embedding, features["ids"])
     outputs = common.dropout(outputs, self.dropout, training=training)
     return outputs
@@ -348,7 +348,7 @@ class CharEmbedder(TextInputter):
     super(CharEmbedder, self).build(input_shape)
 
   @abc.abstractmethod
-  def make_inputs(self, features, training=None):
+  def call(self, features, training=None):
     raise NotImplementedError()
 
   def visualize(self, model_root, log_dir):
@@ -396,7 +396,7 @@ class CharConvEmbedder(CharEmbedder):
         strides=stride,
         padding="same")
 
-  def make_inputs(self, features, training=None):
+  def call(self, features, training=None):
     inputs = features["char_ids"]
     flat_inputs = tf.reshape(inputs, [-1, tf.shape(inputs)[-1]])
     outputs, _ = self._embed(flat_inputs, training)
@@ -438,7 +438,7 @@ class CharRNNEmbedder(CharEmbedder):
     self.rnn = tf.keras.layers.RNN(cell_class(num_units))
     self.num_units = num_units
 
-  def make_inputs(self, features, training=None):
+  def call(self, features, training=None):
     inputs = features["char_ids"]
     flat_inputs = tf.reshape(inputs, [-1, tf.shape(inputs)[-1]])
     embeddings, mask = self._embed(flat_inputs, training)
