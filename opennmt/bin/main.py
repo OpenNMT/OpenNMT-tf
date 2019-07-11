@@ -1,6 +1,7 @@
 """Main script."""
 
 import argparse
+import logging
 import os
 import six
 
@@ -12,6 +13,19 @@ from opennmt.runner import Runner
 from opennmt.config import load_model, load_config
 from opennmt.utils.misc import classes_in_module
 
+
+_PYTHON_TO_TENSORFLOW_LOGGING_LEVEL = {
+    logging.CRITICAL: 3,
+    logging.ERROR: 2,
+    logging.WARNING: 1,
+    logging.INFO: 0,
+    logging.DEBUG: 0,
+    logging.NOTSET: 0,
+}
+
+def _set_log_level(log_level):
+  tf.get_logger().setLevel(log_level)
+  os.environ["TF_CPP_MIN_LOG_LEVEL"] = str(_PYTHON_TO_TENSORFLOW_LOGGING_LEVEL[log_level])
 
 def _prefix_paths(prefix, paths):
   """Recursively prefix paths.
@@ -59,7 +73,7 @@ def main():
                       help=("Specific checkpoint or model directory to load "
                             "(when a directory is set, the latest checkpoint is used)."))
   parser.add_argument("--log_level", default="INFO",
-                      choices=["DEBUG", "ERROR", "FATAL", "INFO", "WARN"],
+                      choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
                       help="Logs verbosity.")
   parser.add_argument("--seed", type=int, default=None,
                       help="Random seed.")
@@ -137,7 +151,7 @@ def main():
 
   args = parser.parse_args()
 
-  tf.compat.v1.logging.set_verbosity(getattr(tf.compat.v1.logging, args.log_level))
+  _set_log_level(getattr(logging, args.log_level))
   tf.config.threading.set_intra_op_parallelism_threads(args.intra_op_parallelism_threads)
   tf.config.threading.set_inter_op_parallelism_threads(args.inter_op_parallelism_threads)
   if args.gpu_allow_growth:
