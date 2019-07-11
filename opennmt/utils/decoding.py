@@ -317,9 +317,9 @@ def dynamic_decode(symbols_to_logits_fn,
     start_ids: Initial input IDs of shape :math:`[B]`.
     end_id: ID of the end of sequence token.
     initial_state: Initial decoder state.
-    decoding_strategy: A :class:`opennmt.utils.decoding.DecodingStrategy`
+    decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`
       instance that define the decoding logic. Defaults to a greedy search.
-    sampler: A :class:`opennmt.utils.decoding.Sampler` instance that samples
+    sampler: A :class:`opennmt.utils.Sampler` instance that samples
       predictions from the model output. Defaults to an argmax sampling.
     maximum_iterations: The maximum number of iterations to decode for.
     minimum_iterations: The minimum number of iterations to decode for.
@@ -434,19 +434,19 @@ def dynamic_decode_from_params(decoder,
                                end_id=constants.END_OF_SENTENCE_ID,
                                initial_state=None,
                                params=None):
-  """Convient :function:`opennmt.utils.decoding.dynamic_decode` wrapper to read
+  """Convient :function:`opennmt.utils.dynamic_decode` wrapper to read
   user parameters.
 
   Args:
-    decoder: A :class:`opennmt.decoders.decoder.Decoder` instance.
-    inputter: A :class:`opennmt.inputters.text_inputter.WordEmbedder` instance.
+    decoder: A :class:`opennmt.decoders.Decoder` instance.
+    inputter: A :class:`opennmt.inputters.WordEmbedder` instance.
     start_ids: Initial input IDs of shape :math:`[B]`.
     end_id: ID of the end of sequence token.
     initial_state: Initial decoder state.
     params: A dictionary of user parameters.
 
   See Also:
-    :function:`opennmt.utils.decoding.dynamic_decode`
+    :function:`opennmt.utils.dynamic_decode`
   """
   if params is None:
     params = {}
