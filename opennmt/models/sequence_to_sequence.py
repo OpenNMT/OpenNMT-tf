@@ -381,12 +381,6 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
     labels["length"] += 1
     return features, labels
 
-  def _get_names(self):
-    return ["encoder", "decoder"]
-
-  def _get_shared_name(self):
-    return "shared_embeddings"
-
 
 def alignment_matrix_from_pharaoh(alignment_line,
                                   source_length,
