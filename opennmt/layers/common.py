@@ -68,9 +68,9 @@ class LayerNorm(tf.keras.layers.Layer):
   def build(self, input_shape):
     """Creates the variables."""
     depth = input_shape[-1]
-    self.bias = self.add_weight(
+    self.beta = self.add_weight(
         "beta", [depth], initializer=tf.keras.initializers.Constant(0))
-    self.scale = self.add_weight(
+    self.gamma = self.add_weight(
         "gamma", [depth], initializer=tf.keras.initializers.Constant(1))
     super(LayerNorm, self).build(input_shape)
 
@@ -79,7 +79,7 @@ class LayerNorm(tf.keras.layers.Layer):
     mean = tf.reduce_mean(x, axis=[-1], keepdims=True)
     variance = tf.reduce_mean(tf.square(x - mean), axis=[-1], keepdims=True)
     norm_x = (x - mean) * tf.math.rsqrt(variance + self.epsilon)
-    return norm_x * self.scale + self.bias
+    return norm_x * self.gamma + self.beta
 
 
 class LayerWrapper(tf.keras.layers.Layer):
