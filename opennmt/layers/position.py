@@ -14,10 +14,26 @@ class PositionEncoder(tf.keras.layers.Layer):
   """Base class for position encoders."""
 
   def __init__(self, reducer=SumReducer()):
+    """Initializes the position encoder.
+
+    Args:
+      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position
+        encodings.
+    """
     super(PositionEncoder, self).__init__()
     self.reducer = reducer
 
   def call(self, inputs, position=None):  # pylint: disable=arguments-differ
+    """Add position encodings to :obj:`inputs`.
+
+    Args:
+      inputs: The inputs to encode.
+      position: The single position to encode, to use when this layer is called
+        step by step.
+
+    Returns:
+      A ``tf.Tensor`` whose shape depends on the configured ``reducer``.
+    """
     batch_size = tf.shape(inputs)[0]
     timesteps = tf.shape(inputs)[1]
     input_dim = inputs.get_shape().as_list()[-1]
@@ -31,9 +47,8 @@ class PositionEncoder(tf.keras.layers.Layer):
     """Creates position encodings.
 
     Args:
-      position: The positions to encode of shape :math:`[B, ...]`.
+      positions: The positions to encode of shape :math:`[B, ...]`.
       depth: The encoding depth :math:`D`.
-      dtype: The encoding type.
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, ..., D]`.
@@ -50,8 +65,8 @@ class PositionEmbedder(PositionEncoder):
     Args:
       maximum_position: The maximum position to embed. Positions greater
         than this value will be set to :obj:`maximum_position`.
-      reducer: A :class:`opennmt.layers.reducer.Reducer` to merge inputs and
-        position encodings.
+      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position
+        encodings.
     """
     super(PositionEmbedder, self).__init__(reducer=reducer)
     self.maximum_position = maximum_position
