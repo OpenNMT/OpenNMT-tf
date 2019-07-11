@@ -1,10 +1,6 @@
-import os
-
 import tensorflow as tf
 
-from opennmt import constants
 from opennmt.models import sequence_to_sequence
-from opennmt.inputters.text_inputter import WordEmbedder
 
 
 class SequenceToSequenceTest(tf.test.TestCase):
