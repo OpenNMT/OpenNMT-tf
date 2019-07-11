@@ -2,4 +2,12 @@
 
 __version__ = "1.24.0"
 
+from opennmt.constants import END_OF_SENTENCE_ID
+from opennmt.constants import END_OF_SENTENCE_TOKEN
+from opennmt.constants import PADDING_ID
+from opennmt.constants import PADDING_TOKEN
+from opennmt.constants import START_OF_SENTENCE_ID
+from opennmt.constants import START_OF_SENTENCE_TOKEN
+from opennmt.constants import UNKNOWN_TOKEN
+
 from opennmt.runner import Runner

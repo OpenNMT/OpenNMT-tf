@@ -1,6 +1,8 @@
 import inspect
+import numbers
 import os
 import sys
+import six
 
 import opennmt
 
@@ -48,6 +50,7 @@ def document_module(module, module_path, module_map, output_dir):
   submodules = []
   classes = []
   functions = []
+  constants = []
   for symbol_name in dir(module):
     if symbol_name.startswith("_"):
       continue
@@ -59,6 +62,8 @@ def document_module(module, module_path, module_map, output_dir):
       functions.append(symbol_path)
     elif inspect.ismodule(symbol):
       submodules.append((symbol_path, symbol))
+    elif isinstance(symbol, (numbers.Number, six.string_types)):
+      constants.append(symbol_path)
 
   with open(os.path.join(output_dir, "%s.rst" % module_path), "w") as doc:
     doc.write("%s module\n" % module_path)
@@ -94,6 +99,12 @@ def document_module(module, module_path, module_map, output_dir):
       for function_path in functions:
         doc.write("   %s\n" % function_path)
         document_function(output_dir, function_path)
+
+    if constants:
+      doc.write("Constants\n")
+      doc.write("---------\n\n")
+      for constant_path in constants:
+        doc.write("* %s\n" % constant_path)
 
     return True
 
