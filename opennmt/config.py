@@ -38,7 +38,7 @@ def load_model_from_file(path):
     path: The relative path to the configuration file.
 
   Returns:
-    A :class:`opennmt.models.model.Model` instance.
+    A :class:`opennmt.models.Model` instance.
   """
   module = load_model_module(path)
   model = module.model()
@@ -53,7 +53,7 @@ def load_model_from_catalog(name):
     name: The model name.
 
   Returns:
-    A :class:`opennmt.models.model.Model` instance.
+    A :class:`opennmt.models.Model` instance.
   """
   return getattr(catalog, name)()
 
