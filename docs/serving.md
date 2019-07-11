@@ -52,7 +52,6 @@ saved_model_cli show --dir toy-ende/export/latest/1507109306/ \
 Some examples using exported models are available in the [`examples/`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples) directory:
 
 * `examples/serving` to serve a model with TensorFlow Serving
-* `examples/cpp` to run inference with the TensorFlow C++ API
 
 ## Input preprocessing
 
