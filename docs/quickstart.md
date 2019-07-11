@@ -9,7 +9,7 @@ We recommend using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) to setu
 ```bash
 virtualenv pyenv
 source pyenv/bin/activate
-pip install OpenNMT-tf[tensorflow_gpu]
+pip install OpenNMT-tf
 ```
 
 ## Step 1: Prepare the data
@@ -39,14 +39,14 @@ data:
   train_labels_file: tgt-train.txt
   eval_features_file: src-val.txt
   eval_labels_file: tgt-val.txt
-  source_words_vocabulary: src-vocab.txt
-  target_words_vocabulary: tgt-vocab.txt
+  source_vocabulary: src-vocab.txt
+  target_vocabulary: tgt-vocab.txt
 ```
 
 ## Step 2: Train the model
 
 ```
-onmt-main --model_type NMTSmall --auto_config --config data.yml train --with_eval
+onmt-main --model_type NMTSmall --config data.yml --auto_config train --with_eval
 ```
 
 This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The `--auto_config` flag selects the best settings for this type of model.
@@ -60,7 +60,7 @@ tensorboard --logdir="run"
 ## Step 3: Translate
 
 ```
-onmt-main --auto_config --config data.yml --features_file src-test.txt infer
+onmt-main --config data.yml --auto_config infer --features_file src-test.txt
 ```
 
 This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.
