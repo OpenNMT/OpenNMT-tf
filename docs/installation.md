@@ -4,8 +4,8 @@
 
 OpenNMT-tf requires:
 
-* Python (>= 3.5)
-* TensorFlow (>= 1.4, < 2.0)
+* Python >= 3.5
+* TensorFlow 2.0
 
 Some features added after the initial release may require newer TensorFlow versions. Please consult the changelog to know about new features availability.
 
@@ -14,7 +14,7 @@ Some features added after the initial release may require newer TensorFlow versi
 Each tagged version of the project is automatically pushed to [PyPi](https://pypi.org/project/OpenNMT-tf/). We recommend installing this package via `pip`:
 
 ```bash
-pip install OpenNMT-tf
+pip install --pre OpenNMT-tf
 ```
 
 To confirm that the package is correctly installed, run:

@@ -43,7 +43,7 @@ OpenNMT-tf requires:
 We recommend installing it with `pip`:
 
 ```bash
-pip install OpenNMT-tf
+pip install --pre OpenNMT-tf
 ```
 
 *See the [documentation](http://opennmt.net/OpenNMT-tf/installation.html) for more information.*
