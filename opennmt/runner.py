@@ -352,7 +352,7 @@ class Runner(object):
     total_examples = 0
     start_time = time.time()
 
-    for predictions in _predict():
+    for predictions in _predict():  # pylint: disable=no-value-for-parameter
       end_time = time.time()
       predictions = {k:v.numpy() for k, v in six.iteritems(predictions)}
       if log_time:
@@ -468,7 +468,7 @@ class Runner(object):
         model.labels_inputter.tokenizer if not model.unsupervised
         else model.features_inputter.tokenizer)
 
-    for results in _score():
+    for results in _score():  # pylint: disable=no-value-for-parameter
       results = {k:v.numpy() for k, v in six.iteritems(results)}
       for batch in misc.extract_batches(results):
         tokens = batch["tokens"][:batch["length"]]

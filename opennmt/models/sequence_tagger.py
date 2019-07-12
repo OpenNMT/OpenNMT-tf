@@ -140,7 +140,7 @@ class F1(tf.keras.metrics.Metric):
     """Metric update operations."""
     return self.precision.updates + self.recall.updates
 
-  def update_state(self, y_true, y_pred):
+  def update_state(self, y_true, y_pred):  # pylint: disable=arguments-differ
     """Updates the metric state."""
     self.precision.update_state(y_true, y_pred)
     self.recall.update_state(y_true, y_pred)

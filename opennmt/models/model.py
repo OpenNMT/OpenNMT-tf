@@ -125,7 +125,7 @@ class Model(tf.keras.layers.Layer):
     """
     return None
 
-  def update_metrics(self, metrics, predictions, labels):
+  def update_metrics(self, metrics, predictions, labels):  # pylint: disable=unused-argument
     """Computes additional metrics on the predictions.
 
     Args:
@@ -133,7 +133,7 @@ class Model(tf.keras.layers.Layer):
       predictions: The model predictions.
       labels: The dict of labels ``tf.Tensor``.
     """
-    pass
+    return
 
   def get_optimizer(self):
     """Returns the optimizer for this model.

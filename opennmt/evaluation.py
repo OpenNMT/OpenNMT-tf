@@ -126,7 +126,7 @@ class Evaluator(object):
     loss_num = 0
     loss_den = 0
     metrics = self._model.get_metrics()
-    for loss, predictions, target in self._eval():
+    for loss, predictions, target in self._eval():  # pylint: disable=no-value-for-parameter
       loss_num += loss[0]
       loss_den += loss[1]
       if metrics:

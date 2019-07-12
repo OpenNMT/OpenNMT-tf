@@ -63,7 +63,8 @@ class Trainer(object):
       dataset = self._strategy.experimental_distribute_dataset(dataset)
 
     if self._mixed_precision:
-      optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(self._optimizer, "dynamic")
+      optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(
+          self._optimizer, "dynamic")
     else:
       optimizer = self._optimizer
 
@@ -121,7 +122,7 @@ class Trainer(object):
         self._checkpoint.save(0)
       self._model.visualize(self._checkpoint.model_dir)
 
-      for i, (loss, num_words) in enumerate(_forward()):
+      for i, (loss, num_words) in enumerate(_forward()):  # pylint: disable=no-value-for-parameter
         if i == 0 or (i + 1) % accum_steps == 0:
           _step()
 

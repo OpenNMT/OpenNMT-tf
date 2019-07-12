@@ -4,7 +4,6 @@ import os
 import six
 
 import tensorflow as tf
-import numpy as np
 
 from opennmt.utils import misc
 
