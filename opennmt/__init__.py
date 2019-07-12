@@ -1,6 +1,6 @@
 """OpenNMT module."""
 
-__version__ = "1.24.0"
+__version__ = "2.0.0a0"
 
 from opennmt.constants import END_OF_SENTENCE_ID
 from opennmt.constants import END_OF_SENTENCE_TOKEN

@@ -11,8 +11,8 @@ copyright = "2018, The OpenNMT Authors"
 author = "OpenNMT"
 language = "en"
 
-version = "1.24"  # The short X.Y version.
-release = "1.24.0"  # The full version, including alpha/beta/rc tags.
+version = "2.0"  # The short X.Y version.
+release = "2.0.0a0"  # The full version, including alpha/beta/rc tags.
 
 source_suffix = ".rst"
 master_doc = "index"
