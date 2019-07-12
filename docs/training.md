@@ -13,14 +13,12 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 * training and evaluation loss
 * training speed
 * learning rate
-* gradients norm
 * computation graphs
 * word embeddings
-* decoder sampling probability
 
 ## Replicated training
 
-OpenNMT-tf training can make use of multiple GPUs with *in-graph replication*. In this mode, the main section of the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches `N` times larger, where `N` is the number of used GPUs.
+OpenNMT-tf training can make use of multiple GPUs with *in-graph replication*. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches `N` times larger, where `N` is the number of used GPUs.
 
 For example, if your machine has 4 GPUs, simply add the `--num_gpus` option:
 

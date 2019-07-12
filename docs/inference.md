@@ -5,8 +5,9 @@
 The script `onmt-average-checkpoints` can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:
 
 ```bash
-onmt-main average-checkpoints \
+onmt-main \
     --config config/my_config.yml --auto_config \
+    average-checkpoints \
     --output_dir run/baseline-enfr/avg \
     --max_count 5
 ```
@@ -53,9 +54,9 @@ params:
 
 Noising the decoded output is also a possible decoding strategy for back-translation, as described in [Edunov et al. 2018](https://arxiv.org/abs/1808.09381). 3 types of noise are currently implemented:
 
-* [`dropout`](http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html#opennmt.layers.noise.WordDropout): randomly drop words in the sequence
-* [`replacement`](http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html#opennmt.layers.noise.WordReplacement): randomly replace words by a filler token
-* [`permutation`](http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html#opennmt.layers.noise.WordPermutation): randomly permute words with a maximum distance
+* [`dropout`](http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordDropout): randomly drop words in the sequence
+* [`replacement`](http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordReplacement): randomly replace words by a filler token
+* [`permutation`](http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordPermutation): randomly permute words with a maximum distance
 
 which can be combined in sequence, e.g.:
 
@@ -93,8 +94,9 @@ The main OpenNMT-tf script can also be used to score existing translations via t
 e.g.:
 
 ```bash
-onmt-main score \
-    --config config/my_config.yml \
+onmt-main \
+    --config config/my_config.yml --auto_config \
+    score
     --features_file newstest2014.en.tok \
     --predictions_file newstest2014.en.tok.out
 ```
