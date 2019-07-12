@@ -1,0 +1,8 @@
+opennmt.Runner
+==============
+
+.. autoclass:: opennmt.Runner
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

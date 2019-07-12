@@ -1,0 +1,8 @@
+opennmt.layers.FeedForwardNetwork
+=================================
+
+.. autoclass:: opennmt.layers.FeedForwardNetwork
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

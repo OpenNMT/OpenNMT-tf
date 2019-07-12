@@ -1,0 +1,8 @@
+opennmt.encoders.RNNEncoder
+===========================
+
+.. autoclass:: opennmt.encoders.RNNEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.Encoder`

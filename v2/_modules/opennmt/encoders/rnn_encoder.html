@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.encoders.rnn_encoder &mdash; OpenNMT-tf 2.0.0a0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.encoders.rnn_encoder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.encoders.rnn_encoder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define RNN-based encoders.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow_addons</span> <span class="k">as</span> <span class="nn">tfa</span>
+
+<span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">Encoder</span><span class="p">,</span> <span class="n">SequentialEncoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers.reducer</span> <span class="k">import</span> <span class="n">ConcatReducer</span><span class="p">,</span> <span class="n">JoinReducer</span><span class="p">,</span> <span class="n">pad_in_time</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">rnn</span>
+
+
+<div class="viewcode-block" id="RNNEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.RNNEncoder.html#opennmt.encoders.RNNEncoder">[docs]</a><span class="k">class</span> <span class="nc">RNNEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A RNN sequence encoder.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RNNEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.RNNEncoder.html#opennmt.encoders.RNNEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="p">,</span>
+               <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+               <span class="n">reducer</span><span class="o">=</span><span class="n">ConcatReducer</span><span class="p">(),</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of units in each layer.</span>
+<span class="sd">      bidirectional: Use a bidirectional RNN.</span>
+<span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
+<span class="sd">        output.</span>
+<span class="sd">      reducer: A :class:`opennmt.layers.Reducer` instance to merge</span>
+<span class="sd">        bidirectional state and outputs.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">        argument and returning a cell. Defaults to a LSTM cell.</span>
+<span class="sd">      **kwargs: Additional layer arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">RNNEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">make_rnn_cell</span><span class="p">(</span>
+        <span class="n">num_layers</span><span class="p">,</span>
+        <span class="n">num_units</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">RNN</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="n">bidirectional</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RNNEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.RNNEncoder.html#opennmt.encoders.RNNEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_mask</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">sequence_length</span></div></div>
+
+
+<div class="viewcode-block" id="GNMTEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.GNMTEncoder.html#opennmt.encoders.GNMTEncoder">[docs]</a><span class="k">class</span> <span class="nc">GNMTEncoder</span><span class="p">(</span><span class="n">SequentialEncoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The RNN encoder used in GNMT as described in</span>
+<span class="sd">  https://arxiv.org/abs/1609.08144.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GNMTEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.GNMTEncoder.html#opennmt.encoders.GNMTEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_layers</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of units in each layer.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`num_layers` &lt; 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">num_layers</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GNMTEncoder requires at least 2 layers&quot;</span><span class="p">)</span>
+    <span class="n">bidirectional</span> <span class="o">=</span> <span class="n">RNNEncoder</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="n">num_units</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">)</span>
+    <span class="n">unidirectional</span> <span class="o">=</span> <span class="n">RNNEncoder</span><span class="p">(</span>
+        <span class="n">num_layers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">num_units</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">GNMTEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="n">bidirectional</span><span class="p">,</span> <span class="n">unidirectional</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="RNMTPlusEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.RNMTPlusEncoder.html#opennmt.encoders.RNMTPlusEncoder">[docs]</a><span class="k">class</span> <span class="nc">RNMTPlusEncoder</span><span class="p">(</span><span class="n">SequentialEncoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The RNMT+ encoder described in https://arxiv.org/abs/1804.09849.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RNMTPlusEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.RNMTPlusEncoder.html#opennmt.encoders.RNMTPlusEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of units in each RNN layer and the final output.</span>
+<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">        argument and returning a cell. Defaults to a layer normalized LSTM cell.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cell_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">cell_class</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LayerNormLSTMCell</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">RNNEncoder</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="p">,</span>
+            <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">output_dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span> <span class="n">residual_connection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">]</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">RNMTPlusEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">projection</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_units</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RNMTPlusEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.RNMTPlusEncoder.html#opennmt.encoders.RNMTPlusEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">RNMTPlusEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="n">projected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">projected</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PyramidalRNNEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder">[docs]</a><span class="k">class</span> <span class="nc">PyramidalRNNEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;An encoder that reduces the time dimension after each bidirectional layer.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PyramidalRNNEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="p">,</span>
+               <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: The number of layers.</span>
+<span class="sd">      num_units: The number of units in each layer.</span>
+<span class="sd">      reduction_factor: The time reduction factor.</span>
+<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">        argument and returning a cell. Defaults to a LSTM cell.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">PyramidalRNNEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">reduction_factor</span> <span class="o">=</span> <span class="n">reduction_factor</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">state_reducer</span> <span class="o">=</span> <span class="n">JoinReducer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">RNNEncoder</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="n">num_units</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">reducer</span><span class="o">=</span><span class="n">ConcatReducer</span><span class="p">(),</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="PyramidalRNNEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">encoder_state</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">layer_index</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+      <span class="n">input_depth</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+      <span class="k">if</span> <span class="n">layer_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># For the first input, make the number of timesteps a multiple of the</span>
+        <span class="c1"># total reduction factor.</span>
+        <span class="n">total_reduction_factor</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reduction_factor</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">current_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">current_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_reduction_factor</span>
+        <span class="n">new_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">factor</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_reduction_factor</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">pad_in_time</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">new_length</span> <span class="o">-</span> <span class="n">current_length</span><span class="p">)</span>
+
+        <span class="c1"># Lengths should not be smaller than the total reduction factor.</span>
+        <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">total_reduction_factor</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># In other cases, reduce the time dimension.</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">inputs</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">input_depth</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduction_factor</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="n">sequence_length</span> <span class="o">//=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduction_factor</span>
+
+      <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span>
+          <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span>
+          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+
+      <span class="n">encoder_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+      <span class="n">inputs</span> <span class="o">=</span> <span class="n">outputs</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">outputs</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_reducer</span><span class="p">(</span><span class="n">encoder_state</span><span class="p">),</span>
+        <span class="n">sequence_length</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, The OpenNMT Authors
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+opennmt.inputters module
+========================
+
+.. automodule:: opennmt.inputters
+
+Classes
+-------
+
+.. toctree::
+
+   opennmt.inputters.CharConvEmbedder
+   opennmt.inputters.CharEmbedder
+   opennmt.inputters.CharRNNEmbedder
+   opennmt.inputters.ExampleInputter
+   opennmt.inputters.Inputter
+   opennmt.inputters.MixedInputter
+   opennmt.inputters.MultiInputter
+   opennmt.inputters.ParallelInputter
+   opennmt.inputters.SequenceRecordInputter
+   opennmt.inputters.TextInputter
+   opennmt.inputters.WordEmbedder
+Functions
+---------
+
+.. toctree::
+
+   opennmt.inputters.load_pretrained_embeddings
+   opennmt.inputters.write_sequence_record

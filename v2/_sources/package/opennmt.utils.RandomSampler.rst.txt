@@ -1,0 +1,8 @@
+opennmt.utils.RandomSampler
+===========================
+
+.. autoclass:: opennmt.utils.RandomSampler
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.Sampler`

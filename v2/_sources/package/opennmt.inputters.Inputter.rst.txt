@@ -1,0 +1,8 @@
+opennmt.inputters.Inputter
+==========================
+
+.. autoclass:: opennmt.inputters.Inputter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

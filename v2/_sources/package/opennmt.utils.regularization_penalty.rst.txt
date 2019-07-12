@@ -1,0 +1,4 @@
+opennmt.utils.regularization_penalty
+====================================
+
+.. autofunction:: opennmt.utils.regularization_penalty

@@ -1,0 +1,8 @@
+opennmt.tokenizers.OpenNMTTokenizer
+===================================
+
+.. autoclass:: opennmt.tokenizers.OpenNMTTokenizer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.tokenizers.Tokenizer`

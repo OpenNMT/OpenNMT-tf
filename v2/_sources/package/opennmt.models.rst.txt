@@ -1,0 +1,20 @@
+opennmt.models module
+=====================
+
+.. automodule:: opennmt.models
+
+Classes
+-------
+
+.. toctree::
+
+   opennmt.models.ClassInputter
+   opennmt.models.EmbeddingsSharingLevel
+   opennmt.models.LanguageModel
+   opennmt.models.LanguageModelInputter
+   opennmt.models.SequenceClassifier
+   opennmt.models.SequenceTagger
+   opennmt.models.SequenceToSequence
+   opennmt.models.SequenceToSequenceInputter
+   opennmt.models.TagsInputter
+   opennmt.models.Transformer

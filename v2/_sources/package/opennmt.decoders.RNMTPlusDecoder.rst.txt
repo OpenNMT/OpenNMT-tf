@@ -1,0 +1,8 @@
+opennmt.decoders.RNMTPlusDecoder
+================================
+
+.. autoclass:: opennmt.decoders.RNMTPlusDecoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.decoders.Decoder`

@@ -1,0 +1,8 @@
+opennmt.encoders.MeanEncoder
+============================
+
+.. autoclass:: opennmt.encoders.MeanEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.Encoder`

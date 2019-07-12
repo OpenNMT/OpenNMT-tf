@@ -1,0 +1,8 @@
+opennmt.decoders.AttentionalRNNDecoder
+======================================
+
+.. autoclass:: opennmt.decoders.AttentionalRNNDecoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.decoders.RNNDecoder`

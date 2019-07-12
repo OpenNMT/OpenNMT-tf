@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt module &mdash; OpenNMT-tf 2.0.0a0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.data module" href="opennmt.data.html" />
+    <link rel="prev" title="Frequently Asked Questions" href="../faq.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">opennmt module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.Runner.html">opennmt.Runner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#constants">Constants</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>opennmt module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opennmt">
+<span id="opennmt-module"></span><h1>opennmt module<a class="headerlink" href="#module-opennmt" title="Permalink to this headline">¶</a></h1>
+<p>OpenNMT module.</p>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.data.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.Noise.html">opennmt.data.Noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.Vocab.html">opennmt.data.Vocab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordDropout.html">opennmt.data.WordDropout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordNoiser.html">opennmt.data.WordNoiser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordPermutation.html">opennmt.data.WordPermutation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordReplacement.html">opennmt.data.WordReplacement</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.data.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.batch_dataset.html">opennmt.data.batch_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.batch_parallel_dataset.html">opennmt.data.batch_parallel_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.filter_examples_by_length.html">opennmt.data.filter_examples_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.filter_irregular_batches.html">opennmt.data.filter_irregular_batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.get_dataset_size.html">opennmt.data.get_dataset_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.inference_pipeline.html">opennmt.data.inference_pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.input_signature_from_dataset.html">opennmt.data.input_signature_from_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.random_shard.html">opennmt.data.random_shard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.shuffle_dataset.html">opennmt.data.shuffle_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.tokens_to_chars.html">opennmt.data.tokens_to_chars</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.tokens_to_words.html">opennmt.data.tokens_to_words</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.training_pipeline.html">opennmt.data.training_pipeline</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.decoders.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.AttentionalRNNDecoder.html">opennmt.decoders.AttentionalRNNDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.Decoder.html">opennmt.decoders.Decoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.RNMTPlusDecoder.html">opennmt.decoders.RNMTPlusDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.RNNDecoder.html">opennmt.decoders.RNNDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.SelfAttentionDecoder.html">opennmt.decoders.SelfAttentionDecoder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.decoders.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.get_sampling_probability.html">opennmt.decoders.get_sampling_probability</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.encoders.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.ConvEncoder.html">opennmt.encoders.ConvEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.Encoder.html">opennmt.encoders.Encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.GNMTEncoder.html">opennmt.encoders.GNMTEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.MeanEncoder.html">opennmt.encoders.MeanEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.ParallelEncoder.html">opennmt.encoders.ParallelEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.PyramidalRNNEncoder.html">opennmt.encoders.PyramidalRNNEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.RNMTPlusEncoder.html">opennmt.encoders.RNMTPlusEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.RNNEncoder.html">opennmt.encoders.RNNEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.SelfAttentionEncoder.html">opennmt.encoders.SelfAttentionEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.SequentialEncoder.html">opennmt.encoders.SequentialEncoder</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.inputters.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.CharConvEmbedder.html">opennmt.inputters.CharConvEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.CharEmbedder.html">opennmt.inputters.CharEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.CharRNNEmbedder.html">opennmt.inputters.CharRNNEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.ExampleInputter.html">opennmt.inputters.ExampleInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.Inputter.html">opennmt.inputters.Inputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.MixedInputter.html">opennmt.inputters.MixedInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.MultiInputter.html">opennmt.inputters.MultiInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.ParallelInputter.html">opennmt.inputters.ParallelInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.SequenceRecordInputter.html">opennmt.inputters.SequenceRecordInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.TextInputter.html">opennmt.inputters.TextInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.WordEmbedder.html">opennmt.inputters.WordEmbedder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.inputters.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.load_pretrained_embeddings.html">opennmt.inputters.load_pretrained_embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.write_sequence_record.html">opennmt.inputters.write_sequence_record</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.layers.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.Bridge.html">opennmt.layers.Bridge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.ConcatReducer.html">opennmt.layers.ConcatReducer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.CopyBridge.html">opennmt.layers.CopyBridge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.Dense.html">opennmt.layers.Dense</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.DenseBridge.html">opennmt.layers.DenseBridge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.FeedForwardNetwork.html">opennmt.layers.FeedForwardNetwork</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.JoinReducer.html">opennmt.layers.JoinReducer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.LayerNorm.html">opennmt.layers.LayerNorm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.LayerWrapper.html">opennmt.layers.LayerWrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.MultiHeadAttention.html">opennmt.layers.MultiHeadAttention</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.MultiplyReducer.html">opennmt.layers.MultiplyReducer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.PositionEmbedder.html">opennmt.layers.PositionEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.PositionEncoder.html">opennmt.layers.PositionEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.RNN.html">opennmt.layers.RNN</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.RNNCellWrapper.html">opennmt.layers.RNNCellWrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.Reducer.html">opennmt.layers.Reducer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.SinusoidalPositionEncoder.html">opennmt.layers.SinusoidalPositionEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.SumReducer.html">opennmt.layers.SumReducer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.TransformerLayerWrapper.html">opennmt.layers.TransformerLayerWrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.ZeroBridge.html">opennmt.layers.ZeroBridge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.layers.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.combine_heads.html">opennmt.layers.combine_heads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.dropout.html">opennmt.layers.dropout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.future_mask.html">opennmt.layers.future_mask</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.make_rnn_cell.html">opennmt.layers.make_rnn_cell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.split_heads.html">opennmt.layers.split_heads</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.models.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.ClassInputter.html">opennmt.models.ClassInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.EmbeddingsSharingLevel.html">opennmt.models.EmbeddingsSharingLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.LanguageModel.html">opennmt.models.LanguageModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.LanguageModelInputter.html">opennmt.models.LanguageModelInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceClassifier.html">opennmt.models.SequenceClassifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceTagger.html">opennmt.models.SequenceTagger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceToSequence.html">opennmt.models.SequenceToSequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceToSequenceInputter.html">opennmt.models.SequenceToSequenceInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.TagsInputter.html">opennmt.models.TagsInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.Transformer.html">opennmt.models.Transformer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.optimizers.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.make_optimizer.html">opennmt.optimizers.make_optimizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.schedules.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.CosineAnnealing.html">opennmt.schedules.CosineAnnealing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.NoamDecay.html">opennmt.schedules.NoamDecay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.RNMTPlusDecay.html">opennmt.schedules.RNMTPlusDecay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.RsqrtDecay.html">opennmt.schedules.RsqrtDecay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.ScheduleWrapper.html">opennmt.schedules.ScheduleWrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.schedules.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.make_learning_rate_schedule.html">opennmt.schedules.make_learning_rate_schedule</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.tokenizers.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.CharacterTokenizer.html">opennmt.tokenizers.CharacterTokenizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.OpenNMTTokenizer.html">opennmt.tokenizers.OpenNMTTokenizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.SpaceTokenizer.html">opennmt.tokenizers.SpaceTokenizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.Tokenizer.html">opennmt.tokenizers.Tokenizer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.tokenizers.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.make_tokenizer.html">opennmt.tokenizers.make_tokenizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.utils.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BeamSearch.html">opennmt.utils.BeamSearch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BestSampler.html">opennmt.utils.BestSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.DecodingStrategy.html">opennmt.utils.DecodingStrategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.GreedySearch.html">opennmt.utils.GreedySearch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.RandomSampler.html">opennmt.utils.RandomSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.Sampler.html">opennmt.utils.Sampler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.utils.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.average_checkpoints.html">opennmt.utils.average_checkpoints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.cross_entropy_loss.html">opennmt.utils.cross_entropy_loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.cross_entropy_sequence_loss.html">opennmt.utils.cross_entropy_sequence_loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.dynamic_decode.html">opennmt.utils.dynamic_decode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.format_translation_output.html">opennmt.utils.format_translation_output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.regularization_penalty.html">opennmt.utils.regularization_penalty</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.Runner.html">opennmt.Runner</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>opennmt.END_OF_SENTENCE_ID</p></li>
+<li><p>opennmt.END_OF_SENTENCE_TOKEN</p></li>
+<li><p>opennmt.PADDING_ID</p></li>
+<li><p>opennmt.PADDING_TOKEN</p></li>
+<li><p>opennmt.START_OF_SENTENCE_ID</p></li>
+<li><p>opennmt.START_OF_SENTENCE_TOKEN</p></li>
+<li><p>opennmt.UNKNOWN_TOKEN</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.data.html" class="btn btn-neutral float-right" title="opennmt.data module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../faq.html" class="btn btn-neutral float-left" title="Frequently Asked Questions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, The OpenNMT Authors
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

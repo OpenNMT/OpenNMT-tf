@@ -1,0 +1,8 @@
+opennmt.encoders.ParallelEncoder
+================================
+
+.. autoclass:: opennmt.encoders.ParallelEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.Encoder`

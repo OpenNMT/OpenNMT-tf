@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.encoders.encoder &mdash; OpenNMT-tf 2.0.0a0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.encoders.encoder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.encoders.encoder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Base class for encoders and generic multi encoders.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">opennmt.layers.reducer</span> <span class="k">import</span> <span class="n">JoinReducer</span>
+
+
+<div class="viewcode-block" id="Encoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Encoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Base class for encoders.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Encoder.build_mask"><a class="viewcode-back" href="../../../package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder.build_mask">[docs]</a>  <span class="k">def</span> <span class="nf">build_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Builds a boolean mask for :obj:`inputs`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Encoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder.call">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="sd">&quot;&quot;&quot;Encodes an input sequence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      inputs: The inputs to encode of shape :math:`[B, T, ...]`.</span>
+<span class="sd">      sequence_length: The length of each input with shape :math:`[B]`.</span>
+<span class="sd">      training: Run in training mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple ``(outputs, state, sequence_length)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="SequentialEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder">[docs]</a><span class="k">class</span> <span class="nc">SequentialEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;An encoder that executes multiple encoders sequentially with optional</span>
+<span class="sd">  transition layers.</span>
+
+<span class="sd">  See for example &quot;Cascaded Encoder&quot; in https://arxiv.org/abs/1804.09849.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SequentialEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoders</span><span class="p">,</span> <span class="n">states_reducer</span><span class="o">=</span><span class="n">JoinReducer</span><span class="p">(),</span> <span class="n">transition_layer_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      encoders: A list of :class:`opennmt.encoders.Encoder`.</span>
+<span class="sd">      states_reducer: A :class:`opennmt.layers.Reducer` to merge all</span>
+<span class="sd">        states.</span>
+<span class="sd">      transition_layer_fn: A callable or list of callables applied to the</span>
+<span class="sd">        output of an encoder before passing it as input to the next. If it is a</span>
+<span class="sd">        single callable, it is applied between every encoders. Otherwise, the</span>
+<span class="sd">        ``i`` th callable will be applied between encoders ``i`` and ``i + 1``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`transition_layer_fn` is a list with a size not equal</span>
+<span class="sd">        to the number of encoder transitions ``len(encoders) - 1``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">transition_layer_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transition_layer_fn</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">transition_layer_fn</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of transition layers must match the number of encoder &quot;</span>
+                       <span class="s2">&quot;transitions, expected </span><span class="si">%d</span><span class="s2"> layers but got </span><span class="si">%d</span><span class="s2">.&quot;</span>
+                       <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">transition_layer_fn</span><span class="p">)))</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SequentialEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="n">encoders</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span> <span class="o">=</span> <span class="n">states_reducer</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">transition_layer_fn</span> <span class="o">=</span> <span class="n">transition_layer_fn</span></div>
+
+<div class="viewcode-block" id="SequentialEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">encoder_state</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">encoder</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_layer_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_layer_fn</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+          <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_layer_fn</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">](</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_layer_fn</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+      <span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span>
+          <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span>
+          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+      <span class="n">encoder_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span><span class="p">(</span><span class="n">encoder_state</span><span class="p">),</span>
+        <span class="n">sequence_length</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ParallelEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder">[docs]</a><span class="k">class</span> <span class="nc">ParallelEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;An encoder that encodes its input with several encoders and reduces the</span>
+<span class="sd">  outputs and states together. Additional layers can be applied on each encoder</span>
+<span class="sd">  output and on the combined output (e.g. to layer normalize each encoder</span>
+<span class="sd">  output).</span>
+
+<span class="sd">  If the input is a single ``tf.Tensor``, the same input will be encoded by</span>
+<span class="sd">  every encoders. Otherwise, when the input is a Python sequence (e.g. the non</span>
+<span class="sd">  reduced output of a :class:`opennmt.inputters.ParallelInputter`),</span>
+<span class="sd">  each encoder will encode its corresponding input in the sequence.</span>
+
+<span class="sd">  See for example &quot;Multi-Columnn Encoder&quot; in https://arxiv.org/abs/1804.09849.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ParallelEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">encoders</span><span class="p">,</span>
+               <span class="n">outputs_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">states_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">outputs_layer_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">combined_output_layer_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      encoders: A list of :class:`opennmt.encoders.Encoder` or a single</span>
+<span class="sd">        one, in which case the same encoder is applied to each input.</span>
+<span class="sd">      outputs_reducer: A :class:`opennmt.layers.Reducer` to merge all</span>
+<span class="sd">        outputs. If ``None``, defaults to</span>
+<span class="sd">        :class:`opennmt.layers.JoinReducer`.</span>
+<span class="sd">      states_reducer: A :class:`opennmt.layers.Reducer` to merge all</span>
+<span class="sd">        states. If ``None``, defaults to</span>
+<span class="sd">        :class:`opennmt.layers.JoinReducer`.</span>
+<span class="sd">      outputs_layer_fn: A callable or list of callables applied to the</span>
+<span class="sd">        encoders outputs If it is a single callable, it is on each encoder</span>
+<span class="sd">        output. Otherwise, the ``i`` th callable is applied on encoder ``i``</span>
+<span class="sd">        output.</span>
+<span class="sd">      combined_output_layer_fn: A callable to apply on the combined output</span>
+<span class="sd">        (i.e. the output of :obj:`outputs_reducer`).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`outputs_layer_fn` is a list with a size not equal</span>
+<span class="sd">        to the number of encoders.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">encoders</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">outputs_layer_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs_layer_fn</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs_layer_fn</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">)):</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of output layers must match the number of encoders; &quot;</span>
+                       <span class="s2">&quot;expected </span><span class="si">%d</span><span class="s2"> layers but got </span><span class="si">%d</span><span class="s2">.&quot;</span>
+                       <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs_layer_fn</span><span class="p">)))</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">ParallelEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="n">encoders</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">outputs_reducer</span> <span class="o">=</span> <span class="n">outputs_reducer</span> <span class="k">if</span> <span class="n">outputs_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">JoinReducer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span> <span class="o">=</span> <span class="n">states_reducer</span> <span class="k">if</span> <span class="n">states_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">JoinReducer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">outputs_layer_fn</span> <span class="o">=</span> <span class="n">outputs_layer_fn</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">combined_output_layer_fn</span> <span class="o">=</span> <span class="n">combined_output_layer_fn</span></div>
+
+<div class="viewcode-block" id="ParallelEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">all_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_states</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_sequence_lengths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">parallel_inputs</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+    <span class="n">parallel_encoders</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">parallel_encoders</span> <span class="ow">and</span> <span class="n">parallel_inputs</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ParallelEncoder expects as many inputs as parallel encoders&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parallel_encoders</span><span class="p">:</span>
+      <span class="n">encoders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">encoders</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> <span class="k">if</span> <span class="n">parallel_inputs</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">encoder</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">encoders</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">parallel_inputs</span><span class="p">:</span>
+        <span class="n">encoder_inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">sequence_length</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">encoder_inputs</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">sequence_length</span>
+
+      <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span>
+          <span class="n">encoder_inputs</span><span class="p">,</span>
+          <span class="n">sequence_length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
+          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_layer_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs_layer_fn</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+          <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_layer_fn</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_layer_fn</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+
+      <span class="n">all_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+      <span class="n">all_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+      <span class="n">all_sequence_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_reducer</span><span class="p">(</span>
+        <span class="n">all_outputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">all_sequence_lengths</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined_output_layer_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined_output_layer_fn</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span><span class="p">(</span><span class="n">all_states</span><span class="p">),</span> <span class="n">sequence_length</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, The OpenNMT Authors
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

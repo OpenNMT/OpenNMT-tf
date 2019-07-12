@@ -1,0 +1,8 @@
+opennmt.utils.BeamSearch
+========================
+
+.. autoclass:: opennmt.utils.BeamSearch
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.DecodingStrategy`

@@ -1,0 +1,654 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.0.0a0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.data.dataset</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.data.dataset</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Dataset creation and transformations.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
+<span class="k">def</span> <span class="nf">_get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns the outputs shapes of the dataset.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dataset: A ``tf.data.Dataset``.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A nested structure of ``tf.TensorShape``</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+<div class="viewcode-block" id="input_signature_from_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.input_signature_from_dataset.html#opennmt.data.input_signature_from_dataset">[docs]</a><span class="k">def</span> <span class="nf">input_signature_from_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns a nested structure of ``tf.TensorSpec``.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dataset: A ``tf.data.Dataset``.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A nested structure of ``tf.TensorSpec``.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+      <span class="k">lambda</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorSpec</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_output_types</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.data.get_dataset_size.html#opennmt.data.get_dataset_size">[docs]</a><span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Get the dataset size.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dataset: A finite dataset.</span>
+<span class="sd">    batch_size: The batch size to use or ``None`` to scan the dataset as-is.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The dataset size.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_reduce_func</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+    <span class="n">element</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">element</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">element</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">count</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">count</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span> <span class="n">_reduce_func</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="filter_irregular_batches"><a class="viewcode-back" href="../../../package/opennmt.data.filter_irregular_batches.html#opennmt.data.filter_irregular_batches">[docs]</a><span class="k">def</span> <span class="nf">filter_irregular_batches</span><span class="p">(</span><span class="n">multiple</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that filters out batches based on their size.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    multiple: The divisor of the batch size.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">multiple</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span>
+
+  <span class="k">def</span> <span class="nf">_predicate</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">batch_size</span> <span class="o">%</span> <span class="n">multiple</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_predicate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="filter_examples_by_length"><a class="viewcode-back" href="../../../package/opennmt.data.filter_examples_by_length.html#opennmt.data.filter_examples_by_length">[docs]</a><span class="k">def</span> <span class="nf">filter_examples_by_length</span><span class="p">(</span><span class="n">maximum_features_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">maximum_labels_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">features_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">labels_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that constrains examples length.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    maximum_features_length: The maximum length or list of maximum lengths of</span>
+<span class="sd">      the features sequence(s). ``None`` to not constrain the length.</span>
+<span class="sd">    maximum_labels_length: The maximum length of the labels sequence.</span>
+<span class="sd">      ``None`` to not constrain the length.</span>
+<span class="sd">    features_length_fn: A callable mapping features to a sequence length.</span>
+<span class="sd">    labels_length_fn: A callable mapping labels to a sequence length.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">features_length_fn</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">labels_length_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span>
+
+  <span class="k">def</span> <span class="nf">_length_constraints</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="p">):</span>
+    <span class="c1"># Work with lists of lengths which correspond to the general multi source case.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">length</span> <span class="o">=</span> <span class="p">[</span><span class="n">length</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">maximum_length</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">maximum_length</span> <span class="o">=</span> <span class="p">[</span><span class="n">maximum_length</span><span class="p">]</span>
+    <span class="c1"># Unset maximum lengths are set to None (i.e. no constraint).</span>
+    <span class="n">maximum_length</span> <span class="o">+=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">maximum_length</span><span class="p">))</span>
+    <span class="n">constraints</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">maxlen</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="p">):</span>
+      <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">maxlen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">less_equal</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">maxlen</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">constraints</span>
+
+  <span class="k">def</span> <span class="nf">_predicate</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">cond</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">features_length</span> <span class="o">=</span> <span class="n">features_length_fn</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="n">features_length_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">labels_length</span> <span class="o">=</span> <span class="n">labels_length_fn</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="k">if</span> <span class="n">labels_length_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">features_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">cond</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_length_constraints</span><span class="p">(</span><span class="n">features_length</span><span class="p">,</span> <span class="n">maximum_features_length</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">labels_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">cond</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_length_constraints</span><span class="p">(</span><span class="n">labels_length</span><span class="p">,</span> <span class="n">maximum_labels_length</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_predicate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="random_shard"><a class="viewcode-back" href="../../../package/opennmt.data.random_shard.html#opennmt.data.random_shard">[docs]</a><span class="k">def</span> <span class="nf">random_shard</span><span class="p">(</span><span class="n">shard_size</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that shards the dataset in a random order.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    shard_size: The number of examples in each shard.</span>
+<span class="sd">    dataset_size: The total number of examples in the dataset.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">num_shards</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">dataset_size</span> <span class="o">//</span> <span class="n">shard_size</span><span class="p">)</span>  <span class="c1"># Ceil division.</span>
+  <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_random_shard</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="n">sharded_dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">offsets</span><span class="p">)</span>
+    <span class="n">sharded_dataset</span> <span class="o">=</span> <span class="n">sharded_dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">num_shards</span><span class="p">)</span>
+    <span class="n">sharded_dataset</span> <span class="o">=</span> <span class="n">sharded_dataset</span><span class="o">.</span><span class="n">flat_map</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">offset</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">shard_size</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">sharded_dataset</span>
+
+  <span class="k">return</span> <span class="n">_random_shard</span></div>
+
+<div class="viewcode-block" id="shuffle_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.shuffle_dataset.html#opennmt.data.shuffle_dataset">[docs]</a><span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">,</span> <span class="n">shuffle_shards</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that shuffles the dataset based on its size.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    buffer_size: The number of elements from which to sample.</span>
+<span class="sd">    shuffle_shards: When :obj:`buffer_size` is smaller than the dataset size,</span>
+<span class="sd">      the dataset is first sharded in a random order to add another level of</span>
+<span class="sd">      shuffling.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">_shuffle</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="n">sample_size</span> <span class="o">=</span> <span class="n">buffer_size</span>
+    <span class="k">if</span> <span class="n">sample_size</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">shuffle_shards</span><span class="p">:</span>
+      <span class="n">dataset_size</span> <span class="o">=</span> <span class="n">get_dataset_size</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training on </span><span class="si">%d</span><span class="s2"> examples&quot;</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">sample_size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sample_size</span> <span class="o">=</span> <span class="n">dataset_size</span>
+      <span class="k">elif</span> <span class="n">sample_size</span> <span class="o">&lt;</span> <span class="n">dataset_size</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">random_shard</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">))</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+  <span class="k">return</span> <span class="n">_shuffle</span></div>
+
+<div class="viewcode-block" id="batch_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.batch_dataset.html#opennmt.data.batch_dataset">[docs]</a><span class="k">def</span> <span class="nf">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">padded_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that batches a dataset.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    batch_size: The batch size.</span>
+<span class="sd">    padded_shapes: The padded shapes for this dataset. If ``None``, the shapes</span>
+<span class="sd">      are automatically inferred from the dataset output shapes.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">padded_batch</span><span class="p">(</span>
+      <span class="n">batch_size</span><span class="p">,</span> <span class="n">padded_shapes</span><span class="o">=</span><span class="n">padded_shapes</span> <span class="ow">or</span> <span class="n">_get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="batch_parallel_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.batch_parallel_dataset.html#opennmt.data.batch_parallel_dataset">[docs]</a><span class="k">def</span> <span class="nf">batch_parallel_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span>
+                           <span class="n">batch_type</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
+                           <span class="n">batch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">features_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">labels_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">padded_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that batches a parallel dataset.</span>
+
+<span class="sd">  This implements an example-based and a token-based batching strategy</span>
+<span class="sd">  with optional bucketing of sequences.</span>
+
+<span class="sd">  Bucketing makes the batches contain sequences of similar lengths to optimize</span>
+<span class="sd">  the training efficiency. For example, if :obj:`bucket_width` is 5, sequences</span>
+<span class="sd">  will be organized by lengths:</span>
+
+<span class="sd">  1 - 5 | 6 - 10 | 11 - 15 | ...</span>
+
+<span class="sd">  where the assigned length is the maximum of the source and target lengths.</span>
+<span class="sd">  Then each batch will only consider sequences from the same bucket.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    batch_size: The batch size.</span>
+<span class="sd">    batch_type: The training batching strategy to use: can be &quot;examples&quot; or</span>
+<span class="sd">      &quot;tokens&quot;.</span>
+<span class="sd">    batch_multiplier: The batch size multiplier.</span>
+<span class="sd">    batch_size_multiple: When :obj:`batch_type` is &quot;tokens&quot;, ensure that the</span>
+<span class="sd">      result batch size is a multiple of this value.</span>
+<span class="sd">    bucket_width: The sequence length bucket width.</span>
+<span class="sd">    padded_shapes: The padded shapes for this dataset. If ``None``, the shapes</span>
+<span class="sd">      are automatically inferred from the dataset output shapes.</span>
+<span class="sd">    features_length_fn: A callable mapping features to a sequence length.</span>
+<span class="sd">    labels_length_fn: A callable mapping labels to a sequence length.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`batch_type` is not one of &quot;examples&quot; or &quot;tokens&quot;.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">batch_multiplier</span>
+
+  <span class="k">def</span> <span class="nf">_key_func</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">features_length</span> <span class="o">=</span> <span class="n">features_length_fn</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="n">features_length_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">labels_length</span> <span class="o">=</span> <span class="n">labels_length_fn</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="k">if</span> <span class="n">labels_length_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="c1"># For multi inputs, apply bucketing on the target side or none at all.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features_length</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">features_length</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">bucket_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">features_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">bucket_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">features_length</span> <span class="o">//</span> <span class="n">bucket_width</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">labels_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">bucket_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">labels_length</span> <span class="o">//</span> <span class="n">bucket_width</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_reduce_func</span><span class="p">(</span><span class="n">unused_key</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">padded_shapes</span><span class="o">=</span><span class="n">padded_shapes</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">_window_size_func</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">bucket_width</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">key</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># For bucket_width == 1, key 0 is unassigned.</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">//</span> <span class="p">(</span><span class="n">key</span> <span class="o">*</span> <span class="n">bucket_width</span><span class="p">)</span>
+    <span class="n">required_multiple</span> <span class="o">=</span> <span class="n">batch_multiplier</span> <span class="o">*</span> <span class="n">batch_size_multiple</span>
+    <span class="k">if</span> <span class="n">required_multiple</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="n">required_multiple</span> <span class="o">-</span> <span class="n">size</span> <span class="o">%</span> <span class="n">required_multiple</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">required_multiple</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">bucket_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">padded_shapes</span><span class="o">=</span><span class="n">padded_shapes</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;examples&quot;</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">group_by_window</span><span class="p">(</span>
+        <span class="n">_key_func</span><span class="p">,</span> <span class="n">_reduce_func</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">group_by_window</span><span class="p">(</span>
+        <span class="n">_key_func</span><span class="p">,</span> <span class="n">_reduce_func</span><span class="p">,</span> <span class="n">window_size_func</span><span class="o">=</span><span class="n">_window_size_func</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="s2">&quot;Invalid batch type: &#39;</span><span class="si">{}</span><span class="s2">&#39;; should be &#39;examples&#39; or &#39;tokens&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_type</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="training_pipeline"><a class="viewcode-back" href="../../../package/opennmt.data.training_pipeline.html#opennmt.data.training_pipeline">[docs]</a><span class="k">def</span> <span class="nf">training_pipeline</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span>
+                      <span class="n">batch_type</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
+                      <span class="n">batch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">process_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">features_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">labels_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">maximum_features_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">maximum_labels_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">single_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">num_shards</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">shard_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                      <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that defines a complete training data pipeline.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dataset: The base dataset.</span>
+<span class="sd">    batch_size: The batch size to use.</span>
+<span class="sd">    batch_type: The training batching stragety to use: can be &quot;examples&quot; or</span>
+<span class="sd">      &quot;tokens&quot;.</span>
+<span class="sd">    batch_multiplier: The batch size multiplier.</span>
+<span class="sd">    batch_size_multiple: When :obj:`batch_type` is &quot;tokens&quot;, ensure that the</span>
+<span class="sd">      result batch size is a multiple of this value.</span>
+<span class="sd">    process_fn: The processing function to apply on each element.</span>
+<span class="sd">    bucket_width: The width of the length buckets to select batch candidates</span>
+<span class="sd">      from. ``None`` to not constrain batch formation.</span>
+<span class="sd">    features_length_fn: A callable mapping features to a sequence length.</span>
+<span class="sd">    labels_length_fn: A callable mapping labels to a sequence length.</span>
+<span class="sd">    maximum_features_length: The maximum length or list of maximum lengths of</span>
+<span class="sd">      the features sequence(s). ``None`` to not constrain the length.</span>
+<span class="sd">    maximum_labels_length: The maximum length of the labels sequence.</span>
+<span class="sd">      ``None`` to not constrain the length.</span>
+<span class="sd">    single_pass: If ``True``, makes a single pass over the training data.</span>
+<span class="sd">    num_shards: The number of data shards (usually the number of workers in a</span>
+<span class="sd">      distributed setting).</span>
+<span class="sd">    shard_index: The shard index this data pipeline should read from.</span>
+<span class="sd">    num_threads: The number of elements processed in parallel.</span>
+<span class="sd">    shuffle_buffer_size: The number of elements from which to sample.</span>
+<span class="sd">    prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
+<span class="sd">      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on</span>
+<span class="sd">      older versions.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">_pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">num_shards</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">shard_index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shuffle_buffer_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">shuffle_dataset</span><span class="p">(</span><span class="n">shuffle_buffer_size</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">process_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">process_fn</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">num_threads</span> <span class="ow">or</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">filter_examples_by_length</span><span class="p">(</span>
+        <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
+        <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
+        <span class="n">features_length_fn</span><span class="o">=</span><span class="n">features_length_fn</span><span class="p">,</span>
+        <span class="n">labels_length_fn</span><span class="o">=</span><span class="n">labels_length_fn</span><span class="p">))</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">batch_parallel_dataset</span><span class="p">(</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
+        <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
+        <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
+        <span class="n">bucket_width</span><span class="o">=</span><span class="n">bucket_width</span><span class="p">,</span>
+        <span class="n">features_length_fn</span><span class="o">=</span><span class="n">features_length_fn</span><span class="p">,</span>
+        <span class="n">labels_length_fn</span><span class="o">=</span><span class="n">labels_length_fn</span><span class="p">))</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">filter_irregular_batches</span><span class="p">(</span><span class="n">batch_multiplier</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">single_pass</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">prefetch_buffer_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+  <span class="k">return</span> <span class="n">_pipeline</span></div>
+
+<div class="viewcode-block" id="inference_pipeline"><a class="viewcode-back" href="../../../package/opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline">[docs]</a><span class="k">def</span> <span class="nf">inference_pipeline</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span>
+                       <span class="n">process_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that defines a complete inference data pipeline.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dataset: The base dataset.</span>
+<span class="sd">    batch_size: The batch size to use.</span>
+<span class="sd">    process_fn: The processing function to apply on each element.</span>
+<span class="sd">    bucket_width: The width of the length buckets to select batch candidates</span>
+<span class="sd">      from. If set, this means the inference pipeline will be reordered based on</span>
+<span class="sd">      the examples length, the application is then responsible to restore the</span>
+<span class="sd">      predictions in order. An &quot;index&quot; key will be inserted in the examples</span>
+<span class="sd">      dict.</span>
+<span class="sd">    length_fn: A callable mapping features to a sequence length.</span>
+<span class="sd">    num_threads: The number of elements processed in parallel.</span>
+<span class="sd">    prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
+<span class="sd">      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on</span>
+<span class="sd">      older versions.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`bucket_width` is set but not :obj:`length_fn` or the</span>
+<span class="sd">      dataset does not output a dictionary.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">_inject_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+  <span class="k">def</span> <span class="nf">_key_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">length_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">bucket_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">bucket_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">bucket_id</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">//</span> <span class="n">bucket_width</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bucket_id</span>
+
+  <span class="k">def</span> <span class="nf">_reduce_func</span><span class="p">(</span><span class="n">unused_key</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">_pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">process_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">process_fn</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">num_threads</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bucket_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">bucket_width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">length_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length_fn is required when reordering by length&quot;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reordering by length expects dataset elements to be Python dicts&quot;</span><span class="p">)</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">enumerate</span><span class="p">()</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_inject_index</span><span class="p">)</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">group_by_window</span><span class="p">(</span>
+          <span class="n">_key_func</span><span class="p">,</span> <span class="n">_reduce_func</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">prefetch_buffer_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+  <span class="k">return</span> <span class="n">_pipeline</span></div>
+
+<span class="k">def</span> <span class="nf">function_on_next</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Decorator to applies a ``tf.function`` on each dataset element.</span>
+
+<span class="sd">  The motivation for this construct is to get the next element within the</span>
+<span class="sd">  ``tf.function`` as a workaround to this issue</span>
+<span class="sd">  (https://github.com/tensorflow/tensorflow/issues/29075) and to use</span>
+<span class="sd">  ``tf.distribute`` efficiently with Python loops.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dataset: The dataset to iterate.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A function decorator. The decorated function is transformed into a callable</span>
+<span class="sd">    that returns a generator over its outputs.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">_tf_fun</span><span class="p">():</span>
+      <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_fun</span><span class="p">():</span>
+      <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="k">yield</span> <span class="n">_tf_fun</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">OutOfRangeError</span><span class="p">:</span>
+          <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">_fun</span>
+
+  <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, The OpenNMT Authors
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

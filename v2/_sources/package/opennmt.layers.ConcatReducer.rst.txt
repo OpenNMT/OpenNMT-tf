@@ -1,0 +1,8 @@
+opennmt.layers.ConcatReducer
+============================
+
+.. autoclass:: opennmt.layers.ConcatReducer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.layers.Reducer`

@@ -1,0 +1,21 @@
+opennmt.decoders module
+=======================
+
+.. automodule:: opennmt.decoders
+
+Classes
+-------
+
+.. toctree::
+
+   opennmt.decoders.AttentionalRNNDecoder
+   opennmt.decoders.Decoder
+   opennmt.decoders.RNMTPlusDecoder
+   opennmt.decoders.RNNDecoder
+   opennmt.decoders.SelfAttentionDecoder
+Functions
+---------
+
+.. toctree::
+
+   opennmt.decoders.get_sampling_probability

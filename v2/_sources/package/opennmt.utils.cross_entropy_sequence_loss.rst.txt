@@ -1,0 +1,4 @@
+opennmt.utils.cross_entropy_sequence_loss
+=========================================
+
+.. autofunction:: opennmt.utils.cross_entropy_sequence_loss

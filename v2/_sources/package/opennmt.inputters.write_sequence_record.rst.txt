@@ -1,0 +1,4 @@
+opennmt.inputters.write_sequence_record
+=======================================
+
+.. autofunction:: opennmt.inputters.write_sequence_record

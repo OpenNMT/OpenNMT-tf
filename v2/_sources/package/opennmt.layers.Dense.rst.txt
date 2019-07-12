@@ -1,0 +1,8 @@
+opennmt.layers.Dense
+====================
+
+.. autoclass:: opennmt.layers.Dense
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`tensorflow.python.keras.layers.core.Dense`

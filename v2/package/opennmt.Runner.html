@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.Runner &mdash; OpenNMT-tf 2.0.0a0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="opennmt.utils.regularization_penalty" href="opennmt.utils.regularization_penalty.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#classes">Classes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.Runner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
+        
+      <li>opennmt.Runner</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="opennmt-runner">
+<h1>opennmt.Runner<a class="headerlink" href="#opennmt-runner" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="opennmt.Runner">
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.</code><code class="sig-name descname">Runner</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">config</em>, <em class="sig-param">auto_config=False</em>, <em class="sig-param">mixed_precision=False</em>, <em class="sig-param">seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for running and exporting models.</p>
+<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
+<dl class="method">
+<dt id="opennmt.Runner.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">config</em>, <em class="sig-param">auto_config=False</em>, <em class="sig-param">mixed_precision=False</em>, <em class="sig-param">seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the runner parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code> instance to run.</p></li>
+<li><p><strong>config</strong> – The run configuration.</p></li>
+<li><p><strong>auto_config</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, use automatic configuration values defined by
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code>.</p></li>
+<li><p><strong>mixed_precision</strong> – Enable mixed precision.</p></li>
+<li><p><strong>seed</strong> – The random seed to set.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.Runner.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">num_devices=1</em>, <em class="sig-param">with_eval=False</em>, <em class="sig-param">checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the training loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_devices</strong> – Number of devices to use for training.</p></li>
+<li><p><strong>with_eval</strong> – Enable evaluation during training.</p></li>
+<li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The path to the final model directory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.Runner.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">features_file=None</em>, <em class="sig-param">labels_file=None</em>, <em class="sig-param">checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features_file</strong> – The input features file to evaluate. If not set, will load
+<code class="docutils literal notranslate"><span class="pre">eval_features_file</span></code> from the data configuration.</p></li>
+<li><p><strong>labels_file</strong> – The output labels file to evaluate. If not set, will load
+<code class="docutils literal notranslate"><span class="pre">eval_labels_file</span></code> from the data configuration.</p></li>
+<li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict of evaluation metrics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.Runner.average_checkpoints">
+<code class="sig-name descname">average_checkpoints</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em>, <em class="sig-param">max_count=8</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.average_checkpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.average_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Averages checkpoints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_dir</strong> – The directory that will contain the averaged checkpoint.</p></li>
+<li><p><strong>max_count</strong> – The maximum number of checkpoints to average.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The path to the directory containing the averaged checkpoint.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.Runner.update_vocab">
+<code class="sig-name descname">update_vocab</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em>, <em class="sig-param">src_vocab=None</em>, <em class="sig-param">tgt_vocab=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.update_vocab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.update_vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates model vocabularies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_dir</strong> – Directory where the update checkpoint will be saved.</p></li>
+<li><p><strong>src_vocab</strong> – Path to the new source vocabulary.</p></li>
+<li><p><strong>tgt_vocab</strong> – Path to the new tagret vocabulary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to the new checkpoint directory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.Runner.infer">
+<code class="sig-name descname">infer</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">predictions_file=None</em>, <em class="sig-param">checkpoint_path=None</em>, <em class="sig-param">log_time=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.infer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.infer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features_file</strong> – The file(s) to infer from.</p></li>
+<li><p><strong>predictions_file</strong> – If set, predictions are saved in this file.</p></li>
+<li><p><strong>checkpoint_path</strong> – Path of a specific checkpoint to predict. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the latest is used.</p></li>
+<li><p><strong>log_time</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, several time metrics will be printed in the logs at
+the end of the inference loop.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.Runner.export">
+<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">export_dir</em>, <em class="sig-param">checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exports a model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>export_dir</strong> – The export directory.</p></li>
+<li><p><strong>checkpoint_path</strong> – The checkpoint path to export. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the latest is used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.Runner.score">
+<code class="sig-name descname">score</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">predictions_file</em>, <em class="sig-param">checkpoint_path=None</em>, <em class="sig-param">output_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scores existing predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features_file</strong> – The input file.</p></li>
+<li><p><strong>predictions_file</strong> – The predictions file to score.</p></li>
+<li><p><strong>checkpoint_path</strong> – Path of a specific checkpoint to use. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the latest is used.</p></li>
+<li><p><strong>output_file</strong> – The file where the scores are saved. Otherwise, they will be
+printed on the standard output.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – if the model is not a sequence to sequence model or a
+    language model.</p></li>
+<li><p><strong>ValueError</strong> – if no checkpoint are found.</p></li>
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">predictions_file</span></code> is not given.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="opennmt.utils.regularization_penalty.html" class="btn btn-neutral float-left" title="opennmt.utils.regularization_penalty" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, The OpenNMT Authors
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+opennmt.data.WordReplacement
+============================
+
+.. autoclass:: opennmt.data.WordReplacement
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.data.Noise`

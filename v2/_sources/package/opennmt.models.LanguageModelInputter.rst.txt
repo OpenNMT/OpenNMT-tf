@@ -1,0 +1,8 @@
+opennmt.models.LanguageModelInputter
+====================================
+
+.. autoclass:: opennmt.models.LanguageModelInputter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.inputters.WordEmbedder`

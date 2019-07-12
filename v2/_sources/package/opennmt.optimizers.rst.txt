@@ -1,0 +1,11 @@
+opennmt.optimizers module
+=========================
+
+.. automodule:: opennmt.optimizers
+
+Functions
+---------
+
+.. toctree::
+
+   opennmt.optimizers.make_optimizer

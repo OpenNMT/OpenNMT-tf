@@ -1,0 +1,8 @@
+opennmt.tokenizers.SpaceTokenizer
+=================================
+
+.. autoclass:: opennmt.tokenizers.SpaceTokenizer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.tokenizers.Tokenizer`

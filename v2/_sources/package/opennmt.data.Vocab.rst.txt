@@ -1,0 +1,8 @@
+opennmt.data.Vocab
+==================
+
+.. autoclass:: opennmt.data.Vocab
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

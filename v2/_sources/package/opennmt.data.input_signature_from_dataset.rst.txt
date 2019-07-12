@@ -1,0 +1,4 @@
+opennmt.data.input_signature_from_dataset
+=========================================
+
+.. autofunction:: opennmt.data.input_signature_from_dataset

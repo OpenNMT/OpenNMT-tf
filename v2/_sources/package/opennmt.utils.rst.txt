@@ -1,0 +1,27 @@
+opennmt.utils module
+====================
+
+.. automodule:: opennmt.utils
+
+Classes
+-------
+
+.. toctree::
+
+   opennmt.utils.BeamSearch
+   opennmt.utils.BestSampler
+   opennmt.utils.DecodingStrategy
+   opennmt.utils.GreedySearch
+   opennmt.utils.RandomSampler
+   opennmt.utils.Sampler
+Functions
+---------
+
+.. toctree::
+
+   opennmt.utils.average_checkpoints
+   opennmt.utils.cross_entropy_loss
+   opennmt.utils.cross_entropy_sequence_loss
+   opennmt.utils.dynamic_decode
+   opennmt.utils.format_translation_output
+   opennmt.utils.regularization_penalty

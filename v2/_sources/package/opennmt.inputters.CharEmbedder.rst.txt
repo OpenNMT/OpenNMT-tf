@@ -1,0 +1,8 @@
+opennmt.inputters.CharEmbedder
+==============================
+
+.. autoclass:: opennmt.inputters.CharEmbedder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.inputters.TextInputter`

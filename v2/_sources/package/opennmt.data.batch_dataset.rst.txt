@@ -1,0 +1,4 @@
+opennmt.data.batch_dataset
+==========================
+
+.. autofunction:: opennmt.data.batch_dataset

@@ -1,0 +1,8 @@
+opennmt.layers.ZeroBridge
+=========================
+
+.. autoclass:: opennmt.layers.ZeroBridge
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.layers.Bridge`

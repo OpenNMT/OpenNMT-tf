@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.data.Vocab &mdash; OpenNMT-tf 2.0.0a0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.data.WordDropout" href="opennmt.data.WordDropout.html" />
+    <link rel="prev" title="opennmt.data.Noise" href="opennmt.data.Noise.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.data.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="opennmt.data.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
+        
+          <li><a href="opennmt.data.html">opennmt.data module</a> &raquo;</li>
+        
+      <li>opennmt.data.Vocab</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="opennmt-data-vocab">
+<h1>opennmt.data.Vocab<a class="headerlink" href="#opennmt-data-vocab" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="opennmt.data.Vocab">
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">Vocab</code><span class="sig-paren">(</span><em class="sig-param">special_tokens=None</em>, <em class="sig-param">from_file=None</em>, <em class="sig-param">from_format='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vocabulary class.</p>
+<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
+<dl class="method">
+<dt id="opennmt.data.Vocab.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">special_tokens=None</em>, <em class="sig-param">from_file=None</em>, <em class="sig-param">from_format='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a vocabulary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>special_tokens</strong> – A list of special tokens (e.g. start of sentence).</p></li>
+<li><p><strong>from_file</strong> – Optionally initialize from an existing saved vocabulary.</p></li>
+<li><p><strong>from_format</strong> – Define the format of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code> saved vocabulary.
+Can be: default, sentencepiece. “default” is simply one token per line.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">file_format</span></code> is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.size">
+<em class="property">property </em><code class="sig-name descname">size</code><a class="headerlink" href="#opennmt.data.Vocab.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of entries of the vocabulary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.words">
+<em class="property">property </em><code class="sig-name descname">words</code><a class="headerlink" href="#opennmt.data.Vocab.words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of words.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.__len__">
+<code class="sig-name descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.__len__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of entries of the vocabulary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.__contains__">
+<code class="sig-name descname">__contains__</code><span class="sig-paren">(</span><em class="sig-param">token</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.__contains__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the vocabulary contains <code class="xref py py-obj docutils literal notranslate"><span class="pre">token</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.add_from_text">
+<code class="sig-name descname">add_from_text</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">tokenizer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.add_from_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.add_from_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills the vocabulary from a text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – The file to load from.</p></li>
+<li><p><strong>tokenizer</strong> – A callable to tokenize a line of text.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the vocabulary on disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – The path where the vocabulary will be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">file_format='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a serialized vocabulary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – The path to the vocabulary to load.</p></li>
+<li><p><strong>file_format</strong> – Define the format of the vocabulary file. Can be: default,
+sentencepiece. “default” is simply one token per line.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">file_format</span></code> is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">token</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a token or increases its frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>token</strong> – The string to add.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.lookup">
+<code class="sig-name descname">lookup</code><span class="sig-paren">(</span><em class="sig-param">identifier</em>, <em class="sig-param">default=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lookups in the vocabulary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – A string or an index to lookup.</p></li>
+<li><p><strong>default</strong> – The value to return if <code class="xref py py-obj docutils literal notranslate"><span class="pre">identifier</span></code> is not found.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The value associated with <code class="xref py py-obj docutils literal notranslate"><span class="pre">identifier</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.prune">
+<code class="sig-name descname">prune</code><span class="sig-paren">(</span><em class="sig-param">max_size=0</em>, <em class="sig-param">min_frequency=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.prune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.prune" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a pruned version of the vocabulary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_size</strong> – The maximum vocabulary size.</p></li>
+<li><p><strong>min_frequency</strong> – The minimum frequency of each entry.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A new vocabulary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.pad_to_multiple">
+<code class="sig-name descname">pad_to_multiple</code><span class="sig-paren">(</span><em class="sig-param">multiple</em>, <em class="sig-param">num_oov_buckets=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.pad_to_multiple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.pad_to_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pads the vocabulary size to a multiple value.</p>
+<p>More specically, this method ensures that:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">(vocab_size</span> <span class="pre">+</span> <span class="pre">num_oov_buckets)</span> <span class="pre">%</span> <span class="pre">multiple</span> <span class="pre">==</span> <span class="pre">0</span></code></p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>multiple</strong> – The multiple value.</p></li>
+<li><p><strong>num_oov_buckets</strong> – The number of OOV buckets added during the training.
+Usually just 1 for the <cite>&lt;unk&gt;</cite> token.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.data.WordDropout.html" class="btn btn-neutral float-right" title="opennmt.data.WordDropout" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.data.Noise.html" class="btn btn-neutral float-left" title="opennmt.data.Noise" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, The OpenNMT Authors
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

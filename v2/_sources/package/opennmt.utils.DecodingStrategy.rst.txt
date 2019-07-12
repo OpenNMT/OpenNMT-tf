@@ -1,0 +1,8 @@
+opennmt.utils.DecodingStrategy
+==============================
+
+.. autoclass:: opennmt.utils.DecodingStrategy
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

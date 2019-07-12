@@ -1,0 +1,8 @@
+opennmt.inputters.MultiInputter
+===============================
+
+.. autoclass:: opennmt.inputters.MultiInputter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.inputters.Inputter`

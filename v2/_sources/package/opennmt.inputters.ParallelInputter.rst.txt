@@ -1,0 +1,8 @@
+opennmt.inputters.ParallelInputter
+==================================
+
+.. autoclass:: opennmt.inputters.ParallelInputter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.inputters.MultiInputter`

@@ -1,0 +1,8 @@
+opennmt.encoders.ConvEncoder
+============================
+
+.. autoclass:: opennmt.encoders.ConvEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.Encoder`
