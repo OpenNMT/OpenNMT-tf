@@ -106,7 +106,18 @@ class AttentionalRNNDecoder(RNNDecoder):
         **kwargs)
     if attention_mechanism_class is None:
       attention_mechanism_class = tfa.seq2seq.LuongAttention
-    self.attention_mechanism_class = attention_mechanism_class
+    self.attention_mechanism = attention_mechanism_class(self.cell.output_size, memory=None)
+    self.probability_fn = self.attention_mechanism.probability_fn
+    if first_layer_attention:
+      self.cell.cells[0] = tfa.seq2seq.AttentionWrapper(
+          self.cell.cells[0],
+          self.attention_mechanism,
+          attention_layer_size=self.cell.cells[0].output_size)
+    else:
+      self.cell = tfa.seq2seq.AttentionWrapper(
+          self.cell,
+          self.attention_mechanism,
+          attention_layer_size=self.cell.output_size)
     self.dropout = dropout
     self.first_layer_attention = first_layer_attention
 
@@ -115,30 +126,25 @@ class AttentionalRNNDecoder(RNNDecoder):
     return True
 
   def _get_initial_state(self, batch_size, dtype, initial_state=None):
-    # TODO: make this decoder eager-friendly.
-    if tf.executing_eagerly():
-      raise RuntimeError("Attention-based RNN decoder are currently not compatible "
-                         "with eager execution")
-    initial_cell_state = super(AttentionalRNNDecoder, self)._get_initial_state(
-        batch_size, dtype, initial_state=initial_state)
-    attention_mechanism = self.attention_mechanism_class(
-        self.cell.output_size,
+    # Reset memory of attention mechanism.
+    # TODO: clean this up after https://github.com/tensorflow/addons/pull/354
+    self.attention_mechanism.probability_fn = self.probability_fn
+    self.attention_mechanism._memory_initialized = False  # pylint: disable=protected-access
+    self.attention_mechanism._setup_memory(  # pylint: disable=protected-access
         self.memory,
-        memory_sequence_length=self.memory_sequence_length,
-        dtype=self.memory.dtype)
-    if self.first_layer_attention:
-      self.cell.cells[0] = tfa.seq2seq.AttentionWrapper(
-          self.cell.cells[0],
-          attention_mechanism,
-          attention_layer_size=self.cell.cells[0].output_size,
-          initial_cell_state=initial_cell_state[0])
-    else:
-      self.cell = tfa.seq2seq.AttentionWrapper(
-          self.cell,
-          attention_mechanism,
-          attention_layer_size=self.cell.output_size,
-          initial_cell_state=initial_cell_state)
-    return self.cell.get_initial_state(batch_size=batch_size, dtype=dtype)
+        memory_sequence_length=self.memory_sequence_length)
+    decoder_state = self.cell.get_initial_state(batch_size=batch_size, dtype=dtype)
+    if initial_state is not None:
+      if self.first_layer_attention:
+        cell_state = list(decoder_state)
+        cell_state[0] = decoder_state[0].cell_state
+        cell_state = self.bridge(initial_state, cell_state)
+        cell_state[0] = decoder_state[0].clone(cell_state=cell_state[0])
+        decoder_state = tuple(cell_state)
+      else:
+        cell_state = self.bridge(initial_state, decoder_state.cell_state)
+        decoder_state = decoder_state.clone(cell_state=cell_state)
+    return decoder_state
 
   def step(self,
            inputs,
