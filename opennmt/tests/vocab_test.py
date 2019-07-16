@@ -70,7 +70,7 @@ class VocabTest(tf.test.TestCase):
     vocab_file = os.path.join(self.get_temp_dir(), "vocab.txt")
 
     vocab1.serialize(vocab_file)
-    vocab2 = vocab_lib.Vocab(from_file=vocab_file)
+    vocab2 = vocab_lib.Vocab.from_file(vocab_file)
 
     self.assertEqual(vocab1.size, vocab2.size)
     self.assertEqual(vocab1.lookup("titi"), vocab2.lookup("titi"))
@@ -91,7 +91,7 @@ class VocabTest(tf.test.TestCase):
             "▁der	-4.36135"
         ])
 
-    vocab = vocab_lib.Vocab(from_file=vocab_path, from_format="sentencepiece")
+    vocab = vocab_lib.Vocab.from_file(vocab_path, file_format="sentencepiece")
     self.assertEqual(len(vocab), 7)
     self.assertNotIn("<unk>", vocab)
     self.assertNotIn("<s>", vocab)

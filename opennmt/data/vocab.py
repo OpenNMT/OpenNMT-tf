@@ -9,17 +9,11 @@ import numpy as np
 class Vocab(object):
   """Vocabulary class."""
 
-  def __init__(self, special_tokens=None, from_file=None, from_format="default"):
+  def __init__(self, special_tokens=None):
     """Initializes a vocabulary.
 
     Args:
       special_tokens: A list of special tokens (e.g. start of sentence).
-      from_file: Optionally initialize from an existing saved vocabulary.
-      from_format: Define the format of the :obj:`from_file` saved vocabulary.
-        Can be: default, sentencepiece. "default" is simply one token per line.
-
-    Raises:
-      ValueError: if :obj:`file_format` is invalid.
     """
     self._token_to_id = {}
     self._id_to_token = []
@@ -35,8 +29,21 @@ class Vocab(object):
         # the same index.
         self._frequency.insert(index, float("inf"))
 
-    if from_file is not None:
-      self.load(from_file, file_format=from_format)
+  @classmethod
+  def from_file(cls, path, file_format="default"):
+    """Creates from a vocabulary file.
+
+    Args:
+      path: The path to the vocabulary file.
+      file_format: Define the format of the vocabulary file. Can be: default,
+        sentencepiece. "default" is simply one token per line.
+
+    Raises:
+      ValueError: if :obj:`file_format` is invalid.
+    """
+    vocab = cls()
+    vocab.load(path, file_format=file_format)
+    return vocab
 
   @property
   def size(self):
@@ -209,11 +216,11 @@ def get_mapping(current_vocab_path, new_vocab_path, mode="replace"):
   mode = mode.lower()
   if mode not in ("merge", "replace"):
     raise ValueError("invalid vocab update mode: %s" % mode)
-  current_vocab = Vocab(from_file=current_vocab_path)
-  new_vocab = Vocab(from_file=new_vocab_path)
+  current_vocab = Vocab.from_file(current_vocab_path)
+  new_vocab = Vocab.from_file(new_vocab_path)
   mapping = []
   if mode == "merge":
-    final_vocab = Vocab(from_file=current_vocab_path)
+    final_vocab = Vocab.from_file(current_vocab_path)
     mapping = [i for i in range(current_vocab.size)]
     for new_word in new_vocab.words:
       if current_vocab.lookup(new_word) is None:

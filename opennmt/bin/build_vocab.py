@@ -46,10 +46,9 @@ def main():
     special_tokens.append(constants.START_OF_SENTENCE_TOKEN)
     special_tokens.append(constants.END_OF_SENTENCE_TOKEN)
 
-  vocab = utils.Vocab(
-      special_tokens=special_tokens,
-      from_file=args.from_vocab,
-      from_format=args.from_format)
+  vocab = utils.Vocab(special_tokens=special_tokens)
+  if args.from_vocab is not None:
+    vocab.load(args.from_vocab, file_format=args.from_format)
   for data_file in args.data:
     vocab.add_from_text(data_file, tokenizer=tokenizer)
   vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)
