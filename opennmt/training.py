@@ -80,8 +80,10 @@ class Trainer(object):
           training=True,
           step=self._optimizer.iterations)
       loss = self._model.compute_loss(outputs, target, training=True)
-      loss = loss[0] / loss[1]
-      step_gradients = self._model.compute_gradients(loss, optimizer, variables=variables)
+      training_loss = loss[0] / loss[1]
+      reported_loss = loss[0] / loss[2]
+      step_gradients = self._model.compute_gradients(
+          training_loss, optimizer, variables=variables)
       for gradient, step_gradient in zip(gradients, step_gradients):
         gradient.assign_add(step_gradient)
       num_words = {}
@@ -89,7 +91,7 @@ class Trainer(object):
         num_words["source"] = tf.reduce_sum(source["length"])
       if "length" in target:
         num_words["target"] = tf.reduce_sum(target["length"])
-      return loss, num_words
+      return reported_loss, num_words
 
     def _apply_gradients():
       optimizer.apply_gradients(list(zip(gradients, variables)))
