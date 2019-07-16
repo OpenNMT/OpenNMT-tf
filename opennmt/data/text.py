@@ -5,26 +5,18 @@
 import tensorflow as tf
 
 
-def tokens_to_chars(tokens, padding_value=""):
+def tokens_to_chars(tokens):
   """Splits tokens into unicode characters.
 
   Args:
     tokens: A string ``tf.Tensor`` of shape :math:`[T]`.
-    padding_value: The value to use for padding.
 
   Returns:
-    The characters as a string ``tf.Tensor`` of shape :math:`[T, W]` and the
-    length of each token as an int64 ``tf.Tensor``  of shape :math:`[T]`.
+    The characters as a 2D string ``tf.RaggedTensor``.
   """
-  ragged = tf.strings.unicode_split(tokens, "UTF-8")
-  chars = ragged.to_tensor(default_value=padding_value)
-  lengths = ragged.row_lengths()
-  return chars, lengths
+  return tf.strings.unicode_split(tokens, "UTF-8")
 
-def tokens_to_words(tokens,
-                    subword_token="￭",
-                    is_spacer=None,
-                    padding_value=""):
+def tokens_to_words(tokens, subword_token="￭", is_spacer=None):
   """Converts a sequence of tokens to a sequence of words.
 
   For example, if a BPE tokenization produces this sequence:
@@ -41,11 +33,9 @@ def tokens_to_words(tokens,
     is_spacer: Whether :obj:`subword_token` is used as a spacer (as in
       SentencePiece) or a joiner (as in BPE). If ``None``, will infer
       directly from :obj:`subword_token`.
-    padding_value: The value to use for padding.
 
   Returns:
-    The words as a 2D string ``tf.Tensor`` and the length of each word as an
-    int64 ``tf.Tensor``.
+    The words as a 2D string ``tf.RaggedTensor``.
   """
   if is_spacer is None:
     is_spacer = subword_token == "▁"
@@ -57,5 +47,4 @@ def tokens_to_words(tokens,
     subword = tf.logical_or(tf.roll(right, shift=1, axis=0), left)
   start = tf.logical_not(subword)
   start_indices = tf.squeeze(tf.where(start), -1)
-  words = tf.RaggedTensor.from_row_starts(tokens, start_indices)
-  return words.to_tensor(default_value=padding_value), words.row_lengths()
+  return tf.RaggedTensor.from_row_starts(tokens, start_indices)

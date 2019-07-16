@@ -335,8 +335,8 @@ class CharEmbedder(TextInputter):
     else:
       features = super(CharEmbedder, self).make_features(
           element=element, features=features, training=training)
-      chars, _ = text.tokens_to_chars(
-          features["tokens"], padding_value=constants.PADDING_TOKEN)
+      chars = text.tokens_to_chars(features["tokens"])
+      chars = chars.to_tensor(default_value=constants.PADDING_TOKEN)
     if self.vocabulary is None:
       self.vocabulary = self.vocabulary_lookup()
     features["char_ids"] = self.vocabulary.lookup(chars)

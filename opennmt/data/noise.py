@@ -58,10 +58,11 @@ class WordNoiser(object):
         tokens = tokens[:sequence_length]
       else:
         tokens = tokens[:tf.math.count_nonzero(tokens)]
-      words, _ = text.tokens_to_words(
+      words = text.tokens_to_words(
           tokens,
           subword_token=self.subword_token,
           is_spacer=self.is_spacer)
+      words = words.to_tensor()
       for noise in self.noises:
         words = noise(words)
       outputs = tf.RaggedTensor.from_tensor(words, padding="").flat_values

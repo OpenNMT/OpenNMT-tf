@@ -11,7 +11,8 @@ class TextTest(tf.test.TestCase):
 
   def _testTokensToChars(self, tokens, expected_chars, expected_lengths):
     expected_chars = tf.nest.map_structure(tf.compat.as_bytes, expected_chars)
-    chars, lengths = text.tokens_to_chars(tf.constant(tokens, dtype=tf.string))
+    chars = text.tokens_to_chars(tf.constant(tokens, dtype=tf.string))
+    chars, lengths = chars.to_tensor(), chars.row_lengths()
     chars, lengths = self.evaluate([chars, lengths])
     self.assertListEqual(expected_chars, chars.tolist())
     self.assertListEqual(expected_lengths, lengths.tolist())
@@ -35,7 +36,8 @@ class TextTest(tf.test.TestCase):
   def testToWordsWithJoiner(self, tokens, expected):
     tokens = tf.constant(tokens)
     expected = tf.constant(expected)
-    words, _ = text.tokens_to_words(tokens)
+    words = text.tokens_to_words(tokens)
+    words = words.to_tensor()
     words, expected = self.evaluate([words, expected])
     self.assertAllEqual(words, expected)
 
@@ -46,7 +48,8 @@ class TextTest(tf.test.TestCase):
   def testToWordsWithSpacer(self, tokens, expected):
     tokens = tf.constant(tokens)
     expected = tf.constant(expected)
-    words, _ = text.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
+    words = text.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
+    words = words.to_tensor()
     words, expected = self.evaluate([words, expected])
     self.assertAllEqual(words, expected)
 
