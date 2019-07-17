@@ -57,3 +57,15 @@ def write_sequence_record(vector, writer):
   feature_lists = tf.train.FeatureLists(feature_list={"values": feature_list})
   example = tf.train.SequenceExample(feature_lists=feature_lists)
   writer.write(example.SerializeToString())
+
+def create_sequence_records(vectors, path):
+  """Creates a TFRecord file of sequence vectors.
+
+  Args:
+    vectors: An iterable of 2D Numpy array of shape :math:`[T, D]`.
+    path: The output TFRecord file.
+  """
+  writer = tf.io.TFRecordWriter(path)
+  for vector in vectors:
+    write_sequence_record(vector, writer)
+  writer.close()

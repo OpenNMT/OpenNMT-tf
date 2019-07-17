@@ -364,9 +364,7 @@ class InputterTest(tf.test.TestCase):
     vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)
 
     record_file = os.path.join(self.get_temp_dir(), "data.records")
-    writer = tf.io.TFRecordWriter(record_file)
-    record_inputter.write_sequence_record(vector, writer)
-    writer.close()
+    record_inputter.create_sequence_records([vector], record_file)
 
     inputter = record_inputter.SequenceRecordInputter(2)
     features, transformed = self._makeDataset(

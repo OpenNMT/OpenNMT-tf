@@ -11,6 +11,7 @@ from opennmt.inputters.inputter import MultiInputter
 from opennmt.inputters.inputter import ParallelInputter
 
 from opennmt.inputters.record_inputter import SequenceRecordInputter
+from opennmt.inputters.record_inputter import create_sequence_records
 from opennmt.inputters.record_inputter import write_sequence_record
 
 from opennmt.inputters.text_inputter import CharEmbedder

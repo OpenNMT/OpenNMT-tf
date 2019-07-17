@@ -62,7 +62,6 @@ The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *T
 It is very simple to generate a compatible *TFRecords* file directly from Python:
 
 ```python
-import tensorflow as tf
 import opennmt as onmt
 import numpy as np
 
@@ -72,10 +71,7 @@ dataset = [
   np.random.rand(13, 50)
 ]
 
-writer = tf.io.TFRecordWriter("data.records")
-for vector in dataset:
-  onmt.inputters.write_sequence_record(vector, writer)
-writer.close()
+onmt.inputters.create_sequence_records(dataset, "data.records")
 ```
 
 This example saves a dataset of 3 random vectors of shape `[time, dim]` into the file "data.records". It should be easy to adapt for any dataset of 2D vectors.
