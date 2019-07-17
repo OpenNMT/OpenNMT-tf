@@ -53,6 +53,23 @@ class TextTest(tf.test.TestCase):
     words, expected = self.evaluate([words, expected])
     self.assertAllEqual(words, expected)
 
+  def _testPharaohAlignments(self, line, lengths, expected_matrix):
+    matrix = text.alignment_matrix_from_pharaoh(
+        tf.constant(line), lengths[0], lengths[1], dtype=tf.int32)
+    self.assertListEqual(expected_matrix, self.evaluate(matrix).tolist())
+
+  def testPharaohAlignments(self):
+    self._testPharaohAlignments("", [0, 0], [])
+    self._testPharaohAlignments("0-0", [1, 1], [[1]])
+    self._testPharaohAlignments(
+        "0-0 1-1 2-2 3-3", [4, 4], [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+    self._testPharaohAlignments(
+        "0-0 1-1 2-3 3-2", [4, 4], [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+    self._testPharaohAlignments(
+        "0-0 1-2 1-1", [2, 3], [[1, 0], [0, 1], [0, 1]])
+    self._testPharaohAlignments(
+        "0-0 1-2 1-1 2-4", [3, 5], [[1, 0, 0], [0, 1, 0], [0, 1, 0], [0, 0, 0], [0, 0, 1]])
+
 
 if __name__ == "__main__":
   tf.test.main()

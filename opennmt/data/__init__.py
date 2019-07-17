@@ -17,6 +17,7 @@ from opennmt.data.noise import WordNoiser
 from opennmt.data.noise import WordPermutation
 from opennmt.data.noise import WordReplacement
 
+from opennmt.data.text import alignment_matrix_from_pharaoh
 from opennmt.data.text import tokens_to_chars
 from opennmt.data.text import tokens_to_words
 
