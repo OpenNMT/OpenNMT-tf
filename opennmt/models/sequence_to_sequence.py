@@ -17,7 +17,7 @@ from opennmt.data import vocab
 from opennmt.layers import reducer
 from opennmt.models.model import Model
 from opennmt.utils import decoding
-from opennmt.utils.losses import cross_entropy_sequence_loss
+from opennmt.utils import losses
 from opennmt.utils.misc import print_bytes, format_translation_output, merge_dict, shape_list
 from opennmt.decoders import decoder as decoder_util
 
@@ -252,7 +252,7 @@ class SequenceToSequence(Model):
       logits = outputs
       attention = None
     labels_lengths = self.labels_inputter.get_length(labels)
-    loss, loss_normalizer, loss_token_normalizer = cross_entropy_sequence_loss(
+    loss, loss_normalizer, loss_token_normalizer = losses.cross_entropy_sequence_loss(
         logits,
         labels["ids_out"],
         labels_lengths,
@@ -267,12 +267,12 @@ class SequenceToSequence(Model):
           tf.get_logger().warning("This model did not return attention vectors; "
                                   "guided alignment will not be applied")
         else:
-          loss += guided_alignment_cost(
+          loss += losses.guided_alignment_cost(
               attention[:, :-1],  # Do not constrain last timestep.
               gold_alignments,
-              labels_lengths - 1,
-              guided_alignment_type,
-              guided_alignment_weight=params.get("guided_alignment_weight", 1))
+              sequence_length=labels_lengths - 1,
+              cost_type=guided_alignment_type,
+              weight=params.get("guided_alignment_weight", 1))
     return loss, loss_normalizer, loss_token_normalizer
 
   def print_prediction(self, prediction, params=None, stream=None):
@@ -382,46 +382,6 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
     labels["length"] += 1
     return features, labels
 
-
-def guided_alignment_cost(attention_probs,
-                          gold_alignment,
-                          sequence_length,
-                          guided_alignment_type,
-                          guided_alignment_weight=1):
-  """Computes the guided alignment cost.
-
-  Args:
-    attention_probs: The attention probabilities, a float ``tf.Tensor`` of shape
-      :math:`[B, T_t, T_s]`.
-    gold_alignment: The true alignment matrix, a float ``tf.Tensor`` of shape
-      :math:`[B, T_t, T_s]`.
-    sequence_length: The length of each sequence.
-    guided_alignment_type: The type of guided alignment cost function to compute
-      (can be: ce, mse).
-    guided_alignment_weight: The weight applied to the guided alignment cost.
-
-  Returns:
-    The guided alignment cost.
-
-  Raises:
-    ValueError: if :obj:`guided_alignment_type` is invalid.
-  """
-  if guided_alignment_type == "ce":
-    loss = tf.keras.losses.CategoricalCrossentropy()
-  elif guided_alignment_type == "mse":
-    loss = tf.keras.losses.MeanSquaredError()
-  else:
-    raise ValueError("invalid guided_alignment_type: %s" % guided_alignment_type)
-
-  weights = tf.sequence_mask(
-      sequence_length,
-      maxlen=tf.shape(attention_probs)[1],
-      dtype=attention_probs.dtype)
-  cost = loss(
-      gold_alignment,
-      attention_probs,
-      sample_weight=tf.expand_dims(weights, -1))
-  return guided_alignment_weight * cost
 
 def align_tokens_from_attention(tokens, attention):
   """Returns aligned tokens from the attention.

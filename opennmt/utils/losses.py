@@ -80,6 +80,50 @@ def cross_entropy_loss(logits,
   loss_normalizer = tf.cast(tf.shape(cross_entropy)[0], loss.dtype)
   return loss, loss_normalizer
 
+def guided_alignment_cost(attention_probs,
+                          gold_alignment,
+                          sequence_length=None,
+                          cost_type="ce",
+                          weight=1):
+  """Computes the guided alignment cost.
+
+  Args:
+    attention_probs: The attention probabilities, a float ``tf.Tensor`` of shape
+      :math:`[B, T_t, T_s]`.
+    gold_alignment: The true alignment matrix, a float ``tf.Tensor`` of shape
+      :math:`[B, T_t, T_s]`.
+    sequence_length: The length of each sequence.
+    cost_type: The type of the cost function to compute (can be: ce, mse).
+    weight: The weight applied to the cost.
+
+  Returns:
+    The guided alignment cost.
+
+  Raises:
+    ValueError: if :obj:`cost_type` is invalid.
+  """
+  if cost_type == "ce":
+    loss = tf.keras.losses.CategoricalCrossentropy()
+  elif cost_type == "mse":
+    loss = tf.keras.losses.MeanSquaredError()
+  else:
+    raise ValueError("invalid guided alignment cost: %s" % cost_type)
+
+  if sequence_length is not None:
+    sample_weight = tf.sequence_mask(
+        sequence_length,
+        maxlen=tf.shape(attention_probs)[1],
+        dtype=attention_probs.dtype)
+    sample_weight = tf.expand_dims(sample_weight, -1)
+  else:
+    sample_weight = None
+
+  cost = loss(
+      gold_alignment,
+      attention_probs,
+      sample_weight=sample_weight)
+  return weight * cost
+
 def regularization_penalty(regularization_type, scale, weights):
   """Computes the weights regularization penalty.
 
