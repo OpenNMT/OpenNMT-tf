@@ -17,12 +17,11 @@ root_dir = os.path.join(test_dir, "..", "..")
 test_data = os.path.join(root_dir, "testdata")
 
 
-@unittest.skip
 class RunnerTest(tf.test.TestCase):
 
   def _getTransliterationRunner(self, base_config=None):
-    model_dir = os.path.join(self.get_temp_dir(), "transliteration-aren")
-    shutil.copytree(os.path.join(test_data, "transliteration-aren"), model_dir)
+    model_dir = os.path.join(self.get_temp_dir(), "transliteration-aren-v1")
+    shutil.copytree(os.path.join(test_data, "transliteration-aren-v1"), model_dir)
     config = {}
     config["model_dir"] = model_dir
     config["data"] = {
@@ -64,7 +63,7 @@ class RunnerTest(tf.test.TestCase):
         },
         "params": {
             "learning_rate": 0.0005,
-            "optimizer": "AdamOptimizer"
+            "optimizer": "Adam"
         },
         "train": {
             "batch_size": 10,
@@ -72,7 +71,8 @@ class RunnerTest(tf.test.TestCase):
         }
     }
     runner = self._getTransliterationRunner(config)
-    runner.train()
+    output_dir = runner.train()
+    self.assertTrue(tf.train.latest_checkpoint(output_dir).endswith("145001"))
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testEvaluate(self):
@@ -89,32 +89,7 @@ class RunnerTest(tf.test.TestCase):
     runner = self._getTransliterationRunner(config)
     metrics = runner.evaluate()
     self.assertIn("loss", metrics)
-
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
-  def testTrainAndEvaluate(self):
-    ar_file, en_file  = self._makeTransliterationData()
-    config = {
-        "data": {
-            "train_features_file": ar_file,
-            "train_labels_file": en_file,
-            "eval_features_file": ar_file,
-            "eval_labels_file": en_file
-        },
-        "params": {
-            "learning_rate": 0.0005,
-            "optimizer": "AdamOptimizer"
-        },
-        "train": {
-            "batch_size": 10,
-            "train_steps": 145001  # Just train for 1 step.
-        }
-    }
-    runner = self._getTransliterationRunner(config)
-    result = runner.train_and_evaluate()
-    if result is not None:
-      metrics, export = result
-      self.assertIn("loss", metrics)
-      self.assertEqual(len(export), 1)
+    self.assertIn("bleu", metrics)
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testInfer(self):
@@ -126,6 +101,7 @@ class RunnerTest(tf.test.TestCase):
     with open(en_file) as f:
       lines = f.readlines()
     self.assertEqual(len(lines), 5)
+    self.assertEqual(lines[0].strip(), "a t z m o n")
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testScore(self):
@@ -140,12 +116,10 @@ class RunnerTest(tf.test.TestCase):
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testExport(self):
-    export_dir_base = os.path.join(self.get_temp_dir(), "export")
+    export_dir = os.path.join(self.get_temp_dir(), "export")
     runner = self._getTransliterationRunner()
-    export_dir = runner.export(export_dir_base=export_dir_base)
-    with self.test_session() as sess:
-      meta_graph_def = tf.saved_model.loader.load(
-          sess, [tf.saved_model.tag_constants.SERVING], export_dir)
+    runner.export(export_dir)
+    self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
 
 
 if __name__ == "__main__":
