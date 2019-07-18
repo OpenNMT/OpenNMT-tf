@@ -1,5 +1,6 @@
 """Checkpoint utilities."""
 
+import copy
 import os
 import six
 
@@ -53,9 +54,10 @@ class Checkpoint(object):
     """Saves a checkpoint for :obj:`step`."""
     path = self._checkpoint_manager.save(checkpoint_number=step)
     tf.get_logger().info("Saved checkpoint %s", path)
+    return path
 
   def restore(self, checkpoint_path=None, weights_only=False):
-    """Restores a checkpoint:
+    """Restores a checkpoint.
 
     Args:
       checkpoint_path: Path a checkpoint to restore. If not set, the latest
@@ -79,18 +81,24 @@ class Checkpoint(object):
       return None
     is_v1 = os.path.basename(checkpoint_path).startswith("model")
     if is_v1:
-      _restore_v1_checkpoint(
-          checkpoint_path,
-          self._model,
-          optimizer=self._optimizer if not weights_only else None)
-    else:
-      checkpoint.restore(checkpoint_path)
+      tf.get_logger().info("Upgrading V1 checkpoint...")
+      # Work with copies of model and optimizer as the downstream task might
+      # need to create the variable differently (e.g. under a distribution
+      # strategy scope).
+      tmp_model = copy.deepcopy(self._model)
+      tmp_optimizer = copy.deepcopy(self._optimizer) if self._optimizer is not None else None
+      tmp_model.create_variables(optimizer=tmp_optimizer)
+      step = _restore_v1_checkpoint(
+          checkpoint_path, tmp_model, optimizer=tmp_optimizer)
+      # Save an updated checkpoint in the model directory and restore this one instead.
+      tmp_checkpoint = Checkpoint(
+          tmp_model, optimizer=tmp_optimizer, model_dir=self._model_dir)
+      checkpoint_path = tmp_checkpoint.save(step)
+      return self.restore(checkpoint_path=checkpoint_path, weights_only=weights_only)
+    checkpoint.restore(checkpoint_path)
     tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
     return checkpoint_path
 
-
-def _restore_v1_checkpoint(checkpoint_path, model, optimizer=None):
-  raise NotImplementedError("V1 checkpoints are currently unsupported")
 
 def get_checkpoint_variables(checkpoint_path):
   """Returns variables included in a checkpoint.
@@ -169,3 +177,77 @@ def average_checkpoints(model_dir,
   new_checkpoint_manager = tf.train.CheckpointManager(checkpoint, output_dir, max_to_keep=None)
   new_checkpoint_manager.save(checkpoint_number=last_step)
   return output_dir
+
+
+_V1_OPTIM_SCOPE = "optim"
+_V1_SLOTS_MAPPING = {
+    "Adam": "m",
+    "Adam_1": "v"
+}
+
+
+def _restore_v1_checkpoint(checkpoint_path, model, optimizer=None):
+  v1_variables = get_checkpoint_variables(checkpoint_path)
+  v1_structure = _variables_to_structure(v1_variables)
+  step = v1_structure["global_step"]
+  if optimizer is not None:
+    optimizer.iterations.assign(step)
+    if _V1_OPTIM_SCOPE in v1_structure:
+      slots = v1_structure[_V1_OPTIM_SCOPE]
+      del v1_structure[_V1_OPTIM_SCOPE]
+      v1_structure = _merge_optimizer_slots(v1_structure, slots)
+  mapping = model.map_v1_weights(v1_structure)
+  missing_mapping = set(model.variables).difference(set(six.iterkeys(mapping)))
+  if missing_mapping:
+    raise ValueError("The following variables were not mapped: %s" % (
+        ", ".join(var.name for var in missing_mapping)))
+  # Assign each variable and possibly the optimizer slots.
+  for v2_variable, v1_variable in six.iteritems(mapping):
+    if isinstance(v1_variable, tuple):
+      v1_variable, v1_slots = v1_variable
+    else:
+      v1_slots = None
+    v2_variable.assign(v1_variable)
+    if v1_slots is not None:
+      for slot_name, value in six.iteritems(v1_slots):
+        v2_slot = optimizer.get_slot(v2_variable, slot_name)
+        v2_slot.assign(value)
+  return step
+
+def _variables_to_structure(variables):
+  """Represents variables a nested dictionary with scope names as keys."""
+  structure = {}
+  for name, value in six.iteritems(variables):
+    fields = name.split("/")
+    cur = structure
+    for i, key in enumerate(fields):
+      if key not in cur:
+        if i + 1 == len(fields):
+          cur[key] = value
+          break
+        else:
+          cur[key] = {}
+      cur = cur[key]
+  return structure
+
+def _merge_optimizer_slots(variables, slots):
+  """Replaces leaves in the variables structure by tuples of
+  (variable, dict of optimizer slots).
+  """
+  if isinstance(variables, dict):
+    merged = {}
+    for key, value in six.iteritems(variables):
+      if key not in slots:
+        merged[key] = copy.deepcopy(value)
+      else:
+        merged[key] = _merge_optimizer_slots(value, slots[key])
+    return merged
+  else:
+    new_slots = {}
+    for name, value in six.iteritems(slots):
+      name = _V1_SLOTS_MAPPING.get(name)
+      if name is None:
+        # Just ignore the optimizer slots if their name is not listed.
+        return variables
+      new_slots[name] = value
+    return (variables, new_slots)

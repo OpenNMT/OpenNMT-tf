@@ -244,6 +244,19 @@ class Model(tf.keras.layers.Layer):
       if new_weight not in ignore_weights:
         new_weight.assign(weight)
 
+  def map_v1_weights(self, weights):
+    """Maps current weights to V1 weights.
+
+    Args:
+      weights: A nested dictionary following the scope names used in V1. The
+        leaves are tuples with the variable value and optionally the optimizer
+        slots.
+
+    Returns:
+      A dictionary mapping variables to their V1 equivalent.
+    """
+    raise NotImplementedError("This model can not restore V1 checkpoints")
+
   def export_assets(self, asset_dir):
     """Exports additional assets used by this model.
 

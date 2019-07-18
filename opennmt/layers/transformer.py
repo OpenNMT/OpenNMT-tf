@@ -1,6 +1,7 @@
 """Define layers related to the Google's Transformer model."""
 
 import tensorflow as tf
+import numpy as np
 
 from opennmt.layers import common
 from opennmt.utils import misc
@@ -98,6 +99,14 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
     inner = common.dropout(inner, self.dropout, training=training)
     return self.outer(inner)
 
+  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+    # V1 used conv1d layers that have a leading dimensions.
+    weights = tf.nest.map_structure(np.squeeze, weights)
+    m = {}
+    m.update(self.inner.map_v1_weights(weights["conv1d"]))
+    m.update(self.outer.map_v1_weights(weights["conv1d_1"]))
+    return m
+
 
 class MultiHeadAttention(tf.keras.layers.Layer):
   """Computes the multi-head attention as described in
@@ -132,6 +141,28 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     self.linear_output = common.Dense(num_units)
     self.dropout = dropout
     self.return_attention = return_attention
+
+  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+    # V1 used conv1d layers that have a leading dimensions.
+    weights = tf.nest.map_structure(np.squeeze, weights)
+
+    def _partial_weights(key, num_splits, index):
+      return tf.nest.map_structure(
+          lambda w: np.split(w, num_splits, axis=0 if w.ndim == 1 else 1)[index],
+          weights[key])
+
+    m = {}
+    if "conv1d_2" not in weights:  # Case self-attention.
+      m.update(self.linear_queries.map_v1_weights(_partial_weights("conv1d", 3, 0)))
+      m.update(self.linear_keys.map_v1_weights(_partial_weights("conv1d", 3, 1)))
+      m.update(self.linear_values.map_v1_weights(_partial_weights("conv1d", 3, 2)))
+      m.update(self.linear_output.map_v1_weights(weights["conv1d_1"]))
+    else:
+      m.update(self.linear_queries.map_v1_weights(weights["conv1d"]))
+      m.update(self.linear_keys.map_v1_weights(_partial_weights("conv1d_1", 2, 0)))
+      m.update(self.linear_values.map_v1_weights(_partial_weights("conv1d_1", 2, 1)))
+      m.update(self.linear_output.map_v1_weights(weights["conv1d_2"]))
+    return m
 
   def call(self, inputs, memory=None, mask=None, cache=None, training=None):  # pylint: disable=arguments-differ
     """Runs the layer.
@@ -219,3 +250,9 @@ class TransformerLayerWrapper(common.LayerWrapper):
         output_dropout=output_dropout,
         residual_connection=True,
         **kwargs)
+
+  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+    m = {}
+    m.update(self.input_layer_norm.map_v1_weights(weights["LayerNorm"]))
+    m.update(self.layer.map_v1_weights(weights))
+    return m
