@@ -206,7 +206,12 @@ class Model(tf.keras.layers.Layer):
     if self.built:
       return
 
-    self.serve_function().get_concrete_function()
+    features = tf.nest.map_structure(
+        lambda spec: tf.zeros([dim or 1 for dim in spec.shape.as_list()], dtype=spec.dtype),
+        self.features_inputter.input_signature())
+    features = self.features_inputter.make_features(features=features)
+    _ = self(features)
+
     if optimizer is not None:
       _ = optimizer.iterations
       optimizer._create_hypers()  # pylint: disable=protected-access
