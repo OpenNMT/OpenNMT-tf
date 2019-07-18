@@ -98,8 +98,10 @@ class Model(tf.keras.layers.Layer):
       step: The current training step.
 
     Returns:
-      outputs: The model outputs (usually unscaled probabilities).
-      predictions: The model predictions.
+      A tuple containing,
+
+      - The model outputs (usually unscaled probabilities).
+      - The model predictions.
     """
     raise NotImplementedError()
 

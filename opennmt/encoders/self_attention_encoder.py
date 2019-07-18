@@ -62,7 +62,6 @@ class SelfAttentionEncoder(Encoder):
         for i in range(num_layers)]
 
   def call(self, inputs, sequence_length=None, training=None):
-    """Encodes :obj:`inputs`."""
     inputs *= self.num_units**0.5
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs)

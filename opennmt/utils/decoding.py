@@ -24,8 +24,7 @@ class Sampler(object):
       num_samples: The number of samples per batch to produce.
 
     Returns:
-      sample_ids: The sampled ids.
-      sample_scores: The sampled scores.
+      A tuple ``(sample_ids, sample_scores)``.
     """
     raise NotImplementedError()
 
@@ -84,10 +83,12 @@ class DecodingStrategy(object):
         maximum source length).
 
     Returns:
-      start_ids: The (possibly transformed) start decoding ids.
-      finished: The tensor of finished flags.
-      initial_log_probs: Initial log probabilities per batch.
-      extra_vars: A sequence of additional tensors used during the decoding.
+      A tuple containing,
+
+      - The (possibly transformed) start decoding ids.
+      - The tensor of finished flags.
+      - Initial log probabilities per batch.
+      - A sequence of additional tensors used during the decoding.
     """
     raise NotImplementedError()
 
@@ -114,11 +115,13 @@ class DecodingStrategy(object):
       attention: The attention vector for the current step.
 
     Returns:
-      ids: The predicted word ids.
-      cum_log_probs: The new cumulated log probabilities.
-      finished: The updated finished flags.
-      state: The update decoder state.
-      extra_vars: Additional tensors from this decoding strategy.
+      A tuple containing,
+
+      - The predicted word ids.
+      - The new cumulated log probabilities.
+      - The updated finished flags.
+      - The update decoder state.
+      - Additional tensors from this decoding strategy.
     """
     raise NotImplementedError()
 
@@ -133,9 +136,11 @@ class DecodingStrategy(object):
       attention: The array of attention outputs.
 
     Returns:
-      final_ids: The final predictions as a tensor of shape [B, H, T].
-      final_attention: The final attention history of shape [B, H, T, S].
-      final_lengths: The final sequence lengths of shape [B, H].
+      A tuple containing,
+
+      - The final predictions as a tensor of shape [B, H, T].
+      - The final attention history of shape [B, H, T, S].
+      - The final sequence lengths of shape [B, H].
     """
     raise NotImplementedError()
 
@@ -328,11 +333,13 @@ def dynamic_decode(symbols_to_logits_fn,
       maximum source length).
 
   Returns:
-    ids: The predicted ids of shape :math:`[B, H, T]`.
-    lengths: The produced sequences length of shape :math:`[B, H]`.
-    log_probs: The cumulated log probabilities of shape :math:`[B, H]`.
-    attention_history: The attention history of shape :math:`[B, H, T_t, T_s]`.
-    state: The final decoding state.
+    A tuple containing,
+
+    - The predicted ids of shape :math:`[B, H, T]`.
+    - The produced sequences length of shape :math:`[B, H]`.
+    - The cumulated log probabilities of shape :math:`[B, H]`.
+    - The attention history of shape :math:`[B, H, T_t, T_s]`.
+    - The final decoding state.
   """
   if decoding_strategy is None:
     decoding_strategy = GreedySearch()
