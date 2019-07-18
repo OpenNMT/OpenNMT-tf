@@ -17,7 +17,7 @@ OpenNMT-tf 2.0 is the first major update of the project. The goal of this releas
 
 * TensorFlow 2.0 is required
 * Python 3.5 or greater is required
-* Checkpoints of models are no longer compatible as the code now uses object-based instead of name-based checkpointing (upgrade script for Transformer-based checkpoints is planned)
+* Checkpoints are no longer compatible as the code now uses object-based instead of name-based checkpointing. However, Transformer-based checkpoints are automatically upgraded when loaded.
 * The `onmt-main` script now makes use of subparsers which require to move the run type and it specific options to the end of the command
 * Some parameters in the YAML configuration has been renamed or changed, see the documentation
 * A lot of public classes and functions have changed, see the package documentation for details
