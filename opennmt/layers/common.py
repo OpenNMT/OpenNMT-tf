@@ -43,6 +43,8 @@ class Dense(tf.keras.layers.Dense):
     outputs = tf.matmul(inputs, self.kernel, transpose_b=self.transpose)
     if self.use_bias:
       outputs = tf.nn.bias_add(outputs, self.bias)
+    if self.activation is not None:
+      outputs = self.activation(outputs)  # pylint: disable=not-callable
     if rank > 2:
       outputs = tf.reshape(outputs, shape[:-1] + [self.units])
     return outputs
