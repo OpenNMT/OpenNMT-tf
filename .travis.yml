@@ -6,7 +6,7 @@ before_install:
 before_script:
   - wget https://s3.amazonaws.com/opennmt-models/transliteration-aren-v2.tar.gz
   - mkdir -p $TRAVIS_BUILD_DIR/testdata
-  - tar xf transliteration-aren.tar.gz -C $TRAVIS_BUILD_DIR/testdata
+  - tar xf transliteration-aren-v2.tar.gz -C $TRAVIS_BUILD_DIR/testdata
 script:
   - nose2
 matrix:
