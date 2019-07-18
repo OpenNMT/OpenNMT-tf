@@ -253,6 +253,14 @@
   <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">==</span> <span class="mi">1</span>
 
+<div class="viewcode-block" id="SelfAttentionDecoder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;dense&quot;</span><span class="p">]))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_norm</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;LayerNorm&quot;</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+      <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;layer_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">m</span></div>
+
   <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
            <span class="n">inputs</span><span class="p">,</span>
            <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -411,6 +419,13 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">TransformerLayerWrapper</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
 
+  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;masked_multi_head&quot;</span><span class="p">]))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;multi_head&quot;</span><span class="p">]))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;ffn&quot;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">m</span>
+
   <span class="c1"># pylint: disable=arguments-differ</span>
   <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
            <span class="n">inputs</span><span class="p">,</span>
@@ -465,7 +480,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

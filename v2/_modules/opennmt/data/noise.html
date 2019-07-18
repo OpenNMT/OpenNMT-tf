@@ -235,10 +235,11 @@
         <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">sequence_length</span><span class="p">]</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">tokens</span><span class="p">)]</span>
-      <span class="n">words</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_words</span><span class="p">(</span>
+      <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_words</span><span class="p">(</span>
           <span class="n">tokens</span><span class="p">,</span>
           <span class="n">subword_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subword_token</span><span class="p">,</span>
           <span class="n">is_spacer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_spacer</span><span class="p">)</span>
+      <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
       <span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="p">:</span>
         <span class="n">words</span> <span class="o">=</span> <span class="n">noise</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
       <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">flat_values</span>
@@ -404,7 +405,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

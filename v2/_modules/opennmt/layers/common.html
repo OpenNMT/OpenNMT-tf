@@ -220,9 +220,17 @@
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transpose</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
       <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">bias_add</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>  <span class="c1"># pylint: disable=not-callable</span>
     <span class="k">if</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
       <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">outputs</span></div></div>
+    <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="Dense.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">:</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;kernel&quot;</span><span class="p">]}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
+      <span class="n">m</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">m</span></div></div>
 
 
 <div class="viewcode-block" id="LayerNorm"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm">[docs]</a><span class="k">class</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
@@ -256,7 +264,13 @@
     <span class="n">mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">variance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">norm_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">rsqrt</span><span class="p">(</span><span class="n">variance</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">norm_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span></div></div>
+    <span class="k">return</span> <span class="n">norm_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span></div>
+
+<div class="viewcode-block" id="LayerNorm.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">:</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">:</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">]</span>
+    <span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="LayerWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper">[docs]</a><span class="k">class</span> <span class="nc">LayerWrapper</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
@@ -353,7 +367,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

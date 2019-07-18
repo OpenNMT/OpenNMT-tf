@@ -186,17 +186,11 @@
 <div class="viewcode-block" id="Vocab"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab">[docs]</a><span class="k">class</span> <span class="nc">Vocab</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Vocabulary class.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Vocab.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_format</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Vocab.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes a vocabulary.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      special_tokens: A list of special tokens (e.g. start of sentence).</span>
-<span class="sd">      from_file: Optionally initialize from an existing saved vocabulary.</span>
-<span class="sd">      from_format: Define the format of the :obj:`from_file` saved vocabulary.</span>
-<span class="sd">        Can be: default, sentencepiece. &quot;default&quot; is simply one token per line.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if :obj:`file_format` is invalid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span> <span class="o">=</span> <span class="p">[]</span>
@@ -210,10 +204,23 @@
         <span class="c1"># Set a very high frequency to avoid special tokens to be pruned. Note that Python sort</span>
         <span class="c1"># functions are stable which means that special tokens in pruned vocabularies will have</span>
         <span class="c1"># the same index.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))</span></div>
 
-    <span class="k">if</span> <span class="n">from_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">from_file</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="n">from_format</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Vocab.from_file"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.from_file">[docs]</a>  <span class="nd">@classmethod</span>
+  <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates from a vocabulary file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      path: The path to the vocabulary file.</span>
+<span class="sd">      file_format: Define the format of the vocabulary file. Can be: default,</span>
+<span class="sd">        sentencepiece. &quot;default&quot; is simply one token per line.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`file_format` is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+    <span class="n">vocab</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="n">file_format</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vocab</span></div>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -386,11 +393,11 @@
   <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
   <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;merge&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid vocab update mode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
-  <span class="n">current_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="n">current_vocab_path</span><span class="p">)</span>
-  <span class="n">new_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="n">new_vocab_path</span><span class="p">)</span>
+  <span class="n">current_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">)</span>
+  <span class="n">new_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">new_vocab_path</span><span class="p">)</span>
   <span class="n">mapping</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;merge&quot;</span><span class="p">:</span>
-    <span class="n">final_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="n">current_vocab_path</span><span class="p">)</span>
+    <span class="n">final_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">)</span>
     <span class="n">mapping</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">current_vocab</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">new_word</span> <span class="ow">in</span> <span class="n">new_vocab</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">current_vocab</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -458,7 +465,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

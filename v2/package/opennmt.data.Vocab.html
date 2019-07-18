@@ -205,20 +205,30 @@
 <h1>opennmt.data.Vocab<a class="headerlink" href="#opennmt-data-vocab" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.data.Vocab">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">Vocab</code><span class="sig-paren">(</span><em class="sig-param">special_tokens=None</em>, <em class="sig-param">from_file=None</em>, <em class="sig-param">from_format='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">Vocab</code><span class="sig-paren">(</span><em class="sig-param">special_tokens=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vocabulary class.</p>
 <p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
 <dl class="method">
 <dt id="opennmt.data.Vocab.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">special_tokens=None</em>, <em class="sig-param">from_file=None</em>, <em class="sig-param">from_format='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">special_tokens=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes a vocabulary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>special_tokens</strong> – A list of special tokens (e.g. start of sentence).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.data.Vocab.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">file_format='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates from a vocabulary file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>special_tokens</strong> – A list of special tokens (e.g. start of sentence).</p></li>
-<li><p><strong>from_file</strong> – Optionally initialize from an existing saved vocabulary.</p></li>
-<li><p><strong>from_format</strong> – Define the format of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code> saved vocabulary.
-Can be: default, sentencepiece. “default” is simply one token per line.</p></li>
+<li><p><strong>path</strong> – The path to the vocabulary file.</p></li>
+<li><p><strong>file_format</strong> – Define the format of the vocabulary file. Can be: default,
+sentencepiece. “default” is simply one token per line.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -382,7 +392,6 @@ Usually just 1 for the <cite>&lt;unk&gt;</cite> token.</p></li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

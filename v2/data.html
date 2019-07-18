@@ -251,8 +251,7 @@ The name of this site , and program name Title purchased will not be displayed .
 <div class="section" id="via-python">
 <h4>via Python<a class="headerlink" href="#via-python" title="Permalink to this headline">¶</a></h4>
 <p>It is very simple to generate a compatible <em>TFRecords</em> file directly from Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">opennmt</span> <span class="kn">as</span> <span class="nn">onmt</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">opennmt</span> <span class="kn">as</span> <span class="nn">onmt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="p">[</span>
@@ -261,10 +260,7 @@ The name of this site , and program name Title purchased will not be displayed .
   <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="p">]</span>
 
-<span class="n">writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">TFRecordWriter</span><span class="p">(</span><span class="s2">&quot;data.records&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
-  <span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">write_sequence_record</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">writer</span><span class="p">)</span>
-<span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">create_sequence_records</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;data.records&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example saves a dataset of 3 random vectors of shape <code class="docutils literal notranslate"><span class="pre">[time,</span> <span class="pre">dim]</span></code> into the file “data.records”. It should be easy to adapt for any dataset of 2D vectors.</p>
@@ -364,7 +360,6 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

@@ -19,6 +19,7 @@ Functions
 
 .. toctree::
 
+   opennmt.data.alignment_matrix_from_pharaoh
    opennmt.data.batch_dataset
    opennmt.data.batch_parallel_dataset
    opennmt.data.filter_examples_by_length

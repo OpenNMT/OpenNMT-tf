@@ -481,7 +481,10 @@
         <span class="n">log_dir</span><span class="p">,</span>
         <span class="n">misc</span><span class="o">.</span><span class="n">get_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">model_root</span><span class="p">),</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-        <span class="n">num_oov_buckets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span></div></div>
+        <span class="n">num_oov_buckets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WordEmbedder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+    <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">:</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;w_embs&quot;</span><span class="p">]}</span></div></div>
 
 
 <div class="viewcode-block" id="CharEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
@@ -512,8 +515,8 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
           <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-      <span class="n">chars</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_chars</span><span class="p">(</span>
-          <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">],</span> <span class="n">padding_value</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PADDING_TOKEN</span><span class="p">)</span>
+      <span class="n">chars</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_chars</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
+      <span class="n">chars</span> <span class="o">=</span> <span class="n">chars</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PADDING_TOKEN</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_lookup</span><span class="p">()</span>
     <span class="n">features</span><span class="p">[</span><span class="s2">&quot;char_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
@@ -634,7 +637,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

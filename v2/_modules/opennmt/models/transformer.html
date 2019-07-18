@@ -183,6 +183,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">ParallelEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.encoders.self_attention_encoder</span> <span class="k">import</span> <span class="n">SelfAttentionEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="k">import</span> <span class="n">SelfAttentionDecoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.inputters.text_inputter</span> <span class="k">import</span> <span class="n">WordEmbedder</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="k">import</span> <span class="n">SinusoidalPositionEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">merge_dict</span>
 
@@ -302,7 +303,19 @@
             <span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
             <span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">:</span> <span class="mi">8</span>
         <span class="p">}</span>
-    <span class="p">})</span></div></div>
+    <span class="p">})</span></div>
+
+<div class="viewcode-block" id="Transformer.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span> <span class="n">SelfAttentionEncoder</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">,</span> <span class="n">WordEmbedder</span><span class="p">)):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Transformer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;transformer&quot;</span><span class="p">]</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;encoder&quot;</span><span class="p">]))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">]))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;encoder&quot;</span><span class="p">]))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">m</span></div></div>
 </pre></div>
 
            </div>
@@ -315,7 +328,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

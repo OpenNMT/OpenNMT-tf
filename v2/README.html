@@ -185,8 +185,8 @@
 </div>
 <div class="section" id="build-locally">
 <h2>Build locally<a class="headerlink" href="#build-locally" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm -f docs/package/*
-python docs/generate-apidoc.py docs/package
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm -rf docs/package
+<span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PWD</span> python docs/generate-apidoc.py docs/package
 <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PWD</span> sphinx-build docs docs/build
 </pre></div>
 </div>
@@ -204,7 +204,6 @@ python docs/generate-apidoc.py docs/package
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

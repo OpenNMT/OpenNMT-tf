@@ -182,26 +182,18 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
-<div class="viewcode-block" id="tokens_to_chars"><a class="viewcode-back" href="../../../package/opennmt.data.tokens_to_chars.html#opennmt.data.tokens_to_chars">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_chars</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">padding_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="tokens_to_chars"><a class="viewcode-back" href="../../../package/opennmt.data.tokens_to_chars.html#opennmt.data.tokens_to_chars">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_chars</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Splits tokens into unicode characters.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    tokens: A string ``tf.Tensor`` of shape :math:`[T]`.</span>
-<span class="sd">    padding_value: The value to use for padding.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    The characters as a string ``tf.Tensor`` of shape :math:`[T, W]` and the</span>
-<span class="sd">    length of each token as an int64 ``tf.Tensor``  of shape :math:`[T]`.</span>
+<span class="sd">    The characters as a 2D string ``tf.RaggedTensor``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">ragged</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">unicode_split</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
-  <span class="n">chars</span> <span class="o">=</span> <span class="n">ragged</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="n">padding_value</span><span class="p">)</span>
-  <span class="n">lengths</span> <span class="o">=</span> <span class="n">ragged</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">()</span>
-  <span class="k">return</span> <span class="n">chars</span><span class="p">,</span> <span class="n">lengths</span></div>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">unicode_split</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="tokens_to_words"><a class="viewcode-back" href="../../../package/opennmt.data.tokens_to_words.html#opennmt.data.tokens_to_words">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_words</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span>
-                    <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;￭&quot;</span><span class="p">,</span>
-                    <span class="n">is_spacer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">padding_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="tokens_to_words"><a class="viewcode-back" href="../../../package/opennmt.data.tokens_to_words.html#opennmt.data.tokens_to_words">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_words</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;￭&quot;</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Converts a sequence of tokens to a sequence of words.</span>
 
 <span class="sd">  For example, if a BPE tokenization produces this sequence:</span>
@@ -218,11 +210,9 @@
 <span class="sd">    is_spacer: Whether :obj:`subword_token` is used as a spacer (as in</span>
 <span class="sd">      SentencePiece) or a joiner (as in BPE). If ``None``, will infer</span>
 <span class="sd">      directly from :obj:`subword_token`.</span>
-<span class="sd">    padding_value: The value to use for padding.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    The words as a 2D string ``tf.Tensor`` and the length of each word as an</span>
-<span class="sd">    int64 ``tf.Tensor``.</span>
+<span class="sd">    The words as a 2D string ``tf.RaggedTensor``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">is_spacer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">is_spacer</span> <span class="o">=</span> <span class="n">subword_token</span> <span class="o">==</span> <span class="s2">&quot;▁&quot;</span>
@@ -234,8 +224,37 @@
     <span class="n">subword</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">left</span><span class="p">)</span>
   <span class="n">start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">subword</span><span class="p">)</span>
   <span class="n">start_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-  <span class="n">words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_row_starts</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">start_indices</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">words</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="n">padding_value</span><span class="p">),</span> <span class="n">words</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">()</span></div>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_row_starts</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">start_indices</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="alignment_matrix_from_pharaoh"><a class="viewcode-back" href="../../../package/opennmt.data.alignment_matrix_from_pharaoh.html#opennmt.data.alignment_matrix_from_pharaoh">[docs]</a><span class="k">def</span> <span class="nf">alignment_matrix_from_pharaoh</span><span class="p">(</span><span class="n">alignment_line</span><span class="p">,</span>
+                                  <span class="n">source_length</span><span class="p">,</span>
+                                  <span class="n">target_length</span><span class="p">,</span>
+                                  <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Parse Pharaoh alignments into an alignment matrix.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    alignment_line: A string ``tf.Tensor`` in the Pharaoh format.</span>
+<span class="sd">    source_length: The length of the source sentence, without special symbols.</span>
+<span class="sd">    target_length The length of the target sentence, without special symbols.</span>
+<span class="sd">    dtype: The output matrix dtype. Defaults to ``tf.float32`` for convenience</span>
+<span class="sd">      when computing the guided alignment loss.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The alignment matrix as a 2-D ``tf.Tensor`` of type :obj:`dtype` and shape</span>
+<span class="sd">    ``[target_length, source_length]``, where ``[i, j] = 1`` if the ``i`` th</span>
+<span class="sd">    target word is aligned with the ``j`` th source word.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">align_pairs_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">([</span><span class="n">alignment_line</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
+  <span class="n">align_pairs_flat_str</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">align_pairs_str</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+  <span class="n">align_pairs_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">to_number</span><span class="p">(</span><span class="n">align_pairs_flat_str</span><span class="p">,</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+  <span class="n">sparse_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">align_pairs_flat</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+  <span class="n">sparse_values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sparse_indices</span><span class="p">)[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">source_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">source_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+  <span class="n">target_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">target_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+  <span class="n">alignment_matrix_sparse</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">SparseTensor</span><span class="p">(</span>
+      <span class="n">sparse_indices</span><span class="p">,</span> <span class="n">sparse_values</span><span class="p">,</span> <span class="p">[</span><span class="n">source_length</span><span class="p">,</span> <span class="n">target_length</span><span class="p">])</span>
+  <span class="n">alignment_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">to_dense</span><span class="p">(</span><span class="n">alignment_matrix_sparse</span><span class="p">,</span> <span class="n">validate_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">alignment_matrix</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -248,7 +267,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

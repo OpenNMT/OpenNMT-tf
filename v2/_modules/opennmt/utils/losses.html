@@ -257,6 +257,50 @@
   <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span></div>
 
+<div class="viewcode-block" id="guided_alignment_cost"><a class="viewcode-back" href="../../../package/opennmt.utils.guided_alignment_cost.html#opennmt.utils.guided_alignment_cost">[docs]</a><span class="k">def</span> <span class="nf">guided_alignment_cost</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">,</span>
+                          <span class="n">gold_alignment</span><span class="p">,</span>
+                          <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">cost_type</span><span class="o">=</span><span class="s2">&quot;ce&quot;</span><span class="p">,</span>
+                          <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Computes the guided alignment cost.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    attention_probs: The attention probabilities, a float ``tf.Tensor`` of shape</span>
+<span class="sd">      :math:`[B, T_t, T_s]`.</span>
+<span class="sd">    gold_alignment: The true alignment matrix, a float ``tf.Tensor`` of shape</span>
+<span class="sd">      :math:`[B, T_t, T_s]`.</span>
+<span class="sd">    sequence_length: The length of each sequence.</span>
+<span class="sd">    cost_type: The type of the cost function to compute (can be: ce, mse).</span>
+<span class="sd">    weight: The weight applied to the cost.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The guided alignment cost.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`cost_type` is invalid.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;ce&quot;</span><span class="p">:</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">()</span>
+  <span class="k">elif</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;mse&quot;</span><span class="p">:</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">()</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid guided alignment cost: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cost_type</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
+        <span class="n">sequence_length</span><span class="p">,</span>
+        <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">attention_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">sample_weight</span> <span class="o">=</span> <span class="kc">None</span>
+
+  <span class="n">cost</span> <span class="o">=</span> <span class="n">loss</span><span class="p">(</span>
+      <span class="n">gold_alignment</span><span class="p">,</span>
+      <span class="n">attention_probs</span><span class="p">,</span>
+      <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">cost</span></div>
+
 <div class="viewcode-block" id="regularization_penalty"><a class="viewcode-back" href="../../../package/opennmt.utils.regularization_penalty.html#opennmt.utils.regularization_penalty">[docs]</a><span class="k">def</span> <span class="nf">regularization_penalty</span><span class="p">(</span><span class="n">regularization_type</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Computes the weights regularization penalty.</span>
 
@@ -305,7 +349,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

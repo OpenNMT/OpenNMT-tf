@@ -24,5 +24,6 @@ Functions
 
 .. toctree::
 
+   opennmt.inputters.create_sequence_records
    opennmt.inputters.load_pretrained_embeddings
    opennmt.inputters.write_sequence_record

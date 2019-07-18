@@ -177,6 +177,7 @@
   <h1>Source code for opennmt.utils.checkpoint</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Checkpoint utilities.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
@@ -230,9 +231,10 @@
     <span class="sd">&quot;&quot;&quot;Saves a checkpoint for :obj:`step`.&quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint_manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">checkpoint_number</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
 
   <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Restores a checkpoint:</span>
+    <span class="sd">&quot;&quot;&quot;Restores a checkpoint.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      checkpoint_path: Path a checkpoint to restore. If not set, the latest</span>
@@ -256,18 +258,24 @@
       <span class="k">return</span> <span class="kc">None</span>
     <span class="n">is_v1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">is_v1</span><span class="p">:</span>
-      <span class="n">_restore_v1_checkpoint</span><span class="p">(</span>
-          <span class="n">checkpoint_path</span><span class="p">,</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span>
-          <span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">weights_only</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Upgrading V1 checkpoint...&quot;</span><span class="p">)</span>
+      <span class="c1"># Work with copies of model and optimizer as the downstream task might</span>
+      <span class="c1"># need to create the variable differently (e.g. under a distribution</span>
+      <span class="c1"># strategy scope).</span>
+      <span class="n">tmp_model</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span>
+      <span class="n">tmp_optimizer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+      <span class="n">tmp_model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">tmp_optimizer</span><span class="p">)</span>
+      <span class="n">step</span> <span class="o">=</span> <span class="n">_restore_v1_checkpoint</span><span class="p">(</span>
+          <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">tmp_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">tmp_optimizer</span><span class="p">)</span>
+      <span class="c1"># Save an updated checkpoint in the model directory and restore this one instead.</span>
+      <span class="n">tmp_checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="p">(</span>
+          <span class="n">tmp_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">tmp_optimizer</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_dir</span><span class="p">)</span>
+      <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">tmp_checkpoint</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="n">weights_only</span><span class="p">)</span>
+    <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Restored checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">checkpoint_path</span>
 
-
-<span class="k">def</span> <span class="nf">_restore_v1_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;V1 checkpoints are currently unsupported&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">get_checkpoint_variables</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns variables included in a checkpoint.</span>
@@ -346,6 +354,80 @@
   <span class="n">new_checkpoint_manager</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">CheckpointManager</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">max_to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
   <span class="n">new_checkpoint_manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">checkpoint_number</span><span class="o">=</span><span class="n">last_step</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">output_dir</span></div>
+
+
+<span class="n">_V1_OPTIM_SCOPE</span> <span class="o">=</span> <span class="s2">&quot;optim&quot;</span>
+<span class="n">_V1_SLOTS_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Adam&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Adam_1&quot;</span><span class="p">:</span> <span class="s2">&quot;v&quot;</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_restore_v1_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="n">v1_variables</span> <span class="o">=</span> <span class="n">get_checkpoint_variables</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+  <span class="n">v1_structure</span> <span class="o">=</span> <span class="n">_variables_to_structure</span><span class="p">(</span><span class="n">v1_variables</span><span class="p">)</span>
+  <span class="n">step</span> <span class="o">=</span> <span class="n">v1_structure</span><span class="p">[</span><span class="s2">&quot;global_step&quot;</span><span class="p">]</span>
+  <span class="k">if</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_V1_OPTIM_SCOPE</span> <span class="ow">in</span> <span class="n">v1_structure</span><span class="p">:</span>
+      <span class="n">slots</span> <span class="o">=</span> <span class="n">v1_structure</span><span class="p">[</span><span class="n">_V1_OPTIM_SCOPE</span><span class="p">]</span>
+      <span class="k">del</span> <span class="n">v1_structure</span><span class="p">[</span><span class="n">_V1_OPTIM_SCOPE</span><span class="p">]</span>
+      <span class="n">v1_structure</span> <span class="o">=</span> <span class="n">_merge_optimizer_slots</span><span class="p">(</span><span class="n">v1_structure</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
+  <span class="n">mapping</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">v1_structure</span><span class="p">)</span>
+  <span class="n">missing_mapping</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">(</span><span class="n">mapping</span><span class="p">)))</span>
+  <span class="k">if</span> <span class="n">missing_mapping</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following variables were not mapped: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">missing_mapping</span><span class="p">)))</span>
+  <span class="c1"># Assign each variable and possibly the optimizer slots.</span>
+  <span class="k">for</span> <span class="n">v2_variable</span><span class="p">,</span> <span class="n">v1_variable</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1_variable</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+      <span class="n">v1_variable</span><span class="p">,</span> <span class="n">v1_slots</span> <span class="o">=</span> <span class="n">v1_variable</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">v1_slots</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">v2_variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">v1_variable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v1_slots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">slot_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">v1_slots</span><span class="p">):</span>
+        <span class="n">v2_slot</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">v2_variable</span><span class="p">,</span> <span class="n">slot_name</span><span class="p">)</span>
+        <span class="n">v2_slot</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">step</span>
+
+<span class="k">def</span> <span class="nf">_variables_to_structure</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Represents variables a nested dictionary with scope names as keys.&quot;&quot;&quot;</span>
+  <span class="n">structure</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">structure</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cur</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+          <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+          <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+      <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">structure</span>
+
+<span class="k">def</span> <span class="nf">_merge_optimizer_slots</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Replaces leaves in the variables structure by tuples of</span>
+<span class="sd">  (variable, dict of optimizer slots).</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">:</span>
+        <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_merge_optimizer_slots</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">slots</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">merged</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">new_slots</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">slots</span><span class="p">):</span>
+      <span class="n">name</span> <span class="o">=</span> <span class="n">_V1_SLOTS_MAPPING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Just ignore the optimizer slots if their name is not listed.</span>
+        <span class="k">return</span> <span class="n">variables</span>
+      <span class="n">new_slots</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">new_slots</span><span class="p">)</span>
 </pre></div>
 
            </div>
@@ -358,7 +440,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

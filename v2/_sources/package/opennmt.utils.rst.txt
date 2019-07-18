@@ -24,4 +24,5 @@ Functions
    opennmt.utils.cross_entropy_sequence_loss
    opennmt.utils.dynamic_decode
    opennmt.utils.format_translation_output
+   opennmt.utils.guided_alignment_cost
    opennmt.utils.regularization_penalty

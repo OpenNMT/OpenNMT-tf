@@ -11,7 +11,7 @@ pip install -r docs/requirements.txt
 ## Build locally
 
 ```bash
-rm -f docs/package/*
-python docs/generate-apidoc.py docs/package
+rm -rf docs/package
+PYTHONPATH=$PWD python docs/generate-apidoc.py docs/package
 PYTHONPATH=$PWD sphinx-build docs docs/build
 ```

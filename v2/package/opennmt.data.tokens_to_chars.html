@@ -205,18 +205,14 @@
 <h1>opennmt.data.tokens_to_chars<a class="headerlink" href="#opennmt-data-tokens-to-chars" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.data.tokens_to_chars">
-<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">tokens_to_chars</code><span class="sig-paren">(</span><em class="sig-param">tokens</em>, <em class="sig-param">padding_value=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/text.html#tokens_to_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.tokens_to_chars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">tokens_to_chars</code><span class="sig-paren">(</span><em class="sig-param">tokens</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/text.html#tokens_to_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.tokens_to_chars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits tokens into unicode characters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tokens</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([T]\)</span>.</p></li>
-<li><p><strong>padding_value</strong> – The value to use for padding.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>tokens</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([T]\)</span>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The characters as a string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([T, W]\)</span> and the
-length of each token as an int64 <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>  of shape <span class="math notranslate nohighlight">\([T]\)</span>.</p>
+<dd class="field-even"><p>The characters as a 2D string <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -243,7 +239,6 @@ length of each token as an int64 <code class="docutils literal notranslate"><spa
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 
