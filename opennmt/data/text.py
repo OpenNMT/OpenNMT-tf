@@ -58,7 +58,7 @@ def alignment_matrix_from_pharaoh(alignment_line,
   Args:
     alignment_line: A string ``tf.Tensor`` in the Pharaoh format.
     source_length: The length of the source sentence, without special symbols.
-    target_length The length of the target sentence, without special symbols.
+    target_length: The length of the target sentence, without special symbols.
     dtype: The output matrix dtype. Defaults to ``tf.float32`` for convenience
       when computing the guided alignment loss.
 
