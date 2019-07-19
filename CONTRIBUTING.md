@@ -12,17 +12,19 @@ We use GitHub issues for bugs in the code that are **reproducible**. A good bug 
 * **check if the issue has been fixed** in a more recent version;
 * **isolate the problem** to give as much context as possible.
 
-If you have questions on how to use the project or have trouble getting started with it, consider using [our forum](http://forum.opennmt.net/) instead and tagging your topic with the *tensorflow* tag.
+If you have questions on how to use the project or have trouble getting started with it, consider using [our forum](http://forum.opennmt.net/) instead and tagging your topic with the *opennmt-tf* tag.
 
 ## Requesting features
 
 Do you think a feature is missing or would be a great addition to the project? Please open a GitHub issue to describe it.
 
-## Developing features
+## Developing code
 
 *You want to share some code, that's great!*
 
-* If you want to contribute with code but are unsure what to do, look for GitHub issues marked with the *contributions welcome* label. These are developments that we find particularly suited for community contributions.
+* If you want to contribute with code but are unsure what to do,
+  * search for *TODO* comments in the code: these are small dev tasks that should be addressed at some point
+  * look for GitHub issues marked with the *help wanted* label: these are developments that we find particularly suited for community contributions.
 * If you are planning to make a large change to the existing code, consider asking first on [the forum](http://forum.opennmt.net/) or [Gitter](https://gitter.im/OpenNMT/OpenNMT-tf) to confirm that it is welcome.
 
 In any cases, your new code **must**:
