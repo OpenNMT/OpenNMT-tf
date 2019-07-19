@@ -272,6 +272,7 @@ class WordEmbedder(TextInputter):
       self.vocabulary = self.vocabulary_lookup()
     features["ids"] = self.vocabulary.lookup(features["tokens"])
     if training:
+      # TODO: this should not be needed once soft placement works correctly.
       del features["tokens"]
     return features
 
