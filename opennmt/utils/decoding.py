@@ -341,6 +341,8 @@ def dynamic_decode(symbols_to_logits_fn,
     - The attention history of shape :math:`[B, H, T_t, T_s]`.
     - The final decoding state.
   """
+  if initial_state is None:
+    initial_state = {}
   if decoding_strategy is None:
     decoding_strategy = GreedySearch()
   if sampler is None:
@@ -390,6 +392,7 @@ def dynamic_decode(symbols_to_logits_fn,
     finished = tf.logical_or(finished, tf.equal(output, end_id))
     return step + 1, finished, state, output, outputs, attention, cum_log_probs, extra_vars
 
+  start_ids = tf.convert_to_tensor(start_ids)
   batch_size = tf.shape(start_ids)[0]
   ids_dtype = start_ids.dtype
   start_ids = tf.cast(start_ids, tf.int32)
