@@ -447,7 +447,7 @@ def dynamic_decode_from_params(decoder,
                                end_id=constants.END_OF_SENTENCE_ID,
                                initial_state=None,
                                params=None):
-  """Convient :function:`opennmt.utils.dynamic_decode` wrapper to read
+  """Convenient :function:`opennmt.utils.dynamic_decode` wrapper to read
   user parameters.
 
   Args:
