@@ -57,11 +57,7 @@ class Dense(tf.keras.layers.Dense):
 
 
 class LayerNorm(tf.keras.layers.Layer):
-  """Layer normalization.
-
-  Note:
-    Requires TensorFlow 2.0.
-  """
+  """Layer normalization."""
 
   def __init__(self, epsilon=1e-6, **kwargs):
     """Initializes this layer.
@@ -99,9 +95,6 @@ class LayerNorm(tf.keras.layers.Layer):
 class LayerWrapper(tf.keras.layers.Layer):
   """Layer wrapper for input/output normalization, input/output dropout and
   residual connection.
-
-  Note:
-    Requires TensorFlow 2.0.
   """
 
   def __init__(self,
