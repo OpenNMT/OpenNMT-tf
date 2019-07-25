@@ -190,7 +190,8 @@ def optimize_loss(loss, params, mixed_precision=False, var_list=None, hvd=None):
         loss, var_list=var_list, colocate_gradients_with_ops=True)
     _summarize_gradients_norm("global_norm/gradient_norm", gradients)
     if params.get("clip_gradients") is not None:
-      gradients = _clip_gradients_by_norm(gradients, float(params["clip_gradients"]))
+      gradients = _clip_gradients_by_norm(gradients, float(params["clip_gradients"]),
+                                          mixed_precision=mixed_precision)
       _summarize_gradients_norm("global_norm/clipped_gradient_norm", gradients)
 
     return delayed_update(
@@ -303,10 +304,17 @@ def regularization_penalty(regularization_type, scale, weights_list=None):
 def _is_bias(variable):
   return len(variable.shape.as_list()) == 1 and variable.name.endswith("bias:0")
 
-def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
+def _clip_gradients_by_norm(grads_and_vars, clip_gradients, mixed_precision=False):
   """Clips gradients by global norm."""
   gradients, variables = zip(*grads_and_vars)
-  clipped_gradients, _ = tf.clip_by_global_norm(gradients, clip_gradients)
+  all_are_finite = (tf.reduce_all([tf.reduce_all(tf.is_finite(g)) for g in gradients])
+                    if mixed_precision else tf.constant(True, dtype=tf.bool))
+  clipped_gradients, _ = tf.clip_by_global_norm(gradients, clip_gradients,
+                                                use_norm=tf.cond(
+                                                    all_are_finite,
+                                                    lambda: tf.global_norm(gradients),
+                                                    lambda: clip_gradients
+                                                ))
   return list(zip(clipped_gradients, variables))
 
 def _summarize_gradients_norm(name, gradients):
