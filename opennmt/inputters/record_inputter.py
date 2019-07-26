@@ -20,7 +20,11 @@ class SequenceRecordInputter(Inputter):
     self.input_depth = input_depth
 
   def make_dataset(self, data_file, training=None):
-    return tf.data.TFRecordDataset(data_file)
+    if not isinstance(data_file, dict):
+      data_file = dict(path=data_file)
+    return tf.data.TFRecordDataset(
+        data_file["path"],
+        compression_type=data_file.get("compression"))
 
   def input_signature(self):
     return {
@@ -58,14 +62,15 @@ def write_sequence_record(vector, writer):
   example = tf.train.SequenceExample(feature_lists=feature_lists)
   writer.write(example.SerializeToString())
 
-def create_sequence_records(vectors, path):
+def create_sequence_records(vectors, path, compression=None):
   """Creates a TFRecord file of sequence vectors.
 
   Args:
     vectors: An iterable of 2D Numpy array of shape :math:`[T, D]`.
     path: The output TFRecord file.
+    compression: Optional compression type, can be "GZIP" or "ZLIB".
   """
-  writer = tf.io.TFRecordWriter(path)
+  writer = tf.io.TFRecordWriter(path, options=compression)
   for vector in vectors:
     write_sequence_record(vector, writer)
   writer.close()

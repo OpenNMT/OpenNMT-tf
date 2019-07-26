@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import gzip
+import io
 import six
 import yaml
 
@@ -68,11 +70,11 @@ class InputterTest(tf.test.TestCase):
     self.assertEqual(src_embedding, projector_config.embeddings[0].tensor_name)
     _check_vocab(projector_config.embeddings[0], "model_src_emb.txt", 20 + 1)
 
-  def _makeTextFile(self, name, lines):
+  def _makeTextFile(self, name, lines, compress=False):
     path = os.path.join(self.get_temp_dir(), name)
-    with open(path, "w") as f:
+    with (gzip if compress else io).open(path, mode="wt", encoding="utf-8") as f:
       for line in lines:
-        f.write("%s\n" % line)
+        f.write(u"%s\n" % tf.compat.as_text(line))
     return path
 
   def _makeEmbeddingsFile(self, vectors, name="embedding", header=False):
@@ -181,6 +183,16 @@ class InputterTest(tf.test.TestCase):
 
     self.assertAllEqual([4], features["length"])
     self.assertAllEqual([[2, 1, 3, 4]], features["ids"])
+
+  def testWordEmbedderWithCompression(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])
+    data_file = self._makeTextFile("data.txt", ["hello world !", "how are you ?"], compress=True)
+    inputter = text_inputter.WordEmbedder(embedding_size=10)
+    inputter.initialize(dict(vocabulary=vocab_file))
+    dataset = inputter.make_inference_dataset(
+        dict(path=data_file, compression="GZIP"), batch_size=1)
+    iterator = iter(dataset)
+    self.assertAllEqual(next(iterator)["tokens"].numpy()[0], [b"hello", b"world", b"!"])
 
   def testWordEmbedderWithPretrainedEmbeddings(self):
     data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -376,6 +388,17 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([vector], features["tensor"])
     self.assertAllEqual([vector], transformed)
 
+  def testSequenceRecordWithCompression(self):
+    vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)
+    compression = "GZIP"
+    record_file = os.path.join(self.get_temp_dir(), "data.records")
+    record_inputter.create_sequence_records(
+        [vector], record_file, compression=compression)
+    inputter = record_inputter.SequenceRecordInputter(2)
+    dataset = inputter.make_inference_dataset(
+        dict(path=record_file, compression="GZIP"), batch_size=1)
+    iterator = iter(dataset)
+    self.assertAllEqual(next(iterator)["tensor"].numpy()[0], vector)
 
 if __name__ == "__main__":
   tf.test.main()

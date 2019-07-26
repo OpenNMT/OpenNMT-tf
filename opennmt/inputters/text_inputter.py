@@ -214,7 +214,11 @@ class TextInputter(Inputter):
 
   def make_dataset(self, data_file, training=None):
     self.vocabulary = self.vocabulary_lookup()
-    return tf.data.TextLineDataset(data_file)
+    if not isinstance(data_file, dict):
+      data_file = dict(path=data_file)
+    return tf.data.TextLineDataset(
+        data_file["path"],
+        compression_type=data_file.get("compression"))
 
   def make_features(self, element=None, features=None, training=None):
     """Tokenizes raw text."""
