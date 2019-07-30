@@ -114,7 +114,7 @@ class Decoder(tf.keras.layers.Layer):
     else:
       if vocab_size is None:
         raise ValueError("One of vocab_size and output_layer must be set")
-      self.output_layer = common.Dense(vocab_size, name="logits")
+      self.output_layer = common.Dense(vocab_size)
 
   def initial_state(self,
                     memory=None,

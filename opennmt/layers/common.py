@@ -119,8 +119,8 @@ class LayerWrapper(tf.keras.layers.Layer):
     """
     super(LayerWrapper, self).__init__(**kwargs)
     self.layer = layer
-    self.input_layer_norm = LayerNorm(name="input_norm") if normalize_input else None
-    self.output_layer_norm = LayerNorm(name="output_norm") if normalize_output else None
+    self.input_layer_norm = LayerNorm() if normalize_input else None
+    self.output_layer_norm = LayerNorm() if normalize_output else None
     self.input_dropout = input_dropout
     self.output_dropout = output_dropout
     self.residual_connection = residual_connection
