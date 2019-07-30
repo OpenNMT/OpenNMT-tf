@@ -30,6 +30,7 @@ OpenNMT-tf 2.0 is the first major update of the project. The goal of this releas
 
 * Object-based layers extending tf.keras
 * Multi-GPU training with tf.distribute
+* Support compressed datasets (with ZLIB or GZIP)
 
 ### Fixes and improvements
 
