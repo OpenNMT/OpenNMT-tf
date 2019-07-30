@@ -239,11 +239,14 @@ class ParallelInputter(MultiInputter):
     return tf.data.Dataset.zip(tuple(datasets))
 
   def input_signature(self):
-    signature = {}
-    for i, inputter in enumerate(self.inputters):
-      for key, value in six.iteritems(inputter.input_signature()):
-        signature["{}_{}".format(key, i)] = value
-    return signature
+    if self.combine_features:
+      signature = {}
+      for i, inputter in enumerate(self.inputters):
+        for key, value in six.iteritems(inputter.input_signature()):
+          signature["{}_{}".format(key, i)] = value
+      return signature
+    else:
+      return tuple(inputter.input_signature() for inputter in self.inputters)
 
   def get_length(self, features):
     lengths = []
