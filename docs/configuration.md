@@ -190,9 +190,6 @@ train:
 
   # (optional) The number of threads to use for processing data in parallel (default: 4).
   num_threads: 4
-  # (optional) The number of batches to prefetch asynchronously. If not set, use an
-  # automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).
-  prefetch_buffer_size: null
 
   # (optional) The number of elements from which to sample during shuffling (default: 500000).
   # Set 0 or null to disable shuffling, -1 to match the number of training examples.
@@ -231,8 +228,6 @@ infer:
 
   # (optional) The number of threads to use for processing data in parallel (default: 1).
   num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
 
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   # This sets the parameter params/num_hypotheses.
@@ -250,8 +245,6 @@ score:
   batch_size: 64
   # (optional) The number of threads to use for processing data in parallel (default: 1).
   num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
 
   # (optional) Also report token-level cross entropy.
   with_token_level: false
