@@ -79,9 +79,6 @@ params:
 
   # (optional) Maximum gradients norm (default: null).
   clip_gradients: 5.0
-  # (optional) 1 training step will process this many batches and accumulates
-  # their gradients (default: 1).
-  gradients_accum: 1
 
   # (optional) Weights regularization penalty (default: null).
   regularization:

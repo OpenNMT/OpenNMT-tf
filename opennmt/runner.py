@@ -102,17 +102,6 @@ class Runner(object):
             max_batch_size=max_batch_size,
             num_devices=num_devices)
 
-      # Set gradients accumulation based on the requested effective batch size.
-      if train_config.get("effective_batch_size") is not None:
-        config["params"]["gradients_accum"] = _count_batch_accum(
-            train_config["batch_size"],
-            train_config["effective_batch_size"],
-            num_replicas=num_devices)
-        tf.get_logger().info(
-            "Accumulate gradients of %d iterations to reach effective batch size of %d",
-            config["params"]["gradients_accum"],
-            train_config["effective_batch_size"])
-
     tf.get_logger().info(
         "Using parameters:\n%s", yaml.dump(config, indent=2, default_flow_style=False))
     return config
@@ -190,6 +179,19 @@ class Runner(object):
             num_devices, len(devices)))
       devices = [device.name for device in devices[0:num_devices]]
 
+    # Set gradients accumulation based on the requested effective batch size.
+    if train_config.get("effective_batch_size") is not None:
+      accum_steps = _count_batch_accum(
+          train_config["batch_size"],
+          train_config["effective_batch_size"],
+          num_replicas=num_devices)
+      tf.get_logger().info(
+          "Accumulate gradients of %d iterations to reach effective batch size of %d",
+          accum_steps,
+          train_config["effective_batch_size"])
+    else:
+      accum_steps = 1
+
     trainer = training_util.Trainer(
         checkpoint,
         devices=devices,
@@ -197,7 +199,7 @@ class Runner(object):
     trainer(
         dataset,
         max_step=train_config.get("train_steps"),
-        accum_steps=params.get("gradients_accum", 1),
+        accum_steps=accum_steps,
         report_steps=train_config.get("save_summary_steps", 100),
         save_steps=train_config.get("save_checkpoints_steps", 5000),
         evaluator=evaluator,
@@ -557,9 +559,6 @@ def _auto_tune_batch_size(config,
       # Update configuration with current batch size and adjusted gradients
       # accumulation.
       config["train"]["batch_size"] = batch_size
-      if config["train"].get("effective_batch_size") is not None:
-        config["params"]["gradients_accum"] = _count_batch_accum(
-            batch_size, config["train"]["effective_batch_size"], num_replicas=num_devices)
       with tf.io.gfile.GFile(config_path, mode="wb") as config_file:
         yaml.dump(config, config_file)
 
