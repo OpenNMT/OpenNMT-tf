@@ -188,9 +188,6 @@ train:
   # (optional) The width of the length buckets to select batch candidates from (default: 5).
   bucket_width: 5
 
-  # (optional) The number of threads to use for processing data in parallel (default: 4).
-  num_threads: 4
-
   # (optional) The number of elements from which to sample during shuffling (default: 500000).
   # Set 0 or null to disable shuffling, -1 to match the number of training examples.
   sample_buffer_size: 500000
@@ -226,9 +223,6 @@ infer:
   # available (default: 0).
   bucket_width: 5
 
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   # This sets the parameter params/num_hypotheses.
   n_best: 1
@@ -243,9 +237,6 @@ infer:
 score:
   # (optional) The batch size to use (default: 64).
   batch_size: 64
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-
   # (optional) Also report token-level cross entropy.
   with_token_level: false
   # (optional) Also output the alignments (can be: "null", "hard", default: "null").

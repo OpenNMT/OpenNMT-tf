@@ -162,7 +162,6 @@ class Runner(object):
         maximum_features_length=train_config.get("maximum_features_length"),
         maximum_labels_length=train_config.get("maximum_labels_length"),
         single_pass=train_config.get("single_pass", False),
-        num_threads=train_config.get("num_threads", 4),
         prefetch_buffer_size=train_config.get("prefetch_buffer_size"))
 
     if with_eval:
@@ -329,7 +328,6 @@ class Runner(object):
         features_file,
         infer_config["batch_size"],
         bucket_width=infer_config["bucket_width"],
-        num_threads=infer_config.get("num_threads", 1),
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
     @dataset_util.function_on_next(dataset)
@@ -439,7 +437,6 @@ class Runner(object):
         features_file,
         predictions_file,
         score_config["batch_size"],
-        num_threads=score_config.get("num_threads"),
         prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
 
     @dataset_util.function_on_next(dataset)
