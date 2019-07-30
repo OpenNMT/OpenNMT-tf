@@ -28,7 +28,7 @@ _CONFIG_FALLBACK = {
     "params": {},
     "train": {
         "batch_type": "examples",
-        "bucket_width": 1,
+        "length_bucket_width": 1,
         "sample_buffer_size": 500000,
         "save_summary_steps": 100
     },
@@ -36,7 +36,7 @@ _CONFIG_FALLBACK = {
         "batch_size": 32
     },
     "infer": {
-        "bucket_width": None,
+        "length_bucket_width": None,
         "batch_size": 16
     },
     "score": {
@@ -158,7 +158,7 @@ class Runner(object):
         batch_type=batch_type,
         batch_size_multiple=batch_size_multiple,
         shuffle_buffer_size=train_config["sample_buffer_size"],
-        bucket_width=train_config["bucket_width"],
+        length_bucket_width=train_config["length_bucket_width"],
         maximum_features_length=train_config.get("maximum_features_length"),
         maximum_labels_length=train_config.get("maximum_labels_length"),
         single_pass=train_config.get("single_pass", False),
@@ -327,7 +327,7 @@ class Runner(object):
     dataset = model.examples_inputter.make_inference_dataset(
         features_file,
         infer_config["batch_size"],
-        bucket_width=infer_config["bucket_width"],
+        length_bucket_width=infer_config["length_bucket_width"],
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
     @dataset_util.function_on_next(dataset)

@@ -185,8 +185,9 @@ train:
   # (optional) The maximum length of label sequences during training (default: null).
   maximum_labels_length: 70
 
-  # (optional) The width of the length buckets to select batch candidates from (default: 5).
-  bucket_width: 5
+  # (optional) The width of the length buckets to select batch candidates from.
+  # A smaller value means less padding and increased efficiency. (default: 1).
+  length_bucket_width: 1
 
   # (optional) The number of elements from which to sample during shuffling (default: 500000).
   # Set 0 or null to disable shuffling, -1 to match the number of training examples.
@@ -217,12 +218,6 @@ infer:
   # (optional) The batch size to use (default: 1).
   batch_size: 10
 
-  # (optional) The width of the length buckets to select batch candidates from.
-  # If set, the test data will be sorted by length to increase the translation
-  # efficiency. The predictions will still be outputted in order as they are
-  # available (default: 0).
-  bucket_width: 5
-
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   # This sets the parameter params/num_hypotheses.
   n_best: 1
@@ -231,6 +226,12 @@ infer:
   # (optional) For compatible models, also output the alignments (can be: "null", "hard",
   # default: "null").
   with_alignments: null
+
+  # (optional) The width of the length buckets to select batch candidates from.
+  # If set, the test data will be sorted by length to increase the translation
+  # efficiency. The predictions will still be outputted in order as they are
+  # available (default: 0).
+  length_bucket_width: 5
 
 
 # (optional) Scoring options.

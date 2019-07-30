@@ -124,7 +124,7 @@ class DataTest(tf.test.TestCase):
         1024,
         batch_type="tokens",
         batch_size_multiple=3,
-        bucket_width=10)
+        length_bucket_width=10)
 
   def testBatchTrainDatasetBucket(self):
     def _check_fn(iterator):
@@ -133,7 +133,7 @@ class DataTest(tf.test.TestCase):
         length = [max(f, l) for f, l in zip(features, labels)]
         self.assertGreater(3, max(length) - min(length))
         self.assertGreaterEqual(64, features.shape[0])
-    self._testBatchTrainDataset(_check_fn, 64, bucket_width=3)
+    self._testBatchTrainDataset(_check_fn, 64, length_bucket_width=3)
 
   def testBatchTrainDatasetTokens(self):
     def _check_fn(iterator):
@@ -142,13 +142,13 @@ class DataTest(tf.test.TestCase):
         batch_size = features.shape[0]
         max_length = max(list(features) + list(labels))
         self.assertGreaterEqual(256, batch_size * max_length)
-    self._testBatchTrainDataset(_check_fn, 256, batch_type="tokens", bucket_width=1)
+    self._testBatchTrainDataset(_check_fn, 256, batch_type="tokens", length_bucket_width=1)
 
   def testReorderInferDataset(self):
     dataset = tf.data.Dataset.from_tensor_slices([8, 2, 5, 6, 7, 1, 3, 9])
     dataset = dataset.map(lambda x: {"length": x})
     dataset = dataset.apply(dataset_util.inference_pipeline(
-        3, bucket_width=3, length_fn=lambda x: x["length"]))
+        3, length_bucket_width=3, length_fn=lambda x: x["length"]))
     elements = list(iter(dataset))
 
     def _check_element(element, length, index):

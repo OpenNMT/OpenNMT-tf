@@ -62,7 +62,7 @@ class Inputter(tf.keras.layers.Layer):
   def make_inference_dataset(self,
                              features_file,
                              batch_size,
-                             bucket_width=None,
+                             length_bucket_width=None,
                              num_threads=1,
                              prefetch_buffer_size=None):
     """Builds a dataset to be used for inference.
@@ -73,8 +73,9 @@ class Inputter(tf.keras.layers.Layer):
     Args:
       features_file: The test file.
       batch_size: The batch size to use.
-      bucket_width: The width of the length buckets to select batch candidates
-        from (for efficiency). Set ``None`` to not constrain batch formation.
+      length_bucket_width: The width of the length buckets to select batch
+        candidates from (for efficiency). Set ``None`` to not constrain batch
+        formation.
       num_threads: The number of elements processed in parallel.
       prefetch_buffer_size: The number of batches to prefetch asynchronously. If
         ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
@@ -88,7 +89,7 @@ class Inputter(tf.keras.layers.Layer):
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         process_fn=map_func,
-        bucket_width=bucket_width,
+        length_bucket_width=length_bucket_width,
         length_fn=self.get_length,
         num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size))
@@ -406,13 +407,13 @@ class ExampleInputter(ParallelInputter):
   def make_inference_dataset(self,
                              features_file,
                              batch_size,
-                             bucket_width=None,
+                             length_bucket_width=None,
                              num_threads=1,
                              prefetch_buffer_size=None):
     return self.features_inputter.make_inference_dataset(
         features_file,
         batch_size,
-        bucket_width=bucket_width,
+        length_bucket_width=length_bucket_width,
         num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size)
 
@@ -453,7 +454,7 @@ class ExampleInputter(ParallelInputter):
                             batch_multiplier=1,
                             batch_size_multiple=1,
                             shuffle_buffer_size=None,
-                            bucket_width=None,
+                            length_bucket_width=None,
                             maximum_features_length=None,
                             maximum_labels_length=None,
                             single_pass=False,
@@ -481,8 +482,9 @@ class ExampleInputter(ParallelInputter):
       batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
         result batch size is a multiple of this value.
       shuffle_buffer_size: The number of elements from which to sample.
-      bucket_width: The width of the length buckets to select batch candidates
-        from (for efficiency). Set ``None`` to not constrain batch formation.
+      length_bucket_width: The width of the length buckets to select batch
+        candidates from (for efficiency). Set ``None`` to not constrain batch
+        formation.
       maximum_features_length: The maximum length or list of maximum lengths of
         the features sequence(s). ``None`` to not constrain the length.
       maximum_labels_length: The maximum length of the labels sequence.
@@ -507,7 +509,7 @@ class ExampleInputter(ParallelInputter):
         batch_multiplier=batch_multiplier,
         batch_size_multiple=batch_size_multiple,
         process_fn=map_func,
-        bucket_width=bucket_width,
+        length_bucket_width=length_bucket_width,
         features_length_fn=self.features_inputter.get_length,
         labels_length_fn=self.labels_inputter.get_length,
         maximum_features_length=maximum_features_length,

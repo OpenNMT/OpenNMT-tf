@@ -116,7 +116,7 @@ class SequenceToSequence(Model):
         },
         "infer": {
             "batch_size": 32,
-            "bucket_width": 5
+            "length_bucket_width": 5
         }
     })
 

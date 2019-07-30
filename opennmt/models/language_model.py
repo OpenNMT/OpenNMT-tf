@@ -40,7 +40,7 @@ class LanguageModel(Model):
     config = super(LanguageModel, self).auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "infer": {
-            "bucket_width": 1  # To ensure fixed length in each batch.
+            "length_bucket_width": 1  # To ensure fixed length in each batch.
         }
     })
 
@@ -69,7 +69,7 @@ class LanguageModel(Model):
       assert_fixed_length = tf.debugging.Assert(
           tf.reduce_all(tf.equal(length, tf.reduce_max(length))),
           ["Language model does not support variable length contexts during "
-           "generation, consider setting batch_size or bucket_width to 1"])
+           "generation, consider setting batch_size or length_bucket_width to 1"])
 
       # Run decoder one the context, if any.
       with tf.control_dependencies([assert_fixed_length]):
@@ -163,7 +163,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
                             batch_multiplier=1,
                             batch_size_multiple=1,
                             shuffle_buffer_size=None,
-                            bucket_width=None,
+                            length_bucket_width=None,
                             maximum_features_length=None,
                             maximum_labels_length=None,
                             single_pass=False,
@@ -178,7 +178,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
-        bucket_width=bucket_width,
+        length_bucket_width=length_bucket_width,
         single_pass=single_pass,
         process_fn=lambda x: self._generate_example(x, training=True),
         num_threads=num_threads,

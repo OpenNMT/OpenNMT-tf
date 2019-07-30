@@ -43,7 +43,7 @@ class ListenAttendSpell(onmt.models.SequenceToSequence):
         },
         "train": {
             "batch_size": 32,
-            "bucket_width": 15,
+            "length_bucket_width": 15,
             "maximum_features_length": 2450,
             "maximum_labels_length": 330
         }
