@@ -37,8 +37,7 @@ def cross_entropy_sequence_loss(logits,
     sequence_length: The length of each sequence.
     label_smoothing: The label smoothing value.
     average_in_time: If ``True``, also average the loss in the time dimension.
-    training: Compute training loss. If not set, infer training mode from
-      :obj:`mode`.
+    training: Compute training loss.
 
   Returns:
     A tuple (cumulated loss, loss normalizer, token-level normalizer).
@@ -69,8 +68,7 @@ def cross_entropy_loss(logits,
     logits: The unscaled probabilities.
     labels: The true labels.
     label_smoothing: The label smoothing value.
-    training: Compute training loss. If not set, infer training mode from
-      :obj:`mode`.
+    training: Compute training loss.
 
   Returns:
     The cumulated loss and the loss normalizer.
