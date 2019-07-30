@@ -132,7 +132,7 @@ class SequenceToSequence(Model):
     self.decoder.initialize(
         vocab_size=self.labels_inputter.vocabulary_size,
         output_layer=output_layer)
-    self.id_to_token = None
+    self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
 
   def call(self, features, labels=None, training=None, step=None):
     params = self.params
@@ -188,9 +188,6 @@ class SequenceToSequence(Model):
           start_ids,
           initial_state=initial_state,
           params=params)
-      if self.id_to_token is None:
-        with tf.init_scope():
-          self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
       target_tokens = self.id_to_token.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):

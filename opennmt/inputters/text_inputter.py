@@ -275,9 +275,6 @@ class WordEmbedder(TextInputter):
     if self.vocabulary is None:
       self.vocabulary = self.vocabulary_lookup()
     features["ids"] = self.vocabulary.lookup(features["tokens"])
-    if training:
-      # TODO: this should not be needed once soft placement works correctly.
-      del features["tokens"]
     return features
 
   def build(self, input_shape):
