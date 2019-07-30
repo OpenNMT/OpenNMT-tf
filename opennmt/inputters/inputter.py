@@ -78,8 +78,7 @@ class Inputter(tf.keras.layers.Layer):
         formation.
       num_threads: The number of elements processed in parallel.
       prefetch_buffer_size: The number of batches to prefetch asynchronously. If
-        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-        older versions.
+        ``None``, use an automatically tuned value.
 
     Returns:
       A ``tf.data.Dataset``.
@@ -431,8 +430,7 @@ class ExampleInputter(ParallelInputter):
       batch_size: The batch size to use.
       num_threads: The number of elements processed in parallel.
       prefetch_buffer_size: The number of batches to prefetch asynchronously. If
-        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-        older versions.
+        ``None``, use an automatically tuned value.
 
     Returns:
       A ``tf.data.Dataset``.
@@ -495,8 +493,7 @@ class ExampleInputter(ParallelInputter):
       shard_index: The shard index this data pipeline should read from.
       num_threads: The number of elements processed in parallel.
       prefetch_buffer_size: The number of batches to prefetch asynchronously. If
-        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-        older versions.
+        ``None``, use an automatically tuned value.
 
     Returns:
       A ``tf.data.Dataset``.

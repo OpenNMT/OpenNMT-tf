@@ -302,8 +302,7 @@ def training_pipeline(batch_size,
     num_threads: The number of elements processed in parallel.
     shuffle_buffer_size: The number of elements from which to sample.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
-      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-      older versions.
+      ``None``, use an automatically tuned value.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
@@ -357,8 +356,7 @@ def inference_pipeline(batch_size,
     length_fn: A callable mapping features to a sequence length.
     num_threads: The number of elements processed in parallel.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
-      ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-      older versions.
+      ``None``, use an automatically tuned value.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
