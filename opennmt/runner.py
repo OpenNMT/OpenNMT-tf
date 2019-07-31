@@ -140,7 +140,6 @@ class Runner(object):
         checkpoint_path=checkpoint_path, weights_only=checkpoint_path is not None)
 
     model = checkpoint.model
-    params = config["params"]
     data_config = config["data"]
     train_config = config["train"]
     eval_config = config["eval"]
