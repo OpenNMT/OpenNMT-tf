@@ -27,7 +27,7 @@ def make_tokenizer(config):
     config: Path to a configuration file or the configuration dictionary.
 
   Returns:
-    A :class:`opennmt.tokenizers.tokenizer.Tokenizer` instance.
+    A :class:`opennmt.tokenizers.Tokenizer` instance.
   """
   if config:
     if isinstance(config, six.string_types) and tf.io.gfile.exists(config):
