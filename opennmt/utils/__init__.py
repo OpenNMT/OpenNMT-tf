@@ -4,6 +4,7 @@ from opennmt.utils.checkpoint import average_checkpoints
 
 from opennmt.utils.decoding import BeamSearch
 from opennmt.utils.decoding import BestSampler
+from opennmt.utils.decoding import DecodingResult
 from opennmt.utils.decoding import DecodingStrategy
 from opennmt.utils.decoding import GreedySearch
 from opennmt.utils.decoding import RandomSampler

@@ -191,14 +191,15 @@ def translate(source_file,
         memory_sequence_length=source_length)
     symbols_to_logits_fn = lambda ids, step, state: (
         model.decoder(model.labels_inputter({"ids": ids}), step, state))
-    target_ids, target_lengths, _, _, _ = onmt.utils.dynamic_decode(
+    decoded = onmt.utils.dynamic_decode(
         symbols_to_logits_fn,
         tf.fill([batch_size], START_OF_SENTENCE_ID),
         end_id=END_OF_SENTENCE_ID,
         initial_state=decoder_state,
         decoding_strategy=decoding_strategy,
         maximum_iterations=200)
-    target_tokens = ids_to_tokens.lookup(tf.cast(target_ids, tf.int64))
+    target_lengths = decoded.lengths
+    target_tokens = ids_to_tokens.lookup(tf.cast(decoded.ids, tf.int64))
     return target_tokens, target_lengths
 
   # Iterates on the dataset.

@@ -1,6 +1,7 @@
 """Dynamic decoding utilities."""
 
 import abc
+import collections
 import six
 
 import tensorflow as tf
@@ -304,6 +305,20 @@ class BeamSearch(DecodingStrategy):
     return ids, attention, lengths
 
 
+class DecodingResult(
+    collections.namedtuple("DecodingResult",
+                           ("ids", "lengths", "log_probs", "attention", "state"))):
+  """Final decoding result.
+
+  Args:
+    ids: The predicted ids of shape :math:`[B, H, T]`.
+    lengths: The produced sequences length of shape :math:`[B, H]`.
+    log_probs: The cumulated log probabilities of shape :math:`[B, H]`.
+    attention: The attention history of shape :math:`[B, H, T_t, T_s]`.
+    state: The final decoding state.
+  """
+
+
 def dynamic_decode(symbols_to_logits_fn,
                    start_ids,
                    end_id=constants.END_OF_SENTENCE_ID,
@@ -333,13 +348,7 @@ def dynamic_decode(symbols_to_logits_fn,
       maximum source length).
 
   Returns:
-    A tuple containing,
-
-    - The predicted ids of shape :math:`[B, H, T]`.
-    - The produced sequences length of shape :math:`[B, H]`.
-    - The cumulated log probabilities of shape :math:`[B, H]`.
-    - The attention history of shape :math:`[B, H, T_t, T_s]`.
-    - The final decoding state.
+    A :class:`opennmt.utils.DecodingResult` instance.
   """
   if initial_state is None:
     initial_state = {}
@@ -439,7 +448,12 @@ def dynamic_decode(symbols_to_logits_fn,
     attention = attention[:, :, :-1]  # Ignore attention for </s>.
   log_probs = tf.reshape(log_probs, [batch_size, decoding_strategy.num_hypotheses])
   ids = tf.cast(ids, ids_dtype)
-  return ids, lengths, log_probs, attention, state
+  return DecodingResult(
+      ids=ids,
+      lengths=lengths,
+      log_probs=log_probs,
+      attention=attention,
+      state=state)
 
 def dynamic_decode_from_params(decoder,
                                inputter,
