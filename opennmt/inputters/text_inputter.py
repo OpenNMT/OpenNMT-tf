@@ -73,7 +73,7 @@ def save_embeddings_metadata(log_dir, variable_name, vocabulary_file, num_oov_bu
     embedding.tensor_name = variable_name
     embedding.metadata_path = filename
 
-  with open(config_path, "w") as config_file:
+  with tf.io.gfile.GFile(config_path, "w") as config_file:
     config_file.write(text_format.MessageToString(config))
 
 def load_pretrained_embeddings(embedding_file,

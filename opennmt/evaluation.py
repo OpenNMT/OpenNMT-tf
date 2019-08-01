@@ -121,7 +121,7 @@ class Evaluator(object):
     output_path = None
     if self._save_predictions:
       output_path = os.path.join(self._eval_dir, "predictions.txt.%d" % step)
-      output_file = open(output_path, "w")
+      output_file = tf.io.gfile.GFile(output_path, "w")
 
     loss_num = 0
     loss_den = 0
@@ -219,7 +219,7 @@ class BLEUScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     from sacrebleu import corpus_bleu
-    with open(ref_path) as ref_stream, open(hyp_path) as sys_stream:
+    with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(hyp_path) as sys_stream:
       bleu = corpus_bleu(sys_stream, [ref_stream])
       return bleu.score
 

@@ -18,7 +18,7 @@ def _make_config_asset_file(config, asset_path):
     # Only keep the basename for files (that should also be registered as assets).
     if isinstance(value, six.string_types) and tf.io.gfile.exists(value):
       asset_config[key] = os.path.basename(value)
-  with open(asset_path, "w") as asset_file:
+  with tf.io.gfile.GFile(asset_path, "w") as asset_file:
     yaml.dump(asset_config, stream=asset_file, default_flow_style=False)
 
 
