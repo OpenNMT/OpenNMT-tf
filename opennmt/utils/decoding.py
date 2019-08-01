@@ -183,6 +183,13 @@ class BeamSearch(DecodingStrategy):
   """A beam search strategy."""
 
   def __init__(self, beam_size, length_penalty=0, coverage_penalty=0):
+    """Initializes the decoding strategy.
+
+    Args:
+      beam_size: The number of paths to consider per batch.
+      length_penalty: Length penalty, see https://arxiv.org/abs/1609.08144.
+      coverage_penalty: Coverage penalty, see https://arxiv.org/abs/1609.08144.
+    """
     self.beam_size = beam_size
     self.length_penalty = length_penalty
     self.coverage_penalty = coverage_penalty
