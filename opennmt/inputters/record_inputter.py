@@ -14,7 +14,7 @@ class SequenceRecordInputter(Inputter):
 
     Args:
       input_depth: The depth dimension of the input vectors.
-      dtype: The values type.
+      dtype: The output type.
     """
     super(SequenceRecordInputter, self).__init__(dtype=dtype)
     self.input_depth = input_depth
@@ -52,7 +52,7 @@ def write_sequence_record(vector, writer):
   """Writes a sequence vector as a TFRecord.
 
   Args:
-    vector: A 2D Numpy array of shape :math:`[T, D]`.
+    vector: A 2D Numpy float array of shape :math:`[T, D]`.
     writer: A ``tf.io.TFRecordWriter``.
   """
   feature_list = tf.train.FeatureList(feature=[
@@ -66,7 +66,7 @@ def create_sequence_records(vectors, path, compression=None):
   """Creates a TFRecord file of sequence vectors.
 
   Args:
-    vectors: An iterable of 2D Numpy array of shape :math:`[T, D]`.
+    vectors: An iterable of 2D Numpy float arrays of shape :math:`[T, D]`.
     path: The output TFRecord file.
     compression: Optional compression type, can be "GZIP" or "ZLIB".
   """

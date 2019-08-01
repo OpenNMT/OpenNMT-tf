@@ -178,14 +178,12 @@ class SeqTagger(onmt.models.SequenceTagger):
 
 class Transformer(onmt.models.Transformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
-  def __init__(self, dtype=tf.float32):
+  def __init__(self):
     super(Transformer, self).__init__(
         source_inputter=onmt.inputters.WordEmbedder(
-            embedding_size=512,
-            dtype=dtype),
+            embedding_size=512),
         target_inputter=onmt.inputters.WordEmbedder(
-            embedding_size=512,
-            dtype=dtype),
+            embedding_size=512),
         num_layers=6,
         num_units=512,
         num_heads=8,
@@ -196,14 +194,12 @@ class Transformer(onmt.models.Transformer):
 
 class TransformerBig(onmt.models.Transformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
-  def __init__(self, dtype=tf.float32):
+  def __init__(self):
     super(TransformerBig, self).__init__(
         source_inputter=onmt.inputters.WordEmbedder(
-            embedding_size=1024,
-            dtype=dtype),
+            embedding_size=1024),
         target_inputter=onmt.inputters.WordEmbedder(
-            embedding_size=1024,
-            dtype=dtype),
+            embedding_size=1024),
         num_layers=6,
         num_units=1024,
         num_heads=16,

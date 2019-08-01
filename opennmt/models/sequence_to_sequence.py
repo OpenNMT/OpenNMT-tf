@@ -79,10 +79,6 @@ class SequenceToSequence(Model):
         :obj:`source_inputter` and :obj:`target_inputter` do not have the same
         ``dtype``.
     """
-    if source_inputter.dtype != target_inputter.dtype:
-      raise TypeError(
-          "Source and target inputters must have the same dtype, "
-          "saw: {} and {}".format(source_inputter.dtype, target_inputter.dtype))
     if not isinstance(target_inputter, inputters.WordEmbedder):
       raise TypeError("Target inputter must be a WordEmbedder")
     if EmbeddingsSharingLevel.share_input_embeddings(share_embeddings):
@@ -127,8 +123,7 @@ class SequenceToSequence(Model):
       output_layer = layers.Dense(
           self.labels_inputter.vocabulary_size,
           weight=self.labels_inputter.embedding,
-          transpose=True,
-          dtype=self.labels_inputter.dtype)
+          transpose=True)
     self.decoder.initialize(
         vocab_size=self.labels_inputter.vocabulary_size,
         output_layer=output_layer)

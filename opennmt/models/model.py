@@ -23,11 +23,6 @@ class Model(tf.keras.layers.Layer):
     self._frozen_layers = None
 
   @property
-  def dtype(self):
-    """The model dtype."""
-    return self.examples_inputter.dtype
-
-  @property
   def unsupervised(self):
     """Unsupervised model."""
     return self.labels_inputter is None

@@ -52,8 +52,7 @@ class LanguageModel(Model):
       output_layer = layers.Dense(
           vocab_size,
           weight=self.examples_inputter.embedding,
-          transpose=True,
-          dtype=self.examples_inputter.dtype)
+          transpose=True)
     self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
     self.id_to_token = self.examples_inputter.vocabulary_lookup_reverse()
 
