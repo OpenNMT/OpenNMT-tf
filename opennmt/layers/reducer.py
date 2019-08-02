@@ -5,6 +5,8 @@ import six
 
 import tensorflow as tf
 
+from opennmt.utils import tensor as tensor_util
+
 
 def pad_in_time(x, padding_length):
   """Helper function to pad a tensor in the time dimension and retain the static depth dimension."""
@@ -69,25 +71,6 @@ def pad_n_with_identity(inputs, sequence_lengths, identity_values=0):
           x, length, max_sequence_length, identity_values=identity_values, maxlen=maxlen)
       for x, length in zip(inputs, sequence_lengths)]
   return padded, max_sequence_length
-
-def roll_sequence(tensor, offsets):
-  """Shifts sequences by an offset.
-
-  Args:
-    tensor: A ``tf.Tensor`` of shape ``[batch_size, time, ...]``.
-    offsets : The offset of each sequence.
-
-  Returns:
-    A ``tf.Tensor`` of the same shape as :obj:`tensor` with sequences shifted
-    by :obj:`offsets`.
-  """
-  batch_size = tf.shape(tensor)[0]
-  time = tf.shape(tensor)[1]
-  cols, rows = tf.meshgrid(tf.range(time), tf.range(batch_size))
-  cols -= tf.expand_dims(offsets, 1)
-  cols %= time
-  indices = tf.stack([rows, cols], axis=-1)
-  return tf.gather_nd(tensor, indices)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -193,7 +176,7 @@ class ConcatReducer(Reducer):
           accumulator = elem
           current_length = length
         else:
-          accumulator += roll_sequence(elem, current_length)
+          accumulator += tensor_util.roll_sequence(elem, current_length)
           current_length += length
 
       return accumulator, combined_length

@@ -144,20 +144,6 @@ class ReducerTest(tf.test.TestCase):
     self.assertAllEqual(expected_a, padded_a)
     self.assertAllEqual(expected_b, padded_b)
 
-  def testRollSequence(self):
-    offset = [2, 3, 3]
-    tensor = [
-        [1, 2, 3, 0, 0, 6, 0],
-        [1, 2, 3, 4, 0, 0, 0],
-        [1, 0, 0, 0, 0, 0, 7]]
-    expected = [
-        [6, 0, 1, 2, 3, 0, 0],
-        [0, 0, 0, 1, 2, 3, 4],
-        [0, 0, 7, 1, 0, 0, 0]]
-
-    rolled = reducer.roll_sequence(tensor, offset)
-    self.assertAllEqual(expected, self.evaluate(rolled))
-
   def testMultiplyReducerWithSequence(self):
     a = [
         [[1], [-1], [-1]],

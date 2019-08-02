@@ -17,3 +17,5 @@ from opennmt.utils.losses import guided_alignment_cost
 from opennmt.utils.losses import regularization_penalty
 
 from opennmt.utils.misc import format_translation_output
+
+from opennmt.utils.tensor import roll_sequence
