@@ -94,7 +94,12 @@ class Trainer(object):
       return reported_loss, num_words
 
     def _apply_gradients():
-      optimizer.apply_gradients(list(zip(gradients, variables)))
+      grads_and_vars = []
+      for gradient, variable in zip(gradients, variables):
+        # optimizer.apply_gradients will sum the gradients accross replicas.
+        scaled_gradient = gradient / (self._strategy.num_replicas_in_sync * accum_steps)
+        grads_and_vars.append((scaled_gradient, variable))
+      optimizer.apply_gradients(grads_and_vars)
       for gradient in gradients:
         gradient.assign(tf.zeros_like(gradient))
 
