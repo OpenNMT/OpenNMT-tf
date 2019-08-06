@@ -175,8 +175,8 @@ train:
   # (optional) Dump summaries and logs every this many steps (default: 100).
   save_summary_steps: 100
 
-  # (optional) Train for this many steps. If not set, train forever.
-  train_steps: 1000000
+  # (optional) Maximum training step. If not set, train forever.
+  max_step: 1000000
   # (optional) If true, makes a single pass over the training data (default: false).
   single_pass: false
 

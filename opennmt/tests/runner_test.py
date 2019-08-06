@@ -67,7 +67,7 @@ class RunnerTest(tf.test.TestCase):
         },
         "train": {
             "batch_size": 10,
-            "train_steps": 145001  # Just train for 1 step.
+            "max_step": 145001  # Just train for 1 step.
         }
     }
     runner = self._getTransliterationRunner(config)

@@ -55,7 +55,7 @@ class Trainer(object):
       eval_steps: Evaluate every this many steps.
     """
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
-      tf.get_logger().warning("Model already reached train_steps = %d. Exiting.", max_step)
+      tf.get_logger().warning("Model already reached max_step = %d. Exiting.", max_step)
       return
 
     with self._strategy.scope():

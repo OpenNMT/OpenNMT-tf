@@ -196,7 +196,7 @@ class Runner(object):
         mixed_precision=self._mixed_precision)
     trainer(
         dataset,
-        max_step=train_config.get("train_steps"),
+        max_step=train_config.get("max_step"),
         accum_steps=accum_steps,
         report_steps=train_config.get("save_summary_steps", 100),
         save_steps=train_config.get("save_checkpoints_steps", 5000),
@@ -533,7 +533,7 @@ def _auto_tune_batch_size(config,
     config["model_dir"] = tmpdir
     config["train"]["save_checkpoints_steps"] = None
     config["train"]["average_last_checkpoints"] = 0
-    config["train"]["train_steps"] = sample_iterations
+    config["train"]["max_step"] = sample_iterations
     config_path = os.path.join(config["model_dir"], "batch_size_autotuner.yml")
     model_description = os.path.join(model_dir, "model_description.py")
 

@@ -108,7 +108,7 @@ class SequenceToSequence(Model):
         },
         "train": {
             "sample_buffer_size": -1,
-            "train_steps": 500000
+            "max_step": 500000
         },
         "infer": {
             "batch_size": 32,
