@@ -96,7 +96,7 @@ params:
   # (optional unless decay_type is set) Decay parameters.
   decay_params:
     model_dim: 512
-      warmup_steps: 4000
+    warmup_steps: 4000
   # (optional) After how many steps to start the decay (default: 0).
   start_decay_steps: 50000
 
