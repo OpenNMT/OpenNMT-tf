@@ -3,11 +3,10 @@
 from __future__ import print_function
 
 import argparse
-import pyonmttok
-
 import tensorflow as tf
-
+import pyonmttok
 import grpc
+import six
 
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
@@ -34,8 +33,10 @@ def extract_prediction(result):
   batch_predictions = tf.make_ndarray(result.outputs["tokens"])
   for hypotheses, lengths in zip(batch_predictions, batch_lengths):
     # Only consider the first hypothesis (the best one).
-    best_hypothesis = hypotheses[0]
-    best_length = lengths[0] - 1  # Ignore </s>
+    best_hypothesis = hypotheses[0].tolist()
+    best_length = lengths[0]
+    if best_hypothesis[best_length - 1] == b"</s>":
+      best_length -= 1
     yield best_hypothesis[:best_length]
 
 def send_request(stub, model_name, batch_tokens, timeout=5.0):
@@ -54,10 +55,10 @@ def send_request(stub, model_name, batch_tokens, timeout=5.0):
   batch_size = len(lengths)
   request = predict_pb2.PredictRequest()
   request.model_spec.name = model_name
-  request.inputs["tokens"].CopyFrom(
-      tf.make_tensor_proto(batch_tokens, dtype=tf.string, shape=(batch_size, max_length)))
-  request.inputs["length"].CopyFrom(
-      tf.make_tensor_proto(lengths, dtype=tf.int32, shape=(batch_size,)))
+  request.inputs["tokens"].CopyFrom(tf.compat.v1.make_tensor_proto(
+      batch_tokens, dtype=tf.string, shape=(batch_size, max_length)))
+  request.inputs["length"].CopyFrom(tf.compat.v1.make_tensor_proto(
+      lengths, dtype=tf.int32, shape=(batch_size,)))
   return stub.Predict.future(request, timeout)
 
 def translate(stub, model_name, batch_text, tokenizer, timeout=5.0):

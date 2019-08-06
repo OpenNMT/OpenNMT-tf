@@ -26,7 +26,7 @@ tar xf averaged-ende-export500k.tar.gz
 ```bash
 nvidia-docker run -d --rm -p 9000:9000 -v $PWD:/models \
   --name tensorflow_serving --entrypoint tensorflow_model_server \
-  tensorflow/serving:1.13.0-gpu \
+  tensorflow/serving:1.14.0-gpu \
   --enable_batching=true --batching_parameters_file=/models/batching_parameters.txt \
   --port=9000 --model_base_path=/models/averaged-ende-export500k --model_name=ende
 ```
@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 ```bash
 python ende_client.py --port 9000 --model_name ende \
-  --sentencepiece_model averaged-ende-export500k/1539080952/assets.extra/wmtende.model
+  --sentencepiece_model averaged-ende-export500k/1554540232/assets.extra/wmtende.model
 ```
 
 The client will read your input and outputs the translation. You can terminate it with Ctrl-C.
