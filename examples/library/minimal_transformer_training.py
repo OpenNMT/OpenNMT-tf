@@ -189,10 +189,8 @@ def translate(source_file,
     decoder_state = model.decoder.initial_state(
         memory=encoder_outputs,
         memory_sequence_length=source_length)
-    symbols_to_logits_fn = lambda ids, step, state: (
-        model.decoder(model.labels_inputter({"ids": ids}), step, state))
-    decoded = onmt.utils.dynamic_decode(
-        symbols_to_logits_fn,
+    decoded = model.decoder.dynamic_decode(
+        model.labels_inputter.embedding,
         tf.fill([batch_size], START_OF_SENTENCE_ID),
         end_id=END_OF_SENTENCE_ID,
         initial_state=decoder_state,

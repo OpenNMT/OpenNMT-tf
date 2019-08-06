@@ -6,6 +6,7 @@ import six
 import tensorflow as tf
 
 from opennmt.layers import common
+from opennmt.utils import decoding
 from opennmt.utils import misc
 
 
@@ -331,6 +332,24 @@ class Decoder(tf.keras.layers.Layer):
       vector.
     """
     raise NotImplementedError()
+
+  def dynamic_decode(self, embeddings, *args, **kwargs):
+    """Decodes dynamically, see :func:`opennmt.utils.dynamic_decode`.
+
+    Args:
+      embeddings: Target embeddings.
+      *args: Positional arguments of :func:`opennmt.utils.dynamic_decode`.
+      **kwargs: Keyword arguments of :func:`opennmt.utils.dynamic_decode`.
+
+    Returns:
+      See :func:`opennmt.utils.dynamic_decode`.
+    """
+    symbols_to_logits_fn = lambda ids, step, state: (
+        self(tf.nn.embedding_lookup(embeddings, ids), step, state))
+    return decoding.dynamic_decode(
+        symbols_to_logits_fn,
+        *args,
+        **kwargs)
 
   @abc.abstractmethod
   def _get_initial_state(self, batch_size, dtype, initial_state=None):
