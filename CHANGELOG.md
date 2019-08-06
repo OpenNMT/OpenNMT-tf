@@ -15,7 +15,7 @@ OpenNMT-tf 2.0 is the first major update of the project. The goal of this releas
 
 ### Breaking changes
 
-See the guide [Transitioning to 2.0](docs/v2_transition.md) for details about the following changes.
+See the [2.0 Transition Guide](docs/v2_transition.md) for details about the following changes.
 
 * TensorFlow 2.0 is required
 * Python 3.5 or greater is required

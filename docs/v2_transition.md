@@ -1,4 +1,4 @@
-# Transitioning to 2.0
+# 2.0 Transition Guide
 
 This document details some changes introduced in OpenNMT-tf 2.0 and actions required by the user.
 
