@@ -167,6 +167,15 @@ def _get_field(config, key, prefix=None, default=None, required=False):
     raise ValueError("Missing field '%s' in the data configuration" % key)
   return value
 
+def _load_vocabulary(vocabulary_path):
+  indices = []
+  tokens = []
+  with tf.io.gfile.GFile(vocabulary_path, mode="rb") as vocabulary:
+    for i, token in enumerate(vocabulary):
+      indices.append(i)
+      tokens.append(token.strip())
+  return indices, tokens
+
 
 @six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
@@ -180,7 +189,10 @@ class TextInputter(Inputter):
   def initialize(self, data_config, asset_prefix=""):
     self.vocabulary_file = _get_field(
         data_config, "vocabulary", prefix=asset_prefix, required=True)
-    self.vocabulary_size = misc.count_lines(self.vocabulary_file) + self.num_oov_buckets
+    indices, tokens = _load_vocabulary(self.vocabulary_file)
+    self.vocabulary_size = len(indices) + self.num_oov_buckets
+    self.vocabulary_indices = tf.constant(indices, dtype=tf.int64)
+    self.vocabulary_tokens = tf.constant(tokens, dtype=tf.string)
     tokenizer_config = _get_field(data_config, "tokenization", prefix=asset_prefix)
     self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
 
@@ -189,13 +201,9 @@ class TextInputter(Inputter):
 
   def vocabulary_lookup(self):
     """Returns a lookup table mapping string to index."""
-    initializer = tf.lookup.TextFileInitializer(
-        self.vocabulary_file,
-        tf.string,
-        tf.lookup.TextFileIndex.WHOLE_LINE,
-        tf.int64,
-        tf.lookup.TextFileIndex.LINE_NUMBER,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets)
+    # TODO: consider reverting back to TextFileInitializer.
+    initializer = tf.lookup.KeyValueTensorInitializer(
+        self.vocabulary_tokens, self.vocabulary_indices)
     if self.num_oov_buckets > 0:
       return tf.lookup.StaticVocabularyTable(initializer, self.num_oov_buckets)
     else:
@@ -203,13 +211,8 @@ class TextInputter(Inputter):
 
   def vocabulary_lookup_reverse(self):
     """Returns a lookup table mapping index to string."""
-    initializer = tf.lookup.TextFileInitializer(
-        self.vocabulary_file,
-        tf.int64,
-        tf.lookup.TextFileIndex.LINE_NUMBER,
-        tf.string,
-        tf.lookup.TextFileIndex.WHOLE_LINE,
-        vocab_size=self.vocabulary_size - self.num_oov_buckets)
+    initializer = tf.lookup.KeyValueTensorInitializer(
+        self.vocabulary_indices, self.vocabulary_tokens)
     return tf.lookup.StaticHashTable(initializer, constants.UNKNOWN_TOKEN)
 
   def make_dataset(self, data_file, training=None):
