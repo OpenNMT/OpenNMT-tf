@@ -92,6 +92,10 @@ def count_lines(filename):
       pass
     return i + 1
 
+def is_gzip_file(filename):
+  """Returns ``True`` if :obj:`filename` is a GZIP file."""
+  return filename.endswith(".gz")
+
 def shape_list(x):
   """Return list of dims, statically where possible."""
   x = tf.convert_to_tensor(x)

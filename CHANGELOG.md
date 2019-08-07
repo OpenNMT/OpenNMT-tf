@@ -32,7 +32,7 @@ See the [2.0 Transition Guide](docs/v2_transition.md) for details about the foll
 
 * Object-based layers extending tf.keras
 * Multi-GPU training with tf.distribute
-* Support compressed datasets (with ZLIB or GZIP)
+* Support GZIP compressed datasets
 
 ### Fixes and improvements
 

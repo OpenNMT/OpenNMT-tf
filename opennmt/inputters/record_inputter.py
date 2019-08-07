@@ -4,6 +4,7 @@ import tensorflow as tf
 import numpy as np
 
 from opennmt.inputters.inputter import Inputter
+from opennmt.utils import misc
 
 
 class SequenceRecordInputter(Inputter):
@@ -20,11 +21,8 @@ class SequenceRecordInputter(Inputter):
     self.input_depth = input_depth
 
   def make_dataset(self, data_file, training=None):
-    if not isinstance(data_file, dict):
-      data_file = dict(path=data_file)
     return tf.data.TFRecordDataset(
-        data_file["path"],
-        compression_type=data_file.get("compression"))
+        data_file, compression_type="GZIP" if misc.is_gzip_file(data_file) else None)
 
   def input_signature(self):
     return {
@@ -68,9 +66,23 @@ def create_sequence_records(vectors, path, compression=None):
   Args:
     vectors: An iterable of 2D Numpy float arrays of shape :math:`[T, D]`.
     path: The output TFRecord file.
-    compression: Optional compression type, can be "GZIP" or "ZLIB".
+    compression: Optional compression type, can be "GZIP".
+
+  Returns:
+    Path to the TFRecord file. In most cases this is the same as :obj:`path` but
+    if GZIP compression is enabled, the ".gz" extension is added if not already
+    present.
+
+  Raises:
+    ValueError: if :obj:`compression` is invalid.
   """
+  if compression is not None:
+    if compression not in ("GZIP",):
+      raise ValueError("invalid compression type: %s" % compression)
+    if compression == "GZIP" and not path.endswith(".gz"):
+      path = "%s.gz" % path
   writer = tf.io.TFRecordWriter(path, options=compression)
   for vector in vectors:
     write_sequence_record(vector, writer)
   writer.close()
+  return path

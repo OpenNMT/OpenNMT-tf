@@ -113,6 +113,16 @@ params:
   guided_alignment_type: ce
 ```
 
+## Compressed data
+
+Data files compressed with GZIP are supported. The path should end with the `.gz` extension for the to be correctly loaded:
+
+```yaml
+data:
+  train_features_file: /data/wmt/train.en.gz
+  train_labels_file: /data/wmt/train.de.gz
+```
+
 ## Data location
 
 By default, the data are expected to be on the same filesystem. However, it is possible to reference data stored in HDFS, Amazon S3, or any other remote storages supported by TensorFlow. For example:

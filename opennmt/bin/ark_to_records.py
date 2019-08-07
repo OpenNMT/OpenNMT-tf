@@ -68,7 +68,10 @@ def write_text(text, writer):
 
 def ark_to_records_aligned(ark_filename, text_filename, out_prefix, compression_type=None):
   """Converts ARK and text datasets to aligned TFRecords and text datasets."""
-  record_writer = tf.io.TFRecordWriter(out_prefix + ".records", options=compression_type)
+  record_filename = "%s.records" % out_prefix
+  if compression_type == "GZIP":
+    record_filename = "%s.gz" % record_filename
+  record_writer = tf.io.TFRecordWriter(record_filename, options=compression_type)
   text_writer = io.open(out_prefix + ".txt", encoding="utf-8", mode="w")
 
   ark_buffer = {}
@@ -158,7 +161,7 @@ def main():
                             "(must set it to align source and target files)."))
   parser.add_argument("--out", required=True,
                       help="Output files prefix (will be suffixed by .records and .txt).")
-  parser.add_argument("--compression_type", default=None, choices=["GZIP", "ZLIB"],
+  parser.add_argument("--compression_type", default=None, choices=["GZIP"],
                       help="Optional compression type.")
   args = parser.parse_args()
 

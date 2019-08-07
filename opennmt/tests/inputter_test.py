@@ -72,6 +72,8 @@ class InputterTest(tf.test.TestCase):
 
   def _makeTextFile(self, name, lines, compress=False):
     path = os.path.join(self.get_temp_dir(), name)
+    if compress:
+      path = "%s.gz" % path
     with (gzip if compress else io).open(path, mode="wt", encoding="utf-8") as f:
       for line in lines:
         f.write(u"%s\n" % tf.compat.as_text(line))
@@ -189,8 +191,7 @@ class InputterTest(tf.test.TestCase):
     data_file = self._makeTextFile("data.txt", ["hello world !", "how are you ?"], compress=True)
     inputter = text_inputter.WordEmbedder(embedding_size=10)
     inputter.initialize(dict(vocabulary=vocab_file))
-    dataset = inputter.make_inference_dataset(
-        dict(path=data_file, compression="GZIP"), batch_size=1)
+    dataset = inputter.make_inference_dataset(data_file, batch_size=1)
     iterator = iter(dataset)
     self.assertAllEqual(next(iterator)["tokens"].numpy()[0], [b"hello", b"world", b"!"])
 
@@ -392,11 +393,10 @@ class InputterTest(tf.test.TestCase):
     vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)
     compression = "GZIP"
     record_file = os.path.join(self.get_temp_dir(), "data.records")
-    record_inputter.create_sequence_records(
+    record_file = record_inputter.create_sequence_records(
         [vector], record_file, compression=compression)
     inputter = record_inputter.SequenceRecordInputter(2)
-    dataset = inputter.make_inference_dataset(
-        dict(path=record_file, compression="GZIP"), batch_size=1)
+    dataset = inputter.make_inference_dataset(record_file, batch_size=1)
     iterator = iter(dataset)
     self.assertAllEqual(next(iterator)["tensor"].numpy()[0], vector)
 
