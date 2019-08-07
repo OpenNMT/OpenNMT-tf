@@ -87,7 +87,7 @@ def train(source_file,
       batch_size=3072,
       batch_type="tokens",
       shuffle_buffer_size=shuffle_buffer_size,
-      bucket_width=1,  # Bucketize sequences by the same length for efficiency.
+      length_bucket_width=1,  # Bucketize sequences by the same length for efficiency.
       maximum_features_length=maximum_length,
       maximum_labels_length=maximum_length)
   iterator = iter(dataset)
