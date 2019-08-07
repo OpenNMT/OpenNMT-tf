@@ -115,7 +115,7 @@ params:
 
 ## Compressed data
 
-Data files compressed with GZIP are supported. The path should end with the `.gz` extension for the to be correctly loaded:
+Data files compressed with GZIP are supported. The path should end with the `.gz` extension for the file to be correctly loaded:
 
 ```yaml
 data:
