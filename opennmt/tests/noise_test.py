@@ -53,6 +53,15 @@ class NoiseTest(tf.test.TestCase):
     y = self.evaluate(y)
     self.assertEqual(y.shape[0], 1)  # At least one is not dropped.
 
+  @parameterized.expand([[1], [2], [4], [5]])
+  def testWordOmission(self, count):
+    words = [["a", "b", ""], ["c", "", ""], ["d", "e", "f"], ["g", "", ""]]
+    x = tf.constant(words, dtype=tf.string)
+    y = noise.WordOmission(count)(x)
+    y = self.evaluate(y)
+    expected_omit_count = min(count, len(words) - 1)
+    self.assertEqual(y.shape[0], len(words) - expected_omit_count)
+
   @parameterized.expand([
     [["a", "b", "c"], ["d", "d", "d"]],
     [[["a", "b", ""], ["c", "e", "f"]], [["d", "", ""], ["d", "", ""]]],
