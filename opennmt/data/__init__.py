@@ -14,6 +14,7 @@ from opennmt.data.dataset import training_pipeline
 from opennmt.data.noise import Noise
 from opennmt.data.noise import WordDropout
 from opennmt.data.noise import WordNoiser
+from opennmt.data.noise import WordOmission
 from opennmt.data.noise import WordPermutation
 from opennmt.data.noise import WordReplacement
 

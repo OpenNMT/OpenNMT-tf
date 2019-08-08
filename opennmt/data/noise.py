@@ -159,6 +159,32 @@ class WordDropout(Noise):
     return tf.gather(words, keep_ind)
 
 
+class WordOmission(Noise):
+  """Randomly omits words in a sequence.
+
+  This is different than :class:`opennmt.data.WordDropout` as it drops a
+  fixed number of words.
+  """
+
+  def __init__(self, count):
+    """Initializes the noise module.
+
+    Args:
+      count: The number of words to omit.
+    """
+    self.count = count
+
+  def _apply(self, words):
+    if self.count == 0:
+      return tf.identity(words)
+    num_words = tf.shape(words)[0]
+    indices = tf.range(num_words)
+    shuffle_indices = tf.random.shuffle(indices)
+    keep_count = tf.maximum(num_words - self.count, 1)
+    keep_indices = tf.sort(shuffle_indices[:keep_count])
+    return tf.gather(words, keep_indices)
+
+
 class WordReplacement(Noise):
   """Randomly replaces words."""
 
