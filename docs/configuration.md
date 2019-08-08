@@ -186,6 +186,13 @@ params:
   # (optional) The weight of the guided alignment cost (default: 1).
   guided_alignment_weight: 1
 
+  # (optional) Enable contrastive learning mode, see
+  # https://www.aclweb.org/anthology/P19-1623 (default: false).
+  # See also "decoding_subword_token" that is used by this mode.
+  contrastive_learning: false
+  # (optional) The value of the parameter eta in the max-margin loss (default: 0.1).
+  max_margin_eta: 0.1
+
 
 # Training options.
 train:

@@ -106,7 +106,7 @@ def max_margin_loss(true_logits,
                     negative_logits,
                     negative_labels,
                     negative_sequence_length,
-                    eta=1):
+                    eta=0.1):
   """Computes the max-margin loss described in
   https://www.aclweb.org/anthology/P19-1623.
 
