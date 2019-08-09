@@ -110,7 +110,9 @@ class Model(tf.keras.layers.Layer):
       training: Compute training loss.
 
     Returns:
-      The loss or a tuple containing the computed loss and the loss to display.
+      The loss or a tuple ``(numerator, train_denominator, stats_denominator)``
+      to use a different normalization for training compared to reporting (e.g.
+      batch-normalized for training vs. token-normalized for reporting).
     """
     raise NotImplementedError()
 

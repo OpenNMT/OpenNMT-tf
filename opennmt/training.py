@@ -80,8 +80,11 @@ class Trainer(object):
           training=True,
           step=self._optimizer.iterations)
       loss = self._model.compute_loss(outputs, target, training=True)
-      training_loss = loss[0] / loss[1]
-      reported_loss = loss[0] / loss[2]
+      if isinstance(loss, tuple):
+        training_loss = loss[0] / loss[1]
+        reported_loss = loss[0] / loss[2]
+      else:
+        training_loss, reported_loss = loss, loss
       step_gradients = self._model.compute_gradients(
           training_loss, optimizer, variables=variables)
       for gradient, step_gradient in zip(gradients, step_gradients):
