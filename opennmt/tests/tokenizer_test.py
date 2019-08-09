@@ -78,24 +78,24 @@ class TokenizerTest(tf.test.TestCase):
 
   def testOpenNMTTokenizerAssets(self):
     asset_dir = self.get_temp_dir()
-    # Write a dummy SentencePiece model.
-    sp_model_path = os.path.join(asset_dir, "model.sp")
-    with open(sp_model_path, "wb") as sp_model_file:
-      sp_model_file.write(b"some model data\n")
+    # Write a dummy BPE model.
+    bpe_model_path = os.path.join(asset_dir, "model.bpe")
+    with open(bpe_model_path, "wb") as bpe_model_file:
+      bpe_model_file.write(b"#version: 0.2\ne s</w>\n")
 
-    tokenizer = OpenNMTTokenizer(mode="none", sp_model_path=sp_model_path)
+    tokenizer = OpenNMTTokenizer(mode="conservative", bpe_model_path=bpe_model_path)
 
     # Generated assets are prefixed but not existing resources.
     assets = tokenizer.export_assets(asset_dir, asset_prefix="source_")
     self.assertIn("source_tokenizer_config.yml", assets)
     self.assertTrue(os.path.exists(assets["source_tokenizer_config.yml"]))
-    self.assertIn("model.sp", assets)
-    self.assertTrue(os.path.exists(assets["model.sp"]))
+    self.assertIn("model.bpe", assets)
+    self.assertTrue(os.path.exists(assets["model.bpe"]))
 
     # The tokenization configuration should not contain absolute paths to resources.
     with open(assets["source_tokenizer_config.yml"], "rb") as config_file:
       asset_config = yaml.load(config_file.read(), Loader=yaml.UnsafeLoader)
-    self.assertDictEqual(asset_config, {"mode": "none", "sp_model_path": "model.sp"})
+    self.assertDictEqual(asset_config, {"mode": "conservative", "bpe_model_path": "model.bpe"})
 
 
 if __name__ == "__main__":
