@@ -84,7 +84,7 @@ class DecoderTest(tf.test.TestCase):
 
     # Test 3D inputs.
     inputs = tf.random.uniform([batch_size, time_dim, depth], dtype=dtype)
-    # NOTE: max(sequence_length) may be less than time_dim when num_gpus > 1
+    # Allow max(sequence_length) to be less than time_dim.
     sequence_length = tf.constant([1, 3, 4, 2], dtype=tf.int32)
     outputs, _, attention = decoder(
         inputs,
