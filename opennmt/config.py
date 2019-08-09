@@ -61,10 +61,7 @@ def load_model(model_dir,
                model_file=None,
                model_name=None,
                serialize_model=True):
-  """Loads the model from the catalog or a file.
-
-  The model description is saved in :obj:`model_dir` to make the model
-  configuration optional for future runs.
+  """Loads the model from the catalog or a definition file.
 
   Args:
     model_dir: The model directory.
@@ -72,10 +69,11 @@ def load_model(model_dir,
       Mutually exclusive with :obj:`model_name`.
     model_name: An optional model name from the catalog.
       Mutually exclusive with :obj:`model_file`.
-    serialize_model: Serialize the model definition in the model directory.
+    serialize_model: Serialize the model definition in the model directory to
+      make it optional for future runs.
 
   Returns:
-    A :class:`opennmt.models.model.Model` instance.
+    A :class:`opennmt.models.Model` instance.
 
   Raises:
     ValueError: if both :obj:`model_file` and :obj:`model_name` are set.
@@ -113,14 +111,15 @@ def load_model(model_dir,
   return model
 
 def load_config(config_paths, config=None):
-  """Loads configuration files.
+  """Loads YAML configuration files.
 
   Args:
-    config_paths: A list of configuration files.
+    config_paths: A list of configuration files that will be merged to a single
+      configuration. The rightmost configuration takes priority.
     config: A (possibly non empty) config dictionary to fill.
 
   Returns:
-    The configuration dictionary.
+    The configuration as Python dictionary.
   """
   if config is None:
     config = {}
