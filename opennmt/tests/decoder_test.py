@@ -62,62 +62,60 @@ class DecoderTest(tf.test.TestCase):
                    initial_state_fn=None,
                    num_sources=1,
                    dtype=tf.float32):
-    with tf.Graph().as_default():
-      batch_size = 4
-      vocab_size = 10
-      time_dim = 5
-      depth = 6
-      memory, memory_sequence_length = _generate_source_context(
-          batch_size,
-          depth,
-          num_sources=num_sources,
-          dtype=dtype)
+    batch_size = 4
+    vocab_size = 10
+    time_dim = 5
+    depth = 6
+    memory, memory_sequence_length = _generate_source_context(
+        batch_size,
+        depth,
+        num_sources=num_sources,
+        dtype=dtype)
 
-      initial_state = None
-      if initial_state_fn is not None:
-        initial_state = initial_state_fn(batch_size, dtype)
-      decoder.initialize(vocab_size=vocab_size)
-      initial_state = decoder.initial_state(
-          memory=memory,
-          memory_sequence_length=memory_sequence_length,
-          initial_state=initial_state,
-          dtype=dtype)
+    initial_state = None
+    if initial_state_fn is not None:
+      initial_state = initial_state_fn(batch_size, dtype)
+    decoder.initialize(vocab_size=vocab_size)
+    initial_state = decoder.initial_state(
+        memory=memory,
+        memory_sequence_length=memory_sequence_length,
+        initial_state=initial_state,
+        dtype=dtype)
 
-      # Test 3D inputs.
-      inputs = tf.random.uniform([batch_size, time_dim, depth], dtype=dtype)
-      # NOTE: max(sequence_length) may be less than time_dim when num_gpus > 1
-      sequence_length = tf.constant([1, 3, 4, 2], dtype=tf.int32)
-      outputs, _, attention = decoder(
-          inputs,
-          sequence_length,
-          state=initial_state,
-          training=True)
-      self.evaluate(tf.compat.v1.global_variables_initializer())
-      self.assertEqual(outputs.dtype, dtype)
-      output_time_dim = tf.shape(outputs)[1]
-      if decoder.support_alignment_history and num_sources == 1:
-        self.assertIsNotNone(attention)
-      else:
-        self.assertIsNone(attention)
-      output_time_dim_val = self.evaluate(output_time_dim)
-      self.assertEqual(time_dim, output_time_dim_val)
-      if decoder.support_alignment_history and num_sources == 1:
-        attention_val, memory_time = self.evaluate([attention, tf.shape(memory)[1]])
-        self.assertAllEqual([batch_size, time_dim, memory_time], attention_val.shape)
+    # Test 3D inputs.
+    inputs = tf.random.uniform([batch_size, time_dim, depth], dtype=dtype)
+    # NOTE: max(sequence_length) may be less than time_dim when num_gpus > 1
+    sequence_length = tf.constant([1, 3, 4, 2], dtype=tf.int32)
+    outputs, _, attention = decoder(
+        inputs,
+        sequence_length,
+        state=initial_state,
+        training=True)
+    self.assertEqual(outputs.dtype, dtype)
+    output_time_dim = tf.shape(outputs)[1]
+    if decoder.support_alignment_history and num_sources == 1:
+      self.assertIsNotNone(attention)
+    else:
+      self.assertIsNone(attention)
+    output_time_dim_val = self.evaluate(output_time_dim)
+    self.assertEqual(time_dim, output_time_dim_val)
+    if decoder.support_alignment_history and num_sources == 1:
+      attention_val, memory_time = self.evaluate([attention, tf.shape(memory)[1]])
+      self.assertAllEqual([batch_size, time_dim, memory_time], attention_val.shape)
 
-      # Test 2D inputs.
-      inputs = tf.random.uniform([batch_size, depth], dtype=dtype)
-      step = tf.constant(0, dtype=tf.int32)
-      outputs, _, attention = decoder(
-          inputs,
-          step,
-          state=initial_state)
-      self.assertEqual(outputs.dtype, dtype)
-      if decoder.support_alignment_history and num_sources == 1:
-        self.assertIsNotNone(attention)
-      else:
-        self.assertIsNone(attention)
-      self.evaluate(outputs)
+    # Test 2D inputs.
+    inputs = tf.random.uniform([batch_size, depth], dtype=dtype)
+    step = tf.constant(0, dtype=tf.int32)
+    outputs, _, attention = decoder(
+        inputs,
+        step,
+        state=initial_state)
+    self.assertEqual(outputs.dtype, dtype)
+    if decoder.support_alignment_history and num_sources == 1:
+      self.assertIsNotNone(attention)
+    else:
+      self.assertIsNone(attention)
+    self.evaluate(outputs)
 
   def testRNNDecoder(self):
     decoder = decoders.RNNDecoder(2, 20)
