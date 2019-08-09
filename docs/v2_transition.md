@@ -88,6 +88,7 @@ Some parameters in the YAML have been renamed or removed:
 | `params/decay_step_duration` | | No longer useful |
 | `params/freeze_variables` | `params/freeze_layers` | Layer names instead of variable regexps |
 | `params/gradients_accum` | | Use `train/effective_batch_size` instead |
+| `params/horovod` | | Not implemented |
 | `params/loss_scale` | | Dynamic loss scaling by default |
 | `params/maximum_iterations` | `params/maximum_decoding_length` | |
 | `params/maximum_learning_rate` | | Not implemented |
