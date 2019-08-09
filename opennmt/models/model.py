@@ -200,7 +200,11 @@ class Model(tf.keras.layers.Layer):
     return _run
 
   def create_variables(self, optimizer=None):
-    """Creates the model variables by running it once."""
+    """Creates the model variables by running it once.
+
+    Args:
+      optimizer: If set, also create the optimizer variables.
+    """
     if self.built:
       return
 
