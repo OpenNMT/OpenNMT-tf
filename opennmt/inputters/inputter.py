@@ -15,6 +15,10 @@ from opennmt.utils.misc import item_or_tuple
 class Inputter(tf.keras.layers.Layer):
   """Base class for inputters."""
 
+  def __init__(self, **kwargs):
+    super(Inputter, self).__init__(**kwargs)
+    self.asset_prefix = None
+
   @property
   def num_outputs(self):
     """How many parallel outputs does this inputter produce."""
@@ -180,13 +184,14 @@ class MultiInputter(Inputter):
 
   def initialize(self, data_config, asset_prefix=""):
     for i, inputter in enumerate(self.inputters):
-      inputter.initialize(data_config, asset_prefix="%s%d_" % (asset_prefix, i + 1))
+      inputter.initialize(
+          data_config, asset_prefix=_get_asset_prefix(asset_prefix, inputter, i))
 
   def export_assets(self, asset_dir, asset_prefix=""):
     assets = {}
     for i, inputter in enumerate(self.inputters):
       assets.update(inputter.export_assets(
-          asset_dir, asset_prefix="%s%d_" % (asset_prefix, i + 1)))
+          asset_dir, asset_prefix=_get_asset_prefix(asset_prefix, inputter, i)))
     return assets
 
   @abc.abstractmethod
@@ -196,6 +201,10 @@ class MultiInputter(Inputter):
   def visualize(self, model_root, log_dir):
     for inputter in self.inputters:
       inputter.visualize(model_root, log_dir)
+
+
+def _get_asset_prefix(prefix, inputter, i):
+  return "%s%s_" % (prefix, inputter.asset_prefix or str(i + 1))
 
 
 class ParallelInputter(MultiInputter):
@@ -385,23 +394,13 @@ class ExampleInputter(ParallelInputter):
       share_parameters: Share the inputters parameters.
     """
     self.features_inputter = features_inputter
+    self.features_inputter.asset_prefix = "source"
     self.labels_inputter = labels_inputter
+    self.labels_inputter.asset_prefix = "target"
     super(ExampleInputter, self).__init__(
         [self.features_inputter, self.labels_inputter],
         share_parameters=share_parameters,
         combine_features=False)
-
-  def initialize(self, data_config, asset_prefix=""):
-    self.features_inputter.initialize(data_config, asset_prefix="source_")
-    self.labels_inputter.initialize(data_config, asset_prefix="target_")
-
-  def export_assets(self, asset_dir, asset_prefix=""):
-    assets = {}
-    assets.update(self.features_inputter.export_assets(
-        asset_dir, asset_prefix="source_"))
-    assets.update(self.labels_inputter.export_assets(
-        asset_dir, asset_prefix="target_"))
-    return assets
 
   def make_inference_dataset(self,
                              features_file,
