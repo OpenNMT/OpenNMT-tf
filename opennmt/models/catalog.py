@@ -31,7 +31,7 @@ class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
         decoder=decoders.AttentionalRNNDecoder(
             num_layers=3,
             num_units=512,
-            attention_mechanism_class=tf.contrib.seq2seq.LuongMonotonicAttention,
+            attention_mechanism_class=tfa.seq2seq.LuongMonotonicAttention,
             cell_class=tf.keras.layers.LSTMCell,
             dropout=0.3,
             residual_connections=False,
