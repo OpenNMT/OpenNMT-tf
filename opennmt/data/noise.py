@@ -38,7 +38,7 @@ class WordNoiser(object):
     """Adds a noise to apply."""
     self.noises.append(noise)
 
-  def __call__(self, tokens, sequence_length=None, keep_shape=True):
+  def __call__(self, tokens, sequence_length=None, keep_shape=False):
     """Applies noise on :obj:`tokens`.
 
     Args:

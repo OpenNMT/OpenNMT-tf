@@ -58,7 +58,7 @@ class NoiseTest(tf.test.TestCase):
     noiser.add(noise.WordDropout(0.1))
     noiser.add(noise.WordReplacement(0.1))
     noiser.add(noise.WordPermutation(3))
-    noisy_tokens, noisy_lengths = noiser(tokens, sequence_length=lengths)
+    noisy_tokens, noisy_lengths = noiser(tokens, sequence_length=lengths, keep_shape=True)
     tokens, noisy_tokens = self.evaluate([tokens, noisy_tokens])
     self.assertAllEqual(noisy_tokens.shape, tokens.shape)
 
