@@ -127,8 +127,12 @@ class Evaluator(object):
     loss_den = 0
     metrics = self._model.get_metrics()
     for loss, predictions, target in self._eval():  # pylint: disable=no-value-for-parameter
-      loss_num += loss[0]
-      loss_den += loss[1]
+      if isinstance(loss, tuple):
+        loss_num += loss[0]
+        loss_den += loss[1]
+      else:
+        loss_num += loss
+        loss_den += 1
       if metrics:
         self._model.update_metrics(metrics, predictions, target)
       if output_file is not None:
