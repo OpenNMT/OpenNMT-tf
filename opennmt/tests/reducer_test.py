@@ -2,6 +2,7 @@ import collections
 
 import tensorflow as tf
 
+from parameterized import parameterized
 from opennmt.layers import reducer
 
 
@@ -277,6 +278,16 @@ class ReducerTest(tf.test.TestCase):
     self.assertTupleEqual((State(h=1, c=2), State(h=3, c=4), State(h=5, c=6)),
                           reducer.JoinReducer()([
                               State(h=1, c=2), (State(h=3, c=4), State(h=5, c=6))]))
+
+  @parameterized.expand([
+      [reducer.SumReducer(), [1, 2, 3], [4, 5, 6], [5, 7, 9]],
+      [reducer.SumReducer(), (1, 2, 3), (4, 5, 6), (5, 7, 9)],
+      [reducer.SumReducer(), 1, 2, 3]
+  ])
+  def testZipAndReduce(self, reducer, x, y, expected_z):
+    z = reducer.zip_and_reduce(x, y)
+    z = self.evaluate(z)
+    self.assertAllEqual(z, expected_z)
 
 
 if __name__ == "__main__":

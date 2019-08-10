@@ -78,20 +78,25 @@ class Reducer(object):
   """Base class for reducers."""
 
   def zip_and_reduce(self, x, y):
-    """Zips :obj:`x` with :obj:`y` and reduces all elements."""
-    if isinstance(x, (list, tuple)):
-      tf.nest.assert_same_structure(x, y)
+    """Zips the :obj:`x` with :obj:`y` structures together and reduces all
+    elements. If the structures are nested, they will be flattened first.
 
-      x_flat = tf.nest.flatten(x)
-      y_flat = tf.nest.flatten(y)
+    Args:
+      x: The first structure.
+      y: The second structure.
 
-      flat = []
-      for x_i, y_i in zip(x_flat, y_flat):
-        flat.append(self([x_i, y_i]))
+    Returns:
+      The same structure as :obj:`x` and :obj:`y` where each element from
+      :obj:`x` is reduced with the correspond element from :obj:`y`.
 
-      return tf.nest.pack_sequence_as(x, flat)
-    else:
-      return self([x, y])
+    Raises:
+      ValueError: if the two structures are not the same.
+    """
+    tf.nest.assert_same_structure(x, y)
+    x_flat = tf.nest.flatten(x)
+    y_flat = tf.nest.flatten(y)
+    reduced = list(map(self, zip(x_flat, y_flat)))
+    return tf.nest.pack_sequence_as(x, reduced)
 
   def __call__(self, inputs, sequence_length=None):
     """Reduces all input elements.
