@@ -104,10 +104,11 @@ class Vocab(object):
     """
     with tf.io.gfile.GFile(path, mode="rb") as vocab:
       for line in vocab:
+        token = line.rstrip(b"\r\n")
         if file_format == "default":
-          self.add(line[:-1])
+          self.add(token)
         elif file_format == "sentencepiece":
-          token, _ = line.rstrip().split(b"\t")
+          token, _ = token.split(b"\t")
           if token in (b"<unk>", b"<s>", b"</s>"):  # Ignore SentencePiece special tokens.
             continue
           self.add(token)
