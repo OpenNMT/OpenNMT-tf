@@ -13,6 +13,7 @@ from google.protobuf import text_format
 
 from opennmt import constants, tokenizers
 from opennmt.data import text
+from opennmt.data.vocab import Vocab
 from opennmt.inputters.inputter import Inputter
 from opennmt.layers import common
 from opennmt.utils import misc
@@ -167,15 +168,6 @@ def _get_field(config, key, prefix=None, default=None, required=False):
     raise ValueError("Missing field '%s' in the data configuration" % key)
   return value
 
-def _load_vocabulary(vocabulary_path):
-  indices = []
-  tokens = []
-  with tf.io.gfile.GFile(vocabulary_path, mode="rb") as vocabulary:
-    for i, token in enumerate(vocabulary):
-      indices.append(i)
-      tokens.append(token.strip())
-  return indices, tokens
-
 
 @six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
@@ -189,10 +181,11 @@ class TextInputter(Inputter):
   def initialize(self, data_config, asset_prefix=""):
     self.vocabulary_file = _get_field(
         data_config, "vocabulary", prefix=asset_prefix, required=True)
-    indices, tokens = _load_vocabulary(self.vocabulary_file)
+    vocab = Vocab.from_file(self.vocabulary_file)
+    indices = list(range(len(vocab)))
     self.vocabulary_size = len(indices) + self.num_oov_buckets
     self.vocabulary_indices = tf.constant(indices, dtype=tf.int64)
-    self.vocabulary_tokens = tf.constant(tokens, dtype=tf.string)
+    self.vocabulary_tokens = tf.constant(vocab.words, dtype=tf.string)
     tokenizer_config = _get_field(data_config, "tokenization", prefix=asset_prefix)
     self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
 
