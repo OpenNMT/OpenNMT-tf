@@ -96,7 +96,7 @@ class RNN(tf.keras.layers.Layer):
       cell: The RNN cell to use.
       bidirectional: Make this layer bidirectional.
       reducer: A :class:`opennmt.layers.Reducer` instance to merge
-        bidirectional state and outputs.
+        bidirectional states and outputs.
       kwargs: Additional layer arguments.
     """
     super(RNN, self).__init__(**kwargs)
@@ -106,10 +106,14 @@ class RNN(tf.keras.layers.Layer):
       self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode=None)
 
   def call(self, *args, **kwargs):  # pylint: disable=arguments-differ
-    """Forwards the arguments the RNN layer.
+    """Forwards the arguments to the RNN layer.
+
+    Args:
+      *args: Positional arguments of the RNN layer.
+      **kwargs: Keyword arguments of the RNN layer.
 
     Returns:
-      A tuple with the output sequences and the state.
+      A tuple with the output sequences and the states.
     """
     outputs = self.rnn(*args, **kwargs)
     if isinstance(self.rnn, tf.keras.layers.Bidirectional):
