@@ -111,6 +111,7 @@ class Tokenizer(object):
       tokens = [tf.compat.as_text(token) for token in tokens]
       return self._detokenize_string(tokens)
 
+  @tf.autograph.experimental.do_not_convert
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
 
@@ -131,6 +132,7 @@ class Tokenizer(object):
     tokens.set_shape([None])
     return tokens
 
+  @tf.autograph.experimental.do_not_convert
   def _detokenize_tensor(self, tokens):
     """Detokenizes tokens.
 
