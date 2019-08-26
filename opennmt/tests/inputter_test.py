@@ -11,9 +11,11 @@ import numpy as np
 
 from tensorboard.plugins import projector
 from google.protobuf import text_format
+from parameterized import parameterized
 
 from opennmt import tokenizers
 from opennmt.data import dataset as dataset_util
+from opennmt.data import noise
 from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
 from opennmt.utils.misc import item_or_tuple, count_lines
@@ -137,7 +139,7 @@ class InputterTest(tf.test.TestCase):
     if data_config is not None:
       inputter.initialize(data_config)
     dataset = inputter.make_dataset(data_file)
-    dataset = dataset.map(lambda *arg: inputter.make_features(item_or_tuple(arg)))
+    dataset = dataset.map(lambda *arg: inputter.make_features(item_or_tuple(arg), training=True))
     dataset = dataset.apply(dataset_util.batch_dataset(1))
     features = iter(dataset).next()
     if shapes is not None:
@@ -194,6 +196,41 @@ class InputterTest(tf.test.TestCase):
     dataset = inputter.make_inference_dataset(data_file, batch_size=1)
     iterator = iter(dataset)
     self.assertAllEqual(next(iterator)["tokens"].numpy()[0], [b"hello", b"world", b"!"])
+
+  def testWordEmbedderWithNoise(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+    noiser = noise.WordNoiser(noises=[noise.WordOmission(1)])
+    embedder = text_inputter.WordEmbedder(embedding_size=10)
+    embedder.set_noise(noiser, in_place=False)
+    expected_shapes = {
+        "tokens": [None, None],
+        "ids": [None, None],
+        "length": [None],
+        "noisy_tokens": [None, None],
+        "noisy_ids": [None, None],
+        "noisy_length": [None]
+    }
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        data_config={"vocabulary": vocab_file},
+        shapes=expected_shapes)
+    self.assertEqual(features["noisy_length"][0], features["length"][0] - 1)
+
+  @parameterized.expand([[1], [0]])
+  def testWordEmbedderWithInPlaceNoise(self, probability):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+    noiser = noise.WordNoiser(noises=[noise.WordOmission(1)])
+    embedder = text_inputter.WordEmbedder(embedding_size=10)
+    embedder.set_noise(noiser, probability=probability)
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        data_config={"vocabulary": vocab_file},
+        shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
+    self.assertEqual(features["length"][0], 3 if probability == 0 else 2)
 
   def testWordEmbedderWithPretrainedEmbeddings(self):
     data_file = self._makeTextFile("data.txt", ["hello world !"])
