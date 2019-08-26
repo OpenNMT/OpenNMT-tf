@@ -13,14 +13,15 @@ from opennmt.layers.reducer import SumReducer
 class PositionEncoder(tf.keras.layers.Layer):
   """Base class for position encoders."""
 
-  def __init__(self, reducer=SumReducer()):
+  def __init__(self, reducer=SumReducer(), **kwargs):
     """Initializes the position encoder.
 
     Args:
       reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position
         encodings.
+      **kwargs: Additional layer keyword arguments.
     """
-    super(PositionEncoder, self).__init__()
+    super(PositionEncoder, self).__init__(**kwargs)
     self.reducer = reducer
 
   def call(self, inputs, position=None):  # pylint: disable=arguments-differ
@@ -59,7 +60,7 @@ class PositionEncoder(tf.keras.layers.Layer):
 class PositionEmbedder(PositionEncoder):
   """Encodes position with a lookup table."""
 
-  def __init__(self, maximum_position=128, reducer=SumReducer()):
+  def __init__(self, maximum_position=128, reducer=SumReducer(), **kwargs):
     """Initializes the position encoder.
 
     Args:
@@ -67,8 +68,9 @@ class PositionEmbedder(PositionEncoder):
         than this value will be set to :obj:`maximum_position`.
       reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position
         encodings.
+      **kwargs: Additional layer keyword arguments.
     """
-    super(PositionEmbedder, self).__init__(reducer=reducer)
+    super(PositionEmbedder, self).__init__(reducer=reducer, **kwargs)
     self.maximum_position = maximum_position
     self.embedding = None
 

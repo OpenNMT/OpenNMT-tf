@@ -169,6 +169,7 @@ class EncoderTest(tf.test.TestCase):
 
   @parameterized.expand([[tf.float32], [tf.float16]])
   def testSelfAttentionEncoder(self, dtype):
+    tf.keras.backend.set_floatx(dtype.name)
     encoder = encoders.SelfAttentionEncoder(
         3, num_units=20, num_heads=4, ffn_inner_dim=40)
     inputs = tf.random.uniform([4, 5, 10], dtype=dtype)
@@ -176,6 +177,7 @@ class EncoderTest(tf.test.TestCase):
     outputs, _, _ = encoder(inputs, sequence_length=lengths, training=True)
     self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
     self.assertEqual(outputs.dtype, dtype)
+    tf.keras.backend.set_floatx("float32")
 
   @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
   def testUnidirectionalRNNEncoder(self, cell_class):

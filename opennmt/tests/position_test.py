@@ -45,7 +45,7 @@ class PositionTest(tf.test.TestCase):
     ])
 
   def _testSinusoidalPositionEncoder(self, depth, dtype=tf.float32):
-    encoder = position.SinusoidalPositionEncoder()
+    encoder = position.SinusoidalPositionEncoder(dtype=dtype)
     inputs = tf.zeros([2, 6, depth], dtype=dtype)
     outputs = encoder(inputs)
     self.assertEqual(dtype, outputs.dtype.base_dtype)
@@ -62,7 +62,7 @@ class PositionTest(tf.test.TestCase):
 
   @parameterized.expand([[tf.float32], [tf.float16]])
   def testPositionEmbedder(self, dtype):
-    encoder = position.PositionEmbedder()
+    encoder = position.PositionEmbedder(dtype=dtype)
     inputs = tf.zeros([3, 5, 10], dtype=dtype)
     outputs = encoder(inputs)
     self.assertEqual(outputs.dtype, dtype)
