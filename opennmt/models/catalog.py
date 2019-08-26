@@ -74,58 +74,8 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
         }
     })
 
-class NMTBig(_RNNBase):
-  """Defines a bidirectional LSTM encoder-decoder model."""
-  def __init__(self):
-    super(NMTBig, self).__init__(
-        source_inputter=inputters.WordEmbedder(
-            embedding_size=512),
-        target_inputter=inputters.WordEmbedder(
-            embedding_size=512),
-        encoder=encoders.RNNEncoder(
-            num_layers=4,
-            num_units=512,
-            bidirectional=True,
-            residual_connections=False,
-            dropout=0.3,
-            reducer=layers.ConcatReducer(),
-            cell_class=tf.keras.layers.LSTMCell),
-        decoder=decoders.AttentionalRNNDecoder(
-            num_layers=4,
-            num_units=1024,
-            bridge_class=layers.CopyBridge,
-            attention_mechanism_class=tfa.seq2seq.LuongAttention,
-            cell_class=tf.keras.layers.LSTMCell,
-            dropout=0.3,
-            residual_connections=False))
-
-class NMTMedium(_RNNBase):
-  """Defines a medium-sized bidirectional LSTM encoder-decoder model."""
-  def __init__(self):
-    super(NMTMedium, self).__init__(
-        source_inputter=inputters.WordEmbedder(
-            embedding_size=512),
-        target_inputter=inputters.WordEmbedder(
-            embedding_size=512),
-        encoder=encoders.RNNEncoder(
-            num_layers=4,
-            num_units=256,
-            bidirectional=True,
-            residual_connections=False,
-            dropout=0.3,
-            reducer=layers.ConcatReducer(),
-            cell_class=tf.keras.layers.LSTMCell),
-        decoder=decoders.AttentionalRNNDecoder(
-            num_layers=4,
-            num_units=512,
-            bridge_class=layers.CopyBridge,
-            attention_mechanism_class=tfa.seq2seq.LuongAttention,
-            cell_class=tf.keras.layers.LSTMCell,
-            dropout=0.3,
-            residual_connections=False))
-
-class NMTSmall(_RNNBase):
-  """Defines a small unidirectional LSTM encoder-decoder model."""
+class LuongAttention(_RNNBase):
+  """Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025."""
   def __init__(self):
     super(NMTSmall, self).__init__(
         source_inputter=inputters.WordEmbedder(
@@ -133,21 +83,21 @@ class NMTSmall(_RNNBase):
         target_inputter=inputters.WordEmbedder(
             embedding_size=512),
         encoder=encoders.RNNEncoder(
-            num_layers=2,
-            num_units=512,
-            dropout=0.3,
+            num_layers=4,
+            num_units=1000,
+            dropout=0.2,
             residual_connections=False,
             cell_class=tf.keras.layers.LSTMCell),
         decoder=decoders.AttentionalRNNDecoder(
-            num_layers=2,
-            num_units=512,
+            num_layers=4,
+            num_units=1000,
             bridge_class=layers.CopyBridge,
             attention_mechanism_class=tfa.seq2seq.LuongAttention,
             cell_class=tf.keras.layers.LSTMCell,
-            dropout=0.3,
+            dropout=0.2,
             residual_connections=False))
 
-class SeqTagger(sequence_tagger.SequenceTagger):
+class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
   """Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354."""
   def __init__(self):
     # pylint: disable=bad-continuation

@@ -21,7 +21,8 @@ See the [2.0 Transition Guide](docs/v2_transition.md) for details about the foll
 * Python 3.5 or greater is required
 * Checkpoints are no longer compatible as the code now uses object-based instead of name-based checkpointing (Transformer-based checkpoints are automatically upgraded when loaded)
 * The `onmt-main` script now makes use of subparsers which require to move the run type and it specific options to the end of the command
-* Some parameters in the YAML configuration has been renamed or changed, see the [transition guide](docs/v2_transition.md)
+* Some predefined models have been renamed or changed, see the [transition guide](docs/v2_transition.md)
+* Some parameters in the YAML configuration have been renamed or changed, see the [transition guide](docs/v2_transition.md)
 * A lot of public classes and functions have changed, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) for details
 * Changes in the API scope of the project:
   * The minimum TensorFlow version is no longer part of the API

@@ -74,7 +74,18 @@ data:
 
 The same name resolution applies to "embedding" and "tokenization" configurations.
 
-## Renamed parameters
+## Changed predefined models
+
+Predefined models do not require a model definition file and can be directly set to the `--model_type` command line argument. Some of them have been changed for clarity:
+
+| V1 | V2 | Comment |
+| --- | --- | --- |
+| `NMTBig` | | Use `LuongAttention` or define a custom model |
+| `NMTMedium` | | Use `LuongAttention` or define a custom model |
+| `NMTSmall` | | Use `LuongAttention` or define a custom model |
+| `SeqTagger` | `LstmCnnCrfTagger` | |
+
+## Changed parameters
 
 Some parameters in the YAML have been renamed or removed:
 
