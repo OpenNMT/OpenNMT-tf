@@ -9,7 +9,7 @@ We recommend using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) to setu
 ```bash
 virtualenv pyenv
 source pyenv/bin/activate
-pip install --pre OpenNMT-tf
+pip install OpenNMT-tf
 ```
 
 ## Step 1: Prepare the data
@@ -46,10 +46,10 @@ data:
 ## Step 2: Train the model
 
 ```
-onmt-main --model_type NMTSmall --config data.yml --auto_config train --with_eval
+onmt-main --model_type Transformer --config data.yml --auto_config train --with_eval
 ```
 
-This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The `--auto_config` flag selects the best settings for this type of model.
+This command will start the training and evaluation loop of a [Transformer](https://arxiv.org/abs/1706.03762) model. The `--auto_config` flag selects the best settings for this type of model.
 
 The training will regularly produce checkpoints in the `run/` directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using [TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard):
 
@@ -69,12 +69,11 @@ This command can be executed as soon as a checkpoint is saved by the training; t
 
 ## Going further
 
-While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset and model are too small for this task.
+While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset is too small for this task.
 
 To go further, here are some pointers:
 
 * Download larger training sets, for example from a [WMT task](http://www.statmt.org/wmt16/translation-task.html)
-* Train a bigger model, like the [Transformer](https://arxiv.org/abs/1706.03762) using `--model_type Transformer`
 * Run existing [training recipes](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts)
 * Discover the [configuration reference](configuration.html) to tune hyperparameters
 * Explore the other sections to learn about advanced topics
