@@ -217,7 +217,10 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])
   def testSequenceTagger(self, mode):
-    model = models.SequenceTagger(inputters.WordEmbedder(10), encoders.MeanEncoder())
+    model = models.SequenceTagger(
+        inputters.WordEmbedder(10),
+        encoders.MeanEncoder(),
+        crf_decoding=True)
     features_file, labels_file, data_config = self._makeToyTaggerData()
     data_config["tagging_scheme"] = "bioes"
     params = {

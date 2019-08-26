@@ -168,7 +168,8 @@ class SeqTagger(sequence_tagger.SequenceTagger):
             bidirectional=True,
             dropout=0.5,
             residual_connections=False,
-            cell_class=tf.keras.layers.LSTMCell))
+            cell_class=tf.keras.layers.LSTMCell),
+        crf_decoding=True)
 
   def auto_config(self, num_replicas=1):
     config = super(SeqTagger, self).auto_config(num_replicas=num_replicas)

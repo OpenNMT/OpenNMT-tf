@@ -1,6 +1,7 @@
 """Sequence tagger."""
 
 import tensorflow as tf
+import tensorflow_addons as tfa
 import numpy as np
 
 from opennmt import inputters
@@ -21,13 +22,12 @@ class SequenceTagger(Model):
       encoder: A :class:`opennmt.encoders.Encoder` to encode the input.
       crf_decoding: If ``True``, add a CRF layer after the encoder.
     """
-    if crf_decoding:
-      raise ValueError("CRF is currently not supported in V2")
     example_inputter = inputters.ExampleInputter(inputter, TagsInputter())
     super(SequenceTagger, self).__init__(example_inputter)
     self.encoder = encoder
     self.crf_decoding = crf_decoding
     self.tagging_scheme = None
+    self.transition_params = None
 
   def initialize(self, data_config, params=None):
     self.tagging_scheme = data_config.get("tagging_scheme")
@@ -37,8 +37,11 @@ class SequenceTagger(Model):
 
   def build(self, input_shape):
     super(SequenceTagger, self).build(input_shape)
-    self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
+    num_tags = self.labels_inputter.vocabulary_size
+    self.output_layer = tf.keras.layers.Dense(num_tags)
     self.id_to_tag = self.labels_inputter.vocabulary_lookup_reverse()
+    if self.crf_decoding:
+      self.transition_params = self.add_weight("transition_params", [num_tags, num_tags])
 
   def call(self, features, labels=None, training=None, step=None):
     length = self.features_inputter.get_length(features)
@@ -47,8 +50,12 @@ class SequenceTagger(Model):
         inputs, sequence_length=length, training=training)
     logits = self.output_layer(outputs)
     if not training:
-      tags_prob = tf.nn.softmax(logits)
-      tags_id = tf.argmax(tags_prob, axis=2)
+      if self.crf_decoding:
+        tags_id, _ = tfa.text.crf_decode(logits, self.transition_params, length)
+        tags_id = tf.cast(tags_id, tf.int64)
+      else:
+        tags_prob = tf.nn.softmax(logits)
+        tags_id = tf.argmax(tags_prob, axis=2)
       predictions = {
           "length": tf.identity(length),
           "tags": self.id_to_tag.lookup(tags_id),
@@ -59,13 +66,22 @@ class SequenceTagger(Model):
     return logits, predictions
 
   def compute_loss(self, outputs, labels, training=True):
-    return cross_entropy_sequence_loss(
-        outputs,
-        labels["tags_id"],
-        labels["length"],
-        label_smoothing=self.params.get("label_smoothing", 0.0),
-        average_in_time=self.params.get("average_loss_in_time", False),
-        training=training)
+    if self.crf_decoding:
+      log_likelihood, _ = tfa.text.crf_log_likelihood(
+          outputs,
+          tf.cast(labels["tags_id"], tf.int32),
+          labels["length"],
+          transition_params=self.transition_params)
+      batch_size = tf.shape(log_likelihood)[0]
+      return tf.reduce_sum(-log_likelihood) / tf.cast(batch_size, log_likelihood.dtype)
+    else:
+      return cross_entropy_sequence_loss(
+          outputs,
+          labels["tags_id"],
+          labels["length"],
+          label_smoothing=self.params.get("label_smoothing", 0.0),
+          average_in_time=self.params.get("average_loss_in_time", False),
+          training=training)
 
   def get_metrics(self):
     metrics = {"accuracy": tf.keras.metrics.Accuracy()}
