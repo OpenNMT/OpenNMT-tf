@@ -102,9 +102,9 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
   def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
     # V1 used conv1d layers that have a leading dimensions.
     weights = tf.nest.map_structure(np.squeeze, weights)
-    m = {}
-    m.update(self.inner.map_v1_weights(weights["conv1d"]))
-    m.update(self.outer.map_v1_weights(weights["conv1d_1"]))
+    m = []
+    m += self.inner.map_v1_weights(weights["conv1d"])
+    m += self.outer.map_v1_weights(weights["conv1d_1"])
     return m
 
 
@@ -151,17 +151,17 @@ class MultiHeadAttention(tf.keras.layers.Layer):
           lambda w: np.split(w, num_splits, axis=0 if w.ndim == 1 else 1)[index],
           weights[key])
 
-    m = {}
+    m = []
     if "conv1d_2" not in weights:  # Case self-attention.
-      m.update(self.linear_queries.map_v1_weights(_partial_weights("conv1d", 3, 0)))
-      m.update(self.linear_keys.map_v1_weights(_partial_weights("conv1d", 3, 1)))
-      m.update(self.linear_values.map_v1_weights(_partial_weights("conv1d", 3, 2)))
-      m.update(self.linear_output.map_v1_weights(weights["conv1d_1"]))
+      m += self.linear_queries.map_v1_weights(_partial_weights("conv1d", 3, 0))
+      m += self.linear_keys.map_v1_weights(_partial_weights("conv1d", 3, 1))
+      m += self.linear_values.map_v1_weights(_partial_weights("conv1d", 3, 2))
+      m += self.linear_output.map_v1_weights(weights["conv1d_1"])
     else:
-      m.update(self.linear_queries.map_v1_weights(weights["conv1d"]))
-      m.update(self.linear_keys.map_v1_weights(_partial_weights("conv1d_1", 2, 0)))
-      m.update(self.linear_values.map_v1_weights(_partial_weights("conv1d_1", 2, 1)))
-      m.update(self.linear_output.map_v1_weights(weights["conv1d_2"]))
+      m += self.linear_queries.map_v1_weights(weights["conv1d"])
+      m += self.linear_keys.map_v1_weights(_partial_weights("conv1d_1", 2, 0))
+      m += self.linear_values.map_v1_weights(_partial_weights("conv1d_1", 2, 1))
+      m += self.linear_output.map_v1_weights(weights["conv1d_2"])
     return m
 
   def call(self, inputs, memory=None, mask=None, cache=None, training=None):  # pylint: disable=arguments-differ
@@ -252,7 +252,7 @@ class TransformerLayerWrapper(common.LayerWrapper):
         **kwargs)
 
   def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
-    m = {}
-    m.update(self.input_layer_norm.map_v1_weights(weights["LayerNorm"]))
-    m.update(self.layer.map_v1_weights(weights))
+    m = []
+    m += self.input_layer_norm.map_v1_weights(weights["LayerNorm"])
+    m += self.layer.map_v1_weights(weights)
     return m

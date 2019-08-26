@@ -243,12 +243,13 @@ class Model(tf.keras.layers.Layer):
       new_model: The new model to transfer weights to.
       new_optimizer: The new optimizer.
       optimizer: The optimizer used for the current model.
-      ignore_weights: Optional set of weights to not transfer.
+      ignore_weights: Optional list of weights to not transfer.
     """
     if type(self) is not type(new_model):
       raise ValueError("Transferring weights to another model type is not supported")
     if ignore_weights is None:
       ignore_weights = set()
+    ignore_weights_ref = set(weight.experimental_ref() for weight in ignore_weights)
     weights = self.trainable_weights
     new_weights = new_model.weights
     if (new_optimizer is not None and optimizer is not None
@@ -256,7 +257,7 @@ class Model(tf.keras.layers.Layer):
       weights += optimizer.weights
       new_weights += new_optimizer.weights
     for weight, new_weight in zip(weights, new_weights):
-      if new_weight not in ignore_weights:
+      if new_weight.experimental_ref() not in ignore_weights_ref:
         new_weight.assign(weight)
 
   def map_v1_weights(self, weights):
@@ -268,7 +269,7 @@ class Model(tf.keras.layers.Layer):
         slots.
 
     Returns:
-      A dictionary mapping variables to their V1 equivalent.
+      A list of tuples associating variables and their V1 equivalent.
     """
     raise NotImplementedError("This model can not restore V1 checkpoints")
 

@@ -50,9 +50,9 @@ class Dense(tf.keras.layers.Dense):
     return outputs
 
   def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
-    m = {self.kernel: weights["kernel"]}
+    m = [(self.kernel, weights["kernel"])]
     if self.use_bias:
-      m[self.bias] = weights["bias"]
+      m.append((self.bias, weights["bias"]))
     return m
 
 
@@ -86,10 +86,10 @@ class LayerNorm(tf.keras.layers.Layer):
     return norm_x * self.gamma + self.beta
 
   def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
-    return {
-        self.beta: weights["beta"],
-        self.gamma: weights["gamma"]
-    }
+    return [
+        (self.beta, weights["beta"]),
+        (self.gamma, weights["gamma"])
+    ]
 
 
 class LayerWrapper(tf.keras.layers.Layer):

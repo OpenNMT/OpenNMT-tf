@@ -133,9 +133,9 @@ class Transformer(SequenceToSequence):
         or not isinstance(self.features_inputter, WordEmbedder)):
       return super(Transformer, self).map_v1_weights(weights)
     weights = weights["transformer"]
-    m = {}
-    m.update(self.features_inputter.map_v1_weights(weights["encoder"]))
-    m.update(self.labels_inputter.map_v1_weights(weights["decoder"]))
-    m.update(self.encoder.map_v1_weights(weights["encoder"]))
-    m.update(self.decoder.map_v1_weights(weights["decoder"]))
+    m = []
+    m += self.features_inputter.map_v1_weights(weights["encoder"])
+    m += self.labels_inputter.map_v1_weights(weights["decoder"])
+    m += self.encoder.map_v1_weights(weights["encoder"])
+    m += self.decoder.map_v1_weights(weights["decoder"])
     return m

@@ -327,7 +327,7 @@ class SequenceToSequence(Model):
         new_model,
         new_optimizer=new_optimizer,
         optimizer=optimizer,
-        ignore_weights=set(updated_variables))
+        ignore_weights=updated_variables)
 
 
 class SequenceToSequenceInputter(inputters.ExampleInputter):

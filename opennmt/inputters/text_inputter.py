@@ -302,7 +302,7 @@ class WordEmbedder(TextInputter):
         num_oov_buckets=self.num_oov_buckets)
 
   def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
-    return {self.embedding: weights["w_embs"]}
+    return [(self.embedding, weights["w_embs"])]
 
 
 @six.add_metaclass(abc.ABCMeta)

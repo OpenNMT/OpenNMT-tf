@@ -276,7 +276,9 @@ class InputterTest(tf.test.TestCase):
     parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
     parallel_inputter.initialize(data_config)
     parallel_inputter.build(None)
-    self.assertEqual(inputters[0].embedding, inputters[1].embedding)
+    self.assertEqual(
+        inputters[0].embedding.experimental_ref(),
+        inputters[1].embedding.experimental_ref())
 
   def testNestedParallelInputterShareParameters(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
@@ -295,8 +297,12 @@ class InputterTest(tf.test.TestCase):
     parallel_inputter = inputter.ParallelInputter(inputters, share_parameters=True)
     parallel_inputter.initialize(data_config)
     parallel_inputter.build(None)
-    self.assertEqual(source_inputters[0].embedding, target_inputter.embedding)
-    self.assertEqual(source_inputters[1].embedding, target_inputter.embedding)
+    self.assertEqual(
+        source_inputters[0].embedding.experimental_ref(),
+        target_inputter.embedding.experimental_ref())
+    self.assertEqual(
+        source_inputters[1].embedding.experimental_ref(),
+        target_inputter.embedding.experimental_ref())
 
   def testExampleInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])

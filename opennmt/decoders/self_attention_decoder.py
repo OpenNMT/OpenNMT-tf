@@ -77,11 +77,11 @@ class SelfAttentionDecoder(decoder.Decoder):
     return self.num_sources == 1
 
   def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
-    m = {}
-    m.update(self.output_layer.map_v1_weights(weights["dense"]))
-    m.update(self.layer_norm.map_v1_weights(weights["LayerNorm"]))
+    m = []
+    m += self.output_layer.map_v1_weights(weights["dense"])
+    m += self.layer_norm.map_v1_weights(weights["LayerNorm"])
     for i, layer in enumerate(self.layers):
-      m.update(layer.map_v1_weights(weights["layer_%d" % i]))
+      m += layer.map_v1_weights(weights["layer_%d" % i])
     return m
 
   def _run(self,
@@ -243,10 +243,10 @@ class _SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         self.ffn, dropout)
 
   def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
-    m = {}
-    m.update(self.self_attention.map_v1_weights(weights["masked_multi_head"]))
-    m.update(self.attention[0].map_v1_weights(weights["multi_head"]))
-    m.update(self.ffn.map_v1_weights(weights["ffn"]))
+    m = []
+    m += self.self_attention.map_v1_weights(weights["masked_multi_head"])
+    m += self.attention[0].map_v1_weights(weights["multi_head"])
+    m += self.ffn.map_v1_weights(weights["ffn"])
     return m
 
   # pylint: disable=arguments-differ

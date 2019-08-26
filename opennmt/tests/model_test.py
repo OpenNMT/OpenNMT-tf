@@ -268,11 +268,12 @@ class ModelTest(tf.test.TestCase):
     model.create_variables()
     trainable_variables = model.trainable_variables
     self.assertNotEmpty(trainable_variables)
+    trainable_variables_ref = set(variable.experimental_ref() for variable in trainable_variables)
 
     def _assert_layer_not_trainable(layer):
       self.assertFalse(layer.trainable)
       for variable in layer.variables:
-        self.assertNotIn(variable, trainable_variables)
+        self.assertNotIn(variable.experimental_ref(), trainable_variables_ref)
 
     _assert_layer_not_trainable(model.decoder.output_layer)
     _assert_layer_not_trainable(model.encoder.layers[0])
