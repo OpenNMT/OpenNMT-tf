@@ -106,7 +106,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         **kwargs)
     if attention_mechanism_class is None:
       attention_mechanism_class = tfa.seq2seq.LuongAttention
-    self.attention_mechanism = attention_mechanism_class(self.cell.output_size, memory=None)
+    self.attention_mechanism = attention_mechanism_class(self.cell.output_size)
     self.probability_fn = self.attention_mechanism.probability_fn
     if first_layer_attention:
       self.cell.cells[0] = tfa.seq2seq.AttentionWrapper(
@@ -127,12 +127,8 @@ class AttentionalRNNDecoder(RNNDecoder):
 
   def _get_initial_state(self, batch_size, dtype, initial_state=None):
     # Reset memory of attention mechanism.
-    # TODO: clean this up after https://github.com/tensorflow/addons/pull/354
-    self.attention_mechanism.probability_fn = self.probability_fn
-    self.attention_mechanism._memory_initialized = False  # pylint: disable=protected-access
-    self.attention_mechanism._setup_memory(  # pylint: disable=protected-access
-        self.memory,
-        memory_sequence_length=self.memory_sequence_length)
+    self.attention_mechanism.setup_memory(
+        self.memory, memory_sequence_length=self.memory_sequence_length)
     decoder_state = self.cell.get_initial_state(batch_size=batch_size, dtype=dtype)
     if initial_state is not None:
       if self.first_layer_attention:
