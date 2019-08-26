@@ -38,12 +38,12 @@ OpenNMT-tf is also compatible with some of the best TensorFlow features:
 OpenNMT-tf requires:
 
 * Python >= 3.5
-* TensorFlow 2.0
+* TensorFlow >= 2.0
 
 We recommend installing it with `pip`:
 
 ```bash
-pip install --pre OpenNMT-tf
+pip install OpenNMT-tf
 ```
 
 *See the [documentation](http://opennmt.net/OpenNMT-tf/installation.html) for more information.*

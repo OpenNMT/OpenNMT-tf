@@ -36,8 +36,8 @@ setup(
         "pyyaml>=5.1",
         "rouge==0.3.1",
         "sacrebleu==1.*;python_version>='3.0'",
-        "tensorflow-gpu==2.0.0b1",
-        "tensorflow-addons==0.4.0"
+        "tensorflow-gpu==2.0.0rc0",
+        "tfa-nightly==0.5.0.dev20190825"
     ],
     extras_require={
         "tests": tests_require,
