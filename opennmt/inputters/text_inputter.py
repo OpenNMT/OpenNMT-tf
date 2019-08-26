@@ -338,7 +338,7 @@ class WordEmbedder(TextInputter):
         self.vocabulary_file,
         num_oov_buckets=self.num_oov_buckets)
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     return [(self.embedding, weights["w_embs"])]
 
 

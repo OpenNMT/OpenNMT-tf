@@ -99,7 +99,7 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
     inner = common.dropout(inner, self.dropout, training=training)
     return self.outer(inner)
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     # V1 used conv1d layers that have a leading dimensions.
     weights = tf.nest.map_structure(np.squeeze, weights)
     m = []
@@ -142,7 +142,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     self.dropout = dropout
     self.return_attention = return_attention
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     # V1 used conv1d layers that have a leading dimensions.
     weights = tf.nest.map_structure(np.squeeze, weights)
 
@@ -251,7 +251,7 @@ class TransformerLayerWrapper(common.LayerWrapper):
         residual_connection=True,
         **kwargs)
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     m = []
     m += self.input_layer_norm.map_v1_weights(weights["LayerNorm"])
     m += self.layer.map_v1_weights(weights)

@@ -75,7 +75,7 @@ class SelfAttentionEncoder(Encoder):
     outputs = self.layer_norm(inputs)
     return outputs, None, sequence_length
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     m = []
     m += self.layer_norm.map_v1_weights(weights["LayerNorm"])
     for i, layer in enumerate(self.layers):
@@ -129,7 +129,7 @@ class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
     y = self.ffn(y, training=training)
     return y
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     m = []
     m += self.self_attention.map_v1_weights(weights["multi_head"])
     m += self.ffn.map_v1_weights(weights["ffn"])

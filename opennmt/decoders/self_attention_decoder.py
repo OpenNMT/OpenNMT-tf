@@ -76,7 +76,7 @@ class SelfAttentionDecoder(decoder.Decoder):
   def support_alignment_history(self):
     return self.num_sources == 1
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     m = []
     m += self.output_layer.map_v1_weights(weights["dense"])
     m += self.layer_norm.map_v1_weights(weights["LayerNorm"])
@@ -242,7 +242,7 @@ class _SelfAttentionDecoderLayer(tf.keras.layers.Layer):
     self.ffn = transformer.TransformerLayerWrapper(
         self.ffn, dropout)
 
-  def map_v1_weights(self, weights):  # pylint: disable=missing-docstring
+  def map_v1_weights(self, weights):
     m = []
     m += self.self_attention.map_v1_weights(weights["masked_multi_head"])
     m += self.attention[0].map_v1_weights(weights["multi_head"])
