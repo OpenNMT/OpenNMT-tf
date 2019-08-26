@@ -1,9 +1,13 @@
 """Various utility functions to use throughout the project."""
 
+import copy
 import sys
 import inspect
 import heapq
+import threading
 import six
+
+from six.moves import copyreg
 
 import numpy as np
 import tensorflow as tf
@@ -133,6 +137,11 @@ def index_structure(structure, path):
     if structure is None:
       raise ValueError("Invalid path in structure: %s" % path)
   return structure
+
+def clone_layer(layer):
+  """Clones a layer."""
+  copyreg.pickle(threading.local, lambda _: (threading.local, []))
+  return copy.deepcopy(layer)
 
 def extract_batches(tensors):
   """Returns a generator to iterate on each batch of a Numpy array or dict of

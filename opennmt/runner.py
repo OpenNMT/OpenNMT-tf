@@ -107,7 +107,7 @@ class Runner(object):
     return config
 
   def _init_model(self, config):
-    model = copy.deepcopy(self._model)
+    model = misc.clone_layer(self._model)
     model.initialize(config["data"], params=config["params"])
     if "optimizer" in config["params"]:
       optimizer = model.get_optimizer()

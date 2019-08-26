@@ -85,7 +85,7 @@ class Checkpoint(object):
       # Work with copies of model and optimizer as the downstream task might
       # need to create the variable differently (e.g. under a distribution
       # strategy scope).
-      tmp_model = copy.deepcopy(self._model)
+      tmp_model = misc.clone_layer(self._model)
       tmp_optimizer = copy.deepcopy(self._optimizer) if self._optimizer is not None else None
       tmp_model.create_variables(optimizer=tmp_optimizer)
       step = _restore_v1_checkpoint(
