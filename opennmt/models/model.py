@@ -20,7 +20,7 @@ class Model(tf.keras.layers.Layer):
     super(Model, self).__init__()
     self.examples_inputter = examples_inputter
     self.params = {}
-    self._frozen_layers = None
+    self._frozen_layers = False
 
   @property
   def unsupervised(self):
@@ -39,8 +39,8 @@ class Model(tf.keras.layers.Layer):
 
   @property
   def trainable_weights(self):
-    if self._frozen_layers is None:
-      self._frozen_layers = []
+    if not self._frozen_layers:
+      self._frozen_layers = True
       freeze_layers = self.params.get("freeze_layers")
       if freeze_layers:
         if not isinstance(freeze_layers, list):
@@ -48,7 +48,6 @@ class Model(tf.keras.layers.Layer):
         for layer_path in freeze_layers:
           layer = misc.index_structure(self, layer_path)
           layer.trainable = False
-          self._frozen_layers.append(layer)
     return super(Model, self).trainable_weights
 
   def auto_config(self, num_replicas=1):
