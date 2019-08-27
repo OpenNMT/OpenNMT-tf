@@ -332,10 +332,7 @@ class Runner(object):
     @dataset_util.function_on_next(dataset)
     def _predict(next_fn):
       source = next_fn()
-      _, predictions = model(source)
-      if "index" in source:
-        predictions["index"] = source["index"]
-      return predictions
+      return model.infer(source)
 
     if predictions_file:
       stream = io.open(predictions_file, encoding="utf-8", mode="w")

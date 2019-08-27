@@ -99,6 +99,22 @@ class Model(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
+  def infer(self, features):
+    """Runs inference.
+
+    This is a small convenience wrapper around ``Model.__call__``.
+
+    Args:
+      features: A nested structure of features ``tf.Tensor``.
+
+    Returns:
+      The model predictions.
+    """
+    _, predictions = self(features)
+    if "index" in features:
+      predictions["index"] = features["index"]
+    return predictions
+
   @abc.abstractmethod
   def compute_loss(self, outputs, labels, training=True):
     """Computes the loss.
