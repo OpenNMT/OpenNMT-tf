@@ -173,8 +173,8 @@ def _get_field(config, key, prefix=None, default=None, required=False):
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
-  def __init__(self, num_oov_buckets=1, dtype=tf.float32):
-    super(TextInputter, self).__init__(dtype=dtype)
+  def __init__(self, num_oov_buckets=1, **kwargs):
+    super(TextInputter, self).__init__(**kwargs)
     self.num_oov_buckets = num_oov_buckets
     self.vocabulary = None
     self.noiser = None
@@ -271,16 +271,16 @@ class TextInputter(Inputter):
 class WordEmbedder(TextInputter):
   """Simple word embedder."""
 
-  def __init__(self, embedding_size=None, dropout=0.0, dtype=tf.float32):
+  def __init__(self, embedding_size=None, dropout=0.0, **kwargs):
     """Initializes the parameters of the word embedder.
 
     Args:
       embedding_size: The size of the resulting embedding.
         If ``None``, an embedding file must be provided.
       dropout: The probability to drop units in the embedding.
-      dtype: The embedding type.
+      **kwargs: Additional layer keyword arguments.
     """
-    super(WordEmbedder, self).__init__(dtype=dtype)
+    super(WordEmbedder, self).__init__(**kwargs)
     self.embedding_size = embedding_size
     self.embedding_file = None
     self.dropout = dropout
@@ -346,15 +346,15 @@ class WordEmbedder(TextInputter):
 class CharEmbedder(TextInputter):
   """Base class for character-aware inputters."""
 
-  def __init__(self, embedding_size, dropout=0.0, dtype=tf.float32):
+  def __init__(self, embedding_size, dropout=0.0, **kwargs):
     """Initializes the parameters of the character embedder.
 
     Args:
       embedding_size: The size of the character embedding.
       dropout: The probability to drop units in the embedding.
-      dtype: The embedding type.
+      **kwargs: Additional layer keyword arguments.
     """
-    super(CharEmbedder, self).__init__(dtype=dtype)
+    super(CharEmbedder, self).__init__(**kwargs)
     self.embedding_size = embedding_size
     self.embedding = None
     self.dropout = dropout
@@ -409,7 +409,7 @@ class CharConvEmbedder(CharEmbedder):
                kernel_size=5,
                stride=3,
                dropout=0.0,
-               dtype=tf.float32):
+               **kwargs):
     """Initializes the parameters of the character convolution embedder.
 
     Args:
@@ -418,12 +418,12 @@ class CharConvEmbedder(CharEmbedder):
       kernel_size: Length of the convolution window.
       stride: Length of the convolution stride.
       dropout: The probability to drop units in the embedding.
-      dtype: The embedding type.
+      **kwargs: Additional layer keyword arguments.
     """
     super(CharConvEmbedder, self).__init__(
         embedding_size,
         dropout=dropout,
-        dtype=dtype)
+        **kwargs)
     self.output_size = num_outputs
     self.conv = tf.keras.layers.Conv1D(
         num_outputs,
@@ -449,7 +449,7 @@ class CharRNNEmbedder(CharEmbedder):
                num_units,
                dropout=0.2,
                cell_class=None,
-               dtype=tf.float32):
+               **kwargs):
     """Initializes the parameters of the character RNN embedder.
 
     Args:
@@ -459,7 +459,7 @@ class CharRNNEmbedder(CharEmbedder):
         outputs.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell. Defaults to a LSTM cell.
-      dtype: The embedding type.
+      **kwargs: Additional layer keyword arguments.
 
     Raises:
       ValueError: if :obj:`encoding` is invalid.
@@ -467,7 +467,7 @@ class CharRNNEmbedder(CharEmbedder):
     super(CharRNNEmbedder, self).__init__(
         embedding_size,
         dropout=dropout,
-        dtype=dtype)
+        **kwargs)
     if cell_class is None:
       cell_class = tf.keras.layers.LSTMCell
     self.rnn = tf.keras.layers.RNN(cell_class(num_units))

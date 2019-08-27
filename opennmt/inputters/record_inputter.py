@@ -10,14 +10,14 @@ from opennmt.utils import misc
 class SequenceRecordInputter(Inputter):
   """Inputter that reads ``tf.train.SequenceExample``."""
 
-  def __init__(self, input_depth, dtype=tf.float32):
+  def __init__(self, input_depth, **kwargs):
     """Initializes the parameters of the record inputter.
 
     Args:
       input_depth: The depth dimension of the input vectors.
-      dtype: The output type.
+      **kwargs: Additional layer keyword arguments.
     """
-    super(SequenceRecordInputter, self).__init__(dtype=dtype)
+    super(SequenceRecordInputter, self).__init__(**kwargs)
     self.input_depth = input_depth
 
   def make_dataset(self, data_file, training=None):
