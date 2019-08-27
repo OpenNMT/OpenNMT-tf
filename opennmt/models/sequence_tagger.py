@@ -146,11 +146,6 @@ class F1(tf.keras.metrics.Metric):
     self.precision = tf.keras.metrics.Precision()
     self.recall = tf.keras.metrics.Recall()
 
-  def __new__(cls, *args, **kwargs):  # pylint: disable=unused-argument
-    # TODO: remove this hack if possible.
-    # https://github.com/tensorflow/tensorflow/issues/26703
-    return tf.keras.layers.Layer.__new__(cls)
-
   @property
   def updates(self):
     """Metric update operations."""
