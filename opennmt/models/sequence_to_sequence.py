@@ -15,7 +15,7 @@ from opennmt.data import noise
 from opennmt.data import text
 from opennmt.data import vocab
 from opennmt.layers import reducer
-from opennmt.models.model import Model
+from opennmt.models import model
 from opennmt.utils import decoding
 from opennmt.utils import losses
 from opennmt.utils.misc import print_bytes, format_translation_output, merge_dict, shape_list
@@ -48,7 +48,7 @@ class EmbeddingsSharingLevel(object):
     return level in (EmbeddingsSharingLevel.TARGET, EmbeddingsSharingLevel.ALL)
 
 
-class SequenceToSequence(Model):
+class SequenceToSequence(model.SequenceGenerator):
   """A sequence to sequence model."""
 
   def __init__(self,

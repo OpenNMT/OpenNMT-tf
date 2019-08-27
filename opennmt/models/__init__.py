@@ -9,6 +9,9 @@ from opennmt.models.catalog import TransformerBig
 from opennmt.models.language_model import LanguageModel
 from opennmt.models.language_model import LanguageModelInputter
 
+from opennmt.models.model import Model
+from opennmt.models.model import SequenceGenerator
+
 from opennmt.models.sequence_classifier import ClassInputter
 from opennmt.models.sequence_classifier import SequenceClassifier
 

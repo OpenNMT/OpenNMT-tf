@@ -412,19 +412,7 @@ class Runner(object):
         the latest is used.
       output_file: The file where the scores are saved. Otherwise, they will be
         printed on the standard output.
-
-    Raises:
-      ValueError: if the model is not a sequence to sequence model or a
-        language model.
-      ValueError: if no checkpoint are found.
-      ValueError: if :obj:`predictions_file` is not given.
     """
-    if not isinstance(self._model, (models.LanguageModel, models.SequenceToSequence)):
-      raise ValueError("scoring only works for sequence to sequence or language models")
-    if isinstance(self._model, models.SequenceToSequence) and not predictions_file:
-      raise ValueError("predictions_file is required when scoring with a "
-                       "sequence to sequence model")
-
     checkpoint, config = self._init_run()
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
     model = checkpoint.model
@@ -438,50 +426,17 @@ class Runner(object):
     @dataset_util.function_on_next(dataset)
     def _score(next_fn):
       features, labels = next_fn()
-      outputs, _ = model(features, labels=labels)
-      cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-          labels["ids_out"], outputs["logits"])
-      weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
-      masked_cross_entropy = cross_entropy * weights
-      scores = tf.reduce_sum(masked_cross_entropy, axis=1)
-      results = {
-          "cross_entropy": cross_entropy,
-          "score": scores,
-          "tokens": labels["tokens"],
-          "length": labels["length"] - 1  # -1 for the special token.
-      }
-      if "attention" in outputs:
-        results["attention"] = outputs["attention"]
-      return results
+      return model.score(features, labels)
 
     if output_file:
       stream = io.open(output_file, encoding="utf-8", mode="w")
     else:
       stream = sys.stdout
 
-    output_tokenizer = (
-        model.labels_inputter.tokenizer if not model.unsupervised
-        else model.features_inputter.tokenizer)
-
     for results in _score():  # pylint: disable=no-value-for-parameter
       results = {k:v.numpy() for k, v in six.iteritems(results)}
       for batch in misc.extract_batches(results):
-        tokens = batch["tokens"][:batch["length"]]
-        sentence = output_tokenizer.detokenize(tokens)
-        token_level_scores = None
-        attention = None
-        if score_config.get("with_token_level"):
-          token_level_scores = batch["cross_entropy"][:batch["length"]]
-        if "attention" in batch:
-          attention = batch["attention"][:batch["length"]]
-        alignment_type = score_config.get("with_alignments")
-        sentence = misc.format_translation_output(
-            sentence,
-            score=batch["score"],
-            token_level_scores=token_level_scores,
-            attention=attention,
-            alignment_type=alignment_type)
-        misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+        model.print_score(batch, params=score_config, stream=stream)
 
     if output_file:
       stream.close()

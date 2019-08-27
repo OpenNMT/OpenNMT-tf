@@ -6,13 +6,13 @@ from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
 from opennmt.data import dataset as dataset_util
-from opennmt.models.model import Model
+from opennmt.models import model
 from opennmt.utils import decoding
 from opennmt.utils import losses
 from opennmt.utils import misc
 
 
-class LanguageModel(Model):
+class LanguageModel(model.SequenceGenerator):
   """An experimental language model."""
 
   def __init__(self,
