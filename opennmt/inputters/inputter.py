@@ -21,7 +21,7 @@ class Inputter(tf.keras.layers.Layer):
 
   @property
   def num_outputs(self):
-    """How many parallel outputs does this inputter produce."""
+    """The number of parallel outputs produced by this inputter."""
     return 1
 
   def initialize(self, data_config, asset_prefix=""):
@@ -59,7 +59,7 @@ class Inputter(tf.keras.layers.Layer):
       training: Run in training mode.
 
     Returns:
-      A ``tf.data.Dataset``.
+      A non transformed ``tf.data.Dataset`` instance.
     """
     raise NotImplementedError()
 
@@ -110,9 +110,18 @@ class Inputter(tf.keras.layers.Layer):
   def make_features(self, element=None, features=None, training=None):
     """Creates features from data.
 
+    This is typically called in a data pipeline (such as ``Dataset.map``).
+    Common transformation includes tokenization, parsing, vocabulary lookup,
+    etc.
+
+    This method accept both a single :obj:`element` from the dataset or a
+    partially built dictionary of :obj:`features`.
+
     Args:
-      element: An element from the dataset.
-      features: An optional dictionary of features to augment.
+      element: An element from the dataset returned by
+        :meth:`opennmt.inputters.Inputter.make_dataset`.
+      features: An optional and possibly partial dictionary of features to
+        augment.
       training: Run in training mode.
 
     Returns:
@@ -121,10 +130,11 @@ class Inputter(tf.keras.layers.Layer):
     raise NotImplementedError()
 
   def call(self, features, training=None):  # pylint: disable=arguments-differ
-    """Creates the model input from the features.
+    """Creates the model input from the features (e.g. word embeddings).
 
     Args:
-      features: A dictionary of ``tf.Tensor``.
+      features: A dictionary of ``tf.Tensor``, the output of
+        :meth:`opennmt.inputters.Inputter.make_features`.
       training: Run in training mode.
 
     Returns:
@@ -208,7 +218,7 @@ def _get_asset_prefix(prefix, inputter, i):
 
 
 class ParallelInputter(MultiInputter):
-  """An multi inputter that process parallel data."""
+  """An multi inputter that processes parallel data."""
 
   def __init__(self,
                inputters,
@@ -329,7 +339,9 @@ class ParallelInputter(MultiInputter):
 
 
 class MixedInputter(MultiInputter):
-  """An multi inputter that applies several transformation on the same data."""
+  """An multi inputter that applies several transformation on the same data
+  (e.g. combine word-level and character-level embeddings).
+  """
 
   def __init__(self,
                inputters,
