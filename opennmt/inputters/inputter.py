@@ -300,6 +300,8 @@ class ParallelInputter(MultiInputter):
     else:
       if features is None:
         features = [{} for _ in self.inputters]
+      else:
+        features = list(features)
       for i, inputter in enumerate(self.inputters):
         features[i] = inputter.make_features(
             element=element[i] if element is not None else None,
@@ -367,7 +369,7 @@ class MixedInputter(MultiInputter):
     signature = {}
     for inputter in self.inputters:
       signature.update(inputter.input_signature())
-    return receiver_tensors
+    return signature
 
   def get_length(self, features):
     return self.inputters[0].get_length(features)
