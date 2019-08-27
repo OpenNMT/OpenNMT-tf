@@ -26,18 +26,18 @@ See the [2.0 Transition Guide](docs/v2_transition.md) for details about the foll
 * A lot of public classes and functions have changed, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) for details
 * Changes in the API scope of the project:
   * The minimum TensorFlow version is no longer part of the API
-  * Only public symbols accessible from the top-level `opennmt` package are now part of the API and visible on the online documentation
+  * Only public symbols accessible from the top-level `opennmt` package and visible on the online documentation are now part of the API
 * TFRecord files generated with the `opennmt.inputters.write_sequence_record` function or the `onmt-ark-to-records` script are no longer compatible and should be re-generated
 
 ### New features
 
 * Object-based layers extending tf.keras
+* Replace Estimator by custom loops
 * Multi-GPU training with tf.distribute
 * Support GZIP compressed datasets
 
 ### Fixes and improvements
 
-* Replace Estimator by custom loops
 * Improve logging during training
 * Log level configuration also controls TensorFlow C++ logs
 * All public classes and functions are now properly accessible from the root package `opennmt`
