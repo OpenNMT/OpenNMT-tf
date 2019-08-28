@@ -177,10 +177,11 @@ class Model(tf.keras.layers.Layer):
           schedule_params=schedule_params,
           start_step=params.get("start_decay_steps", 0),
           minimum_learning_rate=params.get("minimum_learning_rate", 0))
+    optimizer_params = params.get("optimizer_params")
+    if optimizer_params is None:
+      optimizer_params = {}
     optimizer = optimizers.make_optimizer(
-        params["optimizer"],
-        learning_rate,
-        **params.get("optimizer_params", {}))
+        params["optimizer"], learning_rate, **optimizer_params)
     return optimizer
 
   def compute_gradients(self, loss, optimizer, variables=None):
