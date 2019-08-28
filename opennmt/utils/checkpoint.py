@@ -95,7 +95,9 @@ class Checkpoint(object):
           tmp_model, optimizer=tmp_optimizer, model_dir=self._model_dir)
       checkpoint_path = tmp_checkpoint.save(step)
       return self.restore(checkpoint_path=checkpoint_path, weights_only=weights_only)
-    checkpoint.restore(checkpoint_path)
+    load_status = checkpoint.restore(checkpoint_path)
+    if weights_only:
+      load_status.expect_partial()
     tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
     return checkpoint_path
 
