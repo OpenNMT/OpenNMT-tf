@@ -6,7 +6,6 @@ from opennmt.data.dataset import filter_examples_by_length
 from opennmt.data.dataset import filter_irregular_batches
 from opennmt.data.dataset import get_dataset_size
 from opennmt.data.dataset import inference_pipeline
-from opennmt.data.dataset import input_signature_from_dataset
 from opennmt.data.dataset import random_shard
 from opennmt.data.dataset import shuffle_dataset
 from opennmt.data.dataset import training_pipeline
