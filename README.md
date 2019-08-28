@@ -61,7 +61,7 @@ For all tasks involving a model execution, OpenNMT-tf uses a unique entrypoint: 
 that are passed to the main script:
 
 ```
-onmt-main --model_type <model> --auto_config --config <config_file.yml> <run_type> <run_options>
+onmt-main --model_type <model> --config <config_file.yml> --auto_config <run_type> <run_options>
 ```
 
 *For more information and examples on how to use OpenNMT-tf, please visit [our documentation](http://opennmt.net/OpenNMT-tf).*
