@@ -266,7 +266,10 @@ class Decoder(tf.keras.layers.Layer):
       read_sample = tf.less(draw, sampling_probability)
       sampled_ids = tf.random.categorical(logits, 1)
       sampled_inputs = input_fn(tf.squeeze(sampled_ids, 1))
-      inputs = tf.where(read_sample, x=sampled_inputs, y=true_inputs)
+      inputs = tf.where(
+          tf.broadcast_to(tf.expand_dims(read_sample, -1), tf.shape(true_inputs)),
+          x=sampled_inputs,
+          y=true_inputs)
       return inputs
 
     def _body(step, state, inputs, outputs_ta, attention_ta):

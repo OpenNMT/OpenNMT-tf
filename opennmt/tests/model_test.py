@@ -182,6 +182,26 @@ class ModelTest(tf.test.TestCase):
     features = next(iter(dataset))
     _, predictions = model(features)
 
+  def testSequenceToSequenceWithScheduledSampling(self):
+    model = models.SequenceToSequence(
+        inputters.WordEmbedder(16),
+        inputters.WordEmbedder(16),
+        encoders.SelfAttentionEncoder(2, 16, 4, 32),
+        decoders.RNNDecoder(2, 16))
+    params = {
+        "scheduled_sampling_type": "linear",
+        "scheduled_sampling_read_probability": 0.8,
+        "scheduled_sampling_k": 0.1
+    }
+    features_file, labels_file, data_config = self._makeToyEnDeData()
+    model.initialize(data_config, params=params)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = next(iter(dataset))
+    with self.assertRaises(ValueError):
+      model(features, labels=labels, training=True)  # step argument is required.
+    outputs, _ = model(features, labels=labels, training=True, step=10)
+    self.assertEqual(outputs["logits"].shape[1], labels["ids"].shape[1])
+
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
     _, _, data_config = self._makeToyEnDeData()
