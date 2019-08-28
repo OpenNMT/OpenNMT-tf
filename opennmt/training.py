@@ -133,6 +133,8 @@ class Trainer(object):
       self._model.visualize(self._checkpoint.model_dir)
 
       for i, (loss, num_words) in enumerate(_forward()):  # pylint: disable=no-value-for-parameter
+        if tf.math.is_nan(loss):
+          raise RuntimeError("Model diverged with loss = NaN.")
         if i == 0 or (i + 1) % accum_steps == 0:
           _step()
 
