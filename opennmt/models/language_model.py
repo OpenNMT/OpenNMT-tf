@@ -54,7 +54,6 @@ class LanguageModel(model.SequenceGenerator):
           weight=self.examples_inputter.embedding,
           transpose=True)
     self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
-    self.id_to_token = self.examples_inputter.vocabulary_lookup_reverse()
 
   def call(self, features, labels=None, training=None, step=None):
     outputs, predictions = None, None
@@ -93,7 +92,7 @@ class LanguageModel(model.SequenceGenerator):
       # Build the full prediction.
       full_ids = tf.concat([ids, sampled_ids], 1)
       full_length = length + sampled_length
-      tokens = self.id_to_token.lookup(full_ids)
+      tokens = self.features_inputter.ids_to_tokens.lookup(full_ids)
       predictions = dict(tokens=tokens, length=full_length)
 
     return outputs, predictions

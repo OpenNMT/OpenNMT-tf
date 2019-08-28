@@ -39,7 +39,6 @@ class SequenceTagger(Model):
     super(SequenceTagger, self).build(input_shape)
     num_tags = self.labels_inputter.vocabulary_size
     self.output_layer = tf.keras.layers.Dense(num_tags)
-    self.id_to_tag = self.labels_inputter.vocabulary_lookup_reverse()
     if self.crf_decoding:
       self.transition_params = self.add_weight("transition_params", [num_tags, num_tags])
 
@@ -58,7 +57,7 @@ class SequenceTagger(Model):
         tags_id = tf.argmax(tags_prob, axis=2)
       predictions = {
           "length": tf.identity(length),
-          "tags": self.id_to_tag.lookup(tags_id),
+          "tags": self.labels_inputter.ids_to_tokens.lookup(tags_id),
           "tags_id": tags_id
       }
     else:
@@ -129,7 +128,7 @@ class TagsInputter(inputters.TextInputter):
     return {
         "length": features["length"],
         "tags": features["tokens"],
-        "tags_id": self.vocabulary.lookup(features["tokens"])
+        "tags_id": self.tokens_to_ids.lookup(features["tokens"])
     }
 
 

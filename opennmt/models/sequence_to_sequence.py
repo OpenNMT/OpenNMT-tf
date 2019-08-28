@@ -127,7 +127,6 @@ class SequenceToSequence(model.SequenceGenerator):
     self.decoder.initialize(
         vocab_size=self.labels_inputter.vocabulary_size,
         output_layer=output_layer)
-    self.id_to_token = self.labels_inputter.vocabulary_lookup_reverse()
 
   def call(self, features, labels=None, training=None, step=None):
     params = self.params
@@ -183,7 +182,7 @@ class SequenceToSequence(model.SequenceGenerator):
           start_ids,
           initial_state=initial_state,
           params=params)
-      target_tokens = self.id_to_token.lookup(tf.cast(sampled_ids, tf.int64))
+      target_tokens = self.labels_inputter.ids_to_tokens.lookup(tf.cast(sampled_ids, tf.int64))
 
       if params.get("replace_unknown_target", False):
         if alignment is None:

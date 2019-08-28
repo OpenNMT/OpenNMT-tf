@@ -168,6 +168,18 @@ def _get_field(config, key, prefix=None, default=None, required=False):
     raise ValueError("Missing field '%s' in the data configuration" % key)
   return value
 
+def _create_tokens_to_ids_table(tokens, ids, num_oov_buckets):
+  # TODO: consider reverting back to TextFileInitializer.
+  initializer = tf.lookup.KeyValueTensorInitializer(tokens, ids)
+  if num_oov_buckets > 0:
+    return tf.lookup.StaticVocabularyTable(initializer, num_oov_buckets)
+  else:
+    return tf.lookup.StaticHashTable(initializer, 0)
+
+def _create_ids_to_tokens_table(ids, tokens):
+  initializer = tf.lookup.KeyValueTensorInitializer(ids, tokens)
+  return tf.lookup.StaticHashTable(initializer, constants.UNKNOWN_TOKEN)
+
 
 @six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
@@ -176,7 +188,6 @@ class TextInputter(Inputter):
   def __init__(self, num_oov_buckets=1, **kwargs):
     super(TextInputter, self).__init__(**kwargs)
     self.num_oov_buckets = num_oov_buckets
-    self.vocabulary = None
     self.noiser = None
     self.in_place_noise = False
     self.noise_probability = None
@@ -184,11 +195,12 @@ class TextInputter(Inputter):
   def initialize(self, data_config, asset_prefix=""):
     self.vocabulary_file = _get_field(
         data_config, "vocabulary", prefix=asset_prefix, required=True)
-    vocab = Vocab.from_file(self.vocabulary_file)
-    indices = list(range(len(vocab)))
-    self.vocabulary_size = len(indices) + self.num_oov_buckets
-    self.vocabulary_indices = tf.constant(indices, dtype=tf.int64)
-    self.vocabulary_tokens = tf.constant(vocab.words, dtype=tf.string)
+    vocabulary = Vocab.from_file(self.vocabulary_file)
+    self.vocabulary_size = len(vocabulary) + self.num_oov_buckets
+    tokens = tf.constant(vocabulary.words, dtype=tf.string)
+    ids = tf.constant(list(range(len(vocabulary))), dtype=tf.int64)
+    self.tokens_to_ids = _create_tokens_to_ids_table(tokens, ids, self.num_oov_buckets)
+    self.ids_to_tokens = _create_ids_to_tokens_table(ids, tokens)
     tokenizer_config = _get_field(data_config, "tokenization", prefix=asset_prefix)
     self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
 
@@ -215,24 +227,7 @@ class TextInputter(Inputter):
   def export_assets(self, asset_dir, asset_prefix=""):
     return self.tokenizer.export_assets(asset_dir, asset_prefix=asset_prefix)
 
-  def vocabulary_lookup(self):
-    """Returns a lookup table mapping string to index."""
-    # TODO: consider reverting back to TextFileInitializer.
-    initializer = tf.lookup.KeyValueTensorInitializer(
-        self.vocabulary_tokens, self.vocabulary_indices)
-    if self.num_oov_buckets > 0:
-      return tf.lookup.StaticVocabularyTable(initializer, self.num_oov_buckets)
-    else:
-      return tf.lookup.StaticHashTable(initializer, 0)
-
-  def vocabulary_lookup_reverse(self):
-    """Returns a lookup table mapping index to string."""
-    initializer = tf.lookup.KeyValueTensorInitializer(
-        self.vocabulary_indices, self.vocabulary_tokens)
-    return tf.lookup.StaticHashTable(initializer, constants.UNKNOWN_TOKEN)
-
   def make_dataset(self, data_file, training=None):
-    self.vocabulary = self.vocabulary_lookup()
     return tf.data.TextLineDataset(
         data_file, compression_type="GZIP" if misc.is_gzip_file(data_file) else None)
 
@@ -302,9 +297,7 @@ class WordEmbedder(TextInputter):
         element=element, features=features, training=training)
     if "ids" in features:
       return features
-    if self.vocabulary is None:
-      self.vocabulary = self.vocabulary_lookup()
-    features["ids"] = self.vocabulary.lookup(features["tokens"])
+    features["ids"] = self.tokens_to_ids.lookup(features["tokens"])
     return features
 
   def build(self, input_shape):
@@ -372,9 +365,7 @@ class CharEmbedder(TextInputter):
           element=element, features=features, training=training)
       chars = text.tokens_to_chars(features["tokens"])
       chars = chars.to_tensor(default_value=constants.PADDING_TOKEN)
-    if self.vocabulary is None:
-      self.vocabulary = self.vocabulary_lookup()
-    features["char_ids"] = self.vocabulary.lookup(chars)
+    features["char_ids"] = self.tokens_to_ids.lookup(chars)
     return features
 
   def build(self, input_shape):

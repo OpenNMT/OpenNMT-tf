@@ -28,7 +28,6 @@ class SequenceClassifier(Model):
 
   def build(self, input_shape):
     super(SequenceClassifier, self).build(input_shape)
-    self.id_to_class = self.labels_inputter.vocabulary_lookup_reverse()
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
 
   def call(self, features, labels=None, training=None, step=None):
@@ -46,7 +45,7 @@ class SequenceClassifier(Model):
       classes_prob = tf.nn.softmax(logits)
       classes_id = tf.argmax(classes_prob, axis=1)
       predictions = {
-          "classes": self.id_to_class.lookup(classes_id),
+          "classes": self.labels_inputter.ids_to_tokens.lookup(classes_id),
           "classes_id": classes_id
       }
     else:
@@ -80,5 +79,5 @@ class ClassInputter(inputters.TextInputter):
   def make_features(self, element=None, features=None, training=None):
     return {
         "classes": element,
-        "classes_id": self.vocabulary.lookup(element)
+        "classes_id": self.tokens_to_ids.lookup(element)
     }
