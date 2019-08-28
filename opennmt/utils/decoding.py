@@ -255,7 +255,7 @@ class BeamSearch(DecodingStrategy):
       accumulated_attention = None
 
     # Compute scores from log probabilities.
-    vocab_size = log_probs.shape.as_list()[-1]
+    vocab_size = log_probs.shape[-1]
     total_probs = log_probs + tf.expand_dims(cum_log_probs, 1)  # Add current beam probability.
     scores = self._get_scores(
         total_probs,
@@ -535,7 +535,7 @@ def _get_shape_invariants(tensor):
 
 def _penalize_token(log_probs, token_id, penalty=-1e7):
   """Penalize token probabilities."""
-  depth = log_probs.get_shape().as_list()[-1]
+  depth = log_probs.shape[-1]
   penalty = tf.one_hot([token_id], depth, on_value=tf.cast(penalty, log_probs.dtype))
   return log_probs + penalty
 

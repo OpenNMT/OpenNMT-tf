@@ -157,4 +157,4 @@ def regularization_penalty(regularization_type, scale, weights):
   return penalty
 
 def _is_bias(variable):
-  return len(variable.shape.as_list()) == 1 and variable.name.endswith("bias:0")
+  return len(variable.shape) == 1 and variable.name.endswith("bias:0")

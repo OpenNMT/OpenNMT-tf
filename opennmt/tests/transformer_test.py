@@ -62,7 +62,7 @@ class TransformerTest(tf.test.TestCase):
     inputs = tf.random.normal([batch_size, max(length), depth * num_heads], dtype=tf.float32)
     outputs = transformer.split_heads(inputs, num_heads)
 
-    static_shape = outputs.get_shape().as_list()
+    static_shape = outputs.shape
     self.assertEqual(num_heads, static_shape[1])
     self.assertEqual(depth, static_shape[-1])
     outputs = self.evaluate(outputs)
@@ -77,7 +77,7 @@ class TransformerTest(tf.test.TestCase):
     inputs = tf.random.normal([batch_size, num_heads, max(length), depth], dtype=tf.float32)
     outputs = transformer.combine_heads(inputs)
 
-    static_shape = outputs.get_shape().as_list()
+    static_shape = outputs.shape
     self.assertEqual(depth * num_heads, static_shape[-1])
     outputs = self.evaluate(outputs)
     self.assertAllEqual([batch_size, max(length), depth * num_heads], outputs.shape)

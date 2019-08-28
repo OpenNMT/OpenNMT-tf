@@ -37,7 +37,7 @@ class PositionEncoder(tf.keras.layers.Layer):
     """
     batch_size = tf.shape(inputs)[0]
     timesteps = tf.shape(inputs)[1]
-    input_dim = inputs.get_shape().as_list()[-1]
+    input_dim = inputs.shape[-1]
     positions = tf.range(timesteps) + 1 if position is None else [position]
     position_encoding = self._encode([positions], input_dim)
     position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
@@ -75,7 +75,7 @@ class PositionEmbedder(PositionEncoder):
     self.embedding = None
 
   def build(self, input_shape):
-    shape = [self.maximum_position + 1, input_shape.as_list()[-1]]
+    shape = [self.maximum_position + 1, input_shape[-1]]
     self.embedding = self.add_weight("position_embedding", shape)
     super(PositionEmbedder, self).build(input_shape)
 

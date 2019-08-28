@@ -25,8 +25,8 @@ def assert_state_is_compatible(expected_state, state):
 
   for x, y in zip(expected_state_flat, state_flat):
     if tf.is_tensor(x):
-      expected_depth = x.get_shape().as_list()[-1]
-      depth = y.get_shape().as_list()[-1]
+      expected_depth = x.shape[-1]
+      depth = y.shape[-1]
       if depth != expected_depth:
         raise ValueError("Tensor in state has shape %s which is incompatible "
                          "with the target shape %s" % (y.shape, x.shape))

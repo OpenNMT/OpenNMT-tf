@@ -105,10 +105,10 @@ def shape_list(x):
   x = tf.convert_to_tensor(x)
 
   # If unknown rank, return dynamic shape
-  if x.get_shape().dims is None:
+  if x.shape.dims is None:
     return tf.shape(x)
 
-  static = x.get_shape().as_list()
+  static = x.shape.as_list()
   shape = tf.shape(x)
 
   ret = []

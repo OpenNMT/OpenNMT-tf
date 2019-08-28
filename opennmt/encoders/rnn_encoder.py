@@ -160,7 +160,7 @@ class PyramidalRNNEncoder(Encoder):
     encoder_state = []
 
     for layer_index, layer in enumerate(self.layers):
-      input_depth = inputs.get_shape().as_list()[-1]
+      input_depth = inputs.shape[-1]
 
       if layer_index == 0:
         # For the first input, make the number of timesteps a multiple of the

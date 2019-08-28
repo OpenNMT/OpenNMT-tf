@@ -87,7 +87,7 @@ class EncoderTest(tf.test.TestCase):
     outputs, state, _ = encoder(
         inputs, sequence_length=sequence_length)
     self.assertEqual(6, len(state))
-    self.assertEqual(10 * 2, tf.nest.flatten(state)[0].get_shape().as_list()[-1])
+    self.assertEqual(10 * 2, tf.nest.flatten(state)[0].shape[-1])
     outputs = self.evaluate(outputs)
     self.assertAllEqual([3, max(sequence_length), 10], outputs.shape)
 

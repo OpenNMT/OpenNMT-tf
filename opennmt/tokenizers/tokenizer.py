@@ -68,7 +68,7 @@ class Tokenizer(object):
       ValueError: if the rank of :obj:`text` is greater than 0.
     """
     if tf.is_tensor(text):
-      rank = len(text.get_shape().as_list())
+      rank = len(text.shape)
       if rank == 0:
         return self._tokenize_tensor(text)
       else:
@@ -98,7 +98,7 @@ class Tokenizer(object):
         :obj:`sequence_length` is not set.
     """
     if tf.is_tensor(tokens):
-      rank = len(tokens.get_shape().as_list())
+      rank = len(tokens.shape)
       if rank == 1:
         return self._detokenize_tensor(tokens)
       elif rank == 2:

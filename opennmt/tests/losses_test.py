@@ -19,7 +19,7 @@ class LossesTest(tf.test.TestCase):
     layer.build([None, 128])
     regularization = losses.regularization_penalty(
         type, scale, layer.trainable_variables)
-    self.assertEqual(0, len(regularization.shape.as_list()))
+    self.assertEqual(0, len(regularization.shape))
     self.evaluate(regularization)
 
   def testRegulaizationInvalidType(self):
