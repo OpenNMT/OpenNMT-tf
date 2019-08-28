@@ -331,8 +331,8 @@ class SequenceToSequence(model.SequenceGenerator):
 
 
 class SequenceToSequenceInputter(inputters.ExampleInputter):
-  """A custom :class:`opennmt.inputters.ExampleInputter` that possibly
-  injects alignment information during training.
+  """A custom :class:`opennmt.inputters.ExampleInputter` for sequence to
+  sequence models.
   """
 
   def __init__(self,
