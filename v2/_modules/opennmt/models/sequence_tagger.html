@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -178,6 +179,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;Sequence tagger.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow_addons</span> <span class="k">as</span> <span class="nn">tfa</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">inputters</span>
@@ -198,13 +200,12 @@
 <span class="sd">      encoder: A :class:`opennmt.encoders.Encoder` to encode the input.</span>
 <span class="sd">      crf_decoding: If ``True``, add a CRF layer after the encoder.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">crf_decoding</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;CRF is currently not supported in V2&quot;</span><span class="p">)</span>
     <span class="n">example_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">TagsInputter</span><span class="p">())</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SequenceTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">example_inputter</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span> <span class="o">=</span> <span class="n">crf_decoding</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="SequenceTagger.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagging_scheme&quot;</span><span class="p">)</span>
@@ -214,8 +215,10 @@
 
 <div class="viewcode-block" id="SequenceTagger.build"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SequenceTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">id_to_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_lookup_reverse</span><span class="p">()</span></div>
+    <span class="n">num_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_tags</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="s2">&quot;transition_params&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">num_tags</span><span class="p">,</span> <span class="n">num_tags</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="SequenceTagger.call"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
@@ -224,11 +227,15 @@
         <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
-      <span class="n">tags_prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
-      <span class="n">tags_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">tags_prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
+        <span class="n">tags_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">crf_decode</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+        <span class="n">tags_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tags_id</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">tags_prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
+        <span class="n">tags_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">tags_prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
       <span class="n">predictions</span> <span class="o">=</span> <span class="p">{</span>
           <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">length</span><span class="p">),</span>
-          <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_to_tag</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tags_id</span><span class="p">),</span>
+          <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">ids_to_tokens</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tags_id</span><span class="p">),</span>
           <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="n">tags_id</span>
       <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
@@ -236,13 +243,22 @@
     <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">predictions</span></div>
 
 <div class="viewcode-block" id="SequenceTagger.compute_loss"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.compute_loss">[docs]</a>  <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
-        <span class="n">outputs</span><span class="p">,</span>
-        <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span>
-        <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-        <span class="n">label_smoothing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
-        <span class="n">average_in_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_loss_in_time&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
+      <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">crf_log_likelihood</span><span class="p">(</span>
+          <span class="n">outputs</span><span class="p">,</span>
+          <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+          <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+          <span class="n">transition_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span><span class="p">)</span>
+      <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="o">-</span><span class="n">log_likelihood</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
+          <span class="n">outputs</span><span class="p">,</span>
+          <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span>
+          <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+          <span class="n">label_smoothing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+          <span class="n">average_in_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_loss_in_time&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequenceTagger.get_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.get_metrics">[docs]</a>  <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Accuracy</span><span class="p">()}</span>
@@ -290,7 +306,7 @@
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
         <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
+        <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
     <span class="p">}</span></div></div>
 
 
@@ -306,11 +322,6 @@
     <span class="nb">super</span><span class="p">(</span><span class="n">F1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Precision</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">recall</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Recall</span><span class="p">()</span>
-
-  <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
-    <span class="c1"># TODO: remove this hack if possible.</span>
-    <span class="c1"># https://github.com/tensorflow/tensorflow/issues/26703</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">updates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

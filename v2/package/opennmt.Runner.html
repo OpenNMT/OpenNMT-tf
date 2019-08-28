@@ -39,7 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="opennmt.utils.regularization_penalty" href="opennmt.utils.regularization_penalty.html" /> 
+    <link rel="next" title="opennmt.load_config" href="opennmt.load_config.html" />
+    <link rel="prev" title="opennmt.utils.roll_sequence" href="opennmt.utils.roll_sequence.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -108,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -118,6 +120,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.Runner</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -199,7 +202,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code> instance to run.</p></li>
+<li><p><strong>model</strong> – A <a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model" title="opennmt.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance to run.</p></li>
 <li><p><strong>config</strong> – The run configuration.</p></li>
 <li><p><strong>auto_config</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, use automatic configuration values defined by
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code>.</p></li>
@@ -330,14 +333,6 @@ the latest is used.</p></li>
 printed on the standard output.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – if the model is not a sequence to sequence model or a
-    language model.</p></li>
-<li><p><strong>ValueError</strong> – if no checkpoint are found.</p></li>
-<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">predictions_file</span></code> is not given.</p></li>
-</ul>
-</dd>
 </dl>
 </dd></dl>
 
@@ -353,8 +348,10 @@ printed on the standard output.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="opennmt.load_config.html" class="btn btn-neutral float-right" title="opennmt.load_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="opennmt.utils.regularization_penalty.html" class="btn btn-neutral float-left" title="opennmt.utils.regularization_penalty" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="opennmt.utils.roll_sequence.html" class="btn btn-neutral float-left" title="opennmt.utils.roll_sequence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,0 +1,4 @@
+opennmt.utils.roll_sequence
+===========================
+
+.. autofunction:: opennmt.utils.roll_sequence

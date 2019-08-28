@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -224,40 +226,8 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.ExampleInputter.initialize">
-<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em>, <em class="sig-param">asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.initialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the inputter.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_config</strong> – A dictionary containing the data configuration set
-by the user.</p></li>
-<li><p><strong>asset_prefix</strong> – The prefix to attach to assets filename.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.ExampleInputter.export_assets">
-<code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em>, <em class="sig-param">asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.export_assets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exports assets used by this tokenizer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>asset_dir</strong> – The directory where assets can be written.</p></li>
-<li><p><strong>asset_prefix</strong> – The prefix to attach to assets filename.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary containing additional assets used by the inputter.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="opennmt.inputters.ExampleInputter.make_inference_dataset">
-<code class="sig-name descname">make_inference_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_inference_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_inference_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_inference_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for inference.</p>
 <p>For evaluation and training datasets, see
 <a class="reference internal" href="#opennmt.inputters.ExampleInputter" title="opennmt.inputters.ExampleInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter</span></code></a>.</p>
@@ -266,12 +236,12 @@ by the user.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>features_file</strong> – The test file.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
-<li><p><strong>bucket_width</strong> – The width of the length buckets to select batch candidates
-from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch formation.</p></li>
+<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
+candidates from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch
+formation.</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-older versions.</p></li>
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -292,8 +262,7 @@ older versions.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-older versions.</p></li>
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -304,7 +273,7 @@ older versions.</p></li>
 
 <dl class="method">
 <dt id="opennmt.inputters.ExampleInputter.make_training_dataset">
-<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for training. It supports the full training
 pipeline, including:</p>
 <ul class="simple">
@@ -327,8 +296,9 @@ replicated graph parts.</p></li>
 <li><p><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
 result batch size is a multiple of this value.</p></li>
 <li><p><strong>shuffle_buffer_size</strong> – The number of elements from which to sample.</p></li>
-<li><p><strong>bucket_width</strong> – The width of the length buckets to select batch candidates
-from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch formation.</p></li>
+<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
+candidates from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch
+formation.</p></li>
 <li><p><strong>maximum_features_length</strong> – The maximum length or list of maximum lengths of
 the features sequence(s). <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</p></li>
 <li><p><strong>maximum_labels_length</strong> – The maximum length of the labels sequence.
@@ -339,8 +309,7 @@ distributed setting).</p></li>
 <li><p><strong>shard_index</strong> – The shard index this data pipeline should read from.</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-older versions.</p></li>
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -192,7 +193,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="k">import</span> <span class="n">text</span>
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="k">import</span> <span class="n">vocab</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">reducer</span>
-<span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="k">import</span> <span class="n">model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">decoding</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">losses</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">merge_dict</span><span class="p">,</span> <span class="n">shape_list</span>
@@ -225,7 +226,7 @@
     <span class="k">return</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">TARGET</span><span class="p">,</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SequenceToSequence"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence">[docs]</a><span class="k">class</span> <span class="nc">SequenceToSequence</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="SequenceToSequence"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence">[docs]</a><span class="k">class</span> <span class="nc">SequenceToSequence</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">SequenceGenerator</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A sequence to sequence model.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SequenceToSequence.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -256,10 +257,6 @@
 <span class="sd">        :obj:`source_inputter` and :obj:`target_inputter` do not have the same</span>
 <span class="sd">        ``dtype``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">source_inputter</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">target_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-          <span class="s2">&quot;Source and target inputters must have the same dtype, &quot;</span>
-          <span class="s2">&quot;saw: </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">target_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
       <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Target inputter must be a WordEmbedder&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span><span class="n">share_embeddings</span><span class="p">):</span>
@@ -289,11 +286,11 @@
         <span class="p">},</span>
         <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;sample_buffer_size&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;train_steps&quot;</span><span class="p">:</span> <span class="mi">500000</span>
+            <span class="s2">&quot;max_step&quot;</span><span class="p">:</span> <span class="mi">500000</span>
         <span class="p">},</span>
         <span class="s2">&quot;infer&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
-            <span class="s2">&quot;bucket_width&quot;</span><span class="p">:</span> <span class="mi">5</span>
+            <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="mi">5</span>
         <span class="p">}</span>
     <span class="p">})</span></div>
 
@@ -304,12 +301,10 @@
       <span class="n">output_layer</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span>
           <span class="n">weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
-          <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+          <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
         <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span>
-        <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">id_to_token</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequenceToSequence.call"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
@@ -365,10 +360,7 @@
           <span class="n">start_ids</span><span class="p">,</span>
           <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
           <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_to_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">init_scope</span><span class="p">():</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">id_to_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_lookup_reverse</span><span class="p">()</span>
-      <span class="n">target_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_to_token</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
+      <span class="n">target_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">ids_to_tokens</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
 
       <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replace_unknown_target&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">alignment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -512,12 +504,12 @@
         <span class="n">new_model</span><span class="p">,</span>
         <span class="n">new_optimizer</span><span class="o">=</span><span class="n">new_optimizer</span><span class="p">,</span>
         <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
-        <span class="n">ignore_weights</span><span class="o">=</span><span class="nb">set</span><span class="p">(</span><span class="n">updated_variables</span><span class="p">))</span></div></div>
+        <span class="n">ignore_weights</span><span class="o">=</span><span class="n">updated_variables</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="SequenceToSequenceInputter"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter">[docs]</a><span class="k">class</span> <span class="nc">SequenceToSequenceInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A custom :class:`opennmt.inputters.ExampleInputter` that possibly</span>
-<span class="sd">  injects alignment information during training.</span>
+  <span class="sd">&quot;&quot;&quot;A custom :class:`opennmt.inputters.ExampleInputter` for sequence to</span>
+<span class="sd">  sequence models.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>

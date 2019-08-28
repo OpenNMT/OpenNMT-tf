@@ -34,9 +34,7 @@ saved_model_cli show --dir ~/my-models/ende \
     --tag_set serve --signature_def serving_default
 ```
 
-Some examples using exported models are available in the [`examples/`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples) directory:
-
-* `examples/serving` to serve a model with TensorFlow Serving
+Some examples using exported models are available in the [`examples/serving`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) directory.
 
 ## Input preprocessing
 

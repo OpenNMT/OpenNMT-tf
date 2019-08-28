@@ -5,4 +5,4 @@ opennmt.models.SequenceTagger
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.models.model.Model`
+    Inherits from: :class:`opennmt.models.Model`

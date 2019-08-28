@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.data.WordPermutation" href="opennmt.data.WordPermutation.html" />
+    <link rel="next" title="opennmt.data.WordOmission" href="opennmt.data.WordOmission.html" />
     <link rel="prev" title="opennmt.data.WordDropout" href="opennmt.data.WordDropout.html" /> 
 </head>
 
@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -236,7 +238,7 @@ directly from <code class="xref py py-obj docutils literal notranslate"><span cl
 
 <dl class="method">
 <dt id="opennmt.data.WordNoiser.__call__">
-<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">tokens</em>, <em class="sig-param">sequence_length=None</em>, <em class="sig-param">keep_shape=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordNoiser.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.WordNoiser.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">tokens</em>, <em class="sig-param">sequence_length=None</em>, <em class="sig-param">keep_shape=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordNoiser.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.WordNoiser.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies noise on <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -266,7 +268,7 @@ new lengths.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.data.WordPermutation.html" class="btn btn-neutral float-right" title="opennmt.data.WordPermutation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.data.WordOmission.html" class="btn btn-neutral float-right" title="opennmt.data.WordOmission" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="opennmt.data.WordDropout.html" class="btn btn-neutral float-left" title="opennmt.data.WordDropout" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

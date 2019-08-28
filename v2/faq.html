@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="opennmt module" href="package/opennmt.html" />
-    <link rel="prev" title="Serving" href="serving.html" /> 
+    <link rel="prev" title="2.0 Transition Guide" href="v2_transition.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Frequently Asked Questions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-count-the-number-of-epochs">How to count the number of epochs?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-continue-training-with-different-optimization-settings">How to continue training with different optimization settings?</a></li>
@@ -186,7 +187,7 @@
 <h2>How to count the number of epochs?<a class="headerlink" href="#how-to-count-the-number-of-epochs" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf uses a step-based training that makes it difficult to track the number of epochs over the dataset. However, it is possible to run the training epoch by epoch with the following configuration:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span>
-  <span class="nt">train_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="nt">max_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
   <span class="nt">single_pass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
@@ -219,7 +220,7 @@ onmt-main [...] train  # 2nd epoch
         <a href="package/opennmt.html" class="btn btn-neutral float-right" title="opennmt module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="serving.html" class="btn btn-neutral float-left" title="Serving" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="v2_transition.html" class="btn btn-neutral float-left" title="2.0 Transition Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -190,6 +191,7 @@
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">constants</span><span class="p">,</span> <span class="n">tokenizers</span>
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="k">import</span> <span class="n">text</span>
+<span class="kn">from</span> <span class="nn">opennmt.data.vocab</span> <span class="k">import</span> <span class="n">Vocab</span>
 <span class="kn">from</span> <span class="nn">opennmt.inputters.inputter</span> <span class="k">import</span> <span class="n">Inputter</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
@@ -250,7 +252,7 @@
     <span class="n">embedding</span><span class="o">.</span><span class="n">tensor_name</span> <span class="o">=</span> <span class="n">variable_name</span>
     <span class="n">embedding</span><span class="o">.</span><span class="n">metadata_path</span> <span class="o">=</span> <span class="n">filename</span>
 
-  <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
     <span class="n">config_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text_format</span><span class="o">.</span><span class="n">MessageToString</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
 
 <div class="viewcode-block" id="load_pretrained_embeddings"><a class="viewcode-back" href="../../../package/opennmt.inputters.load_pretrained_embeddings.html#opennmt.inputters.load_pretrained_embeddings">[docs]</a><span class="k">def</span> <span class="nf">load_pretrained_embeddings</span><span class="p">(</span><span class="n">embedding_file</span><span class="p">,</span>
@@ -344,54 +346,68 @@
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing field &#39;</span><span class="si">%s</span><span class="s2">&#39; in the data configuration&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">value</span>
 
+<span class="k">def</span> <span class="nf">_create_tokens_to_ids_table</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="p">):</span>
+  <span class="c1"># TODO: consider reverting back to TextFileInitializer.</span>
+  <span class="n">initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">KeyValueTensorInitializer</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">num_oov_buckets</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticVocabularyTable</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_create_ids_to_tokens_table</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+  <span class="n">initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">KeyValueTensorInitializer</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="TextInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TextInputter</span><span class="p">(</span><span class="n">Inputter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;An abstract inputter that processes text.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span> <span class="o">=</span> <span class="n">num_oov_buckets</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="TextInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span>
         <span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;vocabulary&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">count_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span>
+    <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">))),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span> <span class="o">=</span> <span class="n">_create_tokens_to_ids_table</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_tokens</span> <span class="o">=</span> <span class="n">_create_ids_to_tokens_table</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
     <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;tokenization&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizers</span><span class="o">.</span><span class="n">make_tokenizer</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TextInputter.set_noise"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.set_noise">[docs]</a>  <span class="k">def</span> <span class="nf">set_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noiser</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enables noise to be applied to the input features.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      noiser: A :class:`opennmt.data.WordNoiser` instance.</span>
+<span class="sd">      in_place: If ``False``, the noisy version of the input will be stored as</span>
+<span class="sd">        a separate feature prefixed with &quot;noisy_&quot;.</span>
+<span class="sd">      probability: When :obj:`in_place` is enabled, the probability to apply the</span>
+<span class="sd">        noise.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`in_place` is enabled but a :obj:`probability` is not</span>
+<span class="sd">        set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">in_place</span> <span class="ow">and</span> <span class="n">probability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;In-place noise requires a probability&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="n">noiser</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span> <span class="o">=</span> <span class="n">in_place</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span> <span class="o">=</span> <span class="n">probability</span></div>
 
 <div class="viewcode-block" id="TextInputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TextInputter.vocabulary_lookup"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.vocabulary_lookup">[docs]</a>  <span class="k">def</span> <span class="nf">vocabulary_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a lookup table mapping string to index.&quot;&quot;&quot;</span>
-    <span class="n">initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileInitializer</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">WHOLE_LINE</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">LINE_NUMBER</span><span class="p">,</span>
-        <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticVocabularyTable</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="TextInputter.vocabulary_lookup_reverse"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.vocabulary_lookup_reverse">[docs]</a>  <span class="k">def</span> <span class="nf">vocabulary_lookup_reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a lookup table mapping index to string.&quot;&quot;&quot;</span>
-    <span class="n">initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileInitializer</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">LINE_NUMBER</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">WHOLE_LINE</span><span class="p">,</span>
-        <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="TextInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_lookup</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span>
+        <span class="n">data_file</span><span class="p">,</span> <span class="n">compression_type</span><span class="o">=</span><span class="s2">&quot;GZIP&quot;</span> <span class="k">if</span> <span class="n">misc</span><span class="o">.</span><span class="n">is_gzip_file</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tokenizes raw text.&quot;&quot;&quot;</span>
@@ -400,7 +416,21 @@
     <span class="k">if</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">features</span>
     <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">noisy_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span><span class="p">:</span>
+        <span class="n">tokens</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([])</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span><span class="p">,</span>
+            <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">noisy_length</span><span class="p">),</span>
+            <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Call make_features again to fill the remaining noisy features.</span>
+        <span class="n">noisy_features</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">tokens</span><span class="o">=</span><span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">noisy_length</span><span class="p">)</span>
+        <span class="n">noisy_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">noisy_features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">noisy_features</span><span class="p">):</span>
+          <span class="n">features</span><span class="p">[</span><span class="s2">&quot;noisy_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">length</span>
     <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tokens</span>
     <span class="k">return</span> <span class="n">features</span></div>
 
@@ -414,16 +444,16 @@
 <div class="viewcode-block" id="WordEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder">[docs]</a><span class="k">class</span> <span class="nc">WordEmbedder</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Simple word embedder.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WordEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+<div class="viewcode-block" id="WordEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the word embedder.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      embedding_size: The size of the resulting embedding.</span>
 <span class="sd">        If ``None``, an embedding file must be provided.</span>
 <span class="sd">      dropout: The probability to drop units in the embedding.</span>
-<span class="sd">      dtype: The embedding type.</span>
+<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="o">=</span> <span class="n">embedding_size</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
@@ -445,11 +475,7 @@
         <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;ids&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">features</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_lookup</span><span class="p">()</span>
-    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
-      <span class="k">del</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">features</span></div>
 
 <div class="viewcode-block" id="WordEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
@@ -483,23 +509,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="n">num_oov_buckets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WordEmbedder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
-    <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">:</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;w_embs&quot;</span><span class="p">]}</span></div></div>
+<div class="viewcode-block" id="WordEmbedder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;w_embs&quot;</span><span class="p">])]</span></div></div>
 
 
 <div class="viewcode-block" id="CharEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CharEmbedder</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for character-aware inputters.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CharEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+<div class="viewcode-block" id="CharEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character embedder.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      embedding_size: The size of the character embedding.</span>
 <span class="sd">      dropout: The probability to drop units in the embedding.</span>
-<span class="sd">      dtype: The embedding type.</span>
+<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="o">=</span> <span class="n">embedding_size</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
@@ -517,9 +543,7 @@
           <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
       <span class="n">chars</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_chars</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
       <span class="n">chars</span> <span class="o">=</span> <span class="n">chars</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PADDING_TOKEN</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_lookup</span><span class="p">()</span>
-    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;char_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;char_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">features</span></div>
 
 <div class="viewcode-block" id="CharEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
@@ -554,7 +578,7 @@
                <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                <span class="n">stride</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-               <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character convolution embedder.</span>
 
 <span class="sd">    Args:</span>
@@ -563,12 +587,12 @@
 <span class="sd">      kernel_size: Length of the convolution window.</span>
 <span class="sd">      stride: Length of the convolution stride.</span>
 <span class="sd">      dropout: The probability to drop units in the embedding.</span>
-<span class="sd">      dtype: The embedding type.</span>
+<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">CharConvEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">embedding_size</span><span class="p">,</span>
         <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span> <span class="o">=</span> <span class="n">num_outputs</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">conv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv1D</span><span class="p">(</span>
         <span class="n">num_outputs</span><span class="p">,</span>
@@ -594,7 +618,7 @@
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
                <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character RNN embedder.</span>
 
 <span class="sd">    Args:</span>
@@ -604,7 +628,7 @@
 <span class="sd">        outputs.</span>
 <span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
 <span class="sd">        argument and returning a cell. Defaults to a LSTM cell.</span>
-<span class="sd">      dtype: The embedding type.</span>
+<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      ValueError: if :obj:`encoding` is invalid.</span>
@@ -612,7 +636,7 @@
     <span class="nb">super</span><span class="p">(</span><span class="n">CharRNNEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">embedding_size</span><span class="p">,</span>
         <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cell_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">cell_class</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">RNN</span><span class="p">(</span><span class="n">cell_class</span><span class="p">(</span><span class="n">num_units</span><span class="p">))</span>

@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -205,7 +207,7 @@
 <h1>opennmt.data.inference_pipeline<a class="headerlink" href="#opennmt-data-inference-pipeline" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.data.inference_pipeline">
-<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">inference_pipeline</code><span class="sig-paren">(</span><em class="sig-param">batch_size</em>, <em class="sig-param">process_fn=None</em>, <em class="sig-param">bucket_width=None</em>, <em class="sig-param">length_fn=None</em>, <em class="sig-param">num_threads=None</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#inference_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.inference_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">inference_pipeline</code><span class="sig-paren">(</span><em class="sig-param">batch_size</em>, <em class="sig-param">process_fn=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">length_fn=None</em>, <em class="sig-param">num_threads=None</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#inference_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.inference_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that defines a complete inference data pipeline.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -213,24 +215,23 @@
 <li><p><strong>dataset</strong> – The base dataset.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
 <li><p><strong>process_fn</strong> – The processing function to apply on each element.</p></li>
-<li><p><strong>bucket_width</strong> – The width of the length buckets to select batch candidates
-from. If set, this means the inference pipeline will be reordered based on
-the examples length, the application is then responsible to restore the
-predictions in order. An “index” key will be inserted in the examples
-dict.</p></li>
+<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
+candidates from. If set, this means the inference pipeline will be
+reordered based on the examples length, the application is then
+responsible to restore the predictions in order. An “index” key will be
+inserted in the examples dict.</p></li>
 <li><p><strong>length_fn</strong> – A callable mapping features to a sequence length.</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value on TensorFlow 1.8+ and 1 on
-older versions.</p></li>
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> transformation.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">bucket_width</span></code> is set but not <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_fn</span></code> or the
-    dataset does not output a dictionary.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_bucket_width</span></code> is set but not <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_fn</span></code>
+    or the dataset does not output a dictionary.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -131,6 +132,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -237,7 +239,19 @@ class).</p></li>
 <dl class="method">
 <dt id="opennmt.encoders.SelfAttentionEncoder.call">
 <code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">sequence_length=None</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoder.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.SelfAttentionEncoder.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encodes <code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span></code>.</p>
+<dd><p>Encodes an input sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</p></li>
+<li><p><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</p></li>
+<li><p><strong>training</strong> – Run in training mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">

@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -262,7 +263,7 @@
       <span class="c1"># Work with copies of model and optimizer as the downstream task might</span>
       <span class="c1"># need to create the variable differently (e.g. under a distribution</span>
       <span class="c1"># strategy scope).</span>
-      <span class="n">tmp_model</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span>
+      <span class="n">tmp_model</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">clone_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span>
       <span class="n">tmp_optimizer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
       <span class="n">tmp_model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">tmp_optimizer</span><span class="p">)</span>
       <span class="n">step</span> <span class="o">=</span> <span class="n">_restore_v1_checkpoint</span><span class="p">(</span>
@@ -272,7 +273,9 @@
           <span class="n">tmp_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">tmp_optimizer</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_dir</span><span class="p">)</span>
       <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">tmp_checkpoint</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="n">weights_only</span><span class="p">)</span>
-    <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+    <span class="n">load_status</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">weights_only</span><span class="p">:</span>
+      <span class="n">load_status</span><span class="o">.</span><span class="n">expect_partial</span><span class="p">()</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Restored checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">checkpoint_path</span>
 
@@ -374,12 +377,14 @@
       <span class="k">del</span> <span class="n">v1_structure</span><span class="p">[</span><span class="n">_V1_OPTIM_SCOPE</span><span class="p">]</span>
       <span class="n">v1_structure</span> <span class="o">=</span> <span class="n">_merge_optimizer_slots</span><span class="p">(</span><span class="n">v1_structure</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
   <span class="n">mapping</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">v1_structure</span><span class="p">)</span>
-  <span class="n">missing_mapping</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">(</span><span class="n">mapping</span><span class="p">)))</span>
+  <span class="n">existing_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+  <span class="n">mapped_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">)</span>
+  <span class="n">missing_mapping</span> <span class="o">=</span> <span class="n">existing_variables</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">mapped_variables</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">missing_mapping</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following variables were not mapped: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
         <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">missing_mapping</span><span class="p">)))</span>
   <span class="c1"># Assign each variable and possibly the optimizer slots.</span>
-  <span class="k">for</span> <span class="n">v2_variable</span><span class="p">,</span> <span class="n">v1_variable</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+  <span class="k">for</span> <span class="n">v2_variable</span><span class="p">,</span> <span class="n">v1_variable</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1_variable</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
       <span class="n">v1_variable</span><span class="p">,</span> <span class="n">v1_slots</span> <span class="o">=</span> <span class="n">v1_variable</span>
     <span class="k">else</span><span class="p">:</span>

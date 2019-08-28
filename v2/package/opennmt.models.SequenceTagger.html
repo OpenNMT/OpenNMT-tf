@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.models.SequenceToSequence" href="opennmt.models.SequenceToSequence.html" />
-    <link rel="prev" title="opennmt.models.SequenceClassifier" href="opennmt.models.SequenceClassifier.html" /> 
+    <link rel="prev" title="opennmt.models.SequenceGenerator" href="opennmt.models.SequenceGenerator.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -131,6 +132,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -206,7 +208,7 @@
 <dt id="opennmt.models.SequenceTagger">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">SequenceTagger</code><span class="sig-paren">(</span><em class="sig-param">inputter</em>, <em class="sig-param">encoder</em>, <em class="sig-param">crf_decoding=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceTagger" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sequence tagger.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.model.Model</span></code></p>
+<p>Inherits from: <a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model" title="opennmt.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.models.SequenceTagger.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">inputter</em>, <em class="sig-param">encoder</em>, <em class="sig-param">crf_decoding=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceTagger.__init__" title="Permalink to this definition">¶</a></dt>
@@ -270,11 +272,12 @@ layer instantiation and layer call.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The model outputs (usually unscaled probabilities).
-predictions: The model predictions.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>outputs</p>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The model outputs (usually unscaled probabilities).</p></li>
+<li><p>The model predictions.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -292,7 +295,9 @@ predictions: The model predictions.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The loss or a tuple containing the computed loss and the loss to display.</p>
+<dd class="field-even"><p>The loss or a tuple <code class="docutils literal notranslate"><span class="pre">(numerator,</span> <span class="pre">train_denominator,</span> <span class="pre">stats_denominator)</span></code>
+to use a different normalization for training compared to reporting (e.g.
+batch-normalized for training vs. token-normalized for reporting).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -353,7 +358,7 @@ predictions: The model predictions.</p>
         <a href="opennmt.models.SequenceToSequence.html" class="btn btn-neutral float-right" title="opennmt.models.SequenceToSequence" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.models.SequenceClassifier.html" class="btn btn-neutral float-left" title="opennmt.models.SequenceClassifier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.models.SequenceGenerator.html" class="btn btn-neutral float-left" title="opennmt.models.SequenceGenerator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

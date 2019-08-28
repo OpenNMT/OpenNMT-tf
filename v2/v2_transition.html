@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.0.0a0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="prev" title="Serving" href="serving.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2.0 Transition Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#new-requirements">New requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#changed-checkpoint-layout">Changed checkpoint layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#improved-main-script-command-line">Improved main script command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#changed-vocabulary-configuration">Changed vocabulary configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#changed-predefined-models">Changed predefined models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#changed-parameters">Changed parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#new-mixed-precision-workflow">New mixed precision workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>2.0 Transition Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="transition-guide">
+<h1>2.0 Transition Guide<a class="headerlink" href="#transition-guide" title="Permalink to this headline">¶</a></h1>
+<p>This document details some changes introduced in OpenNMT-tf 2.0 and actions required by the user.</p>
+<div class="section" id="new-requirements">
+<h2>New requirements<a class="headerlink" href="#new-requirements" title="Permalink to this headline">¶</a></h2>
+<p>TensorFlow 2.0 and Python 3.5 (or above) are now required by OpenNMT-tf. While the code is still expected to run with Python 2.7, this can change at any time and without notice.</p>
+</div>
+<div class="section" id="changed-checkpoint-layout">
+<h2>Changed checkpoint layout<a class="headerlink" href="#changed-checkpoint-layout" title="Permalink to this headline">¶</a></h2>
+<p>TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the model object.</p>
+<p>Consequently, all OpenNMT-tf V1 checkpoints are no longer compatible without conversion. To smooth this transition, V1 checkpoints of Transformer-based models are automatically upgraded on load.</p>
+</div>
+<div class="section" id="improved-main-script-command-line">
+<h2>Improved main script command line<a class="headerlink" href="#improved-main-script-command-line" title="Permalink to this headline">¶</a></h2>
+<p>The command line parser has been improved to better manage task specifc options that are now located after the run type:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>onmt-main &lt;general options&gt; train &lt;train options&gt;
+</pre></div>
+</div>
+<p>Also, some options has been changed:</p>
+<ul class="simple">
+<li><p>the run type <code class="docutils literal notranslate"><span class="pre">train_and_eval</span></code> has been replaced by <code class="docutils literal notranslate"><span class="pre">train</span> <span class="pre">--with_eval</span></code></p></li>
+<li><p>the main script now includes the <code class="docutils literal notranslate"><span class="pre">average_checkpoints</span></code> and <code class="docutils literal notranslate"><span class="pre">update_vocab</span></code> tasks</p></li>
+<li><p>distributed training options are currently missing in 2.0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--session_config</span></code> has been removed as no longer applicable in TensorFlow 2.0</p></li>
+</ul>
+<p>See <code class="docutils literal notranslate"><span class="pre">onmt-main</span> <span class="pre">-h</span></code> for more details.</p>
+</div>
+<div class="section" id="changed-vocabulary-configuration">
+<h2>Changed vocabulary configuration<a class="headerlink" href="#changed-vocabulary-configuration" title="Permalink to this headline">¶</a></h2>
+<p>In OpenNMT-tf V1, models were responsible to declare the name of the vocabulary to look for, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_inputter</span><span class="o">=</span><span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
+    <span class="n">vocabulary_file_key</span><span class="o">=</span><span class="s2">&quot;source_words_vocabulary&quot;</span><span class="p">,</span>
+    <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>meant that the user should configure the vocabulary like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">source_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span>
+</pre></div>
+</div>
+<p>This is no longer the case in V2 and vocabulary configuration now follows a more general pattern:</p>
+<ul class="simple">
+<li><p>Single vocabulary (e.g. language model):</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">vocab.txt</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Source and target vocabularies (e.g. sequence to sequence, tagging, etc.):</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">source_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span>
+  <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt_vocab.txt</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Multi-source and target vocabularies:</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">source_1_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_vocab.txt</span>
+  <span class="nt">source_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>
+  <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt_vocab.txt</span>
+</pre></div>
+</div>
+<p>The same name resolution applies to “embedding” and “tokenization” configurations.</p>
+</div>
+<div class="section" id="changed-predefined-models">
+<h2>Changed predefined models<a class="headerlink" href="#changed-predefined-models" title="Permalink to this headline">¶</a></h2>
+<p>Predefined models do not require a model definition file and can be directly set to the <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> command line argument. Some of them have been changed for clarity:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>V1</th>
+<th>V2</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NMTBig</code></td>
+<td></td>
+<td>Use <code>LuongAttention</code> or define a custom model</td>
+</tr>
+<tr>
+<td><code>NMTMedium</code></td>
+<td></td>
+<td>Use <code>LuongAttention</code> or define a custom model</td>
+</tr>
+<tr>
+<td><code>NMTSmall</code></td>
+<td></td>
+<td>Use <code>LuongAttention</code> or define a custom model</td>
+</tr>
+<tr>
+<td><code>SeqTagger</code></td>
+<td><code>LstmCnnCrfTagger</code></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="changed-parameters">
+<h2>Changed parameters<a class="headerlink" href="#changed-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Some parameters in the YAML have been renamed or removed:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>V1</th>
+<th>V2</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*/bucket_width</code></td>
+<td><code>*/length_bucket_width</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>*/num_threads</code></td>
+<td></td>
+<td>Automatic value</td>
+</tr>
+<tr>
+<td><code>*/prefetch_buffer_size</code></td>
+<td></td>
+<td>Automatic value</td>
+</tr>
+<tr>
+<td><code>eval/eval_delay</code></td>
+<td><code>eval/steps</code></td>
+<td>Use steps instead of seconds to set the evaluation frequency</td>
+</tr>
+<tr>
+<td><code>eval/exporters</code></td>
+<td></td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><code>params/decay_step_duration</code></td>
+<td></td>
+<td>No longer useful</td>
+</tr>
+<tr>
+<td><code>params/freeze_variables</code></td>
+<td><code>params/freeze_layers</code></td>
+<td>Layer names instead of variable regexps</td>
+</tr>
+<tr>
+<td><code>params/gradients_accum</code></td>
+<td></td>
+<td>Use <code>train/effective_batch_size</code> instead</td>
+</tr>
+<tr>
+<td><code>params/horovod</code></td>
+<td></td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><code>params/loss_scale</code></td>
+<td></td>
+<td>Dynamic loss scaling by default</td>
+</tr>
+<tr>
+<td><code>params/maximum_iterations</code></td>
+<td><code>params/maximum_decoding_length</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>params/maximum_learning_rate</code></td>
+<td></td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><code>params/param_init</code></td>
+<td></td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><code>params/weight_decay</code></td>
+<td></td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><code>train/save_checkpoints_secs</code></td>
+<td></td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><code>train/train_steps</code></td>
+<td><code>train/max_step</code></td>
+<td></td>
+</tr>
+</tbody>
+</table><p>Parameters taking reference to Python classes should also be revised when upgrading to V2:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">params/optimizer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params/optimizer_params</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params/decay_type</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params/decay_params</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="new-mixed-precision-workflow">
+<h2>New mixed precision workflow<a class="headerlink" href="#new-mixed-precision-workflow" title="Permalink to this headline">¶</a></h2>
+<p>OpenNMT-tf 2.0 is using the newly introduced <a class="reference external" href="https://github.com/tensorflow/tensorflow/pull/26342">graph rewriter</a> to automatically convert parts of the graph from <em>float32</em> to <em>float16</em>.</p>
+<p>Variables are casted on the fly and checkpoints no longer need to be converted for inference or to continue training in <em>float32</em>. This means mixed precision is no longer an property of the model but should be enabled on the command line instead, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer --config data.yml --auto_config --mixed_precision train
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="faq.html" class="btn btn-neutral float-right" title="Frequently Asked Questions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="serving.html" class="btn btn-neutral float-left" title="Serving" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

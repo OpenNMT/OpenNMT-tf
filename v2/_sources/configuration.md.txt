@@ -79,9 +79,6 @@ params:
 
   # (optional) Maximum gradients norm (default: null).
   clip_gradients: 5.0
-  # (optional) 1 training step will process this many batches and accumulates
-  # their gradients (default: 1).
-  gradients_accum: 1
 
   # (optional) Weights regularization penalty (default: null).
   regularization:
@@ -99,9 +96,7 @@ params:
   # (optional unless decay_type is set) Decay parameters.
   decay_params:
     model_dim: 512
-      warmup_steps: 4000
-  # (optional) The number of training steps that make 1 decay step (default: 1).
-  decay_step_duration: 1
+    warmup_steps: 4000
   # (optional) After how many steps to start the decay (default: 0).
   start_decay_steps: 50000
 
@@ -180,8 +175,8 @@ train:
   # (optional) Dump summaries and logs every this many steps (default: 100).
   save_summary_steps: 100
 
-  # (optional) Train for this many steps. If not set, train forever.
-  train_steps: 1000000
+  # (optional) Maximum training step. If not set, train forever.
+  max_step: 1000000
   # (optional) If true, makes a single pass over the training data (default: false).
   single_pass: false
 
@@ -190,14 +185,9 @@ train:
   # (optional) The maximum length of label sequences during training (default: null).
   maximum_labels_length: 70
 
-  # (optional) The width of the length buckets to select batch candidates from (default: 5).
-  bucket_width: 5
-
-  # (optional) The number of threads to use for processing data in parallel (default: 4).
-  num_threads: 4
-  # (optional) The number of batches to prefetch asynchronously. If not set, use an
-  # automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).
-  prefetch_buffer_size: null
+  # (optional) The width of the length buckets to select batch candidates from.
+  # A smaller value means less padding and increased efficiency. (default: 1).
+  length_bucket_width: 1
 
   # (optional) The number of elements from which to sample during shuffling (default: 500000).
   # Set 0 or null to disable shuffling, -1 to match the number of training examples.
@@ -228,17 +218,6 @@ infer:
   # (optional) The batch size to use (default: 1).
   batch_size: 10
 
-  # (optional) The width of the length buckets to select batch candidates from.
-  # If set, the test data will be sorted by length to increase the translation
-  # efficiency. The predictions will still be outputted in order as they are
-  # available (default: 0).
-  bucket_width: 5
-
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
-
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   # This sets the parameter params/num_hypotheses.
   n_best: 1
@@ -248,16 +227,17 @@ infer:
   # default: "null").
   with_alignments: null
 
+  # (optional) The width of the length buckets to select batch candidates from.
+  # If set, the test data will be sorted by length to increase the translation
+  # efficiency. The predictions will still be outputted in order as they are
+  # available (default: 0).
+  length_bucket_width: 5
+
 
 # (optional) Scoring options.
 score:
   # (optional) The batch size to use (default: 64).
   batch_size: 64
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
-
   # (optional) Also report token-level cross entropy.
   with_token_level: false
   # (optional) Also output the alignments (can be: "null", "hard", default: "null").

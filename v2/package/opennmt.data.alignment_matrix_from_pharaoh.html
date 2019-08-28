@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -212,7 +214,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alignment_line</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> in the Pharaoh format.</p></li>
 <li><p><strong>source_length</strong> – The length of the source sentence, without special symbols.</p></li>
-<li><p><strong>The length of the target sentence</strong><strong>, </strong><strong>without special symbols.</strong> (<em>target_length</em>) – </p></li>
+<li><p><strong>target_length</strong> – The length of the target sentence, without special symbols.</p></li>
 <li><p><strong>dtype</strong> – The output matrix dtype. Defaults to <code class="docutils literal notranslate"><span class="pre">tf.float32</span></code> for convenience
 when computing the guided alignment loss.</p></li>
 </ul>

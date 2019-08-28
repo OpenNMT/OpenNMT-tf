@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -205,14 +207,23 @@
 <h1>opennmt.inputters.create_sequence_records<a class="headerlink" href="#opennmt-inputters-create-sequence-records" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.inputters.create_sequence_records">
-<code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">create_sequence_records</code><span class="sig-paren">(</span><em class="sig-param">vectors</em>, <em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#create_sequence_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.create_sequence_records" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">create_sequence_records</code><span class="sig-paren">(</span><em class="sig-param">vectors</em>, <em class="sig-param">path</em>, <em class="sig-param">compression=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#create_sequence_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.create_sequence_records" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a TFRecord file of sequence vectors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vectors</strong> – An iterable of 2D Numpy array of shape <span class="math notranslate nohighlight">\([T, D]\)</span>.</p></li>
+<li><p><strong>vectors</strong> – An iterable of 2D Numpy float arrays of shape <span class="math notranslate nohighlight">\([T, D]\)</span>.</p></li>
 <li><p><strong>path</strong> – The output TFRecord file.</p></li>
+<li><p><strong>compression</strong> – Optional compression type, can be “GZIP”.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to the TFRecord file. In most cases this is the same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">path</span></code> but
+if GZIP compression is enabled, the “.gz” extension is added if not already
+present.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">compression</span></code> is invalid.</p>
 </dd>
 </dl>
 </dd></dl>

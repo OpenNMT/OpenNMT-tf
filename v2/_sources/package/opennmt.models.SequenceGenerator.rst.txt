@@ -1,0 +1,8 @@
+opennmt.models.SequenceGenerator
+================================
+
+.. autoclass:: opennmt.models.SequenceGenerator
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.Model`

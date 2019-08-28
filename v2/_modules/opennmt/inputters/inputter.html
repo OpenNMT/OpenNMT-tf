@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -192,9 +193,13 @@
 <span class="k">class</span> <span class="nc">Inputter</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for inputters.&quot;&quot;&quot;</span>
 
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Inputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="kc">None</span>
+
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">num_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;How many parallel outputs does this inputter produce.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The number of parallel outputs produced by this inputter.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="Inputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
@@ -232,14 +237,14 @@
 <span class="sd">      training: Run in training mode.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A ``tf.data.Dataset``.</span>
+<span class="sd">      A non transformed ``tf.data.Dataset`` instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Inputter.make_inference_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_inference_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_inference_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                              <span class="n">features_file</span><span class="p">,</span>
                              <span class="n">batch_size</span><span class="p">,</span>
-                             <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                              <span class="n">num_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                              <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Builds a dataset to be used for inference.</span>
@@ -250,12 +255,12 @@
 <span class="sd">    Args:</span>
 <span class="sd">      features_file: The test file.</span>
 <span class="sd">      batch_size: The batch size to use.</span>
-<span class="sd">      bucket_width: The width of the length buckets to select batch candidates</span>
-<span class="sd">        from (for efficiency). Set ``None`` to not constrain batch formation.</span>
+<span class="sd">      length_bucket_width: The width of the length buckets to select batch</span>
+<span class="sd">        candidates from (for efficiency). Set ``None`` to not constrain batch</span>
+<span class="sd">        formation.</span>
 <span class="sd">      num_threads: The number of elements processed in parallel.</span>
 <span class="sd">      prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
-<span class="sd">        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on</span>
-<span class="sd">        older versions.</span>
+<span class="sd">        ``None``, use an automatically tuned value.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A ``tf.data.Dataset``.</span>
@@ -265,7 +270,7 @@
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">dataset_util</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span>
         <span class="n">batch_size</span><span class="p">,</span>
         <span class="n">process_fn</span><span class="o">=</span><span class="n">map_func</span><span class="p">,</span>
-        <span class="n">bucket_width</span><span class="o">=</span><span class="n">bucket_width</span><span class="p">,</span>
+        <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
         <span class="n">length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_length</span><span class="p">,</span>
         <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">))</span>
@@ -283,9 +288,18 @@
   <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates features from data.</span>
 
+<span class="sd">    This is typically called in a data pipeline (such as ``Dataset.map``).</span>
+<span class="sd">    Common transformation includes tokenization, parsing, vocabulary lookup,</span>
+<span class="sd">    etc.</span>
+
+<span class="sd">    This method accept both a single :obj:`element` from the dataset or a</span>
+<span class="sd">    partially built dictionary of :obj:`features`.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">      element: An element from the dataset.</span>
-<span class="sd">      features: An optional dictionary of features to augment.</span>
+<span class="sd">      element: An element from the dataset returned by</span>
+<span class="sd">        :meth:`opennmt.inputters.Inputter.make_dataset`.</span>
+<span class="sd">      features: An optional and possibly partial dictionary of features to</span>
+<span class="sd">        augment.</span>
 <span class="sd">      training: Run in training mode.</span>
 
 <span class="sd">    Returns:</span>
@@ -294,10 +308,11 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Inputter.call"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
-    <span class="sd">&quot;&quot;&quot;Creates the model input from the features.</span>
+    <span class="sd">&quot;&quot;&quot;Creates the model input from the features (e.g. word embeddings).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      features: A dictionary of ``tf.Tensor``.</span>
+<span class="sd">      features: A dictionary of ``tf.Tensor``, the output of</span>
+<span class="sd">        :meth:`opennmt.inputters.Inputter.make_features`.</span>
 <span class="sd">      training: Run in training mode.</span>
 
 <span class="sd">    Returns:</span>
@@ -357,13 +372,14 @@
 
 <div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
-      <span class="n">inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
+      <span class="n">inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+          <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">_get_asset_prefix</span><span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="MultiInputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="n">assets</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
       <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span>
-          <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+          <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">_get_asset_prefix</span><span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">assets</span></div>
 
 <div class="viewcode-block" id="MultiInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.make_dataset">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -375,8 +391,12 @@
       <span class="n">inputter</span><span class="o">.</span><span class="n">visualize</span><span class="p">(</span><span class="n">model_root</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">)</span></div></div>
 
 
+<span class="k">def</span> <span class="nf">_get_asset_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+  <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+
 <div class="viewcode-block" id="ParallelInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter">[docs]</a><span class="k">class</span> <span class="nc">ParallelInputter</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;An multi inputter that process parallel data.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;An multi inputter that processes parallel data.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ParallelInputter.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">inputters</span><span class="p">,</span>
@@ -416,11 +436,14 @@
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">zip</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">datasets</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.input_signature"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.input_signature">[docs]</a>  <span class="k">def</span> <span class="nf">input_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">signature</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
-      <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">input_signature</span><span class="p">()):</span>
-        <span class="n">signature</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
-    <span class="k">return</span> <span class="n">signature</span></div>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span><span class="p">:</span>
+      <span class="n">signature</span> <span class="o">=</span> <span class="p">{}</span>
+      <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">input_signature</span><span class="p">()):</span>
+          <span class="n">signature</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+      <span class="k">return</span> <span class="n">signature</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">input_signature</span><span class="p">()</span> <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="p">[]</span>
@@ -455,6 +478,8 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">features</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">]</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
       <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
         <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputter</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
             <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
@@ -494,7 +519,9 @@
 
 
 <div class="viewcode-block" id="MixedInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter">[docs]</a><span class="k">class</span> <span class="nc">MixedInputter</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;An multi inputter that applies several transformation on the same data.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;An multi inputter that applies several transformation on the same data</span>
+<span class="sd">  (e.g. combine word-level and character-level embeddings).</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="MixedInputter.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">inputters</span><span class="p">,</span>
@@ -520,7 +547,7 @@
     <span class="n">signature</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
       <span class="n">signature</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">input_signature</span><span class="p">())</span>
-    <span class="k">return</span> <span class="n">receiver_tensors</span></div>
+    <span class="k">return</span> <span class="n">signature</span></div>
 
 <div class="viewcode-block" id="MixedInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span></div>
@@ -559,34 +586,24 @@
 <span class="sd">      share_parameters: Share the inputters parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="o">=</span> <span class="n">features_inputter</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;source&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="o">=</span> <span class="n">labels_inputter</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;target&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ExampleInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="p">],</span>
         <span class="n">share_parameters</span><span class="o">=</span><span class="n">share_parameters</span><span class="p">,</span>
         <span class="n">combine_features</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExampleInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;source_&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;target_&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ExampleInputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="n">assets</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span>
-        <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;source_&quot;</span><span class="p">))</span>
-    <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span>
-        <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;target_&quot;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">assets</span></div>
-
 <div class="viewcode-block" id="ExampleInputter.make_inference_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_inference_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_inference_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                              <span class="n">features_file</span><span class="p">,</span>
                              <span class="n">batch_size</span><span class="p">,</span>
-                             <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                              <span class="n">num_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                              <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_inference_dataset</span><span class="p">(</span>
         <span class="n">features_file</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="p">,</span>
-        <span class="n">bucket_width</span><span class="o">=</span><span class="n">bucket_width</span><span class="p">,</span>
+        <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
         <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">)</span></div>
 
@@ -604,8 +621,7 @@
 <span class="sd">      batch_size: The batch size to use.</span>
 <span class="sd">      num_threads: The number of elements processed in parallel.</span>
 <span class="sd">      prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
-<span class="sd">        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on</span>
-<span class="sd">        older versions.</span>
+<span class="sd">        ``None``, use an automatically tuned value.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A ``tf.data.Dataset``.</span>
@@ -627,7 +643,7 @@
                             <span class="n">batch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                             <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                             <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">maximum_features_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">maximum_labels_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">single_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -655,8 +671,9 @@
 <span class="sd">      batch_size_multiple: When :obj:`batch_type` is &quot;tokens&quot;, ensure that the</span>
 <span class="sd">        result batch size is a multiple of this value.</span>
 <span class="sd">      shuffle_buffer_size: The number of elements from which to sample.</span>
-<span class="sd">      bucket_width: The width of the length buckets to select batch candidates</span>
-<span class="sd">        from (for efficiency). Set ``None`` to not constrain batch formation.</span>
+<span class="sd">      length_bucket_width: The width of the length buckets to select batch</span>
+<span class="sd">        candidates from (for efficiency). Set ``None`` to not constrain batch</span>
+<span class="sd">        formation.</span>
 <span class="sd">      maximum_features_length: The maximum length or list of maximum lengths of</span>
 <span class="sd">        the features sequence(s). ``None`` to not constrain the length.</span>
 <span class="sd">      maximum_labels_length: The maximum length of the labels sequence.</span>
@@ -667,8 +684,7 @@
 <span class="sd">      shard_index: The shard index this data pipeline should read from.</span>
 <span class="sd">      num_threads: The number of elements processed in parallel.</span>
 <span class="sd">      prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
-<span class="sd">        ``None``, use an automatically tuned value on TensorFlow 1.8+ and 1 on</span>
-<span class="sd">        older versions.</span>
+<span class="sd">        ``None``, use an automatically tuned value.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A ``tf.data.Dataset``.</span>
@@ -681,7 +697,7 @@
         <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
         <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
         <span class="n">process_fn</span><span class="o">=</span><span class="n">map_func</span><span class="p">,</span>
-        <span class="n">bucket_width</span><span class="o">=</span><span class="n">bucket_width</span><span class="p">,</span>
+        <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
         <span class="n">features_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">,</span>
         <span class="n">labels_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">,</span>
         <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>

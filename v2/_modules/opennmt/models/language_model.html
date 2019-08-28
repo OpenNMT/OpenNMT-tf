@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -183,13 +184,13 @@
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">inputters</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">layers</span>
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="k">import</span> <span class="n">dataset</span> <span class="k">as</span> <span class="n">dataset_util</span>
-<span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="k">import</span> <span class="n">model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">decoding</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">losses</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
 
 
-<div class="viewcode-block" id="LanguageModel"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel">[docs]</a><span class="k">class</span> <span class="nc">LanguageModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="LanguageModel"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel">[docs]</a><span class="k">class</span> <span class="nc">LanguageModel</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">SequenceGenerator</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;An experimental language model.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LanguageModel.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -217,7 +218,7 @@
     <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
         <span class="s2">&quot;infer&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;bucket_width&quot;</span><span class="p">:</span> <span class="mi">1</span>  <span class="c1"># To ensure fixed length in each batch.</span>
+            <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="mi">1</span>  <span class="c1"># To ensure fixed length in each batch.</span>
         <span class="p">}</span>
     <span class="p">})</span></div>
 
@@ -229,10 +230,8 @@
       <span class="n">output_layer</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
           <span class="n">vocab_size</span><span class="p">,</span>
           <span class="n">weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
-          <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">vocab_size</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">id_to_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">vocabulary_lookup_reverse</span><span class="p">()</span></div>
+          <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">vocab_size</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LanguageModel.call"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
@@ -246,7 +245,7 @@
       <span class="n">assert_fixed_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span>
           <span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">length</span><span class="p">))),</span>
           <span class="p">[</span><span class="s2">&quot;Language model does not support variable length contexts during &quot;</span>
-           <span class="s2">&quot;generation, consider setting batch_size or bucket_width to 1&quot;</span><span class="p">])</span>
+           <span class="s2">&quot;generation, consider setting batch_size or length_bucket_width to 1&quot;</span><span class="p">])</span>
 
       <span class="c1"># Run decoder one the context, if any.</span>
       <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_fixed_length</span><span class="p">]):</span>
@@ -271,7 +270,7 @@
       <span class="c1"># Build the full prediction.</span>
       <span class="n">full_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ids</span><span class="p">,</span> <span class="n">sampled_ids</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
       <span class="n">full_length</span> <span class="o">=</span> <span class="n">length</span> <span class="o">+</span> <span class="n">sampled_length</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_to_token</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">full_ids</span><span class="p">)</span>
+      <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">ids_to_tokens</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">full_ids</span><span class="p">)</span>
       <span class="n">predictions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">tokens</span><span class="o">=</span><span class="n">tokens</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">full_length</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span></div>
@@ -340,7 +339,7 @@
                             <span class="n">batch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                             <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                             <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">maximum_features_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">maximum_labels_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">single_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -355,7 +354,7 @@
         <span class="n">batch_size</span><span class="p">,</span>
         <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
         <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
-        <span class="n">bucket_width</span><span class="o">=</span><span class="n">bucket_width</span><span class="p">,</span>
+        <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
         <span class="n">single_pass</span><span class="o">=</span><span class="n">single_pass</span><span class="p">,</span>
         <span class="n">process_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_example</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
         <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>

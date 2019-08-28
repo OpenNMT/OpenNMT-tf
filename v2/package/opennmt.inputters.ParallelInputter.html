@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -206,7 +208,7 @@
 <dl class="class">
 <dt id="opennmt.inputters.ParallelInputter">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">ParallelInputter</code><span class="sig-paren">(</span><em class="sig-param">inputters</em>, <em class="sig-param">reducer=None</em>, <em class="sig-param">share_parameters=False</em>, <em class="sig-param">combine_features=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter" title="Permalink to this definition">¶</a></dt>
-<dd><p>An multi inputter that process parallel data.</p>
+<dd><p>An multi inputter that processes parallel data.</p>
 <p>Inherits from: <a class="reference internal" href="opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter" title="opennmt.inputters.MultiInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.MultiInputter</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.inputters.ParallelInputter.__init__">
@@ -243,7 +245,7 @@ inputs but <code class="docutils literal notranslate"><span class="pre">False</s
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
+<dd class="field-even"><p>A non transformed <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instance.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -264,11 +266,18 @@ inputs but <code class="docutils literal notranslate"><span class="pre">False</s
 <dt id="opennmt.inputters.ParallelInputter.make_features">
 <code class="sig-name descname">make_features</code><span class="sig-paren">(</span><em class="sig-param">element=None</em>, <em class="sig-param">features=None</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.make_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates features from data.</p>
+<p>This is typically called in a data pipeline (such as <code class="docutils literal notranslate"><span class="pre">Dataset.map</span></code>).
+Common transformation includes tokenization, parsing, vocabulary lookup,
+etc.</p>
+<p>This method accept both a single <code class="xref py py-obj docutils literal notranslate"><span class="pre">element</span></code> from the dataset or a
+partially built dictionary of <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>element</strong> – An element from the dataset.</p></li>
-<li><p><strong>features</strong> – An optional dictionary of features to augment.</p></li>
+<li><p><strong>element</strong> – An element from the dataset returned by
+<a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_dataset" title="opennmt.inputters.Inputter.make_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter.make_dataset()</span></code></a>.</p></li>
+<li><p><strong>features</strong> – An optional and possibly partial dictionary of features to
+augment.</p></li>
 <li><p><strong>training</strong> – Run in training mode.</p></li>
 </ul>
 </dd>
@@ -298,11 +307,12 @@ layer instantiation and layer call.</p>
 <dl class="method">
 <dt id="opennmt.inputters.ParallelInputter.call">
 <code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the model input from the features.</p>
+<dd><p>Creates the model input from the features (e.g. word embeddings).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, the output of
+<a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_features" title="opennmt.inputters.Inputter.make_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter.make_features()</span></code></a>.</p></li>
 <li><p><strong>training</strong> – Run in training mode.</p></li>
 </ul>
 </dd>

@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -131,6 +132,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -206,7 +208,7 @@
 <dt id="opennmt.models.SequenceToSequence">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">SequenceToSequence</code><span class="sig-paren">(</span><em class="sig-param">source_inputter</em>, <em class="sig-param">target_inputter</em>, <em class="sig-param">encoder</em>, <em class="sig-param">decoder</em>, <em class="sig-param">share_embeddings=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sequence to sequence model.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.model.Model</span></code></p>
+<p>Inherits from: <a class="reference internal" href="opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator" title="opennmt.models.SequenceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceGenerator</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.models.SequenceToSequence.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">source_inputter</em>, <em class="sig-param">target_inputter</em>, <em class="sig-param">encoder</em>, <em class="sig-param">decoder</em>, <em class="sig-param">share_embeddings=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence.__init__" title="Permalink to this definition">¶</a></dt>
@@ -283,11 +285,12 @@ layer instantiation and layer call.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The model outputs (usually unscaled probabilities).
-predictions: The model predictions.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>outputs</p>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The model outputs (usually unscaled probabilities).</p></li>
+<li><p>The model predictions.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -305,7 +308,9 @@ predictions: The model predictions.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The loss or a tuple containing the computed loss and the loss to display.</p>
+<dd class="field-even"><p>The loss or a tuple <code class="docutils literal notranslate"><span class="pre">(numerator,</span> <span class="pre">train_denominator,</span> <span class="pre">stats_denominator)</span></code>
+to use a different normalization for training compared to reporting (e.g.
+batch-normalized for training vs. token-normalized for reporting).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -342,7 +347,7 @@ with a different vocabulary.</p>
 <li><p><strong>new_model</strong> – The new model to transfer weights to.</p></li>
 <li><p><strong>new_optimizer</strong> – The new optimizer.</p></li>
 <li><p><strong>optimizer</strong> – The optimizer used for the current model.</p></li>
-<li><p><strong>ignore_weights</strong> – Optional set of weights to not transfer.</p></li>
+<li><p><strong>ignore_weights</strong> – Optional list of weights to not transfer.</p></li>
 </ul>
 </dd>
 </dl>

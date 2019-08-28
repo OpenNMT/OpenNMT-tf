@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -205,12 +207,12 @@
 <h1>opennmt.inputters.CharRNNEmbedder<a class="headerlink" href="#opennmt-inputters-charrnnembedder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.inputters.CharRNNEmbedder">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">CharRNNEmbedder</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.2</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharRNNEmbedder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">CharRNNEmbedder</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.2</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharRNNEmbedder" title="Permalink to this definition">¶</a></dt>
 <dd><p>An inputter that runs a single RNN layer over character embeddings.</p>
 <p>Inherits from: <a class="reference internal" href="opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder" title="opennmt.inputters.CharEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.CharEmbedder</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.inputters.CharRNNEmbedder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.2</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharRNNEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.2</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharRNNEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the parameters of the character RNN embedder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -221,7 +223,7 @@
 outputs.</p></li>
 <li><p><strong>cell_class</strong> – The inner cell class or a callable taking <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
 argument and returning a cell. Defaults to a LSTM cell.</p></li>
-<li><p><strong>dtype</strong> – The embedding type.</p></li>
+<li><p><strong>**kwargs</strong> – Additional layer keyword arguments.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -233,11 +235,12 @@ argument and returning a cell. Defaults to a LSTM cell.</p></li>
 <dl class="method">
 <dt id="opennmt.inputters.CharRNNEmbedder.call">
 <code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharRNNEmbedder.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharRNNEmbedder.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the model input from the features.</p>
+<dd><p>Creates the model input from the features (e.g. word embeddings).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, the output of
+<a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_features" title="opennmt.inputters.Inputter.make_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter.make_features()</span></code></a>.</p></li>
 <li><p><strong>training</strong> – Run in training mode.</p></li>
 </ul>
 </dd>

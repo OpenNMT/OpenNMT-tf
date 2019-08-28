@@ -25,6 +25,13 @@ Classes
 .. toctree::
 
    opennmt.Runner
+Functions
+---------
+
+.. toctree::
+
+   opennmt.load_config
+   opennmt.load_model
 Constants
 ---------
 

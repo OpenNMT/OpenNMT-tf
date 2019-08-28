@@ -12,9 +12,16 @@ Classes
    opennmt.models.EmbeddingsSharingLevel
    opennmt.models.LanguageModel
    opennmt.models.LanguageModelInputter
+   opennmt.models.ListenAttendSpell
+   opennmt.models.LstmCnnCrfTagger
+   opennmt.models.LuongAttention
+   opennmt.models.Model
    opennmt.models.SequenceClassifier
+   opennmt.models.SequenceGenerator
    opennmt.models.SequenceTagger
    opennmt.models.SequenceToSequence
    opennmt.models.SequenceToSequenceInputter
    opennmt.models.TagsInputter
    opennmt.models.Transformer
+   opennmt.models.TransformerBase
+   opennmt.models.TransformerBig

@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -273,7 +274,7 @@
 <span class="sd">      cell: The RNN cell to use.</span>
 <span class="sd">      bidirectional: Make this layer bidirectional.</span>
 <span class="sd">      reducer: A :class:`opennmt.layers.Reducer` instance to merge</span>
-<span class="sd">        bidirectional state and outputs.</span>
+<span class="sd">        bidirectional states and outputs.</span>
 <span class="sd">      kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">RNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -283,10 +284,14 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">,</span> <span class="n">merge_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RNN.call"><a class="viewcode-back" href="../../../package/opennmt.layers.RNN.html#opennmt.layers.RNN.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
-    <span class="sd">&quot;&quot;&quot;Forwards the arguments the RNN layer.</span>
+    <span class="sd">&quot;&quot;&quot;Forwards the arguments to the RNN layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      *args: Positional arguments of the RNN layer.</span>
+<span class="sd">      **kwargs: Keyword arguments of the RNN layer.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A tuple with the output sequences and the state.</span>
+<span class="sd">      A tuple with the output sequences and the states.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">):</span>

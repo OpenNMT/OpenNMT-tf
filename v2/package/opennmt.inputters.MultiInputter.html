@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -211,7 +213,7 @@
 <dl class="method">
 <dt id="opennmt.inputters.MultiInputter.num_outputs">
 <em class="property">property </em><code class="sig-name descname">num_outputs</code><a class="headerlink" href="#opennmt.inputters.MultiInputter.num_outputs" title="Permalink to this definition">¶</a></dt>
-<dd><p>How many parallel outputs does this inputter produce.</p>
+<dd><p>The number of parallel outputs produced by this inputter.</p>
 </dd></dl>
 
 <dl class="method">
@@ -264,7 +266,7 @@ by the user.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
+<dd class="field-even"><p>A non transformed <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instance.</p>
 </dd>
 </dl>
 </dd></dl>

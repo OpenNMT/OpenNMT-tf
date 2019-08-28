@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -205,7 +207,7 @@
 <h1>opennmt.inputters.TextInputter<a class="headerlink" href="#opennmt-inputters-textinputter" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.inputters.TextInputter">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">TextInputter</code><span class="sig-paren">(</span><em class="sig-param">num_oov_buckets=1</em>, <em class="sig-param">dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">TextInputter</code><span class="sig-paren">(</span><em class="sig-param">num_oov_buckets=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>An abstract inputter that processes text.</p>
 <p>Inherits from: <a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter" title="opennmt.inputters.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter</span></code></a></p>
 <dl class="method">
@@ -219,6 +221,27 @@
 by the user.</p></li>
 <li><p><strong>asset_prefix</strong> – The prefix to attach to assets filename.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.TextInputter.set_noise">
+<code class="sig-name descname">set_noise</code><span class="sig-paren">(</span><em class="sig-param">noiser</em>, <em class="sig-param">in_place=True</em>, <em class="sig-param">probability=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.set_noise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.set_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables noise to be applied to the input features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>noiser</strong> – A <a class="reference internal" href="opennmt.data.WordNoiser.html#opennmt.data.WordNoiser" title="opennmt.data.WordNoiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.data.WordNoiser</span></code></a> instance.</p></li>
+<li><p><strong>in_place</strong> – If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the noisy version of the input will be stored as
+a separate feature prefixed with “<a href="#id1"><span class="problematic" id="id2">noisy_</span></a>”.</p></li>
+<li><p><strong>probability</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">in_place</span></code> is enabled, the probability to apply the
+noise.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">in_place</span></code> is enabled but a <code class="xref py py-obj docutils literal notranslate"><span class="pre">probability</span></code> is not
+    set.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -241,18 +264,6 @@ by the user.</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.TextInputter.vocabulary_lookup">
-<code class="sig-name descname">vocabulary_lookup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.vocabulary_lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.vocabulary_lookup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a lookup table mapping string to index.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.TextInputter.vocabulary_lookup_reverse">
-<code class="sig-name descname">vocabulary_lookup_reverse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.vocabulary_lookup_reverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.vocabulary_lookup_reverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a lookup table mapping index to string.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="opennmt.inputters.TextInputter.make_dataset">
 <code class="sig-name descname">make_dataset</code><span class="sig-paren">(</span><em class="sig-param">data_file</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the base dataset required by this inputter.</p>
@@ -264,7 +275,7 @@ by the user.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
+<dd class="field-even"><p>A non transformed <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instance.</p>
 </dd>
 </dl>
 </dd></dl>

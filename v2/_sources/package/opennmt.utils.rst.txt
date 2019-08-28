@@ -8,12 +8,16 @@ Classes
 
 .. toctree::
 
+   opennmt.utils.BLEUScorer
    opennmt.utils.BeamSearch
    opennmt.utils.BestSampler
+   opennmt.utils.DecodingResult
    opennmt.utils.DecodingStrategy
    opennmt.utils.GreedySearch
+   opennmt.utils.ROUGEScorer
    opennmt.utils.RandomSampler
    opennmt.utils.Sampler
+   opennmt.utils.Scorer
 Functions
 ---------
 
@@ -26,3 +30,4 @@ Functions
    opennmt.utils.format_translation_output
    opennmt.utils.guided_alignment_cost
    opennmt.utils.regularization_penalty
+   opennmt.utils.roll_sequence

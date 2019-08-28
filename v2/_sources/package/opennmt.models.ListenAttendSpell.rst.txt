@@ -1,0 +1,8 @@
+opennmt.models.ListenAttendSpell
+================================
+
+.. autoclass:: opennmt.models.ListenAttendSpell
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.SequenceToSequence`

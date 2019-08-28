@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -190,14 +191,15 @@
 <span class="k">class</span> <span class="nc">PositionEncoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for position encoders.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PositionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">()):</span>
+<div class="viewcode-block" id="PositionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
 <span class="sd">        encodings.</span>
+<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span></div>
 
 <div class="viewcode-block" id="PositionEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
@@ -213,7 +215,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">timesteps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">input_dim</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">input_dim</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">position</span><span class="p">]</span>
     <span class="n">position_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">([</span><span class="n">positions</span><span class="p">],</span> <span class="n">input_dim</span><span class="p">)</span>
     <span class="n">position_encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">position_encoding</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
@@ -236,7 +238,7 @@
 <div class="viewcode-block" id="PositionEmbedder"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder">[docs]</a><span class="k">class</span> <span class="nc">PositionEmbedder</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Encodes position with a lookup table.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PositionEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_position</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">()):</span>
+<div class="viewcode-block" id="PositionEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_position</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
 <span class="sd">    Args:</span>
@@ -244,13 +246,14 @@
 <span class="sd">        than this value will be set to :obj:`maximum_position`.</span>
 <span class="sd">      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
 <span class="sd">        encodings.</span>
+<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">PositionEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">PositionEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">=</span> <span class="n">maximum_position</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="PositionEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="s2">&quot;position_embedding&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">PositionEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 

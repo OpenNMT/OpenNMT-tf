@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -129,6 +130,11 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#classes">Classes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.Runner.html">opennmt.Runner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.load_config.html">opennmt.load_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.load_model.html">opennmt.load_model</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#constants">Constants</a></li>
@@ -209,6 +215,7 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.Vocab.html">opennmt.data.Vocab</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordDropout.html">opennmt.data.WordDropout</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordNoiser.html">opennmt.data.WordNoiser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordOmission.html">opennmt.data.WordOmission</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordPermutation.html">opennmt.data.WordPermutation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.WordReplacement.html">opennmt.data.WordReplacement</a></li>
 </ul>
@@ -325,12 +332,19 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.EmbeddingsSharingLevel.html">opennmt.models.EmbeddingsSharingLevel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.LanguageModel.html">opennmt.models.LanguageModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.LanguageModelInputter.html">opennmt.models.LanguageModelInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.ListenAttendSpell.html">opennmt.models.ListenAttendSpell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.LstmCnnCrfTagger.html">opennmt.models.LstmCnnCrfTagger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.LuongAttention.html">opennmt.models.LuongAttention</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.Model.html">opennmt.models.Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceClassifier.html">opennmt.models.SequenceClassifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceGenerator.html">opennmt.models.SequenceGenerator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceTagger.html">opennmt.models.SequenceTagger</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceToSequence.html">opennmt.models.SequenceToSequence</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.SequenceToSequenceInputter.html">opennmt.models.SequenceToSequenceInputter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.TagsInputter.html">opennmt.models.TagsInputter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.Transformer.html">opennmt.models.Transformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.TransformerBase.html">opennmt.models.TransformerBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.TransformerBig.html">opennmt.models.TransformerBig</a></li>
 </ul>
 </li>
 </ul>
@@ -373,12 +387,16 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.utils.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BLEUScorer.html">opennmt.utils.BLEUScorer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BeamSearch.html">opennmt.utils.BeamSearch</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BestSampler.html">opennmt.utils.BestSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.DecodingResult.html">opennmt.utils.DecodingResult</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.DecodingStrategy.html">opennmt.utils.DecodingStrategy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.GreedySearch.html">opennmt.utils.GreedySearch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.ROUGEScorer.html">opennmt.utils.ROUGEScorer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.RandomSampler.html">opennmt.utils.RandomSampler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.Sampler.html">opennmt.utils.Sampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.Scorer.html">opennmt.utils.Scorer</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.utils.html#functions">Functions</a><ul>
@@ -389,6 +407,7 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.format_translation_output.html">opennmt.utils.format_translation_output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.guided_alignment_cost.html">opennmt.utils.guided_alignment_cost</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.regularization_penalty.html">opennmt.utils.regularization_penalty</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.roll_sequence.html">opennmt.utils.roll_sequence</a></li>
 </ul>
 </li>
 </ul>
@@ -401,6 +420,15 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="opennmt.Runner.html">opennmt.Runner</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.load_config.html">opennmt.load_config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.load_model.html">opennmt.load_model</a></li>
 </ul>
 </div>
 </div>

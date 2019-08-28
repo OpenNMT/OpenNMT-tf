@@ -116,6 +116,7 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -191,7 +192,7 @@
 <p>We recommend using <a class="reference external" href="https://virtualenv.pypa.io/en/stable/"><code class="docutils literal notranslate"><span class="pre">virtualenv</span></code></a> to setup and configure the environment for this quickstart:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>virtualenv pyenv
 <span class="nb">source</span> pyenv/bin/activate
-pip install --pre OpenNMT-tf
+pip install OpenNMT-tf
 </pre></div>
 </div>
 </div>
@@ -223,10 +224,10 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </div>
 <div class="section" id="step-2-train-the-model">
 <h2>Step 2: Train the model<a class="headerlink" href="#step-2-train-the-model" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="o">--</span><span class="n">model_type</span> <span class="n">NMTSmall</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">auto_config</span> <span class="n">train</span> <span class="o">--</span><span class="n">with_eval</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="o">--</span><span class="n">model_type</span> <span class="n">Transformer</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">auto_config</span> <span class="n">train</span> <span class="o">--</span><span class="n">with_eval</span>
 </pre></div>
 </div>
-<p>This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag selects the best settings for this type of model.</p>
+<p>This command will start the training and evaluation loop of a <a class="reference external" href="https://arxiv.org/abs/1706.03762">Transformer</a> model. The <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag selects the best settings for this type of model.</p>
 <p>The training will regularly produce checkpoints in the <code class="docutils literal notranslate"><span class="pre">run/</span></code> directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using <a class="reference external" href="https://www.tensorflow.org/guide/summaries_and_tensorboard">TensorBoard</a>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;run&quot;</span>
 </pre></div>
@@ -242,11 +243,10 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </div>
 <div class="section" id="going-further">
 <h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
-<p>While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset and model are too small for this task.</p>
+<p>While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset is too small for this task.</p>
 <p>To go further, here are some pointers:</p>
 <ul class="simple">
 <li><p>Download larger training sets, for example from a <a class="reference external" href="http://www.statmt.org/wmt16/translation-task.html">WMT task</a></p></li>
-<li><p>Train a bigger model, like the <a class="reference external" href="https://arxiv.org/abs/1706.03762">Transformer</a> using <code class="docutils literal notranslate"><span class="pre">--model_type</span> <span class="pre">Transformer</span></code></p></li>
 <li><p>Run existing <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts">training recipes</a></p></li>
 <li><p>Discover the <a class="reference external" href="configuration.html">configuration reference</a> to tune hyperparameters</p></li>
 <li><p>Explore the other sections to learn about advanced topics</p></li>

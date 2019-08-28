@@ -1,0 +1,4 @@
+opennmt.load_config
+===================
+
+.. autofunction:: opennmt.load_config

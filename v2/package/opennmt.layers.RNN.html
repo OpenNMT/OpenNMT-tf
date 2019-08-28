@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -218,7 +220,7 @@
 <li><p><strong>cell</strong> – The RNN cell to use.</p></li>
 <li><p><strong>bidirectional</strong> – Make this layer bidirectional.</p></li>
 <li><p><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.Reducer.html#opennmt.layers.Reducer" title="opennmt.layers.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.Reducer</span></code></a> instance to merge
-bidirectional state and outputs.</p></li>
+bidirectional states and outputs.</p></li>
 <li><p><strong>kwargs</strong> – Additional layer arguments.</p></li>
 </ul>
 </dd>
@@ -228,10 +230,16 @@ bidirectional state and outputs.</p></li>
 <dl class="method">
 <dt id="opennmt.layers.RNN.call">
 <code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/rnn.html#RNN.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.RNN.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>Forwards the arguments the RNN layer.</p>
+<dd><p>Forwards the arguments to the RNN layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A tuple with the output sequences and the state.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – Positional arguments of the RNN layer.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments of the RNN layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple with the output sequences and the states.</p>
 </dd>
 </dl>
 </dd></dl>

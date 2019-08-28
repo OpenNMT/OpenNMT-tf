@@ -1,0 +1,8 @@
+opennmt.utils.Scorer
+====================
+
+.. autoclass:: opennmt.utils.Scorer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

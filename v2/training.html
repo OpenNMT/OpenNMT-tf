@@ -122,6 +122,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -245,7 +246,7 @@ onmt-main --model_type NMTSmall --auto_config --config data.yml train
 onmt-main --model_type NMTSmall --auto_config --config data.yml train
 </pre></div>
 </div>
-<p><strong>Note:</strong> If the train was stopped because <code class="docutils literal notranslate"><span class="pre">train_steps</span></code> was reached, you should first increase this value before continuing.</p>
+<p><strong>Note:</strong> If the train was stopped because <code class="docutils literal notranslate"><span class="pre">max_step</span></code> was reached, you should first increase this value before continuing.</p>
 </div>
 <div class="section" id="fine-tune-an-existing-model">
 <h3>Fine-tune an existing model<a class="headerlink" href="#fine-tune-an-existing-model" title="Permalink to this headline">¶</a></h3>

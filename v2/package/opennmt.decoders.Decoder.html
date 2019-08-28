@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -367,6 +369,24 @@ vector.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A tuple with the decoder outputs, the decoder state, and the attention
 vector.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.Decoder.dynamic_decode">
+<code class="sig-name descname">dynamic_decode</code><span class="sig-paren">(</span><em class="sig-param">embeddings</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes dynamically, see <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embeddings</strong> – Target embeddings.</p></li>
+<li><p><strong>*args</strong> – Positional arguments of <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments of <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>See <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p>
 </dd>
 </dl>
 </dd></dl>

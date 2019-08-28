@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -205,19 +207,19 @@
 <h1>opennmt.inputters.CharEmbedder<a class="headerlink" href="#opennmt-inputters-charembedder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.inputters.CharEmbedder">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">CharEmbedder</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">dropout=0.0</em>, <em class="sig-param">dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharEmbedder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">CharEmbedder</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">dropout=0.0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharEmbedder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for character-aware inputters.</p>
 <p>Inherits from: <a class="reference internal" href="opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter" title="opennmt.inputters.TextInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.TextInputter</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.inputters.CharEmbedder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">dropout=0.0</em>, <em class="sig-param">dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">embedding_size</em>, <em class="sig-param">dropout=0.0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the parameters of the character embedder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>embedding_size</strong> – The size of the character embedding.</p></li>
 <li><p><strong>dropout</strong> – The probability to drop units in the embedding.</p></li>
-<li><p><strong>dtype</strong> – The embedding type.</p></li>
+<li><p><strong>**kwargs</strong> – Additional layer keyword arguments.</p></li>
 </ul>
 </dd>
 </dl>
@@ -249,11 +251,12 @@ layer instantiation and layer call.</p>
 <dl class="method">
 <dt id="opennmt.inputters.CharEmbedder.call">
 <em class="property">abstract </em><code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#CharEmbedder.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.CharEmbedder.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the model input from the features.</p>
+<dd><p>Creates the model input from the features (e.g. word embeddings).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, the output of
+<a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_features" title="opennmt.inputters.Inputter.make_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter.make_features()</span></code></a>.</p></li>
 <li><p><strong>training</strong> – Run in training mode.</p></li>
 </ul>
 </dd>

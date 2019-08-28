@@ -61,7 +61,7 @@ onmt-main --model_type NMTSmall --auto_config --config data.yml train
 onmt-main --model_type NMTSmall --auto_config --config data.yml train
 ```
 
-**Note:** If the train was stopped because `train_steps` was reached, you should first increase this value before continuing.
+**Note:** If the train was stopped because `max_step` was reached, you should first increase this value before continuing.
 
 ### Fine-tune an existing model
 

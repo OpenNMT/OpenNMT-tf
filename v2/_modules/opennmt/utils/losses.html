@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -214,8 +215,7 @@
 <span class="sd">    sequence_length: The length of each sequence.</span>
 <span class="sd">    label_smoothing: The label smoothing value.</span>
 <span class="sd">    average_in_time: If ``True``, also average the loss in the time dimension.</span>
-<span class="sd">    training: Compute training loss. If not set, infer training mode from</span>
-<span class="sd">      :obj:`mode`.</span>
+<span class="sd">    training: Compute training loss.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A tuple (cumulated loss, loss normalizer, token-level normalizer).</span>
@@ -246,8 +246,7 @@
 <span class="sd">    logits: The unscaled probabilities.</span>
 <span class="sd">    labels: The true labels.</span>
 <span class="sd">    label_smoothing: The label smoothing value.</span>
-<span class="sd">    training: Compute training loss. If not set, infer training mode from</span>
-<span class="sd">      :obj:`mode`.</span>
+<span class="sd">    training: Compute training loss.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    The cumulated loss and the loss normalizer.</span>
@@ -336,7 +335,7 @@
   <span class="k">return</span> <span class="n">penalty</span></div>
 
 <span class="k">def</span> <span class="nf">_is_bias</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
-  <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;bias:0&quot;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;bias:0&quot;</span><span class="p">)</span>
 </pre></div>
 
            </div>

@@ -116,6 +116,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#alignments">Alignments</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#compressed-data">Compressed data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-location">Data location</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#parallel-inputs">Parallel inputs</a></li>
 </ul>
@@ -128,6 +129,7 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -295,6 +297,15 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
   <span class="nt">guided_alignment_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ce</span>
 </pre></div>
 </div>
+</div>
+</div>
+<div class="section" id="compressed-data">
+<h2>Compressed data<a class="headerlink" href="#compressed-data" title="Permalink to this headline">¶</a></h2>
+<p>Data files compressed with GZIP are supported. The path should end with the <code class="docutils literal notranslate"><span class="pre">.gz</span></code> extension for the file to be correctly loaded:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/wmt/train.en.gz</span>
+  <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/wmt/train.de.gz</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="data-location">

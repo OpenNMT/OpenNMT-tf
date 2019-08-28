@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -257,9 +258,6 @@
 
   <span class="c1"># (optional) Maximum gradients norm (default: null).</span>
   <span class="nt">clip_gradients</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
-  <span class="c1"># (optional) 1 training step will process this many batches and accumulates</span>
-  <span class="c1"># their gradients (default: 1).</span>
-  <span class="nt">gradients_accum</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) Weights regularization penalty (default: null).</span>
   <span class="nt">regularization</span><span class="p">:</span>
@@ -277,9 +275,7 @@
   <span class="c1"># (optional unless decay_type is set) Decay parameters.</span>
   <span class="nt">decay_params</span><span class="p">:</span>
     <span class="nt">model_dim</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">512</span>
-      <span class="l l-Scalar l-Scalar-Plain">warmup_steps</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">4000</span>
-  <span class="c1"># (optional) The number of training steps that make 1 decay step (default: 1).</span>
-  <span class="nt">decay_step_duration</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">warmup_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4000</span>
   <span class="c1"># (optional) After how many steps to start the decay (default: 0).</span>
   <span class="nt">start_decay_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50000</span>
 
@@ -338,7 +334,6 @@
   <span class="c1"># (optional) The weight of the guided alignment cost (default: 1).</span>
   <span class="nt">guided_alignment_weight</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
-
 <span class="c1"># Training options.</span>
 <span class="nt">train</span><span class="p">:</span>
   <span class="c1"># (optional when batch_type=tokens) If not set, the training will search the largest</span>
@@ -358,8 +353,8 @@
   <span class="c1"># (optional) Dump summaries and logs every this many steps (default: 100).</span>
   <span class="nt">save_summary_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
 
-  <span class="c1"># (optional) Train for this many steps. If not set, train forever.</span>
-  <span class="nt">train_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000000</span>
+  <span class="c1"># (optional) Maximum training step. If not set, train forever.</span>
+  <span class="nt">max_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000000</span>
   <span class="c1"># (optional) If true, makes a single pass over the training data (default: false).</span>
   <span class="nt">single_pass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
@@ -368,14 +363,9 @@
   <span class="c1"># (optional) The maximum length of label sequences during training (default: null).</span>
   <span class="nt">maximum_labels_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
 
-  <span class="c1"># (optional) The width of the length buckets to select batch candidates from (default: 5).</span>
-  <span class="nt">bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
-
-  <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 4).</span>
-  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
-  <span class="c1"># (optional) The number of batches to prefetch asynchronously. If not set, use an</span>
-  <span class="c1"># automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).</span>
-  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
+  <span class="c1"># A smaller value means less padding and increased efficiency. (default: 1).</span>
+  <span class="nt">length_bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) The number of elements from which to sample during shuffling (default: 500000).</span>
   <span class="c1"># Set 0 or null to disable shuffling, -1 to match the number of training examples.</span>
@@ -384,7 +374,6 @@
   <span class="c1"># (optional) Number of checkpoints to average at the end of the training to the directory</span>
   <span class="c1"># model_dir/avg (default: 0).</span>
   <span class="nt">average_last_checkpoints</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
-
 
 <span class="c1"># (optional) Evaluation options.</span>
 <span class="nt">eval</span><span class="p">:</span>
@@ -400,22 +389,10 @@
   <span class="c1"># Available evaluators: BLEU, ROUGE</span>
   <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">BLEU</span>
 
-
 <span class="c1"># (optional) Inference options.</span>
 <span class="nt">infer</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 1).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
-
-  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
-  <span class="c1"># If set, the test data will be sorted by length to increase the translation</span>
-  <span class="c1"># efficiency. The predictions will still be outputted in order as they are</span>
-  <span class="c1"># available (default: 0).</span>
-  <span class="nt">bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
-
-  <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-  <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) For compatible models, the number of hypotheses to output (default: 1).</span>
   <span class="c1"># This sets the parameter params/num_hypotheses.</span>
@@ -426,16 +403,16 @@
   <span class="c1"># default: &quot;null&quot;).</span>
   <span class="nt">with_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 
+  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
+  <span class="c1"># If set, the test data will be sorted by length to increase the translation</span>
+  <span class="c1"># efficiency. The predictions will still be outputted in order as they are</span>
+  <span class="c1"># available (default: 0).</span>
+  <span class="nt">length_bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
 
 <span class="c1"># (optional) Scoring options.</span>
 <span class="nt">score</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 64).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
-  <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-  <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-
   <span class="c1"># (optional) Also report token-level cross entropy.</span>
   <span class="nt">with_token_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Also output the alignments (can be: &quot;null&quot;, &quot;hard&quot;, default: &quot;null&quot;).</span>

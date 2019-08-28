@@ -6,7 +6,7 @@ OpenNMT-tf uses a step-based training that makes it difficult to track the numbe
 
 ```yaml
 train:
-  train_steps: null
+  max_step: null
   single_pass: true
 ```
 

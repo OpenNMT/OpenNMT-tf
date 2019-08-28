@@ -12,6 +12,7 @@ Classes
    opennmt.data.Vocab
    opennmt.data.WordDropout
    opennmt.data.WordNoiser
+   opennmt.data.WordOmission
    opennmt.data.WordPermutation
    opennmt.data.WordReplacement
 Functions

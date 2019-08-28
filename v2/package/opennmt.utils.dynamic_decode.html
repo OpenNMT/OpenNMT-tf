@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -132,6 +133,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -227,14 +229,7 @@ maximum source length).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The predicted ids of shape <span class="math notranslate nohighlight">\([B, H, T]\)</span>.
-lengths: The produced sequences length of shape <span class="math notranslate nohighlight">\([B, H]\)</span>.
-log_probs: The cumulated log probabilities of shape <span class="math notranslate nohighlight">\([B, H]\)</span>.
-attention_history: The attention history of shape <span class="math notranslate nohighlight">\([B, H, T_t, T_s]\)</span>.
-state: The final decoding state.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ids</p>
+<dd class="field-even"><p>A <a class="reference internal" href="opennmt.utils.DecodingResult.html#opennmt.utils.DecodingResult" title="opennmt.utils.DecodingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.DecodingResult</span></code></a> instance.</p>
 </dd>
 </dl>
 </dd></dl>

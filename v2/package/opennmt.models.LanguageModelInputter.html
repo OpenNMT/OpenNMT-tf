@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.models.SequenceClassifier" href="opennmt.models.SequenceClassifier.html" />
+    <link rel="next" title="opennmt.models.ListenAttendSpell" href="opennmt.models.ListenAttendSpell.html" />
     <link rel="prev" title="opennmt.models.LanguageModel" href="opennmt.models.LanguageModel.html" /> 
 </head>
 
@@ -109,6 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -131,6 +132,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -204,7 +206,7 @@
 <h1>opennmt.models.LanguageModelInputter<a class="headerlink" href="#opennmt-models-languagemodelinputter" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.models.LanguageModelInputter">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">LanguageModelInputter</code><span class="sig-paren">(</span><em class="sig-param">embedding_size=None</em>, <em class="sig-param">dropout=0.0</em>, <em class="sig-param">dtype=tf.float32</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">LanguageModelInputter</code><span class="sig-paren">(</span><em class="sig-param">embedding_size=None</em>, <em class="sig-param">dropout=0.0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>A special inputter for language modeling.</p>
 <p>This is a single word embedder that simply produces labels by shifting the
 input sequence.</p>
@@ -217,7 +219,7 @@ input sequence.</p>
 
 <dl class="method">
 <dt id="opennmt.models.LanguageModelInputter.make_training_dataset">
-<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>See <a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_training_dataset" title="opennmt.inputters.ExampleInputter.make_training_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter.make_training_dataset()</span></code></a>.</p>
 </dd></dl>
 
@@ -233,7 +235,7 @@ input sequence.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.models.SequenceClassifier.html" class="btn btn-neutral float-right" title="opennmt.models.SequenceClassifier" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.models.ListenAttendSpell.html" class="btn btn-neutral float-right" title="opennmt.models.ListenAttendSpell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="opennmt.models.LanguageModel.html" class="btn btn-neutral float-left" title="opennmt.models.LanguageModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
