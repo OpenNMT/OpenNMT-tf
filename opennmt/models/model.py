@@ -277,15 +277,18 @@ class Model(tf.keras.layers.Layer):
     if ignore_weights is None:
       ignore_weights = set()
     ignore_weights_ref = set(weight.experimental_ref() for weight in ignore_weights)
-    weights = self.trainable_weights
+    weights = self.weights
     new_weights = new_model.weights
-    if (new_optimizer is not None and optimizer is not None
-        and len(new_optimizer.weights) == len(optimizer.weights)):
-      weights += optimizer.weights
-      new_weights += new_optimizer.weights
     for weight, new_weight in zip(weights, new_weights):
       if new_weight.experimental_ref() not in ignore_weights_ref:
         new_weight.assign(weight)
+        if new_optimizer is not None and optimizer is not None:
+          for slot_name in new_optimizer.get_slot_names():
+            if slot_name not in optimizer.get_slot_names():
+              continue
+            new_slot = new_optimizer.get_slot(new_weight, slot_name)
+            slot = optimizer.get_slot(weight, slot_name)
+            new_slot.assign(slot)
 
   def map_v1_weights(self, weights):
     """Maps current weights to V1 weights.

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import os
 import unittest
 import shutil
@@ -102,6 +103,40 @@ class RunnerTest(tf.test.TestCase):
       lines = f.readlines()
     self.assertEqual(len(lines), 5)
     self.assertEqual(lines[0].strip(), "a t z m o n")
+
+  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
+  def testUpdateVocab(self):
+    config = {
+        "params": {
+            "learning_rate": 0.0005,
+            "optimizer": "Adam"
+        }
+    }
+    runner = self._getTransliterationRunner(config)
+
+    # Reverse order of non special tokens.
+    new_en_vocab = os.path.join(self.get_temp_dir(), "en.vocab.new")
+    with open(os.path.join(runner._config["model_dir"], "en.vocab")) as en_vocab, \
+         open(new_en_vocab, "w") as new_vocab:
+      tokens = en_vocab.readlines()
+      for token in tokens[:3]:
+        new_vocab.write(token)
+      for token in reversed(tokens[3:]):
+        new_vocab.write(token)
+
+    output_dir = os.path.join(self.get_temp_dir(), "updated_vocab")
+    self.assertEqual(runner.update_vocab(output_dir, tgt_vocab=new_en_vocab), output_dir)
+
+    # Check that the translation is unchanged.
+    new_config = copy.deepcopy(runner._config)
+    new_config["model_dir"] = output_dir
+    new_config["data"]["target_vocabulary"] = new_en_vocab
+    runner = Runner(runner._model, new_config)
+    ar_file, _ = self._makeTransliterationData()
+    en_file = os.path.join(self.get_temp_dir(), "output.txt")
+    runner.infer(ar_file, predictions_file=en_file)
+    with open(en_file) as f:
+      self.assertEqual(next(f).strip(), "a t z m o n")
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testScore(self):
