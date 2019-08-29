@@ -112,6 +112,8 @@ class Trainer(object):
         per_replica_source, per_replica_target = next_fn()
         per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
             _accumulate_gradients, args=(per_replica_source, per_replica_target))
+
+        # TODO: these reductions could be delayed until _step is called.
         loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
         num_words = {
             k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
