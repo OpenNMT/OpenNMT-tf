@@ -5,7 +5,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 * command line options
 * configuration files
 * checkpoints of non experimental models
-* classes and functions documented on the online documentation
+* classes and functions documented on the online documentation and directly accessible from the top-level `opennmt` package
 
 ---
 
@@ -19,25 +19,30 @@ See the [2.0 Transition Guide](docs/v2_transition.md) for details about the foll
 
 * TensorFlow 2.0 is required
 * Python 3.5 or greater is required
-* Checkpoints are no longer compatible as the code now uses object-based instead of name-based checkpointing (Transformer-based checkpoints are automatically upgraded when loaded)
+* Checkpoints are no longer compatible as the code now uses object-based instead of name-based checkpointing (except Transformer-based checkpoints which are automatically upgraded when loaded)
 * The `onmt-main` script now makes use of subparsers which require to move the run type and it specific options to the end of the command
-* Some predefined models have been renamed or changed, see the [transition guide](docs/v2_transition.md)
-* Some parameters in the YAML configuration have been renamed or changed, see the [transition guide](docs/v2_transition.md)
-* A lot of public classes and functions have changed, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) for details
-* Changes in the API scope of the project:
-  * The minimum TensorFlow version is no longer part of the API
-  * Only public symbols accessible from the top-level `opennmt` package and visible on the online documentation are now part of the API
+* Some predefined models have been renamed or changed, see the [transition guide](docs/v2_transition.md#changed-predefined-models)
+* Some parameters in the YAML configuration have been renamed or changed, see the [transition guide](docs/v2_transition.md#changed-parameters)
+* A lot of public classes and functions have changed, see the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) for details
 * TFRecord files generated with the `opennmt.inputters.write_sequence_record` function or the `onmt-ark-to-records` script are no longer compatible and should be re-generated
+
+This version also changes the public API scope of the project:
+
+* Only public symbols accessible from the top-level `opennmt` package and visible on the online documentation are now part of the public API and covered by backward compatibility guarantees
+* The minimum required TensorFlow version is no longer part of the public API and can change in future versions
 
 ### New features
 
-* Object-based layers extending tf.keras
-* Replace Estimator by custom loops
-* Multi-GPU training with tf.distribute
+* Object-based layers extending `tf.keras.layers.Layer`
+* Many new reusable modules and layers, see the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html)
+* Replace `tf.estimator` by custom loops for more control and clearer execution path
+* Multi-GPU training with `tf.distribute`
 * Support GZIP compressed datasets
+* `eval` run type accepts `--features_file` and `--labels_file` to evaluate files other than the ones defined in the YAML configuration
 
 ### Fixes and improvements
 
+* Code and design simplification following TensorFlow 2.0 changes
 * Improve logging during training
 * Log level configuration also controls TensorFlow C++ logs
 * All public classes and functions are now properly accessible from the root package `opennmt`
