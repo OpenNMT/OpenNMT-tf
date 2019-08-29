@@ -107,7 +107,6 @@ class AttentionalRNNDecoder(RNNDecoder):
     if attention_mechanism_class is None:
       attention_mechanism_class = tfa.seq2seq.LuongAttention
     self.attention_mechanism = attention_mechanism_class(self.cell.output_size)
-    self.probability_fn = self.attention_mechanism.probability_fn
 
     def _add_attention(cell):
       wrapper = tfa.seq2seq.AttentionWrapper(
