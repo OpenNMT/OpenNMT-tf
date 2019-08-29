@@ -454,7 +454,7 @@ def _auto_tune_batch_size(config,
                           min_range=256,
                           sample_iterations=10,
                           num_devices=1,
-                          scaling_factor=0.7):
+                          scaling_factor=0.8):
   """Find the largest token-based batch size that can be used with this
   configuration.
 
