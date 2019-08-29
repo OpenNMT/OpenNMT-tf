@@ -112,11 +112,9 @@ class SelfAttentionDecoder(decoder.Decoder):
     if memory_sequence_length is not None:
       if not isinstance(memory_sequence_length, (list, tuple)):
         memory_sequence_length = (memory_sequence_length,)
-      memory_mask = []
-      for mem, mem_length in zip(memory, memory_sequence_length):
-        mem_mask = tf.sequence_mask(mem_length, maxlen=tf.shape(mem)[1], dtype=tf.float32)
-        mem_mask = tf.expand_dims(mem_mask, 1)
-        memory_mask.append(mem_mask)
+      memory_mask = [
+          tf.sequence_mask(mem_length, maxlen=tf.shape(mem)[1])
+          for mem, mem_length in zip(memory, memory_sequence_length)]
 
     # Run each layer.
     new_cache = []

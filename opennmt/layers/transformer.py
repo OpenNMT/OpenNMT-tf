@@ -7,7 +7,7 @@ from opennmt.layers import common
 from opennmt.utils import misc
 
 
-def _lower_triangle_mask(sequence_length, maximum_length=None, dtype=tf.float32):
+def _lower_triangle_mask(sequence_length, maximum_length=None, dtype=tf.bool):
   batch_size = tf.shape(sequence_length)[0]
   if maximum_length is None:
     maximum_length = tf.reduce_max(sequence_length)
@@ -15,7 +15,7 @@ def _lower_triangle_mask(sequence_length, maximum_length=None, dtype=tf.float32)
   mask = tf.linalg.band_part(mask, -1, 0)
   return mask
 
-def future_mask(sequence_length, maximum_length=None, dtype=tf.float32):
+def future_mask(sequence_length, maximum_length=None, dtype=tf.bool):
   """Builds the dot product mask for future positions.
 
   Args:
@@ -30,9 +30,12 @@ def future_mask(sequence_length, maximum_length=None, dtype=tf.float32):
     ``[batch_size, max_length, max_length]``.
   """
   sequence_mask = tf.sequence_mask(sequence_length, maxlen=maximum_length, dtype=dtype)
+  sequence_mask = tf.expand_dims(sequence_mask, axis=1)
   mask = _lower_triangle_mask(sequence_length, maximum_length=maximum_length, dtype=dtype)
-  mask *= tf.expand_dims(sequence_mask, axis=1)
-  return mask
+  if dtype is tf.bool:
+    return tf.math.logical_and(mask, sequence_mask)
+  else:
+    return mask * sequence_mask
 
 def split_heads(inputs, num_heads):
   """Splits a tensor in depth.
@@ -171,7 +174,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       inputs: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.
       memory: The sequence to attend. A tensor of shape :math:`[B, T_2, ...]`.
         If ``None``, computes self-attention.
-      mask: A ``tf.Tensor`` applied to the dot product.
+      mask: The dot product mask. A boolean tensor of shape :math:`[B, T_2]` or
+        :math:`[B, T_1, T_2]`.
       cache: A dictionary containing pre-projected keys and values.
       training: Run in training mode.
 
@@ -212,7 +216,10 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     # Dot product attention.
     dot = tf.matmul(queries, keys, transpose_b=True)
     if mask is not None:
-      mask = tf.expand_dims(tf.cast(mask, tf.float32), 1)  # Broadcast on heads dimension.
+      mask = tf.cast(mask, tf.float32)
+      if mask.shape.rank == 2:
+        mask = tf.expand_dims(mask, 1)  # Broadcast on time dimension.
+      mask = tf.expand_dims(mask, 1)  # Broadcast os head dimension.
       dot = tf.cast(tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min), dot.dtype)
     attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
     drop_attn = common.dropout(attn, self.dropout, training=training)

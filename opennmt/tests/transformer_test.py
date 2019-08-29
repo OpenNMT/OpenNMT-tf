@@ -1,54 +1,62 @@
+from parameterized import parameterized
+
 import tensorflow as tf
+import numpy as np
 
 from opennmt.layers import transformer
 
 
 class TransformerTest(tf.test.TestCase):
 
-  def testBuildFutureMask(self):
+  @parameterized.expand([[tf.bool], [tf.float32]])
+  def testBuildFutureMask(self, dtype):
     num_heads = 4
     length = [2, 4, 3]
-    expected = [
-        [[1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0]],
-        [[1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0],
-         [1.0, 1.0, 1.0, 0.0],
-         [1.0, 1.0, 1.0, 1.0]],
-        [[1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0],
-         [1.0, 1.0, 1.0, 0.0],
-         [1.0, 1.0, 1.0, 0.0]]]
+    expected = np.array([
+        [[1, 0, 0, 0],
+         [1, 1, 0, 0],
+         [1, 1, 0, 0],
+         [1, 1, 0, 0]],
+        [[1, 0, 0, 0],
+         [1, 1, 0, 0],
+         [1, 1, 1, 0],
+         [1, 1, 1, 1]],
+        [[1, 0, 0, 0],
+         [1, 1, 0, 0],
+         [1, 1, 1, 0],
+         [1, 1, 1, 0]]]).astype(dtype.as_numpy_dtype)
 
-    mask = transformer.future_mask(tf.constant(length))
+    mask = transformer.future_mask(tf.constant(length), dtype=dtype)
+    self.assertIs(mask.dtype, dtype)
     mask = self.evaluate(mask)
     self.assertTupleEqual(mask.shape, (len(length), max(length), max(length)))
     self.assertAllEqual(mask, expected)
 
-  def testBuildFutureMaskWithMaxLen(self):
+  @parameterized.expand([[tf.bool], [tf.float32]])
+  def testBuildFutureMaskWithMaxLen(self, dtype):
     num_heads = 4
     length = [2, 4, 3]
     maximum_length = 5
-    expected = [
-        [[1.0, 0.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0, 0.0]],
-        [[1.0, 0.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 1.0, 0.0, 0.0],
-         [1.0, 1.0, 1.0, 1.0, 0.0],
-         [1.0, 1.0, 1.0, 1.0, 0.0]],
-        [[1.0, 0.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 0.0, 0.0, 0.0],
-         [1.0, 1.0, 1.0, 0.0, 0.0],
-         [1.0, 1.0, 1.0, 0.0, 0.0],
-         [1.0, 1.0, 1.0, 0.0, 0.0]]]
+    expected = np.array([
+        [[1, 0, 0, 0, 0],
+         [1, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0]],
+        [[1, 0, 0, 0, 0],
+         [1, 1, 0, 0, 0],
+         [1, 1, 1, 0, 0],
+         [1, 1, 1, 1, 0],
+         [1, 1, 1, 1, 0]],
+        [[1, 0, 0, 0, 0],
+         [1, 1, 0, 0, 0],
+         [1, 1, 1, 0, 0],
+         [1, 1, 1, 0, 0],
+         [1, 1, 1, 0, 0]]]).astype(dtype.as_numpy_dtype)
 
-    mask = transformer.future_mask(tf.constant(length), maximum_length=maximum_length)
+    mask = transformer.future_mask(
+        tf.constant(length), maximum_length=maximum_length, dtype=dtype)
+    self.assertIs(mask.dtype, dtype)
     mask = self.evaluate(mask)
     self.assertTupleEqual(mask.shape, (len(length), maximum_length, maximum_length))
     self.assertAllEqual(mask, expected)
@@ -103,7 +111,7 @@ class TransformerTest(tf.test.TestCase):
   def testMultiHeadSelfAttention(self):
     attention = transformer.MultiHeadAttention(4, 20)
     queries = tf.random.uniform([4, 5, 10])
-    mask = tf.expand_dims(tf.sequence_mask([4, 3, 5, 2]), 1)
+    mask = tf.sequence_mask([4, 3, 5, 2])
     context, _ = attention(queries, mask=mask)
     self.assertListEqual(context.shape.as_list(), [4, 5, 20])
 
@@ -122,7 +130,7 @@ class TransformerTest(tf.test.TestCase):
     attention = transformer.MultiHeadAttention(4, 20)
     queries = tf.random.uniform([4, 5, 10])
     memory = tf.random.uniform([4, 3, 10])
-    mask = tf.expand_dims(tf.sequence_mask([1, 3, 2, 2]), 1)
+    mask = tf.sequence_mask([1, 3, 2, 2])
     context, _ = attention(queries, memory=memory, mask=mask)
     self.assertListEqual(context.shape.as_list(), [4, 5, 20])
 
@@ -130,7 +138,7 @@ class TransformerTest(tf.test.TestCase):
     cache = (tf.zeros([4, 4, 0, 5]), tf.zeros([4, 4, 0, 5]))
     attention = transformer.MultiHeadAttention(4, 20)
     memory = tf.random.uniform([4, 3, 10])
-    mask = tf.expand_dims(tf.sequence_mask([1, 3, 2, 2]), 1)
+    mask = tf.sequence_mask([1, 3, 2, 2])
     x = tf.random.uniform([4, 1, 10])
     y1, cache = attention(x, memory=memory, mask=mask, cache=cache)
     self.assertEqual(cache[0].shape[2], 3)
@@ -142,10 +150,10 @@ class TransformerTest(tf.test.TestCase):
     attention = transformer.MultiHeadAttention(4, 20, return_attention=True)
     queries = tf.random.uniform([4, 5, 10])
     memory = tf.random.uniform([4, 3, 10])
-    mask = tf.expand_dims(tf.sequence_mask([1, 3, 2, 2]), 1)
+    mask = tf.sequence_mask([1, 3, 2, 2])
     _, _, attention = attention(queries, memory=memory, mask=mask)
     attention = tf.reshape(attention, [4, -1, 3])
-    mask = tf.broadcast_to(mask, attention.shape)
+    mask = tf.broadcast_to(tf.expand_dims(mask, 1), attention.shape)
     padding = tf.boolean_mask(attention, tf.logical_not(mask))
     self.assertAllEqual(tf.reduce_sum(padding), 0)
 

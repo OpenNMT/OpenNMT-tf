@@ -66,10 +66,7 @@ class SelfAttentionEncoder(Encoder):
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs)
     inputs = common.dropout(inputs, self.dropout, training=training)
-    mask = None
-    if sequence_length is not None:
-      mask = tf.sequence_mask(sequence_length, maxlen=tf.shape(inputs)[1], dtype=tf.float32)
-      mask = tf.expand_dims(mask, 1)
+    mask = self.build_mask(inputs, sequence_length=sequence_length)
     for layer in self.layers:
       inputs = layer(inputs, mask=mask, training=training)
     outputs = self.layer_norm(inputs)
