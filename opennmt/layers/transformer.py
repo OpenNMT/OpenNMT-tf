@@ -176,7 +176,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         If ``None``, computes self-attention.
       mask: The dot product mask. A boolean tensor of shape :math:`[B, T_2]` or
         :math:`[B, T_1, T_2]`.
-      cache: A dictionary containing pre-projected keys and values.
+      cache: An optional tuple containing projected keys and values from the
+        previous step. Tensors of shape :math:`[B, H, T_2, D / H]`.
       training: Run in training mode.
 
     Returns:
