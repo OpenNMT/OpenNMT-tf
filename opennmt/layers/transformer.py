@@ -149,6 +149,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     # V1 used conv1d layers that have a leading dimensions.
     weights = tf.nest.map_structure(np.squeeze, weights)
 
+    # V1 used fused linear projections, so the weights should be split accordingly.
     def _partial_weights(key, num_splits, index):
       return tf.nest.map_structure(
           lambda w: np.split(w, num_splits, axis=0 if w.ndim == 1 else 1)[index],
