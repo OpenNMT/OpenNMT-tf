@@ -59,6 +59,12 @@ Some features available in OpenNMT-tf v1 were removed or are temporarily missing
 * Global parameter initialization strategy
 * Automatic SavedModel export on evaluation
 
+## [1.24.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.24.1) (2019-08-29)
+
+### Fixes and improvements
+
+* Fix NaN and inf values when using mixed precision and gradient clipping
+
 ## [1.24.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.24.0) (2019-06-26)
 
 ### New features

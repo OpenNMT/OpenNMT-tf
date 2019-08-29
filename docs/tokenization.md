@@ -20,7 +20,7 @@ segment_numbers: true
 segment_alphabet_change: true
 ```
 
-*For a complete list of available options, see the [Tokenizer documentation](https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md).*
+*For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>).*
 
 ## Offline usage
 
