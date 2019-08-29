@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.24.0 documentation</title>
+  <title>opennmt.utils.optim &mdash; OpenNMT-tf 1.24.1 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.24.0',
+              VERSION:'1.24.1',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -376,7 +376,8 @@
         <span class="n">loss</span><span class="p">,</span> <span class="n">var_list</span><span class="o">=</span><span class="n">var_list</span><span class="p">,</span> <span class="n">colocate_gradients_with_ops</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">gradients</span> <span class="o">=</span> <span class="n">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">]))</span>
+      <span class="n">gradients</span> <span class="o">=</span> <span class="n">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;clip_gradients&quot;</span><span class="p">]),</span>
+                                          <span class="n">mixed_precision</span><span class="o">=</span><span class="n">mixed_precision</span><span class="p">)</span>
       <span class="n">_summarize_gradients_norm</span><span class="p">(</span><span class="s2">&quot;global_norm/clipped_gradient_norm&quot;</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">delayed_update</span><span class="p">(</span>
@@ -489,10 +490,17 @@
 <span class="k">def</span> <span class="nf">_is_bias</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
   <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;bias:0&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">clip_gradients</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_clip_gradients_by_norm</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="p">,</span> <span class="n">clip_gradients</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Clips gradients by global norm.&quot;&quot;&quot;</span>
   <span class="n">gradients</span><span class="p">,</span> <span class="n">variables</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">grads_and_vars</span><span class="p">)</span>
-  <span class="n">clipped_gradients</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">clip_by_global_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">clip_gradients</span><span class="p">)</span>
+  <span class="n">all_are_finite</span> <span class="o">=</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">is_finite</span><span class="p">(</span><span class="n">g</span><span class="p">))</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">mixed_precision</span> <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">))</span>
+  <span class="n">clipped_gradients</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">clip_by_global_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">clip_gradients</span><span class="p">,</span>
+                                                <span class="n">use_norm</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+                                                    <span class="n">all_are_finite</span><span class="p">,</span>
+                                                    <span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_norm</span><span class="p">(</span><span class="n">gradients</span><span class="p">),</span>
+                                                    <span class="k">lambda</span><span class="p">:</span> <span class="n">clip_gradients</span>
+                                                <span class="p">))</span>
   <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">clipped_gradients</span><span class="p">,</span> <span class="n">variables</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">_summarize_gradients_norm</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">gradients</span><span class="p">):</span>
