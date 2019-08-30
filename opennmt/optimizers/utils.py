@@ -1,7 +1,11 @@
 """Optimization utilities."""
 
+import inspect
+
 import tensorflow as tf
 import tensorflow_addons as tfa
+
+from tensorflow_addons.optimizers.weight_decay_optimizers import DecoupledWeightDecayExtension
 
 
 def make_optimizer(name, learning_rate, **kwargs):
@@ -25,5 +29,8 @@ def make_optimizer(name, learning_rate, **kwargs):
     optimizer_class = getattr(tfa.optimizers, name, None)
   if optimizer_class is None:
     raise ValueError("Unknown optimizer class: {}".format(name))
+  if "weight_decay" in kwargs:
+    if DecoupledWeightDecayExtension not in inspect.getmro(optimizer_class):
+      optimizer_class = tfa.optimizers.extend_with_decoupled_weight_decay(optimizer_class)
   optimizer = optimizer_class(learning_rate=learning_rate, **kwargs)
   return optimizer

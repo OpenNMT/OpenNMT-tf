@@ -104,7 +104,7 @@ Some parameters in the YAML have been renamed or removed:
 | `params/maximum_iterations` | `params/maximum_decoding_length` | |
 | `params/maximum_learning_rate` | | Not implemented |
 | `params/param_init` | | Not implemented |
-| `params/weight_decay` | | Not implemented |
+| `params/weight_decay` | `params/optimizer_params/weight_decay` | |
 | `train/save_checkpoints_secs` | | Not implemented |
 | `train/train_steps` | `train/max_step` | |
 

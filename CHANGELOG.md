@@ -55,7 +55,6 @@ Some features available in OpenNMT-tf v1 were removed or are temporarily missing
 * Asynchronous distributed training
 * Horovod integration
 * Adafactor optimizer
-* Weight decay optimizer
 * Global parameter initialization strategy
 * Automatic SavedModel export on evaluation
 
