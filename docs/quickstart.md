@@ -7,8 +7,9 @@ This page presents a minimal workflow to get you started in using OpenNMT-tf.
 We recommend using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) to setup and configure the environment for this quickstart:
 
 ```bash
-virtualenv pyenv
+virtualenv -p /usr/bin/python3 pyenv
 source pyenv/bin/activate
+pip install tensorflow-gpu==2.0.0rc0
 pip install OpenNMT-tf
 ```
 
