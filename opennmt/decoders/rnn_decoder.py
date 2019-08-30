@@ -108,16 +108,22 @@ class AttentionalRNNDecoder(RNNDecoder):
       attention_mechanism_class = tfa.seq2seq.LuongAttention
     self.attention_mechanism = attention_mechanism_class(self.cell.output_size)
     self.probability_fn = self.attention_mechanism.probability_fn
+
+    def _add_attention(cell):
+      wrapper = tfa.seq2seq.AttentionWrapper(
+          cell,
+          self.attention_mechanism,
+          attention_layer_size=cell.output_size)
+      # Produce Luong-style attentional hidden states.
+      # TODO: use attention_layer argument instead when
+      # https://github.com/tensorflow/addons/issues/461 is fixed.
+      wrapper._attention_layers[0].activation = tf.math.tanh   # pylint: disable=protected-access
+      return wrapper
+
     if first_layer_attention:
-      self.cell.cells[0] = tfa.seq2seq.AttentionWrapper(
-          self.cell.cells[0],
-          self.attention_mechanism,
-          attention_layer_size=self.cell.cells[0].output_size)
+      self.cell.cells[0] = _add_attention(self.cell.cells[0])
     else:
-      self.cell = tfa.seq2seq.AttentionWrapper(
-          self.cell,
-          self.attention_mechanism,
-          attention_layer_size=self.cell.output_size)
+      self.cell = _add_attention(self.cell)
     self.dropout = dropout
     self.first_layer_attention = first_layer_attention
 
