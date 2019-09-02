@@ -98,9 +98,10 @@ class Inputter(tf.keras.layers.Layer):
         prefetch_buffer_size=prefetch_buffer_size))
     return dataset
 
+  @abc.abstractmethod
   def input_signature(self):
     """Returns the input signature of this inputter."""
-    return None
+    raise NotImplementedError()
 
   def get_length(self, features):
     """Returns the length of the input features, if defined."""
