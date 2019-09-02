@@ -47,6 +47,7 @@ This version also changes the public API scope of the project:
 * Log level configuration also controls TensorFlow C++ logs
 * All public classes and functions are now properly accessible from the root package `opennmt`
 * Fix dtype error after updating the vocabulary of an averaged checkpoint
+* When updating vocabularies, weights of new words are randomly initialized instead of a zero initialized
 
 ### Missing features
 
