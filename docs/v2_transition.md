@@ -120,7 +120,7 @@ Parameters taking reference to Python classes should also be revised when upgrad
 
 OpenNMT-tf 2.0 is using the newly introduced [graph rewriter](https://github.com/tensorflow/tensorflow/pull/26342) to automatically convert parts of the graph from *float32* to *float16*.
 
-Variables are casted on the fly and checkpoints no longer need to be converted for inference or to continue training in *float32*. This means mixed precision is no longer an property of the model but should be enabled on the command line instead, e.g.:
+Variables are casted on the fly and checkpoints no longer need to be converted for inference or to continue training in *float32*. This means mixed precision is no longer a property of the model but should be enabled on the command line instead, e.g.:
 
 ```bash
 onmt-main --model_type Transformer --config data.yml --auto_config --mixed_precision train
