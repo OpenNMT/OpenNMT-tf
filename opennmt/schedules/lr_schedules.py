@@ -28,7 +28,8 @@ def make_learning_rate_schedule(initial_learning_rate,
     A ``tf.keras.optimizers.schedules.LearningRateSchedule`` instance.
 
   Raises:
-    ValueError: if :obj:`decay_type` can not be resolved.
+    ValueError: if :obj:`schedule_type` can not be resolved to an existing
+      schedule.
   """
   schedule_name = None
   if schedule_name is None:
