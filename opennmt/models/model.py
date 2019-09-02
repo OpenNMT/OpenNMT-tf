@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from opennmt import optimizers
 from opennmt import schedules
+from opennmt.utils import losses
 from opennmt.utils import misc
 
 
@@ -143,6 +144,24 @@ class Model(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
+  def regularize_loss(self, loss, variables=None):
+    """Regularizes the loss.
+
+    Args:
+      loss: The loss.
+      variables: List of variables.
+
+    Returns:
+      The regularized loss.
+    """
+    if variables is None:
+      variables = self.trainable_variables
+    regularization = self.params.get("regularization")
+    if regularization is not None:
+      loss += losses.regularization_penalty(
+          regularization["type"], regularization["scale"], variables)
+    return loss
+
   def get_metrics(self):
     """Returns the metrics for this model.
 
@@ -183,27 +202,6 @@ class Model(tf.keras.layers.Layer):
     optimizer = optimizers.make_optimizer(
         params["optimizer"], learning_rate, **optimizer_params)
     return optimizer
-
-  def compute_gradients(self, loss, optimizer, variables=None):
-    """Computes the gradients.
-
-    Args:
-      loss: The loss.
-      optimizer: The ``tf.keras.optimizers.Optimizer`` instance.
-      variables: List of variables.
-
-    Returns:
-      The list of gradients.
-    """
-    params = self.params
-    if variables is None:
-      variables = self.trainable_variables
-    regularization = params.get("regularization")
-    if regularization is not None:
-      loss += optim.regularization_penalty(
-          regularization["type"], regularization["scale"], variables)
-    gradients = optimizer.get_gradients(loss, variables)
-    return gradients
 
   def serve_function(self):
     """Returns a function for serving this model.

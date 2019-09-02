@@ -85,8 +85,8 @@ class Trainer(object):
         reported_loss = loss[0] / loss[2]
       else:
         training_loss, reported_loss = loss, loss
-      step_gradients = self._model.compute_gradients(
-          training_loss, optimizer, variables=variables)
+      training_loss = self._model.regularize_loss(training_loss, variables=variables)
+      step_gradients = optimizer.get_gradients(training_loss, variables)
       for gradient, step_gradient in zip(gradients, step_gradients):
         gradient.assign_add(step_gradient)
       num_words = {}
