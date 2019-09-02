@@ -203,9 +203,6 @@ class Model(tf.keras.layers.Layer):
       loss += optim.regularization_penalty(
           regularization["type"], regularization["scale"], variables)
     gradients = optimizer.get_gradients(loss, variables)
-    clip_gradients = params.get("clip_gradients")
-    if clip_gradients is not None:
-      gradients, _ = tf.clip_by_global_norm(gradients, float(clip_gradients))
     return gradients
 
   def serve_function(self):

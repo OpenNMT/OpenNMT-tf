@@ -96,6 +96,7 @@ Some parameters in the YAML have been renamed or removed:
 | `*/prefetch_buffer_size` | | Automatic value |
 | `eval/eval_delay` | `eval/steps` | Use steps instead of seconds to set the evaluation frequency |
 | `eval/exporters` | | Not implemented |
+| `params/clip_gradients` | | Set [`clipnorm` or `clipvalue`](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/Optimizer#__init__) in `params/optimizer_params/` |
 | `params/decay_step_duration` | | No longer useful |
 | `params/freeze_variables` | `params/freeze_layers` | Layer names instead of variable regexps |
 | `params/gradients_accum` | | Use `train/effective_batch_size` instead |

@@ -43,7 +43,6 @@ class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
         "params": {
             "optimizer": "SGD",
             "learning_rate": 0.2,
-            "clip_gradients": 10.0,
             "scheduled_sampling_type": "constant",
             "scheduled_sampling_read_probability": 0.9
         },

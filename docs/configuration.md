@@ -78,9 +78,6 @@ params:
     - "encoder/layers/0"
     - "decoder/output_layer"
 
-  # (optional) Maximum gradients norm (default: null).
-  clip_gradients: 5.0
-
   # (optional) Weights regularization penalty (default: null).
   regularization:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).
