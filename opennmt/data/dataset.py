@@ -386,12 +386,10 @@ def inference_pipeline(batch_size,
   return _pipeline
 
 def function_on_next(dataset):
-  """Decorator to applies a ``tf.function`` on each dataset element.
+  """Decorator to run a ``tf.function`` on each dataset element.
 
   The motivation for this construct is to get the next element within the
-  ``tf.function`` as a workaround to this issue
-  (https://github.com/tensorflow/tensorflow/issues/29075) and to use
-  ``tf.distribute`` efficiently with Python loops.
+  ``tf.function`` for increased efficiency.
 
   Args:
     dataset: The dataset to iterate.
