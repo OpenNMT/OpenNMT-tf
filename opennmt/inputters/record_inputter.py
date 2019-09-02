@@ -35,9 +35,9 @@ class SequenceRecordInputter(Inputter):
       features = {}
     if "tensor" in features:
       return features
-    element = tf.io.parse_single_sequence_example(element, sequence_features={
+    _, feature_lists = tf.io.parse_single_sequence_example(element, sequence_features={
         "values": tf.io.FixedLenSequenceFeature([self.input_depth], dtype=tf.float32)})
-    tensor = element[1]["values"]
+    tensor = feature_lists["values"]
     features["length"] = tf.shape(tensor)[0]
     features["tensor"] = tf.cast(tensor, self.dtype)
     return features
