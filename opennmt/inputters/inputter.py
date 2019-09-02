@@ -363,6 +363,9 @@ class MixedInputter(MultiInputter):
     datasets = [
         inputter.make_dataset(data_file, training=training)
         for inputter in self.inputters]
+    for dataset in datasets[1:]:
+      if not isinstance(dataset, datasets[0].__class__):
+        raise ValueError("All inputters should use the same dataset in a MixedInputter setting")
     return datasets[0]
 
   def input_signature(self):
