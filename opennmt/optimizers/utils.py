@@ -12,9 +12,11 @@ def make_optimizer(name, learning_rate, **kwargs):
   """Creates the optimizer.
 
   Args:
-    name: The name of the optimizer class in ``tf.keras.optimizers`` as a string.
+    name: The name of the optimizer class in ``tf.keras.optimizers`` or
+      ``tfa.optimizers`` as a string.
     learning_rate: The learning rate or learning rate schedule to use.
-    **kwargs: Additional optimizer arguments.
+    **kwargs: Additional optimizer arguments. If ``weight_decay`` is set, the
+      optimizer will be extended with decoupled weight decay.
 
   Returns:
     A ``tf.keras.optimizers.Optimizer`` instance.

@@ -64,9 +64,10 @@ data:
 
 # Model and optimization parameters.
 params:
-  # The optimizer class name in tf.keras.optimizers, tfa.optimizers, or opennmt.optimizers.
+  # The optimizer class name in tf.keras.optimizers or tfa.optimizers.
   optimizer: Adam
   # (optional) Additional optimizer parameters as defined in their documentation.
+  # If weight_decay is set, the optimizer will be extended with decoupled weight decay.
   optimizer_params:
     beta_1: 0.8
     beta_2: 0.998
