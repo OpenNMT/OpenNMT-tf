@@ -221,7 +221,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       mask = tf.cast(mask, tf.float32)
       if mask.shape.rank == 2:
         mask = tf.expand_dims(mask, 1)  # Broadcast on time dimension.
-      mask = tf.expand_dims(mask, 1)  # Broadcast os head dimension.
+      mask = tf.expand_dims(mask, 1)  # Broadcast on head dimension.
       dot = tf.cast(tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min), dot.dtype)
     attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
     drop_attn = common.dropout(attn, self.dropout, training=training)
