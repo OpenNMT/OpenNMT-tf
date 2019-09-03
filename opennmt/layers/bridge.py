@@ -91,7 +91,7 @@ class DenseBridge(Bridge):
   def build(self, input_shape):
     decoder_shape = input_shape[1]
     self.decoder_state_sizes = [
-        shape.as_list()[-1] for shape in tf.nest.flatten(decoder_shape)]
+        shape[-1] for shape in tf.nest.flatten(decoder_shape)]
     self.linear = tf.keras.layers.Dense(
         sum(self.decoder_state_sizes), activation=self.activation)
 
