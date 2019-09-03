@@ -20,7 +20,6 @@ def future_mask(sequence_length, maximum_length=None, dtype=tf.bool):
 
   Args:
     sequence_length: The sequence length.
-    num_heads: The number of heads.
     maximum_length: Optional size of the returned time dimension. Otherwise
       it is the maximum of :obj:`sequence_length`.
     dtype: The type of the mask tensor.

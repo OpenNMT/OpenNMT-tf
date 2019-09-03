@@ -10,7 +10,6 @@ class TransformerTest(tf.test.TestCase):
 
   @parameterized.expand([[tf.bool], [tf.float32]])
   def testBuildFutureMask(self, dtype):
-    num_heads = 4
     length = [2, 4, 3]
     expected = np.array([
         [[1, 0, 0, 0],
@@ -34,7 +33,6 @@ class TransformerTest(tf.test.TestCase):
 
   @parameterized.expand([[tf.bool], [tf.float32]])
   def testBuildFutureMaskWithMaxLen(self, dtype):
-    num_heads = 4
     length = [2, 4, 3]
     maximum_length = 5
     expected = np.array([
