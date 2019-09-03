@@ -207,17 +207,22 @@ def batch_parallel_dataset(batch_size,
   """
   batch_size = batch_size * batch_multiplier
 
+  def _get_bucket_id(features, length_fn):
+    default_id = tf.constant(0, dtype=tf.int32)
+    if length_fn is None:
+      return default_id
+    lengths = length_fn(features)
+    if lengths is None:
+      return default_id
+    if not isinstance(lengths, list):
+      lengths = [lengths]  # Fallback to the general case of parallel inputs.
+    lengths = [length // length_bucket_width for length in lengths]
+    return tf.reduce_max(lengths)
+
   def _key_func(features, labels):
-    features_length = features_length_fn(features) if features_length_fn is not None else None
-    labels_length = labels_length_fn(labels) if labels_length_fn is not None else None
-    # For multi inputs, apply bucketing on the target side or none at all.
-    if isinstance(features_length, list):
-      features_length = None
-    bucket_id = tf.constant(0, dtype=tf.int32)
-    if features_length is not None:
-      bucket_id = tf.maximum(bucket_id, features_length // length_bucket_width)
-    if labels_length is not None:
-      bucket_id = tf.maximum(bucket_id, labels_length // length_bucket_width)
+    features_bucket_id = _get_bucket_id(features, features_length_fn)
+    labels_bucket_id = _get_bucket_id(labels, labels_length_fn)
+    bucket_id = tf.maximum(features_bucket_id, labels_bucket_id)
     return tf.cast(bucket_id, tf.int64)
 
   def _reduce_func(unused_key, dataset):
