@@ -220,11 +220,10 @@ class RNMTPlusDecoder(decoder.Decoder):
     last_outputs, state_0 = self.cells[0](inputs, state[0])
     new_states.append(state_0)
 
-    memory_mask = None
     if memory_sequence_length is not None:
-      memory_mask = tf.sequence_mask(
-          memory_sequence_length, maxlen=tf.shape(memory)[1], dtype=tf.float32)
-      memory_mask = tf.expand_dims(memory_mask, 1)
+      memory_mask = tf.sequence_mask(memory_sequence_length, maxlen=tf.shape(memory)[1])
+    else:
+      memory_mask = None
 
     context, _, attention = self.multi_head_attention(
         tf.expand_dims(last_outputs, 1),
