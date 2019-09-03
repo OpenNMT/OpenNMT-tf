@@ -386,15 +386,7 @@ def align_tokens_from_attention(tokens, attention):
     The aligned tokens as a string ``tf.Tensor`` of shape :math:`[B, T_t]`.
   """
   alignment = tf.argmax(attention, axis=-1, output_type=tf.int32)
-  batch_size = tf.shape(tokens)[0]
-  max_time = tf.shape(attention)[1]
-  batch_ids = tf.range(batch_size)
-  batch_ids = tf.tile(batch_ids, [max_time])
-  batch_ids = tf.reshape(batch_ids, [max_time, batch_size])
-  batch_ids = tf.transpose(batch_ids, perm=[1, 0])
-  aligned_pos = tf.stack([batch_ids, alignment], axis=-1)
-  aligned_tokens = tf.gather_nd(tokens, aligned_pos)
-  return aligned_tokens
+  return tf.gather(tokens, alignment, axis=1, batch_dims=1)
 
 def replace_unknown_target(target_tokens,
                            source_tokens,
