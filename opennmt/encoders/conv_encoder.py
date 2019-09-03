@@ -27,7 +27,7 @@ class ConvEncoder(Encoder):
       num_units: The number of output filters.
       kernel_size: The kernel size.
       dropout: The probability to drop units from the inputs.
-      position_encoder: The :class:`opennmt.layers.position.PositionEncoder`
+      position_encoder_class: The :class:`opennmt.layers.PositionEncoder`
         class to use for position encoding (or a callable that returns such
         class).
     """
