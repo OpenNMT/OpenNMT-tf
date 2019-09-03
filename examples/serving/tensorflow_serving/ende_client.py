@@ -55,9 +55,9 @@ def send_request(stub, model_name, batch_tokens, timeout=5.0):
   batch_size = len(lengths)
   request = predict_pb2.PredictRequest()
   request.model_spec.name = model_name
-  request.inputs["tokens"].CopyFrom(tf.compat.v1.make_tensor_proto(
+  request.inputs["tokens"].CopyFrom(tf.make_tensor_proto(
       batch_tokens, dtype=tf.string, shape=(batch_size, max_length)))
-  request.inputs["length"].CopyFrom(tf.compat.v1.make_tensor_proto(
+  request.inputs["length"].CopyFrom(tf.make_tensor_proto(
       lengths, dtype=tf.int32, shape=(batch_size,)))
   return stub.Predict.future(request, timeout)
 
