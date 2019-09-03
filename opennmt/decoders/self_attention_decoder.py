@@ -100,9 +100,12 @@ class SelfAttentionDecoder(decoder.Decoder):
 
     # Prepare query mask.
     mask = None
-    if sequence_length is not None:
-      mask = transformer.future_mask(
-          sequence_length, maximum_length=tf.shape(inputs)[1])
+    if step is None:
+      maximum_length = tf.shape(inputs)[1]
+      if sequence_length is None:
+        batch_size = tf.shape(inputs)[0]
+        sequence_length = tf.fill([batch_size], maximum_length)
+      mask = transformer.future_mask(sequence_length, maximum_length=maximum_length)
 
     # Prepare memory mask.
     memory_mask = None
