@@ -29,9 +29,9 @@ class RNNEncoder(Encoder):
       bidirectional: Use a bidirectional RNN.
       residual_connections: If ``True``, each layer input will be added to its
         output.
+      dropout: The probability to drop units in each layer output.
       reducer: A :class:`opennmt.layers.Reducer` instance to merge
         bidirectional state and outputs.
-      dropout: The probability to drop units in each layer output.
       cell_class: The inner cell class or a callable taking :obj:`num_units` as
         argument and returning a cell. Defaults to a LSTM cell.
       **kwargs: Additional layer arguments.
