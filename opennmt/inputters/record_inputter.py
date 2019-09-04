@@ -8,7 +8,12 @@ from opennmt.utils import misc
 
 
 class SequenceRecordInputter(Inputter):
-  """Inputter that reads ``tf.train.SequenceExample``."""
+  """Inputter that reads ``tf.train.SequenceExample``.
+
+  See Also:
+    :func:`opennmt.inputters.create_sequence_records` to generate a compatible
+    dataset.
+  """
 
   def __init__(self, input_depth, **kwargs):
     """Initializes the parameters of the record inputter.
