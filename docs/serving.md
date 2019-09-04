@@ -2,7 +2,7 @@
 
 ## Exporting a SavedModel
 
-OpenNMT-tf can export models for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:
+OpenNMT-tf can export [SavedModel](https://www.tensorflow.org/beta/guide/saved_model) packages for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:
 
 ```text
 toy-ende/export/
