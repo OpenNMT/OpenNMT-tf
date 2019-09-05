@@ -87,7 +87,7 @@ Predefined models do not require a model definition file and can be directly set
 
 ## Changed parameters
 
-Some parameters in the YAML have been renamed or removed:
+Some parameters in the YAML configuration have been renamed or removed:
 
 | V1 | V2 | Comment |
 | --- | --- | --- |
@@ -98,7 +98,7 @@ Some parameters in the YAML have been renamed or removed:
 | `eval/exporters` | | Not implemented |
 | `params/clip_gradients` | | Set [`clipnorm` or `clipvalue`](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/Optimizer#__init__) in `params/optimizer_params/` |
 | `params/decay_step_duration` | | No longer useful |
-| `params/freeze_variables` | `params/freeze_layers` | Layer names instead of variable regexps |
+| `params/freeze_variables` | `params/freeze_layers` | Use layer names instead of variable regexps |
 | `params/gradients_accum` | | Use `train/effective_batch_size` instead |
 | `params/horovod` | | Not implemented |
 | `params/loss_scale` | | Dynamic loss scaling by default |
@@ -118,9 +118,9 @@ Parameters taking reference to Python classes should also be revised when upgrad
 
 ## New mixed precision workflow
 
-OpenNMT-tf 2.0 is using the newly introduced [graph rewriter](https://github.com/tensorflow/tensorflow/pull/26342) to automatically convert parts of the graph from *float32* to *float16*.
+OpenNMT-tf 2.0 is using the newly introduced [graph rewriter](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite) to automatically convert parts of the graph from `float32` to `float16`.
 
-Variables are casted on the fly and checkpoints no longer need to be converted for inference or to continue training in *float32*. This means mixed precision is no longer a property of the model but should be enabled on the command line instead, e.g.:
+Variables are casted on the fly and checkpoints no longer need to be converted for inference or to continue training in `float32`. This means mixed precision is no longer a property of the model but should be enabled on the command line instead, e.g.:
 
 ```bash
 onmt-main --model_type Transformer --config data.yml --auto_config --mixed_precision train
