@@ -7,6 +7,7 @@ import six
 import tensorflow as tf
 
 from opennmt.data import dataset as dataset_util
+from opennmt.optimizers import utils as optimizer_util
 
 
 class Trainer(object):
@@ -60,18 +61,15 @@ class Trainer(object):
 
     with self._strategy.scope():
       self._model.create_variables(optimizer=self._optimizer)
+      variables = self._model.trainable_variables
       dataset = self._strategy.experimental_distribute_dataset(dataset)
+      gradient_accumulator = optimizer_util.GradientAccumulator()
 
     if self._mixed_precision:
       optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(
           self._optimizer, "dynamic")
     else:
       optimizer = self._optimizer
-
-    variables = self._model.trainable_variables
-    gradients = []
-    for variable in variables:
-      gradients.append(tf.Variable(tf.zeros_like(variable), trainable=False))
 
     def _accumulate_gradients(source, target):
       outputs, _ = self._model(
@@ -86,9 +84,8 @@ class Trainer(object):
       else:
         training_loss, reported_loss = loss, loss
       training_loss = self._model.regularize_loss(training_loss, variables=variables)
-      step_gradients = optimizer.get_gradients(training_loss, variables)
-      for gradient, step_gradient in zip(gradients, step_gradients):
-        gradient.assign_add(step_gradient)
+      gradients = optimizer.get_gradients(training_loss, variables)
+      gradient_accumulator(gradients)
       num_words = {}
       if "length" in source:
         num_words["source"] = tf.reduce_sum(source["length"])
@@ -98,13 +95,12 @@ class Trainer(object):
 
     def _apply_gradients():
       grads_and_vars = []
-      for gradient, variable in zip(gradients, variables):
+      for gradient, variable in zip(gradient_accumulator.gradients, variables):
         # optimizer.apply_gradients will sum the gradients accross replicas.
         scaled_gradient = gradient / (self._strategy.num_replicas_in_sync * accum_steps)
         grads_and_vars.append((scaled_gradient, variable))
       optimizer.apply_gradients(grads_and_vars)
-      for gradient in gradients:
-        gradient.assign(tf.zeros_like(gradient))
+      gradient_accumulator.reset()
 
     @dataset_util.function_on_next(dataset)
     def _forward(next_fn):

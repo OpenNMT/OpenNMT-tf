@@ -1,5 +1,8 @@
 import unittest
 
+from tensorflow.python.eager import context
+from tensorflow.python.framework import ops
+
 from opennmt import constants
 from opennmt.data import vocab
 from opennmt.utils import compat
@@ -22,3 +25,19 @@ def make_vocab_from_file(path, data_file):
   vocabulary.add_from_text(data_file)
   vocabulary.serialize(path)
   return path
+
+def _reset_context():
+  # See https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/framework/config_test.py
+  # TODO: find a way to achieve that without relying on TensorFlow private APIs.
+  context._context = None
+  ops.enable_eager_execution_internal()
+
+def new_context(fn):
+  """Runs :obj:`fn` in a new Eager context, e.g. to set different virtual devices."""
+  def decorator(*args, **kwargs):
+    _reset_context()
+    try:
+      return fn(*args, **kwargs)
+    finally:
+      _reset_context()
+  return decorator
