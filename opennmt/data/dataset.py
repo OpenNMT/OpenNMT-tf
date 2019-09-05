@@ -403,15 +403,15 @@ def function_on_next(dataset):
     A function decorator. The decorated function is transformed into a callable
     that returns a generator over its outputs.
   """
-  iterator = iter(dataset)
 
   def decorator(func):
-
-    @tf.function
-    def _tf_fun():
-      return func(lambda: next(iterator))
-
     def _fun():
+      iterator = iter(dataset)
+
+      @tf.function
+      def _tf_fun():
+        return func(lambda: next(iterator))
+
       while True:
         try:
           yield _tf_fun()
