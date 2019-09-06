@@ -44,6 +44,12 @@ class MiscTest(tf.test.TestCase):
             attention=np.array([[0.1, 0.7, 0.2], [0.5, 0.3, 0.2]]),
             alignment_type="hard"),
         "hello world ||| 1-0 0-1")
+    self.assertEqual(
+        misc.format_translation_output(
+            "hello world",
+            attention=np.array([[0.1, 0.7, 0.2], [0.5, 0.3, 0.2]]),
+            alignment_type="soft"),
+        "hello world ||| 0.100000 0.700000 0.200000 ; 0.500000 0.300000 0.200000")
 
   def testEventOrderRestorer(self):
     events = []

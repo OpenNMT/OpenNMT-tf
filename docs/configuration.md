@@ -221,8 +221,8 @@ infer:
   n_best: 1
   # (optional) For compatible models, also output the score (default: false).
   with_scores: false
-  # (optional) For compatible models, also output the alignments (can be: "null", "hard",
-  # default: "null").
+  # (optional) For compatible models, also output the alignments (can be: null, hard, soft,
+  # default: null).
   with_alignments: null
 
   # (optional) The width of the length buckets to select batch candidates from.
@@ -238,7 +238,7 @@ score:
   batch_size: 64
   # (optional) Also report token-level cross entropy.
   with_token_level: false
-  # (optional) Also output the alignments (can be: "null", "hard", default: "null").
+  # (optional) Also output the alignments (can be: null, hard, soft, default: null).
   with_alignments: null
 ```
 

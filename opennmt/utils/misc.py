@@ -51,7 +51,7 @@ def format_translation_output(sentence,
     score: If set, attach the score.
     token_level_scores: If set, attach the token level scores.
     attention: The attention vector.
-    alignment_type: The type of alignments to format (can be: "hard").
+    alignment_type: The type of alignments to format (can be: "hard", "soft").
   """
   if score is not None:
     sentence = "%f ||| %s" % (score, sentence)
@@ -64,6 +64,11 @@ def format_translation_output(sentence,
       target_indices = range(attention.shape[0])
       pairs = ("%d-%d" % (src, tgt) for src, tgt in zip(source_indices, target_indices))
       sentence = "%s ||| %s" % (sentence, " ".join(pairs))
+    elif alignment_type == "soft":
+      vectors = []
+      for vector in attention:
+        vectors.append(" ".join("%.6f" % value for value in vector))
+      sentence = "%s ||| %s" % (sentence, " ; ".join(vectors))
     else:
       raise ValueError("Invalid alignment type %s" % alignment_type)
   return sentence

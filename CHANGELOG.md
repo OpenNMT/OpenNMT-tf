@@ -39,6 +39,7 @@ This version also changes the public API scope of the project:
 * Multi-GPU training with `tf.distribute`
 * Support GZIP compressed datasets
 * `eval` run type accepts `--features_file` and `--labels_file` to evaluate files other than the ones defined in the YAML configuration
+* Accept `with_alignments: soft` to output soft alignments in inference or scoring
 
 ### Fixes and improvements
 
