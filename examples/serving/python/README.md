@@ -20,5 +20,3 @@ tar xf averaged-ende-export500k-v2.tar.gz
 ```bash
 python ende_client.py averaged-ende-export500k-v2
 ```
-
-**Note:** as the writing of this example, a [TensorFlow bug](https://github.com/tensorflow/tensorflow/issues/29075) affects the latency of requests with unseen sequence lengths. A possible mitigation is to pad the inputs to a multiple of (e.g.) 10.
