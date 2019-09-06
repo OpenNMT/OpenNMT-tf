@@ -139,6 +139,8 @@ class Evaluator(object):
         predictions = {k:v.numpy() for k, v in six.iteritems(predictions)}
         for prediction in misc.extract_batches(predictions):
           self._model.print_prediction(prediction, stream=output_file)
+    if loss_den == 0:
+      raise RuntimeError("No examples were evaluated")
     loss = loss_num / loss_den
 
     results = dict(loss=loss)
