@@ -6,6 +6,22 @@ from opennmt.utils import misc
 
 class MiscTest(tf.test.TestCase):
 
+  def testGetVariableName(self):
+
+    class Layer(tf.Module):
+      def __init__(self):
+        super(Layer, self).__init__()
+        self.variable = tf.Variable(0)
+
+    class Model(tf.Module):
+      def __init__(self):
+        super(Model, self).__init__()
+        self.layers = [Layer()]
+
+    model = Model()
+    variable_name = misc.get_variable_name(model.layers[0].variable, model)
+    self.assertEqual(variable_name, "model/layers/0/variable/.ATTRIBUTES/VARIABLE_VALUE")
+
   def testFormatTranslationOutput(self):
     self.assertEqual(
         misc.format_translation_output("hello world"),
