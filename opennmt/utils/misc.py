@@ -120,9 +120,7 @@ def shape_list(x):
   return ret
 
 def index_structure(structure, path):
-  """Follows :obj:`path` in a nested structure of objects, lists, and dicts,
-  starting from :obj:`obj`.
-  """
+  """Follows :obj:`path` in a nested structure of objects, lists, and dicts."""
   for key in path.split("/"):
     if isinstance(structure, list):
       try:
