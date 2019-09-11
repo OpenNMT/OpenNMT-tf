@@ -5,6 +5,8 @@ import os
 import unittest
 import shutil
 
+from parameterized import parameterized
+
 import tensorflow as tf
 
 from opennmt import Runner
@@ -93,8 +95,14 @@ class RunnerTest(tf.test.TestCase):
     self.assertIn("bleu", metrics)
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
-  def testInfer(self):
-    runner = self._getTransliterationRunner()
+  @parameterized.expand([[1], [4]])
+  def testInfer(self, beam_size):
+    config = {
+        "params": {
+            "beam_width": beam_size
+        }
+    }
+    runner = self._getTransliterationRunner(config)
     ar_file, _ = self._makeTransliterationData()
     en_file = os.path.join(self.get_temp_dir(), "output.txt")
     runner.infer(ar_file, predictions_file=en_file)
