@@ -59,6 +59,7 @@ Some features available in OpenNMT-tf v1 were removed or are temporarily missing
 * Adafactor optimizer
 * Global parameter initialization strategy (a Glorot/Xavier uniform initialization is used by default)
 * Automatic SavedModel export on evaluation
+* Average attention network
 
 ## [1.24.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.24.1) (2019-08-29)
 

@@ -84,6 +84,9 @@ Predefined models do not require a model definition file and can be directly set
 | `NMTMedium` | | Use `LuongAttention` or define a custom model |
 | `NMTSmall` | | Use `LuongAttention` or define a custom model |
 | `SeqTagger` | `LstmCnnCrfTagger` | |
+| `TransformerAAN` | | Not considered useful compared to the standard Transformer |
+| `TransformerBigFP16` | | Use `TransformerBig` with `--mixed_precision` flag on the command line |
+| `TransformerFP16` | | Use `Transformer` with `--mixed_precision` flag on the command line |
 
 ## Changed parameters
 
