@@ -32,13 +32,18 @@ class SequenceClassifier(Model):
 
   def call(self, features, labels=None, training=None, step=None):
     inputs = self.features_inputter(features, training=training)
-    _, state, _ = self.encoder(
+    outputs, state, outputs_length = self.encoder(
         inputs,
         sequence_length=self.features_inputter.get_length(features),
         training=training)
 
-    last_state = state[-1] if isinstance(state, (list, tuple)) else state
-    encoding = last_state if not isinstance(state, (list, tuple)) else last_state[0]
+    if state is None:
+      if outputs_length is not None:
+        outputs = tf.RaggedTensor.from_tensor(outputs, lengths=outputs_length)
+      encoding = tf.reduce_mean(outputs, axis=1)
+    else:
+      last_state = state[-1] if isinstance(state, (list, tuple)) else state
+      encoding = last_state if not isinstance(state, (list, tuple)) else last_state[0]
     logits = self.output_layer(encoding)
 
     if not training:

@@ -276,6 +276,18 @@ class ModelTest(tf.test.TestCase):
         metrics=["accuracy"],
         params=params)
 
+  def testSequenceClassifierWithSelfAttentionEncoder(self):
+    # SelfAttentionEncoder does not return a state, so test that the classifier
+    # does not crash on this.
+    model = models.SequenceClassifier(
+        inputters.WordEmbedder(10),
+        encoders.SelfAttentionEncoder(num_layers=2, num_units=16, num_heads=4, ffn_inner_dim=32))
+    features_file, labels_file, data_config = self._makeToyClassifierData()
+    model.initialize(data_config)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = iter(dataset).next()
+    model(features, labels, training=True)
+
   def testCreateVariables(self):
     _, _, data_config = self._makeToyEnDeData()
     model, params = _seq2seq_model()
