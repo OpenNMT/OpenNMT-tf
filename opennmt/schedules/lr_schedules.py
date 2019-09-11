@@ -61,7 +61,7 @@ class ScheduleWrapper(tf.keras.optimizers.schedules.LearningRateSchedule):
     """Initializes the decay function.
 
     Args:
-      schedule: A :class:`tf.keras.optimizers.schedules.LearningRateSchedule`.
+      schedule: A ``tf.keras.optimizers.schedules.LearningRateSchedule``.
       step_duration: The number of training steps that make 1 decay step.
       start_step: Start decay after this many steps.
       minimum_learning_rate: Do not decay past this learning rate value.
@@ -116,7 +116,7 @@ class RsqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
 
   def __call__(self, step):
     step = tf.cast(step, tf.float32)
-    return self.scale * tf.rsqrt(tf.maximum(step, self.warmup_steps))
+    return self.scale * tf.math.rsqrt(tf.maximum(step, self.warmup_steps))
 
 
 class CosineAnnealing(tf.keras.optimizers.schedules.LearningRateSchedule):
