@@ -202,7 +202,12 @@ class Runner(object):
         save_steps=train_config.get("save_checkpoints_steps", 5000),
         evaluator=evaluator,
         eval_steps=eval_config.get("steps", 5000))
-    return self._maybe_average_checkpoints()
+    average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
+    if average_last_checkpoints > 0:
+      return self.average_checkpoints(
+          os.path.join(checkpoint.model_dir, "avg"),
+          max_count=average_last_checkpoints)
+    return checkpoint.model_dir
 
   def evaluate(self, features_file=None, labels_file=None, checkpoint_path=None):
     """Runs evaluation.
@@ -227,25 +232,6 @@ class Runner(object):
         labels_file=labels_file)
     return evaluator(step)
 
-  def _maybe_average_checkpoints(self, avg_subdirectory="avg"):
-    """Averages checkpoints if enabled in the training configuration and if the
-    current training instance is the chief.
-
-    Args:
-      avg_subdirectory: The directory within the model directory that will
-        contain the averaged checkpoint.
-
-    Returns:
-      The path to the latest model directory.
-    """
-    average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
-    model_dir = self._config["model_dir"]
-    if average_last_checkpoints > 0:
-      return self.average_checkpoints(
-          os.path.join(model_dir, avg_subdirectory),
-          max_count=average_last_checkpoints)
-    return model_dir
-
   def average_checkpoints(self, output_dir, max_count=8):
     """Averages checkpoints.
 
@@ -263,7 +249,7 @@ class Runner(object):
     model.create_variables(optimizer=optimizer)
     trackables = dict(model=model, optimizer=optimizer)
     return checkpoint_util.average_checkpoints(
-        config["model_dir"],
+        checkpoint.model_dir,
         output_dir,
         trackables,
         max_count=max_count)

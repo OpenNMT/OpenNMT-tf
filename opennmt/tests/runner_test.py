@@ -70,12 +70,25 @@ class RunnerTest(tf.test.TestCase):
         },
         "train": {
             "batch_size": 10,
-            "max_step": 145001  # Just train for 1 step.
+            "average_last_checkpoints": 4,
+            "save_checkpoints_steps": 1,
+            "max_step": 145002  # Just train for 2 steps.
         }
     }
     runner = self._getTransliterationRunner(config)
-    output_dir = runner.train()
-    self.assertTrue(tf.train.latest_checkpoint(output_dir).endswith("145001"))
+    avg_dir = runner.train()
+    self.assertEndsWith(tf.train.latest_checkpoint(avg_dir), "145002")
+    self.assertLen(tf.train.get_checkpoint_state(avg_dir).all_model_checkpoint_paths, 1)
+    model_dir = os.path.dirname(avg_dir)
+    self.assertEndsWith(tf.train.latest_checkpoint(model_dir), "145002")
+    self.assertLen(tf.train.get_checkpoint_state(model_dir).all_model_checkpoint_paths, 2)
+
+    # Check that the averaged checkpoint is usable.
+    ar_file, _ = self._makeTransliterationData()
+    en_file = os.path.join(self.get_temp_dir(), "output.txt")
+    runner.infer(ar_file, predictions_file=en_file, checkpoint_path=avg_dir)
+    with open(en_file) as f:
+      self.assertEqual(next(f).strip(), "a t z m o n")
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testEvaluate(self):
