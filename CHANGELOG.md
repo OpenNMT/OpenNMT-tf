@@ -14,6 +14,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* [Contrastive learning](https://www.aclweb.org/anthology/P19-1623) to reduce word omission errors
+
 ### Fixes and improvements
 
 ## [1.24.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.24.1) (2019-08-29)
