@@ -62,6 +62,12 @@ Some features available in OpenNMT-tf v1 were removed or are temporarily missing
 * Automatic SavedModel export on evaluation
 * Average attention network
 
+## [1.25.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.25.0) (2019-09-13)
+
+### New features
+
+* [Contrastive learning](https://www.aclweb.org/anthology/P19-1623) to reduce word omission errors
+
 ## [1.24.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.24.1) (2019-08-29)
 
 ### Fixes and improvements
