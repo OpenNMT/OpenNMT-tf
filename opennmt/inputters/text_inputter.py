@@ -246,6 +246,29 @@ class TextInputter(Inputter):
     self.vocabulary = None
     self.vocabulary_size = None
     self.vocabulary_file = None
+    self.noiser = None
+    self.in_place_noise = False
+    self.noise_probability = None
+
+  def set_noise(self, noiser, in_place=True, probability=None):
+    """Enables noise to be applied to the input features.
+
+    Args:
+      noiser: A :class:`opennmt.layers.noise.WordNoiser` instance.
+      in_place: If ``False``, the noisy version of the input will be stored as
+        a separate feature prefixed with "noisy_".
+      probability: When :obj:`in_place` is enabled, the probability to apply the
+        noise.
+
+    Raises:
+      ValueError: if :obj:`in_place` is enabled but a :obj:`probability` is not
+        set.
+    """
+    if in_place and probability is None:
+      raise ValueError("In-place noise requires a probability")
+    self.noiser = noiser
+    self.in_place_noise = in_place
+    self.noise_probability = probability
 
   def initialize(self, metadata, asset_dir=None, asset_prefix=""):
     self.vocabulary_file = metadata[self.vocabulary_file_key]
@@ -294,7 +317,21 @@ class TextInputter(Inputter):
     if "tokens" in features:
       return features
     tokens = self.tokenizer.tokenize(element)
-    features["length"] = tf.shape(tokens)[0]
+    length = tf.shape(tokens)[0]
+    if training and self.noiser is not None:
+      noisy_tokens, noisy_length = self.noiser(tokens, keep_shape=False)
+      if self.in_place_noise:
+        tokens, length = tf.cond(
+            tf.random.uniform([]) < self.noise_probability,
+            true_fn=lambda: (noisy_tokens, noisy_length),
+            false_fn=lambda: (tokens, length))
+      else:
+        # Call make_features again to fill the remaining noisy features.
+        noisy_features = dict(tokens=noisy_tokens, length=noisy_length)
+        noisy_features = self.make_features(features=noisy_features, training=training)
+        for key, value in six.iteritems(noisy_features):
+          features["noisy_%s" % key] = value
+    features["length"] = length
     features["tokens"] = tokens
     return features
 

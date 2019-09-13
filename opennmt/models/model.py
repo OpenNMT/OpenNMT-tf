@@ -59,14 +59,16 @@ class Model(tf.keras.layers.Layer):
     _ = num_devices
     return {}
 
-  def initialize(self, metadata):
+  def initialize(self, metadata, params=None):
     """Initializes the model from the data configuration.
 
     Args:
       metadata: A dictionary containing additional data configuration set
         by the user (e.g. vocabularies, tokenization, pretrained embeddings,
         etc.).
+      params: A dictionary of hyperparameters.
     """
+    _ = params
     self.examples_inputter.initialize(metadata)
 
   def __call__(self, features, labels, params, mode, config=None):  # pylint: disable=arguments-differ

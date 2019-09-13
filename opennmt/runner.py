@@ -93,7 +93,7 @@ class Runner(object):
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(self._config, model_config)
     misc.merge_dict(self._config, config)
-    self._model.initialize(self._config["data"])
+    self._model.initialize(self._config["data"], params=self._config["params"])
     tf.logging.info(
         "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
 

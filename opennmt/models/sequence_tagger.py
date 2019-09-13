@@ -49,9 +49,9 @@ class SequenceTagger(Model):
     else:
       self.tagging_scheme = None
 
-  def initialize(self, metadata):
+  def initialize(self, metadata, params=None):
     self.tagging_scheme = metadata.get("tagging_scheme", self.tagging_scheme)
-    super(SequenceTagger, self).initialize(metadata)
+    super(SequenceTagger, self).initialize(metadata, params=params)
 
   def _call(self, features, labels, params, mode):
     training = mode == tf.estimator.ModeKeys.TRAIN

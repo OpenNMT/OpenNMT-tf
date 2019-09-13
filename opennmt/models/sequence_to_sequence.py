@@ -14,7 +14,7 @@ from opennmt.layers import noise
 from opennmt.layers import reducer
 from opennmt.models.model import Model
 from opennmt.utils import compat
-from opennmt.utils.losses import cross_entropy_sequence_loss
+from opennmt.utils import losses
 from opennmt.utils.misc import print_bytes, format_translation_output, merge_dict, shape_list
 from opennmt.decoders.decoder import get_sampling_probability
 
@@ -158,6 +158,18 @@ class SequenceToSequence(Model):
         }
     })
 
+  def initialize(self, metadata, params=None):
+    super(SequenceToSequence, self).initialize(metadata, params=params)
+    if params and params.get("contrastive_learning"):
+      subword_token = params.get("decoding_subword_token", "￭")
+      # Use the simplest and most effective CL_one from the paper.
+      # https://www.aclweb.org/anthology/P19-1623
+      noiser = noise.WordNoiser(
+          noises=[noise.WordOmission(1)],
+          subword_token=subword_token,
+          is_spacer=subword_token == "▁")
+      self.labels_inputter.set_noise(noiser, in_place=False)
+
   def _build(self):
     self.examples_inputter.build()
     if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
@@ -183,35 +195,48 @@ class SequenceToSequence(Model):
     target_vocab_size = self.labels_inputter.vocabulary_size
     target_dtype = self.labels_inputter.dtype
     if labels is not None:
-      target_inputs = self.labels_inputter.make_inputs(labels, training=training)
-      with tf.variable_scope("decoder"):
-        sampling_probability = None
-        if mode == tf.estimator.ModeKeys.TRAIN:
-          sampling_probability = get_sampling_probability(
-              tf.train.get_or_create_global_step(),
-              read_probability=params.get("scheduled_sampling_read_probability"),
-              schedule_type=params.get("scheduled_sampling_type"),
-              k=params.get("scheduled_sampling_k"))
+      sampling_probability = None
+      if mode == tf.estimator.ModeKeys.TRAIN:
+        sampling_probability = get_sampling_probability(
+            tf.train.get_or_create_global_step(),
+            read_probability=params.get("scheduled_sampling_read_probability"),
+            schedule_type=params.get("scheduled_sampling_type"),
+            k=params.get("scheduled_sampling_k"))
 
-        logits, _, _, attention = self.decoder.decode(
-            target_inputs,
-            self.labels_inputter.get_length(labels),
-            vocab_size=target_vocab_size,
-            initial_state=encoder_state,
-            sampling_probability=sampling_probability,
-            embedding=self.labels_inputter.embedding,
-            output_layer=self.output_layer,
-            mode=mode,
-            memory=encoder_outputs,
-            memory_sequence_length=encoder_sequence_length,
-            return_alignment_history=True)
-        if "alignment" in labels:
-          outputs = {
-              "logits": logits,
-              "attention": attention
-          }
-        else:
-          outputs = logits
+      def _decode_inputs(inputs, length, reuse=None):
+        with tf.variable_scope("decoder", reuse=reuse):
+          return self.decoder.decode(
+              inputs,
+              length,
+              vocab_size=target_vocab_size,
+              initial_state=encoder_state,
+              sampling_probability=sampling_probability,
+              embedding=self.labels_inputter.embedding,
+              output_layer=self.output_layer,
+              mode=mode,
+              memory=encoder_outputs,
+              memory_sequence_length=encoder_sequence_length,
+              return_alignment_history=True)
+
+      target_inputs = self.labels_inputter.make_inputs(labels, training=training)
+      logits, _, _, attention = _decode_inputs(target_inputs, labels["length"])
+      if "alignment" in labels:
+        outputs = {
+            "logits": logits,
+            "attention": attention
+        }
+      else:
+        outputs = logits
+
+      noisy_ids = labels.get("noisy_ids")
+      if noisy_ids is not None and params.get("contrastive_learning"):
+        # In case of contrastive learning, also forward the erroneous
+        # translation to compute its log likelihood later.
+        noisy_inputs = self.labels_inputter.make_inputs({"ids": noisy_ids}, training=training)
+        noisy_logits = _decode_inputs(noisy_inputs, labels["noisy_length"], reuse=True)[0]
+        if not isinstance(outputs, dict):
+          outputs = dict(logits=outputs)
+        outputs["noisy_logits"] = noisy_logits
     else:
       outputs = None
 
@@ -300,14 +325,22 @@ class SequenceToSequence(Model):
   def compute_loss(self, outputs, labels, training=True, params=None):
     if params is None:
       params = {}
-    if isinstance(outputs, dict):
-      logits = outputs["logits"]
-      attention = outputs.get("attention")
-    else:
-      logits = outputs
-      attention = None
+    if not isinstance(outputs, dict):
+      outputs = dict(logits=outputs)
+    logits = outputs["logits"]
+    noisy_logits = outputs.get("noisy_logits")
+    attention = outputs.get("attention")
+    if noisy_logits is not None and params.get("contrastive_learning"):
+      return losses.max_margin_loss(
+          logits,
+          labels["ids_out"],
+          labels["length"],
+          noisy_logits,
+          labels["noisy_ids_out"],
+          labels["noisy_length"],
+          eta=params.get("max_margin_eta", 0.1))
     labels_lengths = self.labels_inputter.get_length(labels)
-    loss, loss_normalizer, loss_token_normalizer = cross_entropy_sequence_loss(
+    loss, loss_normalizer, loss_token_normalizer = losses.cross_entropy_sequence_loss(
         logits,
         labels["ids_out"],
         labels_lengths,
