@@ -13,10 +13,12 @@ except ModuleNotFoundError:
   from tensorboard.plugins import projector
 
 from google.protobuf import text_format
+from parameterized import parameterized
 
 from opennmt import tokenizers
 from opennmt.constants import PADDING_TOKEN as PAD
 from opennmt.inputters import inputter, text_inputter, record_inputter
+from opennmt.layers import noise
 from opennmt.layers import reducer
 from opennmt.utils import compat, data
 from opennmt.utils.misc import item_or_tuple, count_lines
@@ -156,7 +158,7 @@ class InputterTest(tf.test.TestCase):
 
     self.assertEqual(dataset_size, inputter.get_dataset_size(data_file))
     dataset = inputter.make_dataset(data_file)
-    dataset = dataset.map(lambda *arg: inputter.process(item_or_tuple(arg)))
+    dataset = dataset.map(lambda *arg: inputter.process(item_or_tuple(arg), training=True))
     dataset = dataset.padded_batch(1, padded_shapes=data.get_padded_shapes(dataset))
 
     if compat.is_tf2():
@@ -246,6 +248,46 @@ class InputterTest(tf.test.TestCase):
 
     self.assertAllEqual([4], features["length"])
     self.assertAllEqual([[2, 1, 3, 4]], features["ids"])
+
+  @test_util.skip_if_unsupported("RaggedTensor")
+  def testWordEmbedderWithNoise(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+    noiser = noise.WordNoiser(noises=[noise.WordOmission(1)])
+    embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
+    embedder.is_target = True
+    embedder.set_noise(noiser, in_place=False)
+    expected_shapes = {
+        "tokens": [None, None],
+        "ids": [None, None],
+        "ids_out": [None, None],
+        "length": [None],
+        "noisy_tokens": [None, None],
+        "noisy_ids": [None, None],
+        "noisy_ids_out": [None, None],
+        "noisy_length": [None]
+    }
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata={"vocabulary_file": vocab_file},
+        shapes=expected_shapes)
+    self.assertEqual(features["noisy_length"][0], features["length"][0] - 1)
+
+  @parameterized.expand([[1], [0]])
+  @test_util.skip_if_unsupported("RaggedTensor")
+  def testWordEmbedderWithInPlaceNoise(self, probability):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+    noiser = noise.WordNoiser(noises=[noise.WordOmission(1)])
+    embedder = text_inputter.WordEmbedder("vocabulary_file", embedding_size=10)
+    embedder.set_noise(noiser, probability=probability)
+    features, transformed = self._makeDataset(
+        embedder,
+        data_file,
+        metadata={"vocabulary_file": vocab_file},
+        shapes={"tokens": [None, None], "ids": [None, None], "length": [None]})
+    self.assertEqual(features["length"][0], 3 if probability == 0 else 2)
 
   def testWordEmbedderWithPretrainedEmbeddings(self):
     data_file = self._makeTextFile("data.txt", ["hello world !"])
