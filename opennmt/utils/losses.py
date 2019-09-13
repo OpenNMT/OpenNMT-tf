@@ -158,3 +158,37 @@ def regularization_penalty(regularization_type, scale, weights):
 
 def _is_bias(variable):
   return len(variable.shape) == 1 and variable.name.endswith("bias:0")
+
+def _negative_log_likelihood(logits, labels, sequence_length):
+  nll_num, nll_den, _ = cross_entropy_sequence_loss(
+      logits, labels, sequence_length, average_in_time=True)
+  return nll_num / nll_den
+
+def max_margin_loss(true_logits,
+                    true_labels,
+                    true_sequence_length,
+                    negative_logits,
+                    negative_labels,
+                    negative_sequence_length,
+                    eta=0.1):
+  """Computes the max-margin loss described in
+  https://www.aclweb.org/anthology/P19-1623.
+
+  Args:
+    true_logits: The unscaled probabilities from the true example.
+    negative_logits: The unscaled probabilities from the negative example.
+    true_labels: The true labels.
+    true_sequence_length: The length of each true sequence.
+    negative_labels: The negative labels.
+    negative_sequence_length: The length of each negative sequence.
+    eta: Ensure that the margin is higher than this value.
+
+  Returns:
+    The max-margin loss.
+  """
+  true_nll = _negative_log_likelihood(
+      true_logits, true_labels, true_sequence_length)
+  negative_nll = _negative_log_likelihood(
+      negative_logits, negative_labels, negative_sequence_length)
+  margin = true_nll - negative_nll + eta
+  return tf.maximum(margin, 0)

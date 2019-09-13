@@ -116,6 +116,16 @@ class SequenceToSequence(model.SequenceGenerator):
         }
     })
 
+  def initialize(self, data_config, params=None):
+    super(SequenceToSequence, self).initialize(data_config, params=params)
+    if self.params.get("contrastive_learning"):
+      # Use the simplest and most effective CL_one from the paper.
+      # https://www.aclweb.org/anthology/P19-1623
+      noiser = noise.WordNoiser(
+          noises=[noise.WordOmission(1)],
+          subword_token=self.params.get("decoding_subword_token", "￭"))
+      self.labels_inputter.set_noise(noiser, in_place=False)
+
   def build(self, input_shape):
     super(SequenceToSequence, self).build(input_shape)
     output_layer = None
@@ -140,6 +150,7 @@ class SequenceToSequence(model.SequenceGenerator):
 
     if labels is not None:
       target_inputs = self.labels_inputter(labels, training=training)
+      input_fn = lambda ids: self.labels_inputter({"ids": ids}, training=training)
       sampling_probability = None
       if training:
         sampling_probability = decoder_util.get_sampling_probability(
@@ -156,10 +167,24 @@ class SequenceToSequence(model.SequenceGenerator):
           target_inputs,
           self.labels_inputter.get_length(labels),
           state=initial_state,
-          input_fn=lambda ids: self.labels_inputter({"ids": ids}, training=training),
+          input_fn=input_fn,
           sampling_probability=sampling_probability,
           training=training)
       outputs = dict(logits=logits, attention=attention)
+
+      noisy_ids = labels.get("noisy_ids")
+      if noisy_ids is not None and params.get("contrastive_learning"):
+        # In case of contrastive learning, also forward the erroneous
+        # translation to compute its log likelihood later.
+        noisy_inputs = self.labels_inputter({"ids": noisy_ids}, training=training)
+        noisy_logits, _, _ = self.decoder(
+            noisy_inputs,
+            labels["noisy_length"],
+            state=initial_state,
+            input_fn=input_fn,
+            sampling_probability=sampling_probability,
+            training=training)
+        outputs["noisy_logits"] = noisy_logits
     else:
       outputs = None
 
@@ -236,12 +261,20 @@ class SequenceToSequence(model.SequenceGenerator):
 
   def compute_loss(self, outputs, labels, training=True):
     params = self.params
-    if isinstance(outputs, dict):
-      logits = outputs["logits"]
-      attention = outputs.get("attention")
-    else:
-      logits = outputs
-      attention = None
+    if not isinstance(outputs, dict):
+      outputs = dict(logits=outputs)
+    logits = outputs["logits"]
+    noisy_logits = outputs.get("noisy_logits")
+    attention = outputs.get("attention")
+    if noisy_logits is not None and params.get("contrastive_learning"):
+      return losses.max_margin_loss(
+          logits,
+          labels["ids_out"],
+          labels["length"],
+          noisy_logits,
+          labels["noisy_ids_out"],
+          labels["noisy_length"],
+          eta=params.get("max_margin_eta", 0.1))
     labels_lengths = self.labels_inputter.get_length(labels)
     loss, loss_normalizer, loss_token_normalizer = losses.cross_entropy_sequence_loss(
         logits,
@@ -365,14 +398,19 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
           alignment,
           self.features_inputter.get_length(features),
           self.labels_inputter.get_length(labels))
-    labels_ids = labels["ids"]
-    bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=labels_ids.dtype)
-    eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=labels_ids.dtype)
-    labels["ids"] = tf.concat([bos, labels_ids], axis=0)
-    labels["ids_out"] = tf.concat([labels_ids, eos], axis=0)
-    labels["length"] += 1
+    _shift_target_sequence(labels)
+    if "noisy_ids" in labels:
+      _shift_target_sequence(labels, prefix="noisy_")
     return features, labels
 
+
+def _shift_target_sequence(labels, prefix=""):
+  labels_ids = labels["%sids" % prefix]
+  bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=labels_ids.dtype)
+  eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=labels_ids.dtype)
+  labels["%sids" % prefix] = tf.concat([bos, labels_ids], axis=0)
+  labels["%sids_out" % prefix] = tf.concat([labels_ids, eos], axis=0)
+  labels["%slength" % prefix] += 1
 
 def align_tokens_from_attention(tokens, attention):
   """Returns aligned tokens from the attention.

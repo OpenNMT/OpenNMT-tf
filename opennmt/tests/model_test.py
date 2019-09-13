@@ -202,6 +202,21 @@ class ModelTest(tf.test.TestCase):
     outputs, _ = model(features, labels=labels, training=True, step=10)
     self.assertEqual(outputs["logits"].shape[1], labels["ids"].shape[1])
 
+  def testSequenceToSequenceWithContrastiveLearning(self):
+    model, params = _seq2seq_model()
+    params["contrastive_learning"] = True
+    features_file, labels_file, data_config = self._makeToyEnDeData()
+    model.initialize(data_config, params=params)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = next(iter(dataset))
+    self.assertIn("noisy_ids", labels)
+    self.assertIn("noisy_ids_out", labels)
+    self.assertIn("noisy_length", labels)
+    outputs, _ = model(features, labels=labels, training=True)
+    self.assertIn("noisy_logits", outputs)
+    loss = model.compute_loss(outputs, labels, training=True)
+    self.assertGreaterEqual(self.evaluate(loss), 0)
+
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
     _, _, data_config = self._makeToyEnDeData()
