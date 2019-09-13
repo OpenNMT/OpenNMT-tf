@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.noise module &mdash; OpenNMT-tf 1.24.1 documentation</title>
+  <title>opennmt.layers.noise module &mdash; OpenNMT-tf 1.25.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.24.1',
+              VERSION:'1.25.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.24
+                1.25
               </div>
             
           
@@ -311,6 +311,29 @@ tokens.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dropout</strong> – The probability to drop word.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opennmt.layers.noise.WordOmission">
+<em class="property">class </em><code class="descclassname">opennmt.layers.noise.</code><code class="descname">WordOmission</code><span class="sig-paren">(</span><em>count</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordOmission"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordOmission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opennmt.layers.noise.Noise" title="opennmt.layers.noise.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.noise.Noise</span></code></a></p>
+<p>Randomly omits words in a sequence.</p>
+<p>This is different than <a class="reference internal" href="#opennmt.layers.noise.WordDropout" title="opennmt.layers.noise.WordDropout"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.noise.WordDropout</span></code></a> as it drops a
+fixed number of words.</p>
+<dl class="method">
+<dt id="opennmt.layers.noise.WordOmission.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>count</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/noise.html#WordOmission.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.noise.WordOmission.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the noise module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>count</strong> – The number of words to omit.</td>
 </tr>
 </tbody>
 </table>

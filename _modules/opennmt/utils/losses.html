@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.losses &mdash; OpenNMT-tf 1.24.1 documentation</title>
+  <title>opennmt.utils.losses &mdash; OpenNMT-tf 1.25.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.24.1',
+              VERSION:'1.25.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.24
+                1.25
               </div>
             
           
@@ -280,6 +280,40 @@
   <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
   <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span></div>
+
+<span class="k">def</span> <span class="nf">_negative_log_likelihood</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
+  <span class="n">nll_num</span><span class="p">,</span> <span class="n">nll_den</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
+      <span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">average_in_time</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">nll_num</span> <span class="o">/</span> <span class="n">nll_den</span>
+
+<div class="viewcode-block" id="max_margin_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.losses.html#opennmt.utils.losses.max_margin_loss">[docs]</a><span class="k">def</span> <span class="nf">max_margin_loss</span><span class="p">(</span><span class="n">true_logits</span><span class="p">,</span>
+                    <span class="n">true_labels</span><span class="p">,</span>
+                    <span class="n">true_sequence_length</span><span class="p">,</span>
+                    <span class="n">negative_logits</span><span class="p">,</span>
+                    <span class="n">negative_labels</span><span class="p">,</span>
+                    <span class="n">negative_sequence_length</span><span class="p">,</span>
+                    <span class="n">eta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Computes the max-margin loss described in</span>
+<span class="sd">  https://www.aclweb.org/anthology/P19-1623.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    true_logits: The unscaled probabilities from the true example.</span>
+<span class="sd">    negative_logits: The unscaled probabilities from the negative example.</span>
+<span class="sd">    true_labels: The true labels.</span>
+<span class="sd">    true_sequence_length: The length of each true sequence.</span>
+<span class="sd">    negative_labels: The negative labels.</span>
+<span class="sd">    negative_sequence_length: The length of each negative sequence.</span>
+<span class="sd">    eta: Ensure that the margin is higher than this value.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The max-margin loss.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">true_nll</span> <span class="o">=</span> <span class="n">_negative_log_likelihood</span><span class="p">(</span>
+      <span class="n">true_logits</span><span class="p">,</span> <span class="n">true_labels</span><span class="p">,</span> <span class="n">true_sequence_length</span><span class="p">)</span>
+  <span class="n">negative_nll</span> <span class="o">=</span> <span class="n">_negative_log_likelihood</span><span class="p">(</span>
+      <span class="n">negative_logits</span><span class="p">,</span> <span class="n">negative_labels</span><span class="p">,</span> <span class="n">negative_sequence_length</span><span class="p">)</span>
+  <span class="n">margin</span> <span class="o">=</span> <span class="n">true_nll</span> <span class="o">-</span> <span class="n">negative_nll</span> <span class="o">+</span> <span class="n">eta</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

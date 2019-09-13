@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.noise &mdash; OpenNMT-tf 1.24.1 documentation</title>
+  <title>opennmt.layers.noise &mdash; OpenNMT-tf 1.25.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.24.1',
+              VERSION:'1.25.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.24
+                1.25
               </div>
             
           
@@ -340,6 +340,32 @@
         <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">maxval</span><span class="o">=</span><span class="n">num_words</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
         <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">keep_ind</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">keep_ind</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WordOmission"><a class="viewcode-back" href="../../../package/opennmt.layers.noise.html#opennmt.layers.noise.WordOmission">[docs]</a><span class="k">class</span> <span class="nc">WordOmission</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Randomly omits words in a sequence.</span>
+
+<span class="sd">  This is different than :class:`opennmt.layers.noise.WordDropout` as it drops a</span>
+<span class="sd">  fixed number of words.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="WordOmission.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.noise.html#opennmt.layers.noise.WordOmission.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      count: The number of words to omit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">count</span></div>
+
+  <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+    <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">num_words</span><span class="p">)</span>
+    <span class="n">shuffle_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+    <span class="n">keep_count</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">num_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">keep_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">shuffle_indices</span><span class="p">[:</span><span class="n">keep_count</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">keep_indices</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WordReplacement"><a class="viewcode-back" href="../../../package/opennmt.layers.noise.html#opennmt.layers.noise.WordReplacement">[docs]</a><span class="k">class</span> <span class="nc">WordReplacement</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>

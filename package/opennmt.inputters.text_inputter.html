@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter module &mdash; OpenNMT-tf 1.24.1 documentation</title>
+  <title>opennmt.inputters.text_inputter module &mdash; OpenNMT-tf 1.25.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../',
-              VERSION:'1.24.1',
+              VERSION:'1.25.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -76,7 +76,7 @@
             
             
               <div class="version">
-                1.24
+                1.25
               </div>
             
           
@@ -310,6 +310,31 @@ length of each token as an int64 <code class="docutils literal notranslate"><spa
 <em class="property">class </em><code class="descclassname">opennmt.inputters.text_inputter.</code><code class="descname">TextInputter</code><span class="sig-paren">(</span><em>tokenizer=None</em>, <em>dtype=tf.float32</em>, <em>vocabulary_file_key=None</em>, <em>num_oov_buckets=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter" title="opennmt.inputters.inputter.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.inputter.Inputter</span></code></a></p>
 <p>An abstract inputter that processes text.</p>
+<dl class="method">
+<dt id="opennmt.inputters.text_inputter.TextInputter.set_noise">
+<code class="descname">set_noise</code><span class="sig-paren">(</span><em>noiser</em>, <em>in_place=True</em>, <em>probability=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.set_noise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.set_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables noise to be applied to the input features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>noiser</strong> – A <a class="reference internal" href="opennmt.layers.noise.html#opennmt.layers.noise.WordNoiser" title="opennmt.layers.noise.WordNoiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.noise.WordNoiser</span></code></a> instance.</li>
+<li><strong>in_place</strong> – If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the noisy version of the input will be stored as
+a separate feature prefixed with “<a href="#id1"><span class="problematic" id="id2">noisy_</span></a>”.</li>
+<li><strong>probability</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">in_place</span></code> is enabled, the probability to apply the
+noise.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">in_place</span></code> is enabled but a <code class="xref py py-obj docutils literal notranslate"><span class="pre">probability</span></code> is not
+set.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="opennmt.inputters.text_inputter.TextInputter.initialize">
 <code class="descname">initialize</code><span class="sig-paren">(</span><em>metadata</em>, <em>asset_dir=None</em>, <em>asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.text_inputter.TextInputter.initialize" title="Permalink to this definition">¶</a></dt>

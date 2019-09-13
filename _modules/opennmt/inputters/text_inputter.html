@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.24.1 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 1.25.0 documentation</title>
   
 
   
@@ -25,7 +25,7 @@
       <script type="text/javascript">
           var DOCUMENTATION_OPTIONS = {
               URL_ROOT:'../../../',
-              VERSION:'1.24.1',
+              VERSION:'1.25.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -74,7 +74,7 @@
             
             
               <div class="version">
-                1.24
+                1.25
               </div>
             
           
@@ -432,6 +432,29 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="TextInputter.set_noise"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.set_noise">[docs]</a>  <span class="k">def</span> <span class="nf">set_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noiser</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enables noise to be applied to the input features.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      noiser: A :class:`opennmt.layers.noise.WordNoiser` instance.</span>
+<span class="sd">      in_place: If ``False``, the noisy version of the input will be stored as</span>
+<span class="sd">        a separate feature prefixed with &quot;noisy_&quot;.</span>
+<span class="sd">      probability: When :obj:`in_place` is enabled, the probability to apply the</span>
+<span class="sd">        noise.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`in_place` is enabled but a :obj:`probability` is not</span>
+<span class="sd">        set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">in_place</span> <span class="ow">and</span> <span class="n">probability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;In-place noise requires a probability&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="n">noiser</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span> <span class="o">=</span> <span class="n">in_place</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span> <span class="o">=</span> <span class="n">probability</span></div>
 
 <div class="viewcode-block" id="TextInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">asset_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file_key</span><span class="p">]</span>
@@ -480,7 +503,21 @@
     <span class="k">if</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">features</span>
     <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">noisy_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span><span class="p">:</span>
+        <span class="n">tokens</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([])</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span><span class="p">,</span>
+            <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">noisy_length</span><span class="p">),</span>
+            <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Call make_features again to fill the remaining noisy features.</span>
+        <span class="n">noisy_features</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">tokens</span><span class="o">=</span><span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">noisy_length</span><span class="p">)</span>
+        <span class="n">noisy_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">noisy_features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">noisy_features</span><span class="p">):</span>
+          <span class="n">features</span><span class="p">[</span><span class="s2">&quot;noisy_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">length</span>
     <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tokens</span>
     <span class="k">return</span> <span class="n">features</span></div></div>
 
