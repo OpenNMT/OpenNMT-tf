@@ -58,9 +58,12 @@ OpenNMT-tf is fully integrated in the TensorFlow 2.0 ecosystem:
 
 OpenNMT-tf does not require to compile the data before the training. Instead, it can directly read text files and preprocess the data when needed by the training. This allows [on-the-fly tokenization](http://opennmt.net/OpenNMT-tf/tokenization.html) and data augmentation by injecting random noise.
 
-### Domain fine-tuning
+### Model fine-tuning
 
-OpenNMT-tf supports model fine-tuning workflows. This includes continuing the training with different optimization parameters and updating word vocabularies by keeping learned weights of common words.
+OpenNMT-tf supports model fine-tuning workflows:
+
+* Model weights can be transferred to new word vocabularies, e.g. to inject domain terminology before fine-tuning on in-domain data
+* [Contrastive learning](https://ai.google/research/pubs/pub48253/) to reduce word omission errors
 
 ### Source-target alignment
 
