@@ -22,6 +22,31 @@ class MiscTest(tf.test.TestCase):
     variable_name = misc.get_variable_name(model.layers[0].variable, model)
     self.assertEqual(variable_name, "model/layers/0/variable/.ATTRIBUTES/VARIABLE_VALUE")
 
+  def testSetDropout(self):
+
+    class Layer(tf.keras.layers.Layer):
+
+      def __init__(self):
+        super(Layer, self).__init__()
+        self.dropout = 0.3
+        self.x = tf.keras.layers.Dropout(0.2)
+
+    class Model(tf.keras.layers.Layer):
+
+      def __init__(self):
+        super(Model, self).__init__()
+        self.output_dropout = 0.1
+        self.layer = Layer()
+        self.layers = [Layer(), Layer()]
+
+    model = Model()
+    misc.set_dropout(model, 0.5)
+    self.assertEqual(model.output_dropout, 0.5)
+    self.assertEqual(model.layer.dropout, 0.5)
+    self.assertEqual(model.layer.x.rate, 0.5)
+    self.assertEqual(model.layers[1].dropout, 0.5)
+    self.assertEqual(model.layers[1].x.rate, 0.5)
+
   def testFormatTranslationOutput(self):
     self.assertEqual(
         misc.format_translation_output("hello world"),

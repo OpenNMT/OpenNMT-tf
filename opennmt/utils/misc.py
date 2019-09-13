@@ -146,6 +146,33 @@ def clone_layer(layer):
   copyreg.pickle(threading.local, lambda _: (threading.local, []))
   return copy.deepcopy(layer)
 
+def gather_all_layers(layer):
+  """Returns all nested layer starting from :obj:`layer`."""
+  layers = []
+  if not isinstance(layer, tf.Module):
+    return layers
+  layers.append(layer)
+  for value in six.itervalues(layer.__dict__):
+    if isinstance(value, tf.Module):
+      layers.extend(gather_all_layers(value))
+    elif isinstance(value, list):
+      for sub_layer in value:
+        layers.extend(gather_all_layers(sub_layer))
+  return layers
+
+def set_dropout(root_layer, dropout):
+  """Overrides all dropout values in :obj:`root_layer` and its descendants.
+
+  Args:
+    dropout: The dropout value to set.
+  """
+  for layer in gather_all_layers(root_layer):
+    for attr, value in six.iteritems(layer.__dict__):
+      if isinstance(value, tf.keras.layers.Dropout):
+        value.rate = dropout
+      elif "dropout" in attr:
+        setattr(layer, attr, dropout)
+
 def extract_batches(tensors):
   """Returns a generator to iterate on each batch of a Numpy array or dict of
   Numpy arrays."""

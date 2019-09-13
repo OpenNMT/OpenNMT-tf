@@ -295,6 +295,18 @@ class ModelTest(tf.test.TestCase):
     model.create_variables()
     self.assertTrue(len(model.trainable_variables) > 0)
 
+  def testInitializeWithDropoutOverride(self):
+    model = models.SequenceToSequence(
+        inputters.WordEmbedder(16),
+        inputters.WordEmbedder(16),
+        encoders.SelfAttentionEncoder(2, 16, 4, 32),
+        decoders.SelfAttentionDecoder(2, 16, 4, 32))
+    self.assertEqual(model.encoder.dropout, 0.1)
+    _, _, data_config = self._makeToyClassifierData()
+    params = dict(dropout=0.3)
+    model.initialize(data_config, params=params)
+    self.assertEqual(model.encoder.dropout, 0.3)
+
   def testFreezeLayers(self):
     model, _ = _seq2seq_model(training=True)
     params = {"freeze_layers": ["decoder/output_layer", "encoder/layers/0"]}

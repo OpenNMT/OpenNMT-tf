@@ -77,6 +77,9 @@ class Model(tf.keras.layers.Layer):
     if params is None:
       params = {}
     self.params.update(params)
+    dropout = self.params.get("dropout")
+    if dropout is not None:
+      misc.set_dropout(self, dropout)
     self.examples_inputter.initialize(data_config)
     self.initialized = True
 

@@ -73,6 +73,9 @@ params:
     beta_2: 0.998
   learning_rate: 1.0
 
+  # (optional) If set, overrides all dropout values configured in the model definition.
+  dropout: 0.3
+
   # (optional) List of layer to not optimize.
   freeze_layers:
     - "encoder/layers/0"
