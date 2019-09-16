@@ -390,7 +390,7 @@ def inference_pipeline(batch_size,
 
   return _pipeline
 
-def function_on_next(dataset):
+def function_on_next(dataset, as_numpy=False):
   """Decorator to run a ``tf.function`` on each dataset element.
 
   The motivation for this construct is to get the next element within the
@@ -398,6 +398,7 @@ def function_on_next(dataset):
 
   Args:
     dataset: The dataset to iterate.
+    as_numpy: If ``True``, call `.numpy()` on each output tensors.
 
   Returns:
     A function decorator. The decorated function is transformed into a callable
@@ -414,7 +415,10 @@ def function_on_next(dataset):
 
       while True:
         try:
-          yield _tf_fun()
+          outputs = _tf_fun()
+          if as_numpy:
+            outputs = tf.nest.map_structure(lambda x: x.numpy(), outputs)
+          yield outputs
         except tf.errors.OutOfRangeError:
           break
 

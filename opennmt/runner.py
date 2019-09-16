@@ -315,7 +315,7 @@ class Runner(object):
         length_bucket_width=infer_config["length_bucket_width"],
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
-    @dataset_util.function_on_next(dataset)
+    @dataset_util.function_on_next(dataset, as_numpy=True)
     def _predict(next_fn):
       source = next_fn()
       return model.infer(source)
@@ -336,7 +336,6 @@ class Runner(object):
 
     for predictions in _predict():  # pylint: disable=no-value-for-parameter
       end_time = time.time()
-      predictions = {k:v.numpy() for k, v in six.iteritems(predictions)}
       if log_time:
         total_time += end_time - start_time
         batch_size = next(six.itervalues(predictions)).shape[0]
@@ -409,7 +408,7 @@ class Runner(object):
         score_config["batch_size"],
         prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
 
-    @dataset_util.function_on_next(dataset)
+    @dataset_util.function_on_next(dataset, as_numpy=True)
     def _score(next_fn):
       features, labels = next_fn()
       return model.score(features, labels)
@@ -420,7 +419,6 @@ class Runner(object):
       stream = sys.stdout
 
     for results in _score():  # pylint: disable=no-value-for-parameter
-      results = {k:v.numpy() for k, v in six.iteritems(results)}
       for batch in misc.extract_batches(results):
         model.print_score(batch, params=score_config, stream=stream)
 
