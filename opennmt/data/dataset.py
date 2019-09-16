@@ -65,8 +65,8 @@ def filter_examples_by_length(maximum_features_length=None,
       the features sequence(s). ``None`` to not constrain the length.
     maximum_labels_length: The maximum length of the labels sequence.
       ``None`` to not constrain the length.
-    features_length_fn: A callable mapping features to a sequence length.
-    labels_length_fn: A callable mapping labels to a sequence length.
+    features_length_fn: A function mapping features to a sequence length.
+    labels_length_fn: A function mapping labels to a sequence length.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
@@ -164,27 +164,30 @@ def batch_dataset(batch_size, padded_shapes=None):
   return lambda dataset: dataset.padded_batch(
       batch_size, padded_shapes=padded_shapes or _get_output_shapes(dataset))
 
-def batch_parallel_dataset(batch_size,
+def batch_sequence_dataset(batch_size,
                            batch_type="examples",
                            batch_multiplier=1,
                            batch_size_multiple=1,
                            length_bucket_width=None,
-                           features_length_fn=None,
-                           labels_length_fn=None,
+                           length_fn=None,
                            padded_shapes=None):
-  """Transformation that batches a parallel dataset.
+  """Transformation that batches a dataset of sequences.
 
   This implements an example-based and a token-based batching strategy
   with optional bucketing of sequences.
 
   Bucketing makes the batches contain sequences of similar lengths to optimize
   the training efficiency. For example, if :obj:`length_bucket_width` is 5,
-  sequences will be organized by lengths:
+  sequences will be organized by the following buckets:
 
   1 - 5 | 6 - 10 | 11 - 15 | ...
 
-  where the assigned length is the maximum of the source and target lengths.
-  Then each batch will only consider sequences from the same bucket.
+  Then when building the next batch, sequences will be selected from the same
+  bucket.
+
+  If the dataset has parallel elements (e.g. a parallel source and target
+  dataset), the element is assigned to the bucket corresponding to the maximum
+  length of all parallel elements.
 
   Args:
     batch_size: The batch size.
@@ -194,10 +197,10 @@ def batch_parallel_dataset(batch_size,
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
       result batch size is a multiple of this value.
     length_bucket_width: The sequence length bucket width.
+    length_fn: A function or list of functions (in case of a parallel dataset)
+      that take features as argument and return the associated sequence length.
     padded_shapes: The padded shapes for this dataset. If ``None``, the shapes
       are automatically inferred from the dataset output shapes.
-    features_length_fn: A callable mapping features to a sequence length.
-    labels_length_fn: A callable mapping labels to a sequence length.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
@@ -219,10 +222,19 @@ def batch_parallel_dataset(batch_size,
     lengths = [length // length_bucket_width for length in lengths]
     return tf.reduce_max(lengths)
 
-  def _key_func(features, labels):
-    features_bucket_id = _get_bucket_id(features, features_length_fn)
-    labels_bucket_id = _get_bucket_id(labels, labels_length_fn)
-    bucket_id = tf.maximum(features_bucket_id, labels_bucket_id)
+  def _key_func(*args):
+    length_fns = length_fn
+    if length_fns is None:
+      length_fns = [None for _ in args]
+    elif not isinstance(length_fns, (list, tuple)):
+      length_fns = [length_fns]
+    if len(length_fns) != len(args):
+      raise ValueError("%d length functions were passed but this dataset contains "
+                       "%d parallel elements" % (len(length_fns), len(args)))
+    # Take the highest bucket id.
+    bucket_id = tf.reduce_max([
+        _get_bucket_id(features, length_fn)
+        for features, length_fn in zip(args, length_fns)])
     return tf.cast(bucket_id, tf.int64)
 
   def _reduce_func(unused_key, dataset):
@@ -280,8 +292,8 @@ def training_pipeline(batch_size,
     process_fn: The processing function to apply on each element.
     length_bucket_width: The width of the length buckets to select batch
       candidates from. ``None`` to not constrain batch formation.
-    features_length_fn: A callable mapping features to a sequence length.
-    labels_length_fn: A callable mapping labels to a sequence length.
+    features_length_fn: A function mapping features to a sequence length.
+    labels_length_fn: A function mapping labels to a sequence length.
     maximum_features_length: The maximum length or list of maximum lengths of
       the features sequence(s). ``None`` to not constrain the length.
     maximum_labels_length: The maximum length of the labels sequence.
@@ -297,6 +309,9 @@ def training_pipeline(batch_size,
 
   Returns:
     A ``tf.data.Dataset`` transformation.
+
+  See Also:
+    :func:`opennmt.data.batch_sequence_dataset`
   """
 
   def _pipeline(dataset):
@@ -311,14 +326,13 @@ def training_pipeline(batch_size,
         maximum_labels_length=maximum_labels_length,
         features_length_fn=features_length_fn,
         labels_length_fn=labels_length_fn))
-    dataset = dataset.apply(batch_parallel_dataset(
+    dataset = dataset.apply(batch_sequence_dataset(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
         batch_size_multiple=batch_size_multiple,
         length_bucket_width=length_bucket_width,
-        features_length_fn=features_length_fn,
-        labels_length_fn=labels_length_fn))
+        length_fn=[features_length_fn, labels_length_fn]))
     dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
     if not single_pass:
       dataset = dataset.repeat()
@@ -344,7 +358,7 @@ def inference_pipeline(batch_size,
       reordered based on the examples length, the application is then
       responsible to restore the predictions in order. An "index" key will be
       inserted in the examples dict.
-    length_fn: A callable mapping features to a sequence length.
+    length_fn: A function mapping features to a sequence length.
     num_threads: The number of elements processed in parallel.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value.
@@ -361,16 +375,6 @@ def inference_pipeline(batch_size,
     x["index"] = index
     return x
 
-  def _key_func(x):
-    length = length_fn(x)
-    bucket_id = tf.constant(0, dtype=tf.int64)
-    if not isinstance(length, list):
-      bucket_id = tf.maximum(bucket_id, tf.cast(length, bucket_id.dtype) // length_bucket_width)
-    return bucket_id
-
-  def _reduce_func(unused_key, dataset):
-    return dataset.apply(batch_dataset(batch_size))
-
   def _pipeline(dataset):
     if process_fn is not None:
       dataset = dataset.map(process_fn, num_parallel_calls=num_threads)
@@ -381,8 +385,10 @@ def inference_pipeline(batch_size,
         raise ValueError("Reordering by length expects dataset elements to be Python dicts")
       dataset = dataset.enumerate()
       dataset = dataset.map(_inject_index)
-      dataset = dataset.apply(tf.data.experimental.group_by_window(
-          _key_func, _reduce_func, window_size=batch_size))
+      dataset = dataset.apply(batch_sequence_dataset(
+          batch_size,
+          length_bucket_width=length_bucket_width,
+          length_fn=length_fn))
     else:
       dataset = dataset.apply(batch_dataset(batch_size))
     dataset = dataset.prefetch(prefetch_buffer_size)

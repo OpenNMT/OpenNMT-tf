@@ -1,7 +1,7 @@
 """Data manipulation module."""
 
 from opennmt.data.dataset import batch_dataset
-from opennmt.data.dataset import batch_parallel_dataset
+from opennmt.data.dataset import batch_sequence_dataset
 from opennmt.data.dataset import filter_examples_by_length
 from opennmt.data.dataset import filter_irregular_batches
 from opennmt.data.dataset import get_dataset_size

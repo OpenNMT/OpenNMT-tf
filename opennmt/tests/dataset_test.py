@@ -94,10 +94,9 @@ class DataTest(tf.test.TestCase):
     dataset = tf.data.Dataset.zip((
         tf.data.Dataset.from_tensor_slices(features),
         tf.data.Dataset.from_tensor_slices(labels)))
-    dataset = dataset.apply(dataset_util.batch_parallel_dataset(
+    dataset = dataset.apply(dataset_util.batch_sequence_dataset(
         batch_size,
-        features_length_fn=lambda x: x,
-        labels_length_fn=lambda x: x,
+        length_fn=[lambda x: x, lambda x: x],
         **kwargs))
 
     iterator = iter(dataset)
