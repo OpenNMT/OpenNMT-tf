@@ -30,6 +30,9 @@ def make_learning_rate_schedule(initial_learning_rate,
   Raises:
     ValueError: if :obj:`schedule_type` can not be resolved to an existing
       schedule.
+
+  See Also:
+    :class:`opennmt.schedules.ScheduleWrapper`
   """
   schedule_name = None
   if schedule_name is None:
@@ -65,6 +68,9 @@ class ScheduleWrapper(tf.keras.optimizers.schedules.LearningRateSchedule):
       step_duration: The number of training steps that make 1 decay step.
       start_step: Start decay after this many steps.
       minimum_learning_rate: Do not decay past this learning rate value.
+
+    See Also:
+      :class:`opennmt.schedules.make_learning_rate_schedule`
     """
     self.schedule = schedule
     self.step_start = step_start

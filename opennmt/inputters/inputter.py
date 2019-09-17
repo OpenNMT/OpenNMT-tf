@@ -86,6 +86,9 @@ class Inputter(tf.keras.layers.Layer):
 
     Returns:
       A ``tf.data.Dataset``.
+
+    See Also:
+      :func:`opennmt.data.inference_pipeline`
     """
     map_func = lambda *arg: self.make_features(item_or_tuple(arg), training=False)
     dataset = self.make_dataset(features_file, training=False)
@@ -451,6 +454,9 @@ class ExampleInputter(ParallelInputter):
 
     Returns:
       A ``tf.data.Dataset``.
+
+    See Also:
+      :func:`opennmt.data.inference_pipeline`
     """
     map_func = lambda *arg: self.make_features(arg, training=False)
     dataset = self.make_dataset([features_file, labels_file], training=False)
@@ -514,6 +520,9 @@ class ExampleInputter(ParallelInputter):
 
     Returns:
       A ``tf.data.Dataset``.
+
+    See Also:
+      :func:`opennmt.data.training_pipeline`
     """
     map_func = lambda *arg: self.make_features(arg, training=True)
     dataset = self.make_dataset([features_file, labels_file], training=True)

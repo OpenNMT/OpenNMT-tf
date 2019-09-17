@@ -160,6 +160,9 @@ def batch_dataset(batch_size, padded_shapes=None):
 
   Returns:
     A ``tf.data.Dataset`` transformation.
+
+  See Also:
+    :func:`opennmt.data.batch_sequence_dataset`
   """
   return lambda dataset: dataset.padded_batch(
       batch_size, padded_shapes=padded_shapes or _get_output_shapes(dataset))
@@ -207,6 +210,9 @@ def batch_sequence_dataset(batch_size,
 
   Raises:
     ValueError: if :obj:`batch_type` is not one of "examples" or "tokens".
+
+  See Also:
+    :func:`opennmt.data.batch_dataset`
   """
   batch_size = batch_size * batch_multiplier
 
@@ -312,6 +318,9 @@ def training_pipeline(batch_size,
 
   See Also:
     :func:`opennmt.data.batch_sequence_dataset`
+    :func:`opennmt.data.filter_examples_by_length`
+    :func:`opennmt.data.filter_irregular_batches`
+    :func:`opennmt.data.shuffle_dataset`
   """
 
   def _pipeline(dataset):

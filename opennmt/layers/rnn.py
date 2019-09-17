@@ -73,6 +73,9 @@ def make_rnn_cell(num_layers,
 
   Returns:
     A ``tf.keras.layers.StackedRNNCells`` instance.
+
+  See Also:
+    :class:`opennmt.layers.RNNCellWrapper`
   """
   if cell_class is None:
     cell_class = tf.keras.layers.LSTMCell
@@ -98,6 +101,9 @@ class RNN(tf.keras.layers.Layer):
       reducer: A :class:`opennmt.layers.Reducer` instance to merge
         bidirectional states and outputs.
       kwargs: Additional layer arguments.
+
+    See Also:
+      :func:`opennmt.layers.make_rnn_cell`
     """
     super(RNN, self).__init__(**kwargs)
     self.reducer = reducer

@@ -27,6 +27,9 @@ class WordNoiser(object):
       is_spacer: Whether :obj:`subword_token` is used as a spacer (as in
         SentencePiece) or a joiner (as in BPE). If ``None``, will infer
         directly from :obj:`subword_token`.
+
+    See Also:
+      :func:`opennmt.data.tokens_to_words`
     """
     if noises is None:
       noises = []
