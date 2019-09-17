@@ -76,7 +76,7 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
 class LuongAttention(_RNNBase):
   """Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025."""
   def __init__(self):
-    super(NMTSmall, self).__init__(
+    super(LuongAttention, self).__init__(
         source_inputter=inputters.WordEmbedder(
             embedding_size=512),
         target_inputter=inputters.WordEmbedder(
@@ -100,7 +100,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
   """Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354."""
   def __init__(self):
     # pylint: disable=bad-continuation
-    super(SeqTagger, self).__init__(
+    super(LstmCnnCrfTagger, self).__init__(
         inputter=inputters.MixedInputter([
             inputters.WordEmbedder(
                 embedding_size=100),
