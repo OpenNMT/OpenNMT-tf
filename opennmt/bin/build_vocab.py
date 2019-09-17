@@ -4,7 +4,7 @@ import argparse
 
 from opennmt import constants
 from opennmt import tokenizers
-from opennmt import utils
+from opennmt import data
 
 
 def main():
@@ -46,7 +46,7 @@ def main():
     special_tokens.append(constants.START_OF_SENTENCE_TOKEN)
     special_tokens.append(constants.END_OF_SENTENCE_TOKEN)
 
-  vocab = utils.Vocab(special_tokens=special_tokens)
+  vocab = data.Vocab(special_tokens=special_tokens)
   if args.from_vocab is not None:
     vocab.load(args.from_vocab, file_format=args.from_format)
   for data_file in args.data:
