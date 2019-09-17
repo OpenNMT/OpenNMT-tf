@@ -14,6 +14,7 @@ from opennmt.utils.decoding import dynamic_decode
 from opennmt.utils.losses import cross_entropy_loss
 from opennmt.utils.losses import cross_entropy_sequence_loss
 from opennmt.utils.losses import guided_alignment_cost
+from opennmt.utils.losses import max_margin_loss
 from opennmt.utils.losses import regularization_penalty
 
 from opennmt.utils.misc import format_translation_output
