@@ -17,9 +17,9 @@ OpenNMT-tf 2.0 is the first major update of the project. The goal of this releas
 
 See the [2.0 Transition Guide](docs/v2_transition.md) for details about the following changes.
 
-* TensorFlow 2.0 is required
-* Python 3.5 or greater is required
-* Checkpoints are no longer compatible as the code now uses object-based instead of name-based checkpointing (except Transformer-based checkpoints which are automatically upgraded when loaded)
+* TensorFlow 2.0 is now required
+* Python 3.5 or greater is now required
+* Checkpoints are no longer compatible as the code now uses object-based instead of name-based checkpointing (except Transformer checkpoints which are automatically upgraded when loaded)
 * The `onmt-main` script now makes use of subparsers which require to move the run type and it specific options to the end of the command
 * Some predefined models have been renamed or changed, see the [transition guide](docs/v2_transition.md#changed-predefined-models)
 * Some parameters in the YAML configuration have been renamed or changed, see the [transition guide](docs/v2_transition.md#changed-parameters)
@@ -29,7 +29,7 @@ See the [2.0 Transition Guide](docs/v2_transition.md) for details about the foll
 This version also changes the public API scope of the project:
 
 * Only public symbols accessible from the top-level `opennmt` package and visible on the online documentation are now part of the public API and covered by backward compatibility guarantees
-* The minimum required TensorFlow version is no longer part of the public API and can change in future versions
+* The minimum required TensorFlow version is no longer part of the public API and can change in future minor versions
 
 ### New features
 
@@ -39,7 +39,7 @@ This version also changes the public API scope of the project:
 * Multi-GPU training with `tf.distribute`
 * Support GZIP compressed datasets
 * `eval` run type accepts `--features_file` and `--labels_file` to evaluate files other than the ones defined in the YAML configuration
-* Accept `with_alignments: soft` to output soft alignments in inference or scoring
+* Accept `with_alignments: soft` to output soft alignments during inference or scoring
 * `dropout` can be configured in the YAML configuration to override the model values
 
 ### Fixes and improvements
@@ -49,7 +49,7 @@ This version also changes the public API scope of the project:
 * Log level configuration also controls TensorFlow C++ logs
 * All public classes and functions are now properly accessible from the root package `opennmt`
 * Fix dtype error after updating the vocabulary of an averaged checkpoint
-* When updating vocabularies, weights of new words are randomly initialized instead of a zero initialized
+* When updating vocabularies, weights of new words are randomly initialized instead of zero initialized
 
 ### Missing features
 

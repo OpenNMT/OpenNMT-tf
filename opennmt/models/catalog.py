@@ -75,26 +75,53 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
 
 class LuongAttention(_RNNBase):
   """Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025."""
-  def __init__(self):
+  def __init__(self, num_layers=4, num_units=1000):
     super(LuongAttention, self).__init__(
         source_inputter=inputters.WordEmbedder(
             embedding_size=512),
         target_inputter=inputters.WordEmbedder(
             embedding_size=512),
         encoder=encoders.RNNEncoder(
-            num_layers=4,
-            num_units=1000,
+            num_layers=num_layers,
+            num_units=num_units,
             dropout=0.2,
             residual_connections=False,
             cell_class=tf.keras.layers.LSTMCell),
         decoder=decoders.AttentionalRNNDecoder(
-            num_layers=4,
-            num_units=1000,
+            num_layers=num_layers,
+            num_units=num_units,
             bridge_class=layers.CopyBridge,
             attention_mechanism_class=tfa.seq2seq.LuongAttention,
             cell_class=tf.keras.layers.LSTMCell,
             dropout=0.2,
             residual_connections=False))
+
+class LuongAttentionSmall(_RNNBase):
+  """Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025."""
+  def __init__(self, num_layers=2, num_units=512):
+    super(LuongAttentionSmall, self).__init__(
+        source_inputter=inputters.WordEmbedder(
+            embedding_size=512),
+        target_inputter=inputters.WordEmbedder(
+            embedding_size=512),
+        encoder=encoders.RNNEncoder(
+            num_layers=num_layers,
+            num_units=num_units,
+            dropout=0.2,
+            residual_connections=False,
+            cell_class=tf.keras.layers.LSTMCell),
+        decoder=decoders.RNNDecoder(
+            num_layers=num_layers,
+            num_units=num_units,
+            bridge_class=layers.CopyBridge,
+            cell_class=tf.keras.layers.LSTMCell,
+            dropout=0.2,
+            residual_connections=False))
+
+# class LuongAttentionSmall(LuongAttention):
+#   """Defines a small LSTM encoder-decoder model, for simple tasks or test purposes."""
+#   def __init__(self):
+#     super(LuongAttentionSmall, self).__init__(num_layers=2, num_units=512)
 
 class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
   """Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354."""
