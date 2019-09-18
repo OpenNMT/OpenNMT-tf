@@ -3,7 +3,6 @@
 from opennmt.models.catalog import ListenAttendSpell
 from opennmt.models.catalog import LstmCnnCrfTagger
 from opennmt.models.catalog import LuongAttention
-from opennmt.models.catalog import LuongAttentionSmall
 from opennmt.models.catalog import Transformer as TransformerBase
 from opennmt.models.catalog import TransformerBig
 

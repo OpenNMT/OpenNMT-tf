@@ -47,10 +47,10 @@ data:
 ## Step 2: Train the model
 
 ```
-onmt-main --model_type LuongAttentionSmall --config data.yml --auto_config train --with_eval
+onmt-main --model_type Transformer --config data.yml --auto_config train --with_eval
 ```
 
-This command will start the training and evaluation loop of a small LSTM encoder-decoder model. The `--auto_config` flag selects the best settings for this type of model.
+This command will start the training and evaluation loop of a [Transformer](https://arxiv.org/abs/1706.03762) model. The `--auto_config` flag selects the best settings for this type of model.
 
 The training will regularly produce checkpoints in the `run/` directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using [TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard):
 
@@ -74,8 +74,7 @@ While this example gave you a quick overview of a typical OpenNMT-tf workflow, i
 
 To go further, here are some pointers:
 
-* Download larger training sets, for example from a [WMT task](http://www.statmt.org/wmt19/translation-task.html)
-* Train a bigger model with `--model_type Transformer` or `--model_type TransformerBig`
+* Download larger training sets, for example from a [WMT task](http://www.statmt.org/wmt16/translation-task.html)
 * Run existing [training recipes](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts)
 * Discover the [configuration reference](configuration.html) to tune hyperparameters
 * Explore the other sections to learn about advanced topics
