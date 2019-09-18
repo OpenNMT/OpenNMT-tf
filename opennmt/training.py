@@ -86,6 +86,7 @@ class Trainer(object):
       training_loss = self._model.regularize_loss(training_loss, variables=variables)
       gradients = optimizer.get_gradients(training_loss, variables)
       gradient_accumulator(gradients)
+      tf.summary.scalar("gradients/global_norm", tf.linalg.global_norm(gradients))
       num_words = {}
       if "length" in source:
         num_words["source"] = tf.reduce_sum(source["length"])
@@ -104,16 +105,21 @@ class Trainer(object):
 
     @dataset_util.function_on_next(dataset)
     def _forward(next_fn):
-      with self._strategy.scope():
-        per_replica_source, per_replica_target = next_fn()
-        per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
-            _accumulate_gradients, args=(per_replica_source, per_replica_target))
+      tf.summary.experimental.set_step(self._optimizer.iterations)
+      should_record_summaries = tf.logical_and(
+          tf.equal(self._optimizer.iterations % report_steps, 0),
+          tf.equal(gradient_accumulator.step, 0))
+      with tf.summary.record_if(should_record_summaries):
+        with self._strategy.scope():
+          per_replica_source, per_replica_target = next_fn()
+          per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
+              _accumulate_gradients, args=(per_replica_source, per_replica_target))
 
-        # TODO: these reductions could be delayed until _step is called.
-        loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
-        num_words = {
-            k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
-            for k, v in six.iteritems(per_replica_words)}
+          # TODO: these reductions could be delayed until _step is called.
+          loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
+          num_words = {
+              k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
+              for k, v in six.iteritems(per_replica_words)}
       return loss, num_words
 
     @tf.function

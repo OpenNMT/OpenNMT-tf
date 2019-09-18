@@ -255,6 +255,7 @@ class Decoder(tf.keras.layers.Layer):
         sampling_probability = None
       else:
         fused_projection = False
+        tf.summary.scalar("sampling_probability", sampling_probability)
 
     batch_size, max_step, _ = misc.shape_list(inputs)
     inputs_ta = tf.TensorArray(inputs.dtype, size=max_step)
