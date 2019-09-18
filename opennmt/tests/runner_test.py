@@ -176,6 +176,14 @@ class RunnerTest(tf.test.TestCase):
     runner = self._getTransliterationRunner()
     runner.export(export_dir)
     self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
+    imported = tf.saved_model.load(export_dir)
+    translate_fn = imported.signatures["serving_default"]
+    outputs = translate_fn(
+        tokens=tf.constant([["آ" ,"ت" ,"ز" ,"م" ,"و" ,"ن"]]),
+        length=tf.constant([6], dtype=tf.int32))
+    result = tf.nest.map_structure(lambda x: x[0, 0], outputs)
+    tokens = result["tokens"][:result["length"]]
+    self.assertAllEqual(tokens, [b"a", b"t", b"z", b"m", b"o", b"n"])
 
 
 if __name__ == "__main__":
