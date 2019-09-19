@@ -1,5 +1,6 @@
 """Evaluation related classes and functions."""
 
+import collections
 import os
 import six
 
@@ -13,6 +14,12 @@ from opennmt.utils import scorers as scorers_lib
 _SUMMARIES_SCOPE = "metrics"
 
 
+class EarlyStopping(
+    collections.namedtuple("EarlyStopping",
+                           ("metric", "min_improvement", "steps"))):
+  """Conditions for early stopping."""
+
+
 class Evaluator(object):
   """Model evaluator."""
 
@@ -23,6 +30,7 @@ class Evaluator(object):
                batch_size,
                scorers=None,
                save_predictions=False,
+               early_stopping=None,
                eval_dir=None):
     """Initializes the evaluator.
 
@@ -35,11 +43,13 @@ class Evaluator(object):
         the hypothesis and return one or more scores.
       save_predictions: Save evaluation predictions to a file. This is ``True``
         when :obj:`external_evaluator` is set.
+      early_stopping: An ``EarlyStopping`` instance.
       eval_dir: Directory where predictions can be saved.
 
     Raises:
       ValueError: If predictions should be saved but the model is not compatible.
       ValueError: If predictions should be saved but :obj:`eval_dir` is ``None``.
+      ValueError: If the :obj:`early_stopping` configuration is invalid.
     """
     if scorers is None:
       scorers = []
@@ -82,6 +92,20 @@ class Evaluator(object):
 
     self._eval = _eval
 
+    self._metrics_name = {"loss"}
+    self._metrics_name.update(set(scorer.name for scorer in self._scorers))
+    model_metrics = self._model.get_metrics()
+    if model_metrics:
+      self._metrics_name.update(set(six.iterkeys(model_metrics)))
+
+    if early_stopping is not None:
+      if early_stopping.metric not in self._metrics_name:
+        raise ValueError("Invalid early stopping metric '%s', expected one in %s" % (
+            early_stopping.metric, str(self._metrics_name)))
+      if early_stopping.steps <= 0:
+        raise ValueError("Early stopping steps should greater than 0")
+    self._early_stopping = early_stopping
+
   @classmethod
   def from_config(cls, model, config, features_file=None, labels_file=None):
     """Creates an evaluator from the configuration.
@@ -106,6 +130,14 @@ class Evaluator(object):
     scorers = config["eval"].get("external_evaluators")
     if scorers is not None:
       scorers = scorers_lib.make_scorers(scorers)
+    early_stopping_config = config["eval"].get("early_stopping")
+    if early_stopping_config is not None:
+      early_stopping = EarlyStopping(
+          metric=early_stopping_config.get("metric", "loss"),
+          min_improvement=early_stopping_config["min_improvement"],
+          steps=early_stopping_config["steps"])
+    else:
+      early_stopping = None
     return cls(
         model,
         features_file or config["data"]["eval_features_file"],
@@ -113,22 +145,44 @@ class Evaluator(object):
         config["eval"]["batch_size"],
         scorers=scorers,
         save_predictions=config["eval"].get("save_eval_predictions", False),
+        early_stopping=early_stopping,
         eval_dir=os.path.join(config["model_dir"], "eval"))
 
   @property
   def metrics_name(self):
     """The name of the metrics returned by this evaluator."""
-    names = {"loss"}
-    names.update(set(scorer.name for scorer in self._scorers))
-    metrics = self._model.get_metrics()
-    if metrics is not None:
-      names.update(set(six.iterkeys(metrics)))
-    return names
+    return self._metrics_name
 
   @property
   def metrics_history(self):
     """The history of metrics result per evaluation step."""
     return self._metrics_history
+
+  def should_stop(self):
+    """Returns ``True`` if early stopping conditions are met."""
+    if self._early_stopping is None:
+      return False
+    target_metric = self._early_stopping.metric
+    scorers = {scorer.name:score for scorer in self._scorers}
+    if target_metric in scorers:
+      higher_is_better = not scorers[target_metric].lower_is_better()
+    else:
+      # TODO: the condition below is not always true, find a way to set it
+      # correctly for Keras metrics.
+      higher_is_better = target_metric != "loss"
+    metrics = [values[target_metric] for _, values in self._metrics_history]
+    should_stop = early_stop(
+        metrics,
+        self._early_stopping.steps,
+        min_improvement=self._early_stopping.min_improvement,
+        higher_is_better=higher_is_better)
+    if should_stop:
+      tf.get_logger().warning(
+          "Evaluation metric '%s' did not improve more than %f in the last %d evaluations",
+          target_metric,
+          self._early_stopping.min_improvement,
+          self._early_stopping.steps)
+    return should_stop
 
   def __call__(self, step):
     """Runs the evaluator.
@@ -199,3 +253,38 @@ class Evaluator(object):
         tf.summary.scalar("%s/%s" % (_SUMMARIES_SCOPE, key), value, step=step)
       self._summary_writer.flush()
     return results
+
+
+def early_stop(metrics, steps, min_improvement=0, higher_is_better=False):
+  """Early stopping condition.
+
+  Args:
+    metrics: A list of metric values.
+    steps: Consider the improvement over this many steps.
+    min_improvement: Continue if the metric improved less than this value:
+    higher_is_better: Whether a higher value is better for this metric.
+
+  Returns:
+    A boolean.
+  """
+  if len(metrics) < steps + 1:
+    return False
+
+  def _did_improve(ref, new):
+    # Returns True if new is improving on ref.
+    if higher_is_better:
+      return new > ref + min_improvement
+    else:
+      return new < ref - min_improvement
+
+  samples = metrics[-steps - 1:]
+
+  # First check if the boundaries show an improvement.
+  if _did_improve(samples[0], samples[-1]):
+    return False
+
+  # If not, only early stop if each successive evaluation did not improve.
+  for metric, next_metric in zip(samples[:-1], samples[1:]):
+    if _did_improve(metric, next_metric):
+      return False
+  return True

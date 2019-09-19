@@ -18,6 +18,39 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 * word embeddings
 * decoder sampling probability
 
+## Automatic evaluation
+
+Evaluation can be run automatically when using the `--with_eval` flag:
+
+```bash
+onmt-main [...] train --with_eval
+```
+
+This minimally requires you to set some evaluation files in your data configuration, e.g.:
+
+```yaml
+data:
+  eval_features_file: ...
+  eval_labels_file: ...
+```
+
+By default, it will run every 5000 training steps and report evaluation results in the console output and on TensorBoard.
+
+### Early stopping
+
+Early stopping is useful to stop the training automatically when the model performance is not improving anymore.
+
+For example, the following configuration stops the training when the BLEU score does not improve by more than 0.2 points in the last 4 evaluations:
+
+```yaml
+eval:
+  external_evaluators: bleu
+  early_stopping:
+    metric: bleu
+    min_improvement: 0.2
+    steps: 4
+```
+
 ## Replicated training
 
 OpenNMT-tf training can make use of multiple GPUs with *in-graph replication*. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches `N` times larger, where `N` is the number of used GPUs.

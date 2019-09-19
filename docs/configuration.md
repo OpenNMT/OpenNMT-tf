@@ -217,9 +217,17 @@ eval:
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: BLEU, ROUGE
-  external_evaluators: BLEU
+  # Available evaluators: bleu, rouge
+  external_evaluators: bleu
 
+  # (optional) Early stopping condition.
+  # Should be read as: stop the training if "metric" did not improve more
+  # than "min_improvement" in the last "steps" evaluations.
+  early_stopping:
+    # The target metric name (default: "loss").
+    metric: bleu
+    min_improvement: 0.01
+    steps: 4
 
 # (optional) Inference options.
 infer:

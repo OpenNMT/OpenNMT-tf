@@ -58,6 +58,9 @@ class Trainer(object):
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
       tf.get_logger().warning("Model already reached max_step = %d. Exiting.", max_step)
       return
+    if evaluator is not None and evaluator.should_stop():
+      tf.get_logger().warning("Early stopping conditions are already met. Exiting.")
+      return
 
     with self._strategy.scope():
       self._model.create_variables(optimizer=self._optimizer)
@@ -159,6 +162,9 @@ class Trainer(object):
           self._checkpoint.save(step)
         if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
           evaluator(step)
+          if evaluator.should_stop():
+            tf.get_logger().warning("Early stopping conditions are met. Exiting.")
+            break
         if step == max_step:
           break
 

@@ -37,6 +37,7 @@ This version also changes the public API scope of the project:
 * Many new reusable modules and layers, see the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html)
 * Replace `tf.estimator` by custom loops for more control and clearer execution path
 * Multi-GPU training with `tf.distribute`
+* Support early stopping based on any evaluation metrics
 * Support GZIP compressed datasets
 * `eval` run type accepts `--features_file` and `--labels_file` to evaluate files other than the ones defined in the YAML configuration
 * Accept `with_alignments: soft` to output soft alignments during inference or scoring
