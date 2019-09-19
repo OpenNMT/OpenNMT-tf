@@ -1,9 +1,11 @@
 """Various utility functions to use throughout the project."""
 
+import collections
 import copy
 import sys
 import inspect
 import heapq
+import os
 import threading
 import six
 
@@ -227,6 +229,31 @@ def merge_dict(dict1, dict2):
       dict1[key] = value
   return dict1
 
+def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
+  """Reads summaries from TensorFlow event files.
+
+  Args:
+    event_dir: Directory containing event files.
+    event_file_pattern: The pattern to look for event files.
+
+  Returns:
+    A list of tuple (step, dict of summaries), sorted by step.
+  """
+  if not tf.io.gfile.exists(event_dir):
+    return []
+  summaries = collections.defaultdict(dict)
+  for event_file in tf.io.gfile.glob(os.path.join(event_dir, event_file_pattern)):
+    for event in tf.compat.v1.train.summary_iterator(event_file):
+      if not event.HasField("summary"):
+        continue
+      for value in event.summary.value:
+        tensor_proto = value.tensor
+        tensor = tf.io.parse_tensor(
+            tensor_proto.SerializeToString(), tf.as_dtype(tensor_proto.dtype))
+        summaries[event.step][value.tag] = tf.get_static_value(tensor)
+  return [
+      (step, values)
+      for step, values in sorted(six.iteritems(summaries), key=lambda x: x[0])]
 
 class OrderRestorer(object):
   """Helper class to restore out-of-order elements in order."""

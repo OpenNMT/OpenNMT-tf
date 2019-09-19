@@ -76,6 +76,26 @@ class MiscTest(tf.test.TestCase):
             alignment_type="soft"),
         "hello world ||| 0.100000 0.700000 0.200000 ; 0.500000 0.300000 0.200000")
 
+  def testReadSummaries(self):
+    event_dir = self.get_temp_dir()
+    summary_writer = tf.summary.create_file_writer(event_dir)
+    with summary_writer.as_default():
+      tf.summary.scalar("values/a", 1, step=0)
+      tf.summary.scalar("values/b", 2, step=0)
+      tf.summary.scalar("values/a", 3, step=5)
+      tf.summary.scalar("values/b", 4, step=5)
+      tf.summary.scalar("values/a", 5, step=10)
+      tf.summary.scalar("values/b", 6, step=10)
+      summary_writer.flush()
+    summaries = misc.read_summaries(event_dir)
+    self.assertLen(summaries, 3)
+    steps, values = zip(*summaries)
+    self.assertListEqual(list(steps), [0, 5, 10])
+    values = list(values)
+    self.assertDictEqual(values[0], {"values/a": 1, "values/b": 2})
+    self.assertDictEqual(values[1], {"values/a": 3, "values/b": 4})
+    self.assertDictEqual(values[2], {"values/a": 5, "values/b": 6})
+
   def testEventOrderRestorer(self):
     events = []
     restorer = misc.OrderRestorer(
