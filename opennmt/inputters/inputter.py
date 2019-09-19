@@ -8,7 +8,7 @@ import tensorflow as tf
 from opennmt.data import dataset as dataset_util
 from opennmt.layers import common
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
-from opennmt.utils.misc import item_or_tuple
+from opennmt.utils import misc
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -90,7 +90,7 @@ class Inputter(tf.keras.layers.Layer):
     See Also:
       :func:`opennmt.data.inference_pipeline`
     """
-    map_func = lambda *arg: self.make_features(item_or_tuple(arg), training=False)
+    map_func = lambda *arg: self.make_features(misc.item_or_tuple(arg), training=False)
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
@@ -275,7 +275,7 @@ class ParallelInputter(MultiInputter):
     lengths = []
     for i, inputter in enumerate(self.inputters):
       if self.combine_features:
-        sub_features = _extract_prefixed_keys(features, "inputter_{}_".format(i))
+        sub_features = misc.extract_prefixed_keys(features, "inputter_{}_".format(i))
       else:
         sub_features = features[i]
       lengths.append(inputter.get_length(sub_features))
@@ -290,10 +290,10 @@ class ParallelInputter(MultiInputter):
         features = {}
       for i, inputter in enumerate(self.inputters):
         prefix = "inputter_%d_" % i
-        sub_features = _extract_prefixed_keys(features, prefix)
+        sub_features = misc.extract_prefixed_keys(features, prefix)
         if not sub_features:
           # Also try to read the format produced by the serving features.
-          sub_features = _extract_suffixed_keys(features, "_%d" % i)
+          sub_features = misc.extract_suffixed_keys(features, "_%d" % i)
         sub_features = inputter.make_features(
             element=element[i] if element is not None else None,
             features=sub_features,
@@ -335,7 +335,7 @@ class ParallelInputter(MultiInputter):
     transformed = []
     for i, inputter in enumerate(self.inputters):
       if self.combine_features:
-        sub_features = _extract_prefixed_keys(features, "inputter_{}_".format(i))
+        sub_features = misc.extract_prefixed_keys(features, "inputter_{}_".format(i))
       else:
         sub_features = features[i]
       transformed.append(inputter(sub_features, training=training))
@@ -544,26 +544,3 @@ class ExampleInputter(ParallelInputter):
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size))
     return dataset
-
-
-def _extract_prefixed_keys(dictionary, prefix):
-  """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
-  with :obj:`prefix`.
-  """
-  sub_dict = {}
-  for key, value in six.iteritems(dictionary):
-    if key.startswith(prefix):
-      original_key = key[len(prefix):]
-      sub_dict[original_key] = value
-  return sub_dict
-
-def _extract_suffixed_keys(dictionary, suffix):
-  """Returns a dictionary with all keys from :obj:`dictionary` that are suffixed
-  with :obj:`suffix`.
-  """
-  sub_dict = {}
-  for key, value in six.iteritems(dictionary):
-    if key.endswith(suffix):
-      original_key = key[:-len(suffix)]
-      sub_dict[original_key] = value
-  return sub_dict

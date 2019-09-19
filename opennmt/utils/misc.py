@@ -188,6 +188,28 @@ def extract_batches(tensors):
           key: value[b] for key, value in six.iteritems(tensors)
       }
 
+def extract_prefixed_keys(dictionary, prefix):
+  """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
+  with :obj:`prefix`.
+  """
+  sub_dict = {}
+  for key, value in six.iteritems(dictionary):
+    if key.startswith(prefix):
+      original_key = key[len(prefix):]
+      sub_dict[original_key] = value
+  return sub_dict
+
+def extract_suffixed_keys(dictionary, suffix):
+  """Returns a dictionary with all keys from :obj:`dictionary` that are suffixed
+  with :obj:`suffix`.
+  """
+  sub_dict = {}
+  for key, value in six.iteritems(dictionary):
+    if key.endswith(suffix):
+      original_key = key[:-len(suffix)]
+      sub_dict[original_key] = value
+  return sub_dict
+
 def merge_dict(dict1, dict2):
   """Merges :obj:`dict2` into :obj:`dict1`.
 
