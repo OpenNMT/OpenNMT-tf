@@ -10,6 +10,9 @@ from opennmt.utils import misc
 from opennmt.utils import scorers as scorers_lib
 
 
+_SUMMARIES_SCOPE = "metrics"
+
+
 class Evaluator(object):
   """Model evaluator."""
 
@@ -54,8 +57,13 @@ class Evaluator(object):
     self._save_predictions = save_predictions
     self._scorers = scorers
     self._eval_dir = eval_dir
+    self._metrics_history = []
     if eval_dir is not None:
       self._summary_writer = tf.summary.create_file_writer(eval_dir)
+      summaries = misc.read_summaries(eval_dir)
+      for step, values in summaries:
+        metrics = misc.extract_prefixed_keys(values, _SUMMARIES_SCOPE + "/")
+        self._metrics_history.append((step, metrics))
     else:
       self._summary_writer = tf.summary.create_noop_writer()
     dataset = model.examples_inputter.make_evaluation_dataset(
@@ -107,6 +115,21 @@ class Evaluator(object):
         save_predictions=config["eval"].get("save_eval_predictions", False),
         eval_dir=os.path.join(config["model_dir"], "eval"))
 
+  @property
+  def metrics_name(self):
+    """The name of the metrics returned by this evaluator."""
+    names = {"loss"}
+    names.update(set(scorer.name for scorer in self._scorers))
+    metrics = self._model.get_metrics()
+    if metrics is not None:
+      names.update(set(six.iterkeys(metrics)))
+    return names
+
+  @property
+  def metrics_history(self):
+    """The history of metrics result per evaluation step."""
+    return self._metrics_history
+
   def __call__(self, step):
     """Runs the evaluator.
 
@@ -157,14 +180,22 @@ class Evaluator(object):
         else:
           results[scorer.name] = score
 
+    return self._record_results(step, results)
+
+  def _record_results(self, step, results):
     for name, value in six.iteritems(results):
       if isinstance(value, tf.Tensor):
         results[name] = value.numpy()
+    # Clear history for steps that are greater than step.
+    while self._metrics_history and self._metrics_history[-1][0] > step:
+      self._metrics_history.pop()
+    self._metrics_history.append((step, dict(results)))
     tf.get_logger().info(
         "Evaluation result for step %d: %s",
         step,
         " ; ".join("%s = %f" % (k, v) for k, v in six.iteritems(results)))
     with self._summary_writer.as_default():
       for key, value in six.iteritems(results):
-        tf.summary.scalar("metrics/%s" % key, value, step=step)
+        tf.summary.scalar("%s/%s" % (_SUMMARIES_SCOPE, key), value, step=step)
+      self._summary_writer.flush()
     return results
