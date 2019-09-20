@@ -22,9 +22,9 @@ test_data = os.path.join(root_dir, "testdata")
 
 class RunnerTest(tf.test.TestCase):
 
-  def _getTransliterationRunner(self, base_config=None):
-    model_dir = os.path.join(self.get_temp_dir(), "transliteration-aren-v1")
-    shutil.copytree(os.path.join(test_data, "transliteration-aren-v1"), model_dir)
+  def _getTransliterationRunner(self, base_config=None, model_version="v2"):
+    model_dir = os.path.join(self.get_temp_dir(), "model")
+    shutil.copytree(os.path.join(test_data, "transliteration-aren-v2", model_version), model_dir)
     config = {}
     config["model_dir"] = model_dir
     config["data"] = {
@@ -81,7 +81,7 @@ class RunnerTest(tf.test.TestCase):
     self.assertLen(tf.train.get_checkpoint_state(avg_dir).all_model_checkpoint_paths, 1)
     model_dir = os.path.dirname(avg_dir)
     self.assertEndsWith(tf.train.latest_checkpoint(model_dir), "145002")
-    self.assertLen(tf.train.get_checkpoint_state(model_dir).all_model_checkpoint_paths, 2)
+    self.assertLen(tf.train.get_checkpoint_state(model_dir).all_model_checkpoint_paths, 3)
 
     # Check that the averaged checkpoint is usable.
     ar_file, _ = self._makeTransliterationData()
@@ -108,14 +108,14 @@ class RunnerTest(tf.test.TestCase):
     self.assertIn("bleu", metrics)
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
-  @parameterized.expand([[1], [4]])
-  def testInfer(self, beam_size):
+  @parameterized.expand([[1, "v2"], [4, "v2"], [1, "v1"]])
+  def testInfer(self, beam_size, model_version):
     config = {
         "params": {
             "beam_width": beam_size
         }
     }
-    runner = self._getTransliterationRunner(config)
+    runner = self._getTransliterationRunner(config, model_version)
     ar_file, _ = self._makeTransliterationData()
     en_file = os.path.join(self.get_temp_dir(), "output.txt")
     runner.infer(ar_file, predictions_file=en_file)
