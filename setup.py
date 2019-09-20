@@ -36,7 +36,7 @@ setup(
         "pyyaml==5.1.*",
         "rouge==0.3.1",
         "sacrebleu>=1.3.6,<2;python_version>='3.0'",
-        "tensorflow-addons==0.5.0"
+        "tensorflow-addons>=0.5.1"
     ],
     extras_require={
         "tests": tests_require,

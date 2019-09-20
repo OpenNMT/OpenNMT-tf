@@ -88,11 +88,11 @@ OpenNMT-tf also implements most of the techniques commonly used to train and eva
 OpenNMT-tf requires:
 
 * Python >= 3.5
-* TensorFlow >= 2.0
 
 We recommend installing it with `pip`:
 
 ```bash
+pip install --upgrade pip
 pip install OpenNMT-tf
 ```
 

@@ -2,7 +2,6 @@ language: python
 python:
   - "3.5"
 before_install:
-  - pip install tensorflow==2.0.0rc0
   - pip install -e .[tests]
 before_script:
   - wget https://s3.amazonaws.com/opennmt-models/transliteration-aren-v2.tar.gz
