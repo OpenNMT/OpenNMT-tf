@@ -4,7 +4,7 @@ python:
 before_install:
   - pip install -e .[tests]
   # Replace tensorflow-gpu by tensorflow, see https://github.com/tensorflow/addons/issues/532
-  - pip install tensorflow="$(pip show tensorflow-gpu | grep Version | cut -f2 -d' ')"
+  - pip install tensorflow=="$(pip show tensorflow-gpu | grep Version | cut -f2 -d' ')"
   - pip uninstall -y tensorflow-gpu
 before_script:
   - wget https://s3.amazonaws.com/opennmt-models/transliteration-aren-v2.tar.gz
