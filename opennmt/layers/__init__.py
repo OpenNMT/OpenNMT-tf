@@ -26,6 +26,8 @@ from opennmt.layers.rnn import make_rnn_cell
 
 from opennmt.layers.transformer import FeedForwardNetwork
 from opennmt.layers.transformer import MultiHeadAttention
+from opennmt.layers.transformer import SelfAttentionDecoderLayer
+from opennmt.layers.transformer import SelfAttentionEncoderLayer
 from opennmt.layers.transformer import TransformerLayerWrapper
 from opennmt.layers.transformer import combine_heads
 from opennmt.layers.transformer import future_mask

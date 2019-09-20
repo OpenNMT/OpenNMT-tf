@@ -51,7 +51,7 @@ class SelfAttentionEncoder(Encoder):
       self.position_encoder = position_encoder_class()
     self.layer_norm = common.LayerNorm()
     self.layers = [
-        _SelfAttentionEncoderLayer(
+        transformer.SelfAttentionEncoderLayer(
             num_units,
             num_heads,
             ffn_inner_dim,
@@ -77,57 +77,4 @@ class SelfAttentionEncoder(Encoder):
     m += self.layer_norm.map_v1_weights(weights["LayerNorm"])
     for i, layer in enumerate(self.layers):
       m += layer.map_v1_weights(weights["layer_%d" % i])
-    return m
-
-
-class _SelfAttentionEncoderLayer(tf.keras.layers.Layer):
-  """Implements one self-attention encoding layer."""
-
-  def __init__(self,
-               num_units,
-               num_heads,
-               ffn_inner_dim,
-               dropout=0.1,
-               attention_dropout=0.1,
-               ffn_dropout=0.1,
-               ffn_activation=tf.nn.relu,
-               **kwargs):
-    """Initializes the layer.
-
-    Args:
-      num_units: The number of hidden units.
-      num_heads: The number of heads in the multi-head attention.
-      ffn_inner_dim: The number of units of the inner linear transformation
-        in the feed forward layer.
-      dropout: The probability to drop units from the outputs.
-      attention_dropout: The probability to drop units from the attention.
-      ffn_dropout: The probability to drop units from the activation output in
-        the feed forward layer.
-      ffn_activation: The activation function to apply between the two linear
-        transformations of the feed forward layer.
-      kwargs: Additional layer arguments.
-    """
-    super(_SelfAttentionEncoderLayer, self).__init__(**kwargs)
-    self.self_attention = transformer.MultiHeadAttention(
-        num_heads, num_units, dropout=attention_dropout)
-    self.self_attention = transformer.TransformerLayerWrapper(
-        self.self_attention, dropout)
-    self.ffn = transformer.FeedForwardNetwork(
-        ffn_inner_dim,
-        num_units,
-        dropout=ffn_dropout,
-        activation=ffn_activation)
-    self.ffn = transformer.TransformerLayerWrapper(
-        self.ffn, dropout)
-
-  def call(self, x, mask=None, training=None):  # pylint: disable=arguments-differ
-    """Runs the encoder layer."""
-    y, _ = self.self_attention(x, mask=mask, training=training)
-    y = self.ffn(y, training=training)
-    return y
-
-  def map_v1_weights(self, weights):
-    m = []
-    m += self.self_attention.map_v1_weights(weights["multi_head"])
-    m += self.ffn.map_v1_weights(weights["ffn"])
     return m

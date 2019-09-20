@@ -53,7 +53,7 @@ class SelfAttentionDecoder(decoder.Decoder):
       self.position_encoder = position_encoder_class()
     self.layer_norm = common.LayerNorm()
     self.layers = [
-        _SelfAttentionDecoderLayer(
+        transformer.SelfAttentionDecoderLayer(
             self.num_units,
             self.num_heads,
             ffn_inner_dim,
@@ -187,108 +187,3 @@ class SelfAttentionDecoder(decoder.Decoder):
           for _ in range(self.num_sources)]
       cache.append(dict(self_kv=self_kv, memory_kv=memory_kv))
     return cache
-
-
-class _SelfAttentionDecoderLayer(tf.keras.layers.Layer):
-  """Implements one self-attention decoding layer."""
-
-  def __init__(self,
-               num_units,
-               num_heads,
-               ffn_inner_dim,
-               num_sources=1,
-               dropout=0.1,
-               attention_dropout=0.1,
-               ffn_dropout=0.1,
-               ffn_activation=tf.nn.relu,
-               **kwargs):
-    """Initializes the layer.
-
-    Args:
-      num_units: The number of hidden units.
-      num_heads: The number of heads in the multi-head attention.
-      ffn_inner_dim: The number of units of the inner linear transformation
-        in the feed forward layer.
-      num_sources: The number of source contexts.
-      dropout: The probability to drop units from the outputs.
-      attention_dropout: The probability to drop units from the attention.
-      ffn_dropout: The probability to drop units from the activation output in
-        the feed forward layer.
-      ffn_activation: The activation function to apply between the two linear
-        transformations of the feed forward layer.
-      **kwargs: Additional layer arguments.
-    """
-    super(_SelfAttentionDecoderLayer, self).__init__(**kwargs)
-    self.self_attention = transformer.MultiHeadAttention(
-        num_heads,
-        num_units,
-        dropout=attention_dropout)
-    self.self_attention = transformer.TransformerLayerWrapper(
-        self.self_attention, dropout)
-    self.attention = []
-    for _ in range(num_sources):
-      attention = transformer.MultiHeadAttention(
-          num_heads,
-          num_units,
-          dropout=attention_dropout,
-          return_attention=num_sources == 1)
-      attention = transformer.TransformerLayerWrapper(
-          attention, dropout)
-      self.attention.append(attention)
-    self.ffn = transformer.FeedForwardNetwork(
-        ffn_inner_dim,
-        num_units,
-        dropout=ffn_dropout,
-        activation=ffn_activation)
-    self.ffn = transformer.TransformerLayerWrapper(
-        self.ffn, dropout)
-
-  def map_v1_weights(self, weights):
-    m = []
-    m += self.self_attention.map_v1_weights(weights["masked_multi_head"])
-    m += self.attention[0].map_v1_weights(weights["multi_head"])
-    m += self.ffn.map_v1_weights(weights["ffn"])
-    return m
-
-  # pylint: disable=arguments-differ
-  def call(self,
-           inputs,
-           mask=None,
-           memory=None,
-           memory_mask=None,
-           cache=None,
-           training=None):
-    """Runs the decoder layer."""
-    if cache is None:
-      cache = {}
-
-    outputs, self_kv = self.self_attention(
-        inputs,
-        mask=mask,
-        cache=cache.get("self_kv"),
-        training=training)
-
-    attention = None
-    memory_kv = []
-    if memory is not None:
-      memory_cache = cache.get("memory_kv")
-      if memory_cache is None:
-        memory_cache = [None] * len(self.attention)
-      for layer, mem, mem_mask, mem_cache in zip(
-          self.attention, memory, memory_mask, memory_cache):
-        result = layer(
-            outputs,
-            memory=mem,
-            mask=mem_mask,
-            cache=mem_cache,
-            training=training)
-        if len(result) == 3:
-          outputs, memory_kv_i, attention = result
-          attention = attention[:, 0]  # Use the first head for the attention vector.
-        else:
-          outputs, memory_kv_i = result
-        memory_kv.append(memory_kv_i)
-
-    outputs = self.ffn(outputs, training=training)
-    cache = dict(self_kv=self_kv, memory_kv=memory_kv)
-    return outputs, cache, attention
