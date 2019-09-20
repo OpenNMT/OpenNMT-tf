@@ -4,8 +4,9 @@ python:
 before_install:
   - pip install -e .[tests]
   # Replace tensorflow-gpu by tensorflow, see https://github.com/tensorflow/addons/issues/532
-  - pip install tensorflow=="$(pip show tensorflow-gpu | grep Version | cut -f2 -d' ')"
+  - export TF_VERSION="$(pip show tensorflow-gpu | grep Version | cut -f2 -d' ')"
   - pip uninstall -y tensorflow-gpu
+  - pip install tensorflow==$TF_VERSION
 before_script:
   - wget https://s3.amazonaws.com/opennmt-models/transliteration-aren-v2.tar.gz
   - mkdir -p $TRAVIS_BUILD_DIR/testdata
