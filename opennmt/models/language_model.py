@@ -94,10 +94,13 @@ class LanguageModel(Model):
       else:
         sampler = decoding.BestSampler()
 
+      def _decode_with_step_offset(ids, step, state):
+        return self._decode(ids, step + context_length[0], state)
+
       # Iteratively decode from the last decoder state.
       with tf.variable_scope(tf.get_variable_scope(), reuse=True):
         sampled_ids, sampled_length, _, _, _ = decoding.dynamic_decode(
-            self._decode,
+            _decode_with_step_offset,
             tf.squeeze(start_ids, 1),
             initial_state=state,
             sampler=sampler,
