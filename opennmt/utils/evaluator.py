@@ -125,7 +125,7 @@ class SacreBLEUScorer(Scorer):
 
   def __call__(self, labels_file, predictions_path):
     from sacrebleu import corpus_bleu
-    with open(labels_file) as ref_stream, open(predictions_path) as sys_stream:
+    with open(labels_file) as ref_stream, open(predictions_path, 'w') as sys_stream:
       bleu = corpus_bleu(sys_stream, [ref_stream])
       return bleu.score
 
