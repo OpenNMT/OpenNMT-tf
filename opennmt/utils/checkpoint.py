@@ -42,7 +42,7 @@ def _update_vocabulary_variable(variable, vocab_size, mapping):
   variable_t = np.transpose(variable, axes=perm)
   new_shape = list(variable_t.shape)
   new_shape[0] = len(mapping)
-  new_variable_t = np.zeros(new_shape, dtype=variable.dtype)
+  new_variable_t = np.random.uniform(-1.0, 1.0, size=new_shape).astype(variable.dtype)
   for i, j in enumerate(mapping):
     if j >= 0:
       new_variable_t[i] = variable_t[j]
