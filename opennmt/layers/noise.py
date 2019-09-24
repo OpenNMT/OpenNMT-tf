@@ -146,6 +146,9 @@ class WordDropout(Noise):
     if self.dropout == 0:
       return tf.identity(words)
     num_words = tf.shape(words, out_type=tf.int64)[0]
+    # Keep at least 1 word.
+    if tf.equal(num_words, 1):
+      return tf.identity(words)
     keep_mask = random_mask([num_words], 1 - self.dropout)
     keep_ind = tf.where(keep_mask)
     # Keep at least one word.
