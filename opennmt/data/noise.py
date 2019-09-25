@@ -157,7 +157,7 @@ class WordDropout(Noise):
     # Keep at least one word.
     keep_ind = tf.cond(
         tf.equal(tf.shape(keep_ind)[0], 0),
-        true_fn=lambda: tf.random.uniform([1], maxval=num_words - 1, dtype=tf.int64),
+        true_fn=lambda: tf.random.uniform([1], maxval=num_words, dtype=tf.int64),
         false_fn=lambda: tf.squeeze(keep_ind, -1))
     return tf.gather(words, keep_ind)
 
