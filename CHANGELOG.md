@@ -16,6 +16,14 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.25.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.25.1) (2019-09-25)
+
+### Fixes and improvements
+
+* Fix language model decoding from context to pass the correct decoding step to the model
+* Fix WordDropout module when the input contains a single word
+* When updating vocabularies, weights of new words are randomly initialized instead of zero initialized
+
 ## [1.25.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.25.0) (2019-09-13)
 
 ### New features
