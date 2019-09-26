@@ -59,7 +59,8 @@ class _StackedRNNCells(tf.keras.layers.StackedRNNCells):
   # To pass the training flag to the cell, tf.keras.layers.RNN checks that the
   # cell call method explicitly takes the "training" argument, which
   # tf.keras.layers.StackedRNNCells do not.
-  # See https://github.com/tensorflow/tensorflow/issues/32586
+  # TODO: remove this when this change is released:
+  # https://github.com/tensorflow/tensorflow/commit/df2b252fa380994cd9236cc56b06557bcf12a9d3
   def call(self, inputs, states, constants=None, training=None, **kwargs):
     kwargs["training"] = training
     return super(_StackedRNNCells, self).call(inputs, states, constants=constants, **kwargs)

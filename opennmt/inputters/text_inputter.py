@@ -169,7 +169,8 @@ def _get_field(config, key, prefix=None, default=None, required=False):
   return value
 
 def _create_tokens_to_ids_table(tokens, ids, num_oov_buckets):
-  # TODO: consider reverting back to TextFileInitializer.
+  # TODO: consider reverting back to TextFileInitializer when this change is released:
+  # https://github.com/tensorflow/tensorflow/pull/32773
   initializer = tf.lookup.KeyValueTensorInitializer(tokens, ids)
   if num_oov_buckets > 0:
     return tf.lookup.StaticVocabularyTable(initializer, num_oov_buckets)
