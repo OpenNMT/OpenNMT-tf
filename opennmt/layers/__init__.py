@@ -9,6 +9,7 @@ from opennmt.layers.common import Dense
 from opennmt.layers.common import LayerNorm
 from opennmt.layers.common import LayerWrapper
 from opennmt.layers.common import dropout
+from opennmt.layers.common import gelu
 
 from opennmt.layers.position import PositionEmbedder
 from opennmt.layers.position import PositionEncoder

@@ -7,6 +7,7 @@ from opennmt import decoders
 from opennmt import encoders
 from opennmt import inputters
 from opennmt import layers
+from opennmt.models import language_model
 from opennmt.models import sequence_tagger
 from opennmt.models import sequence_to_sequence
 from opennmt.models import transformer
@@ -163,3 +164,42 @@ class TransformerBig(transformer.Transformer):
         dropout=0.3,
         attention_dropout=0.1,
         ffn_dropout=0.1)
+
+class GPT2Small(language_model.LanguageModel):
+  """GPT-2 language model (small version) as described in:
+
+  https://d4mucfpksywv.cloudfront.net/better-language-models/language-models.pdf
+  """
+
+  def __init__(self):
+    super(GPT2Small, self).__init__(
+        decoder=decoders.SelfAttentionDecoder(
+            num_layers=12,
+            num_units=768,
+            num_heads=12,
+            ffn_inner_dim=3072,
+            ffn_activation=layers.gelu,
+            position_encoder_class=lambda: layers.PositionEmbedder(maximum_position=1024),
+            num_sources=0),
+        embedding_size=768)
+
+  def auto_config(self, num_replicas=1):
+    config = super(GPT2Small, self).auto_config(num_replicas=num_replicas)
+    return merge_dict(config, {
+        "params": {
+            "average_loss_in_time": True,
+            "optimizer": "Adam",
+            "learning_rate": 2.5e-4,
+            "decay_type": "CosineAnnealing",
+            "decay_params": {
+                "max_step": 1000000,
+                "warmup_steps": 2000,
+            }
+        },
+        "train": {
+            "bucket_width": 1,
+            # Below options are from GPT-1.
+            "batch_size": 64,
+            "maximum_features_length": 512
+        }
+    })
