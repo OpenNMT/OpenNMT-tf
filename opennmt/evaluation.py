@@ -134,7 +134,7 @@ class Evaluator(object):
     if early_stopping_config is not None:
       early_stopping = EarlyStopping(
           metric=early_stopping_config.get("metric", "loss"),
-          min_improvement=early_stopping_config["min_improvement"],
+          min_improvement=early_stopping_config.get("min_improvement", 0),
           steps=early_stopping_config["steps"])
     else:
       early_stopping = None

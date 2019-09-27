@@ -224,8 +224,9 @@ eval:
   # Should be read as: stop the training if "metric" did not improve more
   # than "min_improvement" in the last "steps" evaluations.
   early_stopping:
-    # The target metric name (default: "loss").
+    # (optional) The target metric name (default: "loss").
     metric: bleu
+    # (optional) The metric should improve at least by this much to be considered as an improvement (default: 0)
     min_improvement: 0.01
     steps: 4
 
