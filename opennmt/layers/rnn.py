@@ -3,6 +3,7 @@
 import tensorflow as tf
 
 from opennmt.layers import common
+from opennmt.layers import reducer as reducer_lib
 
 
 def _register_keras_custom_object(cls):
@@ -104,7 +105,7 @@ def make_rnn_cell(num_layers,
 class _RNNExtended(tf.keras.layers.Layer):
   """Extend a RNN layer to possibly make it bidirectional and format its outputs."""
 
-  def __init__(self, rnn, bidirectional=False, reducer=None, **kwargs):
+  def __init__(self, rnn, bidirectional=False, reducer=reducer_lib.ConcatReducer(), **kwargs):
     """Initializes the layer.
 
     Args:
@@ -152,7 +153,7 @@ class _RNNExtended(tf.keras.layers.Layer):
 class RNN(_RNNExtended):
   """A generic RNN layer."""
 
-  def __init__(self, cell, bidirectional=False, reducer=None, **kwargs):
+  def __init__(self, cell, bidirectional=False, reducer=reducer_lib.ConcatReducer(), **kwargs):
     """Initializes the layer.
 
     Args:
@@ -180,7 +181,7 @@ class LSTM(tf.keras.layers.Layer):
                num_layers,
                num_units,
                bidirectional=False,
-               reducer=None,
+               reducer=reducer_lib.ConcatReducer(),
                dropout=0,
                residual_connections=False,
                **kwargs):

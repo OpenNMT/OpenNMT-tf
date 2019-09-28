@@ -1,7 +1,6 @@
 import tensorflow as tf
 
 from opennmt.layers import rnn
-from opennmt.layers import reducer
 
 
 class RNNTest(tf.test.TestCase):
@@ -25,7 +24,7 @@ class RNNTest(tf.test.TestCase):
 
   def testBRNN(self):
     cell = rnn.make_rnn_cell(3, 10, dropout=0.1, residual_connections=True)
-    rnn_layer = rnn.RNN(cell, bidirectional=True, reducer=reducer.ConcatReducer())
+    rnn_layer = rnn.RNN(cell, bidirectional=True)
     inputs = tf.random.uniform([4, 5, 5])
     outputs, states = rnn_layer(inputs, training=True)
     self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
@@ -53,7 +52,7 @@ class RNNTest(tf.test.TestCase):
       self.assertAllClose(last_hidden[i], outputs[i, length - 1])
 
   def testBLSTM(self):
-    lstm = rnn.LSTM(3, 12, dropout=0.5, bidirectional=True, reducer=reducer.ConcatReducer())
+    lstm = rnn.LSTM(3, 12, dropout=0.5, bidirectional=True)
     inputs = tf.random.uniform([4, 5, 5])
     outputs, states = lstm(inputs, training=True)
     self.assertListEqual(outputs.shape.as_list(), [4, 5, 24])
