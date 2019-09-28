@@ -101,25 +101,23 @@ def make_rnn_cell(num_layers,
   return _StackedRNNCells(cells)
 
 
-class RNN(tf.keras.layers.Layer):
-  """A generic RNN layer."""
+class _RNNExtended(tf.keras.layers.Layer):
+  """Extend a RNN layer to possibly make it bidirectional and format its outputs."""
 
-  def __init__(self, cell, bidirectional=False, reducer=None, **kwargs):
+  def __init__(self, rnn, bidirectional=False, reducer=None, **kwargs):
     """Initializes the layer.
 
     Args:
-      cell: The RNN cell to use.
+      rnn: The RNN layer to extend, built with ``return_sequences`` and
+        ``return_state`` enabled.
       bidirectional: Make this layer bidirectional.
       reducer: A :class:`opennmt.layers.Reducer` instance to merge
         bidirectional states and outputs.
-      kwargs: Additional layer arguments.
-
-    See Also:
-      :func:`opennmt.layers.make_rnn_cell`
+      **kwargs: Additional layer arguments.
     """
-    super(RNN, self).__init__(**kwargs)
+    super(_RNNExtended, self).__init__(**kwargs)
+    self.rnn = rnn
     self.reducer = reducer
-    self.rnn = tf.keras.layers.RNN(cell, return_sequences=True, return_state=True)
     if bidirectional:
       self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode=None)
 
@@ -149,3 +147,78 @@ class RNN(tf.keras.layers.Layer):
       sequences = outputs[0]
       states = tuple(outputs[1:])
     return sequences, states
+
+
+class RNN(_RNNExtended):
+  """A generic RNN layer."""
+
+  def __init__(self, cell, bidirectional=False, reducer=None, **kwargs):
+    """Initializes the layer.
+
+    Args:
+      cell: The RNN cell to use.
+      bidirectional: Make this layer bidirectional.
+      reducer: A :class:`opennmt.layers.Reducer` instance to merge
+        bidirectional states and outputs.
+      **kwargs: Additional layer arguments.
+
+    See Also:
+      :func:`opennmt.layers.make_rnn_cell`
+    """
+    rnn = tf.keras.layers.RNN(cell, return_sequences=True, return_state=True)
+    super(RNN, self).__init__(rnn, bidirectional=bidirectional, reducer=reducer, **kwargs)
+
+
+class LSTM(tf.keras.layers.Layer):
+  """A multi-layer LSTM.
+
+  This differs from using :class:`opennmt.layers.RNN` with a ``LSTMCell`` as it
+  uses ``tf.keras.layers.LSTM`` which is possibly accelerated by cuDNN on GPU.
+  """
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               bidirectional=False,
+               reducer=None,
+               dropout=0,
+               residual_connections=False,
+               **kwargs):
+    """Initializes the layer.
+
+    Args:
+      num_layers: Number of stacked LSTM layers.
+      num_units: Dimension of the output space of each LSTM.
+      bidirectional: Make each layer bidirectional.
+      reducer: A :class:`opennmt.layers.Reducer` instance to merge
+        the bidirectional states and outputs of each layer.
+      dropout: The probability to drop units in each layer output.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
+      **kwargs: Additional layer arguments.
+    """
+    super(LSTM, self).__init__(**kwargs)
+    rnn_layers = [
+        _RNNExtended(
+            tf.keras.layers.LSTM(num_units, return_sequences=True, return_state=True),
+            bidirectional=bidirectional,
+            reducer=reducer)
+        for _ in range(num_layers)]
+    self.layers = [
+        common.LayerWrapper(
+            layer,
+            output_dropout=dropout,
+            residual_connection=residual_connections)
+        for layer in rnn_layers]
+
+  def call(self, inputs, mask=None, training=None, initial_state=None):  # pylint: disable=arguments-differ
+    all_states = []
+    for i, layer in enumerate(self.layers):
+      outputs, states = layer(
+          inputs,
+          mask=mask,
+          training=training,
+          initial_state=initial_state[i] if initial_state is not None else None)
+      all_states.append(states)
+      inputs = outputs
+    return outputs, tuple(all_states)

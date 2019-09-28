@@ -21,6 +21,7 @@ from opennmt.layers.reducer import MultiplyReducer
 from opennmt.layers.reducer import Reducer
 from opennmt.layers.reducer import SumReducer
 
+from opennmt.layers.rnn import LSTM
 from opennmt.layers.rnn import RNN
 from opennmt.layers.rnn import RNNCellWrapper
 from opennmt.layers.rnn import make_rnn_cell
