@@ -9,6 +9,7 @@ from opennmt.encoders.encoder import SequentialEncoder
 from opennmt.encoders.mean_encoder import MeanEncoder
 
 from opennmt.encoders.rnn_encoder import GNMTEncoder
+from opennmt.encoders.rnn_encoder import LSTMEncoder
 from opennmt.encoders.rnn_encoder import PyramidalRNNEncoder
 from opennmt.encoders.rnn_encoder import RNMTPlusEncoder
 from opennmt.encoders.rnn_encoder import RNNEncoder

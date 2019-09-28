@@ -9,7 +9,26 @@ from opennmt.layers import common
 from opennmt.layers import rnn
 
 
-class RNNEncoder(Encoder):
+class _RNNEncoderBase(Encoder):
+  """Base class for RNN encoders."""
+
+  def __init__(self, rnn_layer, **kwargs):
+    """Initializes the encoder.
+
+    Args:
+      rnn_layer: The RNN layer used to encode the inputs.
+      **kwargs: Additional layer arguments.
+    """
+    super(_RNNEncoderBase, self).__init__(**kwargs)
+    self.rnn = rnn_layer
+
+  def call(self, inputs, sequence_length=None, training=None):
+    mask = self.build_mask(inputs, sequence_length=sequence_length)
+    outputs, states = self.rnn(inputs, mask=mask, training=training)
+    return outputs, states, sequence_length
+
+
+class RNNEncoder(_RNNEncoderBase):
   """A RNN sequence encoder."""
 
   def __init__(self,
@@ -36,19 +55,53 @@ class RNNEncoder(Encoder):
         argument and returning a cell. Defaults to a LSTM cell.
       **kwargs: Additional layer arguments.
     """
-    super(RNNEncoder, self).__init__(**kwargs)
     cell = rnn.make_rnn_cell(
         num_layers,
         num_units,
         dropout=dropout,
         residual_connections=residual_connections,
         cell_class=cell_class)
-    self.rnn = rnn.RNN(cell, bidirectional=bidirectional, reducer=reducer)
+    rnn_layer = rnn.RNN(cell, bidirectional=bidirectional, reducer=reducer)
+    super(RNNEncoder, self).__init__(rnn_layer, **kwargs)
 
-  def call(self, inputs, sequence_length=None, training=None):
-    mask = self.build_mask(inputs, sequence_length=sequence_length)
-    outputs, states = self.rnn(inputs, mask=mask, training=training)
-    return outputs, states, sequence_length
+
+class LSTMEncoder(_RNNEncoderBase):
+  """A LSTM sequence encoder.
+
+  This differs from using :class:`opennmt.encoders.RNNEncoder` with a
+  ``LSTMCell`` as it internally uses ``tf.keras.layers.LSTM`` which is possibly
+  accelerated by cuDNN on GPU.
+  """
+
+  def __init__(self,
+               num_layers,
+               num_units,
+               bidirectional=False,
+               residual_connections=False,
+               dropout=0.3,
+               reducer=ConcatReducer(),
+               **kwargs):
+    """Initializes the parameters of the encoder.
+
+    Args:
+      num_layers: The number of layers.
+      num_units: The number of units in each layer output.
+      bidirectional: Make each LSTM layer bidirectional.
+      residual_connections: If ``True``, each layer input will be added to its
+        output.
+      dropout: The probability to drop units in each layer output.
+      reducer: A :class:`opennmt.layers.Reducer` instance to merge
+        bidirectional state and outputs.
+      **kwargs: Additional layer arguments.
+    """
+    lstm_layer = rnn.LSTM(
+        num_layers,
+        num_units,
+        bidirectional=bidirectional,
+        reducer=reducer,
+        dropout=dropout,
+        residual_connections=residual_connections)
+    super(LSTMEncoder, self).__init__(lstm_layer, **kwargs)
 
 
 class GNMTEncoder(SequentialEncoder):

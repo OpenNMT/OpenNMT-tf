@@ -179,6 +179,14 @@ class EncoderTest(tf.test.TestCase):
     self.assertEqual(outputs.dtype, dtype)
     tf.keras.backend.set_floatx("float32")
 
+  def testLSTMEncoder(self):
+    encoder = encoders.LSTMEncoder(3, 20)
+    inputs = tf.random.uniform([4, 5, 10])
+    lengths = tf.constant([4, 3, 5, 2])
+    outputs, states, _ = encoder(inputs, sequence_length=lengths, training=True)
+    self.assertListEqual(outputs.shape.as_list(), [4, 5, 20])
+    self.assertEqual(len(states), 3)
+
   @parameterized.expand([[tf.keras.layers.LSTMCell], [tf.keras.layers.GRUCell]])
   def testUnidirectionalRNNEncoder(self, cell_class):
     encoder = encoders.RNNEncoder(3, 20, cell_class=cell_class)
