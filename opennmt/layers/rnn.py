@@ -102,7 +102,7 @@ def make_rnn_cell(num_layers,
   return _StackedRNNCells(cells)
 
 
-class _RNNExtended(tf.keras.layers.Layer):
+class _RNNWrapper(tf.keras.layers.Layer):
   """Extend a RNN layer to possibly make it bidirectional and format its outputs."""
 
   def __init__(self, rnn, bidirectional=False, reducer=reducer_lib.ConcatReducer(), **kwargs):
@@ -116,7 +116,7 @@ class _RNNExtended(tf.keras.layers.Layer):
         bidirectional states and outputs.
       **kwargs: Additional layer arguments.
     """
-    super(_RNNExtended, self).__init__(**kwargs)
+    super(_RNNWrapper, self).__init__(**kwargs)
     self.rnn = rnn
     self.reducer = reducer
     if bidirectional:
@@ -150,7 +150,7 @@ class _RNNExtended(tf.keras.layers.Layer):
     return sequences, states
 
 
-class RNN(_RNNExtended):
+class RNN(_RNNWrapper):
   """A generic RNN layer."""
 
   def __init__(self, cell, bidirectional=False, reducer=reducer_lib.ConcatReducer(), **kwargs):
@@ -200,7 +200,7 @@ class LSTM(tf.keras.layers.Layer):
     """
     super(LSTM, self).__init__(**kwargs)
     rnn_layers = [
-        _RNNExtended(
+        _RNNWrapper(
             tf.keras.layers.LSTM(num_units, return_sequences=True, return_state=True),
             bidirectional=bidirectional,
             reducer=reducer)
