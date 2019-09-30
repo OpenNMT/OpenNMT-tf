@@ -51,8 +51,6 @@ class Transformer(SequenceToSequence):
         transformations of the feed forward layer.
       position_encoder: A :class:`opennmt.layers.PositionEncoder` to
         apply on the inputs.
-      decoder_self_attention_type: Type of self attention in the decoder,
-        "scaled_dot" or "average" (case insensitive).
       share_embeddings: Level of embeddings sharing, see
         :class:`opennmt.models.EmbeddingsSharingLevel` for possible values.
       share_encoders: In case of multi source architecture, whether to share the
