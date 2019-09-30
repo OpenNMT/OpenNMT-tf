@@ -68,9 +68,9 @@ class RNNEncoder(_RNNEncoderBase):
 class LSTMEncoder(_RNNEncoderBase):
   """A LSTM sequence encoder.
 
-  This differs from using :class:`opennmt.encoders.RNNEncoder` with a
-  ``LSTMCell`` as it internally uses ``tf.keras.layers.LSTM`` which is possibly
-  accelerated by cuDNN on GPU.
+  See Also:
+    :class:`opennmt.layers.LSTM` for differences between this encoder and
+    :class:`opennmt.encoders.RNNEncoder` with a `LSTMCell`.
   """
 
   def __init__(self,

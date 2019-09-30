@@ -151,7 +151,7 @@ class _RNNWrapper(tf.keras.layers.Layer):
 
 
 class RNN(_RNNWrapper):
-  """A generic RNN layer."""
+  """A simple RNN layer."""
 
   def __init__(self, cell, bidirectional=False, reducer=reducer_lib.ConcatReducer(), **kwargs):
     """Initializes the layer.
@@ -173,8 +173,13 @@ class RNN(_RNNWrapper):
 class LSTM(tf.keras.layers.Layer):
   """A multi-layer LSTM.
 
-  This differs from using :class:`opennmt.layers.RNN` with a ``LSTMCell`` as it
-  uses ``tf.keras.layers.LSTM`` which is possibly accelerated by cuDNN on GPU.
+  This differs from using :class:`opennmt.layers.RNN` with a ``LSTMCell`` in 2
+  ways:
+
+  - It uses ``tf.keras.layers.LSTM`` which is possibly accelerated by cuDNN on
+    GPU.
+  - Bidirectional outputs of each layer are reduced before feeding them to the
+    next layer.
   """
 
   def __init__(self,
