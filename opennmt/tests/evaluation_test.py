@@ -6,6 +6,7 @@ import tensorflow as tf
 from opennmt import evaluation
 from opennmt import inputters
 from opennmt import models
+from opennmt.utils import scorers
 
 
 # Define some dummy components to simply return the loss and metrics we want to test.
@@ -30,9 +31,13 @@ class TestInputter(inputters.Inputter):
     return tf.strings.to_number(element)
 
 class TestModel(models.Model):
-  def __init__(self, loss_history, metrics_history):
+  def __init__(self, loss_history=None, metrics_history=None):
     example_inputter = inputters.ExampleInputter(TestInputter(), TestInputter())
     super(TestModel, self).__init__(example_inputter)
+    if loss_history is None:
+      loss_history = []
+    if metrics_history is None:
+      metrics_history = {}
     self.loss_history = loss_history
     self.metrics_history = metrics_history
 
@@ -97,6 +102,27 @@ class EvaluationTest(tf.test.TestCase):
     self.assertDictEqual(evaluator(7), {"loss": 7.0, "a": 8, "b": 9})
     recorded_steps = list(step for step, _ in evaluator.metrics_history)
     self.assertListEqual(recorded_steps, [5, 7])
+
+  def testEvaluationWithRougeScorer(self):
+    features_file = os.path.join(self.get_temp_dir(), "features.txt")
+    labels_file = os.path.join(self.get_temp_dir(), "labels.txt")
+    eval_dir = os.path.join(self.get_temp_dir(), "eval")
+    with open(features_file, "w") as features, open(labels_file, "w") as labels:
+      features.write("1\n2\n")
+      labels.write("1\n2\n")
+    model = TestModel()
+    model.initialize({})
+    evaluator = evaluation.Evaluator(
+        model,
+        features_file,
+        labels_file,
+        batch_size=1,
+        scorers=[scorers.ROUGEScorer()],
+        eval_dir=eval_dir)
+    self.assertNotIn("rouge", evaluator.metrics_name)
+    self.assertIn("rouge-1", evaluator.metrics_name)
+    self.assertIn("rouge-2", evaluator.metrics_name)
+    self.assertIn("rouge-l", evaluator.metrics_name)
 
   def testEarlyStop(self):
     self.assertFalse(

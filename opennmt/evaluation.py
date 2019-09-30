@@ -93,7 +93,8 @@ class Evaluator(object):
     self._eval = _eval
 
     self._metrics_name = {"loss"}
-    self._metrics_name.update(set(scorer.name for scorer in self._scorers))
+    for scorer in self._scorers:
+      self._metrics_name.update(scorer.scores_name)
     model_metrics = self._model.get_metrics()
     if model_metrics:
       self._metrics_name.update(set(six.iterkeys(model_metrics)))
@@ -163,10 +164,13 @@ class Evaluator(object):
     if self._early_stopping is None:
       return False
     target_metric = self._early_stopping.metric
-    scorers = {scorer.name:score for scorer in self._scorers}
-    if target_metric in scorers:
-      higher_is_better = scorers[target_metric].higher_is_better()
-    else:
+    higher_is_better = None
+    # Look if target_metric is produced by a scorer as they define the scores order.
+    for scorer in self._scorers:
+      if target_metric in scorer.scores_name:
+        higher_is_better = scorer.higher_is_better()
+        break
+    if higher_is_better is None:
       # TODO: the condition below is not always true, find a way to set it
       # correctly for Keras metrics.
       higher_is_better = target_metric != "loss"

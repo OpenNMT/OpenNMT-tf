@@ -18,6 +18,11 @@ class Scorer(object):
     """The scorer name."""
     return self._name
 
+  @property
+  def scores_name(self):
+    """The names of returned scores."""
+    return {self._name}
+
   @abc.abstractmethod
   def __call__(self, ref_path, hyp_path):
     """Scores hypotheses.
@@ -46,11 +51,15 @@ class ROUGEScorer(Scorer):
   def __init__(self):
     super(ROUGEScorer, self).__init__("rouge")
 
+  @property
+  def scores_name(self):
+    return {"rouge-1", "rouge-2", "rouge-l"}
+
   def __call__(self, ref_path, hyp_path):
     from rouge import FilesRouge
     files_rouge = FilesRouge(hyp_path, ref_path)
     rouge_scores = files_rouge.get_scores(avg=True)
-    return {k:v["f"] for k, v in six.iteritems(rouge_scores)}
+    return {name:rouge_scores[name]["f"] for name in self.scores_name}
 
 
 class BLEUScorer(Scorer):
