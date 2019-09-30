@@ -165,7 +165,7 @@ class Evaluator(object):
     target_metric = self._early_stopping.metric
     scorers = {scorer.name:score for scorer in self._scorers}
     if target_metric in scorers:
-      higher_is_better = not scorers[target_metric].lower_is_better()
+      higher_is_better = scorers[target_metric].higher_is_better()
     else:
       # TODO: the condition below is not always true, find a way to set it
       # correctly for Keras metrics.

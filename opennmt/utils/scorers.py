@@ -35,6 +35,10 @@ class Scorer(object):
     """Returns ``True`` if a lower score is better."""
     return False
 
+  def higher_is_better(self):
+    """Returns ``True`` if a higher score is better."""
+    return not self.lower_is_better()
+
 
 class ROUGEScorer(Scorer):
   """ROUGE scorer based on https://github.com/pltrdy/rouge."""
