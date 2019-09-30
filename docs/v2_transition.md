@@ -4,13 +4,25 @@ This document details some changes introduced in OpenNMT-tf 2.0 and actions requ
 
 ## New requirements
 
-TensorFlow 2.0 and Python 3.5 (or above) are now required by OpenNMT-tf. While the code is still expected to run with Python 2.7, this can change at any time and without notice.
+### Python 3
+
+Python 3.5 (or above) is now required by OpenNMT-tf. See https://python3statement.org/ for more context about this decision.
+
+### TensorFlow 2.0
+
+OpenNMT-tf has been completely redesigned for TensorFlow 2.0 which is now the minimal required TensorFlow version.
+
+The correct TensorFlow version is declared as a dependency of OpenNMT-tf and will be automatically installed as part of the `pip` installation:
+
+```bash
+pip install OpenNMT-tf
+```
 
 ## Changed checkpoint layout
 
-TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the model object.
+TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the root model object.
 
-Consequently, all OpenNMT-tf V1 checkpoints are no longer compatible without conversion. To smooth this transition, V1 checkpoints of Transformer-based models are automatically upgraded on load.
+Consequently, all OpenNMT-tf V1 checkpoints are no longer compatible without conversion. To smooth this transition, V1 checkpoints of Transformer models are automatically upgraded on load.
 
 ## Improved main script command line
 
@@ -34,6 +46,7 @@ See `onmt-main -h` for more details.
 In OpenNMT-tf V1, models were responsible to declare the name of the vocabulary to look for, e.g.:
 
 ```python
+# V1 model inputter.
 source_inputter=onmt.inputters.WordEmbedder(
     vocabulary_file_key="source_words_vocabulary",
     embedding_size=512)
@@ -42,11 +55,12 @@ source_inputter=onmt.inputters.WordEmbedder(
 meant that the user should configure the vocabulary like this:
 
 ```yaml
+# V1 vocabulary configuration.
 data:
   source_words_vocabulary: src_vocab.txt
 ```
 
-This is no longer the case in V2 and vocabulary configuration now follows a more general pattern:
+This is no longer the case in V2 where vocabulary configuration now follows a general pattern, the same that is currently used for "embedding" and "tokenization" configurations.
 
 * Single vocabulary (e.g. language model):
 
@@ -69,10 +83,16 @@ data:
 data:
   source_1_vocabulary: src_1_vocab.txt
   source_2_vocabulary: src_2_vocab.txt
-  target_vocabulary: tgt_vocab.txt
 ```
 
-The same name resolution applies to "embedding" and "tokenization" configurations.
+* Nested inputs:
+
+```yaml
+data:
+  source_1_1_vocabulary: src_1_1_vocab.txt
+  source_1_2_vocabulary: src_1_2_vocab.txt
+  source_2_vocabulary: src_2_vocab.txt
+```
 
 ## Changed predefined models
 
@@ -112,12 +132,10 @@ Some parameters in the YAML configuration have been renamed or removed:
 | `train/save_checkpoints_secs` | | Not implemented |
 | `train/train_steps` | `train/max_step` | |
 
-Parameters taking reference to Python classes should also be revised when upgrading to V2:
+Parameters taking reference to Python classes should also be revised when upgrading to V2, as the class likely changed in the process. This concerns:
 
-* `params/optimizer`
-* `params/optimizer_params`
-* `params/decay_type`
-* `params/decay_params`
+* `params/optimizer` and `params/optimizer_params`
+* `params/decay_type` and `params/decay_params`
 
 ## New mixed precision workflow
 
