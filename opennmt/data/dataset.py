@@ -198,7 +198,7 @@ def batch_sequence_dataset(batch_size,
       "tokens".
     batch_multiplier: The batch size multiplier.
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
-      result batch size is a multiple of this value.
+      resulting batch size is a multiple of this value.
     length_bucket_width: The sequence length bucket width.
     length_fn: A function or list of functions (in case of a parallel dataset)
       that take features as argument and return the associated sequence length.
@@ -294,7 +294,7 @@ def training_pipeline(batch_size,
       "tokens".
     batch_multiplier: The batch size multiplier.
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
-      result batch size is a multiple of this value.
+      resulting batch size is a multiple of this value.
     process_fn: The processing function to apply on each element.
     length_bucket_width: The width of the length buckets to select batch
       candidates from. ``None`` to not constrain batch formation.

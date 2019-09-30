@@ -501,7 +501,7 @@ class ExampleInputter(ParallelInputter):
       batch_multiplier: The batch size multiplier to prepare splitting accross
          replicated graph parts.
       batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
-        result batch size is a multiple of this value.
+        resulting batch size is a multiple of this value.
       shuffle_buffer_size: The number of elements from which to sample.
       length_bucket_width: The width of the length buckets to select batch
         candidates from (for efficiency). Set ``None`` to not constrain batch
