@@ -121,7 +121,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                dropout=0.1,
                return_attention=False,
                **kwargs):
-    """Initializes this layers.
+    """Initializes this layer.
 
     Args:
       num_heads: The number of attention heads.
