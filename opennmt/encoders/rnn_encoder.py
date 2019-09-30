@@ -122,12 +122,12 @@ class GNMTEncoder(SequentialEncoder):
     """
     if num_layers < 2:
       raise ValueError("GNMTEncoder requires at least 2 layers")
-    bidirectional = RNNEncoder(
+    bidirectional = LSTMEncoder(
         1,
         num_units // 2,
         bidirectional=True,
         dropout=dropout)
-    unidirectional = RNNEncoder(
+    unidirectional = LSTMEncoder(
         num_layers - 1,
         num_units,
         dropout=dropout,
