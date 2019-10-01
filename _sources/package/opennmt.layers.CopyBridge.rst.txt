@@ -1,0 +1,8 @@
+opennmt.layers.CopyBridge
+=========================
+
+.. autoclass:: opennmt.layers.CopyBridge
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.layers.Bridge`

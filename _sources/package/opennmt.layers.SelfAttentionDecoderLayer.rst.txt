@@ -1,0 +1,8 @@
+opennmt.layers.SelfAttentionDecoderLayer
+========================================
+
+.. autoclass:: opennmt.layers.SelfAttentionDecoderLayer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

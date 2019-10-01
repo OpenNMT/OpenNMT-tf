@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -23,21 +23,12 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -75,7 +66,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -117,11 +108,12 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -196,6 +188,7 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
  | <a href="#L"><strong>L</strong></a>
@@ -215,149 +208,137 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.Bridge.__call__">__call__() (opennmt.layers.bridge.Bridge method)</a>
+      <li><a href="package/opennmt.data.Noise.html#opennmt.data.Noise.__call__">__call__() (opennmt.data.Noise method)</a>
 
       <ul>
-        <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.Noise.__call__">(opennmt.layers.noise.Noise method)</a>
+        <li><a href="package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__call__">(opennmt.data.WordNoiser method)</a>
 </li>
-        <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordNoiser.__call__">(opennmt.layers.noise.WordNoiser method)</a>
+        <li><a href="package/opennmt.layers.Bridge.html#opennmt.layers.Bridge.__call__">(opennmt.layers.Bridge method)</a>
 </li>
-        <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.__call__">(opennmt.layers.position.PositionEncoder method)</a>
+        <li><a href="package/opennmt.layers.Reducer.html#opennmt.layers.Reducer.__call__">(opennmt.layers.Reducer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer.__call__">(opennmt.layers.reducer.Reducer method)</a>
+        <li><a href="package/opennmt.utils.Sampler.html#opennmt.utils.Sampler.__call__">(opennmt.utils.Sampler method)</a>
 </li>
-        <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.__call__">(opennmt.models.model.Model method)</a>
-</li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.Sampler.__call__">(opennmt.utils.decoding.Sampler method)</a>
-</li>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.__call__">(opennmt.utils.evaluator.ExternalEvaluator method)</a>
-</li>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.__call__">(opennmt.utils.evaluator.Scorer method)</a>
-</li>
-        <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.__call__">(opennmt.utils.parallel.GraphDispatcher method)</a>
+        <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.__call__">(opennmt.utils.Scorer method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.__contains__">__contains__() (opennmt.utils.vocab.Vocab method)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.__contains__">__contains__() (opennmt.data.Vocab method)</a>
 </li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.__init__">__init__() (opennmt.decoders.decoder.DecoderV2 method)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">__init__() (opennmt.data.Vocab method)</a>
 
       <ul>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder.__init__">(opennmt.decoders.rnn_decoder.AttentionalRNNDecoder method)</a>
+        <li><a href="package/opennmt.data.WordDropout.html#opennmt.data.WordDropout.__init__">(opennmt.data.WordDropout method)</a>
 </li>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder.__init__">(opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder method)</a>
+        <li><a href="package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__init__">(opennmt.data.WordNoiser method)</a>
 </li>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNMTPlusDecoder.__init__">(opennmt.decoders.rnn_decoder.RNMTPlusDecoder method)</a>
+        <li><a href="package/opennmt.data.WordOmission.html#opennmt.data.WordOmission.__init__">(opennmt.data.WordOmission method)</a>
 </li>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.__init__">(opennmt.decoders.rnn_decoder.RNNDecoder method)</a>
+        <li><a href="package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation.__init__">(opennmt.data.WordPermutation method)</a>
 </li>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.__init__">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoder method)</a>
+        <li><a href="package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement.__init__">(opennmt.data.WordReplacement method)</a>
 </li>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.__init__">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2 method)</a>
+        <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.__init__">(opennmt.decoders.AttentionalRNNDecoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.conv_encoder.html#opennmt.encoders.conv_encoder.ConvEncoder.__init__">(opennmt.encoders.conv_encoder.ConvEncoder method)</a>
+        <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">(opennmt.decoders.Decoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.ParallelEncoder.__init__">(opennmt.encoders.encoder.ParallelEncoder method)</a>
+        <li><a href="package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder.__init__">(opennmt.decoders.RNMTPlusDecoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.SequentialEncoder.__init__">(opennmt.encoders.encoder.SequentialEncoder method)</a>
+        <li><a href="package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder.__init__">(opennmt.decoders.RNNDecoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder.__init__">(opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder method)</a>
+        <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.__init__">(opennmt.decoders.SelfAttentionDecoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.GNMTEncoder.__init__">(opennmt.encoders.rnn_encoder.GNMTEncoder method)</a>
+        <li><a href="package/opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder.__init__">(opennmt.encoders.ConvEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.GoogleRNNEncoder.__init__">(opennmt.encoders.rnn_encoder.GoogleRNNEncoder method)</a>
+        <li><a href="package/opennmt.encoders.GNMTEncoder.html#opennmt.encoders.GNMTEncoder.__init__">(opennmt.encoders.GNMTEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.PyramidalRNNEncoder.__init__">(opennmt.encoders.rnn_encoder.PyramidalRNNEncoder method)</a>
+        <li><a href="package/opennmt.encoders.LSTMEncoder.html#opennmt.encoders.LSTMEncoder.__init__">(opennmt.encoders.LSTMEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNMTPlusEncoder.__init__">(opennmt.encoders.rnn_encoder.RNMTPlusEncoder method)</a>
+        <li><a href="package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder.__init__">(opennmt.encoders.ParallelEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNNEncoder.__init__">(opennmt.encoders.rnn_encoder.RNNEncoder method)</a>
+        <li><a href="package/opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder.__init__">(opennmt.encoders.PyramidalRNNEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNNEncoderV2.__init__">(opennmt.encoders.rnn_encoder.RNNEncoderV2 method)</a>
+        <li><a href="package/opennmt.encoders.RNMTPlusEncoder.html#opennmt.encoders.RNMTPlusEncoder.__init__">(opennmt.encoders.RNMTPlusEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder.__init__">(opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder method)</a>
+        <li><a href="package/opennmt.encoders.RNNEncoder.html#opennmt.encoders.RNNEncoder.__init__">(opennmt.encoders.RNNEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoder.__init__">(opennmt.encoders.self_attention_encoder.SelfAttentionEncoder method)</a>
+        <li><a href="package/opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder.__init__">(opennmt.encoders.SelfAttentionEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.__init__">(opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2 method)</a>
+        <li><a href="package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder.__init__">(opennmt.encoders.SequentialEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ExampleInputter.__init__">(opennmt.inputters.inputter.ExampleInputter method)</a>
+        <li><a href="package/opennmt.inputters.CharConvEmbedder.html#opennmt.inputters.CharConvEmbedder.__init__">(opennmt.inputters.CharConvEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.__init__">(opennmt.inputters.inputter.MixedInputter method)</a>
+        <li><a href="package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.__init__">(opennmt.inputters.CharEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.__init__">(opennmt.inputters.inputter.ParallelInputter method)</a>
+        <li><a href="package/opennmt.inputters.CharRNNEmbedder.html#opennmt.inputters.CharRNNEmbedder.__init__">(opennmt.inputters.CharRNNEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.__init__">(opennmt.inputters.record_inputter.SequenceRecordInputter method)</a>
+        <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.__init__">(opennmt.inputters.ExampleInputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharConvEmbedder.__init__">(opennmt.inputters.text_inputter.CharConvEmbedder method)</a>
+        <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.__init__">(opennmt.inputters.MixedInputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.__init__">(opennmt.inputters.text_inputter.CharEmbedder method)</a>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.__init__">(opennmt.inputters.ParallelInputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharRNNEmbedder.__init__">(opennmt.inputters.text_inputter.CharRNNEmbedder method)</a>
+        <li><a href="package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter.__init__">(opennmt.inputters.SequenceRecordInputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.__init__">(opennmt.inputters.text_inputter.WordEmbedder method)</a>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.__init__">(opennmt.inputters.WordEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.DenseBridge.__init__">(opennmt.layers.bridge.DenseBridge method)</a>
+        <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense.__init__">(opennmt.layers.Dense method)</a>
 </li>
-        <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.Dense.__init__">(opennmt.layers.common.Dense method)</a>
+        <li><a href="package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge.__init__">(opennmt.layers.DenseBridge method)</a>
 </li>
-        <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm.__init__">(opennmt.layers.common.LayerNorm method)</a>
+        <li><a href="package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork.__init__">(opennmt.layers.FeedForwardNetwork method)</a>
 </li>
-        <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.__init__">(opennmt.layers.common.LayerWrapper method)</a>
+        <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.__init__">(opennmt.layers.LayerNorm method)</a>
 </li>
-        <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordDropout.__init__">(opennmt.layers.noise.WordDropout method)</a>
+        <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.__init__">(opennmt.layers.LayerWrapper method)</a>
 </li>
-        <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordNoiser.__init__">(opennmt.layers.noise.WordNoiser method)</a>
+        <li><a href="package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.__init__">(opennmt.layers.LSTM method)</a>
 </li>
-        <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordOmission.__init__">(opennmt.layers.noise.WordOmission method)</a>
+        <li><a href="package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention.__init__">(opennmt.layers.MultiHeadAttention method)</a>
 </li>
-        <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordPermutation.__init__">(opennmt.layers.noise.WordPermutation method)</a>
+        <li><a href="package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">(opennmt.layers.PositionEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordReplacement.__init__">(opennmt.layers.noise.WordReplacement method)</a>
+        <li><a href="package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">(opennmt.layers.PositionEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEmbedder.__init__">(opennmt.layers.position.PositionEmbedder method)</a>
+        <li><a href="package/opennmt.layers.RNN.html#opennmt.layers.RNN.__init__">(opennmt.layers.RNN method)</a>
 </li>
-        <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNN.__init__">(opennmt.layers.rnn.RNN method)</a>
+        <li><a href="package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.__init__">(opennmt.layers.RNNCellWrapper method)</a>
 </li>
-        <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper.__init__">(opennmt.layers.rnn.RNNCellWrapper method)</a>
+        <li><a href="package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer.__init__">(opennmt.layers.SelfAttentionDecoderLayer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.FeedForwardNetwork.__init__">(opennmt.layers.transformer.FeedForwardNetwork method)</a>
+        <li><a href="package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer.__init__">(opennmt.layers.SelfAttentionEncoderLayer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.MultiHeadAttention.__init__">(opennmt.layers.transformer.MultiHeadAttention method)</a>
+        <li><a href="package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper.__init__">(opennmt.layers.TransformerLayerWrapper method)</a>
 </li>
-        <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.TransformerLayerWrapper.__init__">(opennmt.layers.transformer.TransformerLayerWrapper method)</a>
+        <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.__init__">(opennmt.models.LanguageModel method)</a>
 </li>
-        <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModel.__init__">(opennmt.models.language_model.LanguageModel method)</a>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.__init__">(opennmt.models.SequenceClassifier method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier.__init__">(opennmt.models.sequence_classifier.SequenceClassifier method)</a>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.__init__">(opennmt.models.SequenceTagger method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.__init__">(opennmt.models.sequence_tagger.SequenceTagger method)</a>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.__init__">(opennmt.models.SequenceToSequence method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.__init__">(opennmt.models.sequence_to_sequence.SequenceToSequence method)</a>
+        <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.__init__">(opennmt.models.Transformer method)</a>
 </li>
-        <li><a href="package/opennmt.models.transformer.html#opennmt.models.transformer.Transformer.__init__">(opennmt.models.transformer.Transformer method)</a>
+        <li><a href="package/opennmt.Runner.html#opennmt.Runner.__init__">(opennmt.Runner method)</a>
 </li>
-        <li><a href="package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.AdafactorOptimizer.__init__">(opennmt.optimizers.adafactor.AdafactorOptimizer method)</a>
+        <li><a href="package/opennmt.schedules.CosineAnnealing.html#opennmt.schedules.CosineAnnealing.__init__">(opennmt.schedules.CosineAnnealing method)</a>
 </li>
-        <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.__init__">(opennmt.runner.Runner method)</a>
+        <li><a href="package/opennmt.schedules.NoamDecay.html#opennmt.schedules.NoamDecay.__init__">(opennmt.schedules.NoamDecay method)</a>
 </li>
-        <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer.__init__">(opennmt.tokenizers.tokenizer.Tokenizer method)</a>
+        <li><a href="package/opennmt.schedules.RNMTPlusDecay.html#opennmt.schedules.RNMTPlusDecay.__init__">(opennmt.schedules.RNMTPlusDecay method)</a>
 </li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.RandomSampler.__init__">(opennmt.utils.decoding.RandomSampler method)</a>
+        <li><a href="package/opennmt.schedules.RsqrtDecay.html#opennmt.schedules.RsqrtDecay.__init__">(opennmt.schedules.RsqrtDecay method)</a>
 </li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.__init__">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
+        <li><a href="package/opennmt.schedules.ScheduleWrapper.html#opennmt.schedules.ScheduleWrapper.__init__">(opennmt.schedules.ScheduleWrapper method)</a>
 </li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.__init__">(opennmt.utils.hooks.VariablesInitializerHook method)</a>
+        <li><a href="package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.__init__">(opennmt.utils.BeamSearch method)</a>
 </li>
-        <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer.__init__">(opennmt.utils.misc.OrderRestorer method)</a>
-</li>
-        <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.__init__">(opennmt.utils.parallel.GraphDispatcher method)</a>
-</li>
-        <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.__init__">(opennmt.utils.vocab.Vocab method)</a>
+        <li><a href="package/opennmt.utils.RandomSampler.html#opennmt.utils.RandomSampler.__init__">(opennmt.utils.RandomSampler method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.__len__">__len__() (opennmt.utils.vocab.Vocab method)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.__len__">__len__() (opennmt.data.Vocab method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -365,94 +346,42 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.adafactor_decay_rate_adam">adafactor_decay_rate_adam() (in module opennmt.optimizers.adafactor)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.adafactor_decay_rate_pow">adafactor_decay_rate_pow() (in module opennmt.optimizers.adafactor)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.AdafactorOptimizer">AdafactorOptimizer (class in opennmt.optimizers.adafactor)</a>
-</li>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordNoiser.add">add() (opennmt.layers.noise.WordNoiser method)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.add">add() (opennmt.data.Vocab method)</a>
 
       <ul>
-        <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.add">(opennmt.utils.vocab.Vocab method)</a>
+        <li><a href="package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.add">(opennmt.data.WordNoiser method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.tokenizers.html#opennmt.tokenizers.add_command_line_arguments">add_command_line_arguments() (in module opennmt.tokenizers)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.add_from_text">add_from_text() (opennmt.data.Vocab method)</a>
 </li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.add_counter">add_counter() (in module opennmt.utils.hooks)</a>
+      <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense.add_weight">add_weight() (opennmt.layers.Dense method)</a>
 </li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.add_dict_to_collection">add_dict_to_collection() (in module opennmt.utils.misc)</a>
+      <li><a href="package/opennmt.data.alignment_matrix_from_pharaoh.html#opennmt.data.alignment_matrix_from_pharaoh">alignment_matrix_from_pharaoh() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.add_from_text">add_from_text() (opennmt.utils.vocab.Vocab method)</a>
+      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.ALL">ALL (opennmt.models.EmbeddingsSharingLevel attribute)</a>
 </li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.add_process_hooks">add_process_hooks() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder">AttentionalRNNDecoder (class in opennmt.decoders)</a>
 </li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.add_scorer">add_scorer() (opennmt.utils.evaluator.ExternalEvaluator method)</a>
-</li>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.Dense.add_weight">add_weight() (opennmt.layers.common.Dense method)</a>
-</li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.after_create_session">after_create_session() (opennmt.utils.hooks.LoadWeightsFromCheckpointHook method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.after_create_session">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.after_create_session">(opennmt.utils.hooks.VariablesInitializerHook method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook.after_run">after_run() (opennmt.utils.hooks.CountersHook method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.after_run">(opennmt.utils.hooks.LogPredictionTimeHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.after_run">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.after_run">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.align_in_time">align_in_time() (in module opennmt.layers.reducer)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.align_tokens_from_attention">align_tokens_from_attention() (in module opennmt.models.sequence_to_sequence)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.alignment_matrix_from_pharaoh">alignment_matrix_from_pharaoh() (in module opennmt.models.sequence_to_sequence)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.ALL">ALL (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel attribute)</a>
-</li>
-      <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.apply">apply() (opennmt.layers.position.PositionEncoder method)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.MixedPrecisionOptimizerWrapper.apply_gradients">apply_gradients() (opennmt.optimizers.mixed_precision_wrapper.MixedPrecisionOptimizerWrapper method)</a>
-</li>
-      <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.apply_one">apply_one() (opennmt.layers.position.PositionEncoder method)</a>
-</li>
-      <li><a href="package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.ark_to_records">ark_to_records() (in module opennmt.bin.ark_to_records)</a>
-</li>
-      <li><a href="package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.ark_to_records_aligned">ark_to_records_aligned() (in module opennmt.bin.ark_to_records)</a>
-</li>
-      <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.assert_state_is_compatible">assert_state_is_compatible() (in module opennmt.layers.bridge)</a>
-</li>
-      <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder">AttentionalRNNDecoder (class in opennmt.decoders.rnn_decoder)</a>
-</li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.ListenAttendSpell.auto_config">auto_config() (opennmt.models.catalog.ListenAttendSpell method)</a>
+      <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.auto_config">auto_config() (opennmt.models.LanguageModel method)</a>
 
       <ul>
-        <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.SeqTagger.auto_config">(opennmt.models.catalog.SeqTagger method)</a>
+        <li><a href="package/opennmt.models.ListenAttendSpell.html#opennmt.models.ListenAttendSpell.auto_config">(opennmt.models.ListenAttendSpell method)</a>
 </li>
-        <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModel.auto_config">(opennmt.models.language_model.LanguageModel method)</a>
+        <li><a href="package/opennmt.models.LstmCnnCrfTagger.html#opennmt.models.LstmCnnCrfTagger.auto_config">(opennmt.models.LstmCnnCrfTagger method)</a>
 </li>
-        <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.auto_config">(opennmt.models.model.Model method)</a>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.auto_config">(opennmt.models.Model method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.auto_config">(opennmt.models.sequence_to_sequence.SequenceToSequence method)</a>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.auto_config">(opennmt.models.SequenceToSequence method)</a>
 </li>
-        <li><a href="package/opennmt.models.transformer.html#opennmt.models.transformer.Transformer.auto_config">(opennmt.models.transformer.Transformer method)</a>
+        <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.auto_config">(opennmt.models.Transformer method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler">AutomaticLossScaler (class in opennmt.optimizers.mixed_precision_wrapper)</a>
-</li>
-      <li><a href="package/opennmt.utils.checkpoint.html#opennmt.utils.checkpoint.average_checkpoints">average_checkpoints() (in module opennmt.utils.checkpoint)</a>
+      <li><a href="package/opennmt.utils.average_checkpoints.html#opennmt.utils.average_checkpoints">average_checkpoints() (in module opennmt.utils)</a>
 
       <ul>
-        <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.average_checkpoints">(opennmt.runner.Runner method)</a>
+        <li><a href="package/opennmt.Runner.html#opennmt.Runner.average_checkpoints">(opennmt.Runner method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -461,81 +390,47 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.BackoffScaler">BackoffScaler (class in opennmt.optimizers.mixed_precision_wrapper)</a>
+      <li><a href="package/opennmt.data.batch_dataset.html#opennmt.data.batch_dataset">batch_dataset() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.batch_dataset">batch_dataset() (in module opennmt.utils.data)</a>
+      <li><a href="package/opennmt.data.batch_sequence_dataset.html#opennmt.data.batch_sequence_dataset">batch_sequence_dataset() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.batch_parallel_dataset">batch_parallel_dataset() (in module opennmt.utils.data)</a>
+      <li><a href="package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch">BeamSearch (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.BeamSearch">BeamSearch (class in opennmt.utils.decoding)</a>
+      <li><a href="package/opennmt.utils.BestSampler.html#opennmt.utils.BestSampler">BestSampler (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook.before_run">before_run() (opennmt.utils.hooks.CountersHook method)</a>
+      <li><a href="package/opennmt.utils.BLEUScorer.html#opennmt.utils.BLEUScorer">BLEUScorer (class in opennmt.utils)</a>
+</li>
+      <li><a href="package/opennmt.layers.Bridge.html#opennmt.layers.Bridge">Bridge (class in opennmt.layers)</a>
+</li>
+      <li><a href="package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.build">build() (opennmt.inputters.CharEmbedder method)</a>
 
       <ul>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.before_run">(opennmt.utils.hooks.LogPredictionTimeHook method)</a>
+        <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.build">(opennmt.inputters.MixedInputter method)</a>
 </li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.before_run">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.build">(opennmt.inputters.ParallelInputter method)</a>
 </li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.before_run">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.build">(opennmt.inputters.WordEmbedder method)</a>
+</li>
+        <li><a href="package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge.build">(opennmt.layers.DenseBridge method)</a>
+</li>
+        <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.build">(opennmt.layers.LayerNorm method)</a>
+</li>
+        <li><a href="package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.build">(opennmt.layers.PositionEmbedder method)</a>
+</li>
+        <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.build">(opennmt.models.LanguageModel method)</a>
+</li>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.build">(opennmt.models.Model method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.build">(opennmt.models.SequenceClassifier method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.build">(opennmt.models.SequenceTagger method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.build">(opennmt.models.SequenceToSequence method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook.begin">begin() (opennmt.utils.hooks.CountersHook method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook.begin">(opennmt.utils.hooks.LoadWeightsFromCheckpointHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogParametersCountHook.begin">(opennmt.utils.hooks.LogParametersCountHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.begin">(opennmt.utils.hooks.LogPredictionTimeHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook.begin">(opennmt.utils.hooks.LogWordsPerSecondHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.begin">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
-</li>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook.begin">(opennmt.utils.hooks.VariablesInitializerHook method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.BestSampler">BestSampler (class in opennmt.utils.decoding)</a>
-</li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder">BidirectionalRNNEncoder (class in opennmt.encoders.rnn_encoder)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokEvaluator">BLEUDetokEvaluator (class in opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUDetokScorer">BLEUDetokScorer (class in opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUEvaluator">BLEUEvaluator (class in opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.BLEUScorer">BLEUScorer (class in opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.Bridge">Bridge (class in opennmt.layers.bridge)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.build">build() (opennmt.inputters.inputter.ParallelInputter method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.build">(opennmt.inputters.text_inputter.CharEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.build">(opennmt.inputters.text_inputter.WordEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.DenseBridge.build">(opennmt.layers.bridge.DenseBridge method)</a>
-</li>
-        <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm.build">(opennmt.layers.common.LayerNorm method)</a>
-</li>
-        <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEmbedder.build">(opennmt.layers.position.PositionEmbedder method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.cell.html#opennmt.utils.cell.build_cell">build_cell() (in module opennmt.utils.cell)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.build_future_mask">build_future_mask() (in module opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder.build_mask">build_mask() (opennmt.encoders.encoder.Encoder method)</a>
-</li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.build_output_layer">build_output_layer() (in module opennmt.decoders.decoder)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.build_sequence_mask">build_sequence_mask() (in module opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.tokenizers.html#opennmt.tokenizers.build_tokenizer">build_tokenizer() (in module opennmt.tokenizers)</a>
+      <li><a href="package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder.build_mask">build_mask() (opennmt.encoders.Encoder method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -543,109 +438,119 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.call">call() (opennmt.decoders.decoder.DecoderV2 method)</a>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.call">call() (opennmt.decoders.Decoder method)</a>
 
       <ul>
-        <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder.call">(opennmt.encoders.encoder.Encoder method)</a>
+        <li><a href="package/opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder.call">(opennmt.encoders.ConvEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNNEncoderV2.call">(opennmt.encoders.rnn_encoder.RNNEncoderV2 method)</a>
+        <li><a href="package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder.call">(opennmt.encoders.Encoder method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2.call">(opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2 method)</a>
+        <li><a href="package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder.call">(opennmt.encoders.MeanEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.call">(opennmt.inputters.inputter.Inputter method)</a>
+        <li><a href="package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder.call">(opennmt.encoders.ParallelEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.Bridge.call">(opennmt.layers.bridge.Bridge method)</a>
+        <li><a href="package/opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder.call">(opennmt.encoders.PyramidalRNNEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.CopyBridge.call">(opennmt.layers.bridge.CopyBridge method)</a>
+        <li><a href="package/opennmt.encoders.RNMTPlusEncoder.html#opennmt.encoders.RNMTPlusEncoder.call">(opennmt.encoders.RNMTPlusEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.DenseBridge.call">(opennmt.layers.bridge.DenseBridge method)</a>
+        <li><a href="package/opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder.call">(opennmt.encoders.SelfAttentionEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.ZeroBridge.call">(opennmt.layers.bridge.ZeroBridge method)</a>
+        <li><a href="package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder.call">(opennmt.encoders.SequentialEncoder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.Dense.call">(opennmt.layers.common.Dense method)</a>
+        <li><a href="package/opennmt.inputters.CharConvEmbedder.html#opennmt.inputters.CharConvEmbedder.call">(opennmt.inputters.CharConvEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm.call">(opennmt.layers.common.LayerNorm method)</a>
+        <li><a href="package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.call">(opennmt.inputters.CharEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.call">(opennmt.layers.common.LayerWrapper method)</a>
+        <li><a href="package/opennmt.inputters.CharRNNEmbedder.html#opennmt.inputters.CharRNNEmbedder.call">(opennmt.inputters.CharRNNEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.call">(opennmt.layers.position.PositionEncoder method)</a>
+        <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.call">(opennmt.inputters.Inputter method)</a>
 </li>
-        <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNN.call">(opennmt.layers.rnn.RNN method)</a>
+        <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.call">(opennmt.inputters.MixedInputter method)</a>
 </li>
-        <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.FeedForwardNetwork.call">(opennmt.layers.transformer.FeedForwardNetwork method)</a>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.call">(opennmt.inputters.ParallelInputter method)</a>
 </li>
-        <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.MultiHeadAttention.call">(opennmt.layers.transformer.MultiHeadAttention method)</a>
+        <li><a href="package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter.call">(opennmt.inputters.SequenceRecordInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.call">(opennmt.inputters.WordEmbedder method)</a>
+</li>
+        <li><a href="package/opennmt.layers.Bridge.html#opennmt.layers.Bridge.call">(opennmt.layers.Bridge method)</a>
+</li>
+        <li><a href="package/opennmt.layers.CopyBridge.html#opennmt.layers.CopyBridge.call">(opennmt.layers.CopyBridge method)</a>
+</li>
+        <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense.call">(opennmt.layers.Dense method)</a>
+</li>
+        <li><a href="package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge.call">(opennmt.layers.DenseBridge method)</a>
+</li>
+        <li><a href="package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork.call">(opennmt.layers.FeedForwardNetwork method)</a>
+</li>
+        <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.call">(opennmt.layers.LayerNorm method)</a>
+</li>
+        <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.call">(opennmt.layers.LayerWrapper method)</a>
+</li>
+        <li><a href="package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.call">(opennmt.layers.LSTM method)</a>
+</li>
+        <li><a href="package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention.call">(opennmt.layers.MultiHeadAttention method)</a>
+</li>
+        <li><a href="package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.call">(opennmt.layers.PositionEncoder method)</a>
+</li>
+        <li><a href="package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer.call">(opennmt.layers.SelfAttentionDecoderLayer method)</a>
+</li>
+        <li><a href="package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer.call">(opennmt.layers.SelfAttentionEncoderLayer method)</a>
+</li>
+        <li><a href="package/opennmt.layers.ZeroBridge.html#opennmt.layers.ZeroBridge.call">(opennmt.layers.ZeroBridge method)</a>
+</li>
+        <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.call">(opennmt.models.LanguageModel method)</a>
+</li>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.call">(opennmt.models.Model method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.call">(opennmt.models.SequenceClassifier method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.call">(opennmt.models.SequenceTagger method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.call">(opennmt.models.SequenceToSequence method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.CharacterTokenizer">CharacterTokenizer (class in opennmt.tokenizers.tokenizer)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharConvEmbedder">CharConvEmbedder (class in opennmt.inputters.text_inputter)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder">CharEmbedder (class in opennmt.inputters.text_inputter)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharRNNEmbedder">CharRNNEmbedder (class in opennmt.inputters.text_inputter)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler.check_grads">check_grads() (opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler static method)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.classes_in_module">classes_in_module() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.ClassInputter">ClassInputter (class in opennmt.models.sequence_classifier)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.combine_heads">combine_heads() (in module opennmt.layers.transformer)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.MixedPrecisionOptimizerWrapper.compute_gradients">compute_gradients() (opennmt.optimizers.mixed_precision_wrapper.MixedPrecisionOptimizerWrapper method)</a>
+      <li><a href="package/opennmt.tokenizers.CharacterTokenizer.html#opennmt.tokenizers.CharacterTokenizer">CharacterTokenizer (class in opennmt.tokenizers)</a>
 </li>
-      <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModel.compute_loss">compute_loss() (opennmt.models.language_model.LanguageModel method)</a>
+      <li><a href="package/opennmt.inputters.CharConvEmbedder.html#opennmt.inputters.CharConvEmbedder">CharConvEmbedder (class in opennmt.inputters)</a>
+</li>
+      <li><a href="package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder">CharEmbedder (class in opennmt.inputters)</a>
+</li>
+      <li><a href="package/opennmt.inputters.CharRNNEmbedder.html#opennmt.inputters.CharRNNEmbedder">CharRNNEmbedder (class in opennmt.inputters)</a>
+</li>
+      <li><a href="package/opennmt.models.ClassInputter.html#opennmt.models.ClassInputter">ClassInputter (class in opennmt.models)</a>
+</li>
+      <li><a href="package/opennmt.layers.combine_heads.html#opennmt.layers.combine_heads">combine_heads() (in module opennmt.layers)</a>
+</li>
+      <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.compute_loss">compute_loss() (opennmt.models.LanguageModel method)</a>
 
       <ul>
-        <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.compute_loss">(opennmt.models.model.Model method)</a>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.compute_loss">(opennmt.models.Model method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier.compute_loss">(opennmt.models.sequence_classifier.SequenceClassifier method)</a>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.compute_loss">(opennmt.models.SequenceClassifier method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.compute_loss">(opennmt.models.sequence_tagger.SequenceTagger method)</a>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.compute_loss">(opennmt.models.SequenceTagger method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.compute_loss">(opennmt.models.sequence_to_sequence.SequenceToSequence method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.compute_metrics">compute_metrics() (opennmt.models.model.Model method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier.compute_metrics">(opennmt.models.sequence_classifier.SequenceClassifier method)</a>
-</li>
-        <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.compute_metrics">(opennmt.models.sequence_tagger.SequenceTagger method)</a>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.compute_loss">(opennmt.models.SequenceToSequence method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.ConcatReducer">ConcatReducer (class in opennmt.layers.reducer)</a>
+      <li><a href="package/opennmt.layers.ConcatReducer.html#opennmt.layers.ConcatReducer">ConcatReducer (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.consume_next_text">consume_next_text() (in module opennmt.bin.ark_to_records)</a>
+      <li><a href="package/opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder">ConvEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.consume_next_vector">consume_next_vector() (in module opennmt.bin.ark_to_records)</a>
+      <li><a href="package/opennmt.layers.CopyBridge.html#opennmt.layers.CopyBridge">CopyBridge (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.encoders.conv_encoder.html#opennmt.encoders.conv_encoder.ConvEncoder">ConvEncoder (class in opennmt.encoders.conv_encoder)</a>
+      <li><a href="package/opennmt.schedules.CosineAnnealing.html#opennmt.schedules.CosineAnnealing">CosineAnnealing (class in opennmt.schedules)</a>
 </li>
-      <li><a href="package/opennmt.utils.checkpoint.html#opennmt.utils.checkpoint.convert_checkpoint">convert_checkpoint() (in module opennmt.utils.checkpoint)</a>
+      <li><a href="package/opennmt.inputters.create_sequence_records.html#opennmt.inputters.create_sequence_records">create_sequence_records() (in module opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.CopyBridge">CopyBridge (class in opennmt.layers.bridge)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.create_variables">create_variables() (opennmt.models.Model method)</a>
 </li>
-      <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.cosine_annealing">cosine_annealing() (in module opennmt.utils.decay)</a>
+      <li><a href="package/opennmt.utils.cross_entropy_loss.html#opennmt.utils.cross_entropy_loss">cross_entropy_loss() (in module opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.count_lines">count_lines() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.count_parameters">count_parameters() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.CountersHook">CountersHook (class in opennmt.utils.hooks)</a>
-</li>
-      <li><a href="package/opennmt.tokenizers.opennmt_tokenizer.html#opennmt.tokenizers.opennmt_tokenizer.create_tokenizer">create_tokenizer() (in module opennmt.tokenizers.opennmt_tokenizer)</a>
-</li>
-      <li><a href="package/opennmt.utils.losses.html#opennmt.utils.losses.cross_entropy_loss">cross_entropy_loss() (in module opennmt.utils.losses)</a>
-</li>
-      <li><a href="package/opennmt.utils.losses.html#opennmt.utils.losses.cross_entropy_sequence_loss">cross_entropy_sequence_loss() (in module opennmt.utils.losses)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.cumulative_average">cumulative_average() (in module opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.cumulative_average_mask">cumulative_average_mask() (in module opennmt.layers.transformer)</a>
+      <li><a href="package/opennmt.utils.cross_entropy_sequence_loss.html#opennmt.utils.cross_entropy_sequence_loss">cross_entropy_sequence_loss() (in module opennmt.utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -653,175 +558,91 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.decode">decode() (opennmt.decoders.decoder.Decoder method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.decode">(opennmt.decoders.rnn_decoder.RNNDecoder method)</a>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder">Decoder (class in opennmt.decoders)</a>
 </li>
-      </ul></li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.decode_from_inputs">decode_from_inputs() (opennmt.decoders.decoder.Decoder method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.decode_from_inputs">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoder method)</a>
+      <li><a href="package/opennmt.utils.DecodingResult.html#opennmt.utils.DecodingResult">DecodingResult (class in opennmt.utils)</a>
 </li>
-      </ul></li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder">Decoder (class in opennmt.decoders.decoder)</a>
+      <li><a href="package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy">DecodingStrategy (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2">DecoderV2 (class in opennmt.decoders.decoder)</a>
+      <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense">Dense (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.DecodingStrategy">DecodingStrategy (class in opennmt.utils.decoding)</a>
-</li>
-      <li><a href="package/opennmt.utils.optim.html#opennmt.utils.optim.delayed_update">delayed_update() (in module opennmt.utils.optim)</a>
-</li>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.Dense">Dense (class in opennmt.layers.common)</a>
+      <li><a href="package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge">DenseBridge (class in opennmt.layers)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.DenseBridge">DenseBridge (class in opennmt.layers.bridge)</a>
+      <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize">detokenize() (opennmt.tokenizers.Tokenizer method)</a>
 </li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer.detokenize">detokenize() (opennmt.tokenizers.tokenizer.Tokenizer method)</a>
+      <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize_stream">detokenize_stream() (opennmt.tokenizers.Tokenizer method)</a>
 </li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer.detokenize_stream">detokenize_stream() (opennmt.tokenizers.tokenizer.Tokenizer method)</a>
+      <li><a href="package/opennmt.layers.dropout.html#opennmt.layers.dropout">dropout() (in module opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.dot_product_attention">dot_product_attention() (in module opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.drop_and_add">drop_and_add() (in module opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.dropout">dropout() (in module opennmt.layers.common)</a>
-</li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.dynamic_decode">dynamic_decode() (in module opennmt.utils.decoding)</a>
+      <li><a href="package/opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode">dynamic_decode() (in module opennmt.utils)</a>
 
       <ul>
-        <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.dynamic_decode">(opennmt.decoders.decoder.Decoder method)</a>
+        <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.dynamic_decode">(opennmt.decoders.Decoder method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.dynamic_decode_and_search">dynamic_decode_and_search() (opennmt.decoders.decoder.Decoder method)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.embedding_lookup">embedding_lookup() (in module opennmt.layers.common)</a>
+      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel">EmbeddingsSharingLevel (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel">EmbeddingsSharingLevel (class in opennmt.models.sequence_to_sequence)</a>
+      <li><a href="package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder">Encoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.encoders.conv_encoder.html#opennmt.encoders.conv_encoder.ConvEncoder.encode">encode() (opennmt.encoders.conv_encoder.ConvEncoder method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder.encode">(opennmt.encoders.encoder.Encoder method)</a>
+      <li><a href="package/opennmt.Runner.html#opennmt.Runner.evaluate">evaluate() (opennmt.Runner method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.ParallelEncoder.encode">(opennmt.encoders.encoder.ParallelEncoder method)</a>
+      <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter">ExampleInputter (class in opennmt.inputters)</a>
 </li>
-        <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.SequentialEncoder.encode">(opennmt.encoders.encoder.SequentialEncoder method)</a>
+      <li><a href="package/opennmt.Runner.html#opennmt.Runner.export">export() (opennmt.Runner method)</a>
 </li>
-        <li><a href="package/opennmt.encoders.mean_encoder.html#opennmt.encoders.mean_encoder.MeanEncoder.encode">(opennmt.encoders.mean_encoder.MeanEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder.encode">(opennmt.encoders.rnn_encoder.BidirectionalRNNEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.GoogleRNNEncoder.encode">(opennmt.encoders.rnn_encoder.GoogleRNNEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.PyramidalRNNEncoder.encode">(opennmt.encoders.rnn_encoder.PyramidalRNNEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNMTPlusEncoder.encode">(opennmt.encoders.rnn_encoder.RNMTPlusEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNNEncoder.encode">(opennmt.encoders.rnn_encoder.RNNEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder.encode">(opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoder.encode">(opennmt.encoders.self_attention_encoder.SelfAttentionEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEmbedder.encode">(opennmt.layers.position.PositionEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.encode">(opennmt.layers.position.PositionEncoder method)</a>
-</li>
-        <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.SinusoidalPositionEncoder.encode">(opennmt.layers.position.SinusoidalPositionEncoder method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder.encode_sequence">encode_sequence() (opennmt.layers.position.PositionEncoder method)</a>
-</li>
-      <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.Encoder">Encoder (class in opennmt.encoders.encoder)</a>
-</li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook.end">end() (opennmt.utils.hooks.LogPredictionTimeHook method)</a>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.export_assets">export_assets() (opennmt.inputters.Inputter method)</a>
 
       <ul>
-        <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook.end">(opennmt.utils.hooks.SaveEvaluationPredictionHook method)</a>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.export_assets">(opennmt.inputters.MultiInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.export_assets">(opennmt.inputters.TextInputter method)</a>
+</li>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.export_assets">(opennmt.models.Model method)</a>
+</li>
+        <li><a href="package/opennmt.tokenizers.OpenNMTTokenizer.html#opennmt.tokenizers.OpenNMTTokenizer.export_assets">(opennmt.tokenizers.OpenNMTTokenizer method)</a>
+</li>
+        <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.export_assets">(opennmt.tokenizers.Tokenizer method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.evaluate">evaluate() (opennmt.runner.Runner method)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ExampleInputter">ExampleInputter (class in opennmt.inputters.inputter)</a>
-</li>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.export">export() (opennmt.runner.Runner method)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ExampleInputter.export_assets">export_assets() (opennmt.inputters.inputter.ExampleInputter method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.export_assets">(opennmt.inputters.inputter.Inputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.export_assets">(opennmt.inputters.inputter.MultiInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.export_assets">(opennmt.inputters.text_inputter.TextInputter method)</a>
-</li>
-        <li><a href="package/opennmt.tokenizers.opennmt_tokenizer.html#opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer.export_assets">(opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer method)</a>
-</li>
-        <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer.export_assets">(opennmt.tokenizers.tokenizer.Tokenizer method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.external_evaluation_fn">external_evaluation_fn() (in module opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator">ExternalEvaluator (class in opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.extract_batches">extract_batches() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.extract_prefixed_keys">extract_prefixed_keys() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.extract_suffixed_keys">extract_suffixed_keys() (in module opennmt.utils.misc)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.features_inputter">features_inputter (opennmt.models.model.Model attribute)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.features_inputter">features_inputter() (opennmt.models.Model property)</a>
 </li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.feed_forward">feed_forward() (in module opennmt.layers.transformer)</a>
+      <li><a href="package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork">FeedForwardNetwork (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.FeedForwardNetwork">FeedForwardNetwork (class in opennmt.layers.transformer)</a>
+      <li><a href="package/opennmt.data.filter_examples_by_length.html#opennmt.data.filter_examples_by_length">filter_examples_by_length() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.filter_examples_by_length">filter_examples_by_length() (in module opennmt.utils.data)</a>
+      <li><a href="package/opennmt.data.filter_irregular_batches.html#opennmt.data.filter_irregular_batches">filter_irregular_batches() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.filter_irregular_batches">filter_irregular_batches() (in module opennmt.utils.data)</a>
+      <li><a href="package/opennmt.utils.format_translation_output.html#opennmt.utils.format_translation_output">format_translation_output() (in module opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.BeamSearch.finalize">finalize() (opennmt.utils.decoding.BeamSearch method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.DecodingStrategy.finalize">(opennmt.utils.decoding.DecodingStrategy method)</a>
-</li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.GreedySearch.finalize">(opennmt.utils.decoding.GreedySearch method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.flag_bioes_tags">flag_bioes_tags() (in module opennmt.models.sequence_tagger)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.format_translation_output">format_translation_output() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.forward">forward() (opennmt.decoders.decoder.DecoderV2 method)</a>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.forward">forward() (opennmt.decoders.Decoder method)</a>
 
       <ul>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.forward">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2 method)</a>
+        <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.forward">(opennmt.decoders.SelfAttentionDecoder method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.from_config">from_config() (opennmt.layers.common.LayerWrapper class method)</a>
+      <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.from_config">from_config() (opennmt.layers.LayerWrapper class method)</a>
 </li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.function_args">function_args() (in module opennmt.utils.misc)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.from_file">from_file() (opennmt.data.Vocab class method)</a>
 </li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.fused_projection">fused_projection() (in module opennmt.layers.transformer)</a>
+      <li><a href="package/opennmt.layers.future_mask.html#opennmt.layers.future_mask">future_mask() (in module opennmt.layers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -829,87 +650,51 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.get_assets">get_assets() (opennmt.models.model.Model method)</a>
+      <li><a href="package/opennmt.layers.gelu.html#opennmt.layers.gelu">gelu() (in module opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.utils.checkpoint.html#opennmt.utils.checkpoint.get_checkpoint_variables">get_checkpoint_variables() (in module opennmt.utils.checkpoint)</a>
+      <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.get_config">get_config() (opennmt.layers.LayerWrapper method)</a>
 </li>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.get_config">get_config() (opennmt.layers.common.LayerWrapper method)</a>
+      <li><a href="package/opennmt.data.get_dataset_size.html#opennmt.data.get_dataset_size">get_dataset_size() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.get_dataset_size">get_dataset_size() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.get_initial_state">get_initial_state() (opennmt.layers.RNNCellWrapper method)</a>
+</li>
+      <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.get_leaf_inputters">get_leaf_inputters() (opennmt.inputters.MultiInputter method)</a>
+</li>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.get_length">get_length() (opennmt.inputters.Inputter method)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.get_dataset_size">(opennmt.inputters.inputter.MixedInputter method)</a>
+        <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.get_length">(opennmt.inputters.MixedInputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.get_dataset_size">(opennmt.inputters.inputter.MultiInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.get_dataset_size">(opennmt.inputters.inputter.ParallelInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.get_dataset_size">(opennmt.inputters.record_inputter.SequenceRecordInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.get_dataset_size">(opennmt.inputters.text_inputter.TextInputter method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.get_devices">get_devices() (in module opennmt.utils.parallel)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.get_dict_from_collection">get_dict_from_collection() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.get_embedding_fn">get_embedding_fn() (in module opennmt.decoders.decoder)</a>
-</li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.get_initial_state">get_initial_state() (opennmt.decoders.decoder.DecoderV2 method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper.get_initial_state">(opennmt.layers.rnn.RNNCellWrapper method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.get_leaf_inputters">get_leaf_inputters() (opennmt.inputters.inputter.MultiInputter method)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.get_length">get_length() (opennmt.inputters.inputter.Inputter method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.get_length">(opennmt.inputters.inputter.MixedInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.get_length">(opennmt.inputters.inputter.ParallelInputter method)</a>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.get_length">(opennmt.inputters.ParallelInputter method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.get_loss_scale_from_params">get_loss_scale_from_params() (in module opennmt.optimizers.mixed_precision_wrapper)</a>
-</li>
-      <li><a href="package/opennmt.utils.optim.html#opennmt.utils.optim.get_optimizer_class">get_optimizer_class() (in module opennmt.utils.optim)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.adafactor.html#opennmt.optimizers.adafactor.get_optimizer_from_params">get_optimizer_from_params() (in module opennmt.optimizers.adafactor)</a>
-</li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.get_padded_shapes">get_padded_shapes() (in module opennmt.utils.data)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.get_receiver_tensors">get_receiver_tensors() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.get_metrics">get_metrics() (opennmt.models.Model method)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.get_receiver_tensors">(opennmt.inputters.inputter.MixedInputter method)</a>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.get_metrics">(opennmt.models.SequenceClassifier method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.get_receiver_tensors">(opennmt.inputters.inputter.ParallelInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.get_receiver_tensors">(opennmt.inputters.record_inputter.SequenceRecordInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.get_receiver_tensors">(opennmt.inputters.text_inputter.CharEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.get_receiver_tensors">(opennmt.inputters.text_inputter.WordEmbedder method)</a>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.get_metrics">(opennmt.models.SequenceTagger method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.get_sampling_probability">get_sampling_probability() (in module opennmt.decoders.decoder)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.get_optimizer">get_optimizer() (opennmt.models.Model method)</a>
 </li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.get_serving_input_receiver">get_serving_input_receiver() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.decoders.get_sampling_probability.html#opennmt.decoders.get_sampling_probability">get_sampling_probability() (in module opennmt.decoders)</a>
 </li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.get_third_party_dir">get_third_party_dir() (in module opennmt.utils.misc)</a>
+      <li><a href="package/opennmt.encoders.GNMTEncoder.html#opennmt.encoders.GNMTEncoder">GNMTEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.GNMTEncoder">GNMTEncoder (class in opennmt.encoders.rnn_encoder)</a>
+      <li><a href="package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch">GreedySearch (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.GoogleRNNEncoder">GoogleRNNEncoder (class in opennmt.encoders.rnn_encoder)</a>
+      <li><a href="package/opennmt.utils.guided_alignment_cost.html#opennmt.utils.guided_alignment_cost">guided_alignment_cost() (in module opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher">GraphDispatcher (class in opennmt.utils.parallel)</a>
-</li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.GreedySearch">GreedySearch (class in opennmt.utils.decoding)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.guided_alignment_cost">guided_alignment_cost() (in module opennmt.models.sequence_to_sequence)</a>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.higher_is_better">higher_is_better() (opennmt.utils.Scorer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -917,53 +702,51 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.infer">infer() (opennmt.runner.Runner method)</a>
-</li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.inference_pipeline">inference_pipeline() (in module opennmt.utils.data)</a>
-</li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.initialize">initialize() (opennmt.decoders.decoder.DecoderV2 method)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.infer">infer() (opennmt.models.Model method)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ExampleInputter.initialize">(opennmt.inputters.inputter.ExampleInputter method)</a>
+        <li><a href="package/opennmt.Runner.html#opennmt.Runner.infer">(opennmt.Runner method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.initialize">(opennmt.inputters.inputter.Inputter method)</a>
+      </ul></li>
+      <li><a href="package/opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline">inference_pipeline() (in module opennmt.data)</a>
 </li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.initialize">(opennmt.inputters.inputter.MultiInputter method)</a>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initial_state">initial_state() (opennmt.decoders.Decoder method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.initialize">(opennmt.inputters.text_inputter.TextInputter method)</a>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initialize">initialize() (opennmt.decoders.Decoder method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.initialize">(opennmt.inputters.Inputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.initialize">(opennmt.inputters.text_inputter.WordEmbedder method)</a>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.initialize">(opennmt.inputters.MultiInputter method)</a>
 </li>
-        <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.initialize">(opennmt.models.model.Model method)</a>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.initialize">(opennmt.inputters.TextInputter method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.initialize">(opennmt.models.sequence_tagger.SequenceTagger method)</a>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.initialize">(opennmt.inputters.WordEmbedder method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.initialize">(opennmt.models.sequence_to_sequence.SequenceToSequence method)</a>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.initialize">(opennmt.models.Model method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter.initialize">(opennmt.models.sequence_to_sequence.SequenceToSequenceInputter method)</a>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.initialize">(opennmt.models.SequenceTagger method)</a>
 </li>
-        <li><a href="package/opennmt.tokenizers.opennmt_tokenizer.html#opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer.initialize">(opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer method)</a>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.initialize">(opennmt.models.SequenceToSequence method)</a>
 </li>
-        <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer.initialize">(opennmt.tokenizers.tokenizer.Tokenizer method)</a>
-</li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.BeamSearch.initialize">(opennmt.utils.decoding.BeamSearch method)</a>
-</li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.DecodingStrategy.initialize">(opennmt.utils.decoding.DecodingStrategy method)</a>
-</li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.GreedySearch.initialize">(opennmt.utils.decoding.GreedySearch method)</a>
+        <li><a href="package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter.initialize">(opennmt.models.SequenceToSequenceInputter method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.input_fn">input_fn() (opennmt.models.model.Model method)</a>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.input_signature">input_signature() (opennmt.inputters.Inputter method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.input_signature">(opennmt.inputters.MixedInputter method)</a>
 </li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter">Inputter (class in opennmt.inputters.inputter)</a>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.input_signature">(opennmt.inputters.ParallelInputter method)</a>
 </li>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.is_chief">is_chief() (opennmt.runner.Runner method)</a>
+        <li><a href="package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter.input_signature">(opennmt.inputters.SequenceRecordInputter method)</a>
 </li>
-      <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.is_tf2">is_tf2() (in module opennmt.utils.compat)</a>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.input_signature">(opennmt.inputters.TextInputter method)</a>
 </li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.item_or_tuple">item_or_tuple() (in module opennmt.utils.misc)</a>
+      </ul></li>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter">Inputter (class in opennmt.inputters)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -971,7 +754,7 @@
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.JoinReducer">JoinReducer (class in opennmt.layers.reducer)</a>
+      <li><a href="package/opennmt.layers.JoinReducer.html#opennmt.layers.JoinReducer">JoinReducer (class in opennmt.layers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -979,69 +762,39 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.labels_inputter">labels_inputter (opennmt.models.model.Model attribute)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.labels_inputter">labels_inputter() (opennmt.models.Model property)</a>
 </li>
-      <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModel">LanguageModel (class in opennmt.models.language_model)</a>
+      <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel">LanguageModel (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModelInputter">LanguageModelInputter (class in opennmt.models.language_model)</a>
+      <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter">LanguageModelInputter (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.utils.cell.html#opennmt.utils.cell.last_encoding_from_state">last_encoding_from_state() (in module opennmt.utils.cell)</a>
+      <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm">LayerNorm (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm">LayerNorm (class in opennmt.layers.common)</a>
+      <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper">LayerWrapper (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper">LayerWrapper (class in opennmt.layers.common)</a>
+      <li><a href="package/opennmt.models.ListenAttendSpell.html#opennmt.models.ListenAttendSpell">ListenAttendSpell (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.utils.optim.html#opennmt.utils.optim.learning_rate_decay_fn">learning_rate_decay_fn() (in module opennmt.utils.optim)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.load">load() (opennmt.data.Vocab method)</a>
 </li>
-      <li><a href="package/opennmt.utils.optim.html#opennmt.utils.optim.learning_rate_decay_fn_v2">learning_rate_decay_fn_v2() (in module opennmt.utils.optim)</a>
-</li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.ListenAttendSpell">ListenAttendSpell (class in opennmt.models.catalog)</a>
-</li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.load">load() (opennmt.utils.vocab.Vocab method)</a>
-</li>
-      <li><a href="package/opennmt.config.html#opennmt.config.load_config">load_config() (in module opennmt.config)</a>
-</li>
-      <li><a href="package/opennmt.config.html#opennmt.config.load_model">load_model() (in module opennmt.config)</a>
-</li>
-      <li><a href="package/opennmt.config.html#opennmt.config.load_model_from_catalog">load_model_from_catalog() (in module opennmt.config)</a>
-</li>
-      <li><a href="package/opennmt.config.html#opennmt.config.load_model_from_file">load_model_from_file() (in module opennmt.config)</a>
+      <li><a href="package/opennmt.load_config.html#opennmt.load_config">load_config() (in module opennmt)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.config.html#opennmt.config.load_model_module">load_model_module() (in module opennmt.config)</a>
+      <li><a href="package/opennmt.load_model.html#opennmt.load_model">load_model() (in module opennmt)</a>
 </li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.load_pretrained_embeddings">load_pretrained_embeddings() (in module opennmt.inputters.text_inputter)</a>
+      <li><a href="package/opennmt.inputters.load_pretrained_embeddings.html#opennmt.inputters.load_pretrained_embeddings">load_pretrained_embeddings() (in module opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LoadWeightsFromCheckpointHook">LoadWeightsFromCheckpointHook (class in opennmt.utils.hooks)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.lookup">lookup() (opennmt.data.Vocab method)</a>
 </li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer.log">log() (opennmt.utils.evaluator.ROUGEScorer method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.log">(opennmt.utils.evaluator.Scorer method)</a>
+      <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.lower_is_better">lower_is_better() (opennmt.utils.Scorer method)</a>
 </li>
-      </ul></li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.logits_to_cum_log_probs">logits_to_cum_log_probs() (in module opennmt.decoders.decoder)</a>
+      <li><a href="package/opennmt.layers.LSTM.html#opennmt.layers.LSTM">LSTM (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler">LogMaxScaler (class in opennmt.optimizers.mixed_precision_wrapper)</a>
+      <li><a href="package/opennmt.models.LstmCnnCrfTagger.html#opennmt.models.LstmCnnCrfTagger">LstmCnnCrfTagger (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogParametersCountHook">LogParametersCountHook (class in opennmt.utils.hooks)</a>
+      <li><a href="package/opennmt.encoders.LSTMEncoder.html#opennmt.encoders.LSTMEncoder">LSTMEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogPredictionTimeHook">LogPredictionTimeHook (class in opennmt.utils.hooks)</a>
-</li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.LogWordsPerSecondHook">LogWordsPerSecondHook (class in opennmt.utils.hooks)</a>
-</li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.lookup">lookup() (opennmt.utils.vocab.Vocab method)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler.loss_scale">loss_scale (opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler attribute)</a>
-
-      <ul>
-        <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.BackoffScaler.loss_scale">(opennmt.optimizers.mixed_precision_wrapper.BackoffScaler attribute)</a>
-</li>
-        <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler.loss_scale">(opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.lower_is_better">lower_is_better() (opennmt.utils.evaluator.Scorer method)</a>
+      <li><a href="package/opennmt.models.LuongAttention.html#opennmt.models.LuongAttention">LuongAttention (class in opennmt.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1049,151 +802,123 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.main">main() (in module opennmt.bin.ark_to_records)</a>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_dataset">make_dataset() (opennmt.inputters.Inputter method)</a>
 
       <ul>
-        <li><a href="package/opennmt.bin.average_checkpoints.html#opennmt.bin.average_checkpoints.main">(in module opennmt.bin.average_checkpoints)</a>
+        <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.make_dataset">(opennmt.inputters.MixedInputter method)</a>
 </li>
-        <li><a href="package/opennmt.bin.build_vocab.html#opennmt.bin.build_vocab.main">(in module opennmt.bin.build_vocab)</a>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.make_dataset">(opennmt.inputters.MultiInputter method)</a>
 </li>
-        <li><a href="package/opennmt.bin.convert_checkpoint.html#opennmt.bin.convert_checkpoint.main">(in module opennmt.bin.convert_checkpoint)</a>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.make_dataset">(opennmt.inputters.ParallelInputter method)</a>
 </li>
-        <li><a href="package/opennmt.bin.detokenize_text.html#opennmt.bin.detokenize_text.main">(in module opennmt.bin.detokenize_text)</a>
+        <li><a href="package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter.make_dataset">(opennmt.inputters.SequenceRecordInputter method)</a>
 </li>
-        <li><a href="package/opennmt.bin.main.html#opennmt.bin.main.main">(in module opennmt.bin.main)</a>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_dataset">(opennmt.inputters.TextInputter method)</a>
 </li>
-        <li><a href="package/opennmt.bin.merge_config.html#opennmt.bin.merge_config.main">(in module opennmt.bin.merge_config)</a>
-</li>
-        <li><a href="package/opennmt.bin.tokenize_text.html#opennmt.bin.tokenize_text.main">(in module opennmt.bin.tokenize_text)</a>
-</li>
-        <li><a href="package/opennmt.bin.update_vocab.html#opennmt.bin.update_vocab.main">(in module opennmt.bin.update_vocab)</a>
+        <li><a href="package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter.make_dataset">(opennmt.models.SequenceToSequenceInputter method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.make_dataset">make_dataset() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_evaluation_dataset">make_evaluation_dataset() (opennmt.inputters.ExampleInputter method)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.make_dataset">(opennmt.inputters.inputter.MixedInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.make_dataset">(opennmt.inputters.inputter.MultiInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.make_dataset">(opennmt.inputters.inputter.ParallelInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.make_dataset">(opennmt.inputters.record_inputter.SequenceRecordInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.make_dataset">(opennmt.inputters.text_inputter.TextInputter method)</a>
-</li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter.make_dataset">(opennmt.models.sequence_to_sequence.SequenceToSequenceInputter method)</a>
+        <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_evaluation_dataset">(opennmt.models.LanguageModelInputter method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ExampleInputter.make_evaluation_dataset">make_evaluation_dataset() (opennmt.inputters.inputter.ExampleInputter method)</a>
+      <li><a href="package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.make_features">make_features() (opennmt.inputters.CharEmbedder method)</a>
 
       <ul>
-        <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModelInputter.make_evaluation_dataset">(opennmt.models.language_model.LanguageModelInputter method)</a>
+        <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_features">(opennmt.inputters.Inputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.make_features">(opennmt.inputters.MixedInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.make_features">(opennmt.inputters.ParallelInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter.make_features">(opennmt.inputters.SequenceRecordInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_features">(opennmt.inputters.TextInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.make_features">(opennmt.inputters.WordEmbedder method)</a>
+</li>
+        <li><a href="package/opennmt.models.ClassInputter.html#opennmt.models.ClassInputter.make_features">(opennmt.models.ClassInputter method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter.make_features">(opennmt.models.SequenceToSequenceInputter method)</a>
+</li>
+        <li><a href="package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter.make_features">(opennmt.models.TagsInputter method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.make_features">make_features() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_inference_dataset">make_inference_dataset() (opennmt.inputters.ExampleInputter method)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.make_features">(opennmt.inputters.inputter.MixedInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.make_features">(opennmt.inputters.inputter.ParallelInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.make_features">(opennmt.inputters.record_inputter.SequenceRecordInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.make_features">(opennmt.inputters.text_inputter.CharEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.make_features">(opennmt.inputters.text_inputter.TextInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.make_features">(opennmt.inputters.text_inputter.WordEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.ClassInputter.make_features">(opennmt.models.sequence_classifier.ClassInputter method)</a>
-</li>
-        <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.TagsInputter.make_features">(opennmt.models.sequence_tagger.TagsInputter method)</a>
-</li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter.make_features">(opennmt.models.sequence_to_sequence.SequenceToSequenceInputter method)</a>
+        <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_inference_dataset">(opennmt.inputters.Inputter method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ExampleInputter.make_inference_dataset">make_inference_dataset() (opennmt.inputters.inputter.ExampleInputter method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.make_inference_dataset">(opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.schedules.make_learning_rate_schedule.html#opennmt.schedules.make_learning_rate_schedule">make_learning_rate_schedule() (in module opennmt.schedules)</a>
 </li>
-      </ul></li>
-      <li><a href="package/opennmt.estimator.html#opennmt.estimator.make_input_fn">make_input_fn() (in module opennmt.estimator)</a>
+      <li><a href="package/opennmt.optimizers.make_optimizer.html#opennmt.optimizers.make_optimizer">make_optimizer() (in module opennmt.optimizers)</a>
+</li>
+      <li><a href="package/opennmt.layers.make_rnn_cell.html#opennmt.layers.make_rnn_cell">make_rnn_cell() (in module opennmt.layers)</a>
+</li>
+      <li><a href="package/opennmt.tokenizers.make_tokenizer.html#opennmt.tokenizers.make_tokenizer">make_tokenizer() (in module opennmt.tokenizers)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.make_inputs">make_inputs() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_training_dataset">make_training_dataset() (opennmt.inputters.ExampleInputter method)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter.make_inputs">(opennmt.inputters.inputter.MixedInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter.make_inputs">(opennmt.inputters.inputter.ParallelInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter.make_inputs">(opennmt.inputters.record_inputter.SequenceRecordInputter method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharConvEmbedder.make_inputs">(opennmt.inputters.text_inputter.CharConvEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.make_inputs">(opennmt.inputters.text_inputter.CharEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharRNNEmbedder.make_inputs">(opennmt.inputters.text_inputter.CharRNNEmbedder method)</a>
-</li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.make_inputs">(opennmt.inputters.text_inputter.WordEmbedder method)</a>
+        <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_training_dataset">(opennmt.models.LanguageModelInputter method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.estimator.html#opennmt.estimator.make_model_fn">make_model_fn() (in module opennmt.estimator)</a>
-</li>
-      <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.make_positions">make_positions() (in module opennmt.layers.position)</a>
-</li>
-      <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.make_rnn_cell">make_rnn_cell() (in module opennmt.layers.rnn)</a>
-</li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.make_scorers">make_scorers() (in module opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.estimator.html#opennmt.estimator.make_serving_input_fn">make_serving_input_fn() (in module opennmt.estimator)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ExampleInputter.make_training_dataset">make_training_dataset() (opennmt.inputters.inputter.ExampleInputter method)</a>
+      <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.map_v1_weights">map_v1_weights() (opennmt.decoders.SelfAttentionDecoder method)</a>
 
       <ul>
-        <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModelInputter.make_training_dataset">(opennmt.models.language_model.LanguageModelInputter method)</a>
+        <li><a href="package/opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder.map_v1_weights">(opennmt.encoders.SelfAttentionEncoder method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.map_v1_weights">(opennmt.inputters.WordEmbedder method)</a>
+</li>
+        <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense.map_v1_weights">(opennmt.layers.Dense method)</a>
+</li>
+        <li><a href="package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork.map_v1_weights">(opennmt.layers.FeedForwardNetwork method)</a>
+</li>
+        <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.map_v1_weights">(opennmt.layers.LayerNorm method)</a>
+</li>
+        <li><a href="package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention.map_v1_weights">(opennmt.layers.MultiHeadAttention method)</a>
+</li>
+        <li><a href="package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer.map_v1_weights">(opennmt.layers.SelfAttentionDecoderLayer method)</a>
+</li>
+        <li><a href="package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer.map_v1_weights">(opennmt.layers.SelfAttentionEncoderLayer method)</a>
+</li>
+        <li><a href="package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper.map_v1_weights">(opennmt.layers.TransformerLayerWrapper method)</a>
+</li>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.map_v1_weights">(opennmt.models.Model method)</a>
+</li>
+        <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.map_v1_weights">(opennmt.models.Transformer method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.utils.losses.html#opennmt.utils.losses.max_margin_loss">max_margin_loss() (in module opennmt.utils.losses)</a>
+      <li><a href="package/opennmt.utils.max_margin_loss.html#opennmt.utils.max_margin_loss">max_margin_loss() (in module opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.maximum_sources">maximum_sources (opennmt.decoders.decoder.DecoderV2 attribute)</a>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.maximum_sources">maximum_sources() (opennmt.decoders.Decoder property)</a>
 
       <ul>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.maximum_sources">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2 attribute)</a>
+        <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.maximum_sources">(opennmt.decoders.SelfAttentionDecoder property)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.encoders.mean_encoder.html#opennmt.encoders.mean_encoder.MeanEncoder">MeanEncoder (class in opennmt.encoders.mean_encoder)</a>
+      <li><a href="package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder">MeanEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.merge_dict">merge_dict() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.minimum_sources">minimum_sources (opennmt.decoders.decoder.DecoderV2 attribute)</a>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.minimum_sources">minimum_sources() (opennmt.decoders.Decoder property)</a>
 
       <ul>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.minimum_sources">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2 attribute)</a>
+        <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.minimum_sources">(opennmt.decoders.SelfAttentionDecoder property)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MixedInputter">MixedInputter (class in opennmt.inputters.inputter)</a>
+      <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter">MixedInputter (class in opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.MixedPrecisionOptimizerWrapper">MixedPrecisionOptimizerWrapper (class in opennmt.optimizers.mixed_precision_wrapper)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model">Model (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model">Model (class in opennmt.models.model)</a>
+      <li><a href="package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention">MultiHeadAttention (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.model_fn">model_fn() (opennmt.models.model.Model method)</a>
+      <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter">MultiInputter (class in opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.multi_head_attention">multi_head_attention() (in module opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.MultiAttentionalRNNDecoder">MultiAttentionalRNNDecoder (class in opennmt.decoders.rnn_decoder)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.MultiHeadAttention">MultiHeadAttention (class in opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter">MultiInputter (class in opennmt.inputters.inputter)</a>
-</li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.MultiplyReducer">MultiplyReducer (class in opennmt.layers.reducer)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.multistep_adam.html#opennmt.optimizers.multistep_adam.MultistepAdamOptimizer">MultistepAdamOptimizer (class in opennmt.optimizers.multistep_adam)</a>
+      <li><a href="package/opennmt.layers.MultiplyReducer.html#opennmt.layers.MultiplyReducer">MultiplyReducer (class in opennmt.layers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1201,38 +926,26 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.name">name (opennmt.utils.evaluator.Scorer attribute)</a>
+      <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.name">name() (opennmt.utils.Scorer property)</a>
 </li>
-      <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.name_from_variable_scope">name_from_variable_scope() (in module opennmt.utils.compat)</a>
+      <li><a href="package/opennmt.schedules.NoamDecay.html#opennmt.schedules.NoamDecay">NoamDecay (class in opennmt.schedules)</a>
 </li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.NMTBig">NMTBig (class in opennmt.models.catalog)</a>
+      <li><a href="package/opennmt.data.Noise.html#opennmt.data.Noise">Noise (class in opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.NMTMedium">NMTMedium (class in opennmt.models.catalog)</a>
-</li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.NMTSmall">NMTSmall (class in opennmt.models.catalog)</a>
-</li>
-      <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.noam_decay">noam_decay() (in module opennmt.utils.decay)</a>
-</li>
-      <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.noam_decay_v2">noam_decay_v2() (in module opennmt.utils.decay)</a>
+      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.NONE">NONE (opennmt.models.EmbeddingsSharingLevel attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.Noise">Noise (class in opennmt.layers.noise)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.NONE">NONE (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel attribute)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.norm">norm() (in module opennmt.layers.transformer)</a>
-</li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.BeamSearch.num_hypotheses">num_hypotheses (opennmt.utils.decoding.BeamSearch attribute)</a>
+      <li><a href="package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.num_hypotheses">num_hypotheses() (opennmt.utils.BeamSearch property)</a>
 
       <ul>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.DecodingStrategy.num_hypotheses">(opennmt.utils.decoding.DecodingStrategy attribute)</a>
+        <li><a href="package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.num_hypotheses">(opennmt.utils.DecodingStrategy property)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.num_outputs">num_outputs (opennmt.inputters.inputter.Inputter attribute)</a>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.num_outputs">num_outputs() (opennmt.inputters.Inputter property)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.num_outputs">(opennmt.inputters.inputter.MultiInputter attribute)</a>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.num_outputs">(opennmt.inputters.MultiInputter property)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1243,209 +956,71 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.html#module-opennmt">opennmt (module)</a>
 </li>
-      <li><a href="package/opennmt.bin.html#module-opennmt.bin">opennmt.bin (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.ark_to_records.html#module-opennmt.bin.ark_to_records">opennmt.bin.ark_to_records (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.average_checkpoints.html#module-opennmt.bin.average_checkpoints">opennmt.bin.average_checkpoints (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.build_vocab.html#module-opennmt.bin.build_vocab">opennmt.bin.build_vocab (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.convert_checkpoint.html#module-opennmt.bin.convert_checkpoint">opennmt.bin.convert_checkpoint (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.detokenize_text.html#module-opennmt.bin.detokenize_text">opennmt.bin.detokenize_text (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.main.html#module-opennmt.bin.main">opennmt.bin.main (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.merge_config.html#module-opennmt.bin.merge_config">opennmt.bin.merge_config (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.tokenize_text.html#module-opennmt.bin.tokenize_text">opennmt.bin.tokenize_text (module)</a>
-</li>
-      <li><a href="package/opennmt.bin.update_vocab.html#module-opennmt.bin.update_vocab">opennmt.bin.update_vocab (module)</a>
-</li>
-      <li><a href="package/opennmt.config.html#module-opennmt.config">opennmt.config (module)</a>
-</li>
-      <li><a href="package/opennmt.constants.html#module-opennmt.constants">opennmt.constants (module)</a>
+      <li><a href="package/opennmt.data.html#module-opennmt.data">opennmt.data (module)</a>
 </li>
       <li><a href="package/opennmt.decoders.html#module-opennmt.decoders">opennmt.decoders (module)</a>
 </li>
-      <li><a href="package/opennmt.decoders.decoder.html#module-opennmt.decoders.decoder">opennmt.decoders.decoder (module)</a>
-</li>
-      <li><a href="package/opennmt.decoders.rnn_decoder.html#module-opennmt.decoders.rnn_decoder">opennmt.decoders.rnn_decoder (module)</a>
-</li>
-      <li><a href="package/opennmt.decoders.self_attention_decoder.html#module-opennmt.decoders.self_attention_decoder">opennmt.decoders.self_attention_decoder (module)</a>
-</li>
       <li><a href="package/opennmt.encoders.html#module-opennmt.encoders">opennmt.encoders (module)</a>
-</li>
-      <li><a href="package/opennmt.encoders.conv_encoder.html#module-opennmt.encoders.conv_encoder">opennmt.encoders.conv_encoder (module)</a>
-</li>
-      <li><a href="package/opennmt.encoders.encoder.html#module-opennmt.encoders.encoder">opennmt.encoders.encoder (module)</a>
-</li>
-      <li><a href="package/opennmt.encoders.mean_encoder.html#module-opennmt.encoders.mean_encoder">opennmt.encoders.mean_encoder (module)</a>
-</li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#module-opennmt.encoders.rnn_encoder">opennmt.encoders.rnn_encoder (module)</a>
-</li>
-      <li><a href="package/opennmt.encoders.self_attention_encoder.html#module-opennmt.encoders.self_attention_encoder">opennmt.encoders.self_attention_encoder (module)</a>
-</li>
-      <li><a href="package/opennmt.estimator.html#module-opennmt.estimator">opennmt.estimator (module)</a>
 </li>
       <li><a href="package/opennmt.inputters.html#module-opennmt.inputters">opennmt.inputters (module)</a>
 </li>
-      <li><a href="package/opennmt.inputters.inputter.html#module-opennmt.inputters.inputter">opennmt.inputters.inputter (module)</a>
-</li>
-      <li><a href="package/opennmt.inputters.record_inputter.html#module-opennmt.inputters.record_inputter">opennmt.inputters.record_inputter (module)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#module-opennmt.inputters.text_inputter">opennmt.inputters.text_inputter (module)</a>
-</li>
       <li><a href="package/opennmt.layers.html#module-opennmt.layers">opennmt.layers (module)</a>
-</li>
-      <li><a href="package/opennmt.layers.bridge.html#module-opennmt.layers.bridge">opennmt.layers.bridge (module)</a>
-</li>
-      <li><a href="package/opennmt.layers.common.html#module-opennmt.layers.common">opennmt.layers.common (module)</a>
-</li>
-      <li><a href="package/opennmt.layers.noise.html#module-opennmt.layers.noise">opennmt.layers.noise (module)</a>
-</li>
-      <li><a href="package/opennmt.layers.position.html#module-opennmt.layers.position">opennmt.layers.position (module)</a>
-</li>
-      <li><a href="package/opennmt.layers.reducer.html#module-opennmt.layers.reducer">opennmt.layers.reducer (module)</a>
-</li>
-      <li><a href="package/opennmt.layers.rnn.html#module-opennmt.layers.rnn">opennmt.layers.rnn (module)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#module-opennmt.layers.transformer">opennmt.layers.transformer (module)</a>
-</li>
-      <li><a href="package/opennmt.models.html#module-opennmt.models">opennmt.models (module)</a>
-</li>
-      <li><a href="package/opennmt.models.catalog.html#module-opennmt.models.catalog">opennmt.models.catalog (module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.language_model.html#module-opennmt.models.language_model">opennmt.models.language_model (module)</a>
-</li>
-      <li><a href="package/opennmt.models.model.html#module-opennmt.models.model">opennmt.models.model (module)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_classifier.html#module-opennmt.models.sequence_classifier">opennmt.models.sequence_classifier (module)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_tagger.html#module-opennmt.models.sequence_tagger">opennmt.models.sequence_tagger (module)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#module-opennmt.models.sequence_to_sequence">opennmt.models.sequence_to_sequence (module)</a>
-</li>
-      <li><a href="package/opennmt.models.transformer.html#module-opennmt.models.transformer">opennmt.models.transformer (module)</a>
+      <li><a href="package/opennmt.models.html#module-opennmt.models">opennmt.models (module)</a>
 </li>
       <li><a href="package/opennmt.optimizers.html#module-opennmt.optimizers">opennmt.optimizers (module)</a>
 </li>
-      <li><a href="package/opennmt.optimizers.adafactor.html#module-opennmt.optimizers.adafactor">opennmt.optimizers.adafactor (module)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#module-opennmt.optimizers.mixed_precision_wrapper">opennmt.optimizers.mixed_precision_wrapper (module)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.multistep_adam.html#module-opennmt.optimizers.multistep_adam">opennmt.optimizers.multistep_adam (module)</a>
-</li>
-      <li><a href="package/opennmt.runner.html#module-opennmt.runner">opennmt.runner (module)</a>
+      <li><a href="package/opennmt.schedules.html#module-opennmt.schedules">opennmt.schedules (module)</a>
 </li>
       <li><a href="package/opennmt.tokenizers.html#module-opennmt.tokenizers">opennmt.tokenizers (module)</a>
 </li>
-      <li><a href="package/opennmt.tokenizers.opennmt_tokenizer.html#module-opennmt.tokenizers.opennmt_tokenizer">opennmt.tokenizers.opennmt_tokenizer (module)</a>
-</li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#module-opennmt.tokenizers.tokenizer">opennmt.tokenizers.tokenizer (module)</a>
-</li>
       <li><a href="package/opennmt.utils.html#module-opennmt.utils">opennmt.utils (module)</a>
 </li>
-      <li><a href="package/opennmt.utils.adafactor.html#module-opennmt.utils.adafactor">opennmt.utils.adafactor (module)</a>
+      <li><a href="package/opennmt.tokenizers.OpenNMTTokenizer.html#opennmt.tokenizers.OpenNMTTokenizer">OpenNMTTokenizer (class in opennmt.tokenizers)</a>
 </li>
-      <li><a href="package/opennmt.utils.cell.html#module-opennmt.utils.cell">opennmt.utils.cell (module)</a>
+      <li><a href="package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.output_size">output_size() (opennmt.layers.RNNCellWrapper property)</a>
 </li>
-      <li><a href="package/opennmt.utils.checkpoint.html#module-opennmt.utils.checkpoint">opennmt.utils.checkpoint (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.compat.html#module-opennmt.utils.compat">opennmt.utils.compat (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.data.html#module-opennmt.utils.data">opennmt.utils.data (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.decay.html#module-opennmt.utils.decay">opennmt.utils.decay (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.decoding.html#module-opennmt.utils.decoding">opennmt.utils.decoding (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.evaluator.html#module-opennmt.utils.evaluator">opennmt.utils.evaluator (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.hooks.html#module-opennmt.utils.hooks">opennmt.utils.hooks (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.losses.html#module-opennmt.utils.losses">opennmt.utils.losses (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#module-opennmt.utils.misc">opennmt.utils.misc (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.optim.html#module-opennmt.utils.optim">opennmt.utils.optim (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.parallel.html#module-opennmt.utils.parallel">opennmt.utils.parallel (module)</a>
-</li>
-      <li><a href="package/opennmt.utils.vocab.html#module-opennmt.utils.vocab">opennmt.utils.vocab (module)</a>
-</li>
-      <li><a href="package/opennmt.tokenizers.opennmt_tokenizer.html#opennmt.tokenizers.opennmt_tokenizer.OpenNMTTokenizer">OpenNMTTokenizer (class in opennmt.tokenizers.opennmt_tokenizer)</a>
-</li>
-      <li><a href="package/opennmt.utils.optim.html#opennmt.utils.optim.optimize">optimize() (in module opennmt.utils.optim)</a>
-</li>
-      <li><a href="package/opennmt.utils.optim.html#opennmt.utils.optim.optimize_loss">optimize_loss() (in module opennmt.utils.optim)</a>
-
-      <ul>
-        <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.optimize_loss">(opennmt.models.model.Model method)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer">OrderRestorer (class in opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNMTPlusDecoder.output_size">output_size (opennmt.decoders.rnn_decoder.RNMTPlusDecoder attribute)</a>
-
-      <ul>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.output_size">(opennmt.decoders.rnn_decoder.RNNDecoder attribute)</a>
-</li>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.output_size">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoder attribute)</a>
-</li>
-        <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper.output_size">(opennmt.layers.rnn.RNNCellWrapper attribute)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.pad_in_time">pad_in_time() (in module opennmt.layers.reducer)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.pad_to_multiple">pad_to_multiple() (opennmt.data.Vocab method)</a>
 </li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.pad_n_with_identity">pad_n_with_identity() (in module opennmt.layers.reducer)</a>
+      <li><a href="package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder">ParallelEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.pad_to_multiple">pad_to_multiple() (opennmt.utils.vocab.Vocab method)</a>
+      <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter">ParallelInputter (class in opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.pad_with_identity">pad_with_identity() (in module opennmt.layers.reducer)</a>
+      <li><a href="package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder">PositionEmbedder (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.ParallelEncoder">ParallelEncoder (class in opennmt.encoders.encoder)</a>
+      <li><a href="package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder">PositionEncoder (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.ParallelInputter">ParallelInputter (class in opennmt.inputters.inputter)</a>
-</li>
-      <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEmbedder">PositionEmbedder (class in opennmt.layers.position)</a>
-</li>
-      <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.PositionEncoder">PositionEncoder (class in opennmt.layers.position)</a>
-</li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.prefetch_element">prefetch_element() (in module opennmt.utils.data)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.print_bytes">print_bytes() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.models.language_model.html#opennmt.models.language_model.LanguageModel.print_prediction">print_prediction() (opennmt.models.language_model.LanguageModel method)</a>
+      <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.print_prediction">print_prediction() (opennmt.models.LanguageModel method)</a>
 
       <ul>
-        <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.print_prediction">(opennmt.models.model.Model method)</a>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.print_prediction">(opennmt.models.Model method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier.print_prediction">(opennmt.models.sequence_classifier.SequenceClassifier method)</a>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.print_prediction">(opennmt.models.SequenceClassifier method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger.print_prediction">(opennmt.models.sequence_tagger.SequenceTagger method)</a>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.print_prediction">(opennmt.models.SequenceTagger method)</a>
 </li>
-        <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence.print_prediction">(opennmt.models.sequence_to_sequence.SequenceToSequence method)</a>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.print_prediction">(opennmt.models.SequenceToSequence method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.process">process() (opennmt.inputters.inputter.Inputter method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.print_score">print_score() (opennmt.models.Model method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.print_score">(opennmt.models.SequenceGenerator method)</a>
 </li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.prune">prune() (opennmt.utils.vocab.Vocab method)</a>
+      </ul></li>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.prune">prune() (opennmt.data.Vocab method)</a>
 </li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer.push">push() (opennmt.utils.misc.OrderRestorer method)</a>
-</li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.PyramidalRNNEncoder">PyramidalRNNEncoder (class in opennmt.encoders.rnn_encoder)</a>
+      <li><a href="package/opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder">PyramidalRNNEncoder (class in opennmt.encoders)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1453,77 +1028,63 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.random_mask">random_mask() (in module opennmt.layers.noise)</a>
+      <li><a href="package/opennmt.data.random_shard.html#opennmt.data.random_shard">random_shard() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.random_shard">random_shard() (in module opennmt.utils.data)</a>
+      <li><a href="package/opennmt.utils.RandomSampler.html#opennmt.utils.RandomSampler">RandomSampler (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.RandomSampler">RandomSampler (class in opennmt.utils.decoding)</a>
-</li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.ConcatReducer.reduce">reduce() (opennmt.layers.reducer.ConcatReducer method)</a>
+      <li><a href="package/opennmt.layers.ConcatReducer.html#opennmt.layers.ConcatReducer.reduce">reduce() (opennmt.layers.ConcatReducer method)</a>
 
       <ul>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.JoinReducer.reduce">(opennmt.layers.reducer.JoinReducer method)</a>
+        <li><a href="package/opennmt.layers.JoinReducer.html#opennmt.layers.JoinReducer.reduce">(opennmt.layers.JoinReducer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.MultiplyReducer.reduce">(opennmt.layers.reducer.MultiplyReducer method)</a>
+        <li><a href="package/opennmt.layers.MultiplyReducer.html#opennmt.layers.MultiplyReducer.reduce">(opennmt.layers.MultiplyReducer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer.reduce">(opennmt.layers.reducer.Reducer method)</a>
+        <li><a href="package/opennmt.layers.Reducer.html#opennmt.layers.Reducer.reduce">(opennmt.layers.Reducer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.SumReducer.reduce">(opennmt.layers.reducer.SumReducer method)</a>
+        <li><a href="package/opennmt.layers.SumReducer.html#opennmt.layers.SumReducer.reduce">(opennmt.layers.SumReducer method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.ConcatReducer.reduce_sequence">reduce_sequence() (opennmt.layers.reducer.ConcatReducer method)</a>
+      <li><a href="package/opennmt.layers.ConcatReducer.html#opennmt.layers.ConcatReducer.reduce_sequence">reduce_sequence() (opennmt.layers.ConcatReducer method)</a>
 
       <ul>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.JoinReducer.reduce_sequence">(opennmt.layers.reducer.JoinReducer method)</a>
+        <li><a href="package/opennmt.layers.JoinReducer.html#opennmt.layers.JoinReducer.reduce_sequence">(opennmt.layers.JoinReducer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.MultiplyReducer.reduce_sequence">(opennmt.layers.reducer.MultiplyReducer method)</a>
+        <li><a href="package/opennmt.layers.MultiplyReducer.html#opennmt.layers.MultiplyReducer.reduce_sequence">(opennmt.layers.MultiplyReducer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer.reduce_sequence">(opennmt.layers.reducer.Reducer method)</a>
+        <li><a href="package/opennmt.layers.Reducer.html#opennmt.layers.Reducer.reduce_sequence">(opennmt.layers.Reducer method)</a>
 </li>
-        <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.SumReducer.reduce_sequence">(opennmt.layers.reducer.SumReducer method)</a>
+        <li><a href="package/opennmt.layers.SumReducer.html#opennmt.layers.SumReducer.reduce_sequence">(opennmt.layers.SumReducer method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer">Reducer (class in opennmt.layers.reducer)</a>
-</li>
-      <li><a href="package/opennmt.utils.optim.html#opennmt.utils.optim.regularization_penalty">regularization_penalty() (in module opennmt.utils.optim)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.remove_data_field">remove_data_field() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.layers.Reducer.html#opennmt.layers.Reducer">Reducer (class in opennmt.layers)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.repeat">repeat() (opennmt.utils.parallel.GraphDispatcher method)</a>
+      <li><a href="package/opennmt.utils.regularization_penalty.html#opennmt.utils.regularization_penalty">regularization_penalty() (in module opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.replace_unknown_target">replace_unknown_target() (in module opennmt.models.sequence_to_sequence)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.regularize_loss">regularize_loss() (opennmt.models.Model method)</a>
 </li>
-      <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.reuse">reuse() (in module opennmt.utils.compat)</a>
+      <li><a href="package/opennmt.schedules.RNMTPlusDecay.html#opennmt.schedules.RNMTPlusDecay">RNMTPlusDecay (class in opennmt.schedules)</a>
 </li>
-      <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.rnmtplus_decay">rnmtplus_decay() (in module opennmt.utils.decay)</a>
+      <li><a href="package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder">RNMTPlusDecoder (class in opennmt.decoders)</a>
 </li>
-      <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNMTPlusDecoder">RNMTPlusDecoder (class in opennmt.decoders.rnn_decoder)</a>
+      <li><a href="package/opennmt.encoders.RNMTPlusEncoder.html#opennmt.encoders.RNMTPlusEncoder">RNMTPlusEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNMTPlusEncoder">RNMTPlusEncoder (class in opennmt.encoders.rnn_encoder)</a>
+      <li><a href="package/opennmt.layers.RNN.html#opennmt.layers.RNN">RNN (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNN">RNN (class in opennmt.layers.rnn)</a>
+      <li><a href="package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper">RNNCellWrapper (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper">RNNCellWrapper (class in opennmt.layers.rnn)</a>
+      <li><a href="package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder">RNNDecoder (class in opennmt.decoders)</a>
 </li>
-      <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder">RNNDecoder (class in opennmt.decoders.rnn_decoder)</a>
+      <li><a href="package/opennmt.encoders.RNNEncoder.html#opennmt.encoders.RNNEncoder">RNNEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNNEncoder">RNNEncoder (class in opennmt.encoders.rnn_encoder)</a>
+      <li><a href="package/opennmt.utils.roll_sequence.html#opennmt.utils.roll_sequence">roll_sequence() (in module opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.RNNEncoderV2">RNNEncoderV2 (class in opennmt.encoders.rnn_encoder)</a>
+      <li><a href="package/opennmt.utils.ROUGEScorer.html#opennmt.utils.ROUGEScorer">ROUGEScorer (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.roll_sequence">roll_sequence() (in module opennmt.layers.reducer)</a>
+      <li><a href="package/opennmt.schedules.RsqrtDecay.html#opennmt.schedules.RsqrtDecay">RsqrtDecay (class in opennmt.schedules)</a>
 </li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEEvaluator">ROUGEEvaluator (class in opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer">ROUGEScorer (class in opennmt.utils.evaluator)</a>
-</li>
-      <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.rsqrt_decay">rsqrt_decay() (in module opennmt.utils.decay)</a>
-</li>
-      <li><a href="package/opennmt.utils.decay.html#opennmt.utils.decay.rsqrt_decay_v2">rsqrt_decay_v2() (in module opennmt.utils.decay)</a>
-</li>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner">Runner (class in opennmt.runner)</a>
+      <li><a href="package/opennmt.Runner.html#opennmt.Runner">Runner (class in opennmt)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1531,177 +1092,141 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUEvaluator">SacreBLEUEvaluator (class in opennmt.utils.evaluator)</a>
+      <li><a href="package/opennmt.utils.Sampler.html#opennmt.utils.Sampler">Sampler (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.SacreBLEUScorer">SacreBLEUScorer (class in opennmt.utils.evaluator)</a>
+      <li><a href="package/opennmt.schedules.ScheduleWrapper.html#opennmt.schedules.ScheduleWrapper">ScheduleWrapper (class in opennmt.schedules)</a>
 </li>
-      <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.Sampler">Sampler (class in opennmt.utils.decoding)</a>
-</li>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.SaveEvaluationPredictionHook">SaveEvaluationPredictionHook (class in opennmt.utils.hooks)</a>
-</li>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.score">score() (opennmt.runner.Runner method)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.score">score() (opennmt.models.Model method)</a>
 
       <ul>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ExternalEvaluator.score">(opennmt.utils.evaluator.ExternalEvaluator method)</a>
+        <li><a href="package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.score">(opennmt.models.SequenceGenerator method)</a>
+</li>
+        <li><a href="package/opennmt.Runner.html#opennmt.Runner.score">(opennmt.Runner method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer">Scorer (class in opennmt.utils.evaluator)</a>
+      <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer">Scorer (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder">SelfAttentionDecoder (class in opennmt.decoders.self_attention_decoder)</a>
+      <li><a href="package/opennmt.utils.ROUGEScorer.html#opennmt.utils.ROUGEScorer.scores_name">scores_name() (opennmt.utils.ROUGEScorer property)</a>
+
+      <ul>
+        <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.scores_name">(opennmt.utils.Scorer property)</a>
 </li>
-      <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2">SelfAttentionDecoderV2 (class in opennmt.decoders.self_attention_decoder)</a>
+      </ul></li>
+      <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder">SelfAttentionDecoder (class in opennmt.decoders)</a>
 </li>
-      <li><a href="package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoder">SelfAttentionEncoder (class in opennmt.encoders.self_attention_encoder)</a>
+      <li><a href="package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer">SelfAttentionDecoderLayer (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.encoders.self_attention_encoder.html#opennmt.encoders.self_attention_encoder.SelfAttentionEncoderV2">SelfAttentionEncoderV2 (class in opennmt.encoders.self_attention_encoder)</a>
+      <li><a href="package/opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder">SelfAttentionEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.SeqTagger">SeqTagger (class in opennmt.models.catalog)</a>
+      <li><a href="package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer">SelfAttentionEncoderLayer (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_classifier.html#opennmt.models.sequence_classifier.SequenceClassifier">SequenceClassifier (class in opennmt.models.sequence_classifier)</a>
+      <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier">SequenceClassifier (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.SequenceRecordInputter">SequenceRecordInputter (class in opennmt.inputters.record_inputter)</a>
+      <li><a href="package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator">SequenceGenerator (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.SequenceTagger">SequenceTagger (class in opennmt.models.sequence_tagger)</a>
+      <li><a href="package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter">SequenceRecordInputter (class in opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequence">SequenceToSequence (class in opennmt.models.sequence_to_sequence)</a>
+      <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger">SequenceTagger (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.SequenceToSequenceInputter">SequenceToSequenceInputter (class in opennmt.models.sequence_to_sequence)</a>
+      <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence">SequenceToSequence (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.encoders.encoder.html#opennmt.encoders.encoder.SequentialEncoder">SequentialEncoder (class in opennmt.encoders.encoder)</a>
+      <li><a href="package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter">SequenceToSequenceInputter (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.serialize">serialize() (opennmt.utils.vocab.Vocab method)</a>
+      <li><a href="package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder">SequentialEncoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.serving_input_fn">serving_input_fn() (opennmt.models.model.Model method)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.set_data_field">set_data_field() (opennmt.inputters.inputter.Inputter method)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.set_noise">set_noise() (opennmt.inputters.text_inputter.TextInputter method)</a>
-</li>
-      <li><a href="package/opennmt.utils.misc.html#opennmt.utils.misc.shape_list">shape_list() (in module opennmt.utils.misc)</a>
-</li>
-      <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.GraphDispatcher.shard">shard() (opennmt.utils.parallel.GraphDispatcher method)</a>
-</li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.share_input_embeddings">share_input_embeddings() (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel static method)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.serialize">serialize() (opennmt.data.Vocab method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.share_target_embeddings">share_target_embeddings() (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel static method)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.serve_function">serve_function() (opennmt.models.Model method)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.shift_target_sequence">shift_target_sequence() (in module opennmt.models.sequence_to_sequence)</a>
+      <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.set_noise">set_noise() (opennmt.inputters.TextInputter method)</a>
 </li>
-      <li><a href="package/opennmt.layers.position.html#opennmt.layers.position.SinusoidalPositionEncoder">SinusoidalPositionEncoder (class in opennmt.layers.position)</a>
+      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.share_input_embeddings">share_input_embeddings() (opennmt.models.EmbeddingsSharingLevel static method)</a>
 </li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.size">size (opennmt.utils.vocab.Vocab attribute)</a>
+      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.share_target_embeddings">share_target_embeddings() (opennmt.models.EmbeddingsSharingLevel static method)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.SOURCE_TARGET_INPUT">SOURCE_TARGET_INPUT (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel attribute)</a>
+      <li><a href="package/opennmt.data.shuffle_dataset.html#opennmt.data.shuffle_dataset">shuffle_dataset() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.SpaceTokenizer">SpaceTokenizer (class in opennmt.tokenizers.tokenizer)</a>
+      <li><a href="package/opennmt.layers.SinusoidalPositionEncoder.html#opennmt.layers.SinusoidalPositionEncoder">SinusoidalPositionEncoder (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.utils.parallel.html#opennmt.utils.parallel.split_batch">split_batch() (in module opennmt.utils.parallel)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.size">size() (opennmt.data.Vocab property)</a>
 </li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.split_heads">split_heads() (in module opennmt.layers.transformer)</a>
+      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.SOURCE_TARGET_INPUT">SOURCE_TARGET_INPUT (opennmt.models.EmbeddingsSharingLevel attribute)</a>
 </li>
-      <li><a href="package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper.state_size">state_size (opennmt.layers.rnn.RNNCellWrapper attribute)</a>
+      <li><a href="package/opennmt.tokenizers.SpaceTokenizer.html#opennmt.tokenizers.SpaceTokenizer">SpaceTokenizer (class in opennmt.tokenizers)</a>
 </li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.DecoderV2.step">step() (opennmt.decoders.decoder.DecoderV2 method)</a>
+      <li><a href="package/opennmt.layers.split_heads.html#opennmt.layers.split_heads">split_heads() (in module opennmt.layers)</a>
+</li>
+      <li><a href="package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.state_size">state_size() (opennmt.layers.RNNCellWrapper property)</a>
+</li>
+      <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.step">step() (opennmt.decoders.AttentionalRNNDecoder method)</a>
 
       <ul>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2.step">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoderV2 method)</a>
+        <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.step">(opennmt.decoders.Decoder method)</a>
 </li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.BeamSearch.step">(opennmt.utils.decoding.BeamSearch method)</a>
+        <li><a href="package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder.step">(opennmt.decoders.RNMTPlusDecoder method)</a>
 </li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.DecodingStrategy.step">(opennmt.utils.decoding.DecodingStrategy method)</a>
+        <li><a href="package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder.step">(opennmt.decoders.RNNDecoder method)</a>
 </li>
-        <li><a href="package/opennmt.utils.decoding.html#opennmt.utils.decoding.GreedySearch.step">(opennmt.utils.decoding.GreedySearch method)</a>
+        <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.step">(opennmt.decoders.SelfAttentionDecoder method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.step_fn">step_fn() (opennmt.decoders.decoder.Decoder method)</a>
+      <li><a href="package/opennmt.layers.SumReducer.html#opennmt.layers.SumReducer">SumReducer (class in opennmt.layers)</a>
+</li>
+      <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.support_alignment_history">support_alignment_history() (opennmt.decoders.AttentionalRNNDecoder property)</a>
 
       <ul>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.RNNDecoder.step_fn">(opennmt.decoders.rnn_decoder.RNNDecoder method)</a>
+        <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.support_alignment_history">(opennmt.decoders.Decoder property)</a>
 </li>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.step_fn">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoder method)</a>
+        <li><a href="package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder.support_alignment_history">(opennmt.decoders.RNMTPlusDecoder property)</a>
 </li>
-      </ul></li>
-      <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.ROUGEScorer.summarize">summarize() (opennmt.utils.evaluator.ROUGEScorer method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.utils.evaluator.html#opennmt.utils.evaluator.Scorer.summarize">(opennmt.utils.evaluator.Scorer method)</a>
+        <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.support_alignment_history">(opennmt.decoders.SelfAttentionDecoder property)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.SumReducer">SumReducer (class in opennmt.layers.reducer)</a>
-</li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.support_alignment_history">support_alignment_history (opennmt.decoders.decoder.Decoder attribute)</a>
-
-      <ul>
-        <li><a href="package/opennmt.decoders.rnn_decoder.html#opennmt.decoders.rnn_decoder.AttentionalRNNDecoder.support_alignment_history">(opennmt.decoders.rnn_decoder.AttentionalRNNDecoder attribute)</a>
-</li>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.support_alignment_history">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoder attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.decoders.decoder.html#opennmt.decoders.decoder.Decoder.support_multi_source">support_multi_source (opennmt.decoders.decoder.Decoder attribute)</a>
-
-      <ul>
-        <li><a href="package/opennmt.decoders.self_attention_decoder.html#opennmt.decoders.self_attention_decoder.SelfAttentionDecoder.support_multi_source">(opennmt.decoders.self_attention_decoder.SelfAttentionDecoder attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler.SUPPORTED_ALGOS">SUPPORTED_ALGOS (opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler attribute)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.sequence_tagger.html#opennmt.models.sequence_tagger.TagsInputter">TagsInputter (class in opennmt.models.sequence_tagger)</a>
+      <li><a href="package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter">TagsInputter (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.sequence_to_sequence.html#opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel.TARGET">TARGET (opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel attribute)</a>
+      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.TARGET">TARGET (opennmt.models.EmbeddingsSharingLevel attribute)</a>
 </li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter">TextInputter (class in opennmt.inputters.text_inputter)</a>
+      <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter">TextInputter (class in opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.tf_any">tf_any() (in module opennmt.utils.compat)</a>
+      <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize">tokenize() (opennmt.tokenizers.Tokenizer method)</a>
 </li>
-      <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.tf_compat">tf_compat() (in module opennmt.utils.compat)</a>
+      <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize_stream">tokenize_stream() (opennmt.tokenizers.Tokenizer method)</a>
 </li>
-      <li><a href="package/opennmt.utils.compat.html#opennmt.utils.compat.tf_supports">tf_supports() (in module opennmt.utils.compat)</a>
+      <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer">Tokenizer (class in opennmt.tokenizers)</a>
 </li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.tile_sequence_length">tile_sequence_length() (in module opennmt.layers.transformer)</a>
+      <li><a href="package/opennmt.data.tokens_to_chars.html#opennmt.data.tokens_to_chars">tokens_to_chars() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer.tokenize">tokenize() (opennmt.tokenizers.tokenizer.Tokenizer method)</a>
-</li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer.tokenize_stream">tokenize_stream() (opennmt.tokenizers.tokenizer.Tokenizer method)</a>
-</li>
-      <li><a href="package/opennmt.tokenizers.tokenizer.html#opennmt.tokenizers.tokenizer.Tokenizer">Tokenizer (class in opennmt.tokenizers.tokenizer)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.tokens_to_chars">tokens_to_chars() (in module opennmt.inputters.text_inputter)</a>
+      <li><a href="package/opennmt.data.tokens_to_words.html#opennmt.data.tokens_to_words">tokens_to_words() (in module opennmt.data)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.tokens_to_words">tokens_to_words() (in module opennmt.layers.noise)</a>
+      <li><a href="package/opennmt.Runner.html#opennmt.Runner.train">train() (opennmt.Runner method)</a>
 </li>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.train">train() (opennmt.runner.Runner method)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.trainable_weights">trainable_weights() (opennmt.models.Model property)</a>
 </li>
-      <li><a href="package/opennmt.runner.html#opennmt.runner.Runner.train_and_evaluate">train_and_evaluate() (opennmt.runner.Runner method)</a>
+      <li><a href="package/opennmt.data.training_pipeline.html#opennmt.data.training_pipeline">training_pipeline() (in module opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.data.html#opennmt.utils.data.training_pipeline">training_pipeline() (in module opennmt.utils.data)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.transform_data">transform_data() (opennmt.inputters.inputter.Inputter method)</a>
-</li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.Transformer">Transformer (class in opennmt.models.catalog)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.transfer_weights">transfer_weights() (opennmt.models.Model method)</a>
 
       <ul>
-        <li><a href="package/opennmt.models.transformer.html#opennmt.models.transformer.Transformer">(class in opennmt.models.transformer)</a>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.transfer_weights">(opennmt.models.SequenceToSequence method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.TransformerAAN">TransformerAAN (class in opennmt.models.catalog)</a>
+      <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer">Transformer (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.TransformerBig">TransformerBig (class in opennmt.models.catalog)</a>
+      <li><a href="package/opennmt.models.TransformerBase.html#opennmt.models.TransformerBase">TransformerBase (in module opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.TransformerBigFP16">TransformerBigFP16 (class in opennmt.models.catalog)</a>
+      <li><a href="package/opennmt.models.TransformerBig.html#opennmt.models.TransformerBig">TransformerBig (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.catalog.html#opennmt.models.catalog.TransformerFP16">TransformerFP16 (class in opennmt.models.catalog)</a>
-</li>
-      <li><a href="package/opennmt.layers.transformer.html#opennmt.layers.transformer.TransformerLayerWrapper">TransformerLayerWrapper (class in opennmt.layers.transformer)</a>
+      <li><a href="package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper">TransformerLayerWrapper (class in opennmt.layers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1709,21 +1234,19 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.encoders.rnn_encoder.html#opennmt.encoders.rnn_encoder.UnidirectionalRNNEncoder">UnidirectionalRNNEncoder (class in opennmt.encoders.rnn_encoder)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.unsupervised">unsupervised() (opennmt.models.Model property)</a>
 </li>
-      <li><a href="package/opennmt.models.model.html#opennmt.models.model.Model.unsupervised">unsupervised (opennmt.models.model.Model attribute)</a>
-</li>
-      <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler.update_op">update_op() (opennmt.optimizers.mixed_precision_wrapper.AutomaticLossScaler method)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.update_metrics">update_metrics() (opennmt.models.Model method)</a>
 
       <ul>
-        <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.BackoffScaler.update_op">(opennmt.optimizers.mixed_precision_wrapper.BackoffScaler method)</a>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.update_metrics">(opennmt.models.SequenceClassifier method)</a>
 </li>
-        <li><a href="package/opennmt.optimizers.mixed_precision_wrapper.html#opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler.update_op">(opennmt.optimizers.mixed_precision_wrapper.LogMaxScaler method)</a>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.update_metrics">(opennmt.models.SequenceTagger method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.checkpoint.html#opennmt.utils.checkpoint.update_vocab">update_vocab() (in module opennmt.utils.checkpoint)</a>
+      <li><a href="package/opennmt.Runner.html#opennmt.Runner.update_vocab">update_vocab() (opennmt.Runner method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1731,27 +1254,21 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.utils.hooks.html#opennmt.utils.hooks.VariablesInitializerHook">VariablesInitializerHook (class in opennmt.utils.hooks)</a>
-</li>
-      <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.Inputter.visualize">visualize() (opennmt.inputters.inputter.Inputter method)</a>
+      <li><a href="package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.visualize">visualize() (opennmt.inputters.CharEmbedder method)</a>
 
       <ul>
-        <li><a href="package/opennmt.inputters.inputter.html#opennmt.inputters.inputter.MultiInputter.visualize">(opennmt.inputters.inputter.MultiInputter method)</a>
+        <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.visualize">(opennmt.inputters.Inputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.CharEmbedder.visualize">(opennmt.inputters.text_inputter.CharEmbedder method)</a>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.visualize">(opennmt.inputters.MultiInputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder.visualize">(opennmt.inputters.text_inputter.WordEmbedder method)</a>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.visualize">(opennmt.inputters.WordEmbedder method)</a>
+</li>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.visualize">(opennmt.models.Model method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.visualize_embeddings">visualize_embeddings() (in module opennmt.inputters.text_inputter)</a>
-</li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab">Vocab (class in opennmt.utils.vocab)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup">vocabulary_lookup() (opennmt.inputters.text_inputter.TextInputter method)</a>
-</li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.TextInputter.vocabulary_lookup_reverse">vocabulary_lookup_reverse() (opennmt.inputters.text_inputter.TextInputter method)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab">Vocab (class in opennmt.data)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1759,25 +1276,23 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordDropout">WordDropout (class in opennmt.layers.noise)</a>
+      <li><a href="package/opennmt.data.WordDropout.html#opennmt.data.WordDropout">WordDropout (class in opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.inputters.text_inputter.html#opennmt.inputters.text_inputter.WordEmbedder">WordEmbedder (class in opennmt.inputters.text_inputter)</a>
+      <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder">WordEmbedder (class in opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordNoiser">WordNoiser (class in opennmt.layers.noise)</a>
+      <li><a href="package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser">WordNoiser (class in opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordOmission">WordOmission (class in opennmt.layers.noise)</a>
+      <li><a href="package/opennmt.data.WordOmission.html#opennmt.data.WordOmission">WordOmission (class in opennmt.data)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordPermutation">WordPermutation (class in opennmt.layers.noise)</a>
+      <li><a href="package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation">WordPermutation (class in opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.layers.noise.html#opennmt.layers.noise.WordReplacement">WordReplacement (class in opennmt.layers.noise)</a>
+      <li><a href="package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement">WordReplacement (class in opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.utils.vocab.html#opennmt.utils.vocab.Vocab.words">words (opennmt.utils.vocab.Vocab attribute)</a>
+      <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.words">words() (opennmt.data.Vocab property)</a>
 </li>
-      <li><a href="package/opennmt.inputters.record_inputter.html#opennmt.inputters.record_inputter.write_sequence_record">write_sequence_record() (in module opennmt.inputters.record_inputter)</a>
-</li>
-      <li><a href="package/opennmt.bin.ark_to_records.html#opennmt.bin.ark_to_records.write_text">write_text() (in module opennmt.bin.ark_to_records)</a>
+      <li><a href="package/opennmt.inputters.write_sequence_record.html#opennmt.inputters.write_sequence_record">write_sequence_record() (in module opennmt.inputters)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1785,11 +1300,11 @@
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.bridge.html#opennmt.layers.bridge.ZeroBridge">ZeroBridge (class in opennmt.layers.bridge)</a>
+      <li><a href="package/opennmt.layers.ZeroBridge.html#opennmt.layers.ZeroBridge">ZeroBridge (class in opennmt.layers)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.layers.reducer.html#opennmt.layers.reducer.Reducer.zip_and_reduce">zip_and_reduce() (opennmt.layers.reducer.Reducer method)</a>
+      <li><a href="package/opennmt.layers.Reducer.html#opennmt.layers.Reducer.zip_and_reduce">zip_and_reduce() (opennmt.layers.Reducer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1806,7 +1321,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

@@ -1,19 +1,21 @@
-opennmt.encoders package
-========================
+opennmt.encoders module
+=======================
 
 .. automodule:: opennmt.encoders
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
-Submodules
-----------
+Classes
+-------
 
 .. toctree::
 
-   opennmt.encoders.conv_encoder
-   opennmt.encoders.encoder
-   opennmt.encoders.mean_encoder
-   opennmt.encoders.rnn_encoder
-   opennmt.encoders.self_attention_encoder
-
+   opennmt.encoders.ConvEncoder
+   opennmt.encoders.Encoder
+   opennmt.encoders.GNMTEncoder
+   opennmt.encoders.LSTMEncoder
+   opennmt.encoders.MeanEncoder
+   opennmt.encoders.ParallelEncoder
+   opennmt.encoders.PyramidalRNNEncoder
+   opennmt.encoders.RNMTPlusEncoder
+   opennmt.encoders.RNNEncoder
+   opennmt.encoders.SelfAttentionEncoder
+   opennmt.encoders.SequentialEncoder

@@ -1,0 +1,4 @@
+opennmt.data.training_pipeline
+==============================
+
+.. autofunction:: opennmt.data.training_pipeline

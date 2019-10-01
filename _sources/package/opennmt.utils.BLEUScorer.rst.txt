@@ -1,0 +1,8 @@
+opennmt.utils.BLEUScorer
+========================
+
+.. autoclass:: opennmt.utils.BLEUScorer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.Scorer`

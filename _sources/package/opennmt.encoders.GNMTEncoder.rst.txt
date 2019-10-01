@@ -1,0 +1,8 @@
+opennmt.encoders.GNMTEncoder
+============================
+
+.. autoclass:: opennmt.encoders.GNMTEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.SequentialEncoder`

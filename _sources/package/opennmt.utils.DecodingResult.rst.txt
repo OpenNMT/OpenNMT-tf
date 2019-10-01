@@ -1,0 +1,8 @@
+opennmt.utils.DecodingResult
+============================
+
+.. autoclass:: opennmt.utils.DecodingResult
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.decoding.DecodingResult`

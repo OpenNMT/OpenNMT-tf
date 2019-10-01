@@ -1,0 +1,4 @@
+opennmt.load_model
+==================
+
+.. autofunction:: opennmt.load_model

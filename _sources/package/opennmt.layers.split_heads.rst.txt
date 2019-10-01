@@ -1,0 +1,4 @@
+opennmt.layers.split_heads
+==========================
+
+.. autofunction:: opennmt.layers.split_heads

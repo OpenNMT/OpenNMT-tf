@@ -1,0 +1,8 @@
+opennmt.models.ClassInputter
+============================
+
+.. autoclass:: opennmt.models.ClassInputter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.inputters.TextInputter`

@@ -1,0 +1,8 @@
+opennmt.encoders.PyramidalRNNEncoder
+====================================
+
+.. autoclass:: opennmt.encoders.PyramidalRNNEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.Encoder`

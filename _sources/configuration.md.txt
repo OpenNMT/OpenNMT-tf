@@ -26,7 +26,7 @@ Here is an exhaustive and documented configuration:
 model_dir: toy-ende
 
 data:
-  # (required for train_and_eval and train run types).
+  # (required for train run type).
   train_features_file: data/toy-ende/src-train.txt
   train_labels_file: data/toy-ende/tgt-train.txt
 
@@ -38,8 +38,8 @@ data:
   eval_labels_file: data/toy-ende/tgt-val.txt
 
   # (optional) Models may require additional resource files (e.g. vocabularies).
-  source_words_vocabulary: data/toy-ende/src-vocab.txt
-  target_words_vocabulary: data/toy-ende/tgt-vocab.txt
+  source_vocabulary: data/toy-ende/src-vocab.txt
+  target_vocabulary: data/toy-ende/tgt-vocab.txt
 
   # (optional) OpenNMT tokenization configuration (or path to a configuration file).
   # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
@@ -64,75 +64,45 @@ data:
 
 # Model and optimization parameters.
 params:
-  # The optimizer class name in tf.train, tf.contrib.opt, or opennmt.optimizers.
-  optimizer: AdamOptimizer
+  # The optimizer class name in tf.keras.optimizers or tfa.optimizers.
+  optimizer: Adam
   # (optional) Additional optimizer parameters as defined in their documentation.
+  # If weight_decay is set, the optimizer will be extended with decoupled weight decay.
   optimizer_params:
-    beta1: 0.8
-    beta2: 0.998
+    beta_1: 0.8
+    beta_2: 0.998
   learning_rate: 1.0
 
-  # (optional) Regexp or list of regexp matching variable names to not optimize.
-  freeze_variables:
-    - "transformer/encoder"
+  # (optional) If set, overrides all dropout values configured in the model definition.
+  dropout: 0.3
 
-  # (optional) Global parameter initialization [-param_init, param_init].
-  param_init: 0.1
-
-  # (optional) Maximum gradients norm (default: null).
-  clip_gradients: 5.0
-  # (optional) 1 training step will process this many batches and accumulates
-  # their gradients (default: 1).
-  gradients_accum: 1
-
-  # (optional) For mixed precision training, the loss scaling to apply (a constant value or
-  # an automatic scaling algorithm: "backoff", "logmax", default: "backoff")
-  loss_scale: backoff
-  # (optional) For mixed precision training, the additional parameters to pass the loss scale
-  # (see the source file opennmt/optimizers/mixed_precision_wrapper.py).
-  loss_scale_params:
-    scale_min: 1.0
-    step_factor: 2.0
-
-  # (optional) Horovod parameters.
-  horovod:
-    # (optional) Compression type for gradients (can be: "none", "fp16", default: "none").
-    compression: none
-    # (optional) Average the reduced gradients (default: false).
-    average_gradients: false
+  # (optional) List of layer to not optimize.
+  freeze_layers:
+    - "encoder/layers/0"
+    - "decoder/output_layer"
 
   # (optional) Weights regularization penalty (default: null).
   regularization:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).
     scale: 1e-4  # if using "l1_l2" regularization, this should be a YAML list.
-  # (optional) Decoupled weight decay (default: null).
-  weight_decay: 0.01
 
   # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
   average_loss_in_time: false
 
   # (optional) The type of learning rate decay (default: null). See:
-  #  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate
-  #  * opennmt/utils/decay.py
+  #  * https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/schedules
+  #  * opennmt/schedules/lr_schedules.py
   # This value may change the semantics of other decay options. See the documentation or the code.
-  decay_type: exponential_decay
+  decay_type: NoamDecay
   # (optional unless decay_type is set) Decay parameters.
   decay_params:
-    # The learning rate decay rate.
-    decay_rate: 0.7
-    # Decay every this many steps.
-    decay_steps: 10000
-    # (optional) If true, the learning rate is decayed in a staircase fashion (default: true).
-    staircase: true
-  # (optional) The number of training steps that make 1 decay step (default: 1).
-  decay_step_duration: 1
+    model_dim: 512
+    warmup_steps: 4000
   # (optional) After how many steps to start the decay (default: 0).
   start_decay_steps: 50000
 
   # (optional) The learning rate minimum value (default: 0).
   minimum_learning_rate: 0.0001
-  # (optional) The learning rate maximum value (default: 1e6).
-  maximum_learning_rate: 1e6
 
   # (optional) Type of scheduled sampling (can be "constant", "linear", "exponential",
   # or "inverse_sigmoid", default: "constant").
@@ -163,7 +133,7 @@ params:
   # (optional) Sequence of noise to apply to the decoding output. Each element
   # should be a noise type (can be: "dropout", "replacement", "permutation") and
   # the module arguments
-  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html)
+  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.data.noise.html)
   decoding_noise:
     - dropout: 0.1
     - replacement: [0.1, ｟unk｠]
@@ -173,8 +143,8 @@ params:
   decoding_subword_token: ￭
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
-  # (optional) Maximum decoding iterations before stopping (default: 250).
-  maximum_iterations: 200
+  # (optional) Maximum length of decoded sequences, end token excluded (default: 250).
+  maximum_decoding_length: 250
 
   # (optional) Replace unknown target tokens by the original source token with the
   # highest attention (default: false).
@@ -205,20 +175,16 @@ train:
   # (default: null).
   effective_batch_size: 25000
 
-  # (optional) Save a checkpoint every this many steps (default: null). Can not be
-  # specified with save_checkpoints_secs.
+  # (optional) Save a checkpoint every this many steps (default: 5000).
   save_checkpoints_steps: null
-  # (optional) Save a checkpoint every this many seconds (default: 600). Can not be
-  # specified with save_checkpoints_steps.
-  save_checkpoints_secs: 600
   # (optional) How many checkpoints to keep on disk.
   keep_checkpoint_max: 3
 
   # (optional) Dump summaries and logs every this many steps (default: 100).
   save_summary_steps: 100
 
-  # (optional) Train for this many steps. If not set, train forever.
-  train_steps: 1000000
+  # (optional) Maximum training step. If not set, train forever.
+  max_step: 1000000
   # (optional) If true, makes a single pass over the training data (default: false).
   single_pass: false
 
@@ -227,14 +193,9 @@ train:
   # (optional) The maximum length of label sequences during training (default: null).
   maximum_labels_length: 70
 
-  # (optional) The width of the length buckets to select batch candidates from (default: 5).
-  bucket_width: 5
-
-  # (optional) The number of threads to use for processing data in parallel (default: 4).
-  num_threads: 4
-  # (optional) The number of batches to prefetch asynchronously. If not set, use an
-  # automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).
-  prefetch_buffer_size: null
+  # (optional) The width of the length buckets to select batch candidates from.
+  # A smaller value means less padding and increased efficiency. (default: 1).
+  length_bucket_width: 1
 
   # (optional) The number of elements from which to sample during shuffling (default: 500000).
   # Set 0 or null to disable shuffling, -1 to match the number of training examples.
@@ -250,63 +211,53 @@ eval:
   # (optional) The batch size to use (default: 32).
   batch_size: 30
 
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
-
-  # (optional) Evaluate every this many seconds (default: 18000).
-  eval_delay: 7200
+  # (optional) Evaluate every this many steps (default: 5000).
+  steps: 5000
 
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
-  # Available evaluators: sacreBLEU, BLEU, BLEU-detok, ROUGE
-  external_evaluators: sacreBLEU
+  # Available evaluators: bleu, rouge
+  external_evaluators: bleu
 
-  # (optional) Model exporter(s) to use during the training and evaluation loop:
-  # last, final, best, or null (default: last).
-  exporters: last
-
+  # (optional) Early stopping condition.
+  # Should be read as: stop the training if "metric" did not improve more
+  # than "min_improvement" in the last "steps" evaluations.
+  early_stopping:
+    # (optional) The target metric name (default: "loss").
+    metric: bleu
+    # (optional) The metric should improve at least by this much to be considered as an improvement (default: 0)
+    min_improvement: 0.01
+    steps: 4
 
 # (optional) Inference options.
 infer:
   # (optional) The batch size to use (default: 1).
   batch_size: 10
 
-  # (optional) The width of the length buckets to select batch candidates from.
-  # If set, the test data will be sorted by length to increase the translation
-  # efficiency. The predictions will still be outputted in order as they are
-  # available (default: 0).
-  bucket_width: 5
-
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
-
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   # This sets the parameter params/num_hypotheses.
   n_best: 1
   # (optional) For compatible models, also output the score (default: false).
   with_scores: false
-  # (optional) For compatible models, also output the alignments (can be: "null", "hard",
-  # default: "null").
+  # (optional) For compatible models, also output the alignments (can be: null, hard, soft,
+  # default: null).
   with_alignments: null
+
+  # (optional) The width of the length buckets to select batch candidates from.
+  # If set, the test data will be sorted by length to increase the translation
+  # efficiency. The predictions will still be outputted in order as they are
+  # available (default: 0).
+  length_bucket_width: 5
 
 
 # (optional) Scoring options.
 score:
   # (optional) The batch size to use (default: 64).
   batch_size: 64
-  # (optional) The number of threads to use for processing data in parallel (default: 1).
-  num_threads: 1
-  # (optional) The number of batches to prefetch asynchronously (default: 1).
-  prefetch_buffer_size: 1
-
   # (optional) Also report token-level cross entropy.
   with_token_level: false
-  # (optional) Also output the alignments (can be: "null", "hard", default: "null").
+  # (optional) Also output the alignments (can be: null, hard, soft, default: null).
   with_alignments: null
 ```
 
@@ -315,10 +266,10 @@ score:
 Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the `--auto_config` flag:
 
 ```bash
-onmt-main train_and_eval --model_type Transformer --config my_data.yml --auto_config
+onmt-main --model_type Transformer --config my_data.yml --auto_config train
 ```
 
-The user provided `my_data.yml` file will minimaly require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
+The user provided `my_data.yml` file will minimally require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
 
 At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.
 
@@ -332,8 +283,8 @@ At the start of the training, the configuration values actually used will be log
 The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
 
 ```bash
-onmt-main [...] --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
-    config/data/toy-ende.yml
+onmt-main --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
+    config/data/toy-ende.yml [...]
 ```
 
 If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
@@ -344,22 +295,3 @@ If you are unsure about the configuration that is actually used or simply prefer
 onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
     config/data/toy-ende.yml > config/my_config.yml
 ```
-
-## TensorFlow session
-
-The command line option `--session_config` can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a [`tf.ConfigProto`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto) message serialized in text format.
-
-Here is an example to enable the `allow_growth` GPU option:
-
-```text
-$ cat config/session_config.txt
-gpu_options {
-  allow_growth: true
-}
-```
-
-```bash
-onmt-main [...] --session_config config/session_config.txt
-```
-
-For possible options and values, see the [`tf.ConfigProto`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto) file.

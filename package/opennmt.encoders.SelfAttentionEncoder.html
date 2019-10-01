@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.encoders.SelfAttentionEncoder &mdash; OpenNMT-tf 2.0.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.encoders.SequentialEncoder" href="opennmt.encoders.SequentialEncoder.html" />
+    <link rel="prev" title="opennmt.encoders.RNNEncoder" href="opennmt.encoders.RNNEncoder.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.encoders.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
+        
+          <li><a href="opennmt.encoders.html">opennmt.encoders module</a> &raquo;</li>
+        
+      <li>opennmt.encoders.SelfAttentionEncoder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="opennmt-encoders-selfattentionencoder">
+<h1>opennmt.encoders.SelfAttentionEncoder<a class="headerlink" href="#opennmt-encoders-selfattentionencoder" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="opennmt.encoders.SelfAttentionEncoder">
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.encoders.</code><code class="sig-name descname">SelfAttentionEncoder</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units=512</em>, <em class="sig-param">num_heads=8</em>, <em class="sig-param">ffn_inner_dim=2048</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.SelfAttentionEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encoder using self-attention as described in
+<a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
+<p>Inherits from: <a class="reference internal" href="opennmt.encoders.Encoder.html#opennmt.encoders.Encoder" title="opennmt.encoders.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.Encoder</span></code></a></p>
+<dl class="method">
+<dt id="opennmt.encoders.SelfAttentionEncoder.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units=512</em>, <em class="sig-param">num_heads=8</em>, <em class="sig-param">ffn_inner_dim=2048</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.SelfAttentionEncoder.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the parameters of the encoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_layers</strong> – The number of layers.</p></li>
+<li><p><strong>num_units</strong> – The number of hidden units.</p></li>
+<li><p><strong>num_heads</strong> – The number of heads in the multi-head attention.</p></li>
+<li><p><strong>ffn_inner_dim</strong> – The number of units of the inner linear transformation
+in the feed forward layer.</p></li>
+<li><p><strong>dropout</strong> – The probability to drop units from the outputs.</p></li>
+<li><p><strong>attention_dropout</strong> – The probability to drop units from the attention.</p></li>
+<li><p><strong>ffn_dropout</strong> – The probability to drop units from the activation output in
+the feed forward layer.</p></li>
+<li><p><strong>ffn_activation</strong> – The activation function to apply between the two linear
+transformations of the feed forward layer.</p></li>
+<li><p><strong>position_encoder</strong> – The <a class="reference internal" href="opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder" title="opennmt.layers.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.PositionEncoder</span></code></a>
+class to use for position encoding (or a callable that returns such
+class).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.encoders.SelfAttentionEncoder.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">sequence_length=None</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoder.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.SelfAttentionEncoder.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes an input sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs to encode of shape <span class="math notranslate nohighlight">\([B, T, ...]\)</span>.</p></li>
+<li><p><strong>sequence_length</strong> – The length of each input with shape <span class="math notranslate nohighlight">\([B]\)</span>.</p></li>
+<li><p><strong>training</strong> – Run in training mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.encoders.SelfAttentionEncoder.map_v1_weights">
+<code class="sig-name descname">map_v1_weights</code><span class="sig-paren">(</span><em class="sig-param">weights</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/self_attention_encoder.html#SelfAttentionEncoder.map_v1_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.SelfAttentionEncoder.map_v1_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.encoders.SequentialEncoder.html" class="btn btn-neutral float-right" title="opennmt.encoders.SequentialEncoder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.encoders.RNNEncoder.html" class="btn btn-neutral float-left" title="opennmt.encoders.RNNEncoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>opennmt.tokenizers &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../../',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -74,7 +65,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -116,11 +107,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -190,6 +182,10 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="k">try</span><span class="p">:</span>
   <span class="kn">import</span> <span class="nn">pyonmttok</span>
@@ -197,31 +193,28 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
   <span class="k">pass</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.tokenizers.tokenizer</span> <span class="k">import</span> <span class="n">SpaceTokenizer</span><span class="p">,</span> <span class="n">CharacterTokenizer</span>
+<span class="kn">from</span> <span class="nn">opennmt.tokenizers.tokenizer</span> <span class="k">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span> <span class="nn">opennmt.tokenizers.tokenizer</span> <span class="k">import</span> <span class="n">SpaceTokenizer</span>
+<span class="kn">from</span> <span class="nn">opennmt.tokenizers.tokenizer</span> <span class="k">import</span> <span class="n">CharacterTokenizer</span>
 
-<div class="viewcode-block" id="add_command_line_arguments"><a class="viewcode-back" href="../../package/opennmt.tokenizers.html#opennmt.tokenizers.add_command_line_arguments">[docs]</a><span class="k">def</span> <span class="nf">add_command_line_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Adds command line arguments to select the tokenizer.&quot;&quot;&quot;</span>
-  <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">classes_in_module</span>
-  <span class="n">choices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">classes_in_module</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]))</span>
 
-  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-      <span class="s2">&quot;--tokenizer&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
-      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Tokenizer class name.&quot;</span><span class="p">)</span>
-  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-      <span class="s2">&quot;--tokenizer_config&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Tokenization configuration file.&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="make_tokenizer"><a class="viewcode-back" href="../../package/opennmt.tokenizers.make_tokenizer.html#opennmt.tokenizers.make_tokenizer">[docs]</a><span class="k">def</span> <span class="nf">make_tokenizer</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates a tokenizer instance from the configuration.</span>
 
-<div class="viewcode-block" id="build_tokenizer"><a class="viewcode-back" href="../../package/opennmt.tokenizers.html#opennmt.tokenizers.build_tokenizer">[docs]</a><span class="k">def</span> <span class="nf">build_tokenizer</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Returns a new tokenizer based on command line arguments.&quot;&quot;&quot;</span>
-  <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
-  <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer_config</span><span class="p">:</span>
-      <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="n">OpenNMTTokenizer</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="n">SpaceTokenizer</span>
+<span class="sd">  Args:</span>
+<span class="sd">    config: Path to a configuration file or the configuration dictionary.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A :class:`opennmt.tokenizers.Tokenizer` instance.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">UnsafeLoader</span><span class="p">)</span>
+    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">OpenNMTTokenizer</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tokenizer_class</span><span class="p">(</span><span class="n">configuration_file_or_key</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tokenizer_config</span><span class="p">)</span></div>
+    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SpaceTokenizer</span><span class="p">()</span>
+  <span class="k">return</span> <span class="n">tokenizer</span></div>
 </pre></div>
 
            </div>
@@ -234,7 +227,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

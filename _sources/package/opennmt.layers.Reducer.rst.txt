@@ -1,0 +1,8 @@
+opennmt.layers.Reducer
+======================
+
+.. autoclass:: opennmt.layers.Reducer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

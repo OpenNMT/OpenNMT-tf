@@ -1,0 +1,4 @@
+opennmt.utils.max_margin_loss
+=============================
+
+.. autofunction:: opennmt.utils.max_margin_loss

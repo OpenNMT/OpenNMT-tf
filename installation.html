@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>Installation &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -76,7 +67,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -122,11 +113,12 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -195,15 +187,14 @@
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf requires:</p>
 <ul class="simple">
-<li>Python (&gt;= 2.7)</li>
-<li>TensorFlow (&gt;= 1.4, &lt; 2.0)</li>
+<li><p>Python &gt;= 3.5</p></li>
 </ul>
-<p>Some features added after the initial release may require newer TensorFlow versions. Please consult the changelog to know about new features availability.</p>
 </div>
 <div class="section" id="via-pip-recommended">
 <h2>Via pip (recommended)<a class="headerlink" href="#via-pip-recommended" title="Permalink to this headline">¶</a></h2>
-<p>Each tagged version of the project is automatically pushed to <a class="reference external" href="https://pypi.org/project/OpenNMT-tf/">PyPi</a>. We recommend installing this package via <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install OpenNMT-tf
+<p>Each tagged version of the project is automatically pushed to <a class="reference external" href="https://pypi.org/project/OpenNMT-tf/">PyPi</a>. We recommend installing this package via <code class="docutils literal notranslate"><span class="pre">pip</span></code> (&gt;= 19.0):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade pip
+pip install OpenNMT-tf
 </pre></div>
 </div>
 <p>To confirm that the package is correctly installed, run:</p>
@@ -233,7 +224,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

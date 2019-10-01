@@ -1,21 +1,27 @@
-opennmt.models package
-======================
+opennmt.models module
+=====================
 
 .. automodule:: opennmt.models
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
-Submodules
-----------
+Classes
+-------
 
 .. toctree::
 
-   opennmt.models.catalog
-   opennmt.models.language_model
-   opennmt.models.model
-   opennmt.models.sequence_classifier
-   opennmt.models.sequence_tagger
-   opennmt.models.sequence_to_sequence
-   opennmt.models.transformer
-
+   opennmt.models.ClassInputter
+   opennmt.models.EmbeddingsSharingLevel
+   opennmt.models.LanguageModel
+   opennmt.models.LanguageModelInputter
+   opennmt.models.ListenAttendSpell
+   opennmt.models.LstmCnnCrfTagger
+   opennmt.models.LuongAttention
+   opennmt.models.Model
+   opennmt.models.SequenceClassifier
+   opennmt.models.SequenceGenerator
+   opennmt.models.SequenceTagger
+   opennmt.models.SequenceToSequence
+   opennmt.models.SequenceToSequenceInputter
+   opennmt.models.TagsInputter
+   opennmt.models.Transformer
+   opennmt.models.TransformerBase
+   opennmt.models.TransformerBig

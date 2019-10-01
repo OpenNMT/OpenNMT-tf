@@ -1,0 +1,4 @@
+opennmt.layers.gelu
+===================
+
+.. autofunction:: opennmt.layers.gelu

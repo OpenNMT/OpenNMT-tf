@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.rnn &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>opennmt.layers.rnn &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../../../',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -74,7 +65,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -116,11 +107,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -189,12 +181,19 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">reducer</span> <span class="k">as</span> <span class="n">reducer_lib</span>
 
 
-<div class="viewcode-block" id="RNNCellWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper">[docs]</a><span class="k">class</span> <span class="nc">RNNCellWrapper</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_register_keras_custom_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+  <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_custom_objects</span><span class="p">()[</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
+  <span class="k">return</span> <span class="bp">cls</span>
+
+
+<div class="viewcode-block" id="RNNCellWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper">[docs]</a><span class="nd">@_register_keras_custom_object</span>
+<span class="k">class</span> <span class="nc">RNNCellWrapper</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A wrapper for RNN cells.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RNNCellWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="RNNCellWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">cell</span><span class="p">,</span>
                <span class="n">input_dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                <span class="n">output_dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -228,18 +227,25 @@
     <span class="sd">&quot;&quot;&quot;The cell output size.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">output_size</span>
 
-<div class="viewcode-block" id="RNNCellWrapper.get_initial_state"><a class="viewcode-back" href="../../../package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNNCellWrapper.get_initial_state">[docs]</a>  <span class="k">def</span> <span class="nf">get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RNNCellWrapper.get_initial_state"><a class="viewcode-back" href="../../../package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.get_initial_state">[docs]</a>  <span class="k">def</span> <span class="nf">get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the initial cell state.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span>
         <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div></div>
 
 
-<span class="n">_CUSTOM_OBJECTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;RNNCellWrapper&quot;</span><span class="p">:</span> <span class="n">RNNCellWrapper</span><span class="p">,</span>
-<span class="p">}</span>
+<span class="k">class</span> <span class="nc">_StackedRNNCells</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">StackedRNNCells</span><span class="p">):</span>
+
+  <span class="c1"># To pass the training flag to the cell, tf.keras.layers.RNN checks that the</span>
+  <span class="c1"># cell call method explicitly takes the &quot;training&quot; argument, which</span>
+  <span class="c1"># tf.keras.layers.StackedRNNCells do not.</span>
+  <span class="c1"># TODO: remove this when this change is released:</span>
+  <span class="c1"># https://github.com/tensorflow/tensorflow/commit/df2b252fa380994cd9236cc56b06557bcf12a9d3</span>
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;training&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">training</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_StackedRNNCells</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="n">constants</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="make_rnn_cell"><a class="viewcode-back" href="../../../package/opennmt.layers.rnn.html#opennmt.layers.rnn.make_rnn_cell">[docs]</a><span class="k">def</span> <span class="nf">make_rnn_cell</span><span class="p">(</span><span class="n">num_layers</span><span class="p">,</span>
+<div class="viewcode-block" id="make_rnn_cell"><a class="viewcode-back" href="../../../package/opennmt.layers.make_rnn_cell.html#opennmt.layers.make_rnn_cell">[docs]</a><span class="k">def</span> <span class="nf">make_rnn_cell</span><span class="p">(</span><span class="n">num_layers</span><span class="p">,</span>
                   <span class="n">num_units</span><span class="p">,</span>
                   <span class="n">dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                   <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -258,6 +264,9 @@
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A ``tf.keras.layers.StackedRNNCells`` instance.</span>
+
+<span class="sd">  See Also:</span>
+<span class="sd">    :class:`opennmt.layers.RNNCellWrapper`</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">cell_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">cell_class</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span>
@@ -268,34 +277,38 @@
       <span class="n">cell</span> <span class="o">=</span> <span class="n">RNNCellWrapper</span><span class="p">(</span>
           <span class="n">cell</span><span class="p">,</span> <span class="n">output_dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span> <span class="n">residual_connection</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">)</span>
     <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">StackedRNNCells</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span></div>
+  <span class="k">return</span> <span class="n">_StackedRNNCells</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="RNN"><a class="viewcode-back" href="../../../package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNN">[docs]</a><span class="k">class</span> <span class="nc">RNN</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A generic RNN layer.&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_RNNWrapper</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Extend a RNN layer to possibly make it bidirectional and format its outputs.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RNN.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNN.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer_lib</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      cell: The RNN cell to use.</span>
+<span class="sd">      rnn: The RNN layer to extend, built with ``return_sequences`` and</span>
+<span class="sd">        ``return_state`` enabled.</span>
 <span class="sd">      bidirectional: Make this layer bidirectional.</span>
-<span class="sd">      reducer: A :class:`opennmt.layers.reducer.Reducer` instance to merge</span>
-<span class="sd">        bidirectional state and outputs.</span>
-<span class="sd">      kwargs: Additional layer arguments.</span>
+<span class="sd">      reducer: A :class:`opennmt.layers.Reducer` instance to merge</span>
+<span class="sd">        bidirectional states and outputs.</span>
+<span class="sd">      **kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">RNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">_RNNWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">rnn</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">RNN</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bidirectional</span><span class="p">:</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">custom_object_scope</span><span class="p">(</span><span class="n">_CUSTOM_OBJECTS</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">,</span> <span class="n">merge_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+      <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">,</span> <span class="n">merge_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-<div class="viewcode-block" id="RNN.call"><a class="viewcode-back" href="../../../package/opennmt.layers.rnn.html#opennmt.layers.rnn.RNN.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
-    <span class="sd">&quot;&quot;&quot;Forwards the arguments the RNN layer.</span>
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="sd">&quot;&quot;&quot;Forwards the arguments to the RNN layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      *args: Positional arguments of the RNN layer.</span>
+<span class="sd">      **kwargs: Keyword arguments of the RNN layer.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A tuple with the output sequences and the state.</span>
+<span class="sd">      A tuple with the output sequences and the states.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">):</span>
@@ -312,7 +325,87 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="n">sequences</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
       <span class="n">states</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-    <span class="k">return</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">states</span></div></div>
+    <span class="k">return</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">states</span>
+
+
+<div class="viewcode-block" id="RNN"><a class="viewcode-back" href="../../../package/opennmt.layers.RNN.html#opennmt.layers.RNN">[docs]</a><span class="k">class</span> <span class="nc">RNN</span><span class="p">(</span><span class="n">_RNNWrapper</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A simple RNN layer.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RNN.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.RNN.html#opennmt.layers.RNN.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer_lib</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      cell: The RNN cell to use.</span>
+<span class="sd">      bidirectional: Make this layer bidirectional.</span>
+<span class="sd">      reducer: A :class:`opennmt.layers.Reducer` instance to merge</span>
+<span class="sd">        bidirectional states and outputs.</span>
+<span class="sd">      **kwargs: Additional layer arguments.</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">      :func:`opennmt.layers.make_rnn_cell`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rnn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">RNN</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">RNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rnn</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="n">bidirectional</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LSTM"><a class="viewcode-back" href="../../../package/opennmt.layers.LSTM.html#opennmt.layers.LSTM">[docs]</a><span class="k">class</span> <span class="nc">LSTM</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A multi-layer LSTM.</span>
+
+<span class="sd">  This differs from using :class:`opennmt.layers.RNN` with a ``LSTMCell`` in 2</span>
+<span class="sd">  ways:</span>
+
+<span class="sd">  - It uses ``tf.keras.layers.LSTM`` which is possibly accelerated by cuDNN on</span>
+<span class="sd">    GPU.</span>
+<span class="sd">  - Bidirectional outputs of each layer are reduced before feeding them to the</span>
+<span class="sd">    next layer.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LSTM.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers</span><span class="p">,</span>
+               <span class="n">num_units</span><span class="p">,</span>
+               <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">reducer</span><span class="o">=</span><span class="n">reducer_lib</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span>
+               <span class="n">dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+               <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      num_layers: Number of stacked LSTM layers.</span>
+<span class="sd">      num_units: Dimension of the output space of each LSTM.</span>
+<span class="sd">      bidirectional: Make each layer bidirectional.</span>
+<span class="sd">      reducer: A :class:`opennmt.layers.Reducer` instance to merge</span>
+<span class="sd">        the bidirectional states and outputs of each layer.</span>
+<span class="sd">      dropout: The probability to drop units in each layer output.</span>
+<span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
+<span class="sd">        output.</span>
+<span class="sd">      **kwargs: Additional layer arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">LSTM</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">rnn_layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_RNNWrapper</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">num_units</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_state</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">bidirectional</span><span class="o">=</span><span class="n">bidirectional</span><span class="p">,</span>
+            <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">(</span>
+            <span class="n">layer</span><span class="p">,</span>
+            <span class="n">output_dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">residual_connection</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">rnn_layers</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="LSTM.call"><a class="viewcode-back" href="../../../package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="n">all_states</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+      <span class="n">outputs</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span>
+          <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+          <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+      <span class="n">all_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+      <span class="n">inputs</span> <span class="o">=</span> <span class="n">outputs</span>
+    <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">all_states</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
@@ -325,7 +418,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

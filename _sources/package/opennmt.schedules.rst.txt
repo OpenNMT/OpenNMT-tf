@@ -1,0 +1,21 @@
+opennmt.schedules module
+========================
+
+.. automodule:: opennmt.schedules
+
+Classes
+-------
+
+.. toctree::
+
+   opennmt.schedules.CosineAnnealing
+   opennmt.schedules.NoamDecay
+   opennmt.schedules.RNMTPlusDecay
+   opennmt.schedules.RsqrtDecay
+   opennmt.schedules.ScheduleWrapper
+Functions
+---------
+
+.. toctree::
+
+   opennmt.schedules.make_learning_rate_schedule

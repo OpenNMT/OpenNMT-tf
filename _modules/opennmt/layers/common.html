@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.common &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>opennmt.layers.common &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../../../',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -74,7 +65,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -116,11 +107,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -187,53 +179,30 @@
 <span></span><span class="sd">&quot;&quot;&quot;Defines common layers.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">function</span>
-
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">shape_list</span>
 
 
-<span class="nd">@function</span><span class="o">.</span><span class="n">Defun</span><span class="p">(</span>
-    <span class="n">python_grad_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">dy</span><span class="p">),</span>
-    <span class="n">shape_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">op</span><span class="p">:</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()])</span>
-<span class="k">def</span> <span class="nf">convert_gradient_to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Wraps :obj:`x` to convert its gradient to a tensor.&quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="n">x</span>
-
-
-<div class="viewcode-block" id="embedding_lookup"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.embedding_lookup">[docs]</a><span class="k">def</span> <span class="nf">embedding_lookup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">ids</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Wrapper around ``tf.nn.embedding_lookup``.</span>
-
-<span class="sd">  This converts gradients of the embedding variable to tensors which allows</span>
-<span class="sd">  to use of optimizers that don&#39;t support sparse gradients (e.g. Adafactor).</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    params: The embedding tensor.</span>
-<span class="sd">    ids: The ids to lookup in :obj:`params`.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    A ``tf.Tensor``, the embeddings that correspond to :obj:`ids`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">params</span> <span class="o">=</span> <span class="n">convert_gradient_to_tensor</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="dropout"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.dropout">[docs]</a><span class="k">def</span> <span class="nf">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="dropout"><a class="viewcode-back" href="../../../package/opennmt.layers.dropout.html#opennmt.layers.dropout">[docs]</a><span class="k">def</span> <span class="nf">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Simple dropout layer.&quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="n">training</span> <span class="ow">or</span> <span class="n">rate</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">x</span>
-  <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">is_tf2</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rate</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">rate</span><span class="p">)</span></div>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="gelu"><a class="viewcode-back" href="../../../package/opennmt.layers.gelu.html#opennmt.layers.gelu">[docs]</a><span class="k">def</span> <span class="nf">gelu</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Gaussian Error Linear Unit activation function described in</span>
+<span class="sd">  https://arxiv.org/abs/1606.08415.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.044715</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">))))</span></div>
 
 
-<div class="viewcode-block" id="Dense"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.Dense">[docs]</a><span class="k">class</span> <span class="nc">Dense</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">):</span>
+<div class="viewcode-block" id="Dense"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense">[docs]</a><span class="k">class</span> <span class="nc">Dense</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Small ``tf.keras.layers.Dense`` extension to possibly reuse an existing weight</span>
 <span class="sd">  matrix.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Dense.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.Dense.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Dense.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
 
 <span class="sd">    Args:</span>
@@ -246,14 +215,12 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span> <span class="o">=</span> <span class="n">transpose</span></div>
 
-<div class="viewcode-block" id="Dense.add_weight"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.Dense.add_weight">[docs]</a>  <span class="k">def</span> <span class="nf">add_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="Dense.add_weight"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.add_weight">[docs]</a>  <span class="k">def</span> <span class="nf">add_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;kernel&quot;</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span>
     <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Dense.call"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.Dense.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+<div class="viewcode-block" id="Dense.call"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">shape_list</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
     <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
@@ -261,19 +228,23 @@
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transpose</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
       <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">bias_add</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>  <span class="c1"># pylint: disable=not-callable</span>
     <span class="k">if</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
       <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">outputs</span></div></div>
+    <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="Dense.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;kernel&quot;</span><span class="p">])]</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
+      <span class="n">m</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">m</span></div></div>
 
 
-<div class="viewcode-block" id="LayerNorm"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm">[docs]</a><span class="k">class</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Layer normalization.</span>
+<div class="viewcode-block" id="LayerNorm"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm">[docs]</a><span class="k">class</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Layer normalization.&quot;&quot;&quot;</span>
 
-<span class="sd">  Note:</span>
-<span class="sd">    Requires TensorFlow 2.0.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="LayerNorm.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="LayerNorm.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes this layer.</span>
 
 <span class="sd">    Args:</span>
@@ -283,32 +254,35 @@
     <span class="nb">super</span><span class="p">(</span><span class="n">LayerNorm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="n">epsilon</span></div>
 
-<div class="viewcode-block" id="LayerNorm.build"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+<div class="viewcode-block" id="LayerNorm.build"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates the variables.&quot;&quot;&quot;</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
         <span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">depth</span><span class="p">],</span> <span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
         <span class="s2">&quot;gamma&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">depth</span><span class="p">],</span> <span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">LayerNorm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayerNorm.call"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerNorm.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="LayerNorm.call"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
     <span class="sd">&quot;&quot;&quot;Normalizes :obj:`x`.&quot;&quot;&quot;</span>
     <span class="n">mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">variance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">norm_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">rsqrt</span><span class="p">(</span><span class="n">variance</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">norm_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span></div></div>
+    <span class="k">return</span> <span class="n">norm_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span></div>
+
+<div class="viewcode-block" id="LayerNorm.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">])</span>
+    <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="LayerWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper">[docs]</a><span class="k">class</span> <span class="nc">LayerWrapper</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<div class="viewcode-block" id="LayerWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper">[docs]</a><span class="k">class</span> <span class="nc">LayerWrapper</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Layer wrapper for input/output normalization, input/output dropout and</span>
 <span class="sd">  residual connection.</span>
-
-<span class="sd">  Note:</span>
-<span class="sd">    Requires TensorFlow 2.0.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="LayerWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="LayerWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">layer</span><span class="p">,</span>
                <span class="n">normalize_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">normalize_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -330,18 +304,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">LayerWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">layer</span> <span class="o">=</span> <span class="n">layer</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">input_layer_norm</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;input_norm&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">normalize_input</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer_norm</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;output_norm&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">normalize_output</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_layer_norm</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">()</span> <span class="k">if</span> <span class="n">normalize_input</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer_norm</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">()</span> <span class="k">if</span> <span class="n">normalize_output</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">input_dropout</span> <span class="o">=</span> <span class="n">input_dropout</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">output_dropout</span> <span class="o">=</span> <span class="n">output_dropout</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">residual_connection</span> <span class="o">=</span> <span class="n">residual_connection</span></div>
 
-<div class="viewcode-block" id="LayerWrapper.call"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="LayerWrapper.call"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
     <span class="sd">&quot;&quot;&quot;Runs the wrapper.&quot;&quot;&quot;</span>
     <span class="n">training</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_layer_norm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_layer_norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_layer_norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># pylint: disable=not-callable</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
 
     <span class="n">all_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -356,7 +330,7 @@
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">residual_connection</span> <span class="ow">and</span> <span class="n">outputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
       <span class="n">outputs</span> <span class="o">+=</span> <span class="n">inputs</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer_norm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer_norm</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer_norm</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>  <span class="c1"># pylint: disable=not-callable</span>
 
     <span class="k">if</span> <span class="n">extra_outputs</span><span class="p">:</span>
       <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">outputs</span><span class="p">]</span> <span class="o">+</span> <span class="n">extra_outputs</span><span class="p">)</span>
@@ -364,7 +338,7 @@
 
   <span class="c1"># The wrapper should be serializable to be used in tf.keras.layers.Bidirectional.</span>
 
-<div class="viewcode-block" id="LayerWrapper.get_config"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.get_config">[docs]</a>  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LayerWrapper.get_config"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.get_config">[docs]</a>  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the layer wrapper configuration.&quot;&quot;&quot;</span>
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;layer&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="p">),</span>
@@ -377,7 +351,7 @@
     <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LayerWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="LayerWrapper.from_config"><a class="viewcode-back" href="../../../package/opennmt.layers.common.html#opennmt.layers.common.LayerWrapper.from_config">[docs]</a>  <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LayerWrapper.from_config"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.from_config">[docs]</a>  <span class="nd">@classmethod</span>
   <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a layer wrapper from its configuration.&quot;&quot;&quot;</span>
     <span class="n">layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;layer&quot;</span><span class="p">))</span>
@@ -394,7 +368,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

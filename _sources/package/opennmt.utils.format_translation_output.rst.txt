@@ -1,0 +1,4 @@
+opennmt.utils.format_translation_output
+=======================================
+
+.. autofunction:: opennmt.utils.format_translation_output

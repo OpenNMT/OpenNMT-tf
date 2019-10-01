@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../../../',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -74,7 +65,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -116,11 +107,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -186,21 +178,32 @@
   <h1>Source code for opennmt.utils.misc</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Various utility functions to use throughout the project.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">heapq</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="n">copyreg</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">compat</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="k">import</span> <span class="n">graph_view</span>
 
 
-<div class="viewcode-block" id="print_bytes"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.print_bytes">[docs]</a><span class="k">def</span> <span class="nf">print_bytes</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_variable_name</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">model_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Gets the variable name in the object-based representation.&quot;&quot;&quot;</span>
+  <span class="n">named_variables</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">graph_view</span><span class="o">.</span><span class="n">ObjectGraphView</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">serialize_object_graph</span><span class="p">()</span>
+  <span class="k">for</span> <span class="n">saveable_object</span> <span class="ow">in</span> <span class="n">named_variables</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">saveable_object</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+      <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="n">saveable_object</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">print_bytes</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Prints a string viewed as bytes.</span>
 
 <span class="sd">  Args:</span>
@@ -212,9 +215,9 @@
   <span class="n">write_buffer</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">buffer</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="s2">&quot;buffer&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">stream</span>
   <span class="n">write_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">str_as_bytes</span><span class="p">)</span>
   <span class="n">write_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-  <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+  <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
-<div class="viewcode-block" id="format_translation_output"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.format_translation_output">[docs]</a><span class="k">def</span> <span class="nf">format_translation_output</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span>
+<div class="viewcode-block" id="format_translation_output"><a class="viewcode-back" href="../../../package/opennmt.utils.format_translation_output.html#opennmt.utils.format_translation_output">[docs]</a><span class="k">def</span> <span class="nf">format_translation_output</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span>
                               <span class="n">score</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">token_level_scores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -228,7 +231,7 @@
 <span class="sd">    score: If set, attach the score.</span>
 <span class="sd">    token_level_scores: If set, attach the token level scores.</span>
 <span class="sd">    attention: The attention vector.</span>
-<span class="sd">    alignment_type: The type of alignments to format (can be: &quot;hard&quot;).</span>
+<span class="sd">    alignment_type: The type of alignments to format (can be: &quot;hard&quot;, &quot;soft&quot;).</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
@@ -241,61 +244,56 @@
       <span class="n">target_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">attention</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
       <span class="n">pairs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">tgt</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source_indices</span><span class="p">,</span> <span class="n">target_indices</span><span class="p">))</span>
       <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">alignment_type</span> <span class="o">==</span> <span class="s2">&quot;soft&quot;</span><span class="p">:</span>
+      <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">attention</span><span class="p">:</span>
+        <span class="n">vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">))</span>
+      <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> ||| </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="s2">&quot; ; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid alignment type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">alignment_type</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">sentence</span></div>
 
-<div class="viewcode-block" id="item_or_tuple"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.item_or_tuple">[docs]</a><span class="k">def</span> <span class="nf">item_or_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">item_or_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns :obj:`x` as a tuple or its single element.&quot;&quot;&quot;</span>
   <span class="n">x</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">x</span></div>
+    <span class="k">return</span> <span class="n">x</span>
 
-<div class="viewcode-block" id="classes_in_module"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.classes_in_module">[docs]</a><span class="k">def</span> <span class="nf">classes_in_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">public_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">classes_in_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">public_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns a generator over the classes defined in :obj:`module`.&quot;&quot;&quot;</span>
   <span class="k">return</span> <span class="p">(</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
           <span class="k">if</span> <span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">symbol</span><span class="p">))</span>
-              <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">public_only</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">symbol</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))))</span></div>
+              <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">public_only</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">symbol</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))))</span>
 
-<div class="viewcode-block" id="function_args"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.function_args">[docs]</a><span class="k">def</span> <span class="nf">function_args</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">function_args</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the name of :obj:`fun` arguments.&quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inspect</span><span class="p">,</span> <span class="s2">&quot;getfullargspec&quot;</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
-  <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>  <span class="c1"># pylint: disable=deprecated-method</span></div>
+  <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>  <span class="c1"># pylint: disable=deprecated-method</span>
 
-<div class="viewcode-block" id="get_third_party_dir"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.get_third_party_dir">[docs]</a><span class="k">def</span> <span class="nf">get_third_party_dir</span><span class="p">():</span>
-  <span class="sd">&quot;&quot;&quot;Returns a path to the third_party directory.&quot;&quot;&quot;</span>
-  <span class="n">utils_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
-  <span class="n">opennmt_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">utils_dir</span><span class="p">)</span>
-  <span class="n">root_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">opennmt_dir</span><span class="p">)</span>
-  <span class="n">third_party_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s2">&quot;third_party&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">third_party_dir</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;no third_party directory found in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
-  <span class="k">return</span> <span class="n">third_party_dir</span></div>
-
-<div class="viewcode-block" id="count_lines"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.count_lines">[docs]</a><span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the number of lines of the file :obj:`filename`.&quot;&quot;&quot;</span>
-  <span class="k">with</span> <span class="n">compat</span><span class="o">.</span><span class="n">gfile_open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
       <span class="k">pass</span>
-    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span></div>
+    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="count_parameters"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.count_parameters">[docs]</a><span class="k">def</span> <span class="nf">count_parameters</span><span class="p">():</span>
-  <span class="sd">&quot;&quot;&quot;Returns the total number of trainable parameters.&quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">num_elements</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">())</span></div>
+<span class="k">def</span> <span class="nf">is_gzip_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns ``True`` if :obj:`filename` is a GZIP file.&quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="shape_list"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.shape_list">[docs]</a><span class="k">def</span> <span class="nf">shape_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">shape_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Return list of dims, statically where possible.&quot;&quot;&quot;</span>
   <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
   <span class="c1"># If unknown rank, return dynamic shape</span>
-  <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-  <span class="n">static</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+  <span class="n">static</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
   <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
   <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
@@ -304,31 +302,60 @@
     <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">dim</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
     <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">ret</span></div>
+  <span class="k">return</span> <span class="n">ret</span>
 
-<div class="viewcode-block" id="extract_prefixed_keys"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.extract_prefixed_keys">[docs]</a><span class="k">def</span> <span class="nf">extract_prefixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are prefixed</span>
-<span class="sd">  with :obj:`prefix`.</span>
+<span class="k">def</span> <span class="nf">index_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Follows :obj:`path` in a nested structure of objects, lists, and dicts.&quot;&quot;&quot;</span>
+  <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+      <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected a list index, got </span><span class="si">%s</span><span class="s2"> instead&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">structure</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">structure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid path in structure: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">structure</span>
+
+<span class="k">def</span> <span class="nf">clone_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Clones a layer.&quot;&quot;&quot;</span>
+  <span class="c1"># TODO: clean this up when this change is released:</span>
+  <span class="c1"># https://github.com/tensorflow/tensorflow/commit/4fd10c487c7e287f99b9a1831316add453dcba04</span>
+  <span class="n">copyreg</span><span class="o">.</span><span class="n">pickle</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">,</span> <span class="p">[]))</span>
+  <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">gather_all_layers</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns all nested layer starting from :obj:`layer`.&quot;&quot;&quot;</span>
+  <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">layers</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">itervalues</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+      <span class="n">layers</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">gather_all_layers</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">sub_layer</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">gather_all_layers</span><span class="p">(</span><span class="n">sub_layer</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">layers</span>
+
+<span class="k">def</span> <span class="nf">set_dropout</span><span class="p">(</span><span class="n">root_layer</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Overrides all dropout values in :obj:`root_layer` and its descendants.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dropout: The dropout value to set.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
-  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
-      <span class="n">original_key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
-      <span class="n">sub_dict</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-  <span class="k">return</span> <span class="n">sub_dict</span></div>
+  <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">gather_all_layers</span><span class="p">(</span><span class="n">root_layer</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">):</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">dropout</span>
+      <span class="k">elif</span> <span class="s2">&quot;dropout&quot;</span> <span class="ow">in</span> <span class="n">attr</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
 
-<div class="viewcode-block" id="extract_suffixed_keys"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.extract_suffixed_keys">[docs]</a><span class="k">def</span> <span class="nf">extract_suffixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are suffixed</span>
-<span class="sd">  with :obj:`suffix`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
-  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">):</span>
-      <span class="n">original_key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span>
-      <span class="n">sub_dict</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-  <span class="k">return</span> <span class="n">sub_dict</span></div>
-
-<div class="viewcode-block" id="extract_batches"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.extract_batches">[docs]</a><span class="k">def</span> <span class="nf">extract_batches</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_batches</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns a generator to iterate on each batch of a Numpy array or dict of</span>
 <span class="sd">  Numpy arrays.&quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -341,9 +368,31 @@
     <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
       <span class="k">yield</span> <span class="p">{</span>
           <span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
-      <span class="p">}</span></div>
+      <span class="p">}</span>
 
-<div class="viewcode-block" id="merge_dict"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.merge_dict">[docs]</a><span class="k">def</span> <span class="nf">merge_dict</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span> <span class="n">dict2</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_prefixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are prefixed</span>
+<span class="sd">  with :obj:`prefix`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+      <span class="n">original_key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
+      <span class="n">sub_dict</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+  <span class="k">return</span> <span class="n">sub_dict</span>
+
+<span class="k">def</span> <span class="nf">extract_suffixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are suffixed</span>
+<span class="sd">  with :obj:`suffix`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">):</span>
+      <span class="n">original_key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span>
+      <span class="n">sub_dict</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+  <span class="k">return</span> <span class="n">sub_dict</span>
+
+<span class="k">def</span> <span class="nf">merge_dict</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span> <span class="n">dict2</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Merges :obj:`dict2` into :obj:`dict1`.</span>
 
 <span class="sd">  Args:</span>
@@ -358,13 +407,38 @@
       <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">dict1</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">value</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-  <span class="k">return</span> <span class="n">dict1</span></div>
+  <span class="k">return</span> <span class="n">dict1</span>
 
+<span class="k">def</span> <span class="nf">read_summaries</span><span class="p">(</span><span class="n">event_dir</span><span class="p">,</span> <span class="n">event_file_pattern</span><span class="o">=</span><span class="s2">&quot;events.out.tfevents.*&quot;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Reads summaries from TensorFlow event files.</span>
 
-<div class="viewcode-block" id="OrderRestorer"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer">[docs]</a><span class="k">class</span> <span class="nc">OrderRestorer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="sd">  Args:</span>
+<span class="sd">    event_dir: Directory containing event files.</span>
+<span class="sd">    event_file_pattern: The pattern to look for event files.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A list of tuple (step, dict of summaries), sorted by step.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">event_dir</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[]</span>
+  <span class="n">summaries</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">event_file</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">event_dir</span><span class="p">,</span> <span class="n">event_file_pattern</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">summary_iterator</span><span class="p">(</span><span class="n">event_file</span><span class="p">):</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">HasField</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">):</span>
+        <span class="k">continue</span>
+      <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+        <span class="n">tensor_proto</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tensor</span>
+        <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parse_tensor</span><span class="p">(</span>
+            <span class="n">tensor_proto</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">as_dtype</span><span class="p">(</span><span class="n">tensor_proto</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+        <span class="n">summaries</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">step</span><span class="p">][</span><span class="n">value</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_static_value</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">[</span>
+      <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">summaries</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+
+<span class="k">class</span> <span class="nc">OrderRestorer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Helper class to restore out-of-order elements in order.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="OrderRestorer.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_fn</span><span class="p">,</span> <span class="n">callback_fn</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_fn</span><span class="p">,</span> <span class="n">callback_fn</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes this object.</span>
 
 <span class="sd">    Args:</span>
@@ -375,7 +449,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_callback_fn</span> <span class="o">=</span> <span class="n">callback_fn</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="o">=</span> <span class="p">[]</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="o">=</span> <span class="p">[]</span>
 
   <span class="k">def</span> <span class="nf">_try_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span><span class="p">:</span>
@@ -384,59 +458,14 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">_callback_fn</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span> <span class="o">+=</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="OrderRestorer.push"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.OrderRestorer.push">[docs]</a>  <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Push event :obj:`x`.&quot;&quot;&quot;</span>
     <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Event index </span><span class="si">%d</span><span class="s2"> was already notified&quot;</span> <span class="o">%</span> <span class="n">index</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
     <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_try_notify</span><span class="p">()</span></div></div>
-
-
-<span class="c1"># The next 2 functions come with the following license and copyright:</span>
-
-<span class="c1"># Copyright 2017 Google Inc.</span>
-<span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="c1"># you may not use this file except in compliance with the License.</span>
-<span class="c1"># You may obtain a copy of the License at</span>
-<span class="c1">#</span>
-<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="c1">#</span>
-<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="c1"># See the License for the specific language governing permissions and</span>
-<span class="c1"># limitations under the License.</span>
-
-<div class="viewcode-block" id="add_dict_to_collection"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.add_dict_to_collection">[docs]</a><span class="k">def</span> <span class="nf">add_dict_to_collection</span><span class="p">(</span><span class="n">collection_name</span><span class="p">,</span> <span class="n">dict_</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Adds a dictionary to a graph collection.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    collection_name: The name of the collection to add the dictionary to</span>
-<span class="sd">    dict_: A dictionary of string keys to tensor values</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">key_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_keys&quot;</span>
-  <span class="n">value_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_values&quot;</span>
-  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">dict_</span><span class="p">):</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">key_collection</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="n">value_collection</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="get_dict_from_collection"><a class="viewcode-back" href="../../../package/opennmt.utils.misc.html#opennmt.utils.misc.get_dict_from_collection">[docs]</a><span class="k">def</span> <span class="nf">get_dict_from_collection</span><span class="p">(</span><span class="n">collection_name</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Gets a dictionary from a graph collection.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    collection_name: A collection name to read a dictionary from</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    A dictionary with string keys and tensor values</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">key_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_keys&quot;</span>
-  <span class="n">value_collection</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s2">&quot;_values&quot;</span>
-  <span class="n">keys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">key_collection</span><span class="p">)</span>
-  <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">value_collection</span><span class="p">)</span>
-  <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_try_notify</span><span class="p">()</span>
 </pre></div>
 
            </div>
@@ -449,7 +478,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

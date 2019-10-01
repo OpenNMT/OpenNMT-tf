@@ -6,15 +6,15 @@ OpenNMT-tf uses a step-based training that makes it difficult to track the numbe
 
 ```yaml
 train:
-  train_steps: null
+  max_step: null
   single_pass: true
 ```
 
 and then:
 
 ```text
-onmt-main train [...]  # 1st epoch
-onmt-main train [...]  # 2nd epoch
+onmt-main [...] train  # 1st epoch
+onmt-main [...] train  # 2nd epoch
 ...
 ```
 

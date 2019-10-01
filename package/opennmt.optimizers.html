@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers package &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>opennmt.optimizers module &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -48,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.optimizers.adafactor module" href="opennmt.optimizers.adafactor.html" />
-    <link rel="prev" title="opennmt.models.transformer module" href="opennmt.models.transformer.html" /> 
+    <link rel="next" title="opennmt.optimizers.make_optimizer" href="opennmt.optimizers.make_optimizer.html" />
+    <link rel="prev" title="opennmt.models.TransformerBig" href="opennmt.models.TransformerBig.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -76,7 +67,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -118,27 +109,31 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt package</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="opennmt.bin.html">opennmt.bin package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models package</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.optimizers package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.optimizers module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
 </ul>
@@ -186,9 +181,9 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="opennmt.html">opennmt package</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-      <li>opennmt.optimizers package</li>
+      <li>opennmt.optimizers module</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -206,16 +201,13 @@
            <div itemprop="articleBody">
             
   <div class="section" id="module-opennmt.optimizers">
-<span id="opennmt-optimizers-package"></span><h1>opennmt.optimizers package<a class="headerlink" href="#module-opennmt.optimizers" title="Permalink to this headline">¶</a></h1>
+<span id="opennmt-optimizers-module"></span><h1>opennmt.optimizers module<a class="headerlink" href="#module-opennmt.optimizers" title="Permalink to this headline">¶</a></h1>
 <p>Module defining custom optimizers.</p>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.adafactor.html">opennmt.optimizers.adafactor module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.distributed_optimizer.html">opennmt.optimizers.distributed_optimizer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.mixed_precision_wrapper.html">opennmt.optimizers.mixed_precision_wrapper module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.multistep_adam.html">opennmt.optimizers.multistep_adam module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.make_optimizer.html">opennmt.optimizers.make_optimizer</a></li>
 </ul>
 </div>
 </div>
@@ -229,10 +221,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.optimizers.adafactor.html" class="btn btn-neutral float-right" title="opennmt.optimizers.adafactor module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.optimizers.make_optimizer.html" class="btn btn-neutral float-right" title="opennmt.optimizers.make_optimizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.models.transformer.html" class="btn btn-neutral float-left" title="opennmt.models.transformer module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.models.TransformerBig.html" class="btn btn-neutral float-left" title="opennmt.models.TransformerBig" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -241,7 +233,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

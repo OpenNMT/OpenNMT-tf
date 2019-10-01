@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.conv_encoder &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>opennmt.encoders.conv_encoder &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../../../',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -74,7 +65,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -116,11 +107,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -189,74 +181,69 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">Encoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="k">import</span> <span class="n">PositionEmbedder</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">position</span>
 
 
-<div class="viewcode-block" id="ConvEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.conv_encoder.html#opennmt.encoders.conv_encoder.ConvEncoder">[docs]</a><span class="k">class</span> <span class="nc">ConvEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+<div class="viewcode-block" id="ConvEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder">[docs]</a><span class="k">class</span> <span class="nc">ConvEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;An encoder that applies a convolution over the input sequence</span>
 <span class="sd">  as described in https://arxiv.org/abs/1611.02344.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ConvEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.conv_encoder.html#opennmt.encoders.conv_encoder.ConvEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">num_layers</span><span class="p">,</span>
+<div class="viewcode-block" id="ConvEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">num_layers_a</span><span class="p">,</span>
+               <span class="n">num_layers_c</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-               <span class="n">position_encoder</span><span class="o">=</span><span class="n">PositionEmbedder</span><span class="p">()):</span>
+               <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position</span><span class="o">.</span><span class="n">PositionEmbedder</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      num_layers: The number of convolutional layers.</span>
+<span class="sd">      num_layers_a: The number of layers in CNN-a.</span>
+<span class="sd">      num_layers_c: The number of layers in CNN-c.</span>
 <span class="sd">      num_units: The number of output filters.</span>
 <span class="sd">      kernel_size: The kernel size.</span>
 <span class="sd">      dropout: The probability to drop units from the inputs.</span>
-<span class="sd">      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to</span>
-<span class="sd">        apply on inputs or ``None``.</span>
+<span class="sd">      position_encoder_class: The :class:`opennmt.layers.PositionEncoder`</span>
+<span class="sd">        class to use for position encoding (or a callable that returns such</span>
+<span class="sd">        class).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ConvEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="n">kernel_size</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="o">=</span> <span class="n">position_encoder</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">position_encoder_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="o">=</span> <span class="n">position_encoder_class</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cnn_a</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv1D</span><span class="p">(</span><span class="n">num_units</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers_a</span><span class="p">)]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cnn_c</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv1D</span><span class="p">(</span><span class="n">num_units</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers_c</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="ConvEncoder.encode"><a class="viewcode-back" href="../../../package/opennmt.encoders.conv_encoder.html#opennmt.encoders.conv_encoder.ConvEncoder.encode">[docs]</a>  <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">):</span>
+<div class="viewcode-block" id="ConvEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
 
-    <span class="c1"># Apply dropout to inputs.</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span>
-        <span class="n">inputs</span><span class="p">,</span>
-        <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">training</span><span class="o">=</span><span class="n">mode</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">ModeKeys</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">)</span>
+    <span class="n">cnn_a</span> <span class="o">=</span> <span class="n">_cnn_stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_a</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+    <span class="n">cnn_c</span> <span class="o">=</span> <span class="n">_cnn_stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_c</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;cnn_a&quot;</span><span class="p">):</span>
-      <span class="n">cnn_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnn_stack</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;cnn_c&quot;</span><span class="p">):</span>
-      <span class="n">cnn_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnn_stack</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">cnn_a</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">cnn_c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div></div>
 
-    <span class="n">encoder_output</span> <span class="o">=</span> <span class="n">cnn_a</span>
-    <span class="n">encoder_state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">cnn_c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_cnn_stack</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+  <span class="n">next_input</span> <span class="o">=</span> <span class="n">inputs</span>
 
-    <span class="k">return</span> <span class="p">(</span><span class="n">encoder_output</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div>
+  <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layers</span><span class="p">):</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">next_input</span><span class="p">)</span>
+    <span class="c1"># Add residual connections past the first layer.</span>
+    <span class="k">if</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">+=</span> <span class="n">next_input</span>
+    <span class="n">next_input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_cnn_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-    <span class="n">next_input</span> <span class="o">=</span> <span class="n">inputs</span>
-
-    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
-      <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">conv1d</span><span class="p">(</span>
-          <span class="n">next_input</span><span class="p">,</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="p">,</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span>
-          <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)</span>
-
-      <span class="c1"># Add residual connections past the first layer.</span>
-      <span class="k">if</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">outputs</span> <span class="o">+=</span> <span class="n">next_input</span>
-
-      <span class="n">next_input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">next_input</span></div>
+  <span class="k">return</span> <span class="n">next_input</span>
 </pre></div>
 
            </div>
@@ -269,7 +256,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

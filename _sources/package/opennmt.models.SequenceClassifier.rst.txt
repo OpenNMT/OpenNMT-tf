@@ -1,0 +1,8 @@
+opennmt.models.SequenceClassifier
+=================================
+
+.. autoclass:: opennmt.models.SequenceClassifier
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.Model`

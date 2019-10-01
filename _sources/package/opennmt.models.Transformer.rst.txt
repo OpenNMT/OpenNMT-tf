@@ -1,0 +1,8 @@
+opennmt.models.Transformer
+==========================
+
+.. autoclass:: opennmt.models.Transformer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.SequenceToSequence`

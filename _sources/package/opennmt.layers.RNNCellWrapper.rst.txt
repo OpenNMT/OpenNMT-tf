@@ -1,0 +1,8 @@
+opennmt.layers.RNNCellWrapper
+=============================
+
+.. autoclass:: opennmt.layers.RNNCellWrapper
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.layers.LayerWrapper`

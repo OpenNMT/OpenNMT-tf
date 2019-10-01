@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.layers.LSTM &mdash; OpenNMT-tf 2.0.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="opennmt.layers.LayerNorm" href="opennmt.layers.LayerNorm.html" />
+    <link rel="prev" title="opennmt.layers.JoinReducer" href="opennmt.layers.JoinReducer.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.layers.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="opennmt.layers.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
+        
+          <li><a href="opennmt.layers.html">opennmt.layers module</a> &raquo;</li>
+        
+      <li>opennmt.layers.LSTM</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="opennmt-layers-lstm">
+<h1>opennmt.layers.LSTM<a class="headerlink" href="#opennmt-layers-lstm" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="opennmt.layers.LSTM">
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">LSTM</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">bidirectional=False</em>, <em class="sig-param">reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em class="sig-param">dropout=0</em>, <em class="sig-param">residual_connections=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/rnn.html#LSTM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LSTM" title="Permalink to this definition">¶</a></dt>
+<dd><p>A multi-layer LSTM.</p>
+<p>This differs from using <a class="reference internal" href="opennmt.layers.RNN.html#opennmt.layers.RNN" title="opennmt.layers.RNN"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.RNN</span></code></a> with a <code class="docutils literal notranslate"><span class="pre">LSTMCell</span></code> in 2
+ways:</p>
+<ul class="simple">
+<li><p>It uses <code class="docutils literal notranslate"><span class="pre">tf.keras.layers.LSTM</span></code> which is possibly accelerated by cuDNN on
+GPU.</p></li>
+<li><p>Bidirectional outputs of each layer are reduced before feeding them to the
+next layer.</p></li>
+</ul>
+<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<dl class="method">
+<dt id="opennmt.layers.LSTM.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">bidirectional=False</em>, <em class="sig-param">reducer=&lt;opennmt.layers.reducer.ConcatReducer object&gt;</em>, <em class="sig-param">dropout=0</em>, <em class="sig-param">residual_connections=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/rnn.html#LSTM.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LSTM.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_layers</strong> – Number of stacked LSTM layers.</p></li>
+<li><p><strong>num_units</strong> – Dimension of the output space of each LSTM.</p></li>
+<li><p><strong>bidirectional</strong> – Make each layer bidirectional.</p></li>
+<li><p><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.Reducer.html#opennmt.layers.Reducer" title="opennmt.layers.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.Reducer</span></code></a> instance to merge
+the bidirectional states and outputs of each layer.</p></li>
+<li><p><strong>dropout</strong> – The probability to drop units in each layer output.</p></li>
+<li><p><strong>residual_connections</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, each layer input will be added to its
+output.</p></li>
+<li><p><strong>**kwargs</strong> – Additional layer arguments.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.LSTM.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">training=None</em>, <em class="sig-param">initial_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/rnn.html#LSTM.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LSTM.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tensor or list/tuple of tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opennmt.layers.LayerNorm.html" class="btn btn-neutral float-right" title="opennmt.layers.LayerNorm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="opennmt.layers.JoinReducer.html" class="btn btn-neutral float-left" title="opennmt.layers.JoinReducer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

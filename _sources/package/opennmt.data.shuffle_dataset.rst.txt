@@ -1,0 +1,4 @@
+opennmt.data.shuffle_dataset
+============================
+
+.. autofunction:: opennmt.data.shuffle_dataset

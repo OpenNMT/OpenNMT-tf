@@ -1,33 +1,44 @@
-opennmt package
-===============
+opennmt module
+==============
 
 .. automodule:: opennmt
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Subpackages
------------
-
-.. toctree::
-
-    opennmt.bin
-    opennmt.decoders
-    opennmt.encoders
-    opennmt.inputters
-    opennmt.layers
-    opennmt.models
-    opennmt.optimizers
-    opennmt.tokenizers
-    opennmt.utils
 
 Submodules
 ----------
 
 .. toctree::
 
-   opennmt.config
-   opennmt.constants
-   opennmt.estimator
-   opennmt.runner
+   opennmt.data
+   opennmt.decoders
+   opennmt.encoders
+   opennmt.inputters
+   opennmt.layers
+   opennmt.models
+   opennmt.optimizers
+   opennmt.schedules
+   opennmt.tokenizers
+   opennmt.utils
 
+Classes
+-------
+
+.. toctree::
+
+   opennmt.Runner
+Functions
+---------
+
+.. toctree::
+
+   opennmt.load_config
+   opennmt.load_model
+Constants
+---------
+
+* opennmt.END_OF_SENTENCE_ID
+* opennmt.END_OF_SENTENCE_TOKEN
+* opennmt.PADDING_ID
+* opennmt.PADDING_TOKEN
+* opennmt.START_OF_SENTENCE_ID
+* opennmt.START_OF_SENTENCE_TOKEN
+* opennmt.UNKNOWN_TOKEN

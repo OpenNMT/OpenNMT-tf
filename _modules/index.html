@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>Overview: module code &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -74,7 +65,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -116,11 +107,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -182,16 +174,11 @@
            <div itemprop="articleBody">
             
   <h1>All modules for which code is available</h1>
-<ul><li><a href="opennmt/bin/ark_to_records.html">opennmt.bin.ark_to_records</a></li>
-<li><a href="opennmt/bin/average_checkpoints.html">opennmt.bin.average_checkpoints</a></li>
-<li><a href="opennmt/bin/build_vocab.html">opennmt.bin.build_vocab</a></li>
-<li><a href="opennmt/bin/convert_checkpoint.html">opennmt.bin.convert_checkpoint</a></li>
-<li><a href="opennmt/bin/detokenize_text.html">opennmt.bin.detokenize_text</a></li>
-<li><a href="opennmt/bin/main.html">opennmt.bin.main</a></li>
-<li><a href="opennmt/bin/merge_config.html">opennmt.bin.merge_config</a></li>
-<li><a href="opennmt/bin/tokenize_text.html">opennmt.bin.tokenize_text</a></li>
-<li><a href="opennmt/bin/update_vocab.html">opennmt.bin.update_vocab</a></li>
-<li><a href="opennmt/config.html">opennmt.config</a></li>
+<ul><li><a href="opennmt/config.html">opennmt.config</a></li>
+<li><a href="opennmt/data/dataset.html">opennmt.data.dataset</a></li>
+<li><a href="opennmt/data/noise.html">opennmt.data.noise</a></li>
+<li><a href="opennmt/data/text.html">opennmt.data.text</a></li>
+<li><a href="opennmt/data/vocab.html">opennmt.data.vocab</a></li>
 <li><a href="opennmt/decoders/decoder.html">opennmt.decoders.decoder</a></li>
 <li><a href="opennmt/decoders/rnn_decoder.html">opennmt.decoders.rnn_decoder</a></li>
 <li><a href="opennmt/decoders/self_attention_decoder.html">opennmt.decoders.self_attention_decoder</a></li>
@@ -200,13 +187,11 @@
 <li><a href="opennmt/encoders/mean_encoder.html">opennmt.encoders.mean_encoder</a></li>
 <li><a href="opennmt/encoders/rnn_encoder.html">opennmt.encoders.rnn_encoder</a></li>
 <li><a href="opennmt/encoders/self_attention_encoder.html">opennmt.encoders.self_attention_encoder</a></li>
-<li><a href="opennmt/estimator.html">opennmt.estimator</a></li>
 <li><a href="opennmt/inputters/inputter.html">opennmt.inputters.inputter</a></li>
 <li><a href="opennmt/inputters/record_inputter.html">opennmt.inputters.record_inputter</a></li>
 <li><a href="opennmt/inputters/text_inputter.html">opennmt.inputters.text_inputter</a></li>
 <li><a href="opennmt/layers/bridge.html">opennmt.layers.bridge</a></li>
 <li><a href="opennmt/layers/common.html">opennmt.layers.common</a></li>
-<li><a href="opennmt/layers/noise.html">opennmt.layers.noise</a></li>
 <li><a href="opennmt/layers/position.html">opennmt.layers.position</a></li>
 <li><a href="opennmt/layers/reducer.html">opennmt.layers.reducer</a></li>
 <li><a href="opennmt/layers/rnn.html">opennmt.layers.rnn</a></li>
@@ -218,26 +203,18 @@
 <li><a href="opennmt/models/sequence_tagger.html">opennmt.models.sequence_tagger</a></li>
 <li><a href="opennmt/models/sequence_to_sequence.html">opennmt.models.sequence_to_sequence</a></li>
 <li><a href="opennmt/models/transformer.html">opennmt.models.transformer</a></li>
-<li><a href="opennmt/optimizers/adafactor.html">opennmt.optimizers.adafactor</a></li>
-<li><a href="opennmt/optimizers/mixed_precision_wrapper.html">opennmt.optimizers.mixed_precision_wrapper</a></li>
-<li><a href="opennmt/optimizers/multistep_adam.html">opennmt.optimizers.multistep_adam</a></li>
+<li><a href="opennmt/optimizers/utils.html">opennmt.optimizers.utils</a></li>
 <li><a href="opennmt/runner.html">opennmt.runner</a></li>
+<li><a href="opennmt/schedules/lr_schedules.html">opennmt.schedules.lr_schedules</a></li>
 <li><a href="opennmt/tokenizers.html">opennmt.tokenizers</a></li>
 <ul><li><a href="opennmt/tokenizers/opennmt_tokenizer.html">opennmt.tokenizers.opennmt_tokenizer</a></li>
 <li><a href="opennmt/tokenizers/tokenizer.html">opennmt.tokenizers.tokenizer</a></li>
-</ul><li><a href="opennmt/utils/cell.html">opennmt.utils.cell</a></li>
-<li><a href="opennmt/utils/checkpoint.html">opennmt.utils.checkpoint</a></li>
-<li><a href="opennmt/utils/compat.html">opennmt.utils.compat</a></li>
-<li><a href="opennmt/utils/data.html">opennmt.utils.data</a></li>
-<li><a href="opennmt/utils/decay.html">opennmt.utils.decay</a></li>
+</ul><li><a href="opennmt/utils/checkpoint.html">opennmt.utils.checkpoint</a></li>
 <li><a href="opennmt/utils/decoding.html">opennmt.utils.decoding</a></li>
-<li><a href="opennmt/utils/evaluator.html">opennmt.utils.evaluator</a></li>
-<li><a href="opennmt/utils/hooks.html">opennmt.utils.hooks</a></li>
 <li><a href="opennmt/utils/losses.html">opennmt.utils.losses</a></li>
 <li><a href="opennmt/utils/misc.html">opennmt.utils.misc</a></li>
-<li><a href="opennmt/utils/optim.html">opennmt.utils.optim</a></li>
-<li><a href="opennmt/utils/parallel.html">opennmt.utils.parallel</a></li>
-<li><a href="opennmt/utils/vocab.html">opennmt.utils.vocab</a></li>
+<li><a href="opennmt/utils/scorers.html">opennmt.utils.scorers</a></li>
+<li><a href="opennmt/utils/tensor.html">opennmt.utils.tensor</a></li>
 </ul>
 
            </div>
@@ -250,7 +227,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

@@ -1,0 +1,8 @@
+opennmt.encoders.SelfAttentionEncoder
+=====================================
+
+.. autoclass:: opennmt.encoders.SelfAttentionEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.Encoder`

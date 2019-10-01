@@ -1,0 +1,8 @@
+opennmt.utils.ROUGEScorer
+=========================
+
+.. autoclass:: opennmt.utils.ROUGEScorer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.Scorer`

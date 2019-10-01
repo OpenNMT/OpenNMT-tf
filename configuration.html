@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -76,7 +67,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -111,7 +102,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parameters</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#automatic-configuration">Automatic configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#multiple-configuration-files">Multiple configuration files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tensorflow-session">TensorFlow session</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
@@ -123,11 +113,12 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -214,7 +205,7 @@
 <span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">toy-ende</span>
 
 <span class="nt">data</span><span class="p">:</span>
-  <span class="c1"># (required for train_and_eval and train run types).</span>
+  <span class="c1"># (required for train run type).</span>
   <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-train.txt</span>
   <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-train.txt</span>
 
@@ -226,8 +217,8 @@
   <span class="nt">eval_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-val.txt</span>
 
   <span class="c1"># (optional) Models may require additional resource files (e.g. vocabularies).</span>
-  <span class="nt">source_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-vocab.txt</span>
-  <span class="nt">target_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-vocab.txt</span>
+  <span class="nt">source_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-vocab.txt</span>
+  <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-vocab.txt</span>
 
   <span class="c1"># (optional) OpenNMT tokenization configuration (or path to a configuration file).</span>
   <span class="c1"># See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md</span>
@@ -252,75 +243,45 @@
 
 <span class="c1"># Model and optimization parameters.</span>
 <span class="nt">params</span><span class="p">:</span>
-  <span class="c1"># The optimizer class name in tf.train, tf.contrib.opt, or opennmt.optimizers.</span>
-  <span class="nt">optimizer</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AdamOptimizer</span>
+  <span class="c1"># The optimizer class name in tf.keras.optimizers or tfa.optimizers.</span>
+  <span class="nt">optimizer</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Adam</span>
   <span class="c1"># (optional) Additional optimizer parameters as defined in their documentation.</span>
+  <span class="c1"># If weight_decay is set, the optimizer will be extended with decoupled weight decay.</span>
   <span class="nt">optimizer_params</span><span class="p">:</span>
-    <span class="nt">beta1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8</span>
-    <span class="nt">beta2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.998</span>
+    <span class="nt">beta_1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8</span>
+    <span class="nt">beta_2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.998</span>
   <span class="nt">learning_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
 
-  <span class="c1"># (optional) Regexp or list of regexp matching variable names to not optimize.</span>
-  <span class="nt">freeze_variables</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;transformer/encoder&quot;</span>
+  <span class="c1"># (optional) If set, overrides all dropout values configured in the model definition.</span>
+  <span class="nt">dropout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.3</span>
 
-  <span class="c1"># (optional) Global parameter initialization [-param_init, param_init].</span>
-  <span class="nt">param_init</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
-
-  <span class="c1"># (optional) Maximum gradients norm (default: null).</span>
-  <span class="nt">clip_gradients</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
-  <span class="c1"># (optional) 1 training step will process this many batches and accumulates</span>
-  <span class="c1"># their gradients (default: 1).</span>
-  <span class="nt">gradients_accum</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-
-  <span class="c1"># (optional) For mixed precision training, the loss scaling to apply (a constant value or</span>
-  <span class="c1"># an automatic scaling algorithm: &quot;backoff&quot;, &quot;logmax&quot;, default: &quot;backoff&quot;)</span>
-  <span class="nt">loss_scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">backoff</span>
-  <span class="c1"># (optional) For mixed precision training, the additional parameters to pass the loss scale</span>
-  <span class="c1"># (see the source file opennmt/optimizers/mixed_precision_wrapper.py).</span>
-  <span class="nt">loss_scale_params</span><span class="p">:</span>
-    <span class="nt">scale_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
-    <span class="nt">step_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
-
-  <span class="c1"># (optional) Horovod parameters.</span>
-  <span class="nt">horovod</span><span class="p">:</span>
-    <span class="c1"># (optional) Compression type for gradients (can be: &quot;none&quot;, &quot;fp16&quot;, default: &quot;none&quot;).</span>
-    <span class="nt">compression</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">none</span>
-    <span class="c1"># (optional) Average the reduced gradients (default: false).</span>
-    <span class="nt">average_gradients</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="c1"># (optional) List of layer to not optimize.</span>
+  <span class="nt">freeze_layers</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;encoder/layers/0&quot;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;decoder/output_layer&quot;</span>
 
   <span class="c1"># (optional) Weights regularization penalty (default: null).</span>
   <span class="nt">regularization</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">l2</span>  <span class="c1"># can be &quot;l1&quot;, &quot;l2&quot;, &quot;l1_l2&quot; (case-insensitive).</span>
     <span class="nt">scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-4</span>  <span class="c1"># if using &quot;l1_l2&quot; regularization, this should be a YAML list.</span>
-  <span class="c1"># (optional) Decoupled weight decay (default: null).</span>
-  <span class="nt">weight_decay</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.01</span>
 
   <span class="c1"># (optional) Average loss in the time dimension in addition to the batch dimension (default: False).</span>
   <span class="nt">average_loss_in_time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) The type of learning rate decay (default: null). See:</span>
-  <span class="c1">#  * https://www.tensorflow.org/versions/master/api_guides/python/train#Decaying_the_learning_rate</span>
-  <span class="c1">#  * opennmt/utils/decay.py</span>
+  <span class="c1">#  * https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/schedules</span>
+  <span class="c1">#  * opennmt/schedules/lr_schedules.py</span>
   <span class="c1"># This value may change the semantics of other decay options. See the documentation or the code.</span>
-  <span class="nt">decay_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">exponential_decay</span>
+  <span class="nt">decay_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">NoamDecay</span>
   <span class="c1"># (optional unless decay_type is set) Decay parameters.</span>
   <span class="nt">decay_params</span><span class="p">:</span>
-    <span class="c1"># The learning rate decay rate.</span>
-    <span class="nt">decay_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.7</span>
-    <span class="c1"># Decay every this many steps.</span>
-    <span class="nt">decay_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>
-    <span class="c1"># (optional) If true, the learning rate is decayed in a staircase fashion (default: true).</span>
-    <span class="nt">staircase</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="c1"># (optional) The number of training steps that make 1 decay step (default: 1).</span>
-  <span class="nt">decay_step_duration</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">model_dim</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">512</span>
+    <span class="nt">warmup_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4000</span>
   <span class="c1"># (optional) After how many steps to start the decay (default: 0).</span>
   <span class="nt">start_decay_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50000</span>
 
   <span class="c1"># (optional) The learning rate minimum value (default: 0).</span>
   <span class="nt">minimum_learning_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0001</span>
-  <span class="c1"># (optional) The learning rate maximum value (default: 1e6).</span>
-  <span class="nt">maximum_learning_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e6</span>
 
   <span class="c1"># (optional) Type of scheduled sampling (can be &quot;constant&quot;, &quot;linear&quot;, &quot;exponential&quot;,</span>
   <span class="c1"># or &quot;inverse_sigmoid&quot;, default: &quot;constant&quot;).</span>
@@ -351,7 +312,7 @@
   <span class="c1"># (optional) Sequence of noise to apply to the decoding output. Each element</span>
   <span class="c1"># should be a noise type (can be: &quot;dropout&quot;, &quot;replacement&quot;, &quot;permutation&quot;) and</span>
   <span class="c1"># the module arguments</span>
-  <span class="c1"># (see http://opennmt.net/OpenNMT-tf/package/opennmt.layers.noise.html)</span>
+  <span class="c1"># (see http://opennmt.net/OpenNMT-tf/package/opennmt.data.noise.html)</span>
   <span class="nt">decoding_noise</span><span class="p">:</span>
     <span class="p p-Indicator">-</span> <span class="nt">dropout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
     <span class="p p-Indicator">-</span> <span class="nt">replacement</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0.1</span><span class="p p-Indicator">,</span> <span class="nv">｟unk｠</span><span class="p p-Indicator">]</span>
@@ -361,8 +322,8 @@
   <span class="nt">decoding_subword_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">￭</span>
   <span class="c1"># (optional) Minimum length of decoded sequences, end token excluded (default: 0).</span>
   <span class="nt">minimum_decoding_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
-  <span class="c1"># (optional) Maximum decoding iterations before stopping (default: 250).</span>
-  <span class="nt">maximum_iterations</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200</span>
+  <span class="c1"># (optional) Maximum length of decoded sequences, end token excluded (default: 250).</span>
+  <span class="nt">maximum_decoding_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250</span>
 
   <span class="c1"># (optional) Replace unknown target tokens by the original source token with the</span>
   <span class="c1"># highest attention (default: false).</span>
@@ -381,7 +342,6 @@
   <span class="c1"># (optional) The value of the parameter eta in the max-margin loss (default: 0.1).</span>
   <span class="nt">max_margin_eta</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
 
-
 <span class="c1"># Training options.</span>
 <span class="nt">train</span><span class="p">:</span>
   <span class="c1"># (optional when batch_type=tokens) If not set, the training will search the largest</span>
@@ -393,20 +353,16 @@
   <span class="c1"># (default: null).</span>
   <span class="nt">effective_batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25000</span>
 
-  <span class="c1"># (optional) Save a checkpoint every this many steps (default: null). Can not be</span>
-  <span class="c1"># specified with save_checkpoints_secs.</span>
+  <span class="c1"># (optional) Save a checkpoint every this many steps (default: 5000).</span>
   <span class="nt">save_checkpoints_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-  <span class="c1"># (optional) Save a checkpoint every this many seconds (default: 600). Can not be</span>
-  <span class="c1"># specified with save_checkpoints_steps.</span>
-  <span class="nt">save_checkpoints_secs</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">600</span>
   <span class="c1"># (optional) How many checkpoints to keep on disk.</span>
   <span class="nt">keep_checkpoint_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
 
   <span class="c1"># (optional) Dump summaries and logs every this many steps (default: 100).</span>
   <span class="nt">save_summary_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
 
-  <span class="c1"># (optional) Train for this many steps. If not set, train forever.</span>
-  <span class="nt">train_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000000</span>
+  <span class="c1"># (optional) Maximum training step. If not set, train forever.</span>
+  <span class="nt">max_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000000</span>
   <span class="c1"># (optional) If true, makes a single pass over the training data (default: false).</span>
   <span class="nt">single_pass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
@@ -415,14 +371,9 @@
   <span class="c1"># (optional) The maximum length of label sequences during training (default: null).</span>
   <span class="nt">maximum_labels_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">70</span>
 
-  <span class="c1"># (optional) The width of the length buckets to select batch candidates from (default: 5).</span>
-  <span class="nt">bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
-
-  <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 4).</span>
-  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
-  <span class="c1"># (optional) The number of batches to prefetch asynchronously. If not set, use an</span>
-  <span class="c1"># automatically tuned value on TensorFlow 1.8+ and 1 on older versions. (default: null).</span>
-  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
+  <span class="c1"># A smaller value means less padding and increased efficiency. (default: 1).</span>
+  <span class="nt">length_bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 
   <span class="c1"># (optional) The number of elements from which to sample during shuffling (default: 500000).</span>
   <span class="c1"># Set 0 or null to disable shuffling, -1 to match the number of training examples.</span>
@@ -432,91 +383,79 @@
   <span class="c1"># model_dir/avg (default: 0).</span>
   <span class="nt">average_last_checkpoints</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
 
-
 <span class="c1"># (optional) Evaluation options.</span>
 <span class="nt">eval</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 32).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
 
-  <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-  <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-
-  <span class="c1"># (optional) Evaluate every this many seconds (default: 18000).</span>
-  <span class="nt">eval_delay</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">7200</span>
+  <span class="c1"># (optional) Evaluate every this many steps (default: 5000).</span>
+  <span class="nt">steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
 
   <span class="c1"># (optional) Save evaluation predictions in model_dir/eval/.</span>
   <span class="nt">save_eval_predictions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.</span>
-  <span class="c1"># Available evaluators: sacreBLEU, BLEU, BLEU-detok, ROUGE</span>
-  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sacreBLEU</span>
+  <span class="c1"># Available evaluators: bleu, rouge</span>
+  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
 
-  <span class="c1"># (optional) Model exporter(s) to use during the training and evaluation loop:</span>
-  <span class="c1"># last, final, best, or null (default: last).</span>
-  <span class="nt">exporters</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">last</span>
-
+  <span class="c1"># (optional) Early stopping condition.</span>
+  <span class="c1"># Should be read as: stop the training if &quot;metric&quot; did not improve more</span>
+  <span class="c1"># than &quot;min_improvement&quot; in the last &quot;steps&quot; evaluations.</span>
+  <span class="nt">early_stopping</span><span class="p">:</span>
+    <span class="c1"># (optional) The target metric name (default: &quot;loss&quot;).</span>
+    <span class="nt">metric</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+    <span class="c1"># (optional) The metric should improve at least by this much to be considered as an improvement (default: 0)</span>
+    <span class="nt">min_improvement</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.01</span>
+    <span class="nt">steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
 
 <span class="c1"># (optional) Inference options.</span>
 <span class="nt">infer</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 1).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
 
-  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
-  <span class="c1"># If set, the test data will be sorted by length to increase the translation</span>
-  <span class="c1"># efficiency. The predictions will still be outputted in order as they are</span>
-  <span class="c1"># available (default: 0).</span>
-  <span class="nt">bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
-
-  <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-  <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-
   <span class="c1"># (optional) For compatible models, the number of hypotheses to output (default: 1).</span>
   <span class="c1"># This sets the parameter params/num_hypotheses.</span>
   <span class="nt">n_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) For compatible models, also output the score (default: false).</span>
   <span class="nt">with_scores</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="c1"># (optional) For compatible models, also output the alignments (can be: &quot;null&quot;, &quot;hard&quot;,</span>
-  <span class="c1"># default: &quot;null&quot;).</span>
+  <span class="c1"># (optional) For compatible models, also output the alignments (can be: null, hard, soft,</span>
+  <span class="c1"># default: null).</span>
   <span class="nt">with_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 
+  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
+  <span class="c1"># If set, the test data will be sorted by length to increase the translation</span>
+  <span class="c1"># efficiency. The predictions will still be outputted in order as they are</span>
+  <span class="c1"># available (default: 0).</span>
+  <span class="nt">length_bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
 
 <span class="c1"># (optional) Scoring options.</span>
 <span class="nt">score</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 64).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
-  <span class="c1"># (optional) The number of threads to use for processing data in parallel (default: 1).</span>
-  <span class="nt">num_threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-  <span class="c1"># (optional) The number of batches to prefetch asynchronously (default: 1).</span>
-  <span class="nt">prefetch_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-
   <span class="c1"># (optional) Also report token-level cross entropy.</span>
   <span class="nt">with_token_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="c1"># (optional) Also output the alignments (can be: &quot;null&quot;, &quot;hard&quot;, default: &quot;null&quot;).</span>
+  <span class="c1"># (optional) Also output the alignments (can be: null, hard, soft, default: null).</span>
   <span class="nt">with_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 </pre></div>
 </div>
 <div class="section" id="automatic-configuration">
 <h2>Automatic configuration<a class="headerlink" href="#automatic-configuration" title="Permalink to this headline">¶</a></h2>
 <p>Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train_and_eval --model_type Transformer --config my_data.yml --auto_config
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer --config my_data.yml --auto_config train
 </pre></div>
 </div>
-<p>The user provided <code class="docutils literal notranslate"><span class="pre">my_data.yml</span></code> file will minimaly require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.</p>
+<p>The user provided <code class="docutils literal notranslate"><span class="pre">my_data.yml</span></code> file will minimally require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.</p>
 <p>At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.</p>
 <p><strong>Note:</strong> default training values usually assume GPUs with at least 8GB of memory and a large system memory:</p>
 <ul class="simple">
-<li>If you encounter GPU out of memory issues, try overriding <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> to a lower value.</li>
-<li>If you encounter CPU out of memory issues, try overriding <code class="docutils literal notranslate"><span class="pre">sample_buffer_size</span></code> to a fixed value.</li>
+<li><p>If you encounter GPU out of memory issues, try overriding <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> to a lower value.</p></li>
+<li><p>If you encounter CPU out of memory issues, try overriding <code class="docutils literal notranslate"><span class="pre">sample_buffer_size</span></code> to a fixed value.</p></li>
 </ul>
 </div>
 <div class="section" id="multiple-configuration-files">
 <h2>Multiple configuration files<a class="headerlink" href="#multiple-configuration-files" title="Permalink to this headline">¶</a></h2>
 <p>The command line accepts multiple configuration files so that some parts can be made reusable, e.g:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
-    config/data/toy-ende.yml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml <span class="se">\</span>
+    config/data/toy-ende.yml <span class="o">[</span>...<span class="o">]</span>
 </pre></div>
 </div>
 <p>If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.</p>
@@ -525,21 +464,6 @@
     config/data/toy-ende.yml &gt; config/my_config.yml
 </pre></div>
 </div>
-</div>
-<div class="section" id="tensorflow-session">
-<h2>TensorFlow session<a class="headerlink" href="#tensorflow-session" title="Permalink to this headline">¶</a></h2>
-<p>The command line option <code class="docutils literal notranslate"><span class="pre">--session_config</span></code> can be used to configure the TensorFlow session that is created to execute TensorFlow graphs. The option takes a file containing a <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code></a> message serialized in text format.</p>
-<p>Here is an example to enable the <code class="docutils literal notranslate"><span class="pre">allow_growth</span></code> GPU option:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ cat config/session_config.txt
-gpu_options {
-  allow_growth: true
-}
-</pre></div>
-</div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --session_config config/session_config.txt
-</pre></div>
-</div>
-<p>For possible options and values, see the <a class="reference external" href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/config.proto"><code class="docutils literal notranslate"><span class="pre">tf.ConfigProto</span></code></a> file.</p>
 </div>
 </div>
 
@@ -563,7 +487,6 @@ gpu_options {
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

@@ -1,0 +1,8 @@
+opennmt.encoders.LSTMEncoder
+============================
+
+.. autoclass:: opennmt.encoders.LSTMEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.rnn_encoder._RNNEncoderBase`

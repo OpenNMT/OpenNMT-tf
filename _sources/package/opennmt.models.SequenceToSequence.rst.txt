@@ -1,0 +1,8 @@
+opennmt.models.SequenceToSequence
+=================================
+
+.. autoclass:: opennmt.models.SequenceToSequence
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.SequenceGenerator`

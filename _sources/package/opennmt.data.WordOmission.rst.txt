@@ -1,0 +1,8 @@
+opennmt.data.WordOmission
+=========================
+
+.. autoclass:: opennmt.data.WordOmission
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.data.Noise`

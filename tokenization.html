@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tokenization &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>Tokenization &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -76,7 +67,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -124,11 +115,12 @@
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -196,8 +188,8 @@
 <p>By default, OpenNMT-tf <strong>expects and generates tokenized text</strong>. The users are thus responsible to tokenize the input and detokenize the output with the tool of their choice.</p>
 <p>However, OpenNMT-tf provides tokenization tools based on the C++ OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a> that can be used in 2 ways:</p>
 <ul class="simple">
-<li><em>offline</em>: use the provided scripts to manually tokenize the text files before the execution and detokenize the output for evaluation</li>
-<li><em>online</em>: configure the execution to apply tokenization and detokenization on-the-fly</li>
+<li><p><em>offline</em>: use the provided scripts to manually tokenize the text files before the execution and detokenize the output for evaluation</p></li>
+<li><p><em>online</em>: configure the execution to apply tokenization and detokenization on-the-fly</p></li>
 </ul>
 <p><em>Note: the <code class="docutils literal notranslate"><span class="pre">pyonmttok</span></code> package is only supported on Linux as of now.</em></p>
 <div class="section" id="configuration-files">
@@ -239,8 +231,7 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 <div class="section" id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>As of now, tokenizers are not part of the exported graph. However, all tokenization resources (configuration, subword models, etc.) are registered as additional assets in the <code class="docutils literal notranslate"><span class="pre">SavedModel</span></code> bundle in the <code class="docutils literal notranslate"><span class="pre">assets.extra</span></code> directory.</li>
-<li>Predictions saved during inference or evaluation are detokenized. Consider using the “sacreBLEU” or “BLEU-detok” external evaluators.</li>
+<li><p>As of now, tokenizers are not part of the exported graph. However, all tokenization resources (configuration, subword models, etc.) are registered as additional assets in the <code class="docutils literal notranslate"><span class="pre">SavedModel</span></code> bundle in the <code class="docutils literal notranslate"><span class="pre">assets.extra</span></code> directory.</p></li>
 </ul>
 </div>
 </div>
@@ -265,7 +256,6 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

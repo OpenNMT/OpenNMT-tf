@@ -1,0 +1,8 @@
+opennmt.encoders.SequentialEncoder
+==================================
+
+.. autoclass:: opennmt.encoders.SequentialEncoder
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.encoders.Encoder`

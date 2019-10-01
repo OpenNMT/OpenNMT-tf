@@ -1,0 +1,8 @@
+opennmt.utils.BestSampler
+=========================
+
+.. autoclass:: opennmt.utils.BestSampler
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.Sampler`

@@ -1,0 +1,4 @@
+opennmt.inputters.load_pretrained_embeddings
+============================================
+
+.. autofunction:: opennmt.inputters.load_pretrained_embeddings

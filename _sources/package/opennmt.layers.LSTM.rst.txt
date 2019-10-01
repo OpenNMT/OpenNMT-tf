@@ -1,0 +1,8 @@
+opennmt.layers.LSTM
+===================
+
+.. autoclass:: opennmt.layers.LSTM
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

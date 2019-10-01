@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 1.25.1 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.0.0 documentation</title>
   
 
   
@@ -22,21 +22,12 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.25.1',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -48,7 +39,7 @@
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="next" title="2.0 Transition Guide" href="v2_transition.html" />
     <link rel="prev" title="Inference" href="inference.html" /> 
 </head>
 
@@ -76,7 +67,7 @@
             
             
               <div class="version">
-                1.25
+                2.0
               </div>
             
           
@@ -119,7 +110,6 @@
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Serving</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#exporting-a-savedmodel">Exporting a SavedModel</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#automatic-export">Automatic export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#manual-export">Manual export</a></li>
 </ul>
 </li>
@@ -127,11 +117,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#input-preprocessing">Input preprocessing</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
             
@@ -198,8 +189,8 @@
 <h1>Serving<a class="headerlink" href="#serving" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="exporting-a-savedmodel">
 <h2>Exporting a SavedModel<a class="headerlink" href="#exporting-a-savedmodel" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf periodically exports models for inference in other environments, for example with <a class="reference external" href="https://www.tensorflow.org/serving/">TensorFlow Serving</a>. A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>toy-ende/export/latest/1507109306/
+<p>OpenNMT-tf can export <a class="reference external" href="https://www.tensorflow.org/beta/guide/saved_model">SavedModel</a> packages for inference in other environments, for example with <a class="reference external" href="https://www.tensorflow.org/serving/">TensorFlow Serving</a>. A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>toy-ende/export/
 ├── assets
 │   ├── src-vocab.txt
 │   └── tgt-vocab.txt
@@ -209,48 +200,30 @@
     └── variables.index
 </pre></div>
 </div>
-<div class="section" id="automatic-export">
-<h3>Automatic export<a class="headerlink" href="#automatic-export" title="Permalink to this headline">¶</a></h3>
-<p>In the <code class="docutils literal notranslate"><span class="pre">train_and_eval</span></code> run type, models can be automatically exported following one or several export schedules:</p>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">last</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/latest</span></code> after each evaluation (default);</li>
-<li><code class="docutils literal notranslate"><span class="pre">final</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/final</span></code> at the end of the training;</li>
-<li><code class="docutils literal notranslate"><span class="pre">best</span></code>: a model is exported to <code class="docutils literal notranslate"><span class="pre">export/best</span></code> only if it achieves the best evaluation loss so far.</li>
-</ul>
-<p>Export schedules are set by the <code class="docutils literal notranslate"><span class="pre">exporters</span></code> field in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> section of the configuration file, e.g.:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
-  <span class="nt">exporters</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">best</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="manual-export">
 <h3>Manual export<a class="headerlink" href="#manual-export" title="Permalink to this headline">¶</a></h3>
-<p>Additionally, models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type. This step is for example needed for changing some decoding configurations (e.g. beam size, minimum decoding length, etc.). Re-exporting your model with a more recent version can also improve its performance.</p>
-<p>Manually exported models are located by default in <code class="docutils literal notranslate"><span class="pre">export/manual/</span></code> within the model directory; a custom destination can be configured with the command line option <code class="docutils literal notranslate"><span class="pre">--export_dir_base</span></code>, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="nb">export</span> --export_dir_base ~/my-models/ende --auto_config --config my_config.yml
+<p>Models can be exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --config my_config.yml --auto_config <span class="nb">export</span> --export_dir ~/my-models/ende
 </pre></div>
 </div>
+<p>It’s a good idea to re-export your model with a more recent version as it can improve performance.</p>
 </div>
 </div>
 <div class="section" id="running-a-savedmodel">
 <h2>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline">¶</a></h2>
 <p>When using an exported model, you need to know the input and output nodes of your model. You can use the <a class="reference external" href="https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel"><code class="docutils literal notranslate"><span class="pre">saved_model_cli</span></code></a> script provided by TensorFlow for inspection, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli show --dir toy-ende/export/latest/1507109306/ <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli show --dir ~/my-models/ende <span class="se">\</span>
     --tag_set serve --signature_def serving_default
 </pre></div>
 </div>
-<p>Some examples using exported models are available in the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples"><code class="docutils literal notranslate"><span class="pre">examples/</span></code></a> directory:</p>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">examples/serving</span></code> to serve a model with TensorFlow Serving</li>
-<li><code class="docutils literal notranslate"><span class="pre">examples/cpp</span></code> to run inference with the TensorFlow C++ API</li>
-</ul>
+<p>Some examples using exported models are available in the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving"><code class="docutils literal notranslate"><span class="pre">examples/serving</span></code></a> directory.</p>
 </div>
 <div class="section" id="input-preprocessing">
 <h2>Input preprocessing<a class="headerlink" href="#input-preprocessing" title="Permalink to this headline">¶</a></h2>
 <p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is usually not implemented in terms of TensorFlow operators. These functions should be run outside of the TensorFlow engine, either by the client or a proxy server.</p>
 <ul class="simple">
-<li>The OpenNMT-tf <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving">serving example</a> uses the client approach to implement a simple interactive translation loop</li>
-<li>The project <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker">nmt-wizard-docker</a> uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844">instructions</a>.</li>
+<li><p>The OpenNMT-tf <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving">serving example</a> uses the client approach to implement a simple interactive translation loop</p></li>
+<li><p>The project <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker">nmt-wizard-docker</a> uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844">instructions</a>.</p></li>
 </ul>
 </div>
 </div>
@@ -263,7 +236,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="faq.html" class="btn btn-neutral float-right" title="Frequently Asked Questions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="v2_transition.html" class="btn btn-neutral float-right" title="2.0 Transition Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="inference.html" class="btn btn-neutral float-left" title="Inference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -275,7 +248,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, The OpenNMT Authors
 
     </p>
   </div> 

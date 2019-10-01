@@ -1,0 +1,8 @@
+opennmt.models.LuongAttention
+=============================
+
+.. autoclass:: opennmt.models.LuongAttention
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.catalog._RNNBase`

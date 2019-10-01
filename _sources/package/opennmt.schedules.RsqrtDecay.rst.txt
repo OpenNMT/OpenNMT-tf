@@ -1,0 +1,8 @@
+opennmt.schedules.RsqrtDecay
+============================
+
+.. autoclass:: opennmt.schedules.RsqrtDecay
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`tensorflow.python.keras.optimizer_v2.learning_rate_schedule.LearningRateSchedule`

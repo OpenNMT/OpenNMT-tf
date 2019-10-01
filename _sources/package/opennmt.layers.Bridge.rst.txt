@@ -1,0 +1,8 @@
+opennmt.layers.Bridge
+=====================
+
+.. autoclass:: opennmt.layers.Bridge
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

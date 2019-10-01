@@ -1,0 +1,8 @@
+opennmt.data.WordNoiser
+=======================
+
+.. autoclass:: opennmt.data.WordNoiser
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

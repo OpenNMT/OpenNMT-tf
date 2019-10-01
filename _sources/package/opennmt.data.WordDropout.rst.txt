@@ -1,0 +1,8 @@
+opennmt.data.WordDropout
+========================
+
+.. autoclass:: opennmt.data.WordDropout
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.data.Noise`

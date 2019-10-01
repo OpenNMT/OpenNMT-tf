@@ -1,0 +1,8 @@
+opennmt.layers.SumReducer
+=========================
+
+.. autoclass:: opennmt.layers.SumReducer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.layers.Reducer`

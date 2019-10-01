@@ -1,17 +1,29 @@
-opennmt.inputters package
-=========================
+opennmt.inputters module
+========================
 
 .. automodule:: opennmt.inputters
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
-Submodules
-----------
+Classes
+-------
 
 .. toctree::
 
-   opennmt.inputters.inputter
-   opennmt.inputters.record_inputter
-   opennmt.inputters.text_inputter
+   opennmt.inputters.CharConvEmbedder
+   opennmt.inputters.CharEmbedder
+   opennmt.inputters.CharRNNEmbedder
+   opennmt.inputters.ExampleInputter
+   opennmt.inputters.Inputter
+   opennmt.inputters.MixedInputter
+   opennmt.inputters.MultiInputter
+   opennmt.inputters.ParallelInputter
+   opennmt.inputters.SequenceRecordInputter
+   opennmt.inputters.TextInputter
+   opennmt.inputters.WordEmbedder
+Functions
+---------
 
+.. toctree::
+
+   opennmt.inputters.create_sequence_records
+   opennmt.inputters.load_pretrained_embeddings
+   opennmt.inputters.write_sequence_record

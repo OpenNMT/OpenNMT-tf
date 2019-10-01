@@ -62,7 +62,6 @@ The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized *T
 It is very simple to generate a compatible *TFRecords* file directly from Python:
 
 ```python
-import tensorflow as tf
 import opennmt as onmt
 import numpy as np
 
@@ -72,10 +71,7 @@ dataset = [
   np.random.rand(13, 50)
 ]
 
-writer = tf.io.TFRecordWriter("data.records")
-for vector in dataset:
-  onmt.inputters.write_sequence_record(vector, writer)
-writer.close()
+onmt.inputters.create_sequence_records(dataset, "data.records")
 ```
 
 This example saves a dataset of 3 random vectors of shape `[time, dim]` into the file "data.records". It should be easy to adapt for any dataset of 2D vectors.
@@ -117,6 +113,16 @@ params:
   guided_alignment_type: ce
 ```
 
+## Compressed data
+
+Data files compressed with GZIP are supported. The path should end with the `.gz` extension for the file to be correctly loaded:
+
+```yaml
+data:
+  train_features_file: /data/wmt/train.en.gz
+  train_labels_file: /data/wmt/train.de.gz
+```
+
 ## Data location
 
 By default, the data are expected to be on the same filesystem. However, it is possible to reference data stored in HDFS, Amazon S3, or any other remote storages supported by TensorFlow. For example:
@@ -143,6 +149,9 @@ data:
     - train_source_2.txt
     - train_source_3.txt
 
+  source_2_vocabulary: ...
+  source_3_vocabulary: ...
+
   # If you also want to configure the tokenization:
   source_2_tokenization: ...
   source_3_tokenization: ...
@@ -155,6 +164,6 @@ data:
 Similarly, when using the `--features_file` command line option of the main script (e.g. for inference or scoring), a list of files must also be provided:
 
 ```bash
-onmt.main infer [...] \
+onmt.main [...] infer \
     --features_file test_source_1.records test_source_2.txt test_source_3.txt
 ```

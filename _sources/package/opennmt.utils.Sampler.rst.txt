@@ -1,0 +1,8 @@
+opennmt.utils.Sampler
+=====================
+
+.. autoclass:: opennmt.utils.Sampler
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

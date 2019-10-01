@@ -1,0 +1,8 @@
+opennmt.layers.DenseBridge
+==========================
+
+.. autoclass:: opennmt.layers.DenseBridge
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.layers.Bridge`

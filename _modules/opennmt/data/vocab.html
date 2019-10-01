@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.0.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>opennmt.data.vocab</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opennmt.data.vocab</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Vocabulary utilities for Python scripts.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="Vocab"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab">[docs]</a><span class="k">class</span> <span class="nc">Vocab</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Vocabulary class.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Vocab.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initializes a vocabulary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      special_tokens: A list of special tokens (e.g. start of sentence).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">special_tokens</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">token</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">special_tokens</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+
+        <span class="c1"># Set a very high frequency to avoid special tokens to be pruned. Note that Python sort</span>
+        <span class="c1"># functions are stable which means that special tokens in pruned vocabularies will have</span>
+        <span class="c1"># the same index.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Vocab.from_file"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.from_file">[docs]</a>  <span class="nd">@classmethod</span>
+  <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates from a vocabulary file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      path: The path to the vocabulary file.</span>
+<span class="sd">      file_format: Define the format of the vocabulary file. Can be: default,</span>
+<span class="sd">        sentencepiece. &quot;default&quot; is simply one token per line.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`file_format` is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+    <span class="n">vocab</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="n">file_format</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vocab</span></div>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the number of entries of the vocabulary.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="p">)</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the list of words.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span>
+
+<div class="viewcode-block" id="Vocab.__len__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__len__">[docs]</a>  <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the number of entries of the vocabulary.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span></div>
+
+<div class="viewcode-block" id="Vocab.__contains__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__contains__">[docs]</a>  <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns ``True`` if the vocabulary contains :obj:`token`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Vocab.add_from_text"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.add_from_text">[docs]</a>  <span class="k">def</span> <span class="nf">add_from_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fills the vocabulary from a text file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      filename: The file to load from.</span>
+<span class="sd">      tokenizer: A callable to tokenize a line of text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">text</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">tokenizer</span><span class="p">:</span>
+          <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vocab.serialize"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.serialize">[docs]</a>  <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Writes the vocabulary on disk.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      path: The path where the vocabulary will be saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">vocab</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="p">:</span>
+        <span class="n">vocab</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
+        <span class="n">vocab</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vocab.load"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.load">[docs]</a>  <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads a serialized vocabulary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      path: The path to the vocabulary to load.</span>
+<span class="sd">      file_format: Define the format of the vocabulary file. Can be: default,</span>
+<span class="sd">        sentencepiece. &quot;default&quot; is simply one token per line.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`file_format` is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">vocab</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">vocab</span><span class="p">:</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;sentencepiece&quot;</span><span class="p">:</span>
+          <span class="n">token</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+          <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">(</span><span class="sa">b</span><span class="s2">&quot;&lt;unk&gt;&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&lt;s&gt;&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&lt;/s&gt;&quot;</span><span class="p">):</span>  <span class="c1"># Ignore SentencePiece special tokens.</span>
+            <span class="k">continue</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid vocabulary format: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">file_format</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vocab.add"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.add">[docs]</a>  <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adds a token or increases its frequency.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      token: The string to add.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
+      <span class="n">token</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">token</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">:</span>
+      <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">token</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Vocab.lookup"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.lookup">[docs]</a>  <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Lookups in the vocabulary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      identifier: A string or an index to lookup.</span>
+<span class="sd">      default: The value to return if :obj:`identifier` is not found.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The value associated with :obj:`identifier` or :obj:`default`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
+        <span class="n">identifier</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">identifier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">identifier</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+      <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">default</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Vocab.prune"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.prune">[docs]</a>  <span class="k">def</span> <span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">min_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a pruned version of the vocabulary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      max_size: The maximum vocabulary size.</span>
+<span class="sd">      min_frequency: The minimum frequency of each entry.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A new vocabulary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sorted_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">new_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_ids</span><span class="p">)</span>
+
+    <span class="c1"># Discard words that do not meet frequency requirements.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">new_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+      <span class="n">index</span> <span class="o">=</span> <span class="n">sorted_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_frequency</span><span class="p">:</span>
+        <span class="n">new_size</span> <span class="o">-=</span> <span class="mi">1</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">break</span>
+
+    <span class="c1"># Limit absolute size.</span>
+    <span class="k">if</span> <span class="n">max_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">new_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_size</span><span class="p">,</span> <span class="n">max_size</span><span class="p">)</span>
+
+    <span class="n">new_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">new_size</span><span class="p">):</span>
+      <span class="n">index</span> <span class="o">=</span> <span class="n">sorted_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+      <span class="n">frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+      <span class="n">new_vocab</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>  <span class="c1"># pylint: disable=protected-access</span>
+      <span class="n">new_vocab</span><span class="o">.</span><span class="n">_id_to_token</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
+      <span class="n">new_vocab</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
+
+    <span class="k">return</span> <span class="n">new_vocab</span></div>
+
+<div class="viewcode-block" id="Vocab.pad_to_multiple"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.pad_to_multiple">[docs]</a>  <span class="k">def</span> <span class="nf">pad_to_multiple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiple</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pads the vocabulary size to a multiple value.</span>
+
+<span class="sd">    More specically, this method ensures that:</span>
+
+<span class="sd">        ``(vocab_size + num_oov_buckets) % multiple == 0``</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      multiple: The multiple value.</span>
+<span class="sd">      num_oov_buckets: The number of OOV buckets added during the training.</span>
+<span class="sd">        Usually just 1 for the `&lt;unk&gt;` token.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">num_oov_buckets</span><span class="p">)</span> <span class="o">%</span> <span class="n">multiple</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;averyunlikelytoken</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">get_mapping</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">,</span> <span class="n">new_vocab_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Maps vocabulary new indices to old ones. -1 means that the entry is new.&quot;&quot;&quot;</span>
+  <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+  <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;merge&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid vocab update mode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
+  <span class="n">current_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">)</span>
+  <span class="n">new_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">new_vocab_path</span><span class="p">)</span>
+  <span class="n">mapping</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;merge&quot;</span><span class="p">:</span>
+    <span class="n">final_vocab</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">)</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">current_vocab</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">new_word</span> <span class="ow">in</span> <span class="n">new_vocab</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">current_vocab</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">final_vocab</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;replace&quot;</span><span class="p">:</span>
+    <span class="n">final_vocab</span> <span class="o">=</span> <span class="n">new_vocab</span>
+    <span class="k">for</span> <span class="n">new_word</span> <span class="ow">in</span> <span class="n">new_vocab</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+      <span class="n">idx</span> <span class="o">=</span> <span class="n">current_vocab</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_vocab</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>  <span class="c1"># &lt;unk&gt; token is always the last entry.</span>
+  <span class="k">return</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">final_vocab</span>
+
+<span class="k">def</span> <span class="nf">update_variable</span><span class="p">(</span><span class="n">ref_variable</span><span class="p">,</span> <span class="n">new_variable</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Update a vocabulary variable, possibly copying previous entries based on</span>
+<span class="sd">  mapping.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">ref</span> <span class="o">=</span> <span class="n">ref_variable</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+  <span class="n">new</span> <span class="o">=</span> <span class="n">new_variable</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+  <span class="n">perm</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="k">if</span> <span class="n">vocab_axis</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="c1"># Make the dimension to index the first.</span>
+    <span class="n">perm</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
+    <span class="n">perm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="n">vocab_axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">perm</span><span class="p">[</span><span class="n">vocab_axis</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">new</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+  <span class="k">if</span> <span class="n">perm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
+  <span class="n">new_variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">new_variable</span>
+
+<span class="k">def</span> <span class="nf">update_variable_and_slots</span><span class="p">(</span><span class="n">ref_variable</span><span class="p">,</span>
+                              <span class="n">new_variable</span><span class="p">,</span>
+                              <span class="n">ref_optimizer</span><span class="p">,</span>
+                              <span class="n">new_optimizer</span><span class="p">,</span>
+                              <span class="n">mapping</span><span class="p">,</span>
+                              <span class="n">vocab_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Update a vocabulary variable and its associated optimizer slots (if any).&quot;&quot;&quot;</span>
+  <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">update_variable</span><span class="p">(</span><span class="n">ref_variable</span><span class="p">,</span> <span class="n">new_variable</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="n">vocab_axis</span><span class="p">))</span>
+  <span class="n">ref_slot_names</span> <span class="o">=</span> <span class="n">ref_optimizer</span><span class="o">.</span><span class="n">get_slot_names</span><span class="p">()</span>
+  <span class="n">new_slot_names</span> <span class="o">=</span> <span class="n">new_optimizer</span><span class="o">.</span><span class="n">get_slot_names</span><span class="p">()</span>
+  <span class="k">for</span> <span class="n">slot_name</span> <span class="ow">in</span> <span class="n">ref_slot_names</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">slot_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_slot_names</span><span class="p">:</span>
+      <span class="k">continue</span>
+    <span class="n">ref_slot</span> <span class="o">=</span> <span class="n">ref_optimizer</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">ref_variable</span><span class="p">,</span> <span class="n">slot_name</span><span class="p">)</span>
+    <span class="n">new_slot</span> <span class="o">=</span> <span class="n">new_optimizer</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">new_variable</span><span class="p">,</span> <span class="n">slot_name</span><span class="p">)</span>
+    <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">update_variable</span><span class="p">(</span><span class="n">ref_slot</span><span class="p">,</span> <span class="n">new_slot</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="n">vocab_axis</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">variables</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

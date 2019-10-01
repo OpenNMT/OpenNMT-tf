@@ -1,28 +1,34 @@
-opennmt.utils package
-=====================
+opennmt.utils module
+====================
 
 .. automodule:: opennmt.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
-Submodules
-----------
+Classes
+-------
 
 .. toctree::
 
-   opennmt.utils.adafactor
-   opennmt.utils.cell
-   opennmt.utils.checkpoint
-   opennmt.utils.compat
-   opennmt.utils.data
-   opennmt.utils.decay
-   opennmt.utils.decoding
-   opennmt.utils.evaluator
-   opennmt.utils.hooks
-   opennmt.utils.losses
-   opennmt.utils.misc
-   opennmt.utils.optim
-   opennmt.utils.parallel
-   opennmt.utils.vocab
+   opennmt.utils.BLEUScorer
+   opennmt.utils.BeamSearch
+   opennmt.utils.BestSampler
+   opennmt.utils.DecodingResult
+   opennmt.utils.DecodingStrategy
+   opennmt.utils.GreedySearch
+   opennmt.utils.ROUGEScorer
+   opennmt.utils.RandomSampler
+   opennmt.utils.Sampler
+   opennmt.utils.Scorer
+Functions
+---------
 
+.. toctree::
+
+   opennmt.utils.average_checkpoints
+   opennmt.utils.cross_entropy_loss
+   opennmt.utils.cross_entropy_sequence_loss
+   opennmt.utils.dynamic_decode
+   opennmt.utils.format_translation_output
+   opennmt.utils.guided_alignment_cost
+   opennmt.utils.max_margin_loss
+   opennmt.utils.regularization_penalty
+   opennmt.utils.roll_sequence
