@@ -1,8 +1,0 @@
-opennmt.models.TransformerBase
-==============================
-
-.. autoclass:: opennmt.models.TransformerBase
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.models.Transformer`

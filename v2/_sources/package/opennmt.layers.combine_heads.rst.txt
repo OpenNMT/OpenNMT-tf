@@ -1,4 +1,0 @@
-opennmt.layers.combine_heads
-============================
-
-.. autofunction:: opennmt.layers.combine_heads

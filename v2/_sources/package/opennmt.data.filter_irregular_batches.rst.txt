@@ -1,4 +1,0 @@
-opennmt.data.filter_irregular_batches
-=====================================
-
-.. autofunction:: opennmt.data.filter_irregular_batches

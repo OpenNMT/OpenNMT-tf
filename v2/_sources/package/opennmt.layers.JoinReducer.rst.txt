@@ -1,8 +1,0 @@
-opennmt.layers.JoinReducer
-==========================
-
-.. autoclass:: opennmt.layers.JoinReducer
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.layers.Reducer`

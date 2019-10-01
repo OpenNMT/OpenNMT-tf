@@ -1,8 +1,0 @@
-opennmt.layers.LayerWrapper
-===========================
-
-.. autoclass:: opennmt.layers.LayerWrapper
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

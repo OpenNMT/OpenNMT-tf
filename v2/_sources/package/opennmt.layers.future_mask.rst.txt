@@ -1,4 +1,0 @@
-opennmt.layers.future_mask
-==========================
-
-.. autofunction:: opennmt.layers.future_mask

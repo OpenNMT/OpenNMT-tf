@@ -1,4 +1,0 @@
-opennmt.data.tokens_to_words
-============================
-
-.. autofunction:: opennmt.data.tokens_to_words

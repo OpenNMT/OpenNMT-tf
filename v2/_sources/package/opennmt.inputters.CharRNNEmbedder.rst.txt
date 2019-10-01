@@ -1,8 +1,0 @@
-opennmt.inputters.CharRNNEmbedder
-=================================
-
-.. autoclass:: opennmt.inputters.CharRNNEmbedder
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.inputters.CharEmbedder`

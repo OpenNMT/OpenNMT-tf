@@ -1,4 +1,0 @@
-opennmt.decoders.get_sampling_probability
-=========================================
-
-.. autofunction:: opennmt.decoders.get_sampling_probability

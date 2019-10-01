@@ -1,4 +1,0 @@
-opennmt.data.get_dataset_size
-=============================
-
-.. autofunction:: opennmt.data.get_dataset_size

@@ -1,4 +1,0 @@
-opennmt.data.alignment_matrix_from_pharaoh
-==========================================
-
-.. autofunction:: opennmt.data.alignment_matrix_from_pharaoh

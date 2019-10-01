@@ -1,4 +1,0 @@
-opennmt.layers.make_rnn_cell
-============================
-
-.. autofunction:: opennmt.layers.make_rnn_cell

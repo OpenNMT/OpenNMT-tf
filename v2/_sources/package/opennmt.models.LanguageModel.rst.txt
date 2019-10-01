@@ -1,8 +1,0 @@
-opennmt.models.LanguageModel
-============================
-
-.. autoclass:: opennmt.models.LanguageModel
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.models.SequenceGenerator`

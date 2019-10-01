@@ -1,8 +1,0 @@
-opennmt.schedules.NoamDecay
-===========================
-
-.. autoclass:: opennmt.schedules.NoamDecay
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`tensorflow.python.keras.optimizer_v2.learning_rate_schedule.LearningRateSchedule`

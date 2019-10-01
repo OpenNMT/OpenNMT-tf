@@ -1,8 +1,0 @@
-opennmt.layers.MultiHeadAttention
-=================================
-
-.. autoclass:: opennmt.layers.MultiHeadAttention
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

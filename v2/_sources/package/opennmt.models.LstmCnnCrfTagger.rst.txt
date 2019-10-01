@@ -1,8 +1,0 @@
-opennmt.models.LstmCnnCrfTagger
-===============================
-
-.. autoclass:: opennmt.models.LstmCnnCrfTagger
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.models.SequenceTagger`

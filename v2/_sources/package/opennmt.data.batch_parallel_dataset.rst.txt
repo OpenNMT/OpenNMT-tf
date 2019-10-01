@@ -1,4 +1,0 @@
-opennmt.data.batch_parallel_dataset
-===================================
-
-.. autofunction:: opennmt.data.batch_parallel_dataset

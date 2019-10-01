@@ -1,8 +1,0 @@
-opennmt.layers.PositionEmbedder
-===============================
-
-.. autoclass:: opennmt.layers.PositionEmbedder
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.layers.PositionEncoder`

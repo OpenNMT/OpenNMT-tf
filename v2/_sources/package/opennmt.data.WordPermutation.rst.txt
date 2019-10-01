@@ -1,8 +1,0 @@
-opennmt.data.WordPermutation
-============================
-
-.. autoclass:: opennmt.data.WordPermutation
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.data.Noise`

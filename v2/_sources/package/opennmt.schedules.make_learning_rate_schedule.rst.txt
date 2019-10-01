@@ -1,4 +1,0 @@
-opennmt.schedules.make_learning_rate_schedule
-=============================================
-
-.. autofunction:: opennmt.schedules.make_learning_rate_schedule

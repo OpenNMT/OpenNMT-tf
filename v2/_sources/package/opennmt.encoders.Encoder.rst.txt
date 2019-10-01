@@ -1,8 +1,0 @@
-opennmt.encoders.Encoder
-========================
-
-.. autoclass:: opennmt.encoders.Encoder
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`

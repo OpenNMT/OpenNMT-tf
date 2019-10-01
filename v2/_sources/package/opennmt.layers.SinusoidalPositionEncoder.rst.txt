@@ -1,8 +1,0 @@
-opennmt.layers.SinusoidalPositionEncoder
-========================================
-
-.. autoclass:: opennmt.layers.SinusoidalPositionEncoder
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.layers.PositionEncoder`

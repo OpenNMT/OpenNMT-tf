@@ -1,8 +1,0 @@
-opennmt.utils.GreedySearch
-==========================
-
-.. autoclass:: opennmt.utils.GreedySearch
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.utils.DecodingStrategy`

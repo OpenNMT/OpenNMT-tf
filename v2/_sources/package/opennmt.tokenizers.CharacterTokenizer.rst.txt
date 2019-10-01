@@ -1,8 +1,0 @@
-opennmt.tokenizers.CharacterTokenizer
-=====================================
-
-.. autoclass:: opennmt.tokenizers.CharacterTokenizer
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.tokenizers.Tokenizer`

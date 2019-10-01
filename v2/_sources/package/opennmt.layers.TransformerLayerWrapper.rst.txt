@@ -1,8 +1,0 @@
-opennmt.layers.TransformerLayerWrapper
-======================================
-
-.. autoclass:: opennmt.layers.TransformerLayerWrapper
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`opennmt.layers.LayerWrapper`

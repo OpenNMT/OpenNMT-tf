@@ -1,8 +1,0 @@
-opennmt.models.EmbeddingsSharingLevel
-=====================================
-
-.. autoclass:: opennmt.models.EmbeddingsSharingLevel
-    :members:
-    :undoc-members:
-
-    Inherits from: :class:`builtins.object`
