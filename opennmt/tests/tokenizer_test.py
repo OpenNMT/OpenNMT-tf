@@ -72,29 +72,9 @@ class TokenizerTest(tf.test.TestCase):
         [["Hello", "world", "￭!"], ["Test"], ["My", "name"]],
         ["Hello world!", "Test", "My name"])
 
-  def testOpenNMTTokenizerFromConfiguration(self):
-    params = {
-        "mode": "aggressive",
-        "spacer_annotate": True,
-        "spacer_new": True
-    }
-    tok_config = os.path.join(self.get_temp_dir(), "tok_config.yml")
-    with open(tok_config, "w") as tok_config_file:
-      yaml.dump(params, tok_config_file)
-
-    def _test(tokenizer):
-      self._testTokenizer(tokenizer, "Hello World-s", ["Hello", "▁", "World", "-", "s"])
-
-    tokenizer = OpenNMTTokenizer(configuration_file_or_key=tok_config)
-    _test(tokenizer)
-    tokenizer = OpenNMTTokenizer(configuration_file_or_key="source_tokenization")
-    tokenizer.initialize({"source_tokenization": tok_config})
-    _test(tokenizer)
-    tokenizer = OpenNMTTokenizer(configuration_file_or_key="source_tokenization")
-    tokenizer.initialize({"source_tokenization": params})
-    _test(tokenizer)
-    tokenizer = OpenNMTTokenizer(params=params)
-    _test(tokenizer)
+  def testOpenNMTTokenizerArguments(self):
+    tokenizer = OpenNMTTokenizer(mode="aggressive", spacer_annotate=True, spacer_new=True)
+    self._testTokenizer(tokenizer, "Hello World-s", ["Hello", "▁", "World", "-", "s"])
 
   def testOpenNMTTokenizerAssets(self):
     asset_dir = self.get_temp_dir()
@@ -103,15 +83,10 @@ class TokenizerTest(tf.test.TestCase):
     with open(bpe_model_path, "wb") as bpe_model_file:
       bpe_model_file.write(b"#version: 0.2\ne s</w>\n")
 
-    tokenizer = OpenNMTTokenizer(
-        params={"mode": "conservative", "bpe_model_path": bpe_model_path})
-
-    # By default, no assets are returned.
-    assets = tokenizer.initialize({})
-    self.assertDictEqual(assets, {})
+    tokenizer = OpenNMTTokenizer(mode="conservative", bpe_model_path=bpe_model_path)
 
     # Generated assets are prefixed but not existing resources.
-    assets = tokenizer.initialize({}, asset_dir=asset_dir, asset_prefix="source_")
+    assets = tokenizer.export_assets(asset_dir, asset_prefix="source_")
     self.assertIn("source_tokenizer_config.yml", assets)
     self.assertTrue(os.path.exists(assets["source_tokenizer_config.yml"]))
     self.assertIn("model.bpe", assets)

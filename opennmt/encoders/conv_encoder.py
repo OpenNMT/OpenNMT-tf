@@ -3,7 +3,8 @@
 import tensorflow as tf
 
 from opennmt.encoders.encoder import Encoder
-from opennmt.layers.position import PositionEmbedder
+from opennmt.layers import common
+from opennmt.layers import position
 
 
 class ConvEncoder(Encoder):
@@ -12,62 +13,56 @@ class ConvEncoder(Encoder):
   """
 
   def __init__(self,
-               num_layers,
+               num_layers_a,
+               num_layers_c,
                num_units,
                kernel_size=3,
                dropout=0.3,
-               position_encoder=PositionEmbedder()):
+               position_encoder_class=position.PositionEmbedder):
     """Initializes the parameters of the encoder.
 
     Args:
-      num_layers: The number of convolutional layers.
+      num_layers_a: The number of layers in CNN-a.
+      num_layers_c: The number of layers in CNN-c.
       num_units: The number of output filters.
       kernel_size: The kernel size.
       dropout: The probability to drop units from the inputs.
-      position_encoder: The :class:`opennmt.layers.position.PositionEncoder` to
-        apply on inputs or ``None``.
+      position_encoder_class: The :class:`opennmt.layers.PositionEncoder`
+        class to use for position encoding (or a callable that returns such
+        class).
     """
     super(ConvEncoder, self).__init__()
-    self.num_layers = num_layers
-    self.num_units = num_units
-    self.kernel_size = kernel_size
     self.dropout = dropout
-    self.position_encoder = position_encoder
+    self.position_encoder = None
+    if position_encoder_class is not None:
+      self.position_encoder = position_encoder_class()
+    self.cnn_a = [
+        tf.keras.layers.Conv1D(num_units, kernel_size, padding="same")
+        for _ in range(num_layers_a)]
+    self.cnn_c = [
+        tf.keras.layers.Conv1D(num_units, kernel_size, padding="same")
+        for _ in range(num_layers_c)]
 
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+  def call(self, inputs, sequence_length=None, training=None):
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs)
+    inputs = common.dropout(inputs, self.dropout, training=training)
 
-    # Apply dropout to inputs.
-    inputs = tf.layers.dropout(
-        inputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
+    cnn_a = _cnn_stack(self.cnn_a, inputs)
+    cnn_c = _cnn_stack(self.cnn_c, inputs)
 
-    with tf.variable_scope("cnn_a"):
-      cnn_a = self._cnn_stack(inputs)
-    with tf.variable_scope("cnn_c"):
-      cnn_c = self._cnn_stack(inputs)
+    outputs = cnn_a
+    state = tf.reduce_mean(cnn_c, axis=1)
+    return (outputs, state, sequence_length)
 
-    encoder_output = cnn_a
-    encoder_state = tf.reduce_mean(cnn_c, axis=1)
+def _cnn_stack(layers, inputs):
+  next_input = inputs
 
-    return (encoder_output, encoder_state, sequence_length)
+  for l, layer in enumerate(layers):
+    outputs = layer(next_input)
+    # Add residual connections past the first layer.
+    if l > 0:
+      outputs += next_input
+    next_input = tf.tanh(outputs)
 
-  def _cnn_stack(self, inputs):
-    next_input = inputs
-
-    for l in range(self.num_layers):
-      outputs = tf.layers.conv1d(
-          next_input,
-          self.num_units,
-          self.kernel_size,
-          padding="same")
-
-      # Add residual connections past the first layer.
-      if l > 0:
-        outputs += next_input
-
-      next_input = tf.tanh(outputs)
-
-    return next_input
+  return next_input

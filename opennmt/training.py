@@ -1,0 +1,198 @@
+"""Training related classes and functions."""
+
+import collections
+import time
+import six
+
+import tensorflow as tf
+
+from opennmt.data import dataset as dataset_util
+from opennmt.optimizers import utils as optimizer_util
+
+
+class Trainer(object):
+  """Model trainer."""
+
+  def __init__(self, checkpoint, devices=None, mixed_precision=False):
+    """Initializes the trainer.
+
+    Args:
+      checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance.
+      devices: List of device strings to use for training.
+      mixed_precision: Whether mixed precision is enabled or not.
+    """
+    if checkpoint.optimizer is None:
+      raise ValueError("No optimizer is defined")
+    if not devices:
+      devices = tf.config.experimental.list_logical_devices(device_type="GPU")
+      if not devices:
+        devices = tf.config.experimental.list_logical_devices(device_type="CPU")
+      devices = [devices[0].name]
+    self._checkpoint = checkpoint
+    self._mixed_precision = mixed_precision
+    self._model = checkpoint.model
+    self._optimizer = checkpoint.optimizer
+    self._strategy = tf.distribute.MirroredStrategy(devices=devices)
+    self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
+
+  def __call__(self,
+               dataset,
+               max_step=None,
+               accum_steps=1,
+               report_steps=100,
+               save_steps=5000,
+               evaluator=None,
+               eval_steps=5000):
+    """Runs the training.
+
+    Args:
+      dataset: A training dataset.
+      max_step: The final training step.
+      accum_steps: The number of gradient accumulation steps.
+      report_steps: Report status every this many steps.
+      save_steps: Save a checkpoint every this many steps.
+      evaluator: A :class:`opennmt.evaluation.Evaluator` instance to call for
+        evaluation.
+      eval_steps: Evaluate every this many steps.
+    """
+    if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
+      tf.get_logger().warning("Model already reached max_step = %d. Exiting.", max_step)
+      return
+    if evaluator is not None and evaluator.should_stop():
+      tf.get_logger().warning("Early stopping conditions are already met. Exiting.")
+      return
+
+    with self._strategy.scope():
+      self._model.create_variables(optimizer=self._optimizer)
+      variables = self._model.trainable_variables
+      dataset = self._strategy.experimental_distribute_dataset(dataset)
+      gradient_accumulator = optimizer_util.GradientAccumulator()
+
+    if self._mixed_precision:
+      optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(
+          self._optimizer, "dynamic")
+    else:
+      optimizer = self._optimizer
+
+    def _accumulate_gradients(source, target):
+      outputs, _ = self._model(
+          source,
+          labels=target,
+          training=True,
+          step=self._optimizer.iterations)
+      loss = self._model.compute_loss(outputs, target, training=True)
+      if isinstance(loss, tuple):
+        training_loss = loss[0] / loss[1]
+        reported_loss = loss[0] / loss[2]
+      else:
+        training_loss, reported_loss = loss, loss
+      training_loss = self._model.regularize_loss(training_loss, variables=variables)
+      gradients = optimizer.get_gradients(training_loss, variables)
+      gradient_accumulator(gradients)
+      tf.summary.scalar("gradients/global_norm", tf.linalg.global_norm(gradients))
+      num_words = {}
+      if "length" in source:
+        num_words["source"] = tf.reduce_sum(source["length"])
+      if "length" in target:
+        num_words["target"] = tf.reduce_sum(target["length"])
+      return reported_loss, num_words
+
+    def _apply_gradients():
+      grads_and_vars = []
+      for gradient, variable in zip(gradient_accumulator.gradients, variables):
+        # optimizer.apply_gradients will sum the gradients accross replicas.
+        scaled_gradient = gradient / (self._strategy.num_replicas_in_sync * accum_steps)
+        grads_and_vars.append((scaled_gradient, variable))
+      optimizer.apply_gradients(grads_and_vars)
+      gradient_accumulator.reset()
+
+    @dataset_util.function_on_next(dataset)
+    def _forward(next_fn):
+      tf.summary.experimental.set_step(self._optimizer.iterations)
+      should_record_summaries = tf.logical_and(
+          tf.equal(self._optimizer.iterations % report_steps, 0),
+          tf.equal(gradient_accumulator.step, 0))
+      with tf.summary.record_if(should_record_summaries):
+        with self._strategy.scope():
+          per_replica_source, per_replica_target = next_fn()
+          per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
+              _accumulate_gradients, args=(per_replica_source, per_replica_target))
+
+          # TODO: these reductions could be delayed until _step is called.
+          loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
+          num_words = {
+              k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
+              for k, v in six.iteritems(per_replica_words)}
+      return loss, num_words
+
+    @tf.function
+    def _step():
+      with self._strategy.scope():
+        self._strategy.experimental_run_v2(_apply_gradients)
+
+    accum_num_words = collections.defaultdict(int)
+    last_report_time = time.time()
+    last_step = 0
+
+    with self._summary_writer.as_default():
+      if self._optimizer.iterations.numpy() == 0:
+        self._checkpoint.save(0)
+      self._model.visualize(self._checkpoint.model_dir)
+
+      for i, (loss, num_words) in enumerate(_forward()):  # pylint: disable=no-value-for-parameter
+        if tf.math.is_nan(loss):
+          raise RuntimeError("Model diverged with loss = NaN.")
+        if i == 0 or (i + 1) % accum_steps == 0:
+          _step()
+
+        for key, value in six.iteritems(num_words):
+          accum_num_words[key] += value.numpy()
+        step = self._optimizer.iterations.numpy()
+        if step == last_step:
+          continue  # Do not process same step twice.
+        last_step = step
+        if step % report_steps == 0:
+          last_report_time = _report_training_status(
+              step,
+              loss,
+              self._optimizer.learning_rate,
+              accum_num_words,
+              last_report_time)
+        if save_steps is not None and step % save_steps == 0:
+          self._checkpoint.save(step)
+        if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
+          evaluator(step)
+          if evaluator.should_stop():
+            tf.get_logger().warning("Early stopping conditions are met. Exiting.")
+            break
+        if step == max_step:
+          break
+
+    self._checkpoint.save(step)
+
+
+def _report_training_status(step, loss, learning_rate, accum_num_words, last_report_time):
+  tf.summary.experimental.set_step(step)
+  new_report_time = time.time()
+  words_per_sec_fmt = []
+  for key, value in six.iteritems(accum_num_words):
+    avg = int(value / (new_report_time - last_report_time))
+    accum_num_words[key] = 0
+    tf.summary.scalar(
+        "words_per_sec/%s" % key,
+        avg,
+        description="%s words per second" % key.capitalize())
+    fmt = "%s words/s = %d" % (key, avg)
+    words_per_sec_fmt.append(fmt)
+  words_per_sec_fmt = sorted(words_per_sec_fmt)
+  if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
+    learning_rate = learning_rate(step)
+  tf.get_logger().info(
+      "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
+      step,
+      ", ".join(words_per_sec_fmt),
+      learning_rate,
+      loss)
+  tf.summary.scalar("loss", loss, description="Training loss")
+  tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
+  return new_report_time

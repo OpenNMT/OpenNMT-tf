@@ -4,34 +4,10 @@ from parameterized import parameterized
 
 import tensorflow as tf
 
-from opennmt.layers import noise
-from opennmt.tests import test_util
+from opennmt.data import noise
 
 
-@test_util.skip_if_unsupported("RaggedTensor")
 class NoiseTest(tf.test.TestCase):
-
-  @parameterized.expand([
-    [["a￭", "b", "c￭", "d", "￭e"], [["a￭", "b", ""], ["c￭", "d", "￭e"]]],
-    [["a", "￭", "b", "c￭", "d", "￭", "e"], [["a", "￭", "b", ""], ["c￭", "d", "￭", "e"]]],
-  ])
-  def testToWordsWithJoiner(self, tokens, expected):
-    tokens = tf.constant(tokens)
-    expected = tf.constant(expected)
-    words = noise.tokens_to_words(tokens)
-    words, expected = self.evaluate([words, expected])
-    self.assertAllEqual(words, expected)
-
-  @parameterized.expand([
-    [["▁a", "b", "▁c", "d", "e"], [["▁a", "b", ""], ["▁c", "d", "e"]]],
-    [["▁", "a", "b", "▁", "c", "d", "e"], [["▁", "a", "b", ""], ["▁", "c", "d", "e"]]],
-  ])
-  def testToWordsWithSpacer(self, tokens, expected):
-    tokens = tf.constant(tokens)
-    expected = tf.constant(expected)
-    words = noise.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
-    words, expected = self.evaluate([words, expected])
-    self.assertAllEqual(words, expected)
 
   @parameterized.expand([
     [["a", "b", "c", "e", "f"]],
@@ -91,7 +67,7 @@ class NoiseTest(tf.test.TestCase):
     noiser.add(noise.WordDropout(0.1))
     noiser.add(noise.WordReplacement(0.1))
     noiser.add(noise.WordPermutation(3))
-    noisy_tokens, noisy_lengths = noiser(tokens, sequence_length=lengths)
+    noisy_tokens, noisy_lengths = noiser(tokens, sequence_length=lengths, keep_shape=True)
     tokens, noisy_tokens = self.evaluate([tokens, noisy_tokens])
     self.assertAllEqual(noisy_tokens.shape, tokens.shape)
 

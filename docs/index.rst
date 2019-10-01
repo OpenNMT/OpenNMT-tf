@@ -27,6 +27,7 @@ Content
    training.md
    inference.md
    serving.md
+   v2_transition.md
    faq.md
 
 .. toctree::

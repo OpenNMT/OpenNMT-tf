@@ -1,6 +1,7 @@
 """Sequence tagger."""
 
 import tensorflow as tf
+import tensorflow_addons as tfa
 import numpy as np
 
 from opennmt import inputters
@@ -12,143 +13,102 @@ from opennmt.utils.losses import cross_entropy_sequence_loss
 class SequenceTagger(Model):
   """A sequence tagger."""
 
-  def __init__(self,
-               inputter,
-               encoder,
-               labels_vocabulary_file_key,
-               tagging_scheme=None,
-               crf_decoding=False,
-               daisy_chain_variables=False,
-               name="seqtagger"):
+  def __init__(self, inputter, encoder, crf_decoding=False):
     """Initializes a sequence tagger.
 
     Args:
-      inputter: A :class:`opennmt.inputters.inputter.Inputter` to process the
+      inputter: A :class:`opennmt.inputters.Inputter` to process the
         input data.
-      encoder: A :class:`opennmt.encoders.encoder.Encoder` to encode the input.
-      labels_vocabulary_file_key: The data configuration key of the labels
-        vocabulary file containing one label per line.
-      tagging_scheme: The tagging scheme used. For supported schemes (currently
-        only BIOES), additional evaluation metrics could be computed such as
-        precision, recall, etc.
+      encoder: A :class:`opennmt.encoders.Encoder` to encode the input.
       crf_decoding: If ``True``, add a CRF layer after the encoder.
-      daisy_chain_variables: If ``True``, copy variables in a daisy chain
-        between devices for this model. Not compatible with RNN based models.
-      name: The name of this model.
     """
-    super(SequenceTagger, self).__init__(
-        name,
-        features_inputter=inputter,
-        labels_inputter=TagsInputter(labels_vocabulary_file_key),
-        daisy_chain_variables=daisy_chain_variables)
+    example_inputter = inputters.ExampleInputter(inputter, TagsInputter())
+    super(SequenceTagger, self).__init__(example_inputter)
     self.encoder = encoder
     self.crf_decoding = crf_decoding
+    self.tagging_scheme = None
     self.transition_params = None
-    if tagging_scheme:
-      self.tagging_scheme = tagging_scheme.lower()
-    else:
-      self.tagging_scheme = None
 
-  def initialize(self, metadata, params=None):
-    self.tagging_scheme = metadata.get("tagging_scheme", self.tagging_scheme)
-    super(SequenceTagger, self).initialize(metadata, params=params)
+  def initialize(self, data_config, params=None):
+    self.tagging_scheme = data_config.get("tagging_scheme")
+    if self.tagging_scheme:
+      self.tagging_scheme = self.tagging_scheme.lower()
+    super(SequenceTagger, self).initialize(data_config, params=params)
 
-  def _call(self, features, labels, params, mode):
-    training = mode == tf.estimator.ModeKeys.TRAIN
-    length = self.features_inputter.get_length(features)
-
-    with tf.variable_scope("encoder"):
-      inputs = self.features_inputter.make_inputs(features, training=training)
-      encoder_outputs, _, encoder_sequence_length = self.encoder.encode(
-          inputs,
-          sequence_length=length,
-          mode=mode)
-
-    with tf.variable_scope("generator"):
-      logits = tf.layers.dense(
-          encoder_outputs,
-          self.labels_inputter.vocabulary_size)
-
+  def build(self, input_shape):
+    super(SequenceTagger, self).build(input_shape)
     num_tags = self.labels_inputter.vocabulary_size
-    self.transition_params = tf.get_variable("transitions", shape=[num_tags, num_tags])
-    if mode != tf.estimator.ModeKeys.TRAIN:
+    self.output_layer = tf.keras.layers.Dense(num_tags)
+    if self.crf_decoding:
+      self.transition_params = self.add_weight("transition_params", [num_tags, num_tags])
+
+  def call(self, features, labels=None, training=None, step=None):
+    length = self.features_inputter.get_length(features)
+    inputs = self.features_inputter(features, training=training)
+    outputs, _, length = self.encoder(
+        inputs, sequence_length=length, training=training)
+    logits = self.output_layer(outputs)
+    if not training:
       if self.crf_decoding:
-        tags_id, _ = tf.contrib.crf.crf_decode(
-            logits,
-            self.transition_params,
-            encoder_sequence_length)
+        tags_id, _ = tfa.text.crf_decode(logits, self.transition_params, length)
         tags_id = tf.cast(tags_id, tf.int64)
       else:
         tags_prob = tf.nn.softmax(logits)
         tags_id = tf.argmax(tags_prob, axis=2)
-
-      labels_vocab_rev = self.labels_inputter.vocabulary_lookup_reverse()
-
-      # A tensor can not be both fed and fetched,
-      # so identity a new tensor of "length" for export model to predict
-      output_sequence_length = tf.identity(encoder_sequence_length)
-
       predictions = {
-          "length": output_sequence_length,
-          "tags": labels_vocab_rev.lookup(tags_id)
+          "length": tf.identity(length),
+          "tags": self.labels_inputter.ids_to_tokens.lookup(tags_id),
+          "tags_id": tags_id
       }
     else:
       predictions = None
-
     return logits, predictions
 
-  def compute_loss(self, outputs, labels, training=True, params=None):
-    if params is None:
-      params = {}
+  def compute_loss(self, outputs, labels, training=True):
     if self.crf_decoding:
-      log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(
+      log_likelihood, _ = tfa.text.crf_log_likelihood(
           outputs,
           tf.cast(labels["tags_id"], tf.int32),
           labels["length"],
           transition_params=self.transition_params)
-      loss = tf.reduce_sum(-log_likelihood)
-      loss_normalizer = tf.cast(tf.shape(log_likelihood)[0], loss.dtype)
-      return loss, loss_normalizer
+      batch_size = tf.shape(log_likelihood)[0]
+      return tf.reduce_sum(-log_likelihood) / tf.cast(batch_size, log_likelihood.dtype)
     else:
       return cross_entropy_sequence_loss(
           outputs,
           labels["tags_id"],
           labels["length"],
-          label_smoothing=params.get("label_smoothing", 0.0),
-          average_in_time=params.get("average_loss_in_time", False),
+          label_smoothing=self.params.get("label_smoothing", 0.0),
+          average_in_time=self.params.get("average_loss_in_time", False),
           training=training)
 
-  def compute_metrics(self, predictions, labels):
+  def get_metrics(self):
+    metrics = {"accuracy": tf.keras.metrics.Accuracy()}
+    if self.tagging_scheme in ("bioes",):
+      f1 = F1()
+      metrics["f1"] = f1
+      metrics["precision"] = f1.precision
+      metrics["recall"] = f1.recall
+    return metrics
+
+  def update_metrics(self, metrics, predictions, labels):
     weights = tf.sequence_mask(
         labels["length"], maxlen=tf.shape(labels["tags"])[1], dtype=tf.float32)
 
-    eval_metric_ops = {}
-    eval_metric_ops["accuracy"] = tf.metrics.accuracy(
-        labels["tags"], predictions["tags"], weights=weights)
+    metrics["accuracy"].update_state(
+        labels["tags_id"], predictions["tags_id"], sample_weight=weights)
 
     if self.tagging_scheme in ("bioes",):
       flag_fn = None
       if self.tagging_scheme == "bioes":
         flag_fn = flag_bioes_tags
 
-      gold_flags, predicted_flags = tf.py_func(
+      gold_flags, predicted_flags = tf.numpy_function(
           flag_fn,
           [labels["tags"], predictions["tags"], labels["length"]],
-          [tf.bool, tf.bool],
-          stateful=False)
+          [tf.bool, tf.bool])
 
-      precision_metric = tf.metrics.precision(gold_flags, predicted_flags)
-      recall_metric = tf.metrics.recall(gold_flags, predicted_flags)
-
-      precision = precision_metric[0]
-      recall = recall_metric[0]
-      f1 = (2 * precision * recall) / (recall + precision)
-
-      eval_metric_ops["precision"] = precision_metric
-      eval_metric_ops["recall"] = recall_metric
-      eval_metric_ops["f1"] = (f1, tf.no_op())
-
-    return eval_metric_ops
+      metrics["f1"].update_state(gold_flags, predicted_flags)
 
   def print_prediction(self, prediction, params=None, stream=None):
     tags = prediction["tags"][:prediction["length"]]
@@ -159,9 +119,8 @@ class SequenceTagger(Model):
 class TagsInputter(inputters.TextInputter):
   """Reading space-separated tags."""
 
-  def __init__(self, vocabulary_file_key):
-    super(TagsInputter, self).__init__(
-        vocabulary_file_key=vocabulary_file_key, num_oov_buckets=0)
+  def __init__(self):
+    super(TagsInputter, self).__init__(num_oov_buckets=0)
 
   def make_features(self, element=None, features=None, training=None):
     features = super(TagsInputter, self).make_features(
@@ -169,8 +128,38 @@ class TagsInputter(inputters.TextInputter):
     return {
         "length": features["length"],
         "tags": features["tokens"],
-        "tags_id": self.vocabulary.lookup(features["tokens"])
+        "tags_id": self.tokens_to_ids.lookup(features["tokens"])
     }
+
+
+class F1(tf.keras.metrics.Metric):
+  """Defines a F1 metric."""
+
+  def __init__(self, **kwargs):
+    """Initializes the metric.
+
+    Args:
+      **kwargs: Base class arguments.
+    """
+    super(F1, self).__init__(**kwargs)
+    self.precision = tf.keras.metrics.Precision()
+    self.recall = tf.keras.metrics.Recall()
+
+  @property
+  def updates(self):
+    """Metric update operations."""
+    return self.precision.updates + self.recall.updates
+
+  def update_state(self, y_true, y_pred):  # pylint: disable=arguments-differ
+    """Updates the metric state."""
+    self.precision.update_state(y_true, y_pred)
+    self.recall.update_state(y_true, y_pred)
+
+  def result(self):
+    """Returns the metric result."""
+    precision = self.precision.result()
+    recall = self.recall.result()
+    return (2 * precision * recall) / (recall + precision)
 
 
 def flag_bioes_tags(gold, predicted, sequence_length=None):

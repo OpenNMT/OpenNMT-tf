@@ -1,45 +1,22 @@
 """Defines common layers."""
 
 import tensorflow as tf
+import numpy as np
 
-from tensorflow.python.framework import function
-
-from opennmt.utils import compat
 from opennmt.utils.misc import shape_list
 
-
-@function.Defun(
-    python_grad_func=lambda x, dy: tf.convert_to_tensor(dy),
-    shape_func=lambda op: [op.inputs[0].get_shape()])
-def convert_gradient_to_tensor(x):
-  """Wraps :obj:`x` to convert its gradient to a tensor."""
-  return x
-
-
-def embedding_lookup(params, ids):
-  """Wrapper around ``tf.nn.embedding_lookup``.
-
-  This converts gradients of the embedding variable to tensors which allows
-  to use of optimizers that don't support sparse gradients (e.g. Adafactor).
-
-  Args:
-    params: The embedding tensor.
-    ids: The ids to lookup in :obj:`params`.
-
-  Returns:
-    A ``tf.Tensor``, the embeddings that correspond to :obj:`ids`.
-  """
-  params = convert_gradient_to_tensor(params)
-  return tf.nn.embedding_lookup(params, ids)
 
 def dropout(x, rate, training=None):
   """Simple dropout layer."""
   if not training or rate == 0:
     return x
-  if compat.is_tf2():
-    return tf.nn.dropout(x, rate)
-  else:
-    return tf.nn.dropout(x, 1.0 - rate)
+  return tf.nn.dropout(x, rate)
+
+def gelu(x):
+  """Gaussian Error Linear Unit activation function described in
+  https://arxiv.org/abs/1606.08415.
+  """
+  return 0.5 * x * (1 + tf.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3))))
 
 
 class Dense(tf.keras.layers.Dense):
@@ -66,8 +43,6 @@ class Dense(tf.keras.layers.Dense):
     return super(Dense, self).add_weight(name, *args, **kwargs)
 
   def call(self, inputs):
-    if self.weight is None:
-      return super(Dense, self).call(inputs)
     shape = shape_list(inputs)
     rank = len(shape)
     if rank > 2:
@@ -75,17 +50,21 @@ class Dense(tf.keras.layers.Dense):
     outputs = tf.matmul(inputs, self.kernel, transpose_b=self.transpose)
     if self.use_bias:
       outputs = tf.nn.bias_add(outputs, self.bias)
+    if self.activation is not None:
+      outputs = self.activation(outputs)  # pylint: disable=not-callable
     if rank > 2:
       outputs = tf.reshape(outputs, shape[:-1] + [self.units])
     return outputs
 
+  def map_v1_weights(self, weights):
+    m = [(self.kernel, weights["kernel"])]
+    if self.use_bias:
+      m.append((self.bias, weights["bias"]))
+    return m
+
 
 class LayerNorm(tf.keras.layers.Layer):
-  """Layer normalization.
-
-  Note:
-    Requires TensorFlow 2.0.
-  """
+  """Layer normalization."""
 
   def __init__(self, epsilon=1e-6, **kwargs):
     """Initializes this layer.
@@ -100,9 +79,9 @@ class LayerNorm(tf.keras.layers.Layer):
   def build(self, input_shape):
     """Creates the variables."""
     depth = input_shape[-1]
-    self.bias = self.add_variable(
+    self.beta = self.add_weight(
         "beta", [depth], initializer=tf.keras.initializers.Constant(0))
-    self.scale = self.add_variable(
+    self.gamma = self.add_weight(
         "gamma", [depth], initializer=tf.keras.initializers.Constant(1))
     super(LayerNorm, self).build(input_shape)
 
@@ -111,15 +90,18 @@ class LayerNorm(tf.keras.layers.Layer):
     mean = tf.reduce_mean(x, axis=[-1], keepdims=True)
     variance = tf.reduce_mean(tf.square(x - mean), axis=[-1], keepdims=True)
     norm_x = (x - mean) * tf.math.rsqrt(variance + self.epsilon)
-    return norm_x * self.scale + self.bias
+    return norm_x * self.gamma + self.beta
+
+  def map_v1_weights(self, weights):
+    return [
+        (self.beta, weights["beta"]),
+        (self.gamma, weights["gamma"])
+    ]
 
 
 class LayerWrapper(tf.keras.layers.Layer):
   """Layer wrapper for input/output normalization, input/output dropout and
   residual connection.
-
-  Note:
-    Requires TensorFlow 2.0.
   """
 
   def __init__(self,
@@ -144,8 +126,8 @@ class LayerWrapper(tf.keras.layers.Layer):
     """
     super(LayerWrapper, self).__init__(**kwargs)
     self.layer = layer
-    self.input_layer_norm = LayerNorm(name="input_norm") if normalize_input else None
-    self.output_layer_norm = LayerNorm(name="output_norm") if normalize_output else None
+    self.input_layer_norm = LayerNorm() if normalize_input else None
+    self.output_layer_norm = LayerNorm() if normalize_output else None
     self.input_dropout = input_dropout
     self.output_dropout = output_dropout
     self.residual_connection = residual_connection
@@ -155,7 +137,7 @@ class LayerWrapper(tf.keras.layers.Layer):
     training = kwargs.get("training")
     x = inputs
     if self.input_layer_norm is not None:
-      x = self.input_layer_norm(x)
+      x = self.input_layer_norm(x)  # pylint: disable=not-callable
     x = dropout(x, self.input_dropout, training=training)
 
     all_outputs = self.layer(x, *args, **kwargs)
@@ -170,7 +152,7 @@ class LayerWrapper(tf.keras.layers.Layer):
     if self.residual_connection and outputs.shape[-1] == inputs.shape[-1]:
       outputs += inputs
     if self.output_layer_norm is not None:
-      outputs = self.output_layer_norm(outputs)
+      outputs = self.output_layer_norm(outputs)  # pylint: disable=not-callable
 
     if extra_outputs:
       return tuple([outputs] + extra_outputs)

@@ -1,67 +1,71 @@
 """Catalog of predefined models."""
 
 import tensorflow as tf
-import opennmt as onmt
+import tensorflow_addons as tfa
 
+from opennmt import decoders
+from opennmt import encoders
+from opennmt import inputters
+from opennmt import layers
+from opennmt.models import language_model
+from opennmt.models import sequence_tagger
+from opennmt.models import sequence_to_sequence
+from opennmt.models import transformer
 from opennmt.utils.misc import merge_dict
 
 
-class ListenAttendSpell(onmt.models.SequenceToSequence):
+class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
   """Defines a model similar to the "Listen, Attend and Spell" model described
   in https://arxiv.org/abs/1508.01211.
   """
   def __init__(self):
     super(ListenAttendSpell, self).__init__(
-        source_inputter=onmt.inputters.SequenceRecordInputter(),
-        target_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="target_vocabulary",
+        source_inputter=inputters.SequenceRecordInputter(input_depth=40),
+        target_inputter=inputters.WordEmbedder(
             embedding_size=50),
-        encoder=onmt.encoders.PyramidalRNNEncoder(
+        encoder=encoders.PyramidalRNNEncoder(
             num_layers=3,
             num_units=512,
             reduction_factor=2,
-            cell_class=tf.nn.rnn_cell.LSTMCell,
+            cell_class=tf.keras.layers.LSTMCell,
             dropout=0.3),
-        decoder=onmt.decoders.MultiAttentionalRNNDecoder(
+        decoder=decoders.AttentionalRNNDecoder(
             num_layers=3,
             num_units=512,
-            attention_layers=[0],
-            attention_mechanism_class=tf.contrib.seq2seq.LuongMonotonicAttention,
-            cell_class=tf.nn.rnn_cell.LSTMCell,
+            attention_mechanism_class=tfa.seq2seq.LuongMonotonicAttention,
+            cell_class=tf.keras.layers.LSTMCell,
             dropout=0.3,
-            residual_connections=False))
+            residual_connections=False,
+            first_layer_attention=True))
 
-  def auto_config(self, num_devices=1):
-    config = super(ListenAttendSpell, self).auto_config(num_devices=num_devices)
+  def auto_config(self, num_replicas=1):
+    config = super(ListenAttendSpell, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
-            "optimizer": "GradientDescentOptimizer",
+            "optimizer": "SGD",
             "learning_rate": 0.2,
-            "clip_gradients": 10.0,
             "scheduled_sampling_type": "constant",
             "scheduled_sampling_read_probability": 0.9
         },
         "train": {
             "batch_size": 32,
-            "bucket_width": 15,
+            "length_bucket_width": 15,
             "maximum_features_length": 2450,
             "maximum_labels_length": 330
         }
     })
 
-class _RNNBase(onmt.models.SequenceToSequence):
+class _RNNBase(sequence_to_sequence.SequenceToSequence):
   """Base class for RNN based NMT models."""
   def __init__(self, *args, **kwargs):
     super(_RNNBase, self).__init__(*args, **kwargs)
 
-  def auto_config(self, num_devices=1):
-    config = super(_RNNBase, self).auto_config(num_devices=num_devices)
+  def auto_config(self, num_replicas=1):
+    config = super(_RNNBase, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
-            "optimizer": "AdamOptimizer",
-            "learning_rate": 0.0002,
-            "param_init": 0.1,
-            "clip_gradients": 5.0
+            "optimizer": "Adam",
+            "learning_rate": 0.0002
         },
         "train": {
             "batch_size": 64,
@@ -70,117 +74,58 @@ class _RNNBase(onmt.models.SequenceToSequence):
         }
     })
 
-class NMTBig(_RNNBase):
-  """Defines a bidirectional LSTM encoder-decoder model."""
+class LuongAttention(_RNNBase):
+  """Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025."""
   def __init__(self):
-    super(NMTBig, self).__init__(
-        source_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="source_words_vocabulary",
+    super(LuongAttention, self).__init__(
+        source_inputter=inputters.WordEmbedder(
             embedding_size=512),
-        target_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="target_words_vocabulary",
+        target_inputter=inputters.WordEmbedder(
             embedding_size=512),
-        encoder=onmt.encoders.BidirectionalRNNEncoder(
+        encoder=encoders.RNNEncoder(
             num_layers=4,
-            num_units=1024,
-            reducer=onmt.layers.ConcatReducer(),
-            cell_class=tf.nn.rnn_cell.LSTMCell,
-            dropout=0.3,
-            residual_connections=False),
-        decoder=onmt.decoders.AttentionalRNNDecoder(
+            num_units=1000,
+            dropout=0.2,
+            residual_connections=False,
+            cell_class=tf.keras.layers.LSTMCell),
+        decoder=decoders.AttentionalRNNDecoder(
             num_layers=4,
-            num_units=1024,
-            bridge=onmt.layers.CopyBridge(),
-            attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
-            cell_class=tf.nn.rnn_cell.LSTMCell,
-            dropout=0.3,
+            num_units=1000,
+            bridge_class=layers.CopyBridge,
+            attention_mechanism_class=tfa.seq2seq.LuongAttention,
+            cell_class=tf.keras.layers.LSTMCell,
+            dropout=0.2,
             residual_connections=False))
 
-class NMTMedium(_RNNBase):
-  """Defines a medium-sized bidirectional LSTM encoder-decoder model."""
-  def __init__(self):
-    super(NMTMedium, self).__init__(
-        source_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="source_words_vocabulary",
-            embedding_size=512),
-        target_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="target_words_vocabulary",
-            embedding_size=512),
-        encoder=onmt.encoders.BidirectionalRNNEncoder(
-            num_layers=4,
-            num_units=512,
-            reducer=onmt.layers.ConcatReducer(),
-            cell_class=tf.nn.rnn_cell.LSTMCell,
-            dropout=0.3,
-            residual_connections=False),
-        decoder=onmt.decoders.AttentionalRNNDecoder(
-            num_layers=4,
-            num_units=512,
-            bridge=onmt.layers.CopyBridge(),
-            attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
-            cell_class=tf.nn.rnn_cell.LSTMCell,
-            dropout=0.3,
-            residual_connections=False))
-
-class NMTSmall(_RNNBase):
-  """Defines a small unidirectional LSTM encoder-decoder model."""
-  def __init__(self):
-    super(NMTSmall, self).__init__(
-        source_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="source_words_vocabulary",
-            embedding_size=512),
-        target_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="target_words_vocabulary",
-            embedding_size=512),
-        encoder=onmt.encoders.UnidirectionalRNNEncoder(
-            num_layers=2,
-            num_units=512,
-            cell_class=tf.nn.rnn_cell.LSTMCell,
-            dropout=0.3,
-            residual_connections=False),
-        decoder=onmt.decoders.AttentionalRNNDecoder(
-            num_layers=2,
-            num_units=512,
-            bridge=onmt.layers.CopyBridge(),
-            attention_mechanism_class=tf.contrib.seq2seq.LuongAttention,
-            cell_class=tf.nn.rnn_cell.LSTMCell,
-            dropout=0.3,
-            residual_connections=False))
-
-class SeqTagger(onmt.models.SequenceTagger):
+class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
   """Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354."""
   def __init__(self):
     # pylint: disable=bad-continuation
-    super(SeqTagger, self).__init__(
-        inputter=onmt.inputters.MixedInputter([
-            onmt.inputters.WordEmbedder(
-                vocabulary_file_key="words_vocabulary",
-                embedding_size=None,
-                embedding_file_key="words_embedding",
-                trainable=True),
-            onmt.inputters.CharConvEmbedder(
-                vocabulary_file_key="chars_vocabulary",
+    super(LstmCnnCrfTagger, self).__init__(
+        inputter=inputters.MixedInputter([
+            inputters.WordEmbedder(
+                embedding_size=100),
+            inputters.CharConvEmbedder(
                 embedding_size=30,
                 num_outputs=30,
                 kernel_size=3,
                 stride=1,
                 dropout=0.5)],
             dropout=0.5),
-        encoder=onmt.encoders.BidirectionalRNNEncoder(
+        encoder=encoders.RNNEncoder(
             num_layers=1,
             num_units=400,
-            reducer=onmt.layers.ConcatReducer(),
-            cell_class=tf.nn.rnn_cell.LSTMCell,
+            bidirectional=True,
             dropout=0.5,
-            residual_connections=False),
-        labels_vocabulary_file_key="tags_vocabulary",
+            residual_connections=False,
+            cell_class=tf.keras.layers.LSTMCell),
         crf_decoding=True)
 
-  def auto_config(self, num_devices=1):
-    config = super(SeqTagger, self).auto_config(num_devices=num_devices)
+  def auto_config(self, num_replicas=1):
+    config = super(SeqTagger, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
-            "optimizer": "AdamOptimizer",
+            "optimizer": "Adam",
             "learning_rate": 0.001
         },
         "train": {
@@ -188,42 +133,13 @@ class SeqTagger(onmt.models.SequenceTagger):
         }
     })
 
-class Transformer(onmt.models.Transformer):
+class Transformer(transformer.Transformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
-  def __init__(self, dtype=tf.float32):
+  def __init__(self):
     super(Transformer, self).__init__(
-        source_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="source_words_vocabulary",
-            embedding_size=512,
-            dtype=dtype),
-        target_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="target_words_vocabulary",
-            embedding_size=512,
-            dtype=dtype),
-        num_layers=6,
-        num_units=512,
-        num_heads=8,
-        ffn_inner_dim=2048,
-        dropout=0.1,
-        attention_dropout=0.1,
-        relu_dropout=0.1)
-
-class TransformerFP16(Transformer):
-  """Defines a Transformer model that uses half-precision floating points."""
-  def __init__(self):
-    super(TransformerFP16, self).__init__(dtype=tf.float16)
-
-class TransformerAAN(onmt.models.Transformer):
-  """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762
-  with cumulative average attention in the decoder as described in
-  https://arxiv.org/abs/1805.00631."""
-  def __init__(self):
-    super(TransformerAAN, self).__init__(
-        source_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="source_words_vocabulary",
+        source_inputter=inputters.WordEmbedder(
             embedding_size=512),
-        target_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="target_words_vocabulary",
+        target_inputter=inputters.WordEmbedder(
             embedding_size=512),
         num_layers=6,
         num_units=512,
@@ -231,30 +147,59 @@ class TransformerAAN(onmt.models.Transformer):
         ffn_inner_dim=2048,
         dropout=0.1,
         attention_dropout=0.1,
-        relu_dropout=0.1,
-        decoder_self_attention_type="average")
+        ffn_dropout=0.1)
 
-class TransformerBig(onmt.models.Transformer):
+class TransformerBig(transformer.Transformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
-  def __init__(self, dtype=tf.float32):
+  def __init__(self):
     super(TransformerBig, self).__init__(
-        source_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="source_words_vocabulary",
-            embedding_size=1024,
-            dtype=dtype),
-        target_inputter=onmt.inputters.WordEmbedder(
-            vocabulary_file_key="target_words_vocabulary",
-            embedding_size=1024,
-            dtype=dtype),
+        source_inputter=inputters.WordEmbedder(
+            embedding_size=1024),
+        target_inputter=inputters.WordEmbedder(
+            embedding_size=1024),
         num_layers=6,
         num_units=1024,
         num_heads=16,
         ffn_inner_dim=4096,
         dropout=0.3,
         attention_dropout=0.1,
-        relu_dropout=0.1)
+        ffn_dropout=0.1)
 
-class TransformerBigFP16(TransformerBig):
-  """Defines a large Transformer model that uses half-precision floating points."""
+class GPT2Small(language_model.LanguageModel):
+  """GPT-2 language model (small version) as described in:
+
+  https://d4mucfpksywv.cloudfront.net/better-language-models/language-models.pdf
+  """
+
   def __init__(self):
-    super(TransformerBigFP16, self).__init__(dtype=tf.float16)
+    super(GPT2Small, self).__init__(
+        decoder=decoders.SelfAttentionDecoder(
+            num_layers=12,
+            num_units=768,
+            num_heads=12,
+            ffn_inner_dim=3072,
+            ffn_activation=layers.gelu,
+            position_encoder_class=lambda: layers.PositionEmbedder(maximum_position=1024),
+            num_sources=0),
+        embedding_size=768)
+
+  def auto_config(self, num_replicas=1):
+    config = super(GPT2Small, self).auto_config(num_replicas=num_replicas)
+    return merge_dict(config, {
+        "params": {
+            "average_loss_in_time": True,
+            "optimizer": "Adam",
+            "learning_rate": 2.5e-4,
+            "decay_type": "CosineAnnealing",
+            "decay_params": {
+                "max_step": 1000000,
+                "warmup_steps": 2000,
+            }
+        },
+        "train": {
+            "bucket_width": 1,
+            # Below options are from GPT-1.
+            "batch_size": 64,
+            "maximum_features_length": 512
+        }
+    })

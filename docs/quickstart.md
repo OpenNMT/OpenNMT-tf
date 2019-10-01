@@ -7,9 +7,10 @@ This page presents a minimal workflow to get you started in using OpenNMT-tf.
 We recommend using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) to setup and configure the environment for this quickstart:
 
 ```bash
-virtualenv pyenv
+virtualenv -p /usr/bin/python3 pyenv
 source pyenv/bin/activate
-pip install OpenNMT-tf[tensorflow_gpu]
+pip install tensorflow-gpu==2.0.0rc0
+pip install OpenNMT-tf
 ```
 
 ## Step 1: Prepare the data
@@ -39,17 +40,17 @@ data:
   train_labels_file: tgt-train.txt
   eval_features_file: src-val.txt
   eval_labels_file: tgt-val.txt
-  source_words_vocabulary: src-vocab.txt
-  target_words_vocabulary: tgt-vocab.txt
+  source_vocabulary: src-vocab.txt
+  target_vocabulary: tgt-vocab.txt
 ```
 
 ## Step 2: Train the model
 
 ```
-onmt-main train_and_eval --model_type NMTSmall --auto_config --config data.yml
+onmt-main --model_type Transformer --config data.yml --auto_config train --with_eval
 ```
 
-This command will start the training and evaluation loop of a small RNN-based sequence to sequence model. The `--auto_config` flag selects the best settings for this type of model.
+This command will start the training and evaluation loop of a [Transformer](https://arxiv.org/abs/1706.03762) model. The `--auto_config` flag selects the best settings for this type of model.
 
 The training will regularly produce checkpoints in the `run/` directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using [TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard):
 
@@ -60,7 +61,7 @@ tensorboard --logdir="run"
 ## Step 3: Translate
 
 ```
-onmt-main infer --auto_config --config data.yml --features_file src-test.txt
+onmt-main --config data.yml --auto_config infer --features_file src-test.txt
 ```
 
 This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.
@@ -69,12 +70,11 @@ This command can be executed as soon as a checkpoint is saved by the training; t
 
 ## Going further
 
-While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset and model are too small for this task.
+While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset is too small for this task.
 
 To go further, here are some pointers:
 
 * Download larger training sets, for example from a [WMT task](http://www.statmt.org/wmt16/translation-task.html)
-* Train a bigger model, like the [Transformer](https://arxiv.org/abs/1706.03762) using `--model_type Transformer`
 * Run existing [training recipes](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts)
 * Discover the [configuration reference](configuration.html) to tune hyperparameters
 * Explore the other sections to learn about advanced topics

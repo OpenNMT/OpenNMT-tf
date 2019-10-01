@@ -6,6 +6,7 @@ from opennmt.models.sequence_to_sequence import SequenceToSequence, EmbeddingsSh
 from opennmt.encoders.encoder import ParallelEncoder
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
+from opennmt.inputters.text_inputter import WordEmbedder
 from opennmt.layers.position import SinusoidalPositionEncoder
 from opennmt.utils.misc import merge_dict
 
@@ -24,42 +25,38 @@ class Transformer(SequenceToSequence):
                ffn_inner_dim,
                dropout=0.1,
                attention_dropout=0.1,
-               relu_dropout=0.1,
-               position_encoder=SinusoidalPositionEncoder(),
-               decoder_self_attention_type="scaled_dot",
+               ffn_dropout=0.1,
+               ffn_activation=tf.nn.relu,
+               position_encoder_class=SinusoidalPositionEncoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
-               share_encoders=False,
-               alignment_file_key="train_alignments",
-               name="transformer"):
+               share_encoders=False):
     """Initializes a Transformer model.
 
     Args:
-      source_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+      source_inputter: A :class:`opennmt.inputters.Inputter` to process
         the source data. If this inputter returns parallel inputs, a multi
         source Transformer architecture will be constructed.
-      target_inputter: A :class:`opennmt.inputters.inputter.Inputter` to process
+      target_inputter: A :class:`opennmt.inputters.Inputter` to process
         the target data. Currently, only the
-        :class:`opennmt.inputters.text_inputter.WordEmbedder` is supported.
+        :class:`opennmt.inputters.WordEmbedder` is supported.
       num_layers: The shared number of layers.
       num_units: The number of hidden units.
       num_heads: The number of heads in each self-attention layers.
       ffn_inner_dim: The inner dimension of the feed forward layers.
       dropout: The probability to drop units in each layer output.
       attention_dropout: The probability to drop units from the attention.
-      relu_dropout: The probability to drop units from the ReLU activation in
+      ffn_dropout: The probability to drop units from the ReLU activation in
         the feed forward layer.
-      position_encoder: A :class:`opennmt.layers.position.PositionEncoder` to
+      ffn_activation: The activation function to apply between the two linear
+        transformations of the feed forward layer.
+      position_encoder: A :class:`opennmt.layers.PositionEncoder` to
         apply on the inputs.
-      decoder_self_attention_type: Type of self attention in the decoder,
-        "scaled_dot" or "average" (case insensitive).
       share_embeddings: Level of embeddings sharing, see
-        :class:`opennmt.models.sequence_to_sequence.EmbeddingsSharingLevel`
-        for possible values.
+        :class:`opennmt.models.EmbeddingsSharingLevel` for possible values.
       share_encoders: In case of multi source architecture, whether to share the
         separate encoders parameters or not.
       alignment_file_key: The data configuration key of the training alignment
         file to support guided alignment.
-      name: The name of this model.
     """
     encoders = [
         SelfAttentionEncoder(
@@ -69,15 +66,15 @@ class Transformer(SequenceToSequence):
             ffn_inner_dim=ffn_inner_dim,
             dropout=dropout,
             attention_dropout=attention_dropout,
-            relu_dropout=relu_dropout,
-            position_encoder=position_encoder)
+            ffn_dropout=ffn_dropout,
+            ffn_activation=ffn_activation,
+            position_encoder_class=position_encoder_class)
         for _ in range(source_inputter.num_outputs)]
     if len(encoders) > 1:
       encoder = ParallelEncoder(
-          encoders,
+          encoders if not share_encoders else encoders[0],
           outputs_reducer=None,
-          states_reducer=None,
-          share_parameters=share_encoders)
+          states_reducer=None)
     else:
       encoder = encoders[0]
     decoder = SelfAttentionDecoder(
@@ -87,9 +84,10 @@ class Transformer(SequenceToSequence):
         ffn_inner_dim=ffn_inner_dim,
         dropout=dropout,
         attention_dropout=attention_dropout,
-        relu_dropout=relu_dropout,
-        position_encoder=position_encoder,
-        self_attention_type=decoder_self_attention_type)
+        ffn_dropout=ffn_dropout,
+        ffn_activation=ffn_activation,
+        position_encoder_class=position_encoder_class,
+        num_sources=source_inputter.num_outputs)
 
     self._num_units = num_units
     super(Transformer, self).__init__(
@@ -97,24 +95,21 @@ class Transformer(SequenceToSequence):
         target_inputter,
         encoder,
         decoder,
-        share_embeddings=share_embeddings,
-        alignment_file_key=alignment_file_key,
-        daisy_chain_variables=True,
-        name=name)
+        share_embeddings=share_embeddings)
 
-  def auto_config(self, num_devices=1):
-    config = super(Transformer, self).auto_config(num_devices=num_devices)
+  def auto_config(self, num_replicas=1):
+    config = super(Transformer, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
             "average_loss_in_time": True,
             "label_smoothing": 0.1,
-            "optimizer": "LazyAdamOptimizer",
+            "optimizer": "LazyAdam",
             "optimizer_params": {
-                "beta1": 0.9,
-                "beta2": 0.998
+                "beta_1": 0.9,
+                "beta_2": 0.998
             },
             "learning_rate": 2.0,
-            "decay_type": "noam_decay_v2",
+            "decay_type": "NoamDecay",
             "decay_params": {
                 "model_dim": self._num_units,
                 "warmup_steps": 8000
@@ -131,6 +126,14 @@ class Transformer(SequenceToSequence):
         }
     })
 
-  def _initializer(self, params):
-    return tf.variance_scaling_initializer(
-        mode="fan_avg", distribution="uniform", dtype=self.dtype)
+  def map_v1_weights(self, weights):
+    if (not isinstance(self.encoder, SelfAttentionEncoder)
+        or not isinstance(self.features_inputter, WordEmbedder)):
+      return super(Transformer, self).map_v1_weights(weights)
+    weights = weights["transformer"]
+    m = []
+    m += self.features_inputter.map_v1_weights(weights["encoder"])
+    m += self.labels_inputter.map_v1_weights(weights["decoder"])
+    m += self.encoder.map_v1_weights(weights["encoder"])
+    m += self.decoder.map_v1_weights(weights["decoder"])
+    return m

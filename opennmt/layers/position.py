@@ -7,155 +7,79 @@ import six
 import tensorflow as tf
 
 from opennmt.layers.reducer import SumReducer
-from opennmt.utils import compat
-
-
-def make_positions(sequence_length, maximum_length=None):
-  """Builds a sequence of positions.
-
-  The first position is 1 as the 0 index is reserved to padding positions.
-
-  Args:
-    sequence_length: The length of each sequence as a ``tf.Tensor`` of shape
-      :math:`[B]`.
-    maximum_length: Optional size of the returned time dimension. Otherwise it
-      is the maximum of :obj:`sequence_length`.
-
-  Returns:
-    The sequence of positions as a ``tf.Tensor`` of shape :math:`[B, T]`.
-  """
-  if maximum_length is None:
-    maximum_length = tf.reduce_max(sequence_length)
-
-  batch_size = tf.shape(sequence_length)[0]
-
-  # Make 0 the position of padding.
-  position = tf.range(maximum_length) + 1
-  position = tf.tile(position, [batch_size])
-  position = tf.reshape(position, [batch_size, -1])
-
-  mask = tf.sequence_mask(
-      sequence_length, maxlen=maximum_length, dtype=position.dtype)
-
-  position = position * mask
-
-  return position
 
 
 @six.add_metaclass(abc.ABCMeta)
 class PositionEncoder(tf.keras.layers.Layer):
   """Base class for position encoders."""
 
-  def __init__(self, reducer=SumReducer()):
-    super(PositionEncoder, self).__init__()
-    self.reducer = reducer
-
-  def __call__(self, inputs, sequence_length=None, position=None):  # pylint: disable=arguments-differ
-    """Apply position encoding to inputs.
+  def __init__(self, reducer=SumReducer(), **kwargs):
+    """Initializes the position encoder.
 
     Args:
-      inputs: The inputs of shape :math:`[B, T, D]`.
-      sequence_length: The length of each sequence of shape :math:`[B]`.
-        If ``None``, sequences are assumed to have the same length.
-      position: If known, the position to encode (1-indexed).
+      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position
+        encodings.
+      **kwargs: Additional layer keyword arguments.
+    """
+    super(PositionEncoder, self).__init__(**kwargs)
+    self.reducer = reducer
+
+  def call(self, inputs, position=None):  # pylint: disable=arguments-differ
+    """Add position encodings to :obj:`inputs`.
+
+    Args:
+      inputs: The inputs to encode.
+      position: The single position to encode, to use when this layer is called
+        step by step.
 
     Returns:
-      A ``tf.Tensor`` of shape :math:`[B, T, D]` where :math:`D` depends on the
-      :attr:`reducer`.
+      A ``tf.Tensor`` whose shape depends on the configured ``reducer``.
     """
-    if compat.is_tf2():
-      return super(PositionEncoder, self).__call__(
-          inputs, sequence_length=sequence_length, position=position)
-    self._dtype = inputs.dtype
-    # Build by default for backward compatibility.
-    if not compat.reuse():
-      self.build(inputs.shape)
-    return self.call(
-        inputs, sequence_length=sequence_length, position=position)
-
-  def call(self, inputs, sequence_length=None, position=None):  # pylint: disable=arguments-differ
-    _ = sequence_length
-
     batch_size = tf.shape(inputs)[0]
     timesteps = tf.shape(inputs)[1]
-    input_dim = inputs.get_shape().as_list()[-1]
-
-    if position is None:
-      positions = tf.range(timesteps) + 1
-    else:
-      positions = [position]
-    position_encoding = self.encode([positions], input_dim, dtype=inputs.dtype)
+    input_dim = inputs.shape[-1]
+    positions = tf.range(timesteps) + 1 if position is None else [position]
+    position_encoding = self._encode([positions], input_dim)
     position_encoding = tf.tile(position_encoding, [batch_size, 1, 1])
     return self.reducer([inputs, position_encoding])
 
-  def apply(self, inputs, sequence_length=None):  # pylint: disable=arguments-differ
-    """Shortcut for ``__call__``."""
-    return self(inputs, sequence_length=sequence_length)
-
-  def apply_one(self, inputs, position):
-    """Shortcut for ``__call__``."""
-    return self(inputs, position=position)
-
   @abc.abstractmethod
-  def encode(self, positions, depth, dtype=tf.float32):
+  def _encode(self, positions, depth):
     """Creates position encodings.
 
     Args:
-      position: The positions to encode of shape :math:`[B, ...]`.
+      positions: The positions to encode of shape :math:`[B, ...]`.
       depth: The encoding depth :math:`D`.
-      dtype: The encoding type.
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B, ..., D]`.
     """
     raise NotImplementedError()
 
-  def encode_sequence(self,
-                      sequence_length,
-                      depth,
-                      maximum_length=None,
-                      dtype=tf.float32):
-    """Creates position encodings for sequences.
-
-    Args:
-      sequence_length: The length of each sequence of shape :math:`[B]`.
-      depth: The encoding depth :math:`D`.
-      maximum_length: Optional size of the returned time dimension. Otherwise
-        it is the maximum of :obj:`sequence_length`.
-      dtype: The encoding type.
-
-    Returns:
-      A ``tf.Tensor`` of shape :math:`[B, T, D]`.
-    """
-    positions = make_positions(sequence_length, maximum_length=maximum_length)
-    return self.encode(positions, depth, dtype=dtype)
-
 
 class PositionEmbedder(PositionEncoder):
   """Encodes position with a lookup table."""
 
-  def __init__(self, maximum_position=128, reducer=SumReducer()):
+  def __init__(self, maximum_position=128, reducer=SumReducer(), **kwargs):
     """Initializes the position encoder.
 
     Args:
       maximum_position: The maximum position to embed. Positions greater
         than this value will be set to :obj:`maximum_position`.
-      reducer: A :class:`opennmt.layers.reducer.Reducer` to merge inputs and
-        position encodings.
+      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position
+        encodings.
+      **kwargs: Additional layer keyword arguments.
     """
-    super(PositionEmbedder, self).__init__(reducer=reducer)
+    super(PositionEmbedder, self).__init__(reducer=reducer, **kwargs)
     self.maximum_position = maximum_position
     self.embedding = None
 
   def build(self, input_shape):
-    shape = [self.maximum_position + 1, input_shape.as_list()[-1]]
-    initializer = tf.keras.initializers.glorot_uniform()
-    self.embedding = tf.Variable(
-        initial_value=lambda: initializer(shape, dtype=self.dtype),
-        name=compat.name_from_variable_scope("position_encoding/w_embs"))
+    shape = [self.maximum_position + 1, input_shape[-1]]
+    self.embedding = self.add_weight("position_embedding", shape)
     super(PositionEmbedder, self).build(input_shape)
 
-  def encode(self, positions, depth, dtype=tf.float32):
+  def _encode(self, positions, depth):
     positions = tf.minimum(positions, self.maximum_position)
     return tf.nn.embedding_lookup(self.embedding, positions)
 
@@ -165,7 +89,7 @@ class SinusoidalPositionEncoder(PositionEncoder):
   https://arxiv.org/abs/1706.03762.
   """
 
-  def encode(self, positions, depth, dtype=tf.float32):
+  def _encode(self, positions, depth):
     if depth % 2 != 0:
       raise ValueError("SinusoidalPositionEncoder expects the depth to be divisble "
                        "by 2 but got %d" % depth)
@@ -178,4 +102,4 @@ class SinusoidalPositionEncoder(PositionEncoder):
     inv_timescales = tf.reshape(tf.tile(inv_timescales, [batch_size]), [batch_size, -1])
     scaled_time = tf.expand_dims(positions, -1) * tf.expand_dims(inv_timescales, 1)
     encoding = tf.concat([tf.sin(scaled_time), tf.cos(scaled_time)], axis=2)
-    return tf.cast(encoding, dtype)
+    return tf.cast(encoding, self.dtype)

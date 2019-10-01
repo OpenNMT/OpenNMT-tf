@@ -7,22 +7,20 @@ import sys
 import random
 import math
 import subprocess
-import json
+import time
+import tempfile
+import six
 import yaml
 
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.estimator.util import fn_args
-
-from google.protobuf import text_format
-
-from opennmt import estimator as estimator_util
+from opennmt import evaluation
 from opennmt import models
-from opennmt.utils import hooks, checkpoint, misc
-from opennmt.utils import evaluator
-from opennmt.utils.misc import format_translation_output, OrderRestorer
-from opennmt.utils.parallel import get_devices
+from opennmt import training as training_util
+from opennmt.data import dataset as dataset_util
+from opennmt.utils import checkpoint as checkpoint_util
+from opennmt.utils import misc
 
 
 # These options require a value but we can fallback to a default one.
@@ -30,17 +28,15 @@ _CONFIG_FALLBACK = {
     "params": {},
     "train": {
         "batch_type": "examples",
-        "bucket_width": 1,
+        "length_bucket_width": 1,
         "sample_buffer_size": 500000,
         "save_summary_steps": 100
     },
     "eval": {
-        "batch_size": 32,
-        "eval_delay": 18000,
-        "exporters": "last"
+        "batch_size": 32
     },
     "infer": {
-        "bucket_width": None,
+        "length_bucket_width": None,
         "batch_size": 16
     },
     "score": {
@@ -49,315 +45,192 @@ _CONFIG_FALLBACK = {
 }
 
 class Runner(object):
-  """Class for managing training, inference, and export. It is mostly a
-  wrapper around ``tf.estimator.Estimator``.
-  """
+  """Class for running and exporting models."""
 
   def __init__(self,
                model,
                config,
-               seed=None,
-               num_devices=1,
-               gpu_allow_growth=False,
-               session_config=None,
                auto_config=False,
-               hvd=None):
+               mixed_precision=False,
+               seed=None):
     """Initializes the runner parameters.
 
     Args:
-      model: A :class:`opennmt.models.model.Model` instance to run.
+      model: A :class:`opennmt.models.Model` instance to run.
       config: The run configuration.
-      seed: The random seed to set.
-      num_devices: The number of devices (GPUs) to use for training.
-      gpu_allow_growth: Allow GPU memory to grow dynamically.
-      session_config: ``tf.ConfigProto`` overrides.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
-      hvd: Optional Horovod object.
-
-    Raises:
-      NotImplementedError: If :obj:`auto_config` is ``True`` but :obj:`model`
-        does not define any automatic configuration values.
+      mixed_precision: Enable mixed precision.
+      seed: The random seed to set.
     """
     self._model = model
-    self._num_devices = num_devices
-    self._num_replicas = hvd.size() if hvd is not None else num_devices
-    self._seed = seed
-    self._hvd = hvd
+    self._optimizer = None
+    self._config = config
+    self._auto_config = auto_config
+    self._mixed_precision = mixed_precision
+    if mixed_precision:
+      tf.config.optimizer.set_experimental_options({"auto_mixed_precision": True})
+    if seed is not None:
+      np.random.seed(seed)
+      random.seed(seed)
+      tf.random.set_seed(seed)
 
+  def _finalize_config(self, training=False, num_devices=1):
     # Configuration priority: user config > auto config > default config.
-    self._config = copy.deepcopy(_CONFIG_FALLBACK)
-    if auto_config:
-      model_config = self._model.auto_config(num_devices=self._num_replicas)
+    config = copy.deepcopy(_CONFIG_FALLBACK)
+    if self._auto_config:
+      model_config = self._model.auto_config(num_replicas=num_devices)
       if not model_config:
         raise NotImplementedError("This model does not define any automatic configuration values")
-      misc.merge_dict(self._config, model_config)
-    misc.merge_dict(self._config, config)
-    self._model.initialize(self._config["data"], params=self._config["params"])
-    tf.logging.info(
-        "Using parameters:\n%s", yaml.dump(self._config, indent=2, default_flow_style=False))
+      misc.merge_dict(config, model_config)
+    misc.merge_dict(config, self._config)
+    config["params"].setdefault("num_hypotheses", config["infer"].get("n_best", 1))
 
-    session_config_base = tf.ConfigProto(
-        allow_soft_placement=True,
-        log_device_placement=False,
-        gpu_options=tf.GPUOptions(
-            allow_growth=gpu_allow_growth))
-    if self._hvd is not None:
-      session_config_base.gpu_options.visible_device_list = str(self._hvd.local_rank())
+    if training:
+      train_config = config["train"]
+      batch_size = train_config.get("batch_size")
 
-    # Disable layout optimizer for better conv1d performance, see:
-    # https://github.com/tensorflow/tensorflow/issues/20309
-    # This field does not exist in TensorFlow 1.4, so guard against the
-    # exception.
-    try:
-      rewrite_options = text_format.Parse("""
-          graph_options {
-            rewrite_options {
-              layout_optimizer: OFF
-            }
-          }
-          """, tf.ConfigProto())
-      session_config_base.MergeFrom(rewrite_options)
-    except text_format.ParseError:
-      pass
+      # Auto tune batch size.
+      if batch_size is None or batch_size == 0:
+        if train_config["batch_type"] == "examples":
+          raise ValueError("Batch size autotuning is only supported for the \"tokens\" batch type")
+        max_batch_size = 16384
+        if train_config.get("effective_batch_size") is not None:
+          max_batch_size = min(max_batch_size, train_config["effective_batch_size"])
+        train_config["batch_size"] = _auto_tune_batch_size(
+            config,
+            max_batch_size=max_batch_size,
+            num_devices=num_devices)
 
-    if session_config is not None:
-      session_config_base.MergeFrom(session_config)
-    self._session_config = session_config_base
+    tf.get_logger().info(
+        "Using parameters:\n%s", yaml.dump(config, indent=2, default_flow_style=False))
+    return config
 
-    np.random.seed(seed)
-    random.seed(seed)
-
-  def _make_estimator(self):
-    params = self._config["params"]
-    train_config = self._config["train"]
-    summary_steps = train_config["save_summary_steps"]
-
-    run_config = tf.estimator.RunConfig(
-        model_dir=self._config["model_dir"],
-        tf_random_seed=self._seed,
-        save_summary_steps=summary_steps,
-        session_config=self._session_config,
-        log_step_count_steps=params.get("gradients_accum", 1) * summary_steps)
-    if "save_checkpoints_steps" in train_config or "save_checkpoints_secs" in train_config:
-      run_config = run_config.replace(
-          save_checkpoints_secs=train_config.get("save_checkpoints_secs"),
-          save_checkpoints_steps=train_config.get("save_checkpoints_steps"))
-    if not self.is_chief():
-      run_config = run_config.replace(
-          save_checkpoints_secs=None,
-          save_checkpoints_steps=None)
-    if "keep_checkpoint_max" in train_config:
-      run_config = run_config.replace(
-          keep_checkpoint_max=train_config["keep_checkpoint_max"])
-
-    params.setdefault("num_hypotheses", self._config["infer"].get("n_best", 1))
-
-    devices = get_devices(num_devices=self._num_devices, session_config=self._session_config)
-    return tf.estimator.Estimator(
-        estimator_util.make_model_fn(
-            self._model,
-            eval_prediction_hooks_fn=self._make_eval_prediction_hooks_fn(),
-            devices=devices,
-            hvd=self._hvd),
-        config=run_config,
-        params=params)
-
-  def is_chief(self):
-    """Returns ``True`` if this runner is the master runner."""
-    if self._hvd is not None:
-      return self._hvd.rank() == 0
-    cluster_spec = os.getenv("TF_CONFIG")
-    if cluster_spec is None:
-      return True
-    cluster_spec = json.loads(cluster_spec)
-    return cluster_spec["task"]["type"] == "chief"
-
-  def _make_eval_prediction_hooks_fn(self):
-    external_scorers = self._config["eval"].get("external_evaluators")
-    if not self._config["eval"].get("save_eval_predictions", False) and external_scorers is None:
-      return None
-    if self._model.unsupervised:
-      raise RuntimeError("This model does not support saving evaluation predictions")
-    save_path = os.path.join(self._config["model_dir"], "eval")
-    if not tf.gfile.Exists(save_path):
-      tf.gfile.MakeDirs(save_path)
-    if external_scorers is not None:
-      external_evaluator = evaluator.ExternalEvaluator(
-          labels_file=self._config["data"]["eval_labels_file"],
-          output_dir=os.path.join(self._config["model_dir"], "external_eval"),
-          scorers=evaluator.make_scorers(external_scorers))
+  def _init_model(self, config):
+    model = misc.clone_layer(self._model)
+    model.initialize(config["data"], params=config["params"])
+    if "optimizer" in config["params"]:
+      optimizer = model.get_optimizer()
     else:
-      external_evaluator = None
-    return lambda predictions: [
-        hooks.SaveEvaluationPredictionHook(
-            self._model,
-            os.path.join(save_path, "predictions.txt"),
-            post_evaluation_fn=external_evaluator,
-            predictions=predictions)]
+      optimizer = None
+    checkpoint = checkpoint_util.Checkpoint(
+        model,
+        optimizer=optimizer,
+        model_dir=config.get("model_dir"),
+        keep_checkpoint_max=config["train"].get("keep_checkpoint_max", 8))
+    return checkpoint
 
-  def _finalize_training_parameters(self):
-    train_config = self._config["train"]
-    batch_size = train_config.get("batch_size")
+  def _init_run(self, training=False, num_devices=1):
+    config = self._finalize_config(training=training, num_devices=num_devices)
+    return self._init_model(config), config
 
-    # Auto tune batch size.
-    if batch_size is None or batch_size == 0:
-      if train_config["batch_type"] == "examples":
-        raise ValueError("Batch size autotuning is only supported for the \"tokens\" batch type")
-      max_batch_size = 16384
-      if train_config.get("effective_batch_size") is not None:
-        max_batch_size = min(max_batch_size, train_config["effective_batch_size"])
-      train_config["batch_size"] = _auto_tune_batch_size(
-          self._config,
-          max_batch_size=max_batch_size,
-          num_devices=self._num_devices)
-
-    # Set gradients accumulation based on the requested effective batch size.
-    if train_config.get("effective_batch_size") is not None:
-      self._config["params"]["gradients_accum"] = _count_batch_accum(
-          train_config["batch_size"],
-          train_config["effective_batch_size"],
-          num_replicas=self._num_replicas)
-      tf.logging.info("Accumulate gradients of %d iterations to reach effective batch size of %d",
-                      self._config["params"]["gradients_accum"],
-                      train_config["effective_batch_size"])
-
-  def _build_train_spec(self, checkpoint_path):
-    train_hooks = [
-        hooks.LogParametersCountHook()]
-
-    if checkpoint_path is not None:
-      train_hooks.append(hooks.LoadWeightsFromCheckpointHook(checkpoint_path))
-    if self._hvd is not None:
-      train_hooks.append(self._hvd.BroadcastGlobalVariablesHook(0))
-
-    train_steps = self._config["train"].get("train_steps")
-    if train_steps is not None and self._hvd is not None:
-      train_steps //= self._hvd.size()
-    train_spec = tf.estimator.TrainSpec(
-        input_fn=estimator_util.make_input_fn(
-            self._model,
-            tf.estimator.ModeKeys.TRAIN,
-            self._config["train"]["batch_size"],
-            features_file=self._config["data"]["train_features_file"],
-            labels_file=self._config["data"].get("train_labels_file"),
-            batch_type=self._config["train"]["batch_type"],
-            batch_multiplier=self._num_devices,
-            bucket_width=self._config["train"]["bucket_width"],
-            maximum_features_length=self._config["train"].get("maximum_features_length"),
-            maximum_labels_length=self._config["train"].get("maximum_labels_length"),
-            shuffle_buffer_size=self._config["train"]["sample_buffer_size"],
-            single_pass=self._config["train"].get("single_pass", False),
-            num_shards=self._hvd.size() if self._hvd is not None else 1,
-            shard_index=self._hvd.rank() if self._hvd is not None else 0,
-            num_threads=self._config["train"].get("num_threads"),
-            prefetch_buffer_size=self._config["train"].get("prefetch_buffer_size"),
-            return_dataset=False),
-        max_steps=train_steps,
-        hooks=train_hooks)
-    return train_spec
-
-  def _build_eval_spec(self):
-    eval_spec = tf.estimator.EvalSpec(
-        input_fn=estimator_util.make_input_fn(
-            self._model,
-            tf.estimator.ModeKeys.EVAL,
-            self._config["eval"]["batch_size"],
-            features_file=self._config["data"]["eval_features_file"],
-            labels_file=self._config["data"].get("eval_labels_file"),
-            num_threads=self._config["eval"].get("num_threads"),
-            prefetch_buffer_size=self._config["eval"].get("prefetch_buffer_size"),
-            return_dataset=False),
-        steps=None,
-        exporters=_make_exporters(
-            self._config["eval"]["exporters"],
-            estimator_util.make_serving_input_fn(self._model, metadata=self._config["data"]),
-            assets_extra=self._get_model_assets()),
-        throttle_secs=self._config["eval"]["eval_delay"])
-    return eval_spec
-
-  def _get_model_assets(self):
-    generated_assets_path = os.path.join(self._config["model_dir"], "assets")
-    if not tf.gfile.Exists(generated_assets_path):
-      tf.gfile.MakeDirs(generated_assets_path)
-    return self._model.get_assets(asset_dir=generated_assets_path)
-
-  def train_and_evaluate(self, checkpoint_path=None):
-    """Runs the training and evaluation loop.
-
-    Args:
-      checkpoint_path: The checkpoint path to load the model weights from it.
-
-    Returns:
-      A tuple with a dict of evaluation metrics and the export result or
-      ``None`` in TensorFlow 1.8 and older.
-    """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    self._finalize_training_parameters()
-    train_spec = self._build_train_spec(checkpoint_path)
-    eval_spec = self._build_eval_spec()
-    estimator = self._make_estimator()
-    result = tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
-    self._maybe_average_checkpoints(estimator)
-    return result
-
-  def train(self, checkpoint_path=None):
+  def train(self, num_devices=1, with_eval=False, checkpoint_path=None):
     """Runs the training loop.
 
     Args:
+      num_devices: Number of devices to use for training.
+      with_eval: Enable evaluation during training.
       checkpoint_path: The checkpoint path to load the model weights from it.
 
     Returns:
       The path to the final model directory.
     """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    self._finalize_training_parameters()
-    train_spec = self._build_train_spec(checkpoint_path)
-    estimator = self._make_estimator()
-    estimator.train(
-        train_spec.input_fn, hooks=train_spec.hooks, max_steps=train_spec.max_steps)
-    output_dir = self._maybe_average_checkpoints(estimator)
-    if output_dir is None:
-      output_dir = estimator.model_dir
-    return output_dir
+    checkpoint, config = self._init_run(num_devices=num_devices, training=True)
+    checkpoint.restore(
+        checkpoint_path=checkpoint_path, weights_only=checkpoint_path is not None)
 
-  def evaluate(self, checkpoint_path=None):
+    model = checkpoint.model
+    data_config = config["data"]
+    train_config = config["train"]
+    eval_config = config["eval"]
+
+    batch_type = train_config["batch_type"]
+    if batch_type == "tokens" and self._mixed_precision:
+      batch_size_multiple = 8
+    else:
+      batch_size_multiple = 1
+
+    dataset = model.examples_inputter.make_training_dataset(
+        data_config["train_features_file"],
+        data_config.get("train_labels_file"),
+        train_config["batch_size"],
+        batch_type=batch_type,
+        batch_size_multiple=batch_size_multiple,
+        shuffle_buffer_size=train_config["sample_buffer_size"],
+        length_bucket_width=train_config["length_bucket_width"],
+        maximum_features_length=train_config.get("maximum_features_length"),
+        maximum_labels_length=train_config.get("maximum_labels_length"),
+        single_pass=train_config.get("single_pass", False),
+        prefetch_buffer_size=train_config.get("prefetch_buffer_size"))
+
+    if with_eval:
+      evaluator = evaluation.Evaluator.from_config(model, config)
+    else:
+      evaluator = None
+
+    if num_devices == 1:
+      devices = None
+    else:
+      devices = tf.config.experimental.list_logical_devices(device_type="GPU")
+      if len(devices) < num_devices:
+        raise ValueError("Requested %d devices but only %d are visible" % (
+            num_devices, len(devices)))
+      devices = [device.name for device in devices[0:num_devices]]
+
+    # Set gradients accumulation based on the requested effective batch size.
+    if train_config.get("effective_batch_size") is not None:
+      accum_steps = _count_batch_accum(
+          train_config["batch_size"],
+          train_config["effective_batch_size"],
+          num_replicas=num_devices)
+      tf.get_logger().info(
+          "Accumulate gradients of %d iterations to reach effective batch size of %d",
+          accum_steps,
+          train_config["effective_batch_size"])
+    else:
+      accum_steps = 1
+
+    trainer = training_util.Trainer(
+        checkpoint,
+        devices=devices,
+        mixed_precision=self._mixed_precision)
+    trainer(
+        dataset,
+        max_step=train_config.get("max_step"),
+        accum_steps=accum_steps,
+        report_steps=train_config.get("save_summary_steps", 100),
+        save_steps=train_config.get("save_checkpoints_steps", 5000),
+        evaluator=evaluator,
+        eval_steps=eval_config.get("steps", 5000))
+    average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
+    if average_last_checkpoints > 0:
+      return self.average_checkpoints(
+          os.path.join(checkpoint.model_dir, "avg"),
+          max_count=average_last_checkpoints)
+    return checkpoint.model_dir
+
+  def evaluate(self, features_file=None, labels_file=None, checkpoint_path=None):
     """Runs evaluation.
 
     Args:
+      features_file: The input features file to evaluate. If not set, will load
+        ``eval_features_file`` from the data configuration.
+      labels_file: The output labels file to evaluate. If not set, will load
+        ``eval_labels_file`` from the data configuration.
       checkpoint_path: The checkpoint path to load the model weights from it.
 
     Returns:
       A dict of evaluation metrics.
     """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    eval_spec = self._build_eval_spec()
-    estimator = self._make_estimator()
-    return estimator.evaluate(
-        eval_spec.input_fn, hooks=eval_spec.hooks, checkpoint_path=checkpoint_path)
-
-  def _maybe_average_checkpoints(self, estimator, avg_subdirectory="avg"):
-    """Averages checkpoints if enabled in the training configuration and if the
-    current training instance is the chief.
-
-    Args:
-      estimator: The ``tf.estimator.Estimator`` instance used for the training.
-      avg_subdirectory: The directory within the model directory that will
-        contain the averaged checkpoint.
-
-    Returns:
-      The path to the directory containing the averaged checkpoint or ``None``
-      if no checkpoints were averaged.
-    """
-    average_last_checkpoints = self._config["train"].get("average_last_checkpoints", 0)
-    if average_last_checkpoints > 0 and self.is_chief():
-      return self.average_checkpoints(
-          os.path.join(estimator.model_dir, avg_subdirectory),
-          max_count=average_last_checkpoints)
-    return None
+    checkpoint, config = self._init_run()
+    checkpoint_path = checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
+    step = int(checkpoint_path.split("-")[-1])
+    evaluator = evaluation.Evaluator.from_config(
+        checkpoint.model,
+        config,
+        features_file=features_file,
+        labels_file=labels_file)
+    return evaluator(step)
 
   def average_checkpoints(self, output_dir, max_count=8):
     """Averages checkpoints.
@@ -369,11 +242,53 @@ class Runner(object):
     Returns:
       The path to the directory containing the averaged checkpoint.
     """
-    return checkpoint.average_checkpoints(
-        self._config["model_dir"],
+    checkpoint, _ = self._init_run()
+    checkpoint.restore()
+    model = checkpoint.model
+    optimizer = checkpoint.optimizer
+    model.create_variables(optimizer=optimizer)
+    trackables = dict(model=model, optimizer=optimizer)
+    return checkpoint_util.average_checkpoints(
+        checkpoint.model_dir,
         output_dir,
-        max_count=max_count,
-        session_config=self._session_config)
+        trackables,
+        max_count=max_count)
+
+  def update_vocab(self, output_dir, src_vocab=None, tgt_vocab=None):
+    """Updates model vocabularies.
+
+    Args:
+      output_dir: Directory where the update checkpoint will be saved.
+      src_vocab: Path to the new source vocabulary.
+      tgt_vocab: Path to the new tagret vocabulary.
+
+    Returns:
+      Path to the new checkpoint directory.
+    """
+    if not isinstance(self._model, models.SequenceToSequence):
+      raise ValueError("Updating vocabularies is only supported for sequence to sequence models")
+    config = self._finalize_config()
+    if src_vocab is None and tgt_vocab is None:
+      return config["model_dir"]
+
+    cur_checkpoint = self._init_model(config)
+    cur_checkpoint.restore()
+    model, optimizer = cur_checkpoint.model, cur_checkpoint.optimizer
+    model.create_variables(optimizer=optimizer)
+
+    new_config = copy.deepcopy(config)
+    new_config["model_dir"] = output_dir
+    if src_vocab is not None:
+      new_config["data"]["source_vocabulary"] = src_vocab
+    if tgt_vocab is not None:
+      new_config["data"]["target_vocabulary"] = tgt_vocab
+    new_checkpoint = self._init_model(new_config)
+    new_model, new_optimizer = new_checkpoint.model, new_checkpoint.optimizer
+    new_model.create_variables(optimizer=new_optimizer)
+
+    model.transfer_weights(new_model, new_optimizer=new_optimizer, optimizer=optimizer)
+    new_checkpoint.save(optimizer.iterations)
+    return output_dir
 
   def infer(self,
             features_file,
@@ -390,83 +305,87 @@ class Runner(object):
       log_time: If ``True``, several time metrics will be printed in the logs at
         the end of the inference loop.
     """
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+    checkpoint, config = self._init_run()
+    checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
+    model = checkpoint.model
+    infer_config = config["infer"]
+    dataset = model.examples_inputter.make_inference_dataset(
+        features_file,
+        infer_config["batch_size"],
+        length_bucket_width=infer_config["length_bucket_width"],
+        prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
-    input_fn = estimator_util.make_input_fn(
-        self._model,
-        tf.estimator.ModeKeys.PREDICT,
-        self._config["infer"]["batch_size"],
-        features_file=features_file,
-        bucket_width=self._config["infer"]["bucket_width"],
-        num_threads=self._config["infer"].get("num_threads"),
-        prefetch_buffer_size=self._config["infer"].get("prefetch_buffer_size"),
-        return_dataset=False)
+    @dataset_util.function_on_next(dataset, as_numpy=True)
+    def _predict(next_fn):
+      source = next_fn()
+      return model.infer(source)
 
     if predictions_file:
       stream = io.open(predictions_file, encoding="utf-8", mode="w")
     else:
       stream = sys.stdout
 
-    infer_hooks = []
-    if log_time:
-      infer_hooks.append(hooks.LogPredictionTimeHook())
-
     ordered_writer = None
     write_fn = lambda prediction: (
-        self._model.print_prediction(prediction, params=self._config["infer"], stream=stream))
+        model.print_prediction(prediction, params=infer_config, stream=stream))
 
-    estimator = self._make_estimator()
-    for prediction in estimator.predict(
-        input_fn=input_fn,
-        checkpoint_path=checkpoint_path,
-        hooks=infer_hooks):
-      # If the index is part of the prediction, they may be out of order.
-      if "index" in prediction:
-        if ordered_writer is None:
-          ordered_writer = OrderRestorer(
-              index_fn=lambda prediction: prediction["index"], callback_fn=write_fn)
-        ordered_writer.push(prediction)
-      else:
-        write_fn(prediction)
+    total_time = 0
+    total_tokens = 0
+    total_examples = 0
+    start_time = time.time()
 
+    for predictions in _predict():  # pylint: disable=no-value-for-parameter
+      end_time = time.time()
+      if log_time:
+        total_time += end_time - start_time
+        batch_size = next(six.itervalues(predictions)).shape[0]
+        total_examples += batch_size
+        length = predictions.get("length")
+        if length is not None:
+          if len(length.shape) == 2:
+            length = length[:, 0]
+          total_tokens += sum(length)
+      for prediction in misc.extract_batches(predictions):
+        if "index" in prediction:
+          if ordered_writer is None:
+            ordered_writer = misc.OrderRestorer(
+                index_fn=lambda prediction: prediction["index"], callback_fn=write_fn)
+          ordered_writer.push(prediction)
+        else:
+          write_fn(prediction)
+      start_time = time.time()
+
+    if log_time:
+      tf.get_logger().info("Total prediction time (s): %f", total_time)
+      tf.get_logger().info(
+          "Average prediction time (s): %f", total_time / total_examples)
+      if total_tokens > 0:
+        tf.get_logger().info("Tokens per second: %f", total_tokens / total_time)
     if predictions_file:
       stream.close()
 
-  def export(self, checkpoint_path=None, export_dir_base=None):
+  def export(self, export_dir, checkpoint_path=None):
     """Exports a model.
 
     Args:
+      export_dir: The export directory.
       checkpoint_path: The checkpoint path to export. If ``None``, the latest is used.
-      export_dir_base: The base directory in which a timestamped subdirectory
-        containing the exported model will be created. Defaults to
-        ``$MODEL_DIR/export/manual``.
+   """
+    checkpoint, _ = self._init_run()
+    checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
+    tf.saved_model.save(
+        checkpoint.model,
+        export_dir,
+        signatures=checkpoint.model.serve_function())
 
-    Returns:
-      The string path to the exported directory.
-    """
-    estimator = self._make_estimator()
-    if checkpoint_path is not None and tf.gfile.IsDirectory(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    if export_dir_base is None:
-      export_dir_base = os.path.join(estimator.model_dir, "export", "manual")
-
-    kwargs = {}
-    if hasattr(estimator, "export_saved_model"):
-      export_fn = estimator.export_saved_model
-    else:
-      export_fn = estimator.export_savedmodel
-      if "strip_default_attrs" in fn_args(estimator.export_savedmodel):
-        # Set strip_default_attrs to True for TensorFlow 1.6+ to stay consistent
-        # with the behavior of tf.estimator.Exporter.
-        kwargs["strip_default_attrs"] = True
-
-    return export_fn(
-        export_dir_base,
-        estimator_util.make_serving_input_fn(self._model, metadata=self._config["data"]),
-        assets_extra=self._get_model_assets(),
-        checkpoint_path=checkpoint_path,
-        **kwargs)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+      extra_assets = checkpoint.model.export_assets(tmp_dir)
+      if extra_assets:
+        assets_extra = os.path.join(export_dir, "assets.extra")
+        tf.io.gfile.makedirs(assets_extra)
+        for filename, path in six.iteritems(extra_assets):
+          tf.io.gfile.copy(path, os.path.join(assets_extra, filename), overwrite=True)
+        tf.get_logger().info("Extra assets written to: %s", assets_extra)
 
   def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.
@@ -478,111 +397,34 @@ class Runner(object):
         the latest is used.
       output_file: The file where the scores are saved. Otherwise, they will be
         printed on the standard output.
-
-    Raises:
-      ValueError: if no checkpoint are found or if the model is not a sequence to
-        sequence model.
     """
-    if not isinstance(self._model, (models.LanguageModel, models.SequenceToSequence)):
-      raise ValueError("scoring only works for sequence to sequence or language models")
+    checkpoint, config = self._init_run()
+    checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
+    model = checkpoint.model
+    score_config = config["score"]
+    dataset = model.examples_inputter.make_evaluation_dataset(
+        features_file,
+        predictions_file,
+        score_config["batch_size"],
+        prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
 
-    if checkpoint_path is None:
-      checkpoint_path = tf.train.latest_checkpoint(self._config["model_dir"])
-    elif tf.gfile.IsDirectory(checkpoint_path):
-      checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
-    if checkpoint_path is None:
-      raise ValueError("could not find a trained model in %s" % self._config["model_dir"])
+    @dataset_util.function_on_next(dataset, as_numpy=True)
+    def _score(next_fn):
+      features, labels = next_fn()
+      return model.score(features, labels)
 
-    model = copy.deepcopy(self._model)
-    with tf.Graph().as_default():
-      dataset = model.examples_inputter.make_evaluation_dataset(
-          features_file,
-          predictions_file,
-          self._config["score"]["batch_size"],
-          num_threads=self._config["score"].get("num_threads"),
-          prefetch_buffer_size=self._config["score"].get("prefetch_buffer_size"))
-      iterator = dataset.make_initializable_iterator()
-      features, labels = iterator.get_next()
-      labels["alignment"] = None  # Add alignment key to force the model to return attention.
-      outputs, _ = model(
-          features,
-          labels,
-          self._config["params"],
-          tf.estimator.ModeKeys.EVAL)
-
-      cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-          logits=outputs["logits"], labels=labels["ids_out"])
-      weights = tf.sequence_mask(labels["length"], dtype=cross_entropy.dtype)
-      masked_cross_entropy = cross_entropy * weights
-      scores = tf.reduce_sum(masked_cross_entropy, axis=1)
-      results = {
-          "cross_entropy": cross_entropy,
-          "score": scores,
-          "tokens": labels["tokens"],
-          "length": labels["length"] - 1  # -1 for the special token.
-      }
-      if "attention" in outputs:
-        results["attention"] = outputs["attention"]
-
-      if output_file:
-        stream = io.open(output_file, encoding="utf-8", mode="w")
-      else:
-        stream = sys.stdout
-
-      output_tokenizer = (
-          self._model.labels_inputter.tokenizer if not self._model.unsupervised
-          else self._model.features_inputter.tokenizer)
-      with tf.train.MonitoredSession(
-          session_creator=tf.train.ChiefSessionCreator(
-              checkpoint_filename_with_path=checkpoint_path,
-              config=self._session_config)) as sess:
-        sess.run(iterator.initializer)
-        while not sess.should_stop():
-          for batch in misc.extract_batches(sess.run(results)):
-            tokens = batch["tokens"][:batch["length"]]
-            sentence = output_tokenizer.detokenize(tokens)
-            token_level_scores = None
-            attention = None
-            if self._config["score"].get("with_token_level"):
-              token_level_scores = batch["cross_entropy"][:batch["length"]]
-            if "attention" in batch:
-              attention = batch["attention"][:batch["length"]]
-            alignment_type = self._config["score"].get("with_alignments")
-            sentence = format_translation_output(
-                sentence,
-                score=batch["score"],
-                token_level_scores=token_level_scores,
-                attention=attention,
-                alignment_type=alignment_type)
-            misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
-
-      if output_file:
-        stream.close()
-
-def _make_exporters(exporters_type, serving_input_fn, assets_extra=None):
-  if exporters_type is None:
-    return None
-  if not isinstance(exporters_type, list):
-    exporters_type = [exporters_type]
-  exporters = []
-  for exporter_type in exporters_type:
-    exporter_type = exporter_type.lower()
-    if exporter_type == "last":
-      exporters.append(tf.estimator.LatestExporter(
-          "latest", serving_input_fn, assets_extra=assets_extra))
-    elif exporter_type == "final":
-      exporters.append(tf.estimator.FinalExporter(
-          "final", serving_input_fn, assets_extra=assets_extra))
-    elif exporter_type == "best":
-      if not hasattr(tf.estimator, "BestExporter"):
-        raise ValueError("BestExporter is only available starting from TensorFlow 1.9")
-      exporters.append(tf.estimator.BestExporter(
-          name="best", serving_input_receiver_fn=serving_input_fn, assets_extra=assets_extra))
+    if output_file:
+      stream = io.open(output_file, encoding="utf-8", mode="w")
     else:
-      raise ValueError("invalid exporter type: %s" % exporter_type)
-  if len(exporters) == 1:
-    return exporters[0]
-  return exporters
+      stream = sys.stdout
+
+    for results in _score():  # pylint: disable=no-value-for-parameter
+      for batch in misc.extract_batches(results):
+        model.print_score(batch, params=score_config, stream=stream)
+
+    if output_file:
+      stream.close()
+
 
 def _count_batch_accum(batch_size, target_batch_size, num_replicas=1):
   """Given the current batch size, the number of replicas, and the requested
@@ -594,9 +436,9 @@ def _auto_tune_batch_size(config,
                           min_batch_size=1024,
                           max_batch_size=16384,
                           min_range=256,
-                          sample_iterations=5,
+                          sample_iterations=10,
                           num_devices=1,
-                          gpu_memory_fraction=0.8):
+                          scaling_factor=0.8):
   """Find the largest token-based batch size that can be used with this
   configuration.
 
@@ -616,64 +458,56 @@ def _auto_tune_batch_size(config,
       :obj:`max_batch_size` and :obj:`min_batch_size` is larger than this value.
     sample_iterations: The number of training iterations.
     num_devices: The number of devices to use.
-    gpu_memory_fraction: Fraction of the GPU memory to use.
+    scaling_factor: Scale the found batch size by this value.
 
   Returns:
     The autotuned batch size.
   """
-  config = copy.deepcopy(config)
-  config["train"]["save_checkpoints_steps"] = None
-  config["train"]["average_last_checkpoints"] = 0
-  config["train"]["train_steps"] = sample_iterations
-  config_path = os.path.join(config["model_dir"], "batch_size_autotuner.yml")
+  model_dir = config["model_dir"]
+  with tempfile.TemporaryDirectory() as tmpdir:
+    config = copy.deepcopy(config)
+    config["model_dir"] = tmpdir
+    config["train"]["save_checkpoints_steps"] = None
+    config["train"]["average_last_checkpoints"] = 0
+    config["train"]["max_step"] = sample_iterations
+    config_path = os.path.join(config["model_dir"], "batch_size_autotuner.yml")
+    model_description = os.path.join(model_dir, "model_description.py")
 
-  # Define the TensorFlow session config, if needed.
-  session_config_path = None
-  if gpu_memory_fraction < 1:
-    session_config = tf.ConfigProto(
-        gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction))
-    session_config_path = os.path.join(config["model_dir"], "batch_size_autotuner.proto")
-    with tf.gfile.Open(session_config_path, mode="w") as session_config_file:
-      session_config_file.write(text_format.MessageToString(session_config))
+    args = [
+        "python", "-m", "opennmt.bin.main",
+        "--config", config_path,
+        "--model", model_description,
+        "--checkpoint_path", model_dir,
+        "train",
+        "--num_gpus", str(num_devices)]
 
-  args = [
-      "python", "-m", "opennmt.bin.main", "train",
-      "--config", config_path, "--num_gpus", str(num_devices)]
-  if session_config_path is not None:
-    args += ["--session_config", session_config_path]
+    tf.get_logger().info(
+        "Searching the largest batch size between %d and %d with a precision of %d...",
+        min_batch_size, max_batch_size, min_range)
 
-  tf.logging.info("Searching the largest batch size between %d and %d with a precision of %d...",
-                  min_batch_size, max_batch_size, min_range)
+    while max_batch_size - min_batch_size > min_range:
+      batch_size = (max_batch_size + min_batch_size) // 2
 
-  while max_batch_size - min_batch_size > min_range:
-    batch_size = (max_batch_size + min_batch_size) // 2
+      # Update configuration with current batch size and adjusted gradients
+      # accumulation.
+      config["train"]["batch_size"] = batch_size
+      with tf.io.gfile.GFile(config_path, mode="wb") as config_file:
+        yaml.dump(config, config_file)
 
-    # Update configuration with current batch size and adjusted gradients
-    # accumulation.
-    config["train"]["batch_size"] = batch_size
-    if config["train"].get("effective_batch_size") is not None:
-      config["params"]["gradients_accum"] = _count_batch_accum(
-          batch_size, config["train"]["effective_batch_size"], num_replicas=num_devices)
-    with tf.gfile.Open(config_path, mode="wb") as config_file:
-      yaml.dump(config, config_file)
+      tf.get_logger().info("Trying training with batch size %d...", batch_size)
+      time.sleep(1)
+      with open(os.devnull, "w") as devnull:
+        process = subprocess.Popen(args, stdout=devnull, stderr=devnull)
+        exit_code = process.wait()
 
-    tf.logging.info("Trying training with batch size %d...", batch_size)
-    with open(os.devnull, "w") as devnull:
-      process = subprocess.Popen(args, stdout=devnull, stderr=devnull)
-      exit_code = process.wait()
+      if exit_code != 0:
+        tf.get_logger().info("... failed.")
+        max_batch_size = batch_size - 1
+      else:
+        tf.get_logger().info(
+            "... succeeded, continue until the search range is smaller than %d.", min_range)
+        min_batch_size = batch_size
 
-    if exit_code != 0:
-      tf.logging.info("... failed.")
-      max_batch_size = batch_size - 1
-    else:
-      tf.logging.info(
-          "... succeeded, continue until the search range is smaller than %d.", min_range)
-      min_batch_size = batch_size
-
-  tf.logging.info("Batch size auto tuned to %d.", min_batch_size)
-
-  # Cleanup temporary files.
-  os.remove(config_path)
-  if session_config_path is not None:
-    os.remove(session_config_path)
-  return min_batch_size
+  batch_size = int(scaling_factor * min_batch_size)
+  tf.get_logger().info("Batch size auto tuned to %d.", batch_size)
+  return batch_size

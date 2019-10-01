@@ -4,7 +4,7 @@ import argparse
 
 from opennmt import constants
 from opennmt import tokenizers
-from opennmt import utils
+from opennmt import data
 
 
 def main():
@@ -34,20 +34,21 @@ def main():
   parser.add_argument(
       "--without_sequence_tokens", default=False, action="store_true",
       help="If set, do not add special sequence tokens (start, end) in the vocabulary.")
-  tokenizers.add_command_line_arguments(parser)
+  parser.add_argument(
+      "--tokenizer_config", default=None,
+      help="Tokenization configuration.")
   args = parser.parse_args()
 
-  tokenizer = tokenizers.build_tokenizer(args)
+  tokenizer = tokenizers.make_tokenizer(args.tokenizer_config)
 
   special_tokens = [constants.PADDING_TOKEN]
   if not args.without_sequence_tokens:
     special_tokens.append(constants.START_OF_SENTENCE_TOKEN)
     special_tokens.append(constants.END_OF_SENTENCE_TOKEN)
 
-  vocab = utils.Vocab(
-      special_tokens=special_tokens,
-      from_file=args.from_vocab,
-      from_format=args.from_format)
+  vocab = data.Vocab(special_tokens=special_tokens)
+  if args.from_vocab is not None:
+    vocab.load(args.from_vocab, file_format=args.from_format)
   for data_file in args.data:
     vocab.add_from_text(data_file, tokenizer=tokenizer)
   vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)

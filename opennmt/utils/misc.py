@@ -1,18 +1,29 @@
 """Various utility functions to use throughout the project."""
 
-from __future__ import print_function
-
-import os
+import collections
+import copy
 import sys
 import inspect
 import heapq
+import os
+import threading
 import six
+
+from six.moves import copyreg
 
 import numpy as np
 import tensorflow as tf
 
-from opennmt.utils import compat
+from tensorflow.python.training.tracking import graph_view
 
+
+def get_variable_name(variable, root, model_key="model"):
+  """Gets the variable name in the object-based representation."""
+  named_variables, _, _ = graph_view.ObjectGraphView(root).serialize_object_graph()
+  for saveable_object in named_variables:
+    if saveable_object.op.name == variable.name:
+      return "%s/%s" % (model_key, saveable_object.name)
+  return None
 
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.
@@ -42,7 +53,7 @@ def format_translation_output(sentence,
     score: If set, attach the score.
     token_level_scores: If set, attach the token level scores.
     attention: The attention vector.
-    alignment_type: The type of alignments to format (can be: "hard").
+    alignment_type: The type of alignments to format (can be: "hard", "soft").
   """
   if score is not None:
     sentence = "%f ||| %s" % (score, sentence)
@@ -55,6 +66,11 @@ def format_translation_output(sentence,
       target_indices = range(attention.shape[0])
       pairs = ("%d-%d" % (src, tgt) for src, tgt in zip(source_indices, target_indices))
       sentence = "%s ||| %s" % (sentence, " ".join(pairs))
+    elif alignment_type == "soft":
+      vectors = []
+      for vector in attention:
+        vectors.append(" ".join("%.6f" % value for value in vector))
+      sentence = "%s ||| %s" % (sentence, " ; ".join(vectors))
     else:
       raise ValueError("Invalid alignment type %s" % alignment_type)
   return sentence
@@ -79,37 +95,27 @@ def function_args(fun):
     return inspect.getfullargspec(fun).args
   return inspect.getargspec(fun).args  # pylint: disable=deprecated-method
 
-def get_third_party_dir():
-  """Returns a path to the third_party directory."""
-  utils_dir = os.path.dirname(__file__)
-  opennmt_dir = os.path.dirname(utils_dir)
-  root_dir = os.path.dirname(opennmt_dir)
-  third_party_dir = os.path.join(root_dir, "third_party")
-  if not os.path.isdir(third_party_dir):
-    raise RuntimeError("no third_party directory found in {}".format(root_dir))
-  return third_party_dir
-
 def count_lines(filename):
   """Returns the number of lines of the file :obj:`filename`."""
-  with compat.gfile_open(filename, mode="rb") as f:
+  with tf.io.gfile.GFile(filename, mode="rb") as f:
     i = 0
     for i, _ in enumerate(f):
       pass
     return i + 1
 
-def count_parameters():
-  """Returns the total number of trainable parameters."""
-  return sum(variable.get_shape().num_elements() for variable in tf.trainable_variables())
+def is_gzip_file(filename):
+  """Returns ``True`` if :obj:`filename` is a GZIP file."""
+  return filename.endswith(".gz")
 
 def shape_list(x):
   """Return list of dims, statically where possible."""
   x = tf.convert_to_tensor(x)
 
   # If unknown rank, return dynamic shape
-  if x.get_shape().dims is None:
+  if x.shape.dims is None:
     return tf.shape(x)
 
-  static = x.get_shape().as_list()
+  static = x.shape.as_list()
   shape = tf.shape(x)
 
   ret = []
@@ -119,6 +125,72 @@ def shape_list(x):
       dim = shape[i]
     ret.append(dim)
   return ret
+
+def index_structure(structure, path):
+  """Follows :obj:`path` in a nested structure of objects, lists, and dicts."""
+  for key in path.split("/"):
+    if isinstance(structure, list):
+      try:
+        index = int(key)
+        structure = structure[index] if index < len(structure) else None
+      except ValueError:
+        raise ValueError("Expected a list index, got %s instead" % key)
+    elif isinstance(structure, dict):
+      structure = structure.get(key)
+    else:
+      structure = getattr(structure, key, None)
+    if structure is None:
+      raise ValueError("Invalid path in structure: %s" % path)
+  return structure
+
+def clone_layer(layer):
+  """Clones a layer."""
+  # TODO: clean this up when this change is released:
+  # https://github.com/tensorflow/tensorflow/commit/4fd10c487c7e287f99b9a1831316add453dcba04
+  copyreg.pickle(threading.local, lambda _: (threading.local, []))
+  return copy.deepcopy(layer)
+
+def gather_all_layers(layer):
+  """Returns all nested layer starting from :obj:`layer`."""
+  layers = []
+  if not isinstance(layer, tf.Module):
+    return layers
+  layers.append(layer)
+  for value in six.itervalues(layer.__dict__):
+    if isinstance(value, tf.Module):
+      layers.extend(gather_all_layers(value))
+    elif isinstance(value, list):
+      for sub_layer in value:
+        layers.extend(gather_all_layers(sub_layer))
+  return layers
+
+def set_dropout(root_layer, dropout):
+  """Overrides all dropout values in :obj:`root_layer` and its descendants.
+
+  Args:
+    dropout: The dropout value to set.
+  """
+  for layer in gather_all_layers(root_layer):
+    for attr, value in six.iteritems(layer.__dict__):
+      if isinstance(value, tf.keras.layers.Dropout):
+        value.rate = dropout
+      elif "dropout" in attr:
+        setattr(layer, attr, dropout)
+
+def extract_batches(tensors):
+  """Returns a generator to iterate on each batch of a Numpy array or dict of
+  Numpy arrays."""
+  if not isinstance(tensors, dict):
+    for tensor in tensors:
+      yield tensor
+  else:
+    batch_size = None
+    for value in six.itervalues(tensors):
+      batch_size = batch_size or value.shape[0]
+    for b in range(batch_size):
+      yield {
+          key: value[b] for key, value in six.iteritems(tensors)
+      }
 
 def extract_prefixed_keys(dictionary, prefix):
   """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
@@ -142,21 +214,6 @@ def extract_suffixed_keys(dictionary, suffix):
       sub_dict[original_key] = value
   return sub_dict
 
-def extract_batches(tensors):
-  """Returns a generator to iterate on each batch of a Numpy array or dict of
-  Numpy arrays."""
-  if not isinstance(tensors, dict):
-    for tensor in tensors:
-      yield tensor
-  else:
-    batch_size = None
-    for value in six.itervalues(tensors):
-      batch_size = batch_size or value.shape[0]
-    for b in range(batch_size):
-      yield {
-          key: value[b] for key, value in six.iteritems(tensors)
-      }
-
 def merge_dict(dict1, dict2):
   """Merges :obj:`dict2` into :obj:`dict1`.
 
@@ -174,6 +231,31 @@ def merge_dict(dict1, dict2):
       dict1[key] = value
   return dict1
 
+def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
+  """Reads summaries from TensorFlow event files.
+
+  Args:
+    event_dir: Directory containing event files.
+    event_file_pattern: The pattern to look for event files.
+
+  Returns:
+    A list of tuple (step, dict of summaries), sorted by step.
+  """
+  if not tf.io.gfile.exists(event_dir):
+    return []
+  summaries = collections.defaultdict(dict)
+  for event_file in tf.io.gfile.glob(os.path.join(event_dir, event_file_pattern)):
+    for event in tf.compat.v1.train.summary_iterator(event_file):
+      if not event.HasField("summary"):
+        continue
+      for value in event.summary.value:
+        tensor_proto = value.tensor
+        tensor = tf.io.parse_tensor(
+            tensor_proto.SerializeToString(), tf.as_dtype(tensor_proto.dtype))
+        summaries[event.step][value.tag] = tf.get_static_value(tensor)
+  return [
+      (step, values)
+      for step, values in sorted(six.iteritems(summaries), key=lambda x: x[0])]
 
 class OrderRestorer(object):
   """Helper class to restore out-of-order elements in order."""
@@ -206,48 +288,3 @@ class OrderRestorer(object):
     self._elements[index] = x
     heapq.heappush(self._heap, index)
     self._try_notify()
-
-
-# The next 2 functions come with the following license and copyright:
-
-# Copyright 2017 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-def add_dict_to_collection(collection_name, dict_):
-  """Adds a dictionary to a graph collection.
-
-  Args:
-    collection_name: The name of the collection to add the dictionary to
-    dict_: A dictionary of string keys to tensor values
-  """
-  key_collection = collection_name + "_keys"
-  value_collection = collection_name + "_values"
-  for key, value in six.iteritems(dict_):
-    tf.add_to_collection(key_collection, key)
-    tf.add_to_collection(value_collection, value)
-
-def get_dict_from_collection(collection_name):
-  """Gets a dictionary from a graph collection.
-
-  Args:
-    collection_name: A collection name to read a dictionary from
-
-  Returns:
-    A dictionary with string keys and tensor values
-  """
-  key_collection = collection_name + "_keys"
-  value_collection = collection_name + "_values"
-  keys = tf.get_collection(key_collection)
-  values = tf.get_collection(value_collection)
-  return dict(zip(keys, values))

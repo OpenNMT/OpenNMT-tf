@@ -66,9 +66,12 @@ def write_text(text, writer):
   writer.write(text)
   writer.write("\n")
 
-def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
+def ark_to_records_aligned(ark_filename, text_filename, out_prefix, compression_type=None):
   """Converts ARK and text datasets to aligned TFRecords and text datasets."""
-  record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
+  record_filename = "%s.records" % out_prefix
+  if compression_type == "GZIP":
+    record_filename = "%s.gz" % record_filename
+  record_writer = tf.io.TFRecordWriter(record_filename, options=compression_type)
   text_writer = io.open(out_prefix + ".txt", encoding="utf-8", mode="w")
 
   ark_buffer = {}
@@ -132,9 +135,9 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix):
 
   print("Saved {} aligned records.".format(count))
 
-def ark_to_records(ark_filename, out_prefix):
+def ark_to_records(ark_filename, out_prefix, compression_type=None):
   """Converts ARK dataset to TFRecords."""
-  record_writer = tf.python_io.TFRecordWriter(out_prefix + ".records")
+  record_writer = tf.io.TFRecordWriter(out_prefix + ".records", options=compression_type)
   count = 0
 
   with io.open(ark_filename, encoding="utf-8") as ark_file:
@@ -158,12 +161,14 @@ def main():
                             "(must set it to align source and target files)."))
   parser.add_argument("--out", required=True,
                       help="Output files prefix (will be suffixed by .records and .txt).")
+  parser.add_argument("--compression_type", default=None, choices=["GZIP"],
+                      help="Optional compression type.")
   args = parser.parse_args()
 
   if args.txt:
-    ark_to_records_aligned(args.ark, args.txt, args.out)
+    ark_to_records_aligned(args.ark, args.txt, args.out, compression_type=args.compression_type)
   else:
-    ark_to_records(args.ark, args.out)
+    ark_to_records(args.ark, args.out, compression_type=args.compression_type)
 
 if __name__ == "__main__":
   main()

@@ -3,10 +3,8 @@ from parameterized import parameterized
 import tensorflow as tf
 
 from opennmt.layers import common
-from opennmt.tests import test_util
 
 
-@test_util.run_tf2_only
 class CommonLayersTest(tf.test.TestCase):
 
   @parameterized.expand([
@@ -18,7 +16,7 @@ class CommonLayersTest(tf.test.TestCase):
     layer = common.Dense(10, weight=weight, transpose=transpose)
     x = tf.ones(input_shape)
     y = layer(x)
-    self.assertEqual(layer.kernel, weight)
+    self.assertEqual(layer.kernel.experimental_ref(), weight.experimental_ref())
     self.assertEqual(self.evaluate(tf.reduce_sum(y)), 0)
 
   def testLayerNorm(self):

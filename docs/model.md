@@ -35,7 +35,7 @@ and most ideas and modules coming from these papers can be reused for other mode
 OpenNMT-tf comes with a set of standard models that are defined in the [catalog](package/opennmt.models.catalog.html). These models can be directly selected with the `--model_type` command line option, e.g.:
 
 ```bash
-onmt-main train --model_type Transformer [...]
+onmt-main --model_type Transformer [...]
 ```
 
 ## Custom models
@@ -52,5 +52,5 @@ For example, these container modules can be used to implement multi source input
 Some examples are available in the directory [`config/models`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models) in the Git repository. The custom model file should be selected with the `--model` command line option, e.g.:
 
 ```bash
-onmt-main train --model config/models/custom_model.py [...]
+onmt-main --model config/models/custom_model.py [...]
 ```

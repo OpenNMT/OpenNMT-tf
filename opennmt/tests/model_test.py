@@ -1,23 +1,36 @@
 # -*- coding: utf-8 -*-
 
 import os
-import six
 
 from parameterized import parameterized
-from numbers import Number
 
 import tensorflow as tf
+import numpy as np
 
-from opennmt import models, inputters, encoders
-from opennmt.models import catalog
+from opennmt import decoders
+from opennmt import encoders
+from opennmt import inputters
+from opennmt import models
 from opennmt.tests import test_util
 
 
-@test_util.run_tf1_only
+def _seq2seq_model(training=None):
+  model = models.SequenceToSequence(
+      inputters.WordEmbedder(16),
+      inputters.WordEmbedder(16),
+      encoders.SelfAttentionEncoder(2, 16, 4, 32),
+      decoders.SelfAttentionDecoder(2, 16, 4, 32))
+  params = {}
+  if training:
+    params["optimizer"] = "SGD"
+    params["learning_rate"] = 0.1
+  return model, params
+
+
 class ModelTest(tf.test.TestCase):
 
   def _makeToyEnDeData(self, with_alignments=False):
-    metadata = {}
+    data_config = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
         ["Parliament Does Not Support Amendment Freeing Tymoshenko",
@@ -36,21 +49,25 @@ class ModelTest(tf.test.TestCase):
          "Die Neuregelung , die den Weg zur Befreiung der inhaftierten Expremierministerin hätte "
          "ebnen können , lehnten die Abgeordneten bei der zweiten Lesung des Antrags auf Milderung "
          "der Strafen für wirtschaftliche Delikte ab ."])
-    metadata["source_words_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["source_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
-    metadata["target_words_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["target_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "tgt_vocab.txt"), labels_file)
     if with_alignments:
       # Dummy and incomplete alignments.
-      metadata["train_alignments"] = test_util.make_data_file(
+      data_config["train_alignments"] = test_util.make_data_file(
           os.path.join(self.get_temp_dir(), "aligne.txt"),
           ["0-0 1-0 2-2 3-4 4-4 5-6",
            "0-1 1-1 1-3 2-3 4-4",
            "0-0 1-0 2-2 3-4 4-4 5-6"])
-    return features_file, labels_file, metadata
+    return features_file, labels_file, data_config
+
+  def _makeToyLMData(self):
+    features_file, _, data_config = self._makeToyEnDeData()
+    return features_file, {"vocabulary": data_config["source_vocabulary"]}
 
   def _makeToyTaggerData(self):
-    metadata = {}
+    data_config = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
         ["M . Smith went to Washington .",
@@ -59,15 +76,15 @@ class ModelTest(tf.test.TestCase):
         os.path.join(self.get_temp_dir(), "labels.txt"),
         ["B-PER I-PER E-PER O O S-LOC O",
          "O O O B-LOC E-LOC O"])
-    metadata["source_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["source_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
-    metadata["target_vocabulary"] = test_util.make_data_file(
+    data_config["target_vocabulary"] = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "labels_vocab.txt"),
         ["O", "B-LOC", "I-LOC", "E-LOC", "S-LOC", "B-PER", "I-PER", "E-PER", "S-PER"])
-    return features_file, labels_file, metadata
+    return features_file, labels_file, data_config
 
   def _makeToyClassifierData(self):
-    metadata = {}
+    data_config = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
         ["This product was not good at all , it broke on the first use !",
@@ -75,18 +92,18 @@ class ModelTest(tf.test.TestCase):
          "How do I change the battery ?"])
     labels_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "labels.txt"), ["negative", "positive", "neutral"])
-    metadata["source_vocabulary"] = test_util.make_vocab_from_file(
+    data_config["source_vocabulary"] = test_util.make_vocab_from_file(
         os.path.join(self.get_temp_dir(), "src_vocab.txt"), features_file)
-    metadata["target_vocabulary"] = test_util.make_data_file(
+    data_config["target_vocabulary"] = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "labels_vocab.txt"), ["negative", "positive", "neutral"])
-    return features_file, labels_file, metadata
+    return features_file, labels_file, data_config
 
   def _testGenericModel(self,
                         model,
                         mode,
                         features_file,
-                        labels_file,
-                        metadata,
+                        labels_file=None,
+                        data_config=None,
                         batch_size=16,
                         prediction_heads=None,
                         metrics=None,
@@ -94,96 +111,141 @@ class ModelTest(tf.test.TestCase):
     # Mainly test that the code does not throw.
     if params is None:
       params = model.auto_config()["params"]
-    data = model.input_fn(
-        mode,
-        batch_size,
-        metadata,
-        features_file,
-        labels_file=labels_file if mode != tf.estimator.ModeKeys.PREDICT else None)()
+    if data_config is None:
+      data_config = {}
+    model.initialize(data_config, params=params)
+    if mode == tf.estimator.ModeKeys.PREDICT:
+      dataset = model.examples_inputter.make_inference_dataset(
+          features_file, batch_size)
+    elif mode == tf.estimator.ModeKeys.EVAL:
+      dataset = model.examples_inputter.make_evaluation_dataset(
+          features_file, labels_file, batch_size)
+    elif mode == tf.estimator.ModeKeys.TRAIN:
+      dataset = model.examples_inputter.make_training_dataset(
+          features_file, labels_file, batch_size)
+    data = iter(dataset).next()
     if mode != tf.estimator.ModeKeys.PREDICT:
       features, labels = data
     else:
       features, labels = data, None
-    estimator_spec = model.model_fn()(features, labels, params, mode, None)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      sess.run(tf.local_variables_initializer())
-      sess.run(tf.tables_initializer())
-      if mode == tf.estimator.ModeKeys.TRAIN:
-        loss = sess.run(estimator_spec.loss)
-        self.assertIsInstance(loss, Number)
-      elif mode == tf.estimator.ModeKeys.EVAL:
-        fetches = [estimator_spec.loss]
-        if estimator_spec.eval_metric_ops is not None:
-          fetches.append(estimator_spec.eval_metric_ops)
-        result = sess.run(fetches)
-        self.assertIsInstance(result[0], Number)
-        if metrics is not None:
+    training = mode == tf.estimator.ModeKeys.TRAIN
+    outputs, predictions = model(features, labels=labels, training=training)
+    if mode != tf.estimator.ModeKeys.PREDICT:
+      loss = model.compute_loss(outputs, labels, training=training)
+      if mode == tf.estimator.ModeKeys.EVAL:
+        eval_metrics = model.get_metrics()
+        if eval_metrics is not None:
+          model.update_metrics(eval_metrics, predictions, labels)
           for metric in metrics:
-            self.assertIn(metric, result[1])
-      else:
-        predictions = sess.run(estimator_spec.predictions)
-        self.assertIsInstance(predictions, dict)
-        if prediction_heads is not None:
-          for head in prediction_heads:
-            self.assertIn(head, predictions)
+            self.assertIn(metric, eval_metrics)
+    else:
+      self.assertIsInstance(predictions, dict)
+      if prediction_heads is not None:
+        for head in prediction_heads:
+          self.assertIn(head, predictions)
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])
   def testSequenceToSequence(self, mode):
-    # Mainly test that the code does not throw.
-    model = catalog.NMTSmall()
-    features_file, labels_file, metadata = self._makeToyEnDeData()
+    model, params = _seq2seq_model(mode)
+    features_file, labels_file, data_config = self._makeToyEnDeData()
     self._testGenericModel(
         model,
         mode,
         features_file,
         labels_file,
-        metadata,
-        prediction_heads=["tokens", "length", "log_probs"])
+        data_config,
+        prediction_heads=["tokens", "length", "log_probs"],
+        params=params)
 
-  def testSequenceToSequenceWithGuidedAlignment(self):
-    mode = tf.estimator.ModeKeys.TRAIN
-    model = catalog.NMTSmall()
-    params = model.auto_config()["params"]
-    params["guided_alignment_type"] = "ce"
-    features_file, labels_file, metadata = self._makeToyEnDeData(with_alignments=True)
-    features, labels = model.input_fn(mode, 16, metadata, features_file, labels_file)()
+  @parameterized.expand([["ce"], ["mse"]])
+  def testSequenceToSequenceWithGuidedAlignment(self, ga_type):
+    model, params = _seq2seq_model(training=True)
+    params["guided_alignment_type"] = ga_type
+    features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
+    model.initialize(data_config, params=params)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = next(iter(dataset))
     self.assertIn("alignment", labels)
-    estimator_spec = model.model_fn()(features, labels, params, mode, None)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      sess.run(tf.local_variables_initializer())
-      sess.run(tf.tables_initializer())
-      loss = sess.run(estimator_spec.loss)
-      self.assertIsInstance(loss, Number)
+    outputs, _ = model(features, labels=labels, training=True)
+    loss = model.compute_loss(outputs, labels, training=True)
+    loss = loss[0] / loss[1]
 
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
-    mode = tf.estimator.ModeKeys.PREDICT
-    model = catalog.NMTSmall()
-    params = model.auto_config()["params"]
+    model, params = _seq2seq_model()
     params["replace_unknown_target"] = True
-    features_file, _, metadata = self._makeToyEnDeData()
-    features = model.input_fn(mode, 16, metadata, features_file)()
-    estimator_spec = model.model_fn()(features, None, params, mode, None)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      sess.run(tf.local_variables_initializer())
-      sess.run(tf.tables_initializer())
-      _ = sess.run(estimator_spec.predictions)
+    features_file, labels_file, data_config = self._makeToyEnDeData()
+    model.initialize(data_config, params=params)
+    dataset = model.examples_inputter.make_inference_dataset(features_file, 16)
+    features = next(iter(dataset))
+    _, predictions = model(features)
+
+  def testSequenceToSequenceWithScheduledSampling(self):
+    model = models.SequenceToSequence(
+        inputters.WordEmbedder(16),
+        inputters.WordEmbedder(16),
+        encoders.SelfAttentionEncoder(2, 16, 4, 32),
+        decoders.RNNDecoder(2, 16))
+    params = {
+        "scheduled_sampling_type": "linear",
+        "scheduled_sampling_read_probability": 0.8,
+        "scheduled_sampling_k": 0.1
+    }
+    features_file, labels_file, data_config = self._makeToyEnDeData()
+    model.initialize(data_config, params=params)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = next(iter(dataset))
+    with self.assertRaises(ValueError):
+      model(features, labels=labels, training=True)  # step argument is required.
+    outputs, _ = model(features, labels=labels, training=True, step=10)
+    self.assertEqual(outputs["logits"].shape[1], labels["ids"].shape[1])
+
+  def testSequenceToSequenceWithContrastiveLearning(self):
+    model, params = _seq2seq_model()
+    params["contrastive_learning"] = True
+    features_file, labels_file, data_config = self._makeToyEnDeData()
+    model.initialize(data_config, params=params)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = next(iter(dataset))
+    self.assertIn("noisy_ids", labels)
+    self.assertIn("noisy_ids_out", labels)
+    self.assertIn("noisy_length", labels)
+    outputs, _ = model(features, labels=labels, training=True)
+    self.assertIn("noisy_logits", outputs)
+    loss = model.compute_loss(outputs, labels, training=True)
+    self.assertGreaterEqual(self.evaluate(loss), 0)
 
   def testSequenceToSequenceServing(self):
     # Test that serving features can be forwarded into the model.
-    model = catalog.NMTSmall()
-    _, _, metadata = self._makeToyEnDeData()
-    features = model.serving_input_fn(metadata)().features
-    with tf.variable_scope(model.name):
-      _, predictions = model(
-          features, None, model.auto_config()["params"], tf.estimator.ModeKeys.PREDICT)
-      self.assertIsInstance(predictions, dict)
-      self.assertEqual(six.next(six.itervalues(predictions)).shape[1], 1)
+    _, _, data_config = self._makeToyEnDeData()
+    model, params = _seq2seq_model()
+    model.initialize(data_config, params=params)
+    function = model.serve_function()
+    function.get_concrete_function()
+
+  @parameterized.expand([
+      [tf.estimator.ModeKeys.TRAIN],
+      [tf.estimator.ModeKeys.EVAL],
+      [tf.estimator.ModeKeys.PREDICT]])
+  def testLanguageModel(self, mode):
+    # Mainly test that the code does not throw.
+    decoder = decoders.SelfAttentionDecoder(
+        2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0)
+    model = models.LanguageModel(decoder, embedding_size=16)
+    features_file, data_config = self._makeToyLMData()
+    params = {
+        "optimizer": "SGD",
+        "learning_rate": 0.1}
+    self._testGenericModel(
+        model,
+        mode,
+        features_file,
+        data_config=data_config,
+        batch_size=1 if mode == tf.estimator.ModeKeys.PREDICT else 16,
+        prediction_heads=["tokens", "length"],
+        params=params)
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
@@ -191,21 +253,20 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.PREDICT]])
   def testSequenceTagger(self, mode):
     model = models.SequenceTagger(
-        inputters.WordEmbedder("source_vocabulary", 10),
+        inputters.WordEmbedder(10),
         encoders.MeanEncoder(),
-        "target_vocabulary",
-        crf_decoding=True,
-        tagging_scheme="bioes")
-    features_file, labels_file, metadata = self._makeToyTaggerData()
+        crf_decoding=True)
+    features_file, labels_file, data_config = self._makeToyTaggerData()
+    data_config["tagging_scheme"] = "bioes"
     params = {
-        "optimizer": "GradientDescentOptimizer",
+        "optimizer": "SGD",
         "learning_rate": 0.1}
     self._testGenericModel(
         model,
         mode,
         features_file,
         labels_file,
-        metadata,
+        data_config,
         prediction_heads=["tags", "length"],
         metrics=["accuracy", "precision", "recall", "f1"],
         params=params)
@@ -215,23 +276,130 @@ class ModelTest(tf.test.TestCase):
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])
   def testSequenceClassifier(self, mode):
-    model = models.SequenceClassifier(
-        inputters.WordEmbedder("source_vocabulary", 10),
-        encoders.MeanEncoder(),
-        "target_vocabulary")
-    features_file, labels_file, metadata = self._makeToyClassifierData()
+    model = models.SequenceClassifier(inputters.WordEmbedder(10), encoders.MeanEncoder())
+    features_file, labels_file, data_config = self._makeToyClassifierData()
     params = {
-        "optimizer": "GradientDescentOptimizer",
+        "optimizer": "SGD",
         "learning_rate": 0.1}
     self._testGenericModel(
         model,
         mode,
         features_file,
         labels_file,
-        metadata,
+        data_config,
         prediction_heads=["classes"],
         metrics=["accuracy"],
         params=params)
+
+  def testSequenceClassifierWithSelfAttentionEncoder(self):
+    # SelfAttentionEncoder does not return a state, so test that the classifier
+    # does not crash on this.
+    model = models.SequenceClassifier(
+        inputters.WordEmbedder(10),
+        encoders.SelfAttentionEncoder(num_layers=2, num_units=16, num_heads=4, ffn_inner_dim=32))
+    features_file, labels_file, data_config = self._makeToyClassifierData()
+    model.initialize(data_config)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = iter(dataset).next()
+    model(features, labels, training=True)
+
+  def testCreateVariables(self):
+    _, _, data_config = self._makeToyEnDeData()
+    model, params = _seq2seq_model()
+    model.initialize(data_config, params=params)
+    model.create_variables()
+    self.assertTrue(len(model.trainable_variables) > 0)
+
+  def testInitializeWithDropoutOverride(self):
+    model = models.SequenceToSequence(
+        inputters.WordEmbedder(16),
+        inputters.WordEmbedder(16),
+        encoders.SelfAttentionEncoder(2, 16, 4, 32),
+        decoders.SelfAttentionDecoder(2, 16, 4, 32))
+    self.assertEqual(model.encoder.dropout, 0.1)
+    _, _, data_config = self._makeToyClassifierData()
+    params = dict(dropout=0.3)
+    model.initialize(data_config, params=params)
+    self.assertEqual(model.encoder.dropout, 0.3)
+
+  def testFreezeLayers(self):
+    model, _ = _seq2seq_model(training=True)
+    params = {"freeze_layers": ["decoder/output_layer", "encoder/layers/0"]}
+    _, _, data_config = self._makeToyEnDeData()
+    model.initialize(data_config, params=params)
+    model.create_variables()
+    trainable_variables = model.trainable_variables
+    self.assertNotEmpty(trainable_variables)
+    trainable_variables_ref = set(variable.experimental_ref() for variable in trainable_variables)
+
+    def _assert_layer_not_trainable(layer):
+      self.assertFalse(layer.trainable)
+      for variable in layer.variables:
+        self.assertNotIn(variable.experimental_ref(), trainable_variables_ref)
+
+    _assert_layer_not_trainable(model.decoder.output_layer)
+    _assert_layer_not_trainable(model.encoder.layers[0])
+
+  def testTransferWeightsNewVocab(self):
+
+    def _make_model(name, src_vocab, tgt_vocab, random_slots=False):
+      model, _ = _seq2seq_model(training=True)
+      optimizer = tf.keras.optimizers.Adam()
+      data = {}
+      data["source_vocabulary"] = test_util.make_data_file(
+          os.path.join(self.get_temp_dir(), "%s-src-vocab.txt" % name),
+          src_vocab)
+      data["target_vocabulary"] = test_util.make_data_file(
+          os.path.join(self.get_temp_dir(), "%s-tgt-vocab.txt" % name),
+          tgt_vocab)
+      model.initialize(data)
+      model.create_variables(optimizer=optimizer)
+      if random_slots:
+        for variable in model.trainable_variables:
+          for slot_name in optimizer.get_slot_names():
+            slot = optimizer.get_slot(variable, slot_name)
+            slot.assign(tf.random.uniform(slot.shape))
+      return model, optimizer
+
+    model_a, optimizer_a = _make_model(
+        "a", ["a", "b", "c", "d", "e"], ["1", "2", "3", "4", "5", "6"], random_slots=True)
+    model_b, optimizer_b = _make_model(
+        "b", ["c", "a", "e", "f"], ["1", "3", "2", "6", "7"])
+    src_mapping = [2, 0, 4, -1]
+    tgt_mapping = [0, 2, 1, 5, -1]
+
+    def _check_weight(weight_a, weight_b, mapping, vocab_axis=0):
+      weight_a = self.evaluate(weight_a)
+      weight_b = self.evaluate(weight_b)
+      if vocab_axis != 0:
+        perm = list(range(len(weight_a.shape)))
+        perm[0], perm[vocab_axis] = perm[vocab_axis], perm[0]
+        weight_a = np.transpose(weight_a, axes=perm)
+        weight_b = np.transpose(weight_b, axes=perm)
+      self.assertEqual(weight_b.shape[0], len(mapping) + 1)
+      for index_b, index_a in enumerate(mapping):
+        if index_a >= 0:
+          self.assertAllEqual(weight_b[index_b], weight_a[index_a])
+
+    def _check_weight_and_slots(weight_fn, mapping, vocab_axis=0):
+      weight_a = weight_fn(model_a)
+      weight_b = weight_fn(model_b)
+      _check_weight(weight_a, weight_b, mapping, vocab_axis=vocab_axis)
+      for slot_name in optimizer_b.get_slot_names():
+        slot_a = optimizer_a.get_slot(weight_a, slot_name)
+        slot_b = optimizer_b.get_slot(weight_b, slot_name)
+        _check_weight(slot_a, slot_b, mapping, vocab_axis=vocab_axis)
+
+    model_a.transfer_weights(model_b, new_optimizer=optimizer_b, optimizer=optimizer_a)
+    _check_weight_and_slots(
+        lambda model: model.features_inputter.embedding, src_mapping)
+    _check_weight_and_slots(
+        lambda model: model.labels_inputter.embedding, tgt_mapping)
+    _check_weight_and_slots(
+        lambda model: model.decoder.output_layer.bias, tgt_mapping)
+    _check_weight_and_slots(
+        lambda model: model.decoder.output_layer.kernel, tgt_mapping, vocab_axis=1)
+
 
 if __name__ == "__main__":
   tf.test.main()

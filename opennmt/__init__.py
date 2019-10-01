@@ -1,12 +1,16 @@
 """OpenNMT module."""
 
-__version__ = "1.25.1"
+__version__ = "2.0.0a0"
 
-from opennmt import decoders
-from opennmt import encoders
-from opennmt import inputters
-from opennmt import layers
-from opennmt import models
-from opennmt import tokenizers
+from opennmt.config import load_config
+from opennmt.config import load_model
+
+from opennmt.constants import END_OF_SENTENCE_ID
+from opennmt.constants import END_OF_SENTENCE_TOKEN
+from opennmt.constants import PADDING_ID
+from opennmt.constants import PADDING_TOKEN
+from opennmt.constants import START_OF_SENTENCE_ID
+from opennmt.constants import START_OF_SENTENCE_TOKEN
+from opennmt.constants import UNKNOWN_TOKEN
 
 from opennmt.runner import Runner

@@ -1,12 +1,13 @@
 """Dynamic decoding utilities."""
 
 import abc
+import collections
 import six
 
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 from opennmt import constants
-from opennmt.utils import compat
 from opennmt.utils import misc
 
 
@@ -24,8 +25,7 @@ class Sampler(object):
       num_samples: The number of samples per batch to produce.
 
     Returns:
-      sample_ids: The sampled ids.
-      sample_scores: The sampled scores.
+      A tuple ``(sample_ids, sample_scores)``.
     """
     raise NotImplementedError()
 
@@ -74,7 +74,7 @@ class DecodingStrategy(object):
     return 1
 
   @abc.abstractmethod
-  def initialize(self, batch_size, start_ids, attention_size=None):
+  def _initialize(self, batch_size, start_ids, attention_size=None):
     """Initializes the strategy.
 
     Args:
@@ -84,23 +84,25 @@ class DecodingStrategy(object):
         maximum source length).
 
     Returns:
-      start_ids: The (possibly transformed) start decoding ids.
-      finished: The tensor of finished flags.
-      initial_log_probs: Initial log probabilities per batch.
-      extra_vars: A sequence of additional tensors used during the decoding.
+      A tuple containing,
+
+      - The (possibly transformed) start decoding ids.
+      - The tensor of finished flags.
+      - Initial log probabilities per batch.
+      - A sequence of additional tensors used during the decoding.
     """
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def step(self,
-           step,
-           sampler,
-           log_probs,
-           cum_log_probs,
-           finished,
-           state,
-           extra_vars,
-           attention=None):
+  def _step(self,
+            step,
+            sampler,
+            log_probs,
+            cum_log_probs,
+            finished,
+            state,
+            extra_vars,
+            attention=None):
     """Updates the strategy state.
 
     Args:
@@ -114,16 +116,18 @@ class DecodingStrategy(object):
       attention: The attention vector for the current step.
 
     Returns:
-      ids: The predicted word ids.
-      cum_log_probs: The new cumulated log probabilities.
-      finished: The updated finished flags.
-      state: The update decoder state.
-      extra_vars: Additional tensors from this decoding strategy.
+      A tuple containing,
+
+      - The predicted word ids.
+      - The new cumulated log probabilities.
+      - The updated finished flags.
+      - The update decoder state.
+      - Additional tensors from this decoding strategy.
     """
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def finalize(self, outputs, end_id, extra_vars, attention=None):
+  def _finalize(self, outputs, end_id, extra_vars, attention=None):
     """Finalize the predictions.
 
     Args:
@@ -133,9 +137,11 @@ class DecodingStrategy(object):
       attention: The array of attention outputs.
 
     Returns:
-      final_ids: The final predictions as a tensor of shape [B, H, T].
-      final_attention: The final attention history of shape [B, H, T, S].
-      final_lengths: The final sequence lengths of shape [B, H].
+      A tuple containing,
+
+      - The final predictions as a tensor of shape [B, H, T].
+      - The final attention history of shape [B, H, T, S].
+      - The final sequence lengths of shape [B, H].
     """
     raise NotImplementedError()
 
@@ -143,27 +149,27 @@ class DecodingStrategy(object):
 class GreedySearch(DecodingStrategy):
   """A basic greedy search strategy."""
 
-  def initialize(self, batch_size, start_ids, attention_size=None):
+  def _initialize(self, batch_size, start_ids, attention_size=None):
     finished = tf.zeros([batch_size], dtype=tf.bool)
     initial_log_probs = tf.zeros([batch_size], dtype=tf.float32)
     return start_ids, finished, initial_log_probs, []
 
-  def step(self,
-           step,
-           sampler,
-           log_probs,
-           cum_log_probs,
-           finished,
-           state,
-           extra_vars,
-           attention=None):
+  def _step(self,
+            step,
+            sampler,
+            log_probs,
+            cum_log_probs,
+            finished,
+            state,
+            extra_vars,
+            attention=None):
     sample_ids, sample_log_probs = sampler(log_probs)
     sample_ids = tf.reshape(sample_ids, [-1])
     sample_log_probs = tf.reshape(sample_log_probs, [-1])
     cum_log_probs += sample_log_probs
     return sample_ids, cum_log_probs, finished, state, extra_vars
 
-  def finalize(self, outputs, end_id, extra_vars, attention=None):
+  def _finalize(self, outputs, end_id, extra_vars, attention=None):
     ids = tf.transpose(outputs.stack())
     ids = tf.expand_dims(ids, 1)
     lengths = _lengths_from_ids(ids, end_id)
@@ -177,6 +183,13 @@ class BeamSearch(DecodingStrategy):
   """A beam search strategy."""
 
   def __init__(self, beam_size, length_penalty=0, coverage_penalty=0):
+    """Initializes the decoding strategy.
+
+    Args:
+      beam_size: The number of paths to consider per batch.
+      length_penalty: Length penalty, see https://arxiv.org/abs/1609.08144.
+      coverage_penalty: Coverage penalty, see https://arxiv.org/abs/1609.08144.
+    """
     self.beam_size = beam_size
     self.length_penalty = length_penalty
     self.coverage_penalty = coverage_penalty
@@ -185,8 +198,8 @@ class BeamSearch(DecodingStrategy):
   def num_hypotheses(self):
     return self.beam_size
 
-  def initialize(self, batch_size, start_ids, attention_size=None):
-    start_ids = tf.contrib.seq2seq.tile_batch(start_ids, self.beam_size)
+  def _initialize(self, batch_size, start_ids, attention_size=None):
+    start_ids = tfa.seq2seq.tile_batch(start_ids, self.beam_size)
     finished = tf.zeros([batch_size * self.beam_size], dtype=tf.bool)
     # Give all probability to first beam for the first iteration.
     initial_log_probs = tf.tile([0.] + [-float("inf")] * (self.beam_size - 1), [batch_size])
@@ -213,21 +226,21 @@ class BeamSearch(DecodingStrategy):
           x=tf.ones_like(accumulated_attention),
           y=accumulated_attention)
       coverage_penalty = tf.reduce_sum(
-          tf.log(tf.minimum(accumulated_attention, 1.0)), 1)
+          tf.math.log(tf.minimum(accumulated_attention, 1.0)), 1)
       # Apply coverage penalty to finished predictions.
       coverage_penalty *= tf.cast(finished, coverage_penalty.dtype)
       scores += self.coverage_penalty * tf.expand_dims(coverage_penalty, 1)
     return scores
 
-  def step(self,
-           step,
-           sampler,
-           log_probs,
-           cum_log_probs,
-           finished,
-           state,
-           extra_vars,
-           attention=None):
+  def _step(self,
+            step,
+            sampler,
+            log_probs,
+            cum_log_probs,
+            finished,
+            state,
+            extra_vars,
+            attention=None):
     parent_ids = extra_vars[0]
     sequence_lengths = extra_vars[1]
 
@@ -235,14 +248,14 @@ class BeamSearch(DecodingStrategy):
       if attention is None:
         raise ValueError("Coverage penalty is enabled but the model did not "
                          "return an attention vector")
-      not_finished = tf.logical_not(finished)
+      not_finished = tf.math.logical_not(finished)
       attention *= tf.expand_dims(tf.cast(not_finished, attention.dtype), 1)
       accumulated_attention = extra_vars[2] + attention
     else:
       accumulated_attention = None
 
     # Compute scores from log probabilities.
-    vocab_size = log_probs.shape.as_list()[-1]
+    vocab_size = log_probs.shape[-1]
     total_probs = log_probs + tf.expand_dims(cum_log_probs, 1)  # Add current beam probability.
     scores = self._get_scores(
         total_probs,
@@ -276,10 +289,10 @@ class BeamSearch(DecodingStrategy):
     if accumulated_attention is not None:
       accumulated_attention = tf.gather(accumulated_attention, beam_indices)
       extra_vars.append(accumulated_attention)
-    state = compat.nest.map_structure(lambda s: _gather_state(s, beam_indices), state)
+    state = tf.nest.map_structure(lambda s: _gather_state(s, beam_indices), state)
     return word_ids, cum_log_probs, finished, state, tuple(extra_vars)
 
-  def finalize(self, outputs, end_id, extra_vars, attention=None):
+  def _finalize(self, outputs, end_id, extra_vars, attention=None):
     parent_ids = extra_vars[0]
     sequence_lengths = extra_vars[1]
     maximum_lengths = tf.reduce_max(tf.reshape(sequence_lengths, [-1, self.beam_size]), axis=-1)
@@ -287,17 +300,30 @@ class BeamSearch(DecodingStrategy):
     array_shape = [max_time, -1, self.beam_size]
     step_ids = tf.reshape(outputs.stack(), array_shape)
     parent_ids = tf.reshape(parent_ids.stack(), array_shape)
-    ids = tf.contrib.seq2seq.gather_tree(
-        step_ids, parent_ids, maximum_lengths, end_id)
+    ids = tfa.seq2seq.gather_tree(step_ids, parent_ids, maximum_lengths, end_id)
     ids = tf.transpose(ids, perm=[1, 2, 0])
     lengths = _lengths_from_ids(ids, end_id)
     if attention is not None:
-      attention = _gather_tree_from_array(
+      attention = tfa.seq2seq.gather_tree_from_array(
           attention.stack(), parent_ids, lengths)
       attention = tf.transpose(attention, perm=[1, 0, 2])
       attention = tf.reshape(
           attention, [tf.shape(ids)[0], self.beam_size, max_time, -1])
     return ids, attention, lengths
+
+
+class DecodingResult(
+    collections.namedtuple("DecodingResult",
+                           ("ids", "lengths", "log_probs", "attention", "state"))):
+  """Final decoding result.
+
+  Args:
+    ids: The predicted ids of shape :math:`[B, H, T]`.
+    lengths: The produced sequences length of shape :math:`[B, H]`.
+    log_probs: The cumulated log probabilities of shape :math:`[B, H]`.
+    attention: The attention history of shape :math:`[B, H, T_t, T_s]`.
+    state: The final decoding state.
+  """
 
 
 def dynamic_decode(symbols_to_logits_fn,
@@ -318,9 +344,9 @@ def dynamic_decode(symbols_to_logits_fn,
     start_ids: Initial input IDs of shape :math:`[B]`.
     end_id: ID of the end of sequence token.
     initial_state: Initial decoder state.
-    decoding_strategy: A :class:`opennmt.utils.decoding.DecodingStrategy`
+    decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`
       instance that define the decoding logic. Defaults to a greedy search.
-    sampler: A :class:`opennmt.utils.decoding.Sampler` instance that samples
+    sampler: A :class:`opennmt.utils.Sampler` instance that samples
       predictions from the model output. Defaults to an argmax sampling.
     maximum_iterations: The maximum number of iterations to decode for.
     minimum_iterations: The minimum number of iterations to decode for.
@@ -329,16 +355,10 @@ def dynamic_decode(symbols_to_logits_fn,
       maximum source length).
 
   Returns:
-    ids: The predicted ids of shape :math:`[B, H, T]`.
-    lengths: The produced sequences length of shape :math:`[B, H]`.
-    log_probs: The cumulated log probabilities of shape :math:`[B, H]`.
-    attention_history: The attention history of shape :math:`[B, H, T_t, T_s]`.
-    state: The final decoding state.
+    A :class:`opennmt.utils.DecodingResult` instance.
   """
-  if "maximum_iterations" not in misc.function_args(tf.while_loop):
-    raise NotImplementedError("Unified decoding does not support TensorFlow 1.4. "
-                              "Please update your TensorFlow installation or open "
-                              "an issue for assistance.")
+  if initial_state is None:
+    initial_state = {}
   if decoding_strategy is None:
     decoding_strategy = GreedySearch()
   if sampler is None:
@@ -364,19 +384,23 @@ def dynamic_decode(symbols_to_logits_fn,
     logits = tf.cond(
         step < minimum_iterations,
         true_fn=lambda: _penalize_token(logits, end_id),
-        false_fn=lambda: tf.where(finished, x=eos_max_prob, y=logits))
+        false_fn=lambda: tf.where(
+            tf.broadcast_to(tf.expand_dims(finished, -1), tf.shape(logits)),
+            x=eos_max_prob,
+            y=logits))
     log_probs = tf.nn.log_softmax(logits)
 
     # Run one decoding strategy step.
-    output, next_cum_log_probs, finished, state, extra_vars = decoding_strategy.step(
-        step,
-        sampler,
-        log_probs,
-        cum_log_probs,
-        finished,
-        state,
-        extra_vars,
-        attention=attn)
+    output, next_cum_log_probs, finished, state, extra_vars = (
+        decoding_strategy._step(  # pylint: disable=protected-access
+            step,
+            sampler,
+            log_probs,
+            cum_log_probs,
+            finished,
+            state,
+            extra_vars,
+            attention=attn))
 
     # Update loop vars.
     if attention_history:
@@ -388,11 +412,13 @@ def dynamic_decode(symbols_to_logits_fn,
     finished = tf.logical_or(finished, tf.equal(output, end_id))
     return step + 1, finished, state, output, outputs, attention, cum_log_probs, extra_vars
 
+  start_ids = tf.convert_to_tensor(start_ids)
   batch_size = tf.shape(start_ids)[0]
   ids_dtype = start_ids.dtype
   start_ids = tf.cast(start_ids, tf.int32)
-  start_ids, finished, initial_log_probs, extra_vars = decoding_strategy.initialize(
-      batch_size, start_ids, attention_size=attention_size)
+  start_ids, finished, initial_log_probs, extra_vars = (
+      decoding_strategy._initialize(  # pylint: disable=protected-access
+          batch_size, start_ids, attention_size=attention_size))
   step = tf.constant(0, dtype=tf.int32)
   outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
   attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
@@ -412,17 +438,17 @@ def dynamic_decode(symbols_to_logits_fn,
       shape_invariants=(
           step.shape,
           finished.shape,
-          compat.nest.map_structure(_get_shape_invariants, initial_state),
+          tf.nest.map_structure(_get_shape_invariants, initial_state),
           start_ids.shape,
           tf.TensorShape(None),
           tf.TensorShape(None),
           initial_log_probs.shape,
-          compat.nest.map_structure(_get_shape_invariants, extra_vars)),
+          tf.nest.map_structure(_get_shape_invariants, extra_vars)),
       parallel_iterations=1,
       back_prop=False,
       maximum_iterations=maximum_iterations)
 
-  ids, attention, lengths = decoding_strategy.finalize(
+  ids, attention, lengths = decoding_strategy._finalize(  # pylint: disable=protected-access
       outputs,
       end_id,
       extra_vars,
@@ -431,7 +457,64 @@ def dynamic_decode(symbols_to_logits_fn,
     attention = attention[:, :, :-1]  # Ignore attention for </s>.
   log_probs = tf.reshape(log_probs, [batch_size, decoding_strategy.num_hypotheses])
   ids = tf.cast(ids, ids_dtype)
-  return ids, lengths, log_probs, attention, state
+  return DecodingResult(
+      ids=ids,
+      lengths=lengths,
+      log_probs=log_probs,
+      attention=attention,
+      state=state)
+
+def dynamic_decode_from_params(decoder,
+                               inputter,
+                               start_ids,
+                               end_id=constants.END_OF_SENTENCE_ID,
+                               initial_state=None,
+                               params=None):
+  """Convenient :function:`opennmt.utils.dynamic_decode` wrapper to read
+  user parameters.
+
+  Args:
+    decoder: A :class:`opennmt.decoders.Decoder` instance.
+    inputter: A :class:`opennmt.inputters.WordEmbedder` instance.
+    start_ids: Initial input IDs of shape :math:`[B]`.
+    end_id: ID of the end of sequence token.
+    initial_state: Initial decoder state.
+    params: A dictionary of user parameters.
+
+  See Also:
+    :function:`opennmt.utils.dynamic_decode`
+  """
+  if params is None:
+    params = {}
+
+  beam_size = params.get("beam_width", 1)
+  if beam_size == 1:
+    decoding_strategy = GreedySearch()
+  else:
+    decoding_strategy = BeamSearch(
+        beam_size,
+        length_penalty=params.get("length_penalty", 0),
+        coverage_penalty=params.get("coverage_penalty", 0))
+
+  sampling_topk = params.get("sampling_topk", 1)
+  if sampling_topk == 1:
+    sampler = BestSampler()
+  else:
+    sampler = RandomSampler(
+        from_top_k=sampling_topk,
+        temperature=params.get("sampling_temperature"))
+
+  return dynamic_decode(
+      lambda ids, step, state: decoder(inputter({"ids": ids}), step, state),
+      start_ids,
+      end_id=end_id,
+      initial_state=initial_state,
+      decoding_strategy=decoding_strategy,
+      sampler=sampler,
+      maximum_iterations=params.get("maximum_decoding_length", 250),
+      minimum_iterations=params.get("minimum_decoding_length", 0),
+      attention_history=decoder.support_alignment_history,
+      attention_size=tf.shape(decoder.memory)[1] if decoder.support_alignment_history else None)
 
 
 def _gather_state(tensor, indices):
@@ -452,7 +535,7 @@ def _get_shape_invariants(tensor):
 
 def _penalize_token(log_probs, token_id, penalty=-1e7):
   """Penalize token probabilities."""
-  depth = log_probs.get_shape().as_list()[-1]
+  depth = log_probs.shape[-1]
   penalty = tf.one_hot([token_id], depth, on_value=tf.cast(penalty, log_probs.dtype))
   return log_probs + penalty
 
@@ -460,9 +543,7 @@ def _sample_from(logits, num_samples, temperature=None):
   """Sample N values from the unscaled probability distribution."""
   if temperature is not None:
     logits /= tf.cast(temperature, logits.dtype)
-  distribution = tf.distributions.Categorical(logits=logits)
-  samples = distribution.sample([num_samples])
-  return tf.transpose(samples)
+  return tf.random.categorical(logits, num_samples, dtype=tf.int32)
 
 def _gather_from_word_indices(tensor, indices):
   """Index the depth dim of a 2D tensor."""
@@ -480,56 +561,3 @@ def _lengths_from_ids(ids, end_id):
   lengths = tf.cast(lengths, tf.int32)
   lengths = tf.reduce_sum(lengths, axis=-1)
   return lengths
-
-def _gather_tree_from_array(array, parent_ids, sequence_length):
-  """Calculates the full beams for `TensorArray`s.
-
-  Args:
-    array: A stacked `TensorArray` of size `max_time` that contains `Tensor`s of
-      shape `[batch_size, beam_width, s]` or `[batch_size * beam_width, s]`
-      where `s` is the depth shape.
-    parent_ids: The parent ids of shape `[max_time, batch_size, beam_width]`.
-    sequence_length: The sequence length of shape `[batch_size, beam_width]`.
-
-  Returns:
-    A `Tensor` which is a stacked `TensorArray` of the same size and type as
-    `array` and where beams are sorted in each `Tensor` according to
-    `parent_ids`.
-  """
-  max_time = parent_ids.shape.dims[0].value or tf.shape(parent_ids)[0]
-  batch_size = parent_ids.shape.dims[1].value or tf.shape(parent_ids)[1]
-  beam_width = parent_ids.shape.dims[2].value or tf.shape(parent_ids)[2]
-
-  # Generate beam ids that will be reordered by gather_tree.
-  beam_ids = tf.expand_dims(tf.expand_dims(tf.range(beam_width), 0), 0)
-  beam_ids = tf.tile(beam_ids, [max_time, batch_size, 1])
-
-  max_sequence_lengths = tf.cast(tf.reduce_max(sequence_length, axis=1), tf.int32)
-  sorted_beam_ids = tf.contrib.seq2seq.gather_tree(
-      step_ids=beam_ids,
-      parent_ids=parent_ids,
-      max_sequence_lengths=max_sequence_lengths,
-      end_token=beam_width + 1)
-
-  # For out of range steps, simply copy the same beam.
-  in_bound_steps = tf.transpose(
-      tf.sequence_mask(sequence_length, maxlen=max_time),
-      perm=[2, 0, 1])
-  sorted_beam_ids = tf.where(in_bound_steps, x=sorted_beam_ids, y=beam_ids)
-
-  # Generate indices for gather_nd.
-  time_ind = tf.tile(
-      tf.reshape(tf.range(max_time), [-1, 1, 1]),
-      [1, batch_size, beam_width])
-  batch_ind = tf.tile(
-      tf.reshape(tf.range(batch_size), [-1, 1, 1]),
-      [1, max_time, beam_width])
-  batch_ind = tf.transpose(batch_ind, perm=[1, 0, 2])
-  indices = tf.stack([time_ind, batch_ind, sorted_beam_ids], -1)
-
-  # Gather from a tensor with collapsed additional dimensions.
-  final_shape = tf.shape(array)
-  array = tf.reshape(array, [max_time, batch_size, beam_width, -1])
-  ordered = tf.gather_nd(array, indices)
-  ordered = tf.reshape(ordered, final_shape)
-  return ordered

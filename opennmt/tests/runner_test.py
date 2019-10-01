@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import os
 import unittest
 import shutil
+
+from parameterized import parameterized
 
 import tensorflow as tf
 
@@ -17,12 +20,11 @@ root_dir = os.path.join(test_dir, "..", "..")
 test_data = os.path.join(root_dir, "testdata")
 
 
-@test_util.run_tf1_only
 class RunnerTest(tf.test.TestCase):
 
-  def _getTransliterationRunner(self, base_config=None):
-    model_dir = os.path.join(self.get_temp_dir(), "transliteration-aren")
-    shutil.copytree(os.path.join(test_data, "transliteration-aren"), model_dir)
+  def _getTransliterationRunner(self, base_config=None, model_version="v2"):
+    model_dir = os.path.join(self.get_temp_dir(), "model")
+    shutil.copytree(os.path.join(test_data, "transliteration-aren-v2", model_version), model_dir)
     config = {}
     config["model_dir"] = model_dir
     config["data"] = {
@@ -64,15 +66,29 @@ class RunnerTest(tf.test.TestCase):
         },
         "params": {
             "learning_rate": 0.0005,
-            "optimizer": "AdamOptimizer"
+            "optimizer": "Adam"
         },
         "train": {
             "batch_size": 10,
-            "train_steps": 145001  # Just train for 1 step.
+            "average_last_checkpoints": 4,
+            "save_checkpoints_steps": 1,
+            "max_step": 145002  # Just train for 2 steps.
         }
     }
     runner = self._getTransliterationRunner(config)
-    runner.train()
+    avg_dir = runner.train()
+    self.assertEndsWith(tf.train.latest_checkpoint(avg_dir), "145002")
+    self.assertLen(tf.train.get_checkpoint_state(avg_dir).all_model_checkpoint_paths, 1)
+    model_dir = os.path.dirname(avg_dir)
+    self.assertEndsWith(tf.train.latest_checkpoint(model_dir), "145002")
+    self.assertLen(tf.train.get_checkpoint_state(model_dir).all_model_checkpoint_paths, 3)
+
+    # Check that the averaged checkpoint is usable.
+    ar_file, _ = self._makeTransliterationData()
+    en_file = os.path.join(self.get_temp_dir(), "output.txt")
+    runner.infer(ar_file, predictions_file=en_file, checkpoint_path=avg_dir)
+    with open(en_file) as f:
+      self.assertEqual(next(f).strip(), "a t z m o n")
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testEvaluate(self):
@@ -89,36 +105,17 @@ class RunnerTest(tf.test.TestCase):
     runner = self._getTransliterationRunner(config)
     metrics = runner.evaluate()
     self.assertIn("loss", metrics)
+    self.assertIn("bleu", metrics)
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
-  def testTrainAndEvaluate(self):
-    ar_file, en_file  = self._makeTransliterationData()
+  @parameterized.expand([[1, "v2"], [4, "v2"], [1, "v1"]])
+  def testInfer(self, beam_size, model_version):
     config = {
-        "data": {
-            "train_features_file": ar_file,
-            "train_labels_file": en_file,
-            "eval_features_file": ar_file,
-            "eval_labels_file": en_file
-        },
         "params": {
-            "learning_rate": 0.0005,
-            "optimizer": "AdamOptimizer"
-        },
-        "train": {
-            "batch_size": 10,
-            "train_steps": 145001  # Just train for 1 step.
+            "beam_width": beam_size
         }
     }
-    runner = self._getTransliterationRunner(config)
-    result = runner.train_and_evaluate()
-    if result is not None:
-      metrics, export = result
-      self.assertIn("loss", metrics)
-      self.assertEqual(len(export), 1)
-
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
-  def testInfer(self):
-    runner = self._getTransliterationRunner()
+    runner = self._getTransliterationRunner(config, model_version)
     ar_file, _ = self._makeTransliterationData()
     en_file = os.path.join(self.get_temp_dir(), "output.txt")
     runner.infer(ar_file, predictions_file=en_file)
@@ -126,6 +123,41 @@ class RunnerTest(tf.test.TestCase):
     with open(en_file) as f:
       lines = f.readlines()
     self.assertEqual(len(lines), 5)
+    self.assertEqual(lines[0].strip(), "a t z m o n")
+
+  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
+  def testUpdateVocab(self):
+    config = {
+        "params": {
+            "learning_rate": 0.0005,
+            "optimizer": "Adam"
+        }
+    }
+    runner = self._getTransliterationRunner(config)
+
+    # Reverse order of non special tokens.
+    new_en_vocab = os.path.join(self.get_temp_dir(), "en.vocab.new")
+    with open(os.path.join(runner._config["model_dir"], "en.vocab")) as en_vocab, \
+         open(new_en_vocab, "w") as new_vocab:
+      tokens = en_vocab.readlines()
+      for token in tokens[:3]:
+        new_vocab.write(token)
+      for token in reversed(tokens[3:]):
+        new_vocab.write(token)
+
+    output_dir = os.path.join(self.get_temp_dir(), "updated_vocab")
+    self.assertEqual(runner.update_vocab(output_dir, tgt_vocab=new_en_vocab), output_dir)
+
+    # Check that the translation is unchanged.
+    new_config = copy.deepcopy(runner._config)
+    new_config["model_dir"] = output_dir
+    new_config["data"]["target_vocabulary"] = new_en_vocab
+    runner = Runner(runner._model, new_config)
+    ar_file, _ = self._makeTransliterationData()
+    en_file = os.path.join(self.get_temp_dir(), "output.txt")
+    runner.infer(ar_file, predictions_file=en_file)
+    with open(en_file) as f:
+      self.assertEqual(next(f).strip(), "a t z m o n")
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testScore(self):
@@ -140,12 +172,18 @@ class RunnerTest(tf.test.TestCase):
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testExport(self):
-    export_dir_base = os.path.join(self.get_temp_dir(), "export")
+    export_dir = os.path.join(self.get_temp_dir(), "export")
     runner = self._getTransliterationRunner()
-    export_dir = runner.export(export_dir_base=export_dir_base)
-    with self.test_session() as sess:
-      meta_graph_def = tf.saved_model.loader.load(
-          sess, [tf.saved_model.tag_constants.SERVING], export_dir)
+    runner.export(export_dir)
+    self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
+    imported = tf.saved_model.load(export_dir)
+    translate_fn = imported.signatures["serving_default"]
+    outputs = translate_fn(
+        tokens=tf.constant([["آ" ,"ت" ,"ز" ,"م" ,"و" ,"ن"]]),
+        length=tf.constant([6], dtype=tf.int32))
+    result = tf.nest.map_structure(lambda x: x[0, 0], outputs)
+    tokens = result["tokens"][:result["length"]]
+    self.assertAllEqual(tokens, [b"a", b"t", b"z", b"m", b"o", b"n"])
 
 
 if __name__ == "__main__":

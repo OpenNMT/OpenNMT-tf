@@ -11,7 +11,7 @@ This model achieved the following scores:
 
 ## Requirements
 
-+ OpenNMT-tf (>= 1.10.0) (can be installed via `pip install OpenNMT-tf[tensorflow_gpu]>=1.10.0`)
++ OpenNMT-tf (>= 2.0.0)
 + SentencePiece (see installation instructions below)
 
 ## Steps
@@ -58,13 +58,6 @@ Or if you have only 1 GPU, run the dedicated script:
 CUDA_VISIBLE_DEVICES=0 ./run_wmt_ende_1gpu.sh
 ```
 
-The training logs printed to STDOUT include the values:
-+ `words_per_sec/features`: number of source tokens processed per second
-+ `words_per_sec/labels`: number of target tokens processed per second
-+ `global_step/sec`: number of parameter updates. `global step` is a TensorFlow variable that is incremented each time the gradients are applied.
-
-The reported values are the averages since the last printed output (not a rolling average).
-
 ### Monitoring model training using TensorBoard
 
 You can launch TensorBoard training monitoring by specifying where the logs are being written to (in this case, to a folder called `wmt_ende_transformer`). For example:
@@ -88,7 +81,7 @@ You can run the following script to perform inference on the test set using a tr
 If training is left to run until completion, checkpoint averaging is automatically run. To average the last 5 checkpoints manually, the command is:
 
 ```bash
-onmt-average-checkpoints --model_dir wmt_ende_transformer --output_dir wmt_ende_transformer/avg --max_count 5
+onmt-main --config config/wmt_ende.yml --auto_config average-checkpoints --output_dir wmt_ende_transformer/avg --max_count 5
 ```
 And finally, to run inference:
 

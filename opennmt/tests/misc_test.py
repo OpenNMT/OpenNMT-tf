@@ -6,6 +6,47 @@ from opennmt.utils import misc
 
 class MiscTest(tf.test.TestCase):
 
+  def testGetVariableName(self):
+
+    class Layer(tf.Module):
+      def __init__(self):
+        super(Layer, self).__init__()
+        self.variable = tf.Variable(0)
+
+    class Model(tf.Module):
+      def __init__(self):
+        super(Model, self).__init__()
+        self.layers = [Layer()]
+
+    model = Model()
+    variable_name = misc.get_variable_name(model.layers[0].variable, model)
+    self.assertEqual(variable_name, "model/layers/0/variable/.ATTRIBUTES/VARIABLE_VALUE")
+
+  def testSetDropout(self):
+
+    class Layer(tf.keras.layers.Layer):
+
+      def __init__(self):
+        super(Layer, self).__init__()
+        self.dropout = 0.3
+        self.x = tf.keras.layers.Dropout(0.2)
+
+    class Model(tf.keras.layers.Layer):
+
+      def __init__(self):
+        super(Model, self).__init__()
+        self.output_dropout = 0.1
+        self.layer = Layer()
+        self.layers = [Layer(), Layer()]
+
+    model = Model()
+    misc.set_dropout(model, 0.5)
+    self.assertEqual(model.output_dropout, 0.5)
+    self.assertEqual(model.layer.dropout, 0.5)
+    self.assertEqual(model.layer.x.rate, 0.5)
+    self.assertEqual(model.layers[1].dropout, 0.5)
+    self.assertEqual(model.layers[1].x.rate, 0.5)
+
   def testFormatTranslationOutput(self):
     self.assertEqual(
         misc.format_translation_output("hello world"),
@@ -28,6 +69,32 @@ class MiscTest(tf.test.TestCase):
             attention=np.array([[0.1, 0.7, 0.2], [0.5, 0.3, 0.2]]),
             alignment_type="hard"),
         "hello world ||| 1-0 0-1")
+    self.assertEqual(
+        misc.format_translation_output(
+            "hello world",
+            attention=np.array([[0.1, 0.7, 0.2], [0.5, 0.3, 0.2]]),
+            alignment_type="soft"),
+        "hello world ||| 0.100000 0.700000 0.200000 ; 0.500000 0.300000 0.200000")
+
+  def testReadSummaries(self):
+    event_dir = self.get_temp_dir()
+    summary_writer = tf.summary.create_file_writer(event_dir)
+    with summary_writer.as_default():
+      tf.summary.scalar("values/a", 1, step=0)
+      tf.summary.scalar("values/b", 2, step=0)
+      tf.summary.scalar("values/a", 3, step=5)
+      tf.summary.scalar("values/b", 4, step=5)
+      tf.summary.scalar("values/a", 5, step=10)
+      tf.summary.scalar("values/b", 6, step=10)
+      summary_writer.flush()
+    summaries = misc.read_summaries(event_dir)
+    self.assertLen(summaries, 3)
+    steps, values = zip(*summaries)
+    self.assertListEqual(list(steps), [0, 5, 10])
+    values = list(values)
+    self.assertDictEqual(values[0], {"values/a": 1, "values/b": 2})
+    self.assertDictEqual(values[1], {"values/a": 3, "values/b": 4})
+    self.assertDictEqual(values[2], {"values/a": 5, "values/b": 6})
 
   def testEventOrderRestorer(self):
     events = []

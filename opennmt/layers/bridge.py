@@ -5,8 +5,6 @@ import six
 
 import tensorflow as tf
 
-from opennmt.utils import compat
-
 
 def assert_state_is_compatible(expected_state, state):
   """Asserts that states are compatible.
@@ -19,16 +17,16 @@ def assert_state_is_compatible(expected_state, state):
     ValueError: if the states are incompatible.
   """
   # Check structure compatibility.
-  compat.nest.assert_same_structure(expected_state, state)
+  tf.nest.assert_same_structure(expected_state, state)
 
   # Check shape compatibility.
-  expected_state_flat = compat.nest.flatten(expected_state)
-  state_flat = compat.nest.flatten(state)
+  expected_state_flat = tf.nest.flatten(expected_state)
+  state_flat = tf.nest.flatten(state)
 
   for x, y in zip(expected_state_flat, state_flat):
-    if compat.is_tensor(x):
-      expected_depth = x.get_shape().as_list()[-1]
-      depth = y.get_shape().as_list()[-1]
+    if tf.is_tensor(x):
+      expected_depth = x.shape[-1]
+      depth = y.shape[-1]
       if depth != expected_depth:
         raise ValueError("Tensor in state has shape %s which is incompatible "
                          "with the target shape %s" % (y.shape, x.shape))
@@ -48,13 +46,7 @@ class Bridge(tf.keras.layers.Layer):
     Returns:
       The decoder initial state.
     """
-    inputs = [encoder_state, decoder_zero_state]
-    if compat.is_tf2():
-      return super(Bridge, self).__call__(inputs)
-    # Build by default for backward compatibility.
-    if not compat.reuse():
-      self.build(compat.nest.map_structure(lambda x: x.shape, inputs))
-    return self.call(inputs)
+    return super(Bridge, self).__call__([encoder_state, decoder_zero_state])
 
   @abc.abstractmethod
   def call(self, states):  # pylint: disable=arguments-differ
@@ -65,8 +57,10 @@ class CopyBridge(Bridge):
   """A bridge that passes the encoder state as is."""
 
   def call(self, states):
-    assert_state_is_compatible(states[0], states[1])
-    return states[0]
+    encoder_state, decoder_state = states
+    assert_state_is_compatible(encoder_state, decoder_state)
+    flat_encoder_state = tf.nest.flatten(encoder_state)
+    return tf.nest.pack_sequence_as(decoder_state, flat_encoder_state)
 
 
 class ZeroBridge(Bridge):
@@ -97,16 +91,14 @@ class DenseBridge(Bridge):
   def build(self, input_shape):
     decoder_shape = input_shape[1]
     self.decoder_state_sizes = [
-        shape.as_list()[-1] for shape in compat.nest.flatten(decoder_shape)]
+        shape[-1] for shape in tf.nest.flatten(decoder_shape)]
     self.linear = tf.keras.layers.Dense(
-        sum(self.decoder_state_sizes),
-        activation=self.activation,
-        name=compat.name_from_variable_scope("dense"))
+        sum(self.decoder_state_sizes), activation=self.activation)
 
   def call(self, states):
     encoder_state, decoder_state = states
-    encoder_state_flat = compat.nest.flatten(encoder_state)
+    encoder_state_flat = tf.nest.flatten(encoder_state)
     encoder_state_single = tf.concat(encoder_state_flat, 1)
     transformed = self.linear(encoder_state_single)
     splitted = tf.split(transformed, self.decoder_state_sizes, axis=1)
-    return compat.nest.pack_sequence_as(decoder_state, splitted)
+    return tf.nest.pack_sequence_as(decoder_state, splitted)
