@@ -182,10 +182,7 @@ class Trainer(object):
       export_dir = os.path.join(self._checkpoint.model_dir, "export", str(step))
       tf.get_logger().info("Exporting SavedModel to %s (best %s so far: %f)",
                            export_dir, export_on_best, metrics[export_on_best])
-      tf.saved_model.save(
-          self._model,
-          export_dir,
-          signatures=self._model.serve_function())
+      self._model.export(export_dir)
 
 
 def _report_training_status(step, loss, learning_rate, accum_num_words, last_report_time):

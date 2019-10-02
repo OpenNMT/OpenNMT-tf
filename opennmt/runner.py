@@ -374,19 +374,7 @@ class Runner(object):
    """
     checkpoint, _ = self._init_run()
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    tf.saved_model.save(
-        checkpoint.model,
-        export_dir,
-        signatures=checkpoint.model.serve_function())
-
-    with tempfile.TemporaryDirectory() as tmp_dir:
-      extra_assets = checkpoint.model.export_assets(tmp_dir)
-      if extra_assets:
-        assets_extra = os.path.join(export_dir, "assets.extra")
-        tf.io.gfile.makedirs(assets_extra)
-        for filename, path in six.iteritems(extra_assets):
-          tf.io.gfile.copy(path, os.path.join(assets_extra, filename), overwrite=True)
-        tf.get_logger().info("Extra assets written to: %s", assets_extra)
+    checkpoint.model.export(export_dir)
 
   def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.

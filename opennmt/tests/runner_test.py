@@ -200,10 +200,20 @@ class RunnerTest(tf.test.TestCase):
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testExport(self):
+    config = {
+        "data": {
+            "source_tokenization": {
+                "mode": "char"
+            }
+        }
+    }
     export_dir = os.path.join(self.get_temp_dir(), "export")
-    runner = self._getTransliterationRunner()
+    runner = self._getTransliterationRunner(config)
     runner.export(export_dir)
     self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
+    extra_assets_dir = os.path.join(export_dir, "assets.extra")
+    self.assertTrue(os.path.isdir(extra_assets_dir))
+    self.assertLen(os.listdir(extra_assets_dir), 1)
     imported = tf.saved_model.load(export_dir)
     translate_fn = imported.signatures["serving_default"]
     outputs = translate_fn(
