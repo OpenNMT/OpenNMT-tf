@@ -168,6 +168,8 @@ class Trainer(object):
         if step == max_step:
           break
 
+    if evaluator is not None and step != evaluator.last_evaluated_step:
+      evaluator(step)
     self._checkpoint.save(step)
 
 

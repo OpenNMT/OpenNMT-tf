@@ -159,6 +159,13 @@ class Evaluator(object):
     """The history of metrics result per evaluation step."""
     return self._metrics_history
 
+  @property
+  def last_evaluated_step(self):
+    """The last training step that was evaluated."""
+    if not self._metrics_history:
+      return None
+    return self._metrics_history[-1][0]
+
   def _is_higher_better_for_metric(self, metric):
     # Look if the metric is produced by a scorer as they define the scores order.
     for scorer in self._scorers:
