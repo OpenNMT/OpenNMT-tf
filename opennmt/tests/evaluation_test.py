@@ -1,3 +1,4 @@
+import math
 import os
 import six
 
@@ -55,6 +56,12 @@ class TestModel(models.Model):
 
 class EvaluationTest(tf.test.TestCase):
 
+  def _assertMetricsEqual(self, metrics, expected):
+    self.assertLen(metrics, len(expected))
+    for name in six.iterkeys(expected):
+      self.assertIn(name, metrics)
+      self.assertAllClose(metrics[name], expected[name])
+
   def testEvaluationMetric(self):
     features_file = os.path.join(self.get_temp_dir(), "features.txt")
     labels_file = os.path.join(self.get_temp_dir(), "labels.txt")
@@ -72,18 +79,18 @@ class EvaluationTest(tf.test.TestCase):
         batch_size=1,
         early_stopping=early_stopping,
         eval_dir=eval_dir)
-    self.assertSetEqual(evaluator.metrics_name, {"loss", "a", "b"})
+    self.assertSetEqual(evaluator.metrics_name, {"loss", "perplexity", "a", "b"})
     metrics_5 = evaluator(5)
-    self.assertDictEqual(metrics_5, {"loss": 1.0, "a": 2, "b": 3})
+    self._assertMetricsEqual(
+        metrics_5, {"loss": 1.0, "perplexity": math.exp(1.0), "a": 2, "b": 3})
     self.assertFalse(evaluator.should_stop())
     metrics_10 = evaluator(10)
-    self.assertDictEqual(metrics_10, {"loss": 4.0, "a": 5, "b": 6})
+    self._assertMetricsEqual(
+        metrics_10, {"loss": 4.0, "perplexity": math.exp(4.0), "a": 5, "b": 6})
     self.assertTrue(evaluator.should_stop())
     self.assertLen(evaluator.metrics_history, 2)
-    self.assertEqual(evaluator.metrics_history[0][0], 5)
-    self.assertEqual(evaluator.metrics_history[0][1], metrics_5)
-    self.assertEqual(evaluator.metrics_history[1][0], 10)
-    self.assertEqual(evaluator.metrics_history[1][1], metrics_10)
+    self._assertMetricsEqual(evaluator.metrics_history[0][1], metrics_5)
+    self._assertMetricsEqual(evaluator.metrics_history[1][1], metrics_10)
 
     # Recreating the evaluator should load the metrics history from the eval directory.
     evaluator = evaluation.Evaluator(
@@ -93,13 +100,12 @@ class EvaluationTest(tf.test.TestCase):
         batch_size=1,
         eval_dir=eval_dir)
     self.assertLen(evaluator.metrics_history, 2)
-    self.assertEqual(evaluator.metrics_history[0][0], 5)
-    self.assertEqual(evaluator.metrics_history[0][1], metrics_5)
-    self.assertEqual(evaluator.metrics_history[1][0], 10)
-    self.assertEqual(evaluator.metrics_history[1][1], metrics_10)
+    self._assertMetricsEqual(evaluator.metrics_history[0][1], metrics_5)
+    self._assertMetricsEqual(evaluator.metrics_history[1][1], metrics_10)
 
     # Evaluating previous steps should clear future steps in the history.
-    self.assertDictEqual(evaluator(7), {"loss": 7.0, "a": 8, "b": 9})
+    self._assertMetricsEqual(
+        evaluator(7), {"loss": 7.0, "perplexity": math.exp(7.0), "a": 8, "b": 9})
     recorded_steps = list(step for step, _ in evaluator.metrics_history)
     self.assertListEqual(recorded_steps, [5, 7])
 
