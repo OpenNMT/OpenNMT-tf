@@ -92,7 +92,7 @@ class Evaluator(object):
 
     self._eval = _eval
 
-    self._metrics_name = {"loss"}
+    self._metrics_name = {"loss", "perplexity"}
     for scorer in self._scorers:
       self._metrics_name.update(scorer.scores_name)
     model_metrics = self._model.get_metrics()
@@ -173,7 +173,7 @@ class Evaluator(object):
     if higher_is_better is None:
       # TODO: the condition below is not always true, find a way to set it
       # correctly for Keras metrics.
-      higher_is_better = target_metric != "loss"
+      higher_is_better = target_metric not in ("loss", "perplexity")
     metrics = [values[target_metric] for _, values in self._metrics_history]
     should_stop = early_stop(
         metrics,
@@ -224,7 +224,7 @@ class Evaluator(object):
       raise RuntimeError("No examples were evaluated")
     loss = loss_num / loss_den
 
-    results = dict(loss=loss)
+    results = dict(loss=loss, perplexity=tf.math.exp(loss))
     if metrics:
       for name, metric in six.iteritems(metrics):
         results[name] = metric.result()
