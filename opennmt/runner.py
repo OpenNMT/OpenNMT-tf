@@ -201,7 +201,8 @@ class Runner(object):
         report_steps=train_config.get("save_summary_steps", 100),
         save_steps=train_config.get("save_checkpoints_steps", 5000),
         evaluator=evaluator,
-        eval_steps=eval_config.get("steps", 5000))
+        eval_steps=eval_config.get("steps", 5000),
+        export_on_best=eval_config.get("export_on_best"))
     average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
     if average_last_checkpoints > 0:
       return self.average_checkpoints(

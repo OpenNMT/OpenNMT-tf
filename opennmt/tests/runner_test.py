@@ -91,6 +91,34 @@ class RunnerTest(tf.test.TestCase):
       self.assertEqual(next(f).strip(), "a t z m o n")
 
   @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
+  def testTrainWithEval(self):
+    ar_file, en_file  = self._makeTransliterationData()
+    config = {
+        "data": {
+            "train_features_file": ar_file,
+            "train_labels_file": en_file,
+            "eval_features_file": ar_file,
+            "eval_labels_file": en_file
+        },
+        "params": {
+            "learning_rate": 0.0005,
+            "optimizer": "Adam"
+        },
+        "train": {
+            "batch_size": 10,
+            "max_step": 145002  # Just train for 2 steps.
+        },
+        "eval": {
+            "export_on_best": "loss"
+        }
+    }
+    runner = self._getTransliterationRunner(config)
+    model_dir = runner.train(with_eval=True)
+    export_dir = os.path.join(model_dir, "export", "145002")
+    self.assertTrue(os.path.exists(export_dir))
+    self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
+
+  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testEvaluate(self):
     ar_file, en_file  = self._makeTransliterationData()
     config = {

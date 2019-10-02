@@ -220,6 +220,9 @@ eval:
   # Available evaluators: bleu, rouge
   external_evaluators: bleu
 
+  # (optional) Export a SavedModel when a metric has the best value so far (default: null).
+  export_on_best: bleu
+
   # (optional) Early stopping condition.
   # Should be read as: stop the training if "metric" did not improve more
   # than "min_improvement" in the last "steps" evaluations.
