@@ -197,7 +197,6 @@ class GPT2Small(language_model.LanguageModel):
             }
         },
         "train": {
-            "bucket_width": 1,
             # Below options are from GPT-1.
             "batch_size": 64,
             "maximum_features_length": 512
