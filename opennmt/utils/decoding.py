@@ -29,6 +29,24 @@ class Sampler(object):
     """
     raise NotImplementedError()
 
+  @staticmethod
+  def from_params(params):
+    """Constructs a sampler based on user parameters.
+
+    Args:
+      params: A dictionary of user parameters.
+
+    Returns:
+      A :class:`opennmt.utils.Sampler` instance.
+    """
+    sampling_topk = params.get("sampling_topk", 1)
+    if sampling_topk == 1:
+      return BestSampler()
+    else:
+      return RandomSampler(
+          from_top_k=sampling_topk,
+          temperature=params.get("sampling_temperature"))
+
 class RandomSampler(Sampler):
   """Randomly samples from model outputs."""
 
@@ -72,6 +90,25 @@ class DecodingStrategy(object):
   def num_hypotheses(self):
     """The number of hypotheses returned by this strategy."""
     return 1
+
+  @staticmethod
+  def from_params(params):
+    """Constructs a decoding strategy based on user parameters.
+
+    Args:
+      params: A dictionary of user parameters.
+
+    Returns:
+      A :class:`opennmt.utils.DecodingStrategy` instance.
+    """
+    beam_size = params.get("beam_width", 1)
+    if beam_size > 1:
+      return BeamSearch(
+          beam_size,
+          length_penalty=params.get("length_penalty", 0),
+          coverage_penalty=params.get("coverage_penalty", 0))
+    else:
+      return GreedySearch()
 
   @abc.abstractmethod
   def _initialize(self, batch_size, start_ids, attention_size=None):
@@ -463,58 +500,6 @@ def dynamic_decode(symbols_to_logits_fn,
       log_probs=log_probs,
       attention=attention,
       state=state)
-
-def dynamic_decode_from_params(decoder,
-                               inputter,
-                               start_ids,
-                               end_id=constants.END_OF_SENTENCE_ID,
-                               initial_state=None,
-                               params=None):
-  """Convenient :function:`opennmt.utils.dynamic_decode` wrapper to read
-  user parameters.
-
-  Args:
-    decoder: A :class:`opennmt.decoders.Decoder` instance.
-    inputter: A :class:`opennmt.inputters.WordEmbedder` instance.
-    start_ids: Initial input IDs of shape :math:`[B]`.
-    end_id: ID of the end of sequence token.
-    initial_state: Initial decoder state.
-    params: A dictionary of user parameters.
-
-  See Also:
-    :function:`opennmt.utils.dynamic_decode`
-  """
-  if params is None:
-    params = {}
-
-  beam_size = params.get("beam_width", 1)
-  if beam_size == 1:
-    decoding_strategy = GreedySearch()
-  else:
-    decoding_strategy = BeamSearch(
-        beam_size,
-        length_penalty=params.get("length_penalty", 0),
-        coverage_penalty=params.get("coverage_penalty", 0))
-
-  sampling_topk = params.get("sampling_topk", 1)
-  if sampling_topk == 1:
-    sampler = BestSampler()
-  else:
-    sampler = RandomSampler(
-        from_top_k=sampling_topk,
-        temperature=params.get("sampling_temperature"))
-
-  return dynamic_decode(
-      lambda ids, step, state: decoder(inputter({"ids": ids}), step, state),
-      start_ids,
-      end_id=end_id,
-      initial_state=initial_state,
-      decoding_strategy=decoding_strategy,
-      sampler=sampler,
-      maximum_iterations=params.get("maximum_decoding_length", 250),
-      minimum_iterations=params.get("minimum_decoding_length", 0),
-      attention_history=decoder.support_alignment_history,
-      attention_size=tf.shape(decoder.memory)[1] if decoder.support_alignment_history else None)
 
 
 def _gather_state(tensor, indices):

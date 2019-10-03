@@ -80,12 +80,6 @@ class LanguageModel(model.SequenceGenerator):
             false_fn=lambda: self._decode(context_ids, context_length)[1])
 
       params = self.params
-      sampling_topk = params.get("sampling_topk")
-      if sampling_topk is not None and sampling_topk != 1:
-        sampler = decoding.RandomSampler(
-            from_top_k=sampling_topk, temperature=params.get("sampling_temperature"))
-      else:
-        sampler = decoding.BestSampler()
 
       def _decode_with_step_offset(ids, step, state):
         return self._decode(ids, step + context_length[0], state)
@@ -95,7 +89,7 @@ class LanguageModel(model.SequenceGenerator):
           _decode_with_step_offset,
           tf.squeeze(start_ids, 1),
           initial_state=state,
-          sampler=sampler,
+          sampler=decoding.Sampler.from_params(params),
           maximum_iterations=params.get("maximum_decoding_length", 250),
           minimum_iterations=params.get("minimum_decoding_length", 0))
       sampled_ids = tf.reshape(sampled_ids, [batch_size, -1])

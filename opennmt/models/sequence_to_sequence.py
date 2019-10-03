@@ -233,12 +233,14 @@ class SequenceToSequence(model.SequenceGenerator):
         memory=encoder_outputs,
         memory_sequence_length=encoder_sequence_length,
         initial_state=encoder_state)
-    sampled_ids, sampled_length, log_probs, alignment, _ = decoding.dynamic_decode_from_params(
-        self.decoder,
+    sampled_ids, sampled_length, log_probs, alignment, _ = self.decoder.dynamic_decode(
         self.labels_inputter,
         start_ids,
         initial_state=initial_state,
-        params=params)
+        decoding_strategy=decoding.DecodingStrategy.from_params(params),
+        sampler=decoding.Sampler.from_params(params),
+        maximum_iterations=params.get("maximum_decoding_length", 250),
+        minimum_iterations=params.get("minimum_decoding_length", 0))
     target_tokens = self.labels_inputter.ids_to_tokens.lookup(tf.cast(sampled_ids, tf.int64))
 
     # Maybe replace unknown targets by the source tokens with the highest attention weight.

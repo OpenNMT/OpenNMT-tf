@@ -16,6 +16,19 @@ def _generate_logits_fn(vocab_size, to_generate):
 
 class DecodingTest(tf.test.TestCase):
 
+  def testSamplerFromParams(self):
+    self.assertIsInstance(decoding.Sampler.from_params({}), decoding.BestSampler)
+    self.assertIsInstance(decoding.Sampler.from_params({"sampling_topk": 1}), decoding.BestSampler)
+    self.assertIsInstance(decoding.Sampler.from_params({"sampling_topk": 2}), decoding.RandomSampler)
+
+  def testDecodingStrategyFromParams(self):
+    self.assertIsInstance(
+        decoding.DecodingStrategy.from_params({}), decoding.GreedySearch)
+    self.assertIsInstance(
+        decoding.DecodingStrategy.from_params({"beam_width": 1}), decoding.GreedySearch)
+    self.assertIsInstance(
+        decoding.DecodingStrategy.from_params({"beam_width": 2}), decoding.BeamSearch)
+
   def testPenalizeToken(self):
     log_probs = tf.zeros([4, 6])
     token_id = 1

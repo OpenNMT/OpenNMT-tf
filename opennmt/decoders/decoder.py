@@ -5,6 +5,8 @@ import six
 
 import tensorflow as tf
 
+from opennmt import constants
+from opennmt.inputters import text_inputter
 from opennmt.layers import common
 from opennmt.utils import decoding
 from opennmt.utils import misc
@@ -337,23 +339,52 @@ class Decoder(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
-  def dynamic_decode(self, embeddings, *args, **kwargs):
-    """Decodes dynamically, see :func:`opennmt.utils.dynamic_decode`.
+  def dynamic_decode(self,
+                     embeddings,
+                     start_ids,
+                     end_id=constants.END_OF_SENTENCE_ID,
+                     initial_state=None,
+                     decoding_strategy=None,
+                     sampler=None,
+                     maximum_iterations=None,
+                     minimum_iterations=0):
+    """Decodes dynamically from :obj:`start_ids`.
 
     Args:
-      embeddings: Target embeddings.
-      *args: Positional arguments of :func:`opennmt.utils.dynamic_decode`.
-      **kwargs: Keyword arguments of :func:`opennmt.utils.dynamic_decode`.
+      embeddings: Target embeddings or :class:`opennmt.inputters.WordEmbedder`
+        to apply on decoded ids.
+      start_ids: Initial input IDs of shape :math:`[B]`.
+      end_id: ID of the end of sequence token.
+      initial_state: Initial decoder state.
+      decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`
+        instance that define the decoding logic. Defaults to a greedy search.
+      sampler: A :class:`opennmt.utils.Sampler` instance that samples
+        predictions from the model output. Defaults to an argmax sampling.
+      maximum_iterations: The maximum number of iterations to decode for.
+      minimum_iterations: The minimum number of iterations to decode for.
 
     Returns:
-      See :func:`opennmt.utils.dynamic_decode`.
+      A :class:`opennmt.utils.DecodingResult` instance.
+
+    See Also:
+      :func:`opennmt.utils.dynamic_decode`.
     """
-    symbols_to_logits_fn = lambda ids, step, state: (
-        self(tf.nn.embedding_lookup(embeddings, ids), step, state))
+    if isinstance(embeddings, text_inputter.WordEmbedder):
+      input_fn = lambda ids: embeddings({"ids": ids})
+    else:
+      input_fn = lambda ids: tf.nn.embedding_lookup(embeddings, ids)
+
     return decoding.dynamic_decode(
-        symbols_to_logits_fn,
-        *args,
-        **kwargs)
+        lambda ids, step, state: self(input_fn(ids), step, state),
+        start_ids,
+        end_id=end_id,
+        initial_state=initial_state,
+        decoding_strategy=decoding_strategy,
+        sampler=sampler,
+        maximum_iterations=maximum_iterations,
+        minimum_iterations=minimum_iterations,
+        attention_history=self.support_alignment_history,
+        attention_size=tf.shape(self.memory)[1] if self.support_alignment_history else None)
 
   @abc.abstractmethod
   def _get_initial_state(self, batch_size, dtype, initial_state=None):
