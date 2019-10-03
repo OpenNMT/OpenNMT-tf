@@ -150,9 +150,8 @@ def main():
       help="Path to the new target vocabulary.")
 
   args = parser.parse_args()
-  if hasattr(args, "features_file"):
-    if len(args.features_file) == 1:
-      args.features_file = args.features_file[0]
+  if hasattr(args, "features_file") and args.features_file and len(args.features_file) == 1:
+    args.features_file = args.features_file[0]
 
   _set_log_level(getattr(logging, args.log_level))
   tf.config.threading.set_intra_op_parallelism_threads(args.intra_op_parallelism_threads)
