@@ -310,6 +310,15 @@ class ModelTest(tf.test.TestCase):
     model.create_variables()
     self.assertTrue(len(model.trainable_variables) > 0)
 
+  def testCreateVariablesLanguageModel(self):
+    _, data_config = self._makeToyLMData()
+    decoder = decoders.SelfAttentionDecoder(
+        2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0)
+    model = models.LanguageModel(decoder, embedding_size=16)
+    model.initialize(data_config)
+    model.create_variables()
+    self.assertTrue(len(model.trainable_variables) > 0)
+
   def testInitializeWithDropoutOverride(self):
     model = models.SequenceToSequence(
         inputters.WordEmbedder(16),
