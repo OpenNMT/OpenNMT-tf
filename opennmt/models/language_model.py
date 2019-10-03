@@ -139,8 +139,9 @@ class LanguageModelInputter(inputters.WordEmbedder):
   input sequence.
   """
 
-  def _generate_example(self, element, training=None):
-    features = self.make_features(element, training=training)
+  def make_features(self, element=None, features=None, training=None):
+    features = super(LanguageModelInputter, self).make_features(
+        element=element, features=features, training=training)
     labels = {
         "ids_out": tf.concat([features["ids"][1:], [constants.END_OF_SENTENCE_ID]], 0),
         "length": tf.identity(features["length"])
@@ -148,6 +149,22 @@ class LanguageModelInputter(inputters.WordEmbedder):
     if not training:
       labels["tokens"] = tf.concat([features["tokens"][1:], [constants.END_OF_SENTENCE_TOKEN]], 0)
     return features, labels
+
+  def make_inference_dataset(self,
+                             features_file,
+                             batch_size,
+                             length_bucket_width=None,
+                             num_threads=1,
+                             prefetch_buffer_size=None):
+    dataset = self.make_dataset(features_file, training=False)
+    dataset = dataset.apply(dataset_util.inference_pipeline(
+        batch_size,
+        process_fn=lambda x: self.make_features(x, training=False)[0],
+        length_bucket_width=length_bucket_width,
+        length_fn=self.get_length,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size))
+    return dataset
 
   def make_evaluation_dataset(self,
                               features_file,
@@ -160,7 +177,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
-        process_fn=lambda x: self._generate_example(x, training=False),
+        process_fn=lambda x: self.make_features(x, training=False),
         num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size))
     return dataset
@@ -190,7 +207,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
         batch_multiplier=batch_multiplier,
         length_bucket_width=length_bucket_width,
         single_pass=single_pass,
-        process_fn=lambda x: self._generate_example(x, training=True),
+        process_fn=lambda x: self.make_features(x, training=True),
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
