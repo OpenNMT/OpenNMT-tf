@@ -20,6 +20,7 @@ root_dir = os.path.join(test_dir, "..", "..")
 test_data = os.path.join(root_dir, "testdata")
 
 
+@unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
 class RunnerTest(tf.test.TestCase):
 
   def _getTransliterationRunner(self, base_config=None, model_version="v2"):
@@ -56,7 +57,6 @@ class RunnerTest(tf.test.TestCase):
     en_file = test_util.make_data_file(os.path.join(self.get_temp_dir(), "en.txt"), en)
     return ar_file, en_file
 
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testTrain(self):
     ar_file, en_file  = self._makeTransliterationData()
     config = {
@@ -90,7 +90,33 @@ class RunnerTest(tf.test.TestCase):
     with open(en_file) as f:
       self.assertEqual(next(f).strip(), "a t z m o n")
 
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
+  def testTrainWithEval(self):
+    ar_file, en_file  = self._makeTransliterationData()
+    config = {
+        "data": {
+            "train_features_file": ar_file,
+            "train_labels_file": en_file,
+            "eval_features_file": ar_file,
+            "eval_labels_file": en_file
+        },
+        "params": {
+            "learning_rate": 0.0005,
+            "optimizer": "Adam"
+        },
+        "train": {
+            "batch_size": 10,
+            "max_step": 145002  # Just train for 2 steps.
+        },
+        "eval": {
+            "export_on_best": "loss"
+        }
+    }
+    runner = self._getTransliterationRunner(config)
+    model_dir = runner.train(with_eval=True)
+    export_dir = os.path.join(model_dir, "export", "145002")
+    self.assertTrue(os.path.exists(export_dir))
+    self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
+
   def testEvaluate(self):
     ar_file, en_file  = self._makeTransliterationData()
     config = {
@@ -107,7 +133,6 @@ class RunnerTest(tf.test.TestCase):
     self.assertIn("loss", metrics)
     self.assertIn("bleu", metrics)
 
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   @parameterized.expand([[1, "v2"], [4, "v2"], [1, "v1"]])
   def testInfer(self, beam_size, model_version):
     config = {
@@ -125,7 +150,6 @@ class RunnerTest(tf.test.TestCase):
     self.assertEqual(len(lines), 5)
     self.assertEqual(lines[0].strip(), "a t z m o n")
 
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testUpdateVocab(self):
     config = {
         "params": {
@@ -159,7 +183,6 @@ class RunnerTest(tf.test.TestCase):
     with open(en_file) as f:
       self.assertEqual(next(f).strip(), "a t z m o n")
 
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testScore(self):
     runner = self._getTransliterationRunner()
     ar_file, en_file = self._makeTransliterationData()
@@ -170,12 +193,21 @@ class RunnerTest(tf.test.TestCase):
       lines = f.readlines()
     self.assertEqual(len(lines), 5)
 
-  @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
   def testExport(self):
+    config = {
+        "data": {
+            "source_tokenization": {
+                "mode": "char"
+            }
+        }
+    }
     export_dir = os.path.join(self.get_temp_dir(), "export")
-    runner = self._getTransliterationRunner()
+    runner = self._getTransliterationRunner(config)
     runner.export(export_dir)
     self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
+    extra_assets_dir = os.path.join(export_dir, "assets.extra")
+    self.assertTrue(os.path.isdir(extra_assets_dir))
+    self.assertLen(os.listdir(extra_assets_dir), 1)
     imported = tf.saved_model.load(export_dir)
     translate_fn = imported.signatures["serving_default"]
     outputs = translate_fn(

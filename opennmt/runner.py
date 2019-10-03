@@ -201,7 +201,8 @@ class Runner(object):
         report_steps=train_config.get("save_summary_steps", 100),
         save_steps=train_config.get("save_checkpoints_steps", 5000),
         evaluator=evaluator,
-        eval_steps=eval_config.get("steps", 5000))
+        eval_steps=eval_config.get("steps", 5000),
+        export_on_best=eval_config.get("export_on_best"))
     average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
     if average_last_checkpoints > 0:
       return self.average_checkpoints(
@@ -373,19 +374,7 @@ class Runner(object):
    """
     checkpoint, _ = self._init_run()
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    tf.saved_model.save(
-        checkpoint.model,
-        export_dir,
-        signatures=checkpoint.model.serve_function())
-
-    with tempfile.TemporaryDirectory() as tmp_dir:
-      extra_assets = checkpoint.model.export_assets(tmp_dir)
-      if extra_assets:
-        assets_extra = os.path.join(export_dir, "assets.extra")
-        tf.io.gfile.makedirs(assets_extra)
-        for filename, path in six.iteritems(extra_assets):
-          tf.io.gfile.copy(path, os.path.join(assets_extra, filename), overwrite=True)
-        tf.get_logger().info("Extra assets written to: %s", assets_extra)
+    checkpoint.model.export(export_dir)
 
   def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.

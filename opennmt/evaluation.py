@@ -159,22 +159,33 @@ class Evaluator(object):
     """The history of metrics result per evaluation step."""
     return self._metrics_history
 
+  @property
+  def last_evaluated_step(self):
+    """The last training step that was evaluated."""
+    if not self._metrics_history:
+      return None
+    return self._metrics_history[-1][0]
+
+  def _is_higher_better_for_metric(self, metric):
+    # Look if the metric is produced by a scorer as they define the scores order.
+    for scorer in self._scorers:
+      if metric in scorer.scores_name:
+        return scorer.higher_is_better()
+    # TODO: the condition below is not always true, find a way to set it
+    # correctly for Keras metrics.
+    return metric not in ("loss", "perplexity")
+
+  def _get_metric_history(self, metric):
+    return [
+        metrics[metric] for _, metrics in self._metrics_history if metric in metrics]
+
   def should_stop(self):
     """Returns ``True`` if early stopping conditions are met."""
     if self._early_stopping is None:
       return False
     target_metric = self._early_stopping.metric
-    higher_is_better = None
-    # Look if target_metric is produced by a scorer as they define the scores order.
-    for scorer in self._scorers:
-      if target_metric in scorer.scores_name:
-        higher_is_better = scorer.higher_is_better()
-        break
-    if higher_is_better is None:
-      # TODO: the condition below is not always true, find a way to set it
-      # correctly for Keras metrics.
-      higher_is_better = target_metric not in ("loss", "perplexity")
-    metrics = [values[target_metric] for _, values in self._metrics_history]
+    higher_is_better = self._is_higher_better_for_metric(target_metric)
+    metrics = self._get_metric_history(target_metric)
     should_stop = early_stop(
         metrics,
         self._early_stopping.steps,
@@ -187,6 +198,26 @@ class Evaluator(object):
           self._early_stopping.min_improvement,
           self._early_stopping.steps)
     return should_stop
+
+  def is_best(self, metric):
+    """Returns ``True`` if the latest value of :obj:`metric` is the best so far.
+
+    Args:
+      metric: The metric to consider.
+
+    Returns:
+      A boolean.
+    """
+    metric_history = self._get_metric_history(metric)
+    if not metric_history:
+      return False
+    metric_history, latest_value = metric_history[:-1], metric_history[-1]
+    if not metric_history:
+      return True
+    if self._is_higher_better_for_metric(metric):
+      return latest_value > max(metric_history)
+    else:
+      return latest_value < min(metric_history)
 
   def __call__(self, step):
     """Runs the evaluator.

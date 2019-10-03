@@ -3,6 +3,8 @@
 from __future__ import print_function
 
 import abc
+import os
+import tempfile
 import six
 
 import tensorflow as tf
@@ -231,6 +233,22 @@ class Model(tf.keras.layers.Layer):
       return predictions
 
     return _run
+
+  def export(self, export_dir):
+    """Exports the model to a SavedModel.
+
+    Args:
+      export_dir: The output directory.
+    """
+    tf.saved_model.save(self, export_dir, signatures=self.serve_function())
+    with tempfile.TemporaryDirectory() as tmp_dir:
+      extra_assets = self.export_assets(tmp_dir)
+      if extra_assets:
+        assets_extra = os.path.join(export_dir, "assets.extra")
+        tf.io.gfile.makedirs(assets_extra)
+        for filename, path in six.iteritems(extra_assets):
+          tf.io.gfile.copy(path, os.path.join(assets_extra, filename), overwrite=True)
+        tf.get_logger().info("Extra assets written to: %s", assets_extra)
 
   def create_variables(self, optimizer=None):
     """Creates the model variables by running it once.

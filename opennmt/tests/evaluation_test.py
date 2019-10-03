@@ -84,10 +84,12 @@ class EvaluationTest(tf.test.TestCase):
     self._assertMetricsEqual(
         metrics_5, {"loss": 1.0, "perplexity": math.exp(1.0), "a": 2, "b": 3})
     self.assertFalse(evaluator.should_stop())
+    self.assertTrue(evaluator.is_best("loss"))
     metrics_10 = evaluator(10)
     self._assertMetricsEqual(
         metrics_10, {"loss": 4.0, "perplexity": math.exp(4.0), "a": 5, "b": 6})
     self.assertTrue(evaluator.should_stop())
+    self.assertFalse(evaluator.is_best("loss"))
     self.assertLen(evaluator.metrics_history, 2)
     self._assertMetricsEqual(evaluator.metrics_history[0][1], metrics_5)
     self._assertMetricsEqual(evaluator.metrics_history[1][1], metrics_10)
@@ -106,6 +108,7 @@ class EvaluationTest(tf.test.TestCase):
     # Evaluating previous steps should clear future steps in the history.
     self._assertMetricsEqual(
         evaluator(7), {"loss": 7.0, "perplexity": math.exp(7.0), "a": 8, "b": 9})
+    self.assertFalse(evaluator.is_best("loss"))
     recorded_steps = list(step for step, _ in evaluator.metrics_history)
     self.assertListEqual(recorded_steps, [5, 7])
 
