@@ -139,125 +139,157 @@ class SequenceToSequence(model.SequenceGenerator):
         output_layer=output_layer)
 
   def call(self, features, labels=None, training=None, step=None):
-    params = self.params
-
-    features_length = self.features_inputter.get_length(features)
+    # Encode the source.
+    source_length = self.features_inputter.get_length(features)
     source_inputs = self.features_inputter(features, training=training)
     encoder_outputs, encoder_state, encoder_sequence_length = self.encoder(
-        source_inputs,
-        sequence_length=features_length,
-        training=training)
+        source_inputs, sequence_length=source_length, training=training)
 
+    outputs = None
+    predictions = None
+
+    # When a target is provided, compute the decoder outputs for it.
     if labels is not None:
-      target_inputs = self.labels_inputter(labels, training=training)
-      input_fn = lambda ids: self.labels_inputter({"ids": ids}, training=training)
-      sampling_probability = None
-      if training:
-        sampling_probability = decoder_util.get_sampling_probability(
-            step,
-            read_probability=params.get("scheduled_sampling_read_probability"),
-            schedule_type=params.get("scheduled_sampling_type"),
-            k=params.get("scheduled_sampling_k"))
+      outputs = self._decode_target(
+          labels,
+          encoder_outputs,
+          encoder_state,
+          encoder_sequence_length,
+          step=step,
+          training=training)
 
-      initial_state = self.decoder.initial_state(
-          memory=encoder_outputs,
-          memory_sequence_length=encoder_sequence_length,
-          initial_state=encoder_state)
-      logits, _, attention = self.decoder(
-          target_inputs,
-          self.labels_inputter.get_length(labels),
+    # When not in training, also compute the model predictions.
+    if not training:
+      predictions = self._dynamic_decode(
+          features,
+          encoder_outputs,
+          encoder_state,
+          encoder_sequence_length)
+
+    return outputs, predictions
+
+  def _decode_target(self,
+                     labels,
+                     encoder_outputs,
+                     encoder_state,
+                     encoder_sequence_length,
+                     step=None,
+                     training=None):
+    params = self.params
+    target_inputs = self.labels_inputter(labels, training=training)
+    input_fn = lambda ids: self.labels_inputter({"ids": ids}, training=training)
+
+    sampling_probability = None
+    if training:
+      sampling_probability = decoder_util.get_sampling_probability(
+          step,
+          read_probability=params.get("scheduled_sampling_read_probability"),
+          schedule_type=params.get("scheduled_sampling_type"),
+          k=params.get("scheduled_sampling_k"))
+
+    initial_state = self.decoder.initial_state(
+        memory=encoder_outputs,
+        memory_sequence_length=encoder_sequence_length,
+        initial_state=encoder_state)
+    logits, _, attention = self.decoder(
+        target_inputs,
+        self.labels_inputter.get_length(labels),
+        state=initial_state,
+        input_fn=input_fn,
+        sampling_probability=sampling_probability,
+        training=training)
+    outputs = dict(logits=logits, attention=attention)
+
+    noisy_ids = labels.get("noisy_ids")
+    if noisy_ids is not None and params.get("contrastive_learning"):
+      # In case of contrastive learning, also forward the erroneous
+      # translation to compute its log likelihood later.
+      noisy_inputs = self.labels_inputter({"ids": noisy_ids}, training=training)
+      noisy_logits, _, _ = self.decoder(
+          noisy_inputs,
+          labels["noisy_length"],
           state=initial_state,
           input_fn=input_fn,
           sampling_probability=sampling_probability,
           training=training)
-      outputs = dict(logits=logits, attention=attention)
+      outputs["noisy_logits"] = noisy_logits
+    return outputs
 
-      noisy_ids = labels.get("noisy_ids")
-      if noisy_ids is not None and params.get("contrastive_learning"):
-        # In case of contrastive learning, also forward the erroneous
-        # translation to compute its log likelihood later.
-        noisy_inputs = self.labels_inputter({"ids": noisy_ids}, training=training)
-        noisy_logits, _, _ = self.decoder(
-            noisy_inputs,
-            labels["noisy_length"],
-            state=initial_state,
-            input_fn=input_fn,
-            sampling_probability=sampling_probability,
-            training=training)
-        outputs["noisy_logits"] = noisy_logits
-    else:
-      outputs = None
+  def _dynamic_decode(self, features, encoder_outputs, encoder_state, encoder_sequence_length):
+    params = self.params
+    batch_size = tf.shape(tf.nest.flatten(encoder_outputs)[0])[0]
+    start_ids = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
+    beam_size = params.get("beam_width", 1)
 
-    if not training:
-      batch_size = tf.shape(tf.nest.flatten(encoder_outputs)[0])[0]
-      start_ids = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
-      beam_size = params.get("beam_width", 1)
+    if beam_size > 1:
+      # Tile encoder outputs to prepare for beam search.
+      encoder_outputs = tfa.seq2seq.tile_batch(encoder_outputs, beam_size)
+      encoder_sequence_length = tfa.seq2seq.tile_batch(encoder_sequence_length, beam_size)
+      if encoder_state is not None:
+        encoder_state = tfa.seq2seq.tile_batch(encoder_state, beam_size)
+
+    # Dynamically decodes from the encoder outputs.
+    initial_state = self.decoder.initial_state(
+        memory=encoder_outputs,
+        memory_sequence_length=encoder_sequence_length,
+        initial_state=encoder_state)
+    sampled_ids, sampled_length, log_probs, alignment, _ = decoding.dynamic_decode_from_params(
+        self.decoder,
+        self.labels_inputter,
+        start_ids,
+        initial_state=initial_state,
+        params=params)
+    target_tokens = self.labels_inputter.ids_to_tokens.lookup(tf.cast(sampled_ids, tf.int64))
+
+    # Maybe replace unknown targets by the source tokens with the highest attention weight.
+    if params.get("replace_unknown_target", False):
+      if alignment is None:
+        raise TypeError("replace_unknown_target is not compatible with decoders "
+                        "that don't return alignment history")
+      if not isinstance(self.features_inputter, inputters.WordEmbedder):
+        raise TypeError("replace_unknown_target is only defined when the source "
+                        "inputter is a WordEmbedder")
+      source_tokens = features["tokens"]
       if beam_size > 1:
-        encoder_outputs = tfa.seq2seq.tile_batch(encoder_outputs, beam_size)
-        encoder_sequence_length = tfa.seq2seq.tile_batch(encoder_sequence_length, beam_size)
-        if encoder_state is not None:
-          encoder_state = tfa.seq2seq.tile_batch(encoder_state, beam_size)
-      initial_state = self.decoder.initial_state(
-          memory=encoder_outputs,
-          memory_sequence_length=encoder_sequence_length,
-          initial_state=encoder_state)
-      sampled_ids, sampled_length, log_probs, alignment, _ = decoding.dynamic_decode_from_params(
-          self.decoder,
-          self.labels_inputter,
-          start_ids,
-          initial_state=initial_state,
-          params=params)
-      target_tokens = self.labels_inputter.ids_to_tokens.lookup(tf.cast(sampled_ids, tf.int64))
+        source_tokens = tfa.seq2seq.tile_batch(source_tokens, beam_size)
+      # Merge batch and beam dimensions.
+      original_shape = tf.shape(target_tokens)
+      target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
+      align_shape = shape_list(alignment)
+      attention = tf.reshape(
+          alignment, [align_shape[0] * align_shape[1], align_shape[2], align_shape[3]])
+      # We don't have attention for </s> but ensure that the attention time dimension matches
+      # the tokens time dimension.
+      attention = reducer.align_in_time(attention, tf.shape(target_tokens)[1])
+      replaced_target_tokens = replace_unknown_target(target_tokens, source_tokens, attention)
+      target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
-      if params.get("replace_unknown_target", False):
-        if alignment is None:
-          raise TypeError("replace_unknown_target is not compatible with decoders "
-                          "that don't return alignment history")
-        if not isinstance(self.features_inputter, inputters.WordEmbedder):
-          raise TypeError("replace_unknown_target is only defined when the source "
-                          "inputter is a WordEmbedder")
-        source_tokens = features["tokens"]
-        if beam_size > 1:
-          source_tokens = tfa.seq2seq.tile_batch(source_tokens, beam_size)
-        # Merge batch and beam dimensions.
-        original_shape = tf.shape(target_tokens)
-        target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
-        align_shape = shape_list(alignment)
-        attention = tf.reshape(
-            alignment, [align_shape[0] * align_shape[1], align_shape[2], align_shape[3]])
-        # We don't have attention for </s> but ensure that the attention time dimension matches
-        # the tokens time dimension.
-        attention = reducer.align_in_time(attention, tf.shape(target_tokens)[1])
-        replaced_target_tokens = replace_unknown_target(target_tokens, source_tokens, attention)
-        target_tokens = tf.reshape(replaced_target_tokens, original_shape)
+    # Maybe add noise to the predictions.
+    decoding_noise = params.get("decoding_noise")
+    if decoding_noise:
+      target_tokens, sampled_length = _add_noise(
+          target_tokens,
+          sampled_length,
+          decoding_noise,
+          params.get("decoding_subword_token", "￭"))
+      alignment = None  # Invalidate alignments.
 
-      decoding_noise = params.get("decoding_noise")
-      if decoding_noise:
-        target_tokens, sampled_length = _add_noise(
-            target_tokens,
-            sampled_length,
-            decoding_noise,
-            params.get("decoding_subword_token", "￭"))
-        alignment = None  # Invalidate alignments.
+    predictions = {
+        "tokens": target_tokens,
+        "length": sampled_length,
+        "log_probs": log_probs
+    }
+    if alignment is not None:
+      predictions["alignment"] = alignment
 
-      predictions = {
-          "tokens": target_tokens,
-          "length": sampled_length,
-          "log_probs": log_probs
-      }
-      if alignment is not None:
-        predictions["alignment"] = alignment
-
-      num_hypotheses = params.get("num_hypotheses", 1)
-      if num_hypotheses > 0:
-        if num_hypotheses > beam_size:
-          raise ValueError("n_best cannot be greater than beam_width")
-        for key, value in six.iteritems(predictions):
-          predictions[key] = value[:, :num_hypotheses]
-    else:
-      predictions = None
-
-    return outputs, predictions
+    # Maybe restrict the number of returned hypotheses based on the user parameter.
+    num_hypotheses = params.get("num_hypotheses", 1)
+    if num_hypotheses > 0:
+      if num_hypotheses > beam_size:
+        raise ValueError("n_best cannot be greater than beam_width")
+      for key, value in six.iteritems(predictions):
+        predictions[key] = value[:, :num_hypotheses]
+    return predictions
 
   def compute_loss(self, outputs, labels, training=True):
     params = self.params
