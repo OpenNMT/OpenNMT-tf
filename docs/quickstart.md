@@ -9,7 +9,7 @@ We recommend using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) to setu
 ```bash
 virtualenv -p /usr/bin/python3 pyenv
 source pyenv/bin/activate
-pip install tensorflow-gpu==2.0.0rc0
+pip install --upgrade pip
 pip install OpenNMT-tf
 ```
 
