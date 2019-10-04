@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.0.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.0.1) (2019-10-04)
+
+### Fixes and improvements
+
+* Fix error when initializing language models
+* Fix `eval` run when `--features_file` is not passed
+
 ## [2.0.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.0.0) (2019-10-01)
 
 OpenNMT-tf 2.0 is the first major update of the project. The goal of this release is to use the new features and practices introduced by TensorFlow 2.0.
