@@ -19,7 +19,13 @@ def load_model_module(path):
 
   Returns:
     A Python module.
+
+  Raises:
+    ValueError: if :obj:`path` is invalid.
+    ImportError: if the module in :obj:`path` does not define a model.
   """
+  if not os.path.exists(path):
+    raise ValueError("Model configuration not found in %s" % path)
   dirname, filename = os.path.split(path)
   module_name, _ = os.path.splitext(filename)
   sys.path.insert(0, os.path.abspath(dirname))
@@ -54,8 +60,14 @@ def load_model_from_catalog(name):
 
   Returns:
     A :class:`opennmt.models.Model` instance.
+
+  Raises:
+    ValueError: if the model :obj:`name` does not exist in the model catalog.
   """
-  return getattr(catalog, name)()
+  model_class = getattr(catalog, name, None)
+  if model_class is None:
+    raise ValueError("The model '%s' does not exist in the model catalog" % name)
+  return model_class()
 
 def load_model(model_dir,
                model_file=None,

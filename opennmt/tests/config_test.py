@@ -78,6 +78,14 @@ class ConfigTest(tf.test.TestCase):
     with self.assertRaises(ValueError):
       config.load_model(self.get_temp_dir(), model_file="a", model_name="b")
 
+  def testLoadModelInvalidInvalidName(self):
+    with self.assertRaisesRegex(ValueError, "does not exist"):
+      config.load_model(self.get_temp_dir(), model_name="b")
+
+  def testLoadModelInvalidInvalidFile(self):
+    with self.assertRaisesRegex(ValueError, "not found"):
+      config.load_model(self.get_temp_dir(), model_file="a")
+
   def testLoadModelMissingModel(self):
     with self.assertRaises(RuntimeError):
       config.load_model(self.get_temp_dir())
