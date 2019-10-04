@@ -90,7 +90,7 @@ params:
   average_loss_in_time: false
 
   # (optional) The type of learning rate decay (default: null). See:
-  #  * https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/schedules
+  #  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules
   #  * opennmt/schedules/lr_schedules.py
   # This value may change the semantics of other decay options. See the documentation or the code.
   decay_type: NoamDecay
