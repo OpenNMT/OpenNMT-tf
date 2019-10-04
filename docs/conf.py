@@ -11,7 +11,7 @@ author = "OpenNMT"
 language = "en"
 
 version = "2.0"  # The short X.Y version.
-release = "2.0.0"  # The full version, including alpha/beta/rc tags.
+release = "2.0.1"  # The full version, including alpha/beta/rc tags.
 
 extensions = [
     "recommonmark",
