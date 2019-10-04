@@ -367,7 +367,7 @@ class Decoder(tf.keras.layers.Layer):
       A :class:`opennmt.utils.DecodingResult` instance.
 
     See Also:
-      :func:`opennmt.utils.dynamic_decode`.
+      :func:`opennmt.utils.dynamic_decode`
     """
     if isinstance(embeddings, text_inputter.WordEmbedder):
       input_fn = lambda ids: embeddings({"ids": ids})

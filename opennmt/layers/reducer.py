@@ -117,12 +117,12 @@ class Reducer(object):
 
   @abc.abstractmethod
   def reduce(self, inputs):
-    """Shortcut for ``__call__``."""
+    """See :meth:`opennmt.layers.Reducer.__call__`."""
     raise NotImplementedError()
 
   @abc.abstractmethod
   def reduce_sequence(self, inputs, sequence_lengths):
-    """Shortcut for ``__call__``."""
+    """See :meth:`opennmt.layers.Reducer.__call__`."""
     raise NotImplementedError()
 
 

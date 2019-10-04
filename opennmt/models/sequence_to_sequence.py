@@ -70,7 +70,6 @@ class SequenceToSequence(model.SequenceGenerator):
       share_embeddings: Level of embeddings sharing, see
         :class:`opennmt.models.EmbeddingsSharingLevel`
         for possible values.
-      name: The name of this model.
 
     Raises:
       TypeError: if :obj:`target_inputter` is not a

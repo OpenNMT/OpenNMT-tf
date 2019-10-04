@@ -88,6 +88,10 @@ def document_module(module, module_path, module_map, output_dir):
       doc.write(".. toctree::\n\n")
       for cls, class_path in classes:
         base = cls.__bases__[0]
+        while base.__name__.startswith("_"):  # Skip private parent classes.
+          base = base.__bases__[0]
+        if base is not object and base.__bases__[0] is tuple:  # For namedtuples.
+          base = tuple
         base_path = module_map.get(base, "%s.%s" % (base.__module__, base.__name__))
         doc.write("   %s\n" % class_path)
         document_class(output_dir, class_path, base_path=base_path)

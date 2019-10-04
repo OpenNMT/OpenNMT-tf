@@ -55,8 +55,6 @@ class Transformer(SequenceToSequence):
         :class:`opennmt.models.EmbeddingsSharingLevel` for possible values.
       share_encoders: In case of multi source architecture, whether to share the
         separate encoders parameters or not.
-      alignment_file_key: The data configuration key of the training alignment
-        file to support guided alignment.
     """
     encoders = [
         SelfAttentionEncoder(

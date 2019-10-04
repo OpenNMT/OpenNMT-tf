@@ -115,7 +115,8 @@ class Model(tf.keras.layers.Layer):
   def infer(self, features):
     """Runs inference.
 
-    This is a small convenience wrapper around ``Model.__call__``.
+    This is a small convenience wrapper around
+    :meth:`opennmt.models.Model.call`.
 
     Args:
       features: A nested structure of features ``tf.Tensor``.

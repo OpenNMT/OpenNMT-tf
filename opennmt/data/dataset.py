@@ -317,10 +317,10 @@ def training_pipeline(batch_size,
     A ``tf.data.Dataset`` transformation.
 
   See Also:
-    :func:`opennmt.data.batch_sequence_dataset`
-    :func:`opennmt.data.filter_examples_by_length`
-    :func:`opennmt.data.filter_irregular_batches`
-    :func:`opennmt.data.shuffle_dataset`
+    - :func:`opennmt.data.batch_sequence_dataset`
+    - :func:`opennmt.data.filter_examples_by_length`
+    - :func:`opennmt.data.filter_irregular_batches`
+    - :func:`opennmt.data.shuffle_dataset`
   """
 
   def _pipeline(dataset):

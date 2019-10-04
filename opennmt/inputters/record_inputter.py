@@ -57,6 +57,10 @@ def write_sequence_record(vector, writer):
   Args:
     vector: A 2D Numpy float array of shape :math:`[T, D]`.
     writer: A ``tf.io.TFRecordWriter``.
+
+  See Also:
+    - :class:`opennmt.inputters.SequenceRecordInputter`
+    - :func:`opennmt.inputters.create_sequence_records`
   """
   feature_list = tf.train.FeatureList(feature=[
       tf.train.Feature(float_list=tf.train.FloatList(value=values))
@@ -80,6 +84,10 @@ def create_sequence_records(vectors, path, compression=None):
 
   Raises:
     ValueError: if :obj:`compression` is invalid.
+
+  See Also:
+    - :class:`opennmt.inputters.SequenceRecordInputter`
+    - :func:`opennmt.inputters.write_sequence_record`
   """
   if compression is not None:
     if compression not in ("GZIP",):
