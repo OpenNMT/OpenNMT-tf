@@ -6,7 +6,7 @@ This document details some changes introduced in OpenNMT-tf 2.0 and actions requ
 
 ### Python 3
 
-Python 3.5 (or above) is now required by OpenNMT-tf. See https://python3statement.org/ for more context about this decision.
+Python 3.5 (or above) is now required by OpenNMT-tf. See [python3statement.org](https://python3statement.org/) for more context about this decision.
 
 ### TensorFlow 2.0
 
@@ -15,6 +15,7 @@ OpenNMT-tf has been completely redesigned for TensorFlow 2.0 which is now the mi
 The correct TensorFlow version is declared as a dependency of OpenNMT-tf and will be automatically installed as part of the `pip` installation:
 
 ```bash
+pip install --upgrade pip
 pip install OpenNMT-tf
 ```
 

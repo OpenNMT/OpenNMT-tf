@@ -10,6 +10,7 @@ Classes
 
    opennmt.models.ClassInputter
    opennmt.models.EmbeddingsSharingLevel
+   opennmt.models.GPT2Small
    opennmt.models.LanguageModel
    opennmt.models.LanguageModelInputter
    opennmt.models.ListenAttendSpell

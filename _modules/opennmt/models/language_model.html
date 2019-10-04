@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.0.0 documentation</title>
+  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.0.1 documentation</title>
   
 
   
@@ -317,15 +317,32 @@
 <span class="sd">  input sequence.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_generate_example</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+<div class="viewcode-block" id="LanguageModelInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
+        <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;ids_out&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span> <span class="p">[</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span><span class="p">]],</span> <span class="mi">0</span><span class="p">),</span>
         <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">])</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
       <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span> <span class="p">[</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_TOKEN</span><span class="p">]],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span>
+    <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span></div>
+
+<div class="viewcode-block" id="LanguageModelInputter.make_inference_dataset"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_inference_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_inference_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                             <span class="n">features_file</span><span class="p">,</span>
+                             <span class="n">batch_size</span><span class="p">,</span>
+                             <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">num_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">features_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">dataset_util</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">process_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
+        <span class="n">length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_length</span><span class="p">,</span>
+        <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
+        <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">dataset</span></div>
 
 <div class="viewcode-block" id="LanguageModelInputter.make_evaluation_dataset"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_evaluation_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_evaluation_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                               <span class="n">features_file</span><span class="p">,</span>
@@ -338,7 +355,7 @@
     <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">features_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">dataset_util</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span>
         <span class="n">batch_size</span><span class="p">,</span>
-        <span class="n">process_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_example</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">process_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">dataset</span></div>
@@ -368,7 +385,7 @@
         <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
         <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
         <span class="n">single_pass</span><span class="o">=</span><span class="n">single_pass</span><span class="p">,</span>
-        <span class="n">process_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_example</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">process_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
         <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
         <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="n">shuffle_buffer_size</span><span class="p">,</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">,</span>

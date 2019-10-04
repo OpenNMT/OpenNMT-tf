@@ -139,6 +139,7 @@
 ./_sources/package/opennmt.load_model.rst.txt
 ./_sources/package/opennmt.models.ClassInputter.rst.txt
 ./_sources/package/opennmt.models.EmbeddingsSharingLevel.rst.txt
+./_sources/package/opennmt.models.GPT2Small.rst.txt
 ./_sources/package/opennmt.models.LanguageModel.rst.txt
 ./_sources/package/opennmt.models.LanguageModelInputter.rst.txt
 ./_sources/package/opennmt.models.ListenAttendSpell.rst.txt
@@ -352,6 +353,7 @@
 ./package/opennmt.load_model.html
 ./package/opennmt.models.ClassInputter.html
 ./package/opennmt.models.EmbeddingsSharingLevel.html
+./package/opennmt.models.GPT2Small.html
 ./package/opennmt.models.LanguageModel.html
 ./package/opennmt.models.LanguageModelInputter.html
 ./package/opennmt.models.ListenAttendSpell.html

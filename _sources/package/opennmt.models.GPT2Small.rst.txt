@@ -1,0 +1,8 @@
+opennmt.models.GPT2Small
+========================
+
+.. autoclass:: opennmt.models.GPT2Small
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.LanguageModel`
