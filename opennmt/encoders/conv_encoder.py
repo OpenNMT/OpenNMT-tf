@@ -28,8 +28,8 @@ class ConvEncoder(Encoder):
       kernel_size: The kernel size.
       dropout: The probability to drop units from the inputs.
       position_encoder_class: The :class:`opennmt.layers.PositionEncoder`
-        class to use for position encoding (or a callable that returns such
-        class).
+        class to use for position encoding (or a callable that returns an
+        instance).
     """
     super(ConvEncoder, self).__init__()
     self.dropout = dropout
