@@ -222,7 +222,7 @@ def _get_asset_prefix(prefix, inputter, i):
 
 
 class ParallelInputter(MultiInputter):
-  """An multi inputter that processes parallel data."""
+  """A multi inputter that processes parallel data."""
 
   def __init__(self,
                inputters,
