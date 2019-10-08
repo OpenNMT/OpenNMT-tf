@@ -37,9 +37,11 @@ def main():
   parser.add_argument(
       "--tokenizer_config", default=None,
       help="Tokenization configuration.")
+  parser.add_argument(
+      "--sentencepiece", nargs="*", default=None,
+      help=("Build a SentencePiece model and vocabulary. This option accepts additional "
+            "training parameters (e.g. --sentencepiece character_coverage=0.98)."))
   args = parser.parse_args()
-
-  tokenizer = tokenizers.make_tokenizer(args.tokenizer_config)
 
   special_tokens = [constants.PADDING_TOKEN]
   if not args.without_sequence_tokens:
@@ -47,12 +49,33 @@ def main():
     special_tokens.append(constants.END_OF_SENTENCE_TOKEN)
 
   vocab = data.Vocab(special_tokens=special_tokens)
-  if args.from_vocab is not None:
-    vocab.load(args.from_vocab, file_format=args.from_format)
-  for data_file in args.data:
-    vocab.add_from_text(data_file, tokenizer=tokenizer)
-  vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)
-  vocab.pad_to_multiple(args.size_multiple, num_oov_buckets=1)
+  num_oov_buckets = 1
+
+  if args.sentencepiece is not None:
+    import pyonmttok
+    if args.size_multiple == 1:
+      vocab_size = args.size
+    else:
+      # Round vocabulary size to the next multiple of args.size_multiple
+      vocab_size = (
+          args.size - (args.size + num_oov_buckets) % args.size_multiple + args.size_multiple)
+    sp_params = dict(map(lambda arg: tuple(arg.split("=")), args.sentencepiece))
+    sp_trainer = pyonmttok.SentencePieceLearner(
+        keep_vocab=True, vocab_size=vocab_size, **sp_params)
+    for data_file in args.data:
+      sp_trainer.ingest_file(data_file)
+    sp_trainer.learn(args.save_vocab, verbose=True)
+    args.save_vocab = args.save_vocab + ".vocab"
+    vocab.load(args.save_vocab, file_format="sentencepiece")
+  else:
+    if args.from_vocab is not None:
+      vocab.load(args.from_vocab, file_format=args.from_format)
+    tokenizer = tokenizers.make_tokenizer(args.tokenizer_config)
+    for data_file in args.data:
+      vocab.add_from_text(data_file, tokenizer=tokenizer)
+    vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)
+    vocab.pad_to_multiple(args.size_multiple, num_oov_buckets=num_oov_buckets)
+
   vocab.serialize(args.save_vocab)
 
 
