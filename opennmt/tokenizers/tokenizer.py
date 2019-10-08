@@ -91,18 +91,20 @@ class Tokenizer(object):
     The Tensor version supports batches of tokens.
 
     Args:
-      tokens: The tokens as a 1-D or 2-D ``tf.Tensor`` or list of Python
-        strings.
+      tokens: Tokens or batch of tokens as a ``tf.Tensor``, ``tf.RaggedTensor``,
+        or Python values.
       sequence_length: The length of each sequence. Required if :obj:`tokens`
-        is a ``tf.Tensor``.
+        is a dense 2-D ``tf.Tensor``.
 
     Returns:
-      A 0-D or 1-D string ``tf.Tensor`` if :obj:`tokens` is a ``tf.Tensor`` or a
-      Python unicode strings otherwise.
+      - If :obj:`tokens` is a list of list of Python strings, a list of Python strings.
+      - If :obj:`tokens` is a list of Python strings, a Python string.
+      - If :obj:`tokens` is a N-D ``tf.Tensor`` (or ``tf.RaggedTensor``), a
+        (N-1)-D ``tf.Tensor``.
 
     Raises:
       ValueError: if the rank of :obj:`tokens` is greater than 2.
-      ValueError: if :obj:`tokens` is a 2-D ``tf.Tensor`` and
+      ValueError: if :obj:`tokens` is a 2-D dense ``tf.Tensor`` and
         :obj:`sequence_length` is not set.
     """
     if tf.is_tensor(tokens):
@@ -114,7 +116,17 @@ class Tokenizer(object):
           raise ValueError("sequence_length is required for Tensor detokenization")
         return self._detokenize_batch_tensor(tokens, sequence_length)
       else:
-        raise ValueError("Unsupported tensor rank for detokenization: {}".format(rank))
+        raise ValueError("Unsupported tensor rank %d for detokenization" % rank)
+    elif isinstance(tokens, tf.RaggedTensor):
+      rank = len(tokens.shape)
+      if rank == 1:
+        return self._detokenize_tensor(tokens.values)
+      elif rank == 2:
+        return self._detokenize_ragged_tensor(tokens)
+      else:
+        raise ValueError("Unsupported RaggedTensor rank %d for detokenization" % rank)
+    elif tokens and isinstance(tokens[0], list):
+      return list(map(self.detokenize, tokens))
     else:
       tokens = [tf.compat.as_text(token) for token in tokens]
       return self._detokenize_string(tokens)
@@ -197,6 +209,20 @@ class Tokenizer(object):
         dtype=tf.string,
         back_prop=False)
 
+  def _detokenize_ragged_tensor(self, tokens):
+    """Detokenizes a batch of tokens as a ``tf.RaggedTensor``
+
+    When not overriden, this default implementation calls _detokenize_batch_tensor
+    on the dense representation.
+
+    Args:
+      tokens: A 2-D ``tf.RaggedTensor``.
+
+    Returns:
+      A 1-D string ``tf.Tensor``.
+    """
+    return self._detokenize_batch_tensor(tokens.to_tensor(), tokens.row_lengths())
+
   @abc.abstractmethod
   def _tokenize_string(self, text):
     """Tokenizes a Python unicode string.
@@ -234,7 +260,14 @@ class SpaceTokenizer(Tokenizer):
     return tf.strings.split(text)
 
   def _detokenize_tensor(self, tokens):
-    return tf.strings.reduce_join(tokens, axis=0, separator=" ")
+    return self._detokenize_ragged_tensor(tokens)
+
+  def _detokenize_batch_tensor(self, tokens, sequence_length):
+    ragged = tf.RaggedTensor.from_tensor(tokens, lengths=sequence_length)
+    return self._detokenize_ragged_tensor(ragged)
+
+  def _detokenize_ragged_tensor(self, tokens):
+    return tf.strings.reduce_join(tokens, axis=tokens.shape.rank - 1, separator=" ")
 
   def _tokenize_string(self, text):
     return text.split()
@@ -254,7 +287,14 @@ class CharacterTokenizer(Tokenizer):
     return tf.strings.unicode_split(text, "UTF-8")
 
   def _detokenize_tensor(self, tokens):
-    text = tf.strings.reduce_join(tokens, axis=0)
+    return self._detokenize_ragged_tensor(tokens)
+
+  def _detokenize_batch_tensor(self, tokens, sequence_length):
+    _ = sequence_length
+    return self._detokenize_ragged_tensor(tokens)
+
+  def _detokenize_ragged_tensor(self, tokens):
+    text = tf.strings.reduce_join(tokens, axis=tokens.shape.rank - 1)
     return tf.strings.regex_replace(text, "▁", " ")
 
   def _tokenize_string(self, text):

@@ -50,6 +50,13 @@ class TokenizerTest(tf.test.TestCase):
     text = tokenizer.detokenize(tokens, sequence_length=sequence_length)
     self.assertAllEqual(ref_text, self.evaluate(text))
 
+  def _testDetokenizerOnBatchRaggedTensor(self, tokenizer, tokens, ref_text):
+    lengths = tf.constant([len(x) for x in tokens])
+    flat_tokens = tf.constant(tf.nest.flatten(tokens))
+    ragged_tokens = tf.RaggedTensor.from_row_lengths(flat_tokens, lengths)
+    text = tokenizer.detokenize(ragged_tokens)
+    self.assertAllEqual(self.evaluate(text), tf.nest.map_structure(tf.compat.as_bytes, ref_text))
+
   def _testDetokenizerOnString(self, tokenizer, tokens, ref_text):
     tokens = [tf.compat.as_text(token) for token in tokens]
     ref_text = tf.compat.as_text(ref_text)
@@ -57,7 +64,9 @@ class TokenizerTest(tf.test.TestCase):
     self.assertAllEqual(ref_text, text)
 
   def _testDetokenizer(self, tokenizer, tokens, ref_text):
+    self.assertAllEqual(tokenizer.detokenize(tokens), ref_text)
     self._testDetokenizerOnBatchTensor(tokenizer, tokens, ref_text)
+    self._testDetokenizerOnBatchRaggedTensor(tokenizer, tokens, ref_text)
     for tok, ref in zip(tokens, ref_text):
       self._testDetokenizerOnTensor(tokenizer, tok, ref)
       self._testDetokenizerOnString(tokenizer, tok, ref)
@@ -77,7 +86,10 @@ class TokenizerTest(tf.test.TestCase):
         CharacterTokenizer(),
         ["a b", "cd e"],
         [["a", "▁", "b"], ["c", "d", "▁", "e"]])
-    self._testDetokenizer(CharacterTokenizer(), [["a", "▁", "b"]], ["a b"])
+    self._testDetokenizer(
+        CharacterTokenizer(),
+        [["a", "▁", "b"], ["c", "d", "▁", "e"]],
+        ["a b", "cd e"])
     self._testTokenizer(CharacterTokenizer(), ["你好，世界！"], [["你", "好", "，", "世", "界", "！"]])
 
   def testOpenNMTTokenizer(self):
