@@ -32,26 +32,31 @@ For text inputs, vocabulary files should be provided in the data configuration (
 </s>
 ```
 
-The `onmt-build-vocab` script can be used to generate this file:
+The `onmt-build-vocab` script can be used to generate this file.
 
-#### via training files
+#### from tokenized files
 
-The script can be run directly on training files:
-
-```bash
-onmt-build-vocab --save_vocab vocab.txt train.txt
-```
-
-* To control the vocabulary size, see the available options `onmt-build-vocab -h`
-* By default, `train.txt` is expected to be **tokenized** (see the *Tokenization* section to execute the script on non tokenized files)
-
-#### via SentencePiece vocabulary
-
-If you trained a [SentencePiece](https://github.com/google/sentencepiece) model to tokenize your data, a vocabulary file `*.vocab` was generated in the process. This file can be converted to the OpenNMT-tf vocabulary format:
+The script can be run directly on tokenized files. For example the command:
 
 ```bash
-onmt-build-vocab --save_vocab vocab.txt --from_vocab sp.vocab --from_format sentencepiece
+onmt-build-vocab --size 50000 --save_vocab vocab.txt train.txt.tok
 ```
+
+extracts the 50,000 most frequent tokens from `train.txt.tok` and saves them to `vocab.txt`.
+
+#### from raw files
+
+By default, `onmt-build-vocab` splits each line on spaces. It is possible to define a custom tokenization with the `--tokenizer_config` option. See the *Tokenization* section for more information.
+
+#### from SentencePiece training
+
+`onmt-build-vocab` can also prepare a SentencePiece vocabulary and model from raw data. For example the command:
+
+```bash
+onmt-build-vocab --sentencepiece --size 32000 --save_vocab sp train.txt.raw
+```
+
+will produce the SentencePiece model `sp.model` and the vocabulary `sp.vocab` of size 32,000. Additional SentencePiece [training options](https://github.com/google/sentencepiece/blob/master/src/spm_train_main.cc) can be passed to the `--sentencepiece` argument in the format `option=value`, e.g. `--sentencepiece character_coverage=0.98 num_threads=4`.
 
 ### Vectors
 
