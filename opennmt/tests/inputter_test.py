@@ -13,6 +13,7 @@ from tensorboard.plugins import projector
 from google.protobuf import text_format
 from parameterized import parameterized
 
+from opennmt import inputters
 from opennmt import tokenizers
 from opennmt.data import dataset as dataset_util
 from opennmt.data import noise
@@ -135,6 +136,14 @@ class InputterTest(tf.test.TestCase):
       self.assertIn(name, features)
       self.assertTrue(features[name].shape.is_compatible_with(expected_shape))
 
+  def _testServing(self, inputter):
+    @tf.function(input_signature=(inputter.input_signature(),))
+    def _serving_fun(features):
+      features = inputter.make_features(features=features.copy())
+      inputs = inputter(features)
+      return inputs
+    _serving_fun.get_concrete_function()
+
   def _makeDataset(self, inputter, data_file, data_config=None, dataset_size=1, shapes=None):
     if data_config is not None:
       inputter.initialize(data_config)
@@ -145,6 +154,8 @@ class InputterTest(tf.test.TestCase):
     if shapes is not None:
       self._checkFeatures(features, shapes)
     inputs = inputter(features, training=True)
+    if not isinstance(inputter, inputters.ExampleInputter):
+      self._testServing(inputter)
     return self.evaluate((features, inputs))
 
   def testWordEmbedder(self):
@@ -187,6 +198,17 @@ class InputterTest(tf.test.TestCase):
 
     self.assertAllEqual([4], features["length"])
     self.assertAllEqual([[2, 1, 3, 4]], features["ids"])
+
+  def testWordEmbedderWithInGraphTokenizer(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])
+    embedder = text_inputter.WordEmbedder(embedding_size=10)
+    data_config = {
+        "vocabulary": vocab_file,
+        "tokenization": {"type": "CharacterTokenizer"}
+    }
+    embedder.initialize(data_config)
+    self.assertIn("text", embedder.input_signature())
+    self._testServing(embedder)
 
   def testWordEmbedderWithCompression(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])

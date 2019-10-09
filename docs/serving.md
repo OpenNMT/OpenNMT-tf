@@ -36,9 +36,9 @@ saved_model_cli show --dir ~/my-models/ende \
 
 Some examples using exported models are available in the [`examples/serving`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) directory.
 
-## Input preprocessing
+## Input preprocessing and tokenization
 
-TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is usually not implemented in terms of TensorFlow operators. These functions should be run outside of the TensorFlow engine, either by the client or a proxy server.
+TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see the *Tokenization* page for more details). In this case, these functions should be run outside of the TensorFlow engine, either by the client or a proxy server.
 
 * The OpenNMT-tf [serving example](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) uses the client approach to implement a simple interactive translation loop
 * The project [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these [instructions](https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844).

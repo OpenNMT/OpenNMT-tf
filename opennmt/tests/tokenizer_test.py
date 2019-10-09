@@ -133,12 +133,12 @@ class TokenizerTest(tf.test.TestCase):
     self.assertDictEqual(asset_config, {"mode": "conservative", "bpe_model_path": "model.bpe"})
 
   def testMakeTokenizer(self):
-    self.assertIsInstance(
-        tokenizers.make_tokenizer(),
-        tokenizers.SpaceTokenizer)
-    self.assertIsInstance(
-        tokenizers.make_tokenizer({"type": "SpaceTokenizer"}),
-        tokenizers.SpaceTokenizer)
+    tokenizer = tokenizers.make_tokenizer()
+    self.assertIsInstance(tokenizer, tokenizers.SpaceTokenizer)
+    self.assertFalse(tokenizer.in_graph)
+    tokenizer = tokenizers.make_tokenizer({"type": "SpaceTokenizer"})
+    self.assertIsInstance(tokenizer, tokenizers.SpaceTokenizer)
+    self.assertTrue(tokenizer.in_graph)
     self.assertIsInstance(
         tokenizers.make_tokenizer({"mode": "conservative"}),
         tokenizers.OpenNMTTokenizer)
