@@ -122,7 +122,8 @@ class SequenceToSequence(model.SequenceGenerator):
       # https://www.aclweb.org/anthology/P19-1623
       noiser = noise.WordNoiser(
           noises=[noise.WordOmission(1)],
-          subword_token=self.params.get("decoding_subword_token", "￭"))
+          subword_token=self.params.get("decoding_subword_token", "￭"),
+          is_spacer=self.params.get("decoding_subword_token_is_spacer"))
       self.labels_inputter.set_noise(noiser, in_place=False)
 
   def build(self, input_shape):
@@ -272,7 +273,8 @@ class SequenceToSequence(model.SequenceGenerator):
           target_tokens,
           sampled_length,
           decoding_noise,
-          params.get("decoding_subword_token", "￭"))
+          params.get("decoding_subword_token", "￭"),
+          params.get("decoding_subword_token_is_spacer"))
       alignment = None  # Invalidate alignments.
 
     predictions = {
@@ -483,7 +485,7 @@ def replace_unknown_target(target_tokens,
       x=aligned_source_tokens,
       y=target_tokens)
 
-def _add_noise(tokens, lengths, params, subword_token):
+def _add_noise(tokens, lengths, params, subword_token, is_spacer=None):
   if not isinstance(params, list):
     raise ValueError("Expected a list of noise modules")
   noises = []
@@ -501,5 +503,5 @@ def _add_noise(tokens, lengths, params, subword_token):
     else:
       raise ValueError("Invalid noise type: %s" % noise_type)
     noises.append(noise_class(*args))
-  noiser = noise.WordNoiser(noises=noises, subword_token=subword_token)
+  noiser = noise.WordNoiser(noises=noises, subword_token=subword_token, is_spacer=is_spacer)
   return noiser(tokens, lengths, keep_shape=True)
