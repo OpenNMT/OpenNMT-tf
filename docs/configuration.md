@@ -141,9 +141,9 @@ params:
   # (optional) Define the subword marker. This is useful to apply noise at the
   # word level instead of the subword level (default: ￭).
   decoding_subword_token: ￭
-  # (optional) Whether subword_token is used as a spacer (as in SentencePiece) or a joiner (as in BPE).
-  # If ``None``, will infer  directly from :obj:`subword_token`.
-  is_spacer: False
+  # (optional) Whether decoding_subword_token is used as a spacer (as in SentencePiece) or a joiner (as in BPE).
+  # If unspecified, will infer  directly from decoding_subword_token.
+  decoding_subword_token_is_spacer: false
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
   # (optional) Maximum length of decoded sequences, end token excluded (default: 250).
