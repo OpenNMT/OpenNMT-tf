@@ -312,14 +312,8 @@ def early_stop(metrics, steps, min_improvement=0, higher_is_better=False):
     else:
       return new < ref - min_improvement
 
-  samples = metrics[-steps - 1:]
-
-  # First check if the boundaries show an improvement.
-  if _did_improve(samples[0], samples[-1]):
-    return False
-
-  # If not, only early stop if each successive evaluation did not improve.
-  for metric, next_metric in zip(samples[:-1], samples[1:]):
-    if _did_improve(metric, next_metric):
+  ref_metric = metrics[-steps - 1]
+  for metric in metrics[-steps:]:
+    if _did_improve(ref_metric, metric):
       return False
   return True
