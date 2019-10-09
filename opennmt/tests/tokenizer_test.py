@@ -5,7 +5,7 @@ import yaml
 
 import tensorflow as tf
 
-from opennmt.tokenizers import SpaceTokenizer, CharacterTokenizer, OpenNMTTokenizer
+from opennmt import tokenizers
 
 
 class TokenizerTest(tf.test.TestCase):
@@ -74,37 +74,41 @@ class TokenizerTest(tf.test.TestCase):
 
   def testSpaceTokenizer(self):
     self._testTokenizer(
-        SpaceTokenizer(),
+        tokenizers.SpaceTokenizer(),
         ["Hello world !", "How are you ?", "Good !"],
         [["Hello", "world", "!"], ["How", "are", "you", "?"], ["Good", "!"]])
     self._testDetokenizer(
-        SpaceTokenizer(),
+        tokenizers.SpaceTokenizer(),
         [["Hello", "world", "!"], ["Test"], ["My", "name"]],
         ["Hello world !", "Test", "My name"])
 
   def testCharacterTokenizer(self):
     self._testTokenizer(
-        CharacterTokenizer(),
+        tokenizers.CharacterTokenizer(),
         ["a b", "cd e"],
         [["a", "▁", "b"], ["c", "d", "▁", "e"]])
     self._testDetokenizer(
-        CharacterTokenizer(),
+        tokenizers.CharacterTokenizer(),
         [["a", "▁", "b"], ["c", "d", "▁", "e"]],
         ["a b", "cd e"])
-    self._testTokenizer(CharacterTokenizer(), ["你好，世界！"], [["你", "好", "，", "世", "界", "！"]])
+    self._testTokenizer(
+        tokenizers.CharacterTokenizer(),
+        ["你好，世界！"],
+        [["你", "好", "，", "世", "界", "！"]])
 
   def testOpenNMTTokenizer(self):
     self._testTokenizer(
-        OpenNMTTokenizer(),
+        tokenizers.OpenNMTTokenizer(),
         ["Hello world!", "How are you?"],
         [["Hello", "world", "!"], ["How", "are", "you", "?"]])
     self._testDetokenizer(
-        OpenNMTTokenizer(),
+        tokenizers.OpenNMTTokenizer(),
         [["Hello", "world", "￭!"], ["Test"], ["My", "name"]],
         ["Hello world!", "Test", "My name"])
 
   def testOpenNMTTokenizerArguments(self):
-    tokenizer = OpenNMTTokenizer(mode="aggressive", spacer_annotate=True, spacer_new=True)
+    tokenizer = tokenizers.OpenNMTTokenizer(
+        mode="aggressive", spacer_annotate=True, spacer_new=True)
     self._testTokenizer(tokenizer, ["Hello World-s"], [["Hello", "▁", "World", "-", "s"]])
 
   def testOpenNMTTokenizerAssets(self):
@@ -114,7 +118,7 @@ class TokenizerTest(tf.test.TestCase):
     with open(bpe_model_path, "wb") as bpe_model_file:
       bpe_model_file.write(b"#version: 0.2\ne s</w>\n")
 
-    tokenizer = OpenNMTTokenizer(mode="conservative", bpe_model_path=bpe_model_path)
+    tokenizer = tokenizers.OpenNMTTokenizer(mode="conservative", bpe_model_path=bpe_model_path)
 
     # Generated assets are prefixed but not existing resources.
     assets = tokenizer.export_assets(asset_dir, asset_prefix="source_")
@@ -127,6 +131,28 @@ class TokenizerTest(tf.test.TestCase):
     with open(assets["source_tokenizer_config.yml"], "rb") as config_file:
       asset_config = yaml.load(config_file.read(), Loader=yaml.UnsafeLoader)
     self.assertDictEqual(asset_config, {"mode": "conservative", "bpe_model_path": "model.bpe"})
+
+  def testMakeTokenizer(self):
+    self.assertIsInstance(
+        tokenizers.make_tokenizer(),
+        tokenizers.SpaceTokenizer)
+    self.assertIsInstance(
+        tokenizers.make_tokenizer({"type": "SpaceTokenizer"}),
+        tokenizers.SpaceTokenizer)
+    self.assertIsInstance(
+        tokenizers.make_tokenizer({"mode": "conservative"}),
+        tokenizers.OpenNMTTokenizer)
+    self.assertIsInstance(
+        tokenizers.make_tokenizer({"type": "OpenNMTTokenizer", "params": {"mode": "conservative"}}),
+        tokenizers.OpenNMTTokenizer)
+    config_path = os.path.join(self.get_temp_dir(), "tok_config.yml")
+    with open(config_path, "w") as config_file:
+      yaml.dump({"mode": "conservative"}, config_file)
+    self.assertIsInstance(
+        tokenizers.make_tokenizer(config_path),
+        tokenizers.OpenNMTTokenizer)
+    with self.assertRaises(ValueError):
+      tokenizers.make_tokenizer({"type": "UnknownTokenizer"})
 
 
 if __name__ == "__main__":

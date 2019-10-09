@@ -14,10 +14,12 @@ However, OpenNMT-tf provides tokenization tools based on the C++ OpenNMT [Tokeni
 YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines a simple word-based tokenization using the OpenNMT tokenizer:
 
 ```yaml
-mode: aggressive
-joiner_annotate: true
-segment_numbers: true
-segment_alphabet_change: true
+type: OpenNMTTokenizer
+params:
+  mode: aggressive
+  joiner_annotate: true
+  segment_numbers: true
+  segment_alphabet_change: true
 ```
 
 *For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>).*
