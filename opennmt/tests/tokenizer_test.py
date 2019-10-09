@@ -14,6 +14,7 @@ class TokenizerTest(tf.test.TestCase):
     ref_tokens = [tf.compat.as_bytes(token) for token in ref_tokens]
     text = tf.constant(text)
     tokens = tokenizer.tokenize(text)
+    self.assertIsInstance(tokens, tf.Tensor)
     self.assertAllEqual(ref_tokens, self.evaluate(tokens))
 
   def _testTokenizerOnBatchTensor(self, tokenizer, text, ref_tokens):

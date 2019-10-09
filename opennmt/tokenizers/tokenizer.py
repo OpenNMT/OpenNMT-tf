@@ -254,7 +254,7 @@ class SpaceTokenizer(Tokenizer):
   """A tokenizer that splits on spaces."""
 
   def _tokenize_tensor(self, text):
-    return self._tokenize_batch_tensor([text]).values
+    return self._tokenize_batch_tensor(text)
 
   def _tokenize_batch_tensor(self, text):
     return tf.strings.split(text)
