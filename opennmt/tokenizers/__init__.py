@@ -50,6 +50,6 @@ def make_tokenizer(config=None):
       raise ValueError("Invalid tokenization configuration: %s" % str(config))
   else:
     # If the tokenization was not configured, we assume that an external tokenization
-    # was used and we don't include the tokenizer in the exprted graph.
+    # was used and we don't include the tokenizer in the exported graph.
     tokenizer = SpaceTokenizer(in_graph=False)
   return tokenizer
