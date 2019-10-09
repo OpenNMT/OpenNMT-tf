@@ -15,6 +15,11 @@ from opennmt.utils.misc import print_bytes
 class Tokenizer(object):
   """Base class for tokenizers."""
 
+  @property
+  def in_graph(self):
+    """Returns ``True`` if this tokenizer can be run in graph (i.e. uses TensorFlow ops)."""
+    return False
+
   def export_assets(self, asset_dir, asset_prefix=""):  # pylint: disable=unused-argument
     """Exports assets for this tokenizer.
 
@@ -253,6 +258,18 @@ class Tokenizer(object):
 class SpaceTokenizer(Tokenizer):
   """A tokenizer that splits on spaces."""
 
+  def __init__(self, in_graph=True):
+    """Initializes the tokenizer.
+
+    Args:
+      in_graph: If ``True``, this tokenizer should be integrated in the exported graph.
+    """
+    self._in_graph = in_graph
+
+  @property
+  def in_graph(self):
+    return self._in_graph
+
   def _tokenize_tensor(self, text):
     return self._tokenize_batch_tensor(text)
 
@@ -278,6 +295,10 @@ class SpaceTokenizer(Tokenizer):
 
 class CharacterTokenizer(Tokenizer):
   """A tokenizer that splits unicode characters."""
+
+  @property
+  def in_graph(self):
+    return True
 
   def _tokenize_tensor(self, text):
     return self._tokenize_batch_tensor(text)

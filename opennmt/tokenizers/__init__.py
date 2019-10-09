@@ -20,7 +20,7 @@ from opennmt.tokenizers.tokenizer import SpaceTokenizer
 from opennmt.tokenizers.tokenizer import CharacterTokenizer
 
 
-def make_tokenizer(config):
+def make_tokenizer(config=None):
   """Creates a tokenizer instance from the configuration.
 
   Args:
@@ -28,12 +28,28 @@ def make_tokenizer(config):
 
   Returns:
     A :class:`opennmt.tokenizers.Tokenizer` instance.
+
+  Raises:
+    ValueError: if :obj:`config` is invalid.
   """
   if config:
     if isinstance(config, six.string_types) and tf.io.gfile.exists(config):
       with tf.io.gfile.GFile(config, mode="rb") as config_file:
         config = yaml.load(config_file, Loader=yaml.UnsafeLoader)
-    tokenizer = OpenNMTTokenizer(**config)
+    if isinstance(config, dict):
+      tokenizer_type = config.get("type")
+      tokenizer_params = config.get("params", {})
+      if tokenizer_type is None:
+        tokenizer = OpenNMTTokenizer(**config)
+      else:
+        tokenizer_class = getattr(sys.modules[__name__], tokenizer_type, None)
+        if tokenizer_class is None:
+          raise ValueError("Invalid tokenizer type: %s" % tokenizer_type)
+        tokenizer = tokenizer_class(**tokenizer_params)
+    else:
+      raise ValueError("Invalid tokenization configuration: %s" % str(config))
   else:
-    tokenizer = SpaceTokenizer()
+    # If the tokenization was not configured, we assume that an external tokenization
+    # was used and we don't include the tokenizer in the exprted graph.
+    tokenizer = SpaceTokenizer(in_graph=False)
   return tokenizer

@@ -14,13 +14,20 @@ However, OpenNMT-tf provides tokenization tools based on the C++ OpenNMT [Tokeni
 YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines a simple word-based tokenization using the OpenNMT tokenizer:
 
 ```yaml
-mode: aggressive
-joiner_annotate: true
-segment_numbers: true
-segment_alphabet_change: true
+type: OpenNMTTokenizer
+params:
+  mode: aggressive
+  joiner_annotate: true
+  segment_numbers: true
+  segment_alphabet_change: true
 ```
 
 *For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>).*
+
+OpenNMT-tf also defines additional tokenizers:
+
+* `CharacterTokenizer`
+* `SpaceTokenizer`
 
 ## Offline usage
 
@@ -54,6 +61,21 @@ data:
   target_tokenization: config/tokenization/aggressive.yml
 ```
 
-## Notes
+## Exported graph
 
-* As of now, tokenizers are not part of the exported graph. However, all tokenization resources (configuration, subword models, etc.) are registered as additional assets in the `SavedModel` bundle in the `assets.extra` directory.
+Only TensorFlow ops can be exported to graphs and used for serving. When a tokenizer is not implemented in terms of TensorFlow ops such as the OpenNMT tokenizer, it will not be part of the exported graph. The model will then expects tokenized inputs during serving.
+
+**In-graph tokenizers:**
+
+* `CharacterTokenizer`
+* `SpaceTokenizer`
+
+Model inputs: `text` (1D string tensor)
+
+**Out-of-graph tokenizers:**
+
+* `OpenNMTTokenizer` (\*)
+
+Model inputs: `tokens` (2D string tensor), `length` (1D int32 tensor)
+
+(\*) During model export, tokenization resources used by the OpenNMT tokenizer (configuration, subword models, etc.) are registered as additional assets in the `SavedModel`'s `assets.extra` directory.

@@ -238,8 +238,14 @@ class TextInputter(Inputter):
       features = {}
     if "tokens" in features:
       return features
+    if "text" in features:
+      element = features.pop("text")
     tokens = self.tokenizer.tokenize(element)
-    length = tf.shape(tokens)[0]
+    if isinstance(tokens, tf.RaggedTensor):
+      length = tokens.row_lengths()
+      tokens = tokens.to_tensor()
+    else:
+      length = tf.shape(tokens)[0]
     if training and self.noiser is not None:
       noisy_tokens, noisy_length = self.noiser(tokens, keep_shape=False)
       if self.in_place_noise:
@@ -258,10 +264,15 @@ class TextInputter(Inputter):
     return features
 
   def input_signature(self):
-    return {
-        "tokens": tf.TensorSpec([None, None], tf.string),
-        "length": tf.TensorSpec([None], tf.int32)
-    }
+    if self.tokenizer.in_graph:
+      return {
+          "text": tf.TensorSpec([None], tf.string)
+      }
+    else:
+      return {
+          "tokens": tf.TensorSpec([None, None], tf.string),
+          "length": tf.TensorSpec([None], tf.int32)
+      }
 
 
 class WordEmbedder(TextInputter):
