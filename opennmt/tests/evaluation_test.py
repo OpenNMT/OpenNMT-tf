@@ -144,6 +144,10 @@ class EvaluationTest(tf.test.TestCase):
         evaluation.early_stop([32, 33, 32, 33, 32], 3, min_improvement=2, higher_is_better=False))
     self.assertFalse(
         evaluation.early_stop([32, 35, 32, 33, 32], 3, min_improvement=2, higher_is_better=False))
+    self.assertTrue(
+        evaluation.early_stop(
+            [50.349343, 50.553991, 50.436176, 50.419565, 50.219028, 50.375434],
+            4, min_improvement=0.01, higher_is_better=True))
 
 
 if __name__ == "__main__":
