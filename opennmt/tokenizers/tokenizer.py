@@ -125,7 +125,7 @@ class Tokenizer(object):
         return self._detokenize_ragged_tensor(tokens)
       else:
         raise ValueError("Unsupported RaggedTensor rank %d for detokenization" % rank)
-    elif tokens and isinstance(tokens[0], list):
+    elif isinstance(tokens, list) and tokens and isinstance(tokens[0], list):
       return list(map(self.detokenize, tokens))
     else:
       tokens = [tf.compat.as_text(token) for token in tokens]
