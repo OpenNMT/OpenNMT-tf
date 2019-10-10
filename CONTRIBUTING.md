@@ -37,6 +37,32 @@ and **should**:
 * add new tests
 * update the [documentation](docs/README.md)
 
+## Testing
+
+Tests are located in the `opennmt/tests` directory. Running them requires the following Python packages:
+
+```bash
+pip install parameterized nose2
+```
+
+* To run all tests:
+
+```bash
+nose2
+```
+
+* To run a single test file:
+
+```bash
+python -m opennmt.tests.model_test
+```
+
+* To run a single test case:
+
+```bash
+python -m opennmt.tests.model_test ModelTest.testCreateVariables
+```
+
 ## Helping others
 
 The project supports many model and training configurations. Sharing experiences (for example on the [forum](http://forum.opennmt.net/)) with existing or new configurations is highly appreciated.
