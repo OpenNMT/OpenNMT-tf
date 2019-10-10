@@ -9,7 +9,7 @@ We recommend using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) to setu
 ```bash
 virtualenv -p /usr/bin/python3 pyenv
 source pyenv/bin/activate
-pip install tensorflow-gpu==2.0.0rc0
+pip install --upgrade pip
 pip install OpenNMT-tf
 ```
 
@@ -52,7 +52,7 @@ onmt-main --model_type Transformer --config data.yml --auto_config train --with_
 
 This command will start the training and evaluation loop of a [Transformer](https://arxiv.org/abs/1706.03762) model. The `--auto_config` flag selects the best settings for this type of model.
 
-The training will regularly produce checkpoints in the `run/` directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using [TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard):
+The training will regularly produce checkpoints in the `run/` directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using [TensorBoard](https://www.tensorflow.org/tensorboard):
 
 ```bash
 tensorboard --logdir="run"

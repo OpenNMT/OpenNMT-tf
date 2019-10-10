@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.tokenizers &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -198,7 +198,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.tokenizers.tokenizer</span> <span class="k">import</span> <span class="n">CharacterTokenizer</span>
 
 
-<div class="viewcode-block" id="make_tokenizer"><a class="viewcode-back" href="../../package/opennmt.tokenizers.make_tokenizer.html#opennmt.tokenizers.make_tokenizer">[docs]</a><span class="k">def</span> <span class="nf">make_tokenizer</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="make_tokenizer"><a class="viewcode-back" href="../../package/opennmt.tokenizers.make_tokenizer.html#opennmt.tokenizers.make_tokenizer">[docs]</a><span class="k">def</span> <span class="nf">make_tokenizer</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Creates a tokenizer instance from the configuration.</span>
 
 <span class="sd">  Args:</span>
@@ -206,14 +206,30 @@
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A :class:`opennmt.tokenizers.Tokenizer` instance.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`config` is invalid.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
       <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">UnsafeLoader</span><span class="p">)</span>
-    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">OpenNMTTokenizer</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="n">tokenizer_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+      <span class="n">tokenizer_params</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+      <span class="k">if</span> <span class="n">tokenizer_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">OpenNMTTokenizer</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">],</span> <span class="n">tokenizer_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tokenizer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid tokenizer type: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tokenizer_type</span><span class="p">)</span>
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer_class</span><span class="p">(</span><span class="o">**</span><span class="n">tokenizer_params</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid tokenization configuration: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SpaceTokenizer</span><span class="p">()</span>
+    <span class="c1"># If the tokenization was not configured, we assume that an external tokenization</span>
+    <span class="c1"># was used and we don&#39;t include the tokenizer in the exported graph.</span>
+    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SpaceTokenizer</span><span class="p">(</span><span class="n">in_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">tokenizer</span></div>
 </pre></div>
 

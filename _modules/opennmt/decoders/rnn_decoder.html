@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.rnn_decoder &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.decoders.rnn_decoder &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -287,14 +287,12 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span> <span class="o">=</span> <span class="n">attention_mechanism_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">output_size</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_add_attention</span><span class="p">(</span><span class="n">cell</span><span class="p">):</span>
+      <span class="c1"># Produce Luong-style attentional hidden states.</span>
+      <span class="n">attention_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">)</span>
       <span class="n">wrapper</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">AttentionWrapper</span><span class="p">(</span>
           <span class="n">cell</span><span class="p">,</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="p">,</span>
-          <span class="n">attention_layer_size</span><span class="o">=</span><span class="n">cell</span><span class="o">.</span><span class="n">output_size</span><span class="p">)</span>
-      <span class="c1"># Produce Luong-style attentional hidden states.</span>
-      <span class="c1"># TODO: use attention_layer argument instead when</span>
-      <span class="c1"># https://github.com/tensorflow/addons/issues/461 is fixed.</span>
-      <span class="n">wrapper</span><span class="o">.</span><span class="n">_attention_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">tanh</span>   <span class="c1"># pylint: disable=protected-access</span>
+          <span class="n">attention_layer</span><span class="o">=</span><span class="n">attention_layer</span><span class="p">)</span>
       <span class="k">return</span> <span class="n">wrapper</span>
 
     <span class="k">if</span> <span class="n">first_layer_attention</span><span class="p">:</span>

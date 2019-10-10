@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.config &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -197,7 +197,13 @@
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A Python module.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`path` is invalid.</span>
+<span class="sd">    ImportError: if the module in :obj:`path` does not define a model.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model configuration not found in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
   <span class="n">dirname</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
   <span class="n">module_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
   <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dirname</span><span class="p">))</span>
@@ -232,8 +238,14 @@
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A :class:`opennmt.models.Model` instance.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if the model :obj:`name` does not exist in the model catalog.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">name</span><span class="p">)()</span>
+  <span class="n">model_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">model_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist in the model catalog&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">model_class</span><span class="p">()</span>
 
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../package/opennmt.load_model.html#opennmt.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span>
                <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

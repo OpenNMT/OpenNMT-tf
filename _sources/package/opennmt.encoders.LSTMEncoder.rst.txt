@@ -5,4 +5,4 @@ opennmt.encoders.LSTMEncoder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.encoders.rnn_encoder._RNNEncoderBase`
+    Inherits from: :class:`opennmt.encoders.Encoder`

@@ -5,4 +5,4 @@ opennmt.models.LuongAttention
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.models.catalog._RNNBase`
+    Inherits from: :class:`opennmt.models.SequenceToSequence`

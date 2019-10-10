@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers.Tokenizer &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.tokenizers.Tokenizer &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -211,6 +211,12 @@
 <dd><p>Base class for tokenizers.</p>
 <p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
 <dl class="method">
+<dt id="opennmt.tokenizers.Tokenizer.in_graph">
+<em class="property">property </em><code class="sig-name descname">in_graph</code><a class="headerlink" href="#opennmt.tokenizers.Tokenizer.in_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this tokenizer can be run in graph (i.e. uses TensorFlow ops).</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.tokenizers.Tokenizer.export_assets">
 <code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em>, <em class="sig-param">asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#Tokenizer.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.Tokenizer.export_assets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports assets for this tokenizer.</p>
@@ -263,14 +269,21 @@
 <dd><p>Tokenizes text.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>text</strong> – The text to tokenize as a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or Python string.</p>
+<dd class="field-odd"><p><strong>text</strong> – A string or batch of strings to tokenize as a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or
+Python values.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A 1-D string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or a list of
-Python unicode strings otherwise.</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is a Python string, a list of Python strings.</p></li>
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is a list of Python strings, a list of list of Python
+strings.</p></li>
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is a 0-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, a 1-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is a 1-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, a 2-D <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>.</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – if the rank of <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is greater than 0.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – if the rank of <code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code> is greater than 1.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -283,20 +296,25 @@ Python unicode strings otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tokens</strong> – The tokens as a 1-D or 2-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or list of Python
-strings.</p></li>
+<li><p><strong>tokens</strong> – Tokens or batch of tokens as a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>,
+or Python values.</p></li>
 <li><p><strong>sequence_length</strong> – The length of each sequence. Required if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code>
-is a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+is a dense 2-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A 0-D or 1-D string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or a
-Python unicode strings otherwise.</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a list of list of Python strings, a list of Python strings.</p></li>
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a list of Python strings, a Python string.</p></li>
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a N-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> (or <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>), a
+(N-1)-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ValueError</strong> – if the rank of <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is greater than 2.</p></li>
-<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a 2-D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> and
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a 2-D dense <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> and
     <code class="xref py py-obj docutils literal notranslate"><span class="pre">sequence_length</span></code> is not set.</p></li>
 </ul>
 </dd>

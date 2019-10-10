@@ -5,4 +5,4 @@ opennmt.utils.DecodingResult
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.utils.decoding.DecodingResult`
+    Inherits from: :class:`builtins.tuple`

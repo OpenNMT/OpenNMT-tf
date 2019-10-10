@@ -41,13 +41,15 @@ data:
   source_vocabulary: data/toy-ende/src-vocab.txt
   target_vocabulary: data/toy-ende/tgt-vocab.txt
 
-  # (optional) OpenNMT tokenization configuration (or path to a configuration file).
+  # (optional) Tokenization configuration (or path to a configuration file).
   # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
   source_tokenization:
-    mode: aggressive
-    joiner_annotate: true
-    segment_numbers: true
-    segment_alphabet_change: true
+    type: OpenNMTTokenizer
+    params:
+      mode: aggressive
+      joiner_annotate: true
+      segment_numbers: true
+      segment_alphabet_change: true
   target_tokenization: config/tokenization/aggressive.yml
 
   # (optional) Pretrained embedding configuration.
@@ -90,7 +92,7 @@ params:
   average_loss_in_time: false
 
   # (optional) The type of learning rate decay (default: null). See:
-  #  * https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/schedules
+  #  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules
   #  * opennmt/schedules/lr_schedules.py
   # This value may change the semantics of other decay options. See the documentation or the code.
   decay_type: NoamDecay
@@ -141,6 +143,9 @@ params:
   # (optional) Define the subword marker. This is useful to apply noise at the
   # word level instead of the subword level (default: ￭).
   decoding_subword_token: ￭
+  # (optional) Whether decoding_subword_token is used as a spacer (as in SentencePiece) or a joiner (as in BPE).
+  # If unspecified, will infer  directly from decoding_subword_token.
+  decoding_subword_token_is_spacer: false
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
   minimum_decoding_length: 0
   # (optional) Maximum length of decoded sequences, end token excluded (default: 250).
@@ -219,6 +224,9 @@ eval:
   # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
   # Available evaluators: bleu, rouge
   external_evaluators: bleu
+
+  # (optional) Export a SavedModel when a metric has the best value so far (default: null).
+  export_on_best: bleu
 
   # (optional) Early stopping condition.
   # Should be read as: stop the training if "metric" did not improve more

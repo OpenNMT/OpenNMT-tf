@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -235,6 +235,10 @@
 <span class="sd">  Args:</span>
 <span class="sd">    vector: A 2D Numpy float array of shape :math:`[T, D]`.</span>
 <span class="sd">    writer: A ``tf.io.TFRecordWriter``.</span>
+
+<span class="sd">  See Also:</span>
+<span class="sd">    - :class:`opennmt.inputters.SequenceRecordInputter`</span>
+<span class="sd">    - :func:`opennmt.inputters.create_sequence_records`</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">feature_list</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">FeatureList</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="p">[</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">float_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">FloatList</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">values</span><span class="p">))</span>
@@ -258,6 +262,10 @@
 
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if :obj:`compression` is invalid.</span>
+
+<span class="sd">  See Also:</span>
+<span class="sd">    - :class:`opennmt.inputters.SequenceRecordInputter`</span>
+<span class="sd">    - :func:`opennmt.inputters.write_sequence_record`</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">compression</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">compression</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;GZIP&quot;</span><span class="p">,):</span>

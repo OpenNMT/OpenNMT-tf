@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -379,7 +379,8 @@
         <span class="n">report_steps</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;save_summary_steps&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
         <span class="n">save_steps</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;save_checkpoints_steps&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
         <span class="n">evaluator</span><span class="o">=</span><span class="n">evaluator</span><span class="p">,</span>
-        <span class="n">eval_steps</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">))</span>
+        <span class="n">eval_steps</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
+        <span class="n">export_on_best</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_on_best&quot;</span><span class="p">))</span>
     <span class="n">average_last_checkpoints</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">average_last_checkpoints</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">average_checkpoints</span><span class="p">(</span>
@@ -551,19 +552,7 @@
 <span class="sd">   &quot;&quot;&quot;</span>
     <span class="n">checkpoint</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_run</span><span class="p">()</span>
     <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
-        <span class="n">checkpoint</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-        <span class="n">export_dir</span><span class="p">,</span>
-        <span class="n">signatures</span><span class="o">=</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">serve_function</span><span class="p">())</span>
-
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-      <span class="n">extra_assets</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">extra_assets</span><span class="p">:</span>
-        <span class="n">assets_extra</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;assets.extra&quot;</span><span class="p">)</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">assets_extra</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">extra_assets</span><span class="p">):</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">assets_extra</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extra assets written to: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">assets_extra</span><span class="p">)</span></div>
+    <span class="n">checkpoint</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">export_dir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.score"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features_file</span><span class="p">,</span> <span class="n">predictions_file</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Scores existing predictions.</span>

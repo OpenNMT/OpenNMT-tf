@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -111,10 +111,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Serving</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#exporting-a-savedmodel">Exporting a SavedModel</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#manual-export">Manual export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-export">Automatic export</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-a-savedmodel">Running a SavedModel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#input-preprocessing">Input preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input-preprocessing-and-tokenization">Input preprocessing and tokenization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
@@ -189,7 +190,7 @@
 <h1>Serving<a class="headerlink" href="#serving" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="exporting-a-savedmodel">
 <h2>Exporting a SavedModel<a class="headerlink" href="#exporting-a-savedmodel" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf can export <a class="reference external" href="https://www.tensorflow.org/beta/guide/saved_model">SavedModel</a> packages for inference in other environments, for example with <a class="reference external" href="https://www.tensorflow.org/serving/">TensorFlow Serving</a>. A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:</p>
+<p>OpenNMT-tf can export <a class="reference external" href="https://www.tensorflow.org/guide/saved_model">SavedModel</a> packages for inference in other environments, for example with <a class="reference external" href="https://www.tensorflow.org/serving/">TensorFlow Serving</a>. A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>toy-ende/export/
 ├── assets
 │   ├── src-vocab.txt
@@ -208,6 +209,16 @@
 </div>
 <p>It’s a good idea to re-export your model with a more recent version as it can improve performance.</p>
 </div>
+<div class="section" id="automatic-export">
+<h3>Automatic export<a class="headerlink" href="#automatic-export" title="Permalink to this headline">¶</a></h3>
+<p>When training with <code class="docutils literal notranslate"><span class="pre">train</span> <span class="pre">--with_eval</span></code>, it is possible to automatically export a SavedModel when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">eval</span><span class="p">:</span>
+  <span class="n">external_evaluators</span><span class="p">:</span> <span class="n">bleu</span>
+  <span class="n">export_on_best</span><span class="p">:</span> <span class="n">bleu</span>
+</pre></div>
+</div>
+<p>These models are saved in the model directory under <code class="docutils literal notranslate"><span class="pre">export/&lt;step&gt;</span></code>.</p>
+</div>
 </div>
 <div class="section" id="running-a-savedmodel">
 <h2>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline">¶</a></h2>
@@ -218,9 +229,9 @@
 </div>
 <p>Some examples using exported models are available in the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving"><code class="docutils literal notranslate"><span class="pre">examples/serving</span></code></a> directory.</p>
 </div>
-<div class="section" id="input-preprocessing">
-<h2>Input preprocessing<a class="headerlink" href="#input-preprocessing" title="Permalink to this headline">¶</a></h2>
-<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is usually not implemented in terms of TensorFlow operators. These functions should be run outside of the TensorFlow engine, either by the client or a proxy server.</p>
+<div class="section" id="input-preprocessing-and-tokenization">
+<h2>Input preprocessing and tokenization<a class="headerlink" href="#input-preprocessing-and-tokenization" title="Permalink to this headline">¶</a></h2>
+<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see the <em>Tokenization</em> page for more details). In this case, these functions should be run outside of the TensorFlow engine, either by the client or a proxy server.</p>
 <ul class="simple">
 <li><p>The OpenNMT-tf <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving">serving example</a> uses the client approach to implement a simple interactive translation loop</p></li>
 <li><p>The project <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker">nmt-wizard-docker</a> uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844">instructions</a>.</p></li>

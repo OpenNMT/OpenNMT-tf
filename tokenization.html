@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tokenization &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>Tokenization &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -105,7 +105,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#configuration-files">Configuration files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#offline-usage">Offline usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#online-usage">Online usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exported-graph">Exported graph</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
@@ -195,13 +195,20 @@
 <div class="section" id="configuration-files">
 <h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
 <p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines a simple word-based tokenization using the OpenNMT tokenizer:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
-<span class="nt">joiner_annotate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="nt">segment_numbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="nt">segment_alphabet_change</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">OpenNMTTokenizer</span>
+<span class="nt">params</span><span class="p">:</span>
+  <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
+  <span class="nt">joiner_annotate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">segment_numbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">segment_alphabet_change</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
 <p><em>For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>).</em></p>
+<p>OpenNMT-tf also defines additional tokenizers:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CharacterTokenizer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SpaceTokenizer</span></code></p></li>
+</ul>
 </div>
 <div class="section" id="offline-usage">
 <h2>Offline usage<a class="headerlink" href="#offline-usage" title="Permalink to this headline">¶</a></h2>
@@ -228,11 +235,21 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 </pre></div>
 </div>
 </div>
-<div class="section" id="notes">
-<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="exported-graph">
+<h2>Exported graph<a class="headerlink" href="#exported-graph" title="Permalink to this headline">¶</a></h2>
+<p>Only TensorFlow ops can be exported to graphs and used for serving. When a tokenizer is not implemented in terms of TensorFlow ops such as the OpenNMT tokenizer, it will not be part of the exported graph. The model will then expects tokenized inputs during serving.</p>
+<p><strong>In-graph tokenizers:</strong></p>
 <ul class="simple">
-<li><p>As of now, tokenizers are not part of the exported graph. However, all tokenization resources (configuration, subword models, etc.) are registered as additional assets in the <code class="docutils literal notranslate"><span class="pre">SavedModel</span></code> bundle in the <code class="docutils literal notranslate"><span class="pre">assets.extra</span></code> directory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CharacterTokenizer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SpaceTokenizer</span></code></p></li>
 </ul>
+<p>Model inputs: <code class="docutils literal notranslate"><span class="pre">text</span></code> (1D string tensor)</p>
+<p><strong>Out-of-graph tokenizers:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OpenNMTTokenizer</span></code> (*)</p></li>
+</ul>
+<p>Model inputs: <code class="docutils literal notranslate"><span class="pre">tokens</span></code> (2D string tensor), <code class="docutils literal notranslate"><span class="pre">length</span></code> (1D int32 tensor)</p>
+<p>(*) During model export, tokenization resources used by the OpenNMT tokenizer (configuration, subword models, etc.) are registered as additional assets in the <code class="docutils literal notranslate"><span class="pre">SavedModel</span></code>’s <code class="docutils literal notranslate"><span class="pre">assets.extra</span></code> directory.</p>
 </div>
 </div>
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.text &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.data.text &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -218,13 +218,18 @@
   <span class="k">if</span> <span class="n">is_spacer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">is_spacer</span> <span class="o">=</span> <span class="n">subword_token</span> <span class="o">==</span> <span class="s2">&quot;▁&quot;</span>
   <span class="k">if</span> <span class="n">is_spacer</span><span class="p">:</span>
-    <span class="n">subword</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_full_match</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;[^</span><span class="si">%s</span><span class="s2">].*&quot;</span> <span class="o">%</span> <span class="n">subword_token</span><span class="p">)</span>
+    <span class="c1"># First token implicitly starts with a spacer.</span>
+    <span class="n">left_and_single</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_full_match</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.*&quot;</span> <span class="o">%</span> <span class="n">subword_token</span><span class="p">),</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">on_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">off_value</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_full_match</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;.+</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">subword_token</span><span class="p">)</span>
+    <span class="n">word_start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">left_and_single</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="n">right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_full_match</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;.*</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">subword_token</span><span class="p">)</span>
     <span class="n">left</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_full_match</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.*&quot;</span> <span class="o">%</span> <span class="n">subword_token</span><span class="p">)</span>
     <span class="n">subword</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">left</span><span class="p">)</span>
-  <span class="n">start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">subword</span><span class="p">)</span>
-  <span class="n">start_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">word_start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">subword</span><span class="p">)</span>
+  <span class="n">start_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">word_start</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_row_starts</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">start_indices</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="alignment_matrix_from_pharaoh"><a class="viewcode-back" href="../../../package/opennmt.data.alignment_matrix_from_pharaoh.html#opennmt.data.alignment_matrix_from_pharaoh">[docs]</a><span class="k">def</span> <span class="nf">alignment_matrix_from_pharaoh</span><span class="p">(</span><span class="n">alignment_line</span><span class="p">,</span>

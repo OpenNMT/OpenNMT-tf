@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -217,9 +217,9 @@
 <span class="sd">        the feed forward layer.</span>
 <span class="sd">      ffn_activation: The activation function to apply between the two linear</span>
 <span class="sd">        transformations of the feed forward layer.</span>
-<span class="sd">      position_encoder: The :class:`opennmt.layers.PositionEncoder`</span>
-<span class="sd">        class to use for position encoding (or a callable that returns such</span>
-<span class="sd">        class).</span>
+<span class="sd">      position_encoder_class: The :class:`opennmt.layers.PositionEncoder`</span>
+<span class="sd">        class to use for position encoding (or a callable that returns an</span>
+<span class="sd">        instance).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttentionEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -220,13 +220,15 @@
   <span class="nt">source_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-vocab.txt</span>
   <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-vocab.txt</span>
 
-  <span class="c1"># (optional) OpenNMT tokenization configuration (or path to a configuration file).</span>
+  <span class="c1"># (optional) Tokenization configuration (or path to a configuration file).</span>
   <span class="c1"># See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md</span>
   <span class="nt">source_tokenization</span><span class="p">:</span>
-    <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
-    <span class="nt">joiner_annotate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="nt">segment_numbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="nt">segment_alphabet_change</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">OpenNMTTokenizer</span>
+    <span class="nt">params</span><span class="p">:</span>
+      <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
+      <span class="nt">joiner_annotate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">segment_numbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">segment_alphabet_change</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
   <span class="nt">target_tokenization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span>
 
   <span class="c1"># (optional) Pretrained embedding configuration.</span>
@@ -269,7 +271,7 @@
   <span class="nt">average_loss_in_time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) The type of learning rate decay (default: null). See:</span>
-  <span class="c1">#  * https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/keras/optimizers/schedules</span>
+  <span class="c1">#  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules</span>
   <span class="c1">#  * opennmt/schedules/lr_schedules.py</span>
   <span class="c1"># This value may change the semantics of other decay options. See the documentation or the code.</span>
   <span class="nt">decay_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">NoamDecay</span>
@@ -320,6 +322,9 @@
   <span class="c1"># (optional) Define the subword marker. This is useful to apply noise at the</span>
   <span class="c1"># word level instead of the subword level (default: ￭).</span>
   <span class="nt">decoding_subword_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">￭</span>
+  <span class="c1"># (optional) Whether decoding_subword_token is used as a spacer (as in SentencePiece) or a joiner (as in BPE).</span>
+  <span class="c1"># If unspecified, will infer  directly from decoding_subword_token.</span>
+  <span class="nt">decoding_subword_token_is_spacer</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Minimum length of decoded sequences, end token excluded (default: 0).</span>
   <span class="nt">minimum_decoding_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
   <span class="c1"># (optional) Maximum length of decoded sequences, end token excluded (default: 250).</span>
@@ -396,6 +401,9 @@
   <span class="c1"># (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.</span>
   <span class="c1"># Available evaluators: bleu, rouge</span>
   <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+
+  <span class="c1"># (optional) Export a SavedModel when a metric has the best value so far (default: null).</span>
+  <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
 
   <span class="c1"># (optional) Early stopping condition.</span>
   <span class="c1"># Should be read as: stop the training if &quot;metric&quot; did not improve more</span>

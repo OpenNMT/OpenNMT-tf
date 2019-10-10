@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers.SpaceTokenizer &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.tokenizers.SpaceTokenizer &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -207,9 +207,26 @@
 <h1>opennmt.tokenizers.SpaceTokenizer<a class="headerlink" href="#opennmt-tokenizers-spacetokenizer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.tokenizers.SpaceTokenizer">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.tokenizers.</code><code class="sig-name descname">SpaceTokenizer</code><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#SpaceTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.SpaceTokenizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.tokenizers.</code><code class="sig-name descname">SpaceTokenizer</code><span class="sig-paren">(</span><em class="sig-param">in_graph=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#SpaceTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.SpaceTokenizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A tokenizer that splits on spaces.</p>
 <p>Inherits from: <a class="reference internal" href="opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer" title="opennmt.tokenizers.Tokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.tokenizers.Tokenizer</span></code></a></p>
+<dl class="method">
+<dt id="opennmt.tokenizers.SpaceTokenizer.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">in_graph=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/tokenizer.html#SpaceTokenizer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.tokenizers.SpaceTokenizer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the tokenizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>in_graph</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, this tokenizer should be integrated in the exported graph.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.tokenizers.SpaceTokenizer.in_graph">
+<em class="property">property </em><code class="sig-name descname">in_graph</code><a class="headerlink" href="#opennmt.tokenizers.SpaceTokenizer.in_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this tokenizer can be run in graph (i.e. uses TensorFlow ops).</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>Quickstart &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -192,7 +192,7 @@
 <p>We recommend using <a class="reference external" href="https://virtualenv.pypa.io/en/stable/"><code class="docutils literal notranslate"><span class="pre">virtualenv</span></code></a> to setup and configure the environment for this quickstart:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>virtualenv -p /usr/bin/python3 pyenv
 <span class="nb">source</span> pyenv/bin/activate
-pip install tensorflow-gpu<span class="o">==</span><span class="m">2</span>.0.0rc0
+pip install --upgrade pip
 pip install OpenNMT-tf
 </pre></div>
 </div>
@@ -229,7 +229,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 </pre></div>
 </div>
 <p>This command will start the training and evaluation loop of a <a class="reference external" href="https://arxiv.org/abs/1706.03762">Transformer</a> model. The <code class="docutils literal notranslate"><span class="pre">--auto_config</span></code> flag selects the best settings for this type of model.</p>
-<p>The training will regularly produce checkpoints in the <code class="docutils literal notranslate"><span class="pre">run/</span></code> directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using <a class="reference external" href="https://www.tensorflow.org/guide/summaries_and_tensorboard">TensorBoard</a>:</p>
+<p>The training will regularly produce checkpoints in the <code class="docutils literal notranslate"><span class="pre">run/</span></code> directory. To monitor the training progress, some logs are displayed in the console. However, to visually monitor the training we suggest using <a class="reference external" href="https://www.tensorflow.org/tensorboard">TensorBoard</a>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;run&quot;</span>
 </pre></div>
 </div>

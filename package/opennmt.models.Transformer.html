@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.Transformer &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.models.Transformer &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -233,14 +233,13 @@ the target data. Currently, only the
 the feed forward layer.</p></li>
 <li><p><strong>ffn_activation</strong> – The activation function to apply between the two linear
 transformations of the feed forward layer.</p></li>
-<li><p><strong>position_encoder</strong> – A <a class="reference internal" href="opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder" title="opennmt.layers.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.PositionEncoder</span></code></a> to
-apply on the inputs.</p></li>
+<li><p><strong>position_encoder_class</strong> – The <a class="reference internal" href="opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder" title="opennmt.layers.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.PositionEncoder</span></code></a>
+class to use for position encoding (or a callable that returns an
+instance).</p></li>
 <li><p><strong>share_embeddings</strong> – Level of embeddings sharing, see
 <a class="reference internal" href="opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel" title="opennmt.models.EmbeddingsSharingLevel"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.EmbeddingsSharingLevel</span></code></a> for possible values.</p></li>
 <li><p><strong>share_encoders</strong> – In case of multi source architecture, whether to share the
 separate encoders parameters or not.</p></li>
-<li><p><strong>alignment_file_key</strong> – The data configuration key of the training alignment
-file to support guided alignment.</p></li>
 </ul>
 </dd>
 </dl>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -227,14 +227,13 @@
 <span class="sd">        the feed forward layer.</span>
 <span class="sd">      ffn_activation: The activation function to apply between the two linear</span>
 <span class="sd">        transformations of the feed forward layer.</span>
-<span class="sd">      position_encoder: A :class:`opennmt.layers.PositionEncoder` to</span>
-<span class="sd">        apply on the inputs.</span>
+<span class="sd">      position_encoder_class: The :class:`opennmt.layers.PositionEncoder`</span>
+<span class="sd">        class to use for position encoding (or a callable that returns an</span>
+<span class="sd">        instance).</span>
 <span class="sd">      share_embeddings: Level of embeddings sharing, see</span>
 <span class="sd">        :class:`opennmt.models.EmbeddingsSharingLevel` for possible values.</span>
 <span class="sd">      share_encoders: In case of multi source architecture, whether to share the</span>
 <span class="sd">        separate encoders parameters or not.</span>
-<span class="sd">      alignment_file_key: The data configuration key of the training alignment</span>
-<span class="sd">        file to support guided alignment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">encoders</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">SelfAttentionEncoder</span><span class="p">(</span>

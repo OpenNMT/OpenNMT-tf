@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -205,7 +205,25 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple ``(sample_ids, sample_scores)``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Sampler.from_params"><a class="viewcode-back" href="../../../package/opennmt.utils.Sampler.html#opennmt.utils.Sampler.from_params">[docs]</a>  <span class="nd">@staticmethod</span>
+  <span class="k">def</span> <span class="nf">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructs a sampler based on user parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      params: A dictionary of user parameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`opennmt.utils.Sampler` instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sampling_topk</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_topk&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sampling_topk</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">BestSampler</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">RandomSampler</span><span class="p">(</span>
+          <span class="n">from_top_k</span><span class="o">=</span><span class="n">sampling_topk</span><span class="p">,</span>
+          <span class="n">temperature</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_temperature&quot;</span><span class="p">))</span></div></div>
 
 <div class="viewcode-block" id="RandomSampler"><a class="viewcode-back" href="../../../package/opennmt.utils.RandomSampler.html#opennmt.utils.RandomSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Randomly samples from model outputs.&quot;&quot;&quot;</span>
@@ -250,6 +268,25 @@
   <span class="k">def</span> <span class="nf">num_hypotheses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The number of hypotheses returned by this strategy.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="DecodingStrategy.from_params"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.from_params">[docs]</a>  <span class="nd">@staticmethod</span>
+  <span class="k">def</span> <span class="nf">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructs a decoding strategy based on user parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      params: A dictionary of user parameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`opennmt.utils.DecodingStrategy` instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">beam_size</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beam_width&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">beam_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">BeamSearch</span><span class="p">(</span>
+          <span class="n">beam_size</span><span class="p">,</span>
+          <span class="n">length_penalty</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+          <span class="n">coverage_penalty</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">GreedySearch</span><span class="p">()</span></div>
 
   <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
   <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -641,58 +678,6 @@
       <span class="n">log_probs</span><span class="o">=</span><span class="n">log_probs</span><span class="p">,</span>
       <span class="n">attention</span><span class="o">=</span><span class="n">attention</span><span class="p">,</span>
       <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span></div>
-
-<span class="k">def</span> <span class="nf">dynamic_decode_from_params</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span>
-                               <span class="n">inputter</span><span class="p">,</span>
-                               <span class="n">start_ids</span><span class="p">,</span>
-                               <span class="n">end_id</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span><span class="p">,</span>
-                               <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                               <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Convenient :function:`opennmt.utils.dynamic_decode` wrapper to read</span>
-<span class="sd">  user parameters.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    decoder: A :class:`opennmt.decoders.Decoder` instance.</span>
-<span class="sd">    inputter: A :class:`opennmt.inputters.WordEmbedder` instance.</span>
-<span class="sd">    start_ids: Initial input IDs of shape :math:`[B]`.</span>
-<span class="sd">    end_id: ID of the end of sequence token.</span>
-<span class="sd">    initial_state: Initial decoder state.</span>
-<span class="sd">    params: A dictionary of user parameters.</span>
-
-<span class="sd">  See Also:</span>
-<span class="sd">    :function:`opennmt.utils.dynamic_decode`</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
-
-  <span class="n">beam_size</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beam_width&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">beam_size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">GreedySearch</span><span class="p">()</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">BeamSearch</span><span class="p">(</span>
-        <span class="n">beam_size</span><span class="p">,</span>
-        <span class="n">length_penalty</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="n">coverage_penalty</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-
-  <span class="n">sampling_topk</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_topk&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">sampling_topk</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="n">sampler</span> <span class="o">=</span> <span class="n">BestSampler</span><span class="p">()</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">sampler</span> <span class="o">=</span> <span class="n">RandomSampler</span><span class="p">(</span>
-        <span class="n">from_top_k</span><span class="o">=</span><span class="n">sampling_topk</span><span class="p">,</span>
-        <span class="n">temperature</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_temperature&quot;</span><span class="p">))</span>
-
-  <span class="k">return</span> <span class="n">dynamic_decode</span><span class="p">(</span>
-      <span class="k">lambda</span> <span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">decoder</span><span class="p">(</span><span class="n">inputter</span><span class="p">({</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">}),</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
-      <span class="n">start_ids</span><span class="p">,</span>
-      <span class="n">end_id</span><span class="o">=</span><span class="n">end_id</span><span class="p">,</span>
-      <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
-      <span class="n">decoding_strategy</span><span class="o">=</span><span class="n">decoding_strategy</span><span class="p">,</span>
-      <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
-      <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_decoding_length&quot;</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span>
-      <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_decoding_length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-      <span class="n">attention_history</span><span class="o">=</span><span class="n">decoder</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">,</span>
-      <span class="n">attention_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">decoder</span><span class="o">.</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">decoder</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_gather_state</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>

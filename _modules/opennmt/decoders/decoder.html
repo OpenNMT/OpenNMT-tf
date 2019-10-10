@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -183,6 +183,8 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">opennmt.inputters</span> <span class="k">import</span> <span class="n">text_inputter</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">decoding</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
@@ -515,23 +517,52 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Decoder.dynamic_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.dynamic_decode">[docs]</a>  <span class="k">def</span> <span class="nf">dynamic_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Decodes dynamically, see :func:`opennmt.utils.dynamic_decode`.</span>
+<div class="viewcode-block" id="Decoder.dynamic_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.dynamic_decode">[docs]</a>  <span class="k">def</span> <span class="nf">dynamic_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">embeddings</span><span class="p">,</span>
+                     <span class="n">start_ids</span><span class="p">,</span>
+                     <span class="n">end_id</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span><span class="p">,</span>
+                     <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">decoding_strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">maximum_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">minimum_iterations</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_ids`.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      embeddings: Target embeddings.</span>
-<span class="sd">      *args: Positional arguments of :func:`opennmt.utils.dynamic_decode`.</span>
-<span class="sd">      **kwargs: Keyword arguments of :func:`opennmt.utils.dynamic_decode`.</span>
+<span class="sd">      embeddings: Target embeddings or :class:`opennmt.inputters.WordEmbedder`</span>
+<span class="sd">        to apply on decoded ids.</span>
+<span class="sd">      start_ids: Initial input IDs of shape :math:`[B]`.</span>
+<span class="sd">      end_id: ID of the end of sequence token.</span>
+<span class="sd">      initial_state: Initial decoder state.</span>
+<span class="sd">      decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`</span>
+<span class="sd">        instance that define the decoding logic. Defaults to a greedy search.</span>
+<span class="sd">      sampler: A :class:`opennmt.utils.Sampler` instance that samples</span>
+<span class="sd">        predictions from the model output. Defaults to an argmax sampling.</span>
+<span class="sd">      maximum_iterations: The maximum number of iterations to decode for.</span>
+<span class="sd">      minimum_iterations: The minimum number of iterations to decode for.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      See :func:`opennmt.utils.dynamic_decode`.</span>
+<span class="sd">      A :class:`opennmt.utils.DecodingResult` instance.</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">      :func:`opennmt.utils.dynamic_decode`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">symbols_to_logits_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="p">(</span>
-        <span class="bp">self</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">ids</span><span class="p">),</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">text_inputter</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
+      <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">embeddings</span><span class="p">({</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">decoding</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
-        <span class="n">symbols_to_logits_fn</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">lambda</span> <span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="p">(</span><span class="n">input_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+        <span class="n">start_ids</span><span class="p">,</span>
+        <span class="n">end_id</span><span class="o">=</span><span class="n">end_id</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">decoding_strategy</span><span class="o">=</span><span class="n">decoding_strategy</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
+        <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
+        <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">minimum_iterations</span><span class="p">,</span>
+        <span class="n">attention_history</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">,</span>
+        <span class="n">attention_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
   <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
   <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

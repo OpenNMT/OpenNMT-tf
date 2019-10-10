@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>Data &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -104,8 +104,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#file-format">File format</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#text">Text</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vocabulary">Vocabulary</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#via-training-files">via training files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#via-sentencepiece-vocabulary">via SentencePiece vocabulary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#from-tokenized-files">from tokenized files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#from-raw-files">from raw files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#from-sentencepiece-training">from SentencePiece training</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#vectors">Vectors</a><ul>
@@ -227,24 +228,26 @@ The name of this site , and program name Title purchased will not be displayed .
 &lt;/s&gt;
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can be used to generate this file:</p>
-<div class="section" id="via-training-files">
-<h4>via training files<a class="headerlink" href="#via-training-files" title="Permalink to this headline">¶</a></h4>
-<p>The script can be run directly on training files:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --save_vocab vocab.txt train.txt
+<p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can be used to generate this file.</p>
+<div class="section" id="from-tokenized-files">
+<h4>from tokenized files<a class="headerlink" href="#from-tokenized-files" title="Permalink to this headline">¶</a></h4>
+<p>The script can be run directly on tokenized files. For example the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --size <span class="m">50000</span> --save_vocab vocab.txt train.txt.tok
 </pre></div>
 </div>
-<ul class="simple">
-<li><p>To control the vocabulary size, see the available options <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span> <span class="pre">-h</span></code></p></li>
-<li><p>By default, <code class="docutils literal notranslate"><span class="pre">train.txt</span></code> is expected to be <strong>tokenized</strong> (see the <em>Tokenization</em> section to execute the script on non tokenized files)</p></li>
-</ul>
+<p>extracts the 50,000 most frequent tokens from <code class="docutils literal notranslate"><span class="pre">train.txt.tok</span></code> and saves them to <code class="docutils literal notranslate"><span class="pre">vocab.txt</span></code>.</p>
 </div>
-<div class="section" id="via-sentencepiece-vocabulary">
-<h4>via SentencePiece vocabulary<a class="headerlink" href="#via-sentencepiece-vocabulary" title="Permalink to this headline">¶</a></h4>
-<p>If you trained a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> model to tokenize your data, a vocabulary file <code class="docutils literal notranslate"><span class="pre">*.vocab</span></code> was generated in the process. This file can be converted to the OpenNMT-tf vocabulary format:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --save_vocab vocab.txt --from_vocab sp.vocab --from_format sentencepiece
+<div class="section" id="from-raw-files">
+<h4>from raw files<a class="headerlink" href="#from-raw-files" title="Permalink to this headline">¶</a></h4>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> splits each line on spaces. It is possible to define a custom tokenization with the <code class="docutils literal notranslate"><span class="pre">--tokenizer_config</span></code> option. See the <em>Tokenization</em> section for more information.</p>
+</div>
+<div class="section" id="from-sentencepiece-training">
+<h4>from SentencePiece training<a class="headerlink" href="#from-sentencepiece-training" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> can also prepare a SentencePiece vocabulary and model from raw data. For example the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --sentencepiece --size <span class="m">32000</span> --save_vocab sp train.txt.raw
 </pre></div>
 </div>
+<p>will produce the SentencePiece model <code class="docutils literal notranslate"><span class="pre">sp.model</span></code> and the vocabulary <code class="docutils literal notranslate"><span class="pre">sp.vocab</span></code> of size 32,000. Additional SentencePiece <a class="reference external" href="https://github.com/google/sentencepiece/blob/master/src/spm_train_main.cc">training options</a> can be passed to the <code class="docutils literal notranslate"><span class="pre">--sentencepiece</span></code> argument in the format <code class="docutils literal notranslate"><span class="pre">option=value</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">--sentencepiece</span> <span class="pre">character_coverage=0.98</span> <span class="pre">num_threads=4</span></code>.</p>
 </div>
 </div>
 <div class="section" id="vectors">

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.Decoder &mdash; OpenNMT-tf 2.0.1 documentation</title>
+  <title>opennmt.decoders.Decoder &mdash; OpenNMT-tf 2.1.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -375,20 +375,32 @@ vector.</p>
 
 <dl class="method">
 <dt id="opennmt.decoders.Decoder.dynamic_decode">
-<code class="sig-name descname">dynamic_decode</code><span class="sig-paren">(</span><em class="sig-param">embeddings</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decodes dynamically, see <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p>
+<code class="sig-name descname">dynamic_decode</code><span class="sig-paren">(</span><em class="sig-param">embeddings</em>, <em class="sig-param">start_ids</em>, <em class="sig-param">end_id=2</em>, <em class="sig-param">initial_state=None</em>, <em class="sig-param">decoding_strategy=None</em>, <em class="sig-param">sampler=None</em>, <em class="sig-param">maximum_iterations=None</em>, <em class="sig-param">minimum_iterations=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_ids</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>embeddings</strong> – Target embeddings.</p></li>
-<li><p><strong>*args</strong> – Positional arguments of <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p></li>
-<li><p><strong>**kwargs</strong> – Keyword arguments of <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p></li>
+<li><p><strong>embeddings</strong> – Target embeddings or <a class="reference internal" href="opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder" title="opennmt.inputters.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.WordEmbedder</span></code></a>
+to apply on decoded ids.</p></li>
+<li><p><strong>start_ids</strong> – Initial input IDs of shape <span class="math notranslate nohighlight">\([B]\)</span>.</p></li>
+<li><p><strong>end_id</strong> – ID of the end of sequence token.</p></li>
+<li><p><strong>initial_state</strong> – Initial decoder state.</p></li>
+<li><p><strong>decoding_strategy</strong> – A <a class="reference internal" href="opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy" title="opennmt.utils.DecodingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.DecodingStrategy</span></code></a>
+instance that define the decoding logic. Defaults to a greedy search.</p></li>
+<li><p><strong>sampler</strong> – A <a class="reference internal" href="opennmt.utils.Sampler.html#opennmt.utils.Sampler" title="opennmt.utils.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.Sampler</span></code></a> instance that samples
+predictions from the model output. Defaults to an argmax sampling.</p></li>
+<li><p><strong>maximum_iterations</strong> – The maximum number of iterations to decode for.</p></li>
+<li><p><strong>minimum_iterations</strong> – The minimum number of iterations to decode for.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>See <a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a>.</p>
+<dd class="field-even"><p>A <a class="reference internal" href="opennmt.utils.DecodingResult.html#opennmt.utils.DecodingResult" title="opennmt.utils.DecodingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.DecodingResult</span></code></a> instance.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="opennmt.utils.dynamic_decode.html#opennmt.utils.dynamic_decode" title="opennmt.utils.dynamic_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.utils.dynamic_decode()</span></code></a></p>
+</div>
 </dd></dl>
 
 </dd></dl>
