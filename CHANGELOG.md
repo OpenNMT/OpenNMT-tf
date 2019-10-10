@@ -13,7 +13,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* `onmt-build-vocab` script can now train a SentencePiece model and vocabulary from raw data
+* Enable automatic model export during evaluation with `export_on_best` parameter
+* Add perplexity in evaluation metrics
+* Extend tokenization configuration to support in-graph tokenizers (currently `SpaceTokenizer` and `CharacterTokenizer`)
+* Parameter `decoder_subword_token_is_spacer` to configure the type of `decoder_subword_token`
+* [API] Support `tf.RaggedTensor` in tokenizer API
+
 ### Fixes and improvements
+
+* Fix early stopping logic
+* Support spacer `decoder_subword_token` that is used as a suffix
+* Improve errors when `--model` or `--model_type` options are invalid
 
 ## [2.0.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.0.1) (2019-10-04)
 
