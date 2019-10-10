@@ -13,6 +13,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [2.1.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.1.0) (2019-10-10)
+
+### New features
+
 * `onmt-build-vocab` script can now train a SentencePiece model and vocabulary from raw data
 * Enable automatic model export during evaluation with `export_on_best` parameter
 * Add perplexity in evaluation metrics
