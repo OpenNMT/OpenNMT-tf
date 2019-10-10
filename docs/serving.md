@@ -25,6 +25,18 @@ onmt-main --config my_config.yml --auto_config export --export_dir ~/my-models/e
 
 It's a good idea to re-export your model with a more recent version as it can improve performance.
 
+### Automatic export
+
+When training with `train --with_eval`, it is possible to automatically export a SavedModel when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:
+
+```
+eval:
+  external_evaluators: bleu
+  export_on_best: bleu
+```
+
+These models are saved in the model directory under `export/<step>`.
+
 ## Running a SavedModel
 
 When using an exported model, you need to know the input and output nodes of your model. You can use the [`saved_model_cli`](https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel) script provided by TensorFlow for inspection, e.g.:
