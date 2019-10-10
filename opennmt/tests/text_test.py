@@ -44,6 +44,8 @@ class TextTest(tf.test.TestCase):
   @parameterized.expand([
     [["▁a", "b", "▁c", "d", "e"], [["▁a", "b", ""], ["▁c", "d", "e"]]],
     [["▁", "a", "b", "▁", "c", "d", "e"], [["▁", "a", "b", ""], ["▁", "c", "d", "e"]]],
+    [["a▁", "b", "c▁", "d", "e"], [["a▁", ""], ["b", "c▁"], ["d", "e"]]],
+    [["a", "▁b▁", "c", "d", "▁", "e"], [["a", ""], ["▁b▁", ""], ["c", "d"], ["▁", "e"]]],
   ])
   def testToWordsWithSpacer(self, tokens, expected):
     tokens = tf.constant(tokens)
