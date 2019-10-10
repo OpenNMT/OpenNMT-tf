@@ -40,13 +40,18 @@ def tokens_to_words(tokens, subword_token="￭", is_spacer=None):
   if is_spacer is None:
     is_spacer = subword_token == "▁"
   if is_spacer:
-    subword = tf.strings.regex_full_match(tokens, "[^%s].*" % subword_token)
+    # First token implicitly starts with a spacer.
+    left_and_single = tf.logical_or(
+        tf.strings.regex_full_match(tokens, "%s.*" % subword_token),
+        tf.one_hot(0, tf.shape(tokens)[0], on_value=True, off_value=False))
+    right = tf.strings.regex_full_match(tokens, ".+%s" % subword_token)
+    word_start = tf.logical_or(tf.roll(right, shift=1, axis=0), left_and_single)
   else:
     right = tf.strings.regex_full_match(tokens, ".*%s" % subword_token)
     left = tf.strings.regex_full_match(tokens, "%s.*" % subword_token)
     subword = tf.logical_or(tf.roll(right, shift=1, axis=0), left)
-  start = tf.logical_not(subword)
-  start_indices = tf.squeeze(tf.where(start), -1)
+    word_start = tf.logical_not(subword)
+  start_indices = tf.squeeze(tf.where(word_start), -1)
   return tf.RaggedTensor.from_row_starts(tokens, start_indices)
 
 def alignment_matrix_from_pharaoh(alignment_line,
