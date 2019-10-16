@@ -60,14 +60,21 @@ class NoiseTest(tf.test.TestCase):
       for i, v in enumerate(y.tolist()):
         self.assertLess(abs(int(v) - i), k)
 
-  def testWordNoising(self):
-    tokens = tf.constant([["a￭", "b", "c￭", "d", "￭e"], ["a", "b", "c", "", ""]])
-    lengths = tf.constant([5, 3])
+  @parameterized.expand([
+      [True, [["a￭", "b", "c￭", "d", "￭e"], ["a", "b", "c", "", ""]], [5, 3]],
+      [False, [["a￭", "b", "c￭", "d", "￭e"], ["a", "b", "c", "", ""]], [5, 3]],
+      [False, ["a￭", "b", "c￭", "d", "￭e"], None]
+  ])
+  def testWordNoising(self, as_function, tokens, lengths):
+    tokens = tf.constant(tokens)
+    if lengths is not None:
+      lengths = tf.constant(lengths, dtype=tf.int32)
     noiser = noise.WordNoiser()
     noiser.add(noise.WordDropout(0.1))
     noiser.add(noise.WordReplacement(0.1))
     noiser.add(noise.WordPermutation(3))
-    noisy_tokens, noisy_lengths = noiser(tokens, sequence_length=lengths, keep_shape=True)
+    noiser_fn = tf.function(noiser) if as_function else noiser
+    noisy_tokens, noisy_lengths = noiser_fn(tokens, sequence_length=lengths, keep_shape=True)
     tokens, noisy_tokens = self.evaluate([tokens, noisy_tokens])
     self.assertAllEqual(noisy_tokens.shape, tokens.shape)
 
