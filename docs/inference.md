@@ -2,12 +2,12 @@
 
 ## Checkpoints averaging
 
-The script `onmt-average-checkpoints` can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:
+The `average_checkpoints` run type can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:
 
 ```bash
 onmt-main \
     --config config/my_config.yml --auto_config \
-    average-checkpoints \
+    average_checkpoints \
     --output_dir run/baseline-enfr/avg \
     --max_count 5
 ```
