@@ -122,7 +122,11 @@ class Noise(object):
     inputs = words
     if words.shape.ndims == 1:
       inputs = tf.expand_dims(inputs, 1)
-    outputs = self._apply(inputs)
+    num_words = tf.shape(inputs)[0]
+    outputs = tf.cond(
+        tf.math.equal(num_words, 0),
+        true_fn=lambda: inputs,
+        false_fn=lambda: self._apply(inputs))
     if words.shape.ndims == 1:
       outputs = tf.squeeze(outputs, 1)
     return outputs
