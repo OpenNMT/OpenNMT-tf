@@ -76,6 +76,10 @@ class Tokenizer(object):
     Raises:
       ValueError: if the rank of :obj:`text` is greater than 1.
     """
+    with tf.device("cpu:0"):
+      return self._tokenize(text)
+
+  def _tokenize(self, text):
     if tf.is_tensor(text):
       rank = len(text.shape)
       if rank == 0:
@@ -112,6 +116,10 @@ class Tokenizer(object):
       ValueError: if :obj:`tokens` is a 2-D dense ``tf.Tensor`` and
         :obj:`sequence_length` is not set.
     """
+    with tf.device("cpu:0"):
+      return self._detokenize(tokens, sequence_length)
+
+  def _detokenize(self, tokens, sequence_length):
     if tf.is_tensor(tokens):
       rank = len(tokens.shape)
       if rank == 1:
