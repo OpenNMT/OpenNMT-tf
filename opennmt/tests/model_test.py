@@ -12,6 +12,7 @@ from opennmt import encoders
 from opennmt import inputters
 from opennmt import models
 from opennmt.tests import test_util
+from opennmt.utils import misc
 
 
 def _seq2seq_model(training=None):
@@ -114,6 +115,7 @@ class ModelTest(tf.test.TestCase):
     if data_config is None:
       data_config = {}
     model.initialize(data_config, params=params)
+    # Build a dataset for mode.
     if mode == tf.estimator.ModeKeys.PREDICT:
       dataset = model.examples_inputter.make_inference_dataset(
           features_file, batch_size)
@@ -123,6 +125,7 @@ class ModelTest(tf.test.TestCase):
     elif mode == tf.estimator.ModeKeys.TRAIN:
       dataset = model.examples_inputter.make_training_dataset(
           features_file, labels_file, batch_size)
+    # Forward first batch into the model.
     data = iter(dataset).next()
     if mode != tf.estimator.ModeKeys.PREDICT:
       features, labels = data
@@ -133,16 +136,34 @@ class ModelTest(tf.test.TestCase):
     if mode != tf.estimator.ModeKeys.PREDICT:
       loss = model.compute_loss(outputs, labels, training=training)
       if mode == tf.estimator.ModeKeys.EVAL:
+        # Check that returned evaluation metrics are expected.
         eval_metrics = model.get_metrics()
         if eval_metrics is not None:
           model.update_metrics(eval_metrics, predictions, labels)
           for metric in metrics:
             self.assertIn(metric, eval_metrics)
+        try:
+          # Check that scores can be computed and printed without errors.
+          scores = model.score(features, labels)
+          first_score = tf.nest.map_structure(
+              lambda x: x.numpy(),
+              next(misc.extract_batches(scores)))
+          with open(os.devnull, "w") as devnull:
+            model.print_score(first_score, stream=devnull)
+        except NotImplementedError:
+          pass
     else:
+      # Check that all prediction heads are returned.
       self.assertIsInstance(predictions, dict)
       if prediction_heads is not None:
         for head in prediction_heads:
           self.assertIn(head, predictions)
+      # Check that the prediction can be printed without errors.
+      first_prediction = tf.nest.map_structure(
+          lambda x: x.numpy(),
+          next(misc.extract_batches(predictions)))
+      with open(os.devnull, "w") as devnull:
+        model.print_prediction(first_prediction, stream=devnull)
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
@@ -158,6 +179,24 @@ class ModelTest(tf.test.TestCase):
         labels_file,
         data_config,
         prediction_heads=["tokens", "length", "log_probs"],
+        params=params)
+
+  @parameterized.expand([
+      [tf.estimator.ModeKeys.EVAL],
+      [tf.estimator.ModeKeys.PREDICT]])
+  def testSequenceToSequenceWithInGraphTokenizer(self, mode):
+    model, params = _seq2seq_model(mode)
+    features_file, labels_file, data_config = self._makeToyEnDeData()
+    tokenization_config = {"type": "SpaceTokenizer"}
+    data_config["source_tokenization"] = tokenization_config
+    data_config["target_tokenization"] = tokenization_config
+    self._testGenericModel(
+        model,
+        mode,
+        features_file,
+        labels_file,
+        data_config,
+        prediction_heads=["text", "log_probs"],
         params=params)
 
   @parameterized.expand([["ce"], ["mse"]])

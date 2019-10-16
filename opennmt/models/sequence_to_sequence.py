@@ -277,13 +277,17 @@ class SequenceToSequence(model.SequenceGenerator):
           params.get("decoding_subword_token_is_spacer"))
       alignment = None  # Invalidate alignments.
 
-    predictions = {
-        "tokens": target_tokens,
-        "length": sampled_length,
-        "log_probs": log_probs
-    }
-    if alignment is not None:
-      predictions["alignment"] = alignment
+    predictions = {"log_probs": log_probs}
+    if self.labels_inputter.tokenizer.in_graph:
+      detokenized_text = self.labels_inputter.tokenizer.detokenize(
+          tf.reshape(target_tokens, [batch_size * beam_size, -1]),
+          sequence_length=tf.reshape(sampled_length, [batch_size * beam_size]))
+      predictions["text"] = tf.reshape(detokenized_text, [batch_size, beam_size])
+    else:
+      predictions["tokens"] = target_tokens
+      predictions["length"] = sampled_length
+      if alignment is not None:
+        predictions["alignment"] = alignment
 
     # Maybe restrict the number of returned hypotheses based on the user parameter.
     num_hypotheses = params.get("num_hypotheses", 1)
@@ -337,19 +341,24 @@ class SequenceToSequence(model.SequenceGenerator):
   def print_prediction(self, prediction, params=None, stream=None):
     if params is None:
       params = {}
-    num_hypotheses = len(prediction["tokens"])
+    with_scores = params.get("with_scores")
+    alignment_type = params.get("with_alignments")
+    if alignment_type and "alignment" not in prediction:
+      raise ValueError("with_alignments is set but the model did not return alignment information")
+    num_hypotheses = len(prediction["log_probs"])
     for i in range(num_hypotheses):
-      target_length = prediction["length"][i]
-      tokens = prediction["tokens"][i][:target_length]
-      sentence = self.labels_inputter.tokenizer.detokenize(tokens)
+      if "tokens" in prediction:
+        target_length = prediction["length"][i]
+        tokens = prediction["tokens"][i][:target_length]
+        sentence = self.labels_inputter.tokenizer.detokenize(tokens)
+      else:
+        sentence = prediction["text"][i]
       score = None
       attention = None
-      alignment_type = None
-      if params.get("with_scores"):
+      if with_scores:
         score = prediction["log_probs"][i]
-      if params.get("with_alignments"):
+      if alignment_type:
         attention = prediction["alignment"][i][:target_length]
-        alignment_type = params["with_alignments"]
       sentence = format_translation_output(
           sentence,
           score=score,
