@@ -30,6 +30,26 @@ class LossesTest(tf.test.TestCase):
     with self.assertRaises(ValueError):
       losses.regularization_penalty("l1_l2", 1e-4, [])
 
+  @parameterized.expand([
+      ["ce", False],
+      ["mse", False],
+      ["mse", True],
+  ])
+  def testGuidedAlignmentCostUnderDistributionStrategy(self, cost_type, with_length):
+    strategy = tf.distribute.MirroredStrategy(devices=["/cpu:0"])
+    attention_probs = tf.random.uniform([2, 5, 6])
+    gold_alignment = tf.random.uniform([2, 5, 6])
+    if with_length:
+      sequence_length = tf.constant([4, 5], dtype=tf.int32)
+    else:
+      sequence_length = None
+    with strategy.scope():
+      losses.guided_alignment_cost(
+          attention_probs,
+          gold_alignment,
+          sequence_length=sequence_length,
+          cost_type=cost_type)
+
 
 if __name__ == "__main__":
   tf.test.main()
