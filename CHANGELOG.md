@@ -15,6 +15,15 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.1.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.1.1) (2019-10-18)
+
+### Fixes and improvements
+
+* Force tokenizers and noisers to run on CPU to avoid errors when placing strings on GPU
+* Do not apply noise modules on empty inputs
+* Fix training of `SequenceToSequence` models with guided alignment
+* Fix training of `SequenceClassifier` models
+
 ## [2.1.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.1.0) (2019-10-10)
 
 ### New features
