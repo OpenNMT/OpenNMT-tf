@@ -268,7 +268,7 @@ class Model(tf.keras.layers.Layer):
             [dim or 1 for dim in spec.shape.as_list()[1:]],
             tf.constant("" if spec.dtype is tf.string else 1, dtype=spec.dtype)),
         self.examples_inputter.input_signature())
-    features = self.examples_inputter.make_features(features=features, training=True)
+    features = self.examples_inputter.make_features(features=features)
 
     # Add the batch dimension back before calling the model.
     features, labels = tf.nest.map_structure(lambda x: tf.expand_dims(x, 0), features)
