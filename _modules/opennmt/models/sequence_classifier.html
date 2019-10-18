@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 2.1.0 documentation</title>
+  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 2.1.1 documentation</title>
   
 
   
@@ -260,10 +260,15 @@
     <span class="nb">super</span><span class="p">(</span><span class="n">ClassInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ClassInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.ClassInputter.html#opennmt.models.ClassInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="n">element</span><span class="p">,</span>
-        <span class="s2">&quot;classes_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-    <span class="p">}</span></div></div>
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="s2">&quot;classes&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+      <span class="n">features</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">element</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;classes_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">features</span></div>
+
+<div class="viewcode-block" id="ClassInputter.input_signature"><a class="viewcode-back" href="../../../package/opennmt.models.ClassInputter.html#opennmt.models.ClassInputter.input_signature">[docs]</a>  <span class="k">def</span> <span class="nf">input_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorSpec</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)}</span></div></div>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Inference &mdash; OpenNMT-tf 2.1.0 documentation</title>
+  <title>Inference &mdash; OpenNMT-tf 2.1.1 documentation</title>
   
 
   
@@ -188,10 +188,10 @@
 <h1>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="checkpoints-averaging">
 <h2>Checkpoints averaging<a class="headerlink" href="#checkpoints-averaging" title="Permalink to this headline">¶</a></h2>
-<p>The script <code class="docutils literal notranslate"><span class="pre">onmt-average-checkpoints</span></code> can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">average_checkpoints</span></code> run type can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="se">\</span>
     --config config/my_config.yml --auto_config <span class="se">\</span>
-    average-checkpoints <span class="se">\</span>
+    average_checkpoints <span class="se">\</span>
     --output_dir run/baseline-enfr/avg <span class="se">\</span>
     --max_count <span class="m">5</span>
 </pre></div>

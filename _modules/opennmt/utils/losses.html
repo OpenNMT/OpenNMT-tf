@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.losses &mdash; OpenNMT-tf 2.1.0 documentation</title>
+  <title>opennmt.utils.losses &mdash; OpenNMT-tf 2.1.1 documentation</title>
   
 
   
@@ -279,9 +279,9 @@
 <span class="sd">    ValueError: if :obj:`cost_type` is invalid.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;ce&quot;</span><span class="p">:</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">()</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Reduction</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
   <span class="k">elif</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;mse&quot;</span><span class="p">:</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">()</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Reduction</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid guided alignment cost: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cost_type</span><span class="p">)</span>
 
@@ -291,13 +291,16 @@
         <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">attention_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="n">sample_weight</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">)</span>
 
   <span class="n">cost</span> <span class="o">=</span> <span class="n">loss</span><span class="p">(</span>
       <span class="n">gold_alignment</span><span class="p">,</span>
       <span class="n">attention_probs</span><span class="p">,</span>
       <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+  <span class="n">cost</span> <span class="o">/=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">cost</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">cost</span></div>
 
 <div class="viewcode-block" id="regularization_penalty"><a class="viewcode-back" href="../../../package/opennmt.utils.regularization_penalty.html#opennmt.utils.regularization_penalty">[docs]</a><span class="k">def</span> <span class="nf">regularization_penalty</span><span class="p">(</span><span class="n">regularization_type</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
