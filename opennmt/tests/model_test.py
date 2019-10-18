@@ -115,6 +115,7 @@ class ModelTest(tf.test.TestCase):
     if data_config is None:
       data_config = {}
     model.initialize(data_config, params=params)
+    model.create_variables()
     # Build a dataset for mode.
     if mode == tf.estimator.ModeKeys.PREDICT:
       dataset = model.examples_inputter.make_inference_dataset(
