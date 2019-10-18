@@ -101,9 +101,9 @@ def guided_alignment_cost(attention_probs,
     ValueError: if :obj:`cost_type` is invalid.
   """
   if cost_type == "ce":
-    loss = tf.keras.losses.CategoricalCrossentropy()
+    loss = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.SUM)
   elif cost_type == "mse":
-    loss = tf.keras.losses.MeanSquaredError()
+    loss = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.SUM)
   else:
     raise ValueError("invalid guided alignment cost: %s" % cost_type)
 
@@ -113,13 +113,16 @@ def guided_alignment_cost(attention_probs,
         maxlen=tf.shape(attention_probs)[1],
         dtype=attention_probs.dtype)
     sample_weight = tf.expand_dims(sample_weight, -1)
+    normalizer = tf.reduce_sum(sequence_length)
   else:
     sample_weight = None
+    normalizer = tf.size(attention_probs)
 
   cost = loss(
       gold_alignment,
       attention_probs,
       sample_weight=sample_weight)
+  cost /= tf.cast(normalizer, cost.dtype)
   return weight * cost
 
 def regularization_penalty(regularization_type, scale, weights):
