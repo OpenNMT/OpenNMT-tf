@@ -82,7 +82,12 @@ class ClassInputter(inputters.TextInputter):
     super(ClassInputter, self).__init__(num_oov_buckets=0)
 
   def make_features(self, element=None, features=None, training=None):
-    return {
-        "classes": element,
-        "classes_id": self.tokens_to_ids.lookup(element)
-    }
+    if features is None:
+      features = {}
+    if "classes" not in features:
+      features["classes"] = element
+    features["classes_id"] = self.tokens_to_ids.lookup(features["classes"])
+    return features
+
+  def input_signature(self):
+    return {"classes": tf.TensorSpec([None], tf.string)}
