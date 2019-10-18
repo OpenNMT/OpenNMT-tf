@@ -166,6 +166,7 @@ class ModelTest(tf.test.TestCase):
     params["guided_alignment_type"] = ga_type
     features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
     model.initialize(data_config, params=params)
+    model.create_variables()
     dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
     features, labels = next(iter(dataset))
     self.assertIn("alignment", labels)
