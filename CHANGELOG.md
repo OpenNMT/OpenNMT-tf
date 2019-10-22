@@ -16,6 +16,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [1.25.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.25.2) (2019-10-22)
+
+### Fixes and improvements
+
+* Revert "When updating vocabularies, weights of new words are randomly initialized instead of zero initialized" as the random distribution is possibly incompatible with the next trained layer
+
 ## [1.25.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v1.25.1) (2019-09-25)
 
 ### Fixes and improvements
