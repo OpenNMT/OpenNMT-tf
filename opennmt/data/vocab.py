@@ -238,10 +238,33 @@ def get_mapping(current_vocab_path, new_vocab_path, mode="replace"):
   mapping.append(current_vocab.size)  # <unk> token is always the last entry.
   return mapping, final_vocab
 
+def _mirror_distribution(from_variable, shape, dtype=tf.float32):
+  rank = from_variable.shape.rank
+  if rank == 2:
+    mean_per_emb, variance_per_emb = tf.nn.moments(from_variable, 1)
+    global_mean = tf.math.reduce_mean(mean_per_emb)
+    global_variance = tf.math.reduce_mean(variance_per_emb)
+  elif rank == 1:
+    global_mean, global_variance = tf.nn.moments(from_variable, 0)
+  else:
+    raise ValueError("Unsupported variable rank %d" % rank)
+  return tf.random.normal(
+      shape,
+      mean=global_mean,
+      stddev=tf.math.sqrt(global_variance),
+      dtype=dtype)
+
 def update_variable(ref_variable, new_variable, mapping, vocab_axis=0):
   """Update a vocabulary variable, possibly copying previous entries based on
   mapping.
   """
+  # Ensure that new_variable has a value distribution similar to ref_variable.
+  # This is required for new words to produce an output distribution that is
+  # "compatible" with the next trained layer.
+  new_variable.assign(_mirror_distribution(
+      ref_variable,
+      tf.shape(new_variable),
+      dtype=new_variable.dtype))
   ref = ref_variable.numpy()
   new = new_variable.numpy()
   perm = None
