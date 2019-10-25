@@ -1,0 +1,99 @@
+diff --git a/tensorflow_serving/model_servers/BUILD b/tensorflow_serving/model_servers/BUILD
+index d4940bf..f62a648 100644
+--- a/tensorflow_serving/model_servers/BUILD
++++ b/tensorflow_serving/model_servers/BUILD
+@@ -303,6 +303,8 @@ SUPPORTED_TENSORFLOW_OPS = if_v2([]) + if_not_v2([
+     "@org_tensorflow_text//tensorflow_text:unicode_script_tokenizer_cc",
+     "@org_tensorflow_text//tensorflow_text:whitespace_tokenizer_cc",
+     "@org_tensorflow_text//tensorflow_text:wordpiece_tokenizer_cc",
++] + [
++    "@org_tensorflow_addons//tensorflow_addons/custom_ops/seq2seq:_beam_search_ops.so",
+ ]
+ 
+ TENSORFLOW_DEPS = [
+diff --git a/tensorflow_serving/workspace.bzl b/tensorflow_serving/workspace.bzl
+index ba8725b..c49667b 100644
+--- a/tensorflow_serving/workspace.bzl
++++ b/tensorflow_serving/workspace.bzl
+@@ -70,3 +70,15 @@ def tf_serving_workspace():
+         patches = ["@//third_party/tf_text:tftext.patch"],
+         patch_args = ["-p1"],
+     )
++
++    # ===== TF.Addons dependencies
++    http_archive(
++        name = "org_tensorflow_addons",
++        sha256 = "b672c13a5dbe3be5d5aed28586d702d26b3227d9bdd52c052fd6cba0774194eb",
++        strip_prefix = "addons-8a49f91483d67e85c8e8d4f67cd6aea8c45cd2b8",
++        urls = [
++            "https://github.com/tensorflow/addons/archive/8a49f91483d67e85c8e8d4f67cd6aea8c45cd2b8.zip",
++        ],
++        patches = ["@//third_party/tf_addons:tfaddons.patch"],
++        patch_args = ["-p1"],
++    )
+diff --git a/third_party/tf_addons/BUILD b/third_party/tf_addons/BUILD
+new file mode 100644
+index 0000000..e69de29
+diff --git a/third_party/tf_addons/tfaddons.patch b/third_party/tf_addons/tfaddons.patch
+new file mode 100644
+index 0000000..3c90e99
+--- /dev/null
++++ b/third_party/tf_addons/tfaddons.patch
+@@ -0,0 +1,56 @@
++--- a/tensorflow_addons/tensorflow_addons.bzl
+++++ b/tensorflow_addons/tensorflow_addons.bzl
++@@ -1,6 +1,3 @@
++-load("@local_config_tf//:build_defs.bzl", "D_GLIBCXX_USE_CXX11_ABI")
++-load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_is_configured", "if_cuda")
++-
++ def custom_op_library(
++         name,
++         srcs = [],
++@@ -10,42 +7,17 @@ def custom_op_library(
++         copts = [],
++         **kwargs):
++     deps = deps + [
++-        "@local_config_tf//:libtensorflow_framework",
++-        "@local_config_tf//:tf_header_lib",
+++        "@org_tensorflow//tensorflow/core:tensorflow_opensource",
++     ]
++ 
++-    if cuda_srcs:
++-        copts = copts + if_cuda(["-DGOOGLE_CUDA=1"])
++-        cuda_copts = copts + if_cuda_is_configured([
++-            "-x cuda",
++-            "-nvcc_options=relaxed-constexpr",
++-            "-nvcc_options=ftz=true",
++-        ])
++-        cuda_deps = deps + if_cuda_is_configured(cuda_deps) + if_cuda_is_configured([
++-            "@local_config_cuda//cuda:cuda_headers",
++-            "@local_config_cuda//cuda:cudart_static",
++-        ])
++-        basename = name.split(".")[0]
++-        native.cc_library(
++-            name = basename + "_gpu",
++-            srcs = cuda_srcs,
++-            deps = cuda_deps,
++-            copts = cuda_copts,
++-            alwayslink = 1,
++-            **kwargs
++-        )
++-        deps = deps + if_cuda_is_configured([":" + basename + "_gpu"])
++-
++     copts = copts + [
++         "-pthread",
++-        "-std=c++11",
++-        D_GLIBCXX_USE_CXX11_ABI,
++     ]
++ 
++-    native.cc_binary(
+++    native.cc_library(
++         name = name,
++         srcs = srcs,
++         copts = copts,
++-        linkshared = 1,
+++        alwayslink = 1,
++         deps = deps,
++         **kwargs
++     )
+\ No newline at end of file
