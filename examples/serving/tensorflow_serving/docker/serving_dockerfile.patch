@@ -1,0 +1,27 @@
+diff --git a/tensorflow_serving/tools/docker/Dockerfile.devel b/tensorflow_serving/tools/docker/Dockerfile.devel
+index 36af5e9..fd95470 100644
+--- a/tensorflow_serving/tools/docker/Dockerfile.devel
++++ b/tensorflow_serving/tools/docker/Dockerfile.devel
+@@ -77,7 +77,8 @@ WORKDIR /tensorflow-serving
+ RUN git clone --branch=${TF_SERVING_VERSION_GIT_BRANCH} https://github.com/tensorflow/serving . && \
+     git remote add upstream https://github.com/tensorflow/serving.git && \
+     if [ "${TF_SERVING_VERSION_GIT_COMMIT}" != "head" ]; then git checkout ${TF_SERVING_VERSION_GIT_COMMIT} ; fi
+-
++COPY tfaddons_beam_search_ops.patch .
++RUN patch -p1 < tfaddons_beam_search_ops.patch
+ 
+ FROM base_build as binary_build
+ # Build, and install TensorFlow Serving
+diff --git a/tensorflow_serving/tools/docker/Dockerfile.devel-gpu b/tensorflow_serving/tools/docker/Dockerfile.devel-gpu
+index e545391..77ad360 100644
+--- a/tensorflow_serving/tools/docker/Dockerfile.devel-gpu
++++ b/tensorflow_serving/tools/docker/Dockerfile.devel-gpu
+@@ -132,6 +132,8 @@ WORKDIR /tensorflow-serving
+ RUN git clone --branch=${TF_SERVING_VERSION_GIT_BRANCH} https://github.com/tensorflow/serving . && \
+     git remote add upstream https://github.com/tensorflow/serving.git && \
+     if [ "${TF_SERVING_VERSION_GIT_COMMIT}" != "head" ]; then git checkout ${TF_SERVING_VERSION_GIT_COMMIT} ; fi
++COPY tfaddons_beam_search_ops.patch .
++RUN patch -p1 < tfaddons_beam_search_ops.patch
+ 
+ FROM base_build as binary_build
+ # Build, and install TensorFlow Serving

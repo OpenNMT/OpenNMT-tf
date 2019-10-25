@@ -28,7 +28,7 @@ mv averaged-ende-export500k-v2 ende/1
 ```bash
 nvidia-docker run -d --rm -p 9000:9000 -v $PWD:/models \
   --name tensorflow_serving --entrypoint tensorflow_model_server \
-  tensorflow/serving:1.14.0-gpu \
+  opennmt/tensorflow-serving:2.0.0-gpu \
   --enable_batching=true --batching_parameters_file=/models/batching_parameters.txt \
   --port=9000 --model_base_path=/models/ende --model_name=ende
 ```
@@ -64,3 +64,11 @@ Depending on your production requirements, you might need to build a simple prox
 * apply tokenization and detokenization
 
 For example, take a look at the OpenNMT-tf integration in the project [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker/blob/master/frameworks/opennmt_tf/entrypoint.py) which wraps a TensorFlow serving instance with a custom processing layer and REST API. It is possible to use exported OpenNMT-tf with nmt-wizard-docker with the [following approach](https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844).
+
+## Custom TensorFlow Serving image
+
+The Docker image [`opennmt/tensorflow-serving`](https://hub.docker.com/r/opennmt/tensorflow-serving) includes additional TensorFlow ops used by OpenNMT-tf. For example, beam search decoding uses the op [`Addons>GatherTree`](https://github.com/tensorflow/addons/blob/master/tensorflow_addons/custom_ops/seq2seq/cc/ops/beam_search_ops.cc) which is not available in standard TensorFlow Serving.
+
+This custom image is considered temporary. The concerned ops are expected to be included in an official or community-supported build of TensorFlow Serving in the future.
+
+See the `docker/` directory for more details.
