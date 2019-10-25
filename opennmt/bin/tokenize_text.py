@@ -17,7 +17,7 @@ def main():
       help="Tokenization configuration.")
   args = parser.parse_args()
 
-  tokenizer = tokenizers.make_tokenizer(args.config)
+  tokenizer = tokenizers.make_tokenizer(args.tokenizer_config)
   tokenizer.tokenize_stream(delimiter=args.delimiter)
 
 if __name__ == "__main__":
