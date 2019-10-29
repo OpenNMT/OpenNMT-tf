@@ -314,11 +314,10 @@ class SequenceToSequence(model.SequenceGenerator):
           labels["noisy_ids_out"],
           labels["noisy_length"],
           eta=params.get("max_margin_eta", 0.1))
-    labels_lengths = self.labels_inputter.get_length(labels)
     loss, loss_normalizer, loss_token_normalizer = losses.cross_entropy_sequence_loss(
         logits,
         labels["ids_out"],
-        labels_lengths,
+        labels["length"],
         label_smoothing=params.get("label_smoothing", 0.0),
         average_in_time=params.get("average_loss_in_time", False),
         training=training)
@@ -333,7 +332,7 @@ class SequenceToSequence(model.SequenceGenerator):
           loss += losses.guided_alignment_cost(
               attention[:, :-1],  # Do not constrain last timestep.
               gold_alignments,
-              sequence_length=labels_lengths - 1,
+              sequence_length=self.labels_inputter.get_length(labels, ignore_special_tokens=True),
               cost_type=guided_alignment_type,
               weight=params.get("guided_alignment_weight", 1))
     return loss, loss_normalizer, loss_token_normalizer
@@ -417,6 +416,7 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
                share_parameters=False):
     super(SequenceToSequenceInputter, self).__init__(
         features_inputter, labels_inputter, share_parameters=share_parameters)
+    labels_inputter.set_decoder_mode(mark_start=True, mark_end=True)
     self.alignment_file = None
 
   def initialize(self, data_config, asset_prefix=""):
@@ -440,21 +440,10 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
     if alignment is not None:
       labels["alignment"] = text.alignment_matrix_from_pharaoh(
           alignment,
-          self.features_inputter.get_length(features),
-          self.labels_inputter.get_length(labels))
-    _shift_target_sequence(labels)
-    if "noisy_ids" in labels:
-      _shift_target_sequence(labels, prefix="noisy_")
+          self.features_inputter.get_length(features, ignore_special_tokens=True),
+          self.labels_inputter.get_length(labels, ignore_special_tokens=True))
     return features, labels
 
-
-def _shift_target_sequence(labels, prefix=""):
-  labels_ids = labels["%sids" % prefix]
-  bos = tf.constant([constants.START_OF_SENTENCE_ID], dtype=labels_ids.dtype)
-  eos = tf.constant([constants.END_OF_SENTENCE_ID], dtype=labels_ids.dtype)
-  labels["%sids" % prefix] = tf.concat([bos, labels_ids], axis=0)
-  labels["%sids_out" % prefix] = tf.concat([labels_ids, eos], axis=0)
-  labels["%slength" % prefix] += 1
 
 def align_tokens_from_attention(tokens, attention):
   """Returns aligned tokens from the attention.

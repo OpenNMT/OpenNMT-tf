@@ -19,6 +19,7 @@ from opennmt.data import dataset as dataset_util
 from opennmt.data import noise
 from opennmt.inputters import inputter, text_inputter, record_inputter
 from opennmt.layers import reducer
+from opennmt.tests import test_util
 from opennmt.utils.misc import item_or_tuple, count_lines
 
 
@@ -131,6 +132,18 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([1, 1], embeddings[1])
     self.assertAllEqual([3, 3], embeddings[2])
 
+  @parameterized.expand([
+      [[3, 4], 2, 1, 2, [1, 3, 4, 2], 4],
+      [[[3, 4], [5, 6]], [2, 1], 1, None, [[1, 3, 4], [1, 5, 6]], [3, 2]],
+      [[[3, 4], [5, 6]], [2, 1], None, 2, [[3, 4, 2], [5, 2, 0]], [3, 2]],
+  ])
+  def testAddSequenceControls(self, ids, length, start_id, end_id, expected_ids, expected_length):
+    ids = tf.constant(ids, dtype=tf.int64)
+    length = tf.constant(length, dtype=tf.int32)
+    ids, length = inputters.add_sequence_controls(ids, length, start_id=start_id, end_id=end_id)
+    self.assertAllEqual(self.evaluate(ids), expected_ids)
+    self.assertAllEqual(self.evaluate(length), expected_length)
+
   def _checkFeatures(self, features, expected_shapes):
     for name, expected_shape in six.iteritems(expected_shapes):
       self.assertIn(name, features)
@@ -172,6 +185,18 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([3], features["length"])
     self.assertAllEqual([[2, 1, 4]], features["ids"])
     self.assertAllEqual([1, 3, 10], transformed.shape)
+
+  def testWordEmbedderForDecoder(self):
+    vocab_file = test_util.make_vocab(
+        os.path.join(self.get_temp_dir(), "vocab.txt"), ["the", "world", "hello", "toto"])
+    embedder = text_inputter.WordEmbedder(embedding_size=10)
+    embedder.set_decoder_mode(mark_start=True, mark_end=True)
+    embedder.initialize({"vocabulary": vocab_file})
+    features = self.evaluate(embedder.make_features(tf.constant("hello world")))
+    self.assertEqual(features["length"], 3)
+    self.assertEqual(embedder.get_length(features, ignore_special_tokens=True), 2)
+    self.assertAllEqual(features["ids"], [1, 5, 4])
+    self.assertAllEqual(features["ids_out"], [5, 4, 2])
 
   def testWordEmbedderWithTokenizer(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])

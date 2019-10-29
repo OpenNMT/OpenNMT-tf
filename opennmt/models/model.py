@@ -376,6 +376,13 @@ class Model(tf.keras.layers.Layer):
 class SequenceGenerator(Model):
   """Base class for models generating sequences."""
 
+  @property
+  def decoder_inputter(self):
+    """The inputter used on the decoder side."""
+    return (
+        self.labels_inputter if not self.unsupervised
+        else self.features_inputter)
+
   def score(self, features, labels):
     outputs, _ = self(features, labels=labels)
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
@@ -387,7 +394,7 @@ class SequenceGenerator(Model):
         "cross_entropy": cross_entropy,
         "score": scores,
         "tokens": labels["tokens"],
-        "length": labels["length"] - 1  # -1 for the special token.
+        "length": self.decoder_inputter.get_length(labels, ignore_special_tokens=True)
     }
     if "attention" in outputs:
       results["attention"] = outputs["attention"]
@@ -397,11 +404,8 @@ class SequenceGenerator(Model):
     if params is None:
       params = {}
     length = score["length"]
-    output_tokenizer = (
-        self.labels_inputter.tokenizer if not self.unsupervised
-        else self.features_inputter.tokenizer)
     tokens = score["tokens"][:length]
-    sentence = output_tokenizer.detokenize(tokens)
+    sentence = self.decoder_inputter.tokenizer.detokenize(tokens)
     token_level_scores = None
     attention = None
     if params.get("with_token_level"):

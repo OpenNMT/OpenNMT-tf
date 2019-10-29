@@ -288,6 +288,55 @@ class ModelTest(tf.test.TestCase):
         prediction_heads=["tokens", "length"],
         params=params)
 
+  def testLanguageModelInputter(self):
+    vocabulary_path = test_util.make_vocab(
+        os.path.join(self.get_temp_dir(), "vocab.txt"), ["a", "b", "c"])
+
+    inputter = models.LanguageModelInputter(embedding_size=10)
+    inputter.initialize({
+        "vocabulary": vocabulary_path,
+        "sequence_controls": {"start": True, "end": False}})
+    features, labels = self.evaluate(inputter.make_features(tf.constant("a b c")))
+    self.assertAllEqual(features["ids"], [1, 3, 4, 5])
+    self.assertEqual(features["length"], 4)
+    self.assertAllEqual(labels["ids"], [1, 3, 4])
+    self.assertAllEqual(labels["ids_out"], [3, 4, 5])
+    self.assertEqual(labels["length"], 3)
+
+    # Backward compatibility mode.
+    inputter = models.LanguageModelInputter(embedding_size=10)
+    inputter.initialize({"vocabulary": vocabulary_path})
+    features, labels = self.evaluate(inputter.make_features(tf.constant("a b c")))
+    self.assertAllEqual(features["ids"], [3, 4, 5])
+    self.assertEqual(features["length"], 3)
+    self.assertAllEqual(labels["ids"], [3, 4, 5])
+    self.assertAllEqual(labels["ids_out"], [4, 5, 2])
+    self.assertEqual(labels["length"], 3)
+
+  def testLanguageModelWithMissingStart(self):
+    _, data_config = self._makeToyLMData()
+    decoder = decoders.SelfAttentionDecoder(
+        2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0)
+    model = models.LanguageModel(decoder, embedding_size=16)
+    model.initialize(data_config)
+    features, _ = model.features_inputter.make_features(tf.constant(""))
+    with self.assertRaises(tf.errors.InvalidArgumentError):
+      model(features)
+
+  def testLanguageModelWithStartOfSentence(self):
+    _, data_config = self._makeToyLMData()
+    data_config["sequence_controls"] = dict(start=True, end=False)
+    decoder = decoders.SelfAttentionDecoder(
+        2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0)
+    model = models.LanguageModel(decoder, embedding_size=16)
+    model.initialize(data_config, params={"maximum_decoding_length": 1})
+    features, _ = model.features_inputter.make_features(tf.constant(""))
+    features = tf.nest.map_structure(lambda t: tf.expand_dims(t, 0), features)  # Add batch dim.
+    _, predictions = self.evaluate(model(features))
+    # Predictions should not include the leading <s>.
+    self.assertEqual(predictions["length"][0], 1)
+    self.assertTupleEqual(predictions["tokens"].shape, (1, 1))
+
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],
       [tf.estimator.ModeKeys.EVAL],
