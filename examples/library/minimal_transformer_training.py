@@ -162,9 +162,6 @@ def translate(source_file,
   dataset = model.examples_inputter.make_inference_dataset(source_file, batch_size)
   iterator = iter(dataset)
 
-  # Create the mapping for target ids to tokens.
-  ids_to_tokens = model.labels_inputter.vocabulary_lookup_reverse()
-
   @tf.function
   def predict_next():
     # For efficiency, we advance the iterator within the tf.function,
@@ -197,7 +194,7 @@ def translate(source_file,
         decoding_strategy=decoding_strategy,
         maximum_iterations=200)
     target_lengths = decoded.lengths
-    target_tokens = ids_to_tokens.lookup(tf.cast(decoded.ids, tf.int64))
+    target_tokens = model.labels_inputter.ids_to_tokens.lookup(tf.cast(decoded.ids, tf.int64))
     return target_tokens, target_lengths
 
   # Iterates on the dataset.
