@@ -74,7 +74,7 @@ class SelfAttentionDecoder(decoder.Decoder):
 
   @property
   def support_alignment_history(self):
-    return self.num_sources == 1
+    return True
 
   def map_v1_weights(self, weights):
     m = []
