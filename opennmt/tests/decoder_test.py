@@ -93,14 +93,15 @@ class DecoderTest(tf.test.TestCase):
         training=True)
     self.assertEqual(outputs.dtype, dtype)
     output_time_dim = tf.shape(outputs)[1]
-    if decoder.support_alignment_history and num_sources == 1:
+    if decoder.support_alignment_history:
       self.assertIsNotNone(attention)
     else:
       self.assertIsNone(attention)
     output_time_dim_val = self.evaluate(output_time_dim)
     self.assertEqual(time_dim, output_time_dim_val)
-    if decoder.support_alignment_history and num_sources == 1:
-      attention_val, memory_time = self.evaluate([attention, tf.shape(memory)[1]])
+    if decoder.support_alignment_history:
+      first_memory = memory[0] if isinstance(memory, list) else memory
+      attention_val, memory_time = self.evaluate([attention, tf.shape(first_memory)[1]])
       self.assertAllEqual([batch_size, time_dim, memory_time], attention_val.shape)
 
     # Test 2D inputs.
@@ -111,7 +112,7 @@ class DecoderTest(tf.test.TestCase):
         step,
         state=initial_state)
     self.assertEqual(outputs.dtype, dtype)
-    if decoder.support_alignment_history and num_sources == 1:
+    if decoder.support_alignment_history:
       self.assertIsNotNone(attention)
     else:
       self.assertIsNone(attention)
