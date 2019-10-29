@@ -160,6 +160,46 @@ def load_pretrained_embeddings(embedding_file,
 
   return pretrained
 
+def add_sequence_controls(ids, length, start_id=None, end_id=None):
+  """Adds sequence control tokens.
+
+  Args:
+    ids: Sequence of ids as 1D or 2D (batch) tensor.
+    length: Sequence length as 0D or 1D (batch) tensor.
+    start_id: Id to prepend to the sequence (set ``None`` to disable).
+    end_id: Id to append to the sequence (set ``None`` to disable).
+
+  Returns:
+    A tuple ``(ids, length)``.
+  """
+  rank = ids.shape.rank
+  if rank not in (1, 2):
+    raise ValueError("Unsupported rank %d (expected 1 or 2)" % rank)
+  batch_size = tf.shape(ids)[0] if rank == 2 else None
+
+  def _make_column(value):
+    value = tf.constant(value, dtype=ids.dtype)
+    if batch_size is not None:
+      value = tf.fill([batch_size], value)
+    return tf.expand_dims(value, -1)
+
+  if start_id is not None:
+    start_ids = _make_column(constants.START_OF_SENTENCE_ID)
+    ids = tf.concat([start_ids, ids], axis=-1)
+    length += 1
+
+  if end_id is not None:
+    end_ids = _make_column(constants.END_OF_SENTENCE_ID)
+    if batch_size is not None:
+      # Run concat on RaggedTensor to handle sequences with variable length.
+      ids = tf.RaggedTensor.from_tensor(ids, lengths=length)
+    ids = tf.concat([ids, end_ids], axis=-1)
+    if batch_size is not None:
+      ids = ids.to_tensor()
+    length += 1
+
+  return ids, length
+
 def _get_field(config, key, prefix=None, default=None, required=False):
   if prefix:
     key = "%s%s" % (prefix, key)
@@ -291,6 +331,38 @@ class WordEmbedder(TextInputter):
     self.embedding_size = embedding_size
     self.embedding_file = None
     self.dropout = dropout
+    self.decoder_mode = False
+    self.mark_start = None
+    self.mark_end = None
+
+  def set_decoder_mode(self, enable=True, mark_start=None, mark_end=None):
+    """Make this inputter produce sequences for a decoder.
+
+    In this mode, the returned "ids_out" feature is the decoder output sequence
+    and "ids" is the decoder input sequence.
+
+    Args:
+      enable: Enable the decoder mode.
+      mark_start: Mark the sequence start. If ``None``, keep the current value.
+      mark_end: Mark the sequence end. If ``None``, keep the current value.
+    """
+    self.decoder_mode = enable
+    if mark_start is not None:
+      self.mark_start = mark_start
+    if mark_end is not None:
+      self.mark_end = mark_end
+
+  def get_length(self, features, ignore_special_tokens=False):
+    length = features["length"]
+    if ignore_special_tokens:
+      # Decoder mode shifts the sequences by one timesteps.
+      num_special_tokens = -1 if self.decoder_mode else 0
+      if self.mark_start:
+        num_special_tokens += 1
+      if self.mark_end:
+        num_special_tokens += 1
+      length -= num_special_tokens
+    return length
 
   def initialize(self, data_config, asset_prefix=""):
     super(WordEmbedder, self).initialize(data_config, asset_prefix=asset_prefix)
@@ -302,14 +374,27 @@ class WordEmbedder(TextInputter):
       self.trainable = embedding.get("trainable", True)
       self.embedding_file_with_header = embedding.get("with_header", True)
       self.case_insensitive_embeddings = embedding.get("case_insensitive", True)
+    sequence_controls = _get_field(data_config, "sequence_controls", prefix=asset_prefix)
+    if sequence_controls:
+      self.mark_start = sequence_controls["start"]
+      self.mark_end = sequence_controls["end"]
 
   def make_features(self, element=None, features=None, training=None):
     """Converts words tokens to ids."""
     features = super(WordEmbedder, self).make_features(
         element=element, features=features, training=training)
-    if "ids" in features:
-      return features
-    features["ids"] = self.tokens_to_ids.lookup(features["tokens"])
+    if "ids" not in features:
+      features["ids"] = self.tokens_to_ids.lookup(features["tokens"])
+      if self.mark_start or self.mark_end:
+        features["ids"], features["length"] = add_sequence_controls(
+            features["ids"],
+            features["length"],
+            start_id=constants.START_OF_SENTENCE_ID if self.mark_start else None,
+            end_id=constants.END_OF_SENTENCE_ID if self.mark_end else None)
+    if self.decoder_mode:
+      features["ids_out"] = features["ids"][1:]
+      features["ids"] = features["ids"][:-1]
+      features["length"] -= 1
     return features
 
   def build(self, input_shape):

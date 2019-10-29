@@ -17,6 +17,16 @@ def make_data_file(path, lines):
       data.write("%s\n" % line)
   return path
 
+def make_vocab(path, tokens):
+  vocabulary = vocab.Vocab(special_tokens=[
+      constants.PADDING_TOKEN,
+      constants.START_OF_SENTENCE_TOKEN,
+      constants.END_OF_SENTENCE_TOKEN])
+  for token in tokens:
+    vocabulary.add(token)
+  vocabulary.serialize(path)
+  return path
+
 def make_vocab_from_file(path, data_file):
   vocabulary = vocab.Vocab(special_tokens=[
       constants.PADDING_TOKEN,

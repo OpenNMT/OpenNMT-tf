@@ -19,4 +19,5 @@ from opennmt.inputters.text_inputter import CharConvEmbedder
 from opennmt.inputters.text_inputter import CharRNNEmbedder
 from opennmt.inputters.text_inputter import TextInputter
 from opennmt.inputters.text_inputter import WordEmbedder
+from opennmt.inputters.text_inputter import add_sequence_controls
 from opennmt.inputters.text_inputter import load_pretrained_embeddings

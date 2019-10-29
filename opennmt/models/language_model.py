@@ -2,7 +2,6 @@
 
 import tensorflow as tf
 
-from opennmt import constants
 from opennmt import inputters
 from opennmt import layers
 from opennmt.data import dataset as dataset_util
@@ -13,7 +12,7 @@ from opennmt.utils import misc
 
 
 class LanguageModel(model.SequenceGenerator):
-  """An experimental language model."""
+  """A language model."""
 
   def __init__(self,
                decoder,
@@ -61,16 +60,24 @@ class LanguageModel(model.SequenceGenerator):
     ids, length = features["ids"], features["length"]
     if labels is not None:
       # For training and evaluation, forward the full sequence.
-      logits, _ = self._decode(ids, length, training=training)
+      logits, _ = self._decode(
+          labels.get("ids", ids),
+          labels.get("length", length),
+          training=training)
       outputs = dict(logits=logits)
     else:
       assert_fixed_length = tf.debugging.Assert(
           tf.reduce_all(tf.equal(length, tf.reduce_max(length))),
           ["Language model does not support variable length contexts during "
            "generation, consider setting batch_size or length_bucket_width to 1"])
+      assert_non_empty_start = tf.debugging.Assert(
+          tf.math.not_equal(tf.math.reduce_max(length), 0),
+          ["The language model requires a context sequence to initialize the decoding. "
+           "If you want nonconditional sequence generation, you should configure the "
+           "sequence_controls parameter before training."])
 
-      # Run decoder one the context, if any.
-      with tf.control_dependencies([assert_fixed_length]):
+      # Run decoder on the context, if any.
+      with tf.control_dependencies([assert_fixed_length, assert_non_empty_start]):
         context_ids, start_ids = tf.split(ids, [tf.shape(ids)[1] - 1, 1], axis=1)
         context_length = length - 1
         batch_size = tf.shape(context_length)[0]
@@ -96,6 +103,10 @@ class LanguageModel(model.SequenceGenerator):
       sampled_length = tf.reshape(sampled_length, [batch_size])
 
       # Build the full prediction.
+      if self.features_inputter.mark_start:
+        # Remove leading <s> if included in the context sequence.
+        ids = ids[:, 1:]
+        length -= 1
       full_ids = tf.concat([ids, sampled_ids], 1)
       full_length = length + sampled_length
       tokens = self.features_inputter.ids_to_tokens.lookup(full_ids)
@@ -133,15 +144,29 @@ class LanguageModelInputter(inputters.WordEmbedder):
   input sequence.
   """
 
+  def initialize(self, data_config, asset_prefix=""):
+    super(LanguageModelInputter, self).initialize(data_config, asset_prefix=asset_prefix)
+    # Set default sequence controls for backward compatibility.
+    if self.mark_start is None:
+      self.mark_start = False
+    if self.mark_end is None:
+      self.mark_end = True
+
   def make_features(self, element=None, features=None, training=None):
+    base_features = features if features is not None else {}
+
+    # Features define the decoder context during inference. As the context is a prefix,
+    # we should disable the end sequence control token.
+    saved_mark_end = self.mark_end
+    self.set_decoder_mode(enable=False, mark_end=False)
     features = super(LanguageModelInputter, self).make_features(
-        element=element, features=features, training=training)
-    labels = {
-        "ids_out": tf.concat([features["ids"][1:], [constants.END_OF_SENTENCE_ID]], 0),
-        "length": tf.identity(features["length"])
-    }
-    if not training:
-      labels["tokens"] = tf.concat([features["tokens"][1:], [constants.END_OF_SENTENCE_TOKEN]], 0)
+        element=element, features=base_features.copy(), training=training)
+
+    # Labels define the decoder input/output sequences during training and evaluation.
+    self.set_decoder_mode(enable=True, mark_end=saved_mark_end)
+    labels = super(LanguageModelInputter, self).make_features(
+        element=element, features=base_features.copy(), training=training)
+
     return features, labels
 
   def make_inference_dataset(self,

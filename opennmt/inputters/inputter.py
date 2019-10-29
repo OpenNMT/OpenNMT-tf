@@ -106,8 +106,18 @@ class Inputter(tf.keras.layers.Layer):
     """Returns the input signature of this inputter."""
     raise NotImplementedError()
 
-  def get_length(self, features):
-    """Returns the length of the input features, if defined."""
+  def get_length(self, features, ignore_special_tokens=False):
+    """Returns the length of the input features, if defined.
+
+    Args:
+      features: The dictionary of input features.
+      ignore_special_tokens: Ignore special tokens that were added by the
+        inputter (e.g. <s> and/or </s>).
+
+    Returns:
+      The length.
+    """
+    _ = ignore_special_tokens
     return features.get("length")
 
   @abc.abstractmethod
@@ -271,14 +281,15 @@ class ParallelInputter(MultiInputter):
     else:
       return tuple(inputter.input_signature() for inputter in self.inputters)
 
-  def get_length(self, features):
+  def get_length(self, features, ignore_special_tokens=False):
     lengths = []
     for i, inputter in enumerate(self.inputters):
       if self.combine_features:
         sub_features = misc.extract_prefixed_keys(features, "inputter_{}_".format(i))
       else:
         sub_features = features[i]
-      lengths.append(inputter.get_length(sub_features))
+      lengths.append(inputter.get_length(
+          sub_features, ignore_special_tokens=ignore_special_tokens))
     if self.reducer is None:
       return lengths
     else:
@@ -378,8 +389,8 @@ class MixedInputter(MultiInputter):
       signature.update(inputter.input_signature())
     return signature
 
-  def get_length(self, features):
-    return self.inputters[0].get_length(features)
+  def get_length(self, features, ignore_special_tokens=False):
+    return self.inputters[0].get_length(features, ignore_special_tokens=ignore_special_tokens)
 
   def make_features(self, element=None, features=None, training=None):
     if features is None:
