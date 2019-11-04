@@ -102,6 +102,11 @@ class Decoder(tf.keras.layers.Layer):
     history."""
     return False
 
+  @property
+  def initialized(self):
+    """Returns ``True`` if this decoder is initialized."""
+    return self.output_layer is not None
+
   def initialize(self, vocab_size=None, output_layer=None):
     """Initializes the decoder configuration.
 
@@ -118,6 +123,18 @@ class Decoder(tf.keras.layers.Layer):
       if vocab_size is None:
         raise ValueError("One of vocab_size and output_layer must be set")
       self.output_layer = common.Dense(vocab_size)
+
+  def reuse_embeddings(self, embeddings):
+    """Reuses embeddings in the decoder output layer.
+
+    Args:
+      embeddings: The embeddings matrix to reuse.
+
+    Raises:
+      RuntimeError: if the decoder was not initialized.
+    """
+    self._assert_is_initialized()
+    self.output_layer.set_kernel(embeddings, transpose=True)
 
   def initial_state(self,
                     memory=None,
@@ -402,7 +419,7 @@ class Decoder(tf.keras.layers.Layer):
 
   def _assert_is_initialized(self):
     """Raises an expection if the decoder was not initialized."""
-    if self.output_layer is None:
+    if not self.initialized:
       raise RuntimeError("The decoder was not initialized")
 
   def _assert_memory_is_compatible(self, memory, memory_sequence_length):

@@ -182,6 +182,22 @@ class ModelTest(tf.test.TestCase):
         prediction_heads=["tokens", "length", "log_probs"],
         params=params)
 
+  def testSequenceToSequenceWithSharedEmbedding(self):
+    model = models.SequenceToSequence(
+        inputters.WordEmbedder(16),
+        inputters.WordEmbedder(16),
+        encoders.SelfAttentionEncoder(2, 16, 4, 32),
+        decoders.SelfAttentionDecoder(2, 16, 4, 32),
+        share_embeddings=models.EmbeddingsSharingLevel.ALL)
+    _, _, data_config = self._makeToyEnDeData()
+    data_config["target_vocabulary"] = data_config["source_vocabulary"]
+    model.initialize(data_config)
+    self.assertTrue(model.decoder.initialized)
+    model.build(None)
+    self.assertEqual(
+        model.labels_inputter.embedding.experimental_ref(),
+        model.decoder.output_layer.weight.experimental_ref())
+
   @parameterized.expand([
       [tf.estimator.ModeKeys.EVAL],
       [tf.estimator.ModeKeys.PREDICT]])

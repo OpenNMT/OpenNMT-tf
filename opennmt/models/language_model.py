@@ -3,7 +3,6 @@
 import tensorflow as tf
 
 from opennmt import inputters
-from opennmt import layers
 from opennmt.data import dataset as dataset_util
 from opennmt.models import model
 from opennmt.utils import decoding
@@ -43,16 +42,14 @@ class LanguageModel(model.SequenceGenerator):
         }
     })
 
+  def initialize(self, data_config, params=None):
+    super(LanguageModel, self).initialize(data_config, params=params)
+    self.decoder.initialize(vocab_size=self.examples_inputter.vocabulary_size)
+
   def build(self, input_shape):
     super(LanguageModel, self).build(input_shape)
-    vocab_size = self.examples_inputter.vocabulary_size
-    output_layer = None
     if self.reuse_embedding:
-      output_layer = layers.Dense(
-          vocab_size,
-          weight=self.examples_inputter.embedding,
-          transpose=True)
-    self.decoder.initialize(vocab_size=vocab_size, output_layer=output_layer)
+      self.decoder.reuse_embeddings(self.examples_inputter.embedding)
 
   def call(self, features, labels=None, training=None, step=None):
     outputs, predictions = None, None
