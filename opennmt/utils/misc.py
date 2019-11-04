@@ -152,16 +152,16 @@ def clone_layer(layer):
 
 def gather_all_layers(layer):
   """Returns all nested layer starting from :obj:`layer`."""
-  layers = []
+  layers = set()
   if not isinstance(layer, tf.Module):
     return layers
-  layers.append(layer)
+  layers.add(layer)
   for value in six.itervalues(layer.__dict__):
     if isinstance(value, tf.Module):
-      layers.extend(gather_all_layers(value))
+      layers.update(gather_all_layers(value))
     elif isinstance(value, list):
       for sub_layer in value:
-        layers.extend(gather_all_layers(sub_layer))
+        layers.update(gather_all_layers(sub_layer))
   return layers
 
 def set_dropout(root_layer, dropout):
