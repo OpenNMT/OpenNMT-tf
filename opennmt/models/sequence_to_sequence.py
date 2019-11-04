@@ -9,7 +9,6 @@ import tensorflow_addons as tfa
 
 from opennmt import constants
 from opennmt import inputters
-from opennmt import layers
 
 from opennmt.data import noise
 from opennmt.data import text
@@ -117,6 +116,7 @@ class SequenceToSequence(model.SequenceGenerator):
 
   def initialize(self, data_config, params=None):
     super(SequenceToSequence, self).initialize(data_config, params=params)
+    self.decoder.initialize(vocab_size=self.labels_inputter.vocabulary_size)
     if self.params.get("contrastive_learning"):
       # Use the simplest and most effective CL_one from the paper.
       # https://www.aclweb.org/anthology/P19-1623
@@ -128,15 +128,8 @@ class SequenceToSequence(model.SequenceGenerator):
 
   def build(self, input_shape):
     super(SequenceToSequence, self).build(input_shape)
-    output_layer = None
     if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
-      output_layer = layers.Dense(
-          self.labels_inputter.vocabulary_size,
-          weight=self.labels_inputter.embedding,
-          transpose=True)
-    self.decoder.initialize(
-        vocab_size=self.labels_inputter.vocabulary_size,
-        output_layer=output_layer)
+      self.decoder.reuse_embeddings(self.labels_inputter.embedding)
 
   def call(self, features, labels=None, training=None, step=None):
     # Encode the source.

@@ -34,6 +34,20 @@ class Dense(tf.keras.layers.Dense):
       kwargs: Additional layers arguments.
     """
     super(Dense, self).__init__(units, **kwargs)
+    self.set_kernel(weight, transpose=transpose)
+
+  def set_kernel(self, weight, transpose=False):
+    """Use :obj:`weight` as the kernel weights matrix.
+
+    Args:
+      weight: The weight ot use.
+      transpose: Whether :obj:`weight` should be transposed or not.
+
+    Raises:
+      ValueError: if the layer is already built.
+    """
+    if self.built:
+      raise ValueError("The layer is already built")
     self.weight = weight
     self.transpose = transpose
 
