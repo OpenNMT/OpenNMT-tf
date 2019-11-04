@@ -178,7 +178,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
-        process_fn=lambda x: self.make_features(x, training=False)[0],
+        process_fn=lambda x: self.make_features(element=x, training=False)[0],
         length_bucket_width=length_bucket_width,
         length_fn=self.get_length,
         num_threads=num_threads,
@@ -196,7 +196,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
-        process_fn=lambda x: self.make_features(x, training=False),
+        process_fn=lambda x: self.make_features(element=x, training=False),
         num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size))
     return dataset
@@ -226,7 +226,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
         batch_multiplier=batch_multiplier,
         length_bucket_width=length_bucket_width,
         single_pass=single_pass,
-        process_fn=lambda x: self.make_features(x, training=True),
+        process_fn=lambda x: self.make_features(element=x, training=True),
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
