@@ -13,7 +13,16 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Return detokenized predictions when using a in-graph tokenizer
+* Injection of the special tokens `<s>` and `</s>` for language models can be configured with the data parameter `sequence_controls`
+
 ### Fixes and improvements
+
+* Fix the batch size in multi GPU training that was not scaled by the number of devices
+* When updating vocabularies, mirror the existing embeddings distribution for newly created embeddings
+* Fix error when running `onmt-tokenize-text` and `onmt-detokenize-text` scripts
+* Transformer decoder now always returns the attention on the first source
+* Calling `model.initialize()` also initialize the decoder (if any)
 
 ## [2.1.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.1.1) (2019-10-18)
 
