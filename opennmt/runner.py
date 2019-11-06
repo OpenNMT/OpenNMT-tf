@@ -155,6 +155,7 @@ class Runner(object):
         data_config.get("train_labels_file"),
         train_config["batch_size"],
         batch_type=batch_type,
+        batch_multiplier=num_devices,
         batch_size_multiple=batch_size_multiple,
         shuffle_buffer_size=train_config["sample_buffer_size"],
         length_bucket_width=train_config["length_bucket_width"],
@@ -172,6 +173,8 @@ class Runner(object):
       devices = None
     else:
       devices = tf.config.experimental.list_logical_devices(device_type="GPU")
+      if not devices:
+        devices = tf.config.experimental.list_logical_devices(device_type="CPU")
       if len(devices) < num_devices:
         raise ValueError("Requested %d devices but only %d are visible" % (
             num_devices, len(devices)))
