@@ -90,6 +90,33 @@ class RunnerTest(tf.test.TestCase):
     with open(en_file) as f:
       self.assertEqual(next(f).strip(), "a t z m o n")
 
+  @test_util.new_context
+  def testTrainDistribute(self):
+    physical_devices = tf.config.experimental.list_physical_devices("CPU")
+    tf.config.experimental.set_virtual_device_configuration(
+        physical_devices[0],
+        [tf.config.experimental.VirtualDeviceConfiguration(),
+         tf.config.experimental.VirtualDeviceConfiguration()])
+
+    ar_file, en_file  = self._makeTransliterationData()
+    config = {
+        "data": {
+            "train_features_file": ar_file,
+            "train_labels_file": en_file
+        },
+        "params": {
+            "learning_rate": 0.0005,
+            "optimizer": "Adam"
+        },
+        "train": {
+            "batch_size": 2,
+            "length_bucket_width": None,
+            "max_step": 145002  # Just train for 2 steps.
+        }
+    }
+    runner = self._getTransliterationRunner(config)
+    runner.train(num_devices=2)
+
   def testTrainWithEval(self):
     ar_file, en_file  = self._makeTransliterationData()
     config = {
