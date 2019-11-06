@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.LanguageModel &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.models.LanguageModel &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -207,7 +207,7 @@
 <dl class="class">
 <dt id="opennmt.models.LanguageModel">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">LanguageModel</code><span class="sig-paren">(</span><em class="sig-param">decoder</em>, <em class="sig-param">embedding_size=None</em>, <em class="sig-param">reuse_embedding=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>An experimental language model.</p>
+<dd><p>A language model.</p>
 <p>Inherits from: <a class="reference internal" href="opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator" title="opennmt.models.SequenceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceGenerator</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.models.LanguageModel.__init__">
@@ -240,6 +240,22 @@ training.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A partial training configuration.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.LanguageModel.initialize">
+<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em>, <em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModel.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModel.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the model from the data configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_config</strong> – A dictionary containing the data configuration set
+by the user (e.g. vocabularies, tokenization, pretrained embeddings,
+etc.).</p></li>
+<li><p><strong>params</strong> – A dictionary of hyperparameters.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

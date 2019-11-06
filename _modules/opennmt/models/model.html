@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -554,6 +554,13 @@
 <span class="k">class</span> <span class="nc">SequenceGenerator</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for models generating sequences.&quot;&quot;&quot;</span>
 
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">decoder_inputter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The inputter used on the decoder side.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">unsupervised</span>
+        <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">)</span>
+
 <div class="viewcode-block" id="SequenceGenerator.score"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
     <span class="n">outputs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sparse_softmax_cross_entropy_with_logits</span><span class="p">(</span>
@@ -565,7 +572,7 @@
         <span class="s2">&quot;cross_entropy&quot;</span><span class="p">:</span> <span class="n">cross_entropy</span><span class="p">,</span>
         <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">scores</span><span class="p">,</span>
         <span class="s2">&quot;tokens&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># -1 for the special token.</span>
+        <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="s2">&quot;attention&quot;</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
       <span class="n">results</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span>
@@ -575,11 +582,8 @@
     <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">length</span> <span class="o">=</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
-    <span class="n">output_tokenizer</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">tokenizer</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">unsupervised</span>
-        <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">)</span>
     <span class="n">tokens</span> <span class="o">=</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][:</span><span class="n">length</span><span class="p">]</span>
-    <span class="n">sentence</span> <span class="o">=</span> <span class="n">output_tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+    <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
     <span class="n">token_level_scores</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_token_level&quot;</span><span class="p">):</span>

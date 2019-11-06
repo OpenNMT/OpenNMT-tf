@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.common &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.layers.common &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -212,6 +212,20 @@
 <span class="sd">      kwargs: Additional layers arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="n">transpose</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dense.set_kernel"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.set_kernel">[docs]</a>  <span class="k">def</span> <span class="nf">set_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Use :obj:`weight` as the kernel weights matrix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      weight: The weight ot use.</span>
+<span class="sd">      transpose: Whether :obj:`weight` should be transposed or not.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if the layer is already built.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The layer is already built&quot;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span> <span class="o">=</span> <span class="n">transpose</span></div>
 

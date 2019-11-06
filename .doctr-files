@@ -101,6 +101,7 @@
 ./_sources/package/opennmt.inputters.SequenceRecordInputter.rst.txt
 ./_sources/package/opennmt.inputters.TextInputter.rst.txt
 ./_sources/package/opennmt.inputters.WordEmbedder.rst.txt
+./_sources/package/opennmt.inputters.add_sequence_controls.rst.txt
 ./_sources/package/opennmt.inputters.create_sequence_records.rst.txt
 ./_sources/package/opennmt.inputters.load_pretrained_embeddings.rst.txt
 ./_sources/package/opennmt.inputters.rst.txt
@@ -315,6 +316,7 @@
 ./package/opennmt.inputters.SequenceRecordInputter.html
 ./package/opennmt.inputters.TextInputter.html
 ./package/opennmt.inputters.WordEmbedder.html
+./package/opennmt.inputters.add_sequence_controls.html
 ./package/opennmt.inputters.create_sequence_records.html
 ./package/opennmt.inputters.html
 ./package/opennmt.inputters.load_pretrained_embeddings.html

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -534,12 +534,12 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">attention</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_sources</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_sources</span><span class="p">):</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="n">MultiHeadAttention</span><span class="p">(</span>
           <span class="n">num_heads</span><span class="p">,</span>
           <span class="n">num_units</span><span class="p">,</span>
           <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
-          <span class="n">return_attention</span><span class="o">=</span><span class="n">num_sources</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+          <span class="n">return_attention</span><span class="o">=</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span>
           <span class="n">attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attention</span><span class="p">)</span>

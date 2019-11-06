@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.Decoder &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.decoders.Decoder &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -248,6 +248,12 @@ history.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.decoders.Decoder.initialized">
+<em class="property">property </em><code class="sig-name descname">initialized</code><a class="headerlink" href="#opennmt.decoders.Decoder.initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this decoder is initialized.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.decoders.Decoder.initialize">
 <code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">vocab_size=None</em>, <em class="sig-param">output_layer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoder configuration.</p>
@@ -260,6 +266,20 @@ history.</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – if both <code class="xref py py-obj docutils literal notranslate"><span class="pre">vocab_size</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_layer</span></code> are not set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.Decoder.reuse_embeddings">
+<code class="sig-name descname">reuse_embeddings</code><span class="sig-paren">(</span><em class="sig-param">embeddings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.reuse_embeddings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.reuse_embeddings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reuses embeddings in the decoder output layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>embeddings</strong> – The embeddings matrix to reuse.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – if the decoder was not initialized.</p>
 </dd>
 </dl>
 </dd></dl>

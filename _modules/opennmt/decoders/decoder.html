@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -280,6 +280,11 @@
 <span class="sd">    history.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="kc">False</span>
 
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder is initialized.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
 <div class="viewcode-block" id="Decoder.initialize"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the decoder configuration.</span>
 
@@ -296,6 +301,18 @@
       <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;One of vocab_size and output_layer must be set&quot;</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Decoder.reuse_embeddings"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.reuse_embeddings">[docs]</a>  <span class="k">def</span> <span class="nf">reuse_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reuses embeddings in the decoder output layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      embeddings: The embeddings matrix to reuse.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      RuntimeError: if the decoder was not initialized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Decoder.initial_state"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initial_state">[docs]</a>  <span class="k">def</span> <span class="nf">initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -580,7 +597,7 @@
 
   <span class="k">def</span> <span class="nf">_assert_is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raises an expection if the decoder was not initialized.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The decoder was not initialized&quot;</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_assert_memory_is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">):</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -268,7 +268,7 @@
 <span class="sd">    See Also:</span>
 <span class="sd">      :func:`opennmt.data.inference_pipeline`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">map_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">misc</span><span class="o">.</span><span class="n">item_or_tuple</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">map_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">misc</span><span class="o">.</span><span class="n">item_or_tuple</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">features_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">dataset_util</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span>
         <span class="n">batch_size</span><span class="p">,</span>
@@ -284,8 +284,18 @@
     <span class="sd">&quot;&quot;&quot;Returns the input signature of this inputter.&quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Inputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the length of the input features, if defined.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Inputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the length of the input features, if defined.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      features: The dictionary of input features.</span>
+<span class="sd">      ignore_special_tokens: Ignore special tokens that were added by the</span>
+<span class="sd">        inputter (e.g. &lt;s&gt; and/or &lt;/s&gt;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The length.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">ignore_special_tokens</span>
     <span class="k">return</span> <span class="n">features</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Inputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_features">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -449,14 +459,15 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">input_signature</span><span class="p">()</span> <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParallelInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+<div class="viewcode-block" id="ParallelInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span><span class="p">:</span>
         <span class="n">sub_features</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">extract_prefixed_keys</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="s2">&quot;inputter_</span><span class="si">{}</span><span class="s2">_&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="n">sub_features</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-      <span class="n">lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">sub_features</span><span class="p">))</span>
+      <span class="n">lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span>
+          <span class="n">sub_features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="n">ignore_special_tokens</span><span class="p">))</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">lengths</span>
     <span class="k">else</span><span class="p">:</span>
@@ -556,8 +567,8 @@
       <span class="n">signature</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">input_signature</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">signature</span></div>
 
-<div class="viewcode-block" id="MixedInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span></div>
+<div class="viewcode-block" id="MixedInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.get_length">[docs]</a>  <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="n">ignore_special_tokens</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MixedInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -636,7 +647,7 @@
 <span class="sd">    See Also:</span>
 <span class="sd">      :func:`opennmt.data.inference_pipeline`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">map_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">map_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">arg</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">([</span><span class="n">features_file</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">dataset_util</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span>
         <span class="n">batch_size</span><span class="p">,</span>
@@ -702,7 +713,7 @@
 <span class="sd">    See Also:</span>
 <span class="sd">      :func:`opennmt.data.training_pipeline`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">map_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">map_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">arg</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">([</span><span class="n">features_file</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">dataset_util</span><span class="o">.</span><span class="n">training_pipeline</span><span class="p">(</span>
         <span class="n">batch_size</span><span class="p">,</span>

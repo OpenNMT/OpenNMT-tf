@@ -32,7 +32,7 @@ and most ideas and modules coming from these papers can be reused for other mode
 
 ## Catalog
 
-OpenNMT-tf comes with a set of standard models that are defined in the [catalog](package/opennmt.models.catalog.html). These models can be directly selected with the `--model_type` command line option, e.g.:
+OpenNMT-tf comes with a set of standard models that are defined in the [catalog](https://github.com/OpenNMT/OpenNMT-tf/blob/master/opennmt/models/catalog.py). These models can be directly selected with the `--model_type` command line option, e.g.:
 
 ```bash
 onmt-main --model_type Transformer [...]

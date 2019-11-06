@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.WordOmission &mdash; OpenNMT-tf 2.2.0 documentation</title>
+  <title>opennmt.inputters.add_sequence_controls &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.data.WordPermutation" href="opennmt.data.WordPermutation.html" />
-    <link rel="prev" title="opennmt.data.WordNoiser" href="opennmt.data.WordNoiser.html" /> 
+    <link rel="next" title="opennmt.inputters.create_sequence_records" href="opennmt.inputters.create_sequence_records.html" />
+    <link rel="prev" title="opennmt.inputters.WordEmbedder" href="opennmt.inputters.WordEmbedder.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -116,14 +116,14 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="opennmt.data.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="opennmt.data.html#functions">Functions</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="opennmt.inputters.html#classes">Classes</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.inputters.html#functions">Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
@@ -184,9 +184,9 @@
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-          <li><a href="opennmt.data.html">opennmt.data module</a> &raquo;</li>
+          <li><a href="opennmt.inputters.html">opennmt.inputters module</a> &raquo;</li>
         
-      <li>opennmt.data.WordOmission</li>
+      <li>opennmt.inputters.add_sequence_controls</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -203,26 +203,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="opennmt-data-wordomission">
-<h1>opennmt.data.WordOmission<a class="headerlink" href="#opennmt-data-wordomission" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="opennmt.data.WordOmission">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">WordOmission</code><span class="sig-paren">(</span><em class="sig-param">count</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordOmission"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.WordOmission" title="Permalink to this definition">¶</a></dt>
-<dd><p>Randomly omits words in a sequence.</p>
-<p>This is different than <a class="reference internal" href="opennmt.data.WordDropout.html#opennmt.data.WordDropout" title="opennmt.data.WordDropout"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.data.WordDropout</span></code></a> as it drops a
-fixed number of words.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.data.Noise.html#opennmt.data.Noise" title="opennmt.data.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.data.Noise</span></code></a></p>
-<dl class="method">
-<dt id="opennmt.data.WordOmission.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">count</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordOmission.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.WordOmission.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the noise module.</p>
+  <div class="section" id="opennmt-inputters-add-sequence-controls">
+<h1>opennmt.inputters.add_sequence_controls<a class="headerlink" href="#opennmt-inputters-add-sequence-controls" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="opennmt.inputters.add_sequence_controls">
+<code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">add_sequence_controls</code><span class="sig-paren">(</span><em class="sig-param">ids</em>, <em class="sig-param">length</em>, <em class="sig-param">start_id=None</em>, <em class="sig-param">end_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#add_sequence_controls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.add_sequence_controls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds sequence control tokens.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>count</strong> – The number of words to omit.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ids</strong> – Sequence of ids as 1D or 2D (batch) tensor.</p></li>
+<li><p><strong>length</strong> – Sequence length as 0D or 1D (batch) tensor.</p></li>
+<li><p><strong>start_id</strong> – Id to prepend to the sequence (set <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable).</p></li>
+<li><p><strong>end_id</strong> – Id to append to the sequence (set <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple <code class="docutils literal notranslate"><span class="pre">(ids,</span> <span class="pre">length)</span></code>.</p>
 </dd>
 </dl>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -235,10 +234,10 @@ fixed number of words.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.data.WordPermutation.html" class="btn btn-neutral float-right" title="opennmt.data.WordPermutation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.inputters.create_sequence_records.html" class="btn btn-neutral float-right" title="opennmt.inputters.create_sequence_records" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.data.WordNoiser.html" class="btn btn-neutral float-left" title="opennmt.data.WordNoiser" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.inputters.WordEmbedder.html" class="btn btn-neutral float-left" title="opennmt.inputters.WordEmbedder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

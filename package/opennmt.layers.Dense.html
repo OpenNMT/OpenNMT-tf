@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.Dense &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.layers.Dense &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -223,6 +223,23 @@ matrix.</p>
 <li><p><strong>transpose</strong> – Whether <code class="xref py py-obj docutils literal notranslate"><span class="pre">weight</span></code> should be transposed or not.</p></li>
 <li><p><strong>kwargs</strong> – Additional layers arguments.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.Dense.set_kernel">
+<code class="sig-name descname">set_kernel</code><span class="sig-paren">(</span><em class="sig-param">weight</em>, <em class="sig-param">transpose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#Dense.set_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.Dense.set_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use <code class="xref py py-obj docutils literal notranslate"><span class="pre">weight</span></code> as the kernel weights matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight</strong> – The weight ot use.</p></li>
+<li><p><strong>transpose</strong> – Whether <code class="xref py py-obj docutils literal notranslate"><span class="pre">weight</span></code> should be transposed or not.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the layer is already built.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -333,6 +333,7 @@
         <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train_labels_file&quot;</span><span class="p">),</span>
         <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
         <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
+        <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span>
         <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
         <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;sample_buffer_size&quot;</span><span class="p">],</span>
         <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;length_bucket_width&quot;</span><span class="p">],</span>
@@ -350,6 +351,8 @@
       <span class="n">devices</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">devices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">list_logical_devices</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;GPU&quot;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">devices</span><span class="p">:</span>
+        <span class="n">devices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">list_logical_devices</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;CPU&quot;</span><span class="p">)</span>
       <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_devices</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested </span><span class="si">%d</span><span class="s2"> devices but only </span><span class="si">%d</span><span class="s2"> are visible&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="n">num_devices</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)))</span>

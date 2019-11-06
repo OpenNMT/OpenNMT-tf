@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -356,6 +356,8 @@
       </ul></li>
       <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.add_from_text">add_from_text() (opennmt.data.Vocab method)</a>
 </li>
+      <li><a href="package/opennmt.inputters.add_sequence_controls.html#opennmt.inputters.add_sequence_controls">add_sequence_controls() (in module opennmt.inputters)</a>
+</li>
       <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense.add_weight">add_weight() (opennmt.layers.Dense method)</a>
 </li>
       <li><a href="package/opennmt.data.alignment_matrix_from_pharaoh.html#opennmt.data.alignment_matrix_from_pharaoh">alignment_matrix_from_pharaoh() (in module opennmt.data)</a>
@@ -364,6 +366,8 @@
 </li>
       <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder">AttentionalRNNDecoder (class in opennmt.decoders)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.models.GPT2Small.html#opennmt.models.GPT2Small.auto_config">auto_config() (opennmt.models.GPT2Small method)</a>
 
       <ul>
@@ -380,8 +384,6 @@
         <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.auto_config">(opennmt.models.Transformer method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.average_checkpoints.html#opennmt.utils.average_checkpoints">average_checkpoints() (in module opennmt.utils)</a>
 
       <ul>
@@ -564,16 +566,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder">Decoder (class in opennmt.decoders)</a>
 </li>
+      <li><a href="package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.decoder_inputter">decoder_inputter() (opennmt.models.SequenceGenerator property)</a>
+</li>
       <li><a href="package/opennmt.utils.DecodingResult.html#opennmt.utils.DecodingResult">DecodingResult (class in opennmt.utils)</a>
 </li>
       <li><a href="package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy">DecodingStrategy (class in opennmt.utils)</a>
 </li>
       <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense">Dense (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge">DenseBridge (class in opennmt.layers)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge">DenseBridge (class in opennmt.layers)</a>
+</li>
       <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize">detokenize() (opennmt.tokenizers.Tokenizer method)</a>
 </li>
       <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize_stream">detokenize_stream() (opennmt.tokenizers.Tokenizer method)</a>
@@ -681,6 +685,8 @@
 </li>
         <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.get_length">(opennmt.inputters.ParallelInputter method)</a>
 </li>
+        <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.get_length">(opennmt.inputters.WordEmbedder method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -747,6 +753,10 @@
 </li>
         <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.initialize">(opennmt.inputters.WordEmbedder method)</a>
 </li>
+        <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.initialize">(opennmt.models.LanguageModel method)</a>
+</li>
+        <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.initialize">(opennmt.models.LanguageModelInputter method)</a>
+</li>
         <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.initialize">(opennmt.models.Model method)</a>
 </li>
         <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.initialize">(opennmt.models.SequenceTagger method)</a>
@@ -758,6 +768,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initialized">initialized() (opennmt.decoders.Decoder property)</a>
+</li>
       <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.input_signature">input_signature() (opennmt.inputters.Inputter method)</a>
 
       <ul>
@@ -1094,6 +1106,8 @@
 </li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.regularize_loss">regularize_loss() (opennmt.models.Model method)</a>
 </li>
+      <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.reuse_embeddings">reuse_embeddings() (opennmt.decoders.Decoder method)</a>
+</li>
       <li><a href="package/opennmt.schedules.RNMTPlusDecay.html#opennmt.schedules.RNMTPlusDecay">RNMTPlusDecay (class in opennmt.schedules)</a>
 </li>
       <li><a href="package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder">RNMTPlusDecoder (class in opennmt.decoders)</a>
@@ -1166,9 +1180,13 @@
 </li>
       <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.serialize">serialize() (opennmt.data.Vocab method)</a>
 </li>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.serve_function">serve_function() (opennmt.models.Model method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.serve_function">serve_function() (opennmt.models.Model method)</a>
+      <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.set_decoder_mode">set_decoder_mode() (opennmt.inputters.WordEmbedder method)</a>
+</li>
+      <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense.set_kernel">set_kernel() (opennmt.layers.Dense method)</a>
 </li>
       <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.set_noise">set_noise() (opennmt.inputters.TextInputter method)</a>
 </li>

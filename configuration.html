@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.1.1 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.2.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.1
+                2.2
               </div>
             
           
@@ -237,6 +237,16 @@
     <span class="nt">with_header</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
     <span class="nt">case_insensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
     <span class="nt">trainable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+
+  <span class="c1"># (optional) For language models, configure sequence control tokens (usually</span>
+  <span class="c1"># represented as &lt;s&gt; and &lt;/s&gt;). For example, enabling &quot;start&quot; and disabling &quot;end&quot;</span>
+  <span class="c1"># allows nonconditional and unbounded generation (default: start=false, end=true).</span>
+  <span class="c1">#</span>
+  <span class="c1"># Advanced users could also configure this parameter for seq2seq models with e.g.</span>
+  <span class="c1"># source_sequence_controls and target_sequence_controls.</span>
+  <span class="nt">sequence_controls</span><span class="p">:</span>
+    <span class="nt">start</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">end</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 
   <span class="c1"># (optional) For sequence tagging tasks, the tagging scheme that is used (e.g. BIOES).</span>
   <span class="c1"># For supported schemes, additional evaluation metrics could be computed such as</span>

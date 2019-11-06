@@ -1,0 +1,4 @@
+opennmt.inputters.add_sequence_controls
+=======================================
+
+.. autofunction:: opennmt.inputters.add_sequence_controls
