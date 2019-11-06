@@ -13,6 +13,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [2.2.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.2.0) (2019-11-06)
+
+### New features
+
 * Return detokenized predictions when using a in-graph tokenizer
 * Injection of the special tokens `<s>` and `</s>` for language models can be configured with the data parameter `sequence_controls`
 

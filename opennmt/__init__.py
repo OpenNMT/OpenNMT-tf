@@ -1,6 +1,6 @@
 """OpenNMT module."""
 
-__version__ = "2.1.1"
+__version__ = "2.2.0"
 
 from opennmt.config import load_config
 from opennmt.config import load_model
