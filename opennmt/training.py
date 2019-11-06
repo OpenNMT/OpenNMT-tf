@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from opennmt.data import dataset as dataset_util
 from opennmt.optimizers import utils as optimizer_util
+from opennmt.utils import misc
 
 
 class Trainer(object):
@@ -25,10 +26,7 @@ class Trainer(object):
     if checkpoint.optimizer is None:
       raise ValueError("No optimizer is defined")
     if not devices:
-      devices = tf.config.experimental.list_logical_devices(device_type="GPU")
-      if not devices:
-        devices = tf.config.experimental.list_logical_devices(device_type="CPU")
-      devices = [devices[0].name]
+      devices = misc.get_devices(count=1)  # Train with 1 device by default.
     self._checkpoint = checkpoint
     self._mixed_precision = mixed_precision
     self._model = checkpoint.model

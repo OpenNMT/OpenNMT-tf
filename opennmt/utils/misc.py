@@ -17,6 +17,26 @@ import tensorflow as tf
 from tensorflow.python.training.tracking import graph_view
 
 
+def get_devices(count=1, fallback_to_cpu=True):
+  """Gets devices.
+
+  Args:
+    count: The number of devices to get.
+    fallback_to_cpu: If ``True``, return CPU devices if no GPU is available.
+
+  Returns:
+    A list of device names.
+
+  Raises:
+    ValueError: if :obj:`count` is greater than the number of visible devices.
+  """
+  devices = tf.config.experimental.list_logical_devices(device_type="GPU")
+  if not devices and fallback_to_cpu:
+    devices = tf.config.experimental.list_logical_devices(device_type="CPU")
+  if len(devices) < count:
+    raise ValueError("Requested %d devices but only %d are visible" % (count, len(devices)))
+  return [device.name for device in devices[0:count]]
+
 def get_variable_name(variable, root, model_key="model"):
   """Gets the variable name in the object-based representation."""
   named_variables, _, _ = graph_view.ObjectGraphView(root).serialize_object_graph()

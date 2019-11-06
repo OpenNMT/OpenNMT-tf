@@ -169,17 +169,6 @@ class Runner(object):
     else:
       evaluator = None
 
-    if num_devices == 1:
-      devices = None
-    else:
-      devices = tf.config.experimental.list_logical_devices(device_type="GPU")
-      if not devices:
-        devices = tf.config.experimental.list_logical_devices(device_type="CPU")
-      if len(devices) < num_devices:
-        raise ValueError("Requested %d devices but only %d are visible" % (
-            num_devices, len(devices)))
-      devices = [device.name for device in devices[0:num_devices]]
-
     # Set gradients accumulation based on the requested effective batch size.
     if train_config.get("effective_batch_size") is not None:
       accum_steps = _count_batch_accum(
@@ -195,7 +184,7 @@ class Runner(object):
 
     trainer = training_util.Trainer(
         checkpoint,
-        devices=devices,
+        devices=misc.get_devices(count=num_devices),
         mixed_precision=self._mixed_precision)
     trainer(
         dataset,
