@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.2.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.2.1) (2019-11-07)
+
+### Fixes and improvements
+
+* Ensure that each training GPU receives a batch with the size configured by the user
+* Fix error on the last partial batch when using multiple GPUs with `single_pass` enabled
+
 ## [2.2.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.2.0) (2019-11-06)
 
 ### New features
