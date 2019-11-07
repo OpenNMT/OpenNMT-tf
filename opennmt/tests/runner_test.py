@@ -111,7 +111,8 @@ class RunnerTest(tf.test.TestCase):
         "train": {
             "batch_size": 2,
             "length_bucket_width": None,
-            "max_step": 145002  # Just train for 2 steps.
+            "max_step": 145003,
+            "single_pass": True,  # Test we do not fail when a batch is missing for a replica.
         }
     }
     runner = self._getTransliterationRunner(config)

@@ -123,15 +123,40 @@ class Trainer(object):
       with tf.summary.record_if(should_record_summaries):
         with self._strategy.scope():
           per_replica_source, per_replica_target = next_fn()
-          per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
-              _accumulate_gradients, args=(per_replica_source, per_replica_target))
 
-          # TODO: these reductions could be delayed until _step is called.
-          loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
-          num_words = {
-              k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
-              for k, v in six.iteritems(per_replica_words)}
-      return loss, num_words
+          def _run():
+            per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
+                _accumulate_gradients, args=(per_replica_source, per_replica_target))
+
+            # TODO: these reductions could be delayed until _step is called.
+            loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
+            num_words = {
+                k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
+                for k, v in six.iteritems(per_replica_words)}
+            return loss, num_words, False
+
+          def _skip():
+            loss = tf.constant(0, dtype=tf.float32)
+            num_words = {}
+            if "length" in per_replica_source:
+              num_words["source"] = tf.constant(0, dtype=tf.int32)
+            if "length" in per_replica_target:
+              num_words["target"] = tf.constant(0, dtype=tf.int32)
+            return loss, num_words, True
+
+          # We verify here that each replica receives a non empty batch. If not,
+          # we skip this iteration. This typically happens at the last iteration
+          # when training on a finite dataset.
+          # TODO: is there a simpler way to handle this case?
+          per_replica_non_empty_batch = self._strategy.experimental_run_v2(
+              lambda tensor: tf.math.count_nonzero(tf.shape(tensor)[0]),
+              args=(tf.nest.flatten(per_replica_source)[0],))
+          non_empty_batch_count = self._strategy.reduce(
+              tf.distribute.ReduceOp.SUM, per_replica_non_empty_batch, None)
+          return tf.cond(
+              tf.math.equal(non_empty_batch_count, self._strategy.num_replicas_in_sync),
+              true_fn=_run,
+              false_fn=_skip)
 
     @tf.function
     def _step():
@@ -147,7 +172,12 @@ class Trainer(object):
         self._checkpoint.save(0)
       self._model.visualize(self._checkpoint.model_dir)
 
-      for i, (loss, num_words) in enumerate(_forward()):  # pylint: disable=no-value-for-parameter
+      for i, (loss, num_words, skipped) in enumerate(_forward()):  # pylint: disable=no-value-for-parameter
+        if skipped:
+          # We assume only the last partial batch can possibly be skipped.
+          tf.get_logger().warning("Batch %d is partial, i.e. some training replicas "
+                                  "received an empty batch as input. Skipping.", i + 1)
+          break
         if tf.math.is_nan(loss):
           raise RuntimeError("Model diverged with loss = NaN.")
         if i == 0 or (i + 1) % accum_steps == 0:
