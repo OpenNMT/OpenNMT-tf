@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.2.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.2.1 documentation</title>
   
 
   
@@ -194,6 +194,26 @@
 
 <span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="k">import</span> <span class="n">graph_view</span>
 
+
+<span class="k">def</span> <span class="nf">get_devices</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fallback_to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Gets devices.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    count: The number of devices to get.</span>
+<span class="sd">    fallback_to_cpu: If ``True``, return CPU devices if no GPU is available.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A list of device names.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`count` is greater than the number of visible devices.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">devices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">list_logical_devices</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;GPU&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">devices</span> <span class="ow">and</span> <span class="n">fallback_to_cpu</span><span class="p">:</span>
+    <span class="n">devices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">list_logical_devices</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;CPU&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested </span><span class="si">%d</span><span class="s2"> devices but only </span><span class="si">%d</span><span class="s2"> are visible&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)))</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">count</span><span class="p">]]</span>
 
 <span class="k">def</span> <span class="nf">get_variable_name</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">model_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Gets the variable name in the object-based representation.&quot;&quot;&quot;</span>
