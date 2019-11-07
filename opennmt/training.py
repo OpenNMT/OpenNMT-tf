@@ -67,7 +67,13 @@ class Trainer(object):
     with self._strategy.scope():
       self._model.create_variables(optimizer=self._optimizer)
       variables = self._model.trainable_variables
-      dataset = self._strategy.experimental_distribute_dataset(dataset)
+      base_dataset = dataset
+      # We prefer not to use experimental_distribute_dataset here because it
+      # sometimes fails to split the batches (noticed with tokens batch type).
+      # We also assume for now that we are training with a single worker
+      # otherwise we would need to correctly shard the input dataset.
+      dataset = self._strategy.experimental_distribute_datasets_from_function(
+          lambda _: base_dataset)
       gradient_accumulator = optimizer_util.GradientAccumulator()
 
     if self._mixed_precision:

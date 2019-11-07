@@ -155,7 +155,6 @@ class Runner(object):
         data_config.get("train_labels_file"),
         train_config["batch_size"],
         batch_type=batch_type,
-        batch_multiplier=num_devices,
         batch_size_multiple=batch_size_multiple,
         shuffle_buffer_size=train_config["sample_buffer_size"],
         length_bucket_width=train_config["length_bucket_width"],
