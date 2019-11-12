@@ -122,7 +122,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
         crf_decoding=True)
 
   def auto_config(self, num_replicas=1):
-    config = super(SeqTagger, self).auto_config(num_replicas=num_replicas)
+    config = super(LstmCnnCrfTagger, self).auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
             "optimizer": "Adam",
