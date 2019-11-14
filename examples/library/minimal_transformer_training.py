@@ -187,7 +187,7 @@ def translate(source_file,
         memory=encoder_outputs,
         memory_sequence_length=source_length)
     decoded = model.decoder.dynamic_decode(
-        model.labels_inputter.embedding,
+        model.labels_inputter,
         tf.fill([batch_size], START_OF_SENTENCE_ID),
         end_id=END_OF_SENTENCE_ID,
         initial_state=decoder_state,
@@ -230,7 +230,6 @@ def main():
   }
 
   model.initialize(data_config)
-  model.build(None)
 
   checkpoint_manager = tf.train.CheckpointManager(checkpoint, args.model_dir, max_to_keep=5)
   if checkpoint_manager.latest_checkpoint is not None:
