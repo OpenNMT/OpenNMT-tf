@@ -257,9 +257,6 @@ class Model(tf.keras.layers.Layer):
     Args:
       optimizer: If set, also create the optimizer variables.
     """
-    if self.built:
-      return
-
     # Create input features from the input signatures. We remove the leading
     # batch dimension as sometimes assumed by make_features methods and set
     # unspecified dimensions to 1.
