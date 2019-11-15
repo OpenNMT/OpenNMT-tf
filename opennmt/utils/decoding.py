@@ -482,7 +482,6 @@ def dynamic_decode(symbols_to_logits_fn,
           initial_log_probs.shape,
           tf.nest.map_structure(_get_shape_invariants, extra_vars)),
       parallel_iterations=1,
-      back_prop=False,
       maximum_iterations=maximum_iterations)
 
   ids, attention, lengths = decoding_strategy._finalize(  # pylint: disable=protected-access
