@@ -137,12 +137,12 @@ config = {
     }
 }
 
-model = onmt.models.TransformerBase()
-runner = onmt.Runner(model, config, auto_config=True)
+model = opennmt.models.TransformerBase()
+runner = opennmt.Runner(model, config, auto_config=True)
 runner.train(num_devices=2, with_eval=True)
 ```
 
-Here is another example using OpenNMT-tf to run beam search with a self-attentional decoder:
+Here is another example using OpenNMT-tf to run efficient beam search with a self-attentional decoder:
 
 ```python
 decoder = opennmt.decoders.SelfAttentionDecoder(num_layers=6)
@@ -165,7 +165,7 @@ decoding_result = decoder.dynamic_decode(
 More examples using OpenNMT-tf as a library can be found online:
 
 * The directory [examples/library](examples/library) contains additional examples that use OpenNMT-tf as a library
-* [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `onmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
+* [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `opennmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
 
 *For a complete overview of the APIs, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html).*
 
