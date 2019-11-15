@@ -15,7 +15,7 @@ The project is production-oriented and comes with [backward compatibility guaran
 
 ### Modular model architecture
 
-Models are described with code to allow training custom architectures. For example, the following instance defines a sequence to sequence model with 2 concatenated input features, a self-attentional encoder, and an attentional RNN decoder sharing its input and output embeddings:
+Models are described with code to allow training custom architectures and overriding default behavior. For example, the following instance defines a sequence to sequence model with 2 concatenated input features, a self-attentional encoder, and an attentional RNN decoder sharing its input and output embeddings:
 
 ```python
 opennmt.models.SequenceToSequence(
@@ -32,7 +32,7 @@ opennmt.models.SequenceToSequence(
     share_embeddings=opennmt.models.EmbeddingsSharingLevel.TARGET)
 ```
 
-The [`opennmt` package](http://opennmt.net/OpenNMT-tf/package/opennmt.html) exposes other building blocks that can be used to design:
+The [`opennmt`](http://opennmt.net/OpenNMT-tf/package/opennmt.html) package exposes other building blocks that can be used to design:
 
 * [multiple input features](http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html)
 * [mixed embedding representation](http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.MixedInputter.html)
@@ -118,7 +118,31 @@ onmt-main --model_type <model> --config <config_file.yml> --auto_config <run_typ
 
 ### Library
 
-OpenNMT-tf also exposes well-defined and stable APIs. Here is an example using the library to run beam search with a self-attentional decoder:
+OpenNMT-tf also exposes [well-defined and stable APIs](http://opennmt.net/OpenNMT-tf/package/opennmt.html), from high-level training utilities to low-level model layers and dataset transformations.
+
+For example, the `Runner` class can be used to train and evaluate models with few lines of code:
+
+```python
+import opennmt
+
+config = {
+    "model_dir": "/data/wmt-ende/checkpoints/,
+    "data": {
+        "source_vocabulary": "/data/wmt-ende/joint-vocab.txt",
+        "target_vocabulary": "/data/wmt-ende/joint-vocab.txt",
+        "train_features_file": "/data/wmt-ende/train.en",
+        "train_labels_file": "/data/wmt-ende/train.de",
+        "eval_features_file": "/data/wmt-ende/valid.en",
+        "eval_labels_file": "/data/wmt-ende/valid.de",
+    }
+}
+
+model = onmt.models.TransformerBase()
+runner = onmt.Runner(model, config, auto_config=True)
+runner.train(num_devices=2, with_eval=True)
+```
+
+Here is another example using OpenNMT-tf to run beam search with a self-attentional decoder:
 
 ```python
 decoder = opennmt.decoders.SelfAttentionDecoder(num_layers=6)
@@ -138,9 +162,9 @@ decoding_result = decoder.dynamic_decode(
     decoding_strategy=opennmt.utils.BeamSearch(4))
 ```
 
-For more advanced examples, some online resources are using OpenNMT-tf as a library:
+More examples using OpenNMT-tf as a library can be found online:
 
-* The directory `examples/library` contains additional examples that use OpenNMT-tf as a library
+* The directory [examples/library](examples/library) contains additional examples that use OpenNMT-tf as a library
 * [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `onmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
 
 *For a complete overview of the APIs, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html).*
