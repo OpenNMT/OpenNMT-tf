@@ -57,8 +57,6 @@ class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
 
 class _RNNBase(sequence_to_sequence.SequenceToSequence):
   """Base class for RNN based NMT models."""
-  def __init__(self, *args, **kwargs):
-    super(_RNNBase, self).__init__(*args, **kwargs)
 
   def auto_config(self, num_replicas=1):
     config = super(_RNNBase, self).auto_config(num_replicas=num_replicas)

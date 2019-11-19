@@ -114,6 +114,17 @@ class SequenceToSequence(model.SequenceGenerator):
         }
     })
 
+  def map_v1_weights(self, weights):
+    if not isinstance(self.features_inputter, inputters.WordEmbedder):
+      raise ValueError("Can not restore V1 model with multi features or multi source inputs")
+    weights = weights["seq2seq"]
+    m = []
+    m += self.features_inputter.map_v1_weights(weights["encoder"])
+    m += self.labels_inputter.map_v1_weights(weights["decoder"])
+    m += self.encoder.map_v1_weights(weights["encoder"])
+    m += self.decoder.map_v1_weights(weights["decoder"])
+    return m
+
   def initialize(self, data_config, params=None):
     super(SequenceToSequence, self).initialize(data_config, params=params)
     self.decoder.initialize(vocab_size=self.labels_inputter.vocabulary_size)

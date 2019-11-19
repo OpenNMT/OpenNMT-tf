@@ -1,6 +1,7 @@
 """RNN functions and classes for TensorFlow 2.0."""
 
 import tensorflow as tf
+import numpy as np
 
 from opennmt.layers import common
 from opennmt.layers import reducer as reducer_lib
@@ -119,6 +120,7 @@ class _RNNWrapper(tf.keras.layers.Layer):
     super(_RNNWrapper, self).__init__(**kwargs)
     self.rnn = rnn
     self.reducer = reducer
+    self.bidirectional = bidirectional
     if bidirectional:
       self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode=None)
 
@@ -133,7 +135,7 @@ class _RNNWrapper(tf.keras.layers.Layer):
       A tuple with the output sequences and the states.
     """
     outputs = self.rnn(*args, **kwargs)
-    if isinstance(self.rnn, tf.keras.layers.Bidirectional):
+    if self.bidirectional:
       sequences = outputs[0:2]
       states = outputs[2:]
       fwd_states = states[:len(states)//2]
@@ -168,6 +170,17 @@ class RNN(_RNNWrapper):
     """
     rnn = tf.keras.layers.RNN(cell, return_sequences=True, return_state=True)
     super(RNN, self).__init__(rnn, bidirectional=bidirectional, reducer=reducer, **kwargs)
+
+  def map_v1_weights(self, weights):
+    m = []
+    if self.bidirectional:
+      weights = weights["bidirectional_rnn"]
+      m += map_v1_weights_to_cell(self.rnn.forward_layer.cell, weights["fw"])
+      m += map_v1_weights_to_cell(self.rnn.backward_layer.cell, weights["bw"])
+    else:
+      weights = weights["rnn"]
+      m += map_v1_weights_to_cell(self.rnn.cell, weights)
+    return m
 
 
 class LSTM(tf.keras.layers.Layer):
@@ -228,3 +241,48 @@ class LSTM(tf.keras.layers.Layer):
       all_states.append(states)
       inputs = outputs
     return outputs, tuple(all_states)
+
+
+def map_v1_weights_to_cell(cell, weights):
+  """Maps V1 weights to V2 RNN cell."""
+  if isinstance(cell, RNNCellWrapper):
+    cell = cell.cell
+  if isinstance(cell, tf.keras.layers.StackedRNNCells):
+    return _map_v1_weights_to_stacked_cells(cell, weights)
+  elif isinstance(cell, (tf.keras.layers.LSTMCell, tf.compat.v1.keras.layers.LSTMCell)):
+    return _map_v1_weights_to_lstmcell(cell, weights)
+  else:
+    raise ValueError("Cannot restore V1 weights for cell %s" % str(cell))
+  return m
+
+def _map_v1_weights_to_stacked_cells(stacked_cells, weights):
+  weights = weights["multi_rnn_cell"]
+  m = []
+  for i, cell in enumerate(stacked_cells.cells):
+    m += map_v1_weights_to_cell(cell, weights["cell_%d" % i])
+  return m
+
+def _map_v1_weights_to_lstmcell(cell, weights):
+  weights = weights["lstm_cell"]
+
+  def _upgrade_weight(weight):
+    is_bias = len(weight.shape) == 1
+    i, j, f, o = np.split(weight, 4, axis=-1)
+    if is_bias:  # Add forget_bias which is part of the LSTM formula in TensorFlow 1.
+      f += 1
+    return np.concatenate((i, f, j, o), axis=-1)  # Swap 2nd and 3rd projection.
+
+  def _split_kernel(index):
+    # TensorFlow 1 had a single kernel of shape [input_dim + units, 4 * units],
+    # but TensorFlow 2 splits it into "kernel" and "recurrent_kernel".
+    return tf.nest.map_structure(
+        lambda w: np.split(w, [w.shape[0] - cell.units])[index],
+        weights["kernel"])
+
+  weights = tf.nest.map_structure(_upgrade_weight, weights)
+  m = []
+  m.append((cell.kernel, _split_kernel(0)))
+  m.append((cell.recurrent_kernel, _split_kernel(1)))
+  if cell.use_bias:
+    m.append((cell.bias, weights["bias"]))
+  return m

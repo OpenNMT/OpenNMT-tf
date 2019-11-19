@@ -8,6 +8,7 @@ from opennmt.layers import bridge
 from opennmt.layers import common
 from opennmt.layers import rnn
 from opennmt.layers import transformer
+from opennmt.layers.rnn import map_v1_weights_to_cell
 
 
 class RNNDecoder(decoder.Decoder):
@@ -77,6 +78,7 @@ class AttentionalRNNDecoder(RNNDecoder):
                dropout=0.3,
                residual_connections=False,
                first_layer_attention=False,
+               attention_layer_activation=tf.math.tanh,
                **kwargs):
     """Initializes the decoder parameters.
 
@@ -94,6 +96,9 @@ class AttentionalRNNDecoder(RNNDecoder):
       residual_connections: If ``True``, each layer input will be added to its
         output.
       first_layer_attention: If ``True``, output attention after the first layer.
+      attention_layer_activation: The activation to produce the attentional hidden
+        state. Defaults to tanh following Luong paper (equation (5) in
+        https://arxiv.org/abs/1508.04025).
       **kwargs: Additional layer arguments.
     """
     super(AttentionalRNNDecoder, self).__init__(
@@ -110,7 +115,10 @@ class AttentionalRNNDecoder(RNNDecoder):
 
     def _add_attention(cell):
       # Produce Luong-style attentional hidden states.
-      attention_layer = common.Dense(cell.output_size, use_bias=False, activation=tf.math.tanh)
+      attention_layer = common.Dense(
+          cell.output_size,
+          use_bias=False,
+          activation=attention_layer_activation)
       wrapper = tfa.seq2seq.AttentionWrapper(
           cell,
           self.attention_mechanism,
@@ -159,6 +167,22 @@ class AttentionalRNNDecoder(RNNDecoder):
     else:
       attention = state.alignments
     return outputs, state, attention
+
+  def map_v1_weights(self, weights):
+    if (self.first_layer_attention
+        or not isinstance(self.attention_mechanism, tfa.seq2seq.LuongAttention)):
+      raise ValueError("Can only map V1 weights for RNN decoder with Luong attention "
+                       "on the last layer")
+    m = super(AttentionalRNNDecoder, self).map_v1_weights(weights)
+    m += common.Dense.map_v1_weights(
+        self.attention_mechanism.memory_layer, weights["memory_layer"])
+    weights = weights["decoder"]["attention_wrapper"]
+    # pylint: disable=protected-access
+    m += common.Dense.map_v1_weights(
+        self.cell._attention_layers[0], weights["attention_layer"])
+    m += map_v1_weights_to_cell(self.cell._cell, weights)
+    # pylint: enable=protected-access
+    return m
 
 
 class RNMTPlusDecoder(decoder.Decoder):

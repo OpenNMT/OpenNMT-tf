@@ -77,8 +77,7 @@ class SelfAttentionDecoder(decoder.Decoder):
     return True
 
   def map_v1_weights(self, weights):
-    m = []
-    m += self.output_layer.map_v1_weights(weights["dense"])
+    m = super(SelfAttentionDecoder, self).map_v1_weights(weights)
     m += self.layer_norm.map_v1_weights(weights["LayerNorm"])
     for i, layer in enumerate(self.layers):
       m += layer.map_v1_weights(weights["layer_%d" % i])
