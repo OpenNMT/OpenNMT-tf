@@ -64,6 +64,9 @@ class RNNEncoder(_RNNEncoderBase):
     rnn_layer = rnn.RNN(cell, bidirectional=bidirectional, reducer=reducer)
     super(RNNEncoder, self).__init__(rnn_layer, **kwargs)
 
+  def map_v1_weights(self, weights):
+    return self.rnn.map_v1_weights(weights)
+
 
 class LSTMEncoder(_RNNEncoderBase):
   """A LSTM sequence encoder.

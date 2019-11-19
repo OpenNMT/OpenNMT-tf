@@ -21,9 +21,15 @@ pip install OpenNMT-tf
 
 ## Changed checkpoint layout
 
-TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the root model object.
+TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the root model object. Consequently, OpenNMT-tf V1 checkpoints are no longer compatible without conversion.
 
-Consequently, all OpenNMT-tf V1 checkpoints are no longer compatible without conversion. To smooth this transition, V1 checkpoints of Transformer models are automatically upgraded on load.
+To smooth this transition, V1 checkpoints of the following models are automatically upgraded on load:
+
+* NMTBigV1
+* NMTMediumV1
+* NMTSmallV1
+* Transformer
+* TransformerBig
 
 ## Improved main script command line
 
@@ -101,9 +107,9 @@ Predefined models do not require a model definition file and can be directly set
 
 | V1 | V2 | Comment |
 | --- | --- | --- |
-| `NMTBig` | | Use `LuongAttention` or define a custom model |
-| `NMTMedium` | | Use `LuongAttention` or define a custom model |
-| `NMTSmall` | | Use `LuongAttention` or define a custom model |
+| `NMTBig` | `NMTBigV1` | |
+| `NMTMedium` | `NMTMediumV1` | |
+| `NMTSmall` | `NMTSmallV1` | |
 | `SeqTagger` | `LstmCnnCrfTagger` | |
 | `TransformerAAN` | | Not considered useful compared to the standard Transformer |
 | `TransformerBigFP16` | | Use `TransformerBig` with `--mixed_precision` flag on the command line |

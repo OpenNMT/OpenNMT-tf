@@ -403,6 +403,9 @@ class Decoder(tf.keras.layers.Layer):
         attention_history=self.support_alignment_history,
         attention_size=tf.shape(self.memory)[1] if self.support_alignment_history else None)
 
+  def map_v1_weights(self, weights):
+    return self.output_layer.map_v1_weights(weights["dense"])
+
   @abc.abstractmethod
   def _get_initial_state(self, batch_size, dtype, initial_state=None):
     """Returns the decoder initial state.

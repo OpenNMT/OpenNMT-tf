@@ -6,7 +6,6 @@ from opennmt.models.sequence_to_sequence import SequenceToSequence, EmbeddingsSh
 from opennmt.encoders.encoder import ParallelEncoder
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
-from opennmt.inputters.text_inputter import WordEmbedder
 from opennmt.layers.position import SinusoidalPositionEncoder
 from opennmt.utils.misc import merge_dict
 
@@ -126,13 +125,5 @@ class Transformer(SequenceToSequence):
     })
 
   def map_v1_weights(self, weights):
-    if (not isinstance(self.encoder, SelfAttentionEncoder)
-        or not isinstance(self.features_inputter, WordEmbedder)):
-      return super(Transformer, self).map_v1_weights(weights)
-    weights = weights["transformer"]
-    m = []
-    m += self.features_inputter.map_v1_weights(weights["encoder"])
-    m += self.labels_inputter.map_v1_weights(weights["decoder"])
-    m += self.encoder.map_v1_weights(weights["encoder"])
-    m += self.decoder.map_v1_weights(weights["decoder"])
-    return m
+    weights["seq2seq"] = weights.pop("transformer")
+    return super(Transformer, self).map_v1_weights(weights)
