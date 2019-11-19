@@ -25,9 +25,9 @@ TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer
 
 To smooth this transition, V1 checkpoints of the following models are automatically upgraded on load:
 
-* NMTBig
-* NMTMedium
-* NMTSmall
+* NMTBigV1
+* NMTMediumV1
+* NMTSmallV1
 * Transformer
 
 ## Improved main script command line
@@ -106,9 +106,9 @@ Predefined models do not require a model definition file and can be directly set
 
 | V1 | V2 | Comment |
 | --- | --- | --- |
-| `NMTBig` | | Use `LuongAttention` or define a custom model (see `config/models/nmt_big_compat.py` on GitHub) |
-| `NMTMedium` | | Use `LuongAttention` or define a custom model |
-| `NMTSmall` | | Use `LuongAttention` or define a custom model |
+| `NMTBig` | `NMTBigV1` | |
+| `NMTMedium` | `NMTMediumV1` | |
+| `NMTSmall` | `NMTSmallV1` | |
 | `SeqTagger` | `LstmCnnCrfTagger` | |
 | `TransformerAAN` | | Not considered useful compared to the standard Transformer |
 | `TransformerBigFP16` | | Use `TransformerBig` with `--mixed_precision` flag on the command line |
