@@ -29,6 +29,7 @@ To smooth this transition, V1 checkpoints of the following models are automatica
 * NMTMediumV1
 * NMTSmallV1
 * Transformer
+* TransformerBig
 
 ## Improved main script command line
 
