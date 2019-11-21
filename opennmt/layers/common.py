@@ -80,7 +80,7 @@ class Dense(tf.keras.layers.Dense):
 class LayerNorm(tf.keras.layers.Layer):
   """Layer normalization."""
 
-  def __init__(self, epsilon=1e-6, **kwargs):
+  def __init__(self, epsilon=1e-4, **kwargs):
     """Initializes this layer.
 
     Args:
