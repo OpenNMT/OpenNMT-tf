@@ -1,6 +1,7 @@
 """Module defining various utilities."""
 
 from opennmt.utils.checkpoint import average_checkpoints
+from opennmt.utils.checkpoint import is_v1_checkpoint
 
 from opennmt.utils.decoding import BeamSearch
 from opennmt.utils.decoding import BestSampler
