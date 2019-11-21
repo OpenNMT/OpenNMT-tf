@@ -84,14 +84,9 @@ def train(source_file,
       length_bucket_width=1,  # Bucketize sequences by the same length for efficiency.
       maximum_features_length=maximum_length,
       maximum_labels_length=maximum_length)
-  iterator = iter(dataset)
 
-  @tf.function
-  def training_step():
-    # For efficiency, we advance the iterator within the tf.function,
-    # see https://github.com/tensorflow/tensorflow/issues/29075.
-    source, target = next(iterator)
-
+  @tf.function(input_signature=dataset.element_spec)
+  def training_step(source, target):
     # Run the encoder.
     source_inputs = model.features_inputter(source, training=True)
     encoder_outputs, _, _ = model.encoder(
@@ -127,8 +122,8 @@ def train(source_file,
     return loss
 
   # Runs the training loop.
-  while True:
-    loss = training_step()
+  for source, target in dataset:
+    loss = training_step(source, target)
     step = optimizer.iterations.numpy()
     if step % report_every == 0:
       tf.get_logger().info(
@@ -154,14 +149,9 @@ def translate(source_file,
 
   # Create the inference dataset.
   dataset = model.examples_inputter.make_inference_dataset(source_file, batch_size)
-  iterator = iter(dataset)
 
-  @tf.function
-  def predict_next():
-    # For efficiency, we advance the iterator within the tf.function,
-    # see https://github.com/tensorflow/tensorflow/issues/29075.
-    source = next(iterator)
-
+  @tf.function(input_signature=(dataset.element_spec,))
+  def predict(source):
     # Run the encoder.
     source_length = source["length"]
     batch_size = tf.shape(source_length)[0]
@@ -191,15 +181,11 @@ def translate(source_file,
     target_tokens = model.labels_inputter.ids_to_tokens.lookup(tf.cast(decoded.ids, tf.int64))
     return target_tokens, target_lengths
 
-  # Iterates on the dataset.
-  while True:
-    try:
-      batch_tokens, batch_length = predict_next()
-      for tokens, length in zip(batch_tokens.numpy(), batch_length.numpy()):
-        sentence = b" ".join(tokens[0][:length[0]])
-        print(sentence.decode("utf-8"))
-    except tf.errors.OutOfRangeError:
-      break
+  for source in dataset:
+    batch_tokens, batch_length = predict(source)
+    for tokens, length in zip(batch_tokens.numpy(), batch_length.numpy()):
+      sentence = b" ".join(tokens[0][:length[0]])
+      print(sentence.decode("utf-8"))
 
 
 def main():
