@@ -2,6 +2,7 @@
 
 __version__ = "2.2.1"
 
+from opennmt.config import convert_to_v2_config
 from opennmt.config import load_config
 from opennmt.config import load_model
 
