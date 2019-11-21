@@ -15,15 +15,9 @@ gradient accumulation, etc.
 
 import argparse
 import logging
-
 import tensorflow as tf
 import tensorflow_addons as tfa
-
 import opennmt as onmt
-
-from opennmt import START_OF_SENTENCE_ID
-from opennmt import END_OF_SENTENCE_ID
-from opennmt.utils.misc import print_bytes
 
 tf.get_logger().setLevel(logging.INFO)
 
@@ -188,8 +182,8 @@ def translate(source_file,
         memory_sequence_length=source_length)
     decoded = model.decoder.dynamic_decode(
         model.labels_inputter,
-        tf.fill([batch_size], START_OF_SENTENCE_ID),
-        end_id=END_OF_SENTENCE_ID,
+        tf.fill([batch_size], onmt.START_OF_SENTENCE_ID),
+        end_id=onmt.END_OF_SENTENCE_ID,
         initial_state=decoder_state,
         decoding_strategy=decoding_strategy,
         maximum_iterations=200)
@@ -203,7 +197,7 @@ def translate(source_file,
       batch_tokens, batch_length = predict_next()
       for tokens, length in zip(batch_tokens.numpy(), batch_length.numpy()):
         sentence = b" ".join(tokens[0][:length[0]])
-        print_bytes(sentence)
+        print(sentence.decode("utf-8"))
     except tf.errors.OutOfRangeError:
       break
 
