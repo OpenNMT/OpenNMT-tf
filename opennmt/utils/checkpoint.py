@@ -79,8 +79,7 @@ class Checkpoint(object):
     if checkpoint_path is None:
       tf.get_logger().warning("No checkpoint to restore in %s", self._model_dir)
       return None
-    is_v1 = os.path.basename(checkpoint_path).startswith("model")
-    if is_v1:
+    if is_v1_checkpoint(checkpoint_path):
       tf.get_logger().info("Upgrading V1 checkpoint...")
       # Work with copies of model and optimizer as the downstream task might
       # need to create the variable differently (e.g. under a distribution
@@ -101,6 +100,14 @@ class Checkpoint(object):
     tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
     return checkpoint_path
 
+
+def is_v1_checkpoint(checkpoint_path):
+  """Returns ``True`` if the checkpoint at :obj:`checkpoint_path` has been
+  trained with OpenNMT-tf v1.
+  """
+  if tf.io.gfile.isdir(checkpoint_path):
+    checkpoint_path = tf.train.latest_checkpoint(checkpoint_path)
+  return os.path.basename(checkpoint_path).startswith("model")
 
 def get_checkpoint_variables(checkpoint_path):
   """Returns variables included in a checkpoint.
