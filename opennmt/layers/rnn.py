@@ -7,12 +7,6 @@ from opennmt.layers import common
 from opennmt.layers import reducer as reducer_lib
 
 
-def _register_keras_custom_object(cls):
-  tf.keras.utils.get_custom_objects()[cls.__name__] = cls
-  return cls
-
-
-@_register_keras_custom_object
 class RNNCellWrapper(common.LayerWrapper):
   """A wrapper for RNN cells."""
 
