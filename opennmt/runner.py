@@ -18,7 +18,6 @@ import tensorflow as tf
 from opennmt import evaluation
 from opennmt import models
 from opennmt import training as training_util
-from opennmt.data import dataset as dataset_util
 from opennmt.utils import checkpoint as checkpoint_util
 from opennmt.utils import misc
 
@@ -307,17 +306,13 @@ class Runner(object):
         length_bucket_width=infer_config["length_bucket_width"],
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
-    @dataset_util.function_on_next(dataset, as_numpy=True)
-    def _predict(next_fn):
-      source = next_fn()
-      return model.infer(source)
-
     if predictions_file:
       stream = io.open(predictions_file, encoding="utf-8", mode="w")
     else:
       stream = sys.stdout
 
     ordered_writer = None
+    infer_fn = tf.function(model.infer, input_signature=(dataset.element_spec,))
     write_fn = lambda prediction: (
         model.print_prediction(prediction, params=infer_config, stream=stream))
 
@@ -326,7 +321,9 @@ class Runner(object):
     total_examples = 0
     start_time = time.time()
 
-    for predictions in _predict():  # pylint: disable=no-value-for-parameter
+    for source in dataset:
+      predictions = infer_fn(source)
+      predictions = tf.nest.map_structure(lambda t: t.numpy(), predictions)
       end_time = time.time()
       if log_time:
         total_time += end_time - start_time
@@ -388,17 +385,15 @@ class Runner(object):
         score_config["batch_size"],
         prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
 
-    @dataset_util.function_on_next(dataset, as_numpy=True)
-    def _score(next_fn):
-      features, labels = next_fn()
-      return model.score(features, labels)
-
     if output_file:
       stream = io.open(output_file, encoding="utf-8", mode="w")
     else:
       stream = sys.stdout
 
-    for results in _score():  # pylint: disable=no-value-for-parameter
+    score_fn = tf.function(model.score, input_signature=dataset.element_spec)
+    for features, labels in dataset:
+      results = score_fn(features, labels)
+      results = tf.nest.map_structure(lambda t: t.numpy(), results)
       for batch in misc.extract_batches(results):
         model.print_score(batch, params=score_config, stream=stream)
 

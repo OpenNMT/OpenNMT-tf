@@ -6,7 +6,6 @@ import six
 
 import tensorflow as tf
 
-from opennmt.data import dataset as dataset_lib
 from opennmt.utils import misc
 from opennmt.utils import scorers as scorers_lib
 
@@ -83,14 +82,8 @@ class Evaluator(object):
         num_threads=1,
         prefetch_buffer_size=1)
 
-    @dataset_lib.function_on_next(dataset)
-    def _eval(next_fn):
-      source, target = next_fn()
-      outputs, predictions = model(source, labels=target)
-      loss = model.compute_loss(outputs, target, training=False)
-      return loss, predictions, target
-
-    self._eval = _eval
+    self._eval_fn = tf.function(model.evaluate, input_signature=dataset.element_spec)
+    self._dataset = dataset
 
     self._metrics_name = {"loss", "perplexity"}
     for scorer in self._scorers:
@@ -238,7 +231,8 @@ class Evaluator(object):
     loss_num = 0
     loss_den = 0
     metrics = self._model.get_metrics()
-    for loss, predictions, target in self._eval():  # pylint: disable=no-value-for-parameter
+    for source, target in self._dataset:
+      loss, predictions = self._eval_fn(source, target)
       if isinstance(loss, tuple):
         loss_num += loss[0]
         loss_den += loss[1]
