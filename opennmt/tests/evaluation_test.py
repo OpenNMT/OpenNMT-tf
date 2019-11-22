@@ -32,15 +32,13 @@ class TestInputter(inputters.Inputter):
     return tf.strings.to_number(element)
 
 class TestModel(models.Model):
-  def __init__(self, loss_history=None, metrics_history=None):
+  def __init__(self, metrics_history=None):
     example_inputter = inputters.ExampleInputter(TestInputter(), TestInputter())
     super(TestModel, self).__init__(example_inputter)
-    if loss_history is None:
-      loss_history = []
     if metrics_history is None:
       metrics_history = {}
-    self.loss_history = loss_history
     self.metrics_history = metrics_history
+    self.next_loss = tf.Variable(0)
 
   def call(self, features, labels=None, training=None, step=None):
     return features, None
@@ -49,9 +47,7 @@ class TestModel(models.Model):
     return {name:TestMetric(history) for name, history in self.metrics_history.items()}
 
   def compute_loss(self, outputs, labels, training=True):
-    loss = self.loss_history[0]
-    self.loss_history.pop(0)
-    return loss
+    return self.next_loss
 
 
 class EvaluationTest(tf.test.TestCase):
@@ -69,7 +65,7 @@ class EvaluationTest(tf.test.TestCase):
     with open(features_file, "w") as features, open(labels_file, "w") as labels:
       features.write("1\n2\n")
       labels.write("1\n2\n")
-    model = TestModel([1, 4, 7], {"a": [2, 5, 8], "b": [3, 6, 9]})
+    model = TestModel({"a": [2, 5, 8], "b": [3, 6, 9]})
     model.initialize({})
     early_stopping = evaluation.EarlyStopping(metric="loss", min_improvement=0, steps=1)
     evaluator = evaluation.Evaluator(
@@ -80,11 +76,13 @@ class EvaluationTest(tf.test.TestCase):
         early_stopping=early_stopping,
         eval_dir=eval_dir)
     self.assertSetEqual(evaluator.metrics_name, {"loss", "perplexity", "a", "b"})
+    model.next_loss.assign(1)
     metrics_5 = evaluator(5)
     self._assertMetricsEqual(
         metrics_5, {"loss": 1.0, "perplexity": math.exp(1.0), "a": 2, "b": 3})
     self.assertFalse(evaluator.should_stop())
     self.assertTrue(evaluator.is_best("loss"))
+    model.next_loss.assign(4)
     metrics_10 = evaluator(10)
     self._assertMetricsEqual(
         metrics_10, {"loss": 4.0, "perplexity": math.exp(4.0), "a": 5, "b": 6})
@@ -106,6 +104,7 @@ class EvaluationTest(tf.test.TestCase):
     self._assertMetricsEqual(evaluator.metrics_history[1][1], metrics_10)
 
     # Evaluating previous steps should clear future steps in the history.
+    model.next_loss.assign(7)
     self._assertMetricsEqual(
         evaluator(7), {"loss": 7.0, "perplexity": math.exp(7.0), "a": 8, "b": 9})
     self.assertFalse(evaluator.is_best("loss"))
