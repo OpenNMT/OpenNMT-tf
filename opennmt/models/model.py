@@ -113,7 +113,7 @@ class Model(tf.keras.layers.Layer):
     raise NotImplementedError()
 
   def infer(self, features):
-    """Runs inference.
+    """Runs inference on :obj:`features`.
 
     This is a small convenience wrapper around
     :meth:`opennmt.models.Model.call`.
@@ -128,6 +128,20 @@ class Model(tf.keras.layers.Layer):
     if "index" in features:
       predictions["index"] = features["index"]
     return predictions
+
+  def evaluate(self, features, labels):
+    """Evaluates :obj:`features` predictions against `labels`.
+
+    Args:
+      features: A nested structure of features ``tf.Tensor``.
+      labels: A nested structure of features ``tf.Tensor``.
+
+    Returns:
+      The loss and predictions.
+    """
+    outputs, predictions = self(features, labels=labels)
+    loss = self.compute_loss(outputs, labels, training=False)
+    return loss, predictions
 
   def score(self, features, labels):
     """Scores labels.
