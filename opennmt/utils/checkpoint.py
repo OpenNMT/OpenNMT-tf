@@ -236,8 +236,7 @@ def _variables_to_structure(variables):
         if i + 1 == len(fields):
           cur[key] = value
           break
-        else:
-          cur[key] = {}
+        cur[key] = {}
       cur = cur[key]
   return structure
 

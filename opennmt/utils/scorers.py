@@ -56,7 +56,7 @@ class ROUGEScorer(Scorer):
     return {"rouge-1", "rouge-2", "rouge-l"}
 
   def __call__(self, ref_path, hyp_path):
-    from rouge import FilesRouge
+    from rouge import FilesRouge  # pylint: disable=import-outside-toplevel
     files_rouge = FilesRouge(hyp_path, ref_path)
     rouge_scores = files_rouge.get_scores(avg=True)
     return {name:rouge_scores[name]["f"] for name in self.scores_name}
@@ -67,13 +67,13 @@ class BLEUScorer(Scorer):
 
   def __init__(self):
     try:
-      import sacrebleu  # pylint: disable=unused-import, unused-variable
+      import sacrebleu  # pylint: disable=unused-import, unused-variable, import-outside-toplevel
     except ImportError:
       raise ImportError("sacreBLEU evaluator requires Python 3")
     super(BLEUScorer, self).__init__("bleu")
 
   def __call__(self, ref_path, hyp_path):
-    from sacrebleu import corpus_bleu
+    from sacrebleu import corpus_bleu  # pylint: disable=import-outside-toplevel
     with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(hyp_path) as sys_stream:
       bleu = corpus_bleu(sys_stream, [ref_stream])
       return bleu.score

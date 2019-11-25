@@ -52,7 +52,7 @@ def main():
   num_oov_buckets = 1
 
   if args.sentencepiece is not None:
-    import pyonmttok
+    import pyonmttok  # pylint: disable=import-outside-toplevel
     if args.size_multiple == 1:
       vocab_size = args.size
     else:
