@@ -1,10 +1,9 @@
 """Functions for Estimator API integration."""
 
-import copy
-
 import tensorflow as tf
 
 from opennmt.utils import hooks
+from opennmt.utils import misc
 from opennmt.utils import parallel
 
 
@@ -21,7 +20,7 @@ def make_serving_input_fn(model, metadata=None):
   """
 
   def _fn():
-    local_model = copy.deepcopy(model)
+    local_model = misc.clone_layer(model)
     # This is a hack for SequenceRecordInputter that currently infers the input
     # depth from the data files.
     # TODO: This function should not require the training data.
@@ -89,7 +88,7 @@ def make_input_fn(model,
     batch_size_multiple = 8
 
   def _fn():
-    local_model = copy.deepcopy(model)
+    local_model = misc.clone_layer(model)
 
     if mode == tf.estimator.ModeKeys.PREDICT:
       dataset = local_model.examples_inputter.make_inference_dataset(
@@ -160,7 +159,7 @@ def make_model_fn(model,
 
   def _fn(features, labels, params, mode, config):
     """model_fn implementation."""
-    local_model = copy.deepcopy(model)
+    local_model = misc.clone_layer(model)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       features_shards = dispatcher.shard(features)

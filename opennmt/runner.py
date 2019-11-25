@@ -493,7 +493,7 @@ class Runner(object):
     if checkpoint_path is None:
       raise ValueError("could not find a trained model in %s" % self._config["model_dir"])
 
-    model = copy.deepcopy(self._model)
+    model = misc.clone_layer(self._model)
     with tf.Graph().as_default():
       dataset = model.examples_inputter.make_evaluation_dataset(
           features_file,
