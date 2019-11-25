@@ -15,6 +15,20 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.3.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.3.0) (2019-11-25)
+
+### New features
+
+* Predefined models `NMTSmallV1`, `NMTMediumV1`, and `NMTBigV1` for compatibility with OpenNMT-tf v1
+* Function `opennmt.convert_to_v2_config` to automatically upgrade a V1 configuration
+* Function `opennmt.utils.is_v1_checkpoint` to detect OpenNMT-tf v1 checkpoints
+
+### Fixes and improvements
+
+* Fix error when using `auto_config` with model `LstmCnnCrfTagger`
+* Fix incomplete `Model.create_variables` after manually calling `Model.build`
+* Increase `LayerNorm` default epsilon value to be closer to TensorFlow and PyTorch defaults
+
 ## [2.2.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.2.1) (2019-11-07)
 
 ### Fixes and improvements
