@@ -13,7 +13,7 @@ matrix:
   include:
     - python: "3.6"
       install:
-        - pip install pylint==2.3.* wheel twine
+        - pip install pylint==2.4.* wheel twine
       script:
         - nose2 -v
         - pylint opennmt/

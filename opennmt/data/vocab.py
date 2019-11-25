@@ -222,7 +222,7 @@ def get_mapping(current_vocab_path, new_vocab_path, mode="replace"):
   mapping = []
   if mode == "merge":
     final_vocab = Vocab.from_file(current_vocab_path)
-    mapping = [i for i in range(current_vocab.size)]
+    mapping = list(range(current_vocab.size))
     for new_word in new_vocab.words:
       if current_vocab.lookup(new_word) is None:
         mapping.append(-1)

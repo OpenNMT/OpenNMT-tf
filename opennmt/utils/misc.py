@@ -273,9 +273,7 @@ def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
         tensor = tf.io.parse_tensor(
             tensor_proto.SerializeToString(), tf.as_dtype(tensor_proto.dtype))
         summaries[event.step][value.tag] = tf.get_static_value(tensor)
-  return [
-      (step, values)
-      for step, values in sorted(six.iteritems(summaries), key=lambda x: x[0])]
+  return list(sorted(six.iteritems(summaries), key=lambda x: x[0]))
 
 class OrderRestorer(object):
   """Helper class to restore out-of-order elements in order."""
