@@ -2,11 +2,15 @@
 
 from __future__ import print_function
 
+import copy
 import os
 import sys
 import inspect
 import heapq
+import threading
 import six
+
+from six.moves import copyreg
 
 import numpy as np
 import tensorflow as tf
@@ -173,6 +177,11 @@ def merge_dict(dict1, dict2):
     else:
       dict1[key] = value
   return dict1
+
+def clone_layer(layer):
+  """Clones a layer."""
+  copyreg.pickle(threading.local, lambda _: (threading.local, []))
+  return copy.deepcopy(layer)
 
 
 class OrderRestorer(object):

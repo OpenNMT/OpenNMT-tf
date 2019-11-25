@@ -24,6 +24,11 @@ def _make_config_asset_file(config, asset_path):
   with open(asset_path, "w") as asset_file:
     yaml.dump(asset_config, stream=asset_file, default_flow_style=False)
 
+def _autograph_do_not_convert(func):
+  if not compat.tf_supports("autograph.experimental.do_not_convert"):
+    return func
+  return tf.autograph.experimental.do_not_convert(func)
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Tokenizer(object):
@@ -174,6 +179,7 @@ class Tokenizer(object):
       tokens = [tf.compat.as_text(token) for token in tokens]
       return self._detokenize_string(tokens)
 
+  @_autograph_do_not_convert
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
 
@@ -200,6 +206,7 @@ class Tokenizer(object):
     tokens = tf.string_split([text], delimiter="\0").values
     return tokens
 
+  @_autograph_do_not_convert
   def _detokenize_tensor(self, tokens):
     """Detokenizes tokens.
 
