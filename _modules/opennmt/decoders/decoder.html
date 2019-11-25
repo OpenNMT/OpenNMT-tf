@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -580,6 +580,9 @@
         <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">minimum_iterations</span><span class="p">,</span>
         <span class="n">attention_history</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">,</span>
         <span class="n">attention_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Decoder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;dense&quot;</span><span class="p">])</span></div>
 
   <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
   <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

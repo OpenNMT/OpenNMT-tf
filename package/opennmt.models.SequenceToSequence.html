@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.SequenceToSequence &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.models.SequenceToSequence &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -249,6 +249,22 @@ training.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A partial training configuration.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.SequenceToSequence.map_v1_weights">
+<code class="sig-name descname">map_v1_weights</code><span class="sig-paren">(</span><em class="sig-param">weights</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.map_v1_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence.map_v1_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps current weights to V1 weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weights</strong> – A nested dictionary following the scope names used in V1. The
+leaves are tuples with the variable value and optionally the optimizer
+slots.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of tuples associating variables and their V1 equivalent.</p>
 </dd>
 </dl>
 </dd></dl>

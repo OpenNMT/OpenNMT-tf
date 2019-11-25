@@ -1,0 +1,4 @@
+opennmt.utils.is_v1_checkpoint
+==============================
+
+.. autofunction:: opennmt.utils.is_v1_checkpoint

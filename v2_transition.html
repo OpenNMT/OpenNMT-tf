@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -211,8 +211,15 @@ pip install OpenNMT-tf
 </div>
 <div class="section" id="changed-checkpoint-layout">
 <h2>Changed checkpoint layout<a class="headerlink" href="#changed-checkpoint-layout" title="Permalink to this headline">¶</a></h2>
-<p>TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the root model object.</p>
-<p>Consequently, all OpenNMT-tf V1 checkpoints are no longer compatible without conversion. To smooth this transition, V1 checkpoints of Transformer models are automatically upgraded on load.</p>
+<p>TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the root model object. Consequently, OpenNMT-tf V1 checkpoints are no longer compatible without conversion.</p>
+<p>To smooth this transition, V1 checkpoints of the following models are automatically upgraded on load:</p>
+<ul class="simple">
+<li><p>NMTBigV1</p></li>
+<li><p>NMTMediumV1</p></li>
+<li><p>NMTSmallV1</p></li>
+<li><p>Transformer</p></li>
+<li><p>TransformerBig</p></li>
+</ul>
 </div>
 <div class="section" id="improved-main-script-command-line">
 <h2>Improved main script command line<a class="headerlink" href="#improved-main-script-command-line" title="Permalink to this headline">¶</a></h2>
@@ -292,18 +299,18 @@ pip install OpenNMT-tf
 <tbody>
 <tr>
 <td><code>NMTBig</code></td>
+<td><code>NMTBigV1</code></td>
 <td></td>
-<td>Use <code>LuongAttention</code> or define a custom model</td>
 </tr>
 <tr>
 <td><code>NMTMedium</code></td>
+<td><code>NMTMediumV1</code></td>
 <td></td>
-<td>Use <code>LuongAttention</code> or define a custom model</td>
 </tr>
 <tr>
 <td><code>NMTSmall</code></td>
+<td><code>NMTSmallV1</code></td>
 <td></td>
-<td>Use <code>LuongAttention</code> or define a custom model</td>
 </tr>
 <tr>
 <td><code>SeqTagger</code></td>

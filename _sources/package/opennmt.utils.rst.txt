@@ -29,6 +29,7 @@ Functions
    opennmt.utils.dynamic_decode
    opennmt.utils.format_translation_output
    opennmt.utils.guided_alignment_cost
+   opennmt.utils.is_v1_checkpoint
    opennmt.utils.max_margin_loss
    opennmt.utils.regularization_penalty
    opennmt.utils.roll_sequence

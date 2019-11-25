@@ -1,0 +1,4 @@
+opennmt.convert_to_v2_config
+============================
+
+.. autofunction:: opennmt.convert_to_v2_config

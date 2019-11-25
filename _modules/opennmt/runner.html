@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -196,7 +196,6 @@
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">evaluation</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">training</span> <span class="k">as</span> <span class="n">training_util</span>
-<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="k">import</span> <span class="n">dataset</span> <span class="k">as</span> <span class="n">dataset_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">checkpoint</span> <span class="k">as</span> <span class="n">checkpoint_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
 
@@ -485,17 +484,13 @@
         <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">infer_config</span><span class="p">[</span><span class="s2">&quot;length_bucket_width&quot;</span><span class="p">],</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">infer_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">))</span>
 
-    <span class="nd">@dataset_util</span><span class="o">.</span><span class="n">function_on_next</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">as_numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="n">next_fn</span><span class="p">):</span>
-      <span class="n">source</span> <span class="o">=</span> <span class="n">next_fn</span><span class="p">()</span>
-      <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">predictions_file</span><span class="p">:</span>
       <span class="n">stream</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
     <span class="n">ordered_writer</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">infer_fn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">infer</span><span class="p">,</span> <span class="n">input_signature</span><span class="o">=</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span><span class="p">,))</span>
     <span class="n">write_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">prediction</span><span class="p">:</span> <span class="p">(</span>
         <span class="n">model</span><span class="o">.</span><span class="n">print_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">infer_config</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">))</span>
 
@@ -504,7 +499,9 @@
     <span class="n">total_examples</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">predictions</span> <span class="ow">in</span> <span class="n">_predict</span><span class="p">():</span>  <span class="c1"># pylint: disable=no-value-for-parameter</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+      <span class="n">predictions</span> <span class="o">=</span> <span class="n">infer_fn</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+      <span class="n">predictions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">)</span>
       <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
       <span class="k">if</span> <span class="n">log_time</span><span class="p">:</span>
         <span class="n">total_time</span> <span class="o">+=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
@@ -566,17 +563,15 @@
         <span class="n">score_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">score_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">))</span>
 
-    <span class="nd">@dataset_util</span><span class="o">.</span><span class="n">function_on_next</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">as_numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_score</span><span class="p">(</span><span class="n">next_fn</span><span class="p">):</span>
-      <span class="n">features</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">next_fn</span><span class="p">()</span>
-      <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
       <span class="n">stream</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
-    <span class="k">for</span> <span class="n">results</span> <span class="ow">in</span> <span class="n">_score</span><span class="p">():</span>  <span class="c1"># pylint: disable=no-value-for-parameter</span>
+    <span class="n">score_fn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">,</span> <span class="n">input_signature</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+      <span class="n">results</span> <span class="o">=</span> <span class="n">score_fn</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+      <span class="n">results</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">results</span><span class="p">)</span>
       <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">misc</span><span class="o">.</span><span class="n">extract_batches</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
         <span class="n">model</span><span class="o">.</span><span class="n">print_score</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">score_config</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
 

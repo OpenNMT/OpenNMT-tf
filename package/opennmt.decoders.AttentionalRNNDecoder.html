@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.AttentionalRNNDecoder &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.decoders.AttentionalRNNDecoder &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -207,12 +207,12 @@
 <h1>opennmt.decoders.AttentionalRNNDecoder<a class="headerlink" href="#opennmt-decoders-attentionalrnndecoder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.decoders.AttentionalRNNDecoder">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.decoders.</code><code class="sig-name descname">AttentionalRNNDecoder</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">bridge_class=None</em>, <em class="sig-param">attention_mechanism_class=None</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">dropout=0.3</em>, <em class="sig-param">residual_connections=False</em>, <em class="sig-param">first_layer_attention=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.AttentionalRNNDecoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.decoders.</code><code class="sig-name descname">AttentionalRNNDecoder</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">bridge_class=None</em>, <em class="sig-param">attention_mechanism_class=None</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">dropout=0.3</em>, <em class="sig-param">residual_connections=False</em>, <em class="sig-param">first_layer_attention=False</em>, <em class="sig-param">attention_layer_activation=&lt;function tanh&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.AttentionalRNNDecoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>A RNN decoder with attention.</p>
 <p>Inherits from: <a class="reference internal" href="opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder" title="opennmt.decoders.RNNDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.RNNDecoder</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.decoders.AttentionalRNNDecoder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">bridge_class=None</em>, <em class="sig-param">attention_mechanism_class=None</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">dropout=0.3</em>, <em class="sig-param">residual_connections=False</em>, <em class="sig-param">first_layer_attention=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.AttentionalRNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">bridge_class=None</em>, <em class="sig-param">attention_mechanism_class=None</em>, <em class="sig-param">cell_class=None</em>, <em class="sig-param">dropout=0.3</em>, <em class="sig-param">residual_connections=False</em>, <em class="sig-param">first_layer_attention=False</em>, <em class="sig-param">attention_layer_activation=&lt;function tanh&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.AttentionalRNNDecoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoder parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -230,6 +230,9 @@ argument and returning a cell.</p></li>
 <li><p><strong>residual_connections</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, each layer input will be added to its
 output.</p></li>
 <li><p><strong>first_layer_attention</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, output attention after the first layer.</p></li>
+<li><p><strong>attention_layer_activation</strong> – The activation to produce the attentional hidden
+state. Defaults to tanh following Luong paper (equation (5) in
+<a class="reference external" href="https://arxiv.org/abs/1508.04025">https://arxiv.org/abs/1508.04025</a>).</p></li>
 <li><p><strong>**kwargs</strong> – Additional layer arguments.</p></li>
 </ul>
 </dd>
@@ -264,6 +267,11 @@ vector.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="method">
+<dt id="opennmt.decoders.AttentionalRNNDecoder.map_v1_weights">
+<code class="sig-name descname">map_v1_weights</code><span class="sig-paren">(</span><em class="sig-param">weights</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/rnn_decoder.html#AttentionalRNNDecoder.map_v1_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.AttentionalRNNDecoder.map_v1_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

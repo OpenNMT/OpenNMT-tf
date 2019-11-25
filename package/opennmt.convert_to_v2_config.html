@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.BestSampler &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.convert_to_v2_config &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.utils.DecodingResult" href="opennmt.utils.DecodingResult.html" />
-    <link rel="prev" title="opennmt.utils.BeamSearch" href="opennmt.utils.BeamSearch.html" /> 
+    <link rel="next" title="opennmt.load_config" href="opennmt.load_config.html" />
+    <link rel="prev" title="opennmt.Runner" href="opennmt.Runner.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -115,25 +115,14 @@
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="opennmt.utils.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="opennmt.utils.html#functions">Functions</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#functions">Functions</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.convert_to_v2_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.load_config.html">opennmt.load_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.load_model.html">opennmt.load_model</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
 </ul>
 </li>
@@ -184,9 +173,7 @@
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-          <li><a href="opennmt.utils.html">opennmt.utils module</a> &raquo;</li>
-        
-      <li>opennmt.utils.BestSampler</li>
+      <li>opennmt.convert_to_v2_config</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -203,13 +190,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="opennmt-utils-bestsampler">
-<h1>opennmt.utils.BestSampler<a class="headerlink" href="#opennmt-utils-bestsampler" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="opennmt.utils.BestSampler">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">BestSampler</code><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BestSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.BestSampler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample the best predictions.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.utils.Sampler.html#opennmt.utils.Sampler" title="opennmt.utils.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.Sampler</span></code></a></p>
+  <div class="section" id="opennmt-convert-to-v2-config">
+<h1>opennmt.convert_to_v2_config<a class="headerlink" href="#opennmt-convert-to-v2-config" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="opennmt.convert_to_v2_config">
+<code class="sig-prename descclassname">opennmt.</code><code class="sig-name descname">convert_to_v2_config</code><span class="sig-paren">(</span><em class="sig-param">v1_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/config.html#convert_to_v2_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.convert_to_v2_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a V1 configuration to its V2 equivalent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v1_config</strong> – The V1 configuration.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The V2 configuration.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if the conversion can not be done automatically.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -222,10 +219,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.utils.DecodingResult.html" class="btn btn-neutral float-right" title="opennmt.utils.DecodingResult" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.load_config.html" class="btn btn-neutral float-right" title="opennmt.load_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.utils.BeamSearch.html" class="btn btn-neutral float-left" title="opennmt.utils.BeamSearch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.Runner.html" class="btn btn-neutral float-left" title="opennmt.Runner" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -257,8 +257,7 @@
     <span class="k">if</span> <span class="n">checkpoint_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No checkpoint to restore in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_dir</span><span class="p">)</span>
       <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">is_v1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">is_v1</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">is_v1_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Upgrading V1 checkpoint...&quot;</span><span class="p">)</span>
       <span class="c1"># Work with copies of model and optimizer as the downstream task might</span>
       <span class="c1"># need to create the variable differently (e.g. under a distribution</span>
@@ -279,6 +278,14 @@
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Restored checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">checkpoint_path</span>
 
+
+<div class="viewcode-block" id="is_v1_checkpoint"><a class="viewcode-back" href="../../../package/opennmt.utils.is_v1_checkpoint.html#opennmt.utils.is_v1_checkpoint">[docs]</a><span class="k">def</span> <span class="nf">is_v1_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns ``True`` if the checkpoint at :obj:`checkpoint_path` has been</span>
+<span class="sd">  trained with OpenNMT-tf v1.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
+    <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span></div>
 
 <span class="k">def</span> <span class="nf">get_checkpoint_variables</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns variables included in a checkpoint.</span>
@@ -407,8 +414,7 @@
         <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
           <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
           <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
       <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
   <span class="k">return</span> <span class="n">structure</span>
 

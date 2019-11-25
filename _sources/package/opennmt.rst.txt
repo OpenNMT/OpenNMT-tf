@@ -30,6 +30,7 @@ Functions
 
 .. toctree::
 
+   opennmt.convert_to_v2_config
    opennmt.load_config
    opennmt.load_model
 Constants

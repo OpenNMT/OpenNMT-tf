@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -291,7 +291,7 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Model.infer"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.infer">[docs]</a>  <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Runs inference.</span>
+    <span class="sd">&quot;&quot;&quot;Runs inference on :obj:`features`.</span>
 
 <span class="sd">    This is a small convenience wrapper around</span>
 <span class="sd">    :meth:`opennmt.models.Model.call`.</span>
@@ -306,6 +306,20 @@
     <span class="k">if</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
       <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">predictions</span></div>
+
+<div class="viewcode-block" id="Model.evaluate"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.evaluate">[docs]</a>  <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates :obj:`features` predictions against `labels`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      features: A nested structure of features ``tf.Tensor``.</span>
+<span class="sd">      labels: A nested structure of features ``tf.Tensor``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The loss and predictions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">predictions</span></div>
 
 <div class="viewcode-block" id="Model.score"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Scores labels.</span>
@@ -435,9 +449,6 @@
 <span class="sd">    Args:</span>
 <span class="sd">      optimizer: If set, also create the optimizer variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
-      <span class="k">return</span>
-
     <span class="c1"># Create input features from the input signatures. We remove the leading</span>
     <span class="c1"># batch dimension as sometimes assumed by make_features methods and set</span>
     <span class="c1"># unspecified dimensions to 1.</span>

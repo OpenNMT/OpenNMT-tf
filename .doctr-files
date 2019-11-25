@@ -51,6 +51,7 @@
 ./_sources/installation.md.txt
 ./_sources/model.md.txt
 ./_sources/package/opennmt.Runner.rst.txt
+./_sources/package/opennmt.convert_to_v2_config.rst.txt
 ./_sources/package/opennmt.data.Noise.rst.txt
 ./_sources/package/opennmt.data.Vocab.rst.txt
 ./_sources/package/opennmt.data.WordDropout.rst.txt
@@ -189,6 +190,7 @@
 ./_sources/package/opennmt.utils.dynamic_decode.rst.txt
 ./_sources/package/opennmt.utils.format_translation_output.rst.txt
 ./_sources/package/opennmt.utils.guided_alignment_cost.rst.txt
+./_sources/package/opennmt.utils.is_v1_checkpoint.rst.txt
 ./_sources/package/opennmt.utils.max_margin_loss.rst.txt
 ./_sources/package/opennmt.utils.regularization_penalty.rst.txt
 ./_sources/package/opennmt.utils.roll_sequence.rst.txt
@@ -265,6 +267,7 @@
 ./model.html
 ./objects.inv
 ./package/opennmt.Runner.html
+./package/opennmt.convert_to_v2_config.html
 ./package/opennmt.data.Noise.html
 ./package/opennmt.data.Vocab.html
 ./package/opennmt.data.WordDropout.html
@@ -404,6 +407,7 @@
 ./package/opennmt.utils.format_translation_output.html
 ./package/opennmt.utils.guided_alignment_cost.html
 ./package/opennmt.utils.html
+./package/opennmt.utils.is_v1_checkpoint.html
 ./package/opennmt.utils.max_margin_loss.html
 ./package/opennmt.utils.regularization_penalty.html
 ./package/opennmt.utils.roll_sequence.html

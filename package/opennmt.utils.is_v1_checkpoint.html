@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.BestSampler &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.utils.is_v1_checkpoint &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.utils.DecodingResult" href="opennmt.utils.DecodingResult.html" />
-    <link rel="prev" title="opennmt.utils.BeamSearch" href="opennmt.utils.BeamSearch.html" /> 
+    <link rel="next" title="opennmt.utils.max_margin_loss" href="opennmt.utils.max_margin_loss.html" />
+    <link rel="prev" title="opennmt.utils.guided_alignment_cost" href="opennmt.utils.guided_alignment_cost.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -126,8 +126,8 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="opennmt.utils.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="opennmt.utils.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="opennmt.utils.html#classes">Classes</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.utils.html#functions">Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -186,7 +186,7 @@
         
           <li><a href="opennmt.utils.html">opennmt.utils module</a> &raquo;</li>
         
-      <li>opennmt.utils.BestSampler</li>
+      <li>opennmt.utils.is_v1_checkpoint</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -203,13 +203,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="opennmt-utils-bestsampler">
-<h1>opennmt.utils.BestSampler<a class="headerlink" href="#opennmt-utils-bestsampler" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="opennmt.utils.BestSampler">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">BestSampler</code><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BestSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.BestSampler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample the best predictions.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.utils.Sampler.html#opennmt.utils.Sampler" title="opennmt.utils.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.Sampler</span></code></a></p>
+  <div class="section" id="opennmt-utils-is-v1-checkpoint">
+<h1>opennmt.utils.is_v1_checkpoint<a class="headerlink" href="#opennmt-utils-is-v1-checkpoint" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="opennmt.utils.is_v1_checkpoint">
+<code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">is_v1_checkpoint</code><span class="sig-paren">(</span><em class="sig-param">checkpoint_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/checkpoint.html#is_v1_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.is_v1_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the checkpoint at <code class="xref py py-obj docutils literal notranslate"><span class="pre">checkpoint_path</span></code> has been
+trained with OpenNMT-tf v1.</p>
 </dd></dl>
 
 </div>
@@ -222,10 +222,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.utils.DecodingResult.html" class="btn btn-neutral float-right" title="opennmt.utils.DecodingResult" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.utils.max_margin_loss.html" class="btn btn-neutral float-right" title="opennmt.utils.max_margin_loss" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.utils.BeamSearch.html" class="btn btn-neutral float-left" title="opennmt.utils.BeamSearch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.utils.guided_alignment_cost.html" class="btn btn-neutral float-left" title="opennmt.utils.guided_alignment_cost" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

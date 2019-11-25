@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -307,7 +307,7 @@ layer instantiation and layer call.</p>
 <dl class="method">
 <dt id="opennmt.models.Model.infer">
 <code class="sig-name descname">infer</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.infer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.infer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs inference.</p>
+<dd><p>Runs inference on <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code>.</p>
 <p>This is a small convenience wrapper around
 <a class="reference internal" href="#opennmt.models.Model.call" title="opennmt.models.Model.call"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.models.Model.call()</span></code></a>.</p>
 <dl class="field-list simple">
@@ -316,6 +316,23 @@ layer instantiation and layer call.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The model predictions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.Model.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code> predictions against <cite>labels</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – A nested structure of features <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>labels</strong> – A nested structure of features <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loss and predictions.</p>
 </dd>
 </dl>
 </dd></dl>

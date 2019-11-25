@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -235,8 +235,6 @@
 
 <span class="k">class</span> <span class="nc">_RNNBase</span><span class="p">(</span><span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for RNN based NMT models.&quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
@@ -275,6 +273,94 @@
             <span class="n">dropout</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
             <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
+<span class="k">class</span> <span class="nc">NMTBigV1</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Defines a bidirectional LSTM encoder-decoder model.</span>
+
+<span class="sd">  Note:</span>
+<span class="sd">    For compatibility with OpenNMT-tf v1.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">NMTBigV1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">source_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+        <span class="n">target_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+        <span class="n">encoder</span><span class="o">=</span><span class="n">encoders</span><span class="o">.</span><span class="n">RNNEncoder</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+            <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">reducer</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">),</span>
+        <span class="n">decoder</span><span class="o">=</span><span class="n">decoders</span><span class="o">.</span><span class="n">AttentionalRNNDecoder</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="n">bridge_class</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">CopyBridge</span><span class="p">,</span>
+            <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
+            <span class="n">attention_layer_activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">NMTMediumV1</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Defines a medium-sized bidirectional LSTM encoder-decoder model.</span>
+
+<span class="sd">  Note:</span>
+<span class="sd">    For compatibility with OpenNMT-tf v1.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">NMTMediumV1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">source_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+        <span class="n">target_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+        <span class="n">encoder</span><span class="o">=</span><span class="n">encoders</span><span class="o">.</span><span class="n">RNNEncoder</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+            <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">reducer</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">),</span>
+        <span class="n">decoder</span><span class="o">=</span><span class="n">decoders</span><span class="o">.</span><span class="n">AttentionalRNNDecoder</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+            <span class="n">bridge_class</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">CopyBridge</span><span class="p">,</span>
+            <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
+            <span class="n">attention_layer_activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">NMTSmallV1</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Defines a small unidirectional LSTM encoder-decoder model.</span>
+
+<span class="sd">  Note:</span>
+<span class="sd">    For compatibility with OpenNMT-tf v1.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">NMTSmallV1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">source_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+        <span class="n">target_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span>
+            <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+        <span class="n">encoder</span><span class="o">=</span><span class="n">encoders</span><span class="o">.</span><span class="n">RNNEncoder</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">),</span>
+        <span class="n">decoder</span><span class="o">=</span><span class="n">decoders</span><span class="o">.</span><span class="n">AttentionalRNNDecoder</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+            <span class="n">bridge_class</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">CopyBridge</span><span class="p">,</span>
+            <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">,</span>
+            <span class="n">attention_layer_activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTMCell</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
 <div class="viewcode-block" id="LstmCnnCrfTagger"><a class="viewcode-back" href="../../../package/opennmt.models.LstmCnnCrfTagger.html#opennmt.models.LstmCnnCrfTagger">[docs]</a><span class="k">class</span> <span class="nc">LstmCnnCrfTagger</span><span class="p">(</span><span class="n">sequence_tagger</span><span class="o">.</span><span class="n">SequenceTagger</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354.&quot;&quot;&quot;</span>
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -300,7 +386,7 @@
         <span class="n">crf_decoding</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LstmCnnCrfTagger.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.LstmCnnCrfTagger.html#opennmt.models.LstmCnnCrfTagger.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SeqTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LstmCnnCrfTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
         <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;Adam&quot;</span><span class="p">,</span>

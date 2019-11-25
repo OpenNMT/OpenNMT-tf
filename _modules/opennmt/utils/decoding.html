@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -660,7 +660,6 @@
           <span class="n">initial_log_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
           <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">_get_shape_invariants</span><span class="p">,</span> <span class="n">extra_vars</span><span class="p">)),</span>
       <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-      <span class="n">back_prop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
       <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">)</span>
 
   <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">_finalize</span><span class="p">(</span>  <span class="c1"># pylint: disable=protected-access</span>

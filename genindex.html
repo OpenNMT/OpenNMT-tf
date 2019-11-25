@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -546,6 +546,8 @@
 </li>
       <li><a href="package/opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder">ConvEncoder (class in opennmt.encoders)</a>
 </li>
+      <li><a href="package/opennmt.convert_to_v2_config.html#opennmt.convert_to_v2_config">convert_to_v2_config() (in module opennmt)</a>
+</li>
       <li><a href="package/opennmt.layers.CopyBridge.html#opennmt.layers.CopyBridge">CopyBridge (class in opennmt.layers)</a>
 </li>
       <li><a href="package/opennmt.schedules.CosineAnnealing.html#opennmt.schedules.CosineAnnealing">CosineAnnealing (class in opennmt.schedules)</a>
@@ -600,8 +602,12 @@
 </li>
       <li><a href="package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder">Encoder (class in opennmt.encoders)</a>
 </li>
-      <li><a href="package/opennmt.Runner.html#opennmt.Runner.evaluate">evaluate() (opennmt.Runner method)</a>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.evaluate">evaluate() (opennmt.models.Model method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.Runner.html#opennmt.Runner.evaluate">(opennmt.Runner method)</a>
 </li>
+      </ul></li>
       <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter">ExampleInputter (class in opennmt.inputters)</a>
 </li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.export">export() (opennmt.models.Model method)</a>
@@ -786,6 +792,8 @@
       </ul></li>
       <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter">Inputter (class in opennmt.inputters)</a>
 </li>
+      <li><a href="package/opennmt.utils.is_v1_checkpoint.html#opennmt.utils.is_v1_checkpoint">is_v1_checkpoint() (in module opennmt.utils)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -900,8 +908,6 @@
 </li>
       <li><a href="package/opennmt.layers.make_rnn_cell.html#opennmt.layers.make_rnn_cell">make_rnn_cell() (in module opennmt.layers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.tokenizers.make_tokenizer.html#opennmt.tokenizers.make_tokenizer">make_tokenizer() (in module opennmt.tokenizers)</a>
 </li>
       <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_training_dataset">make_training_dataset() (opennmt.inputters.ExampleInputter method)</a>
@@ -910,9 +916,17 @@
         <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_training_dataset">(opennmt.models.LanguageModelInputter method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.map_v1_weights">map_v1_weights() (opennmt.decoders.SelfAttentionDecoder method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.map_v1_weights">map_v1_weights() (opennmt.decoders.AttentionalRNNDecoder method)</a>
 
       <ul>
+        <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.map_v1_weights">(opennmt.decoders.Decoder method)</a>
+</li>
+        <li><a href="package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.map_v1_weights">(opennmt.decoders.SelfAttentionDecoder method)</a>
+</li>
+        <li><a href="package/opennmt.encoders.RNNEncoder.html#opennmt.encoders.RNNEncoder.map_v1_weights">(opennmt.encoders.RNNEncoder method)</a>
+</li>
         <li><a href="package/opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder.map_v1_weights">(opennmt.encoders.SelfAttentionEncoder method)</a>
 </li>
         <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.map_v1_weights">(opennmt.inputters.WordEmbedder method)</a>
@@ -925,6 +939,8 @@
 </li>
         <li><a href="package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention.map_v1_weights">(opennmt.layers.MultiHeadAttention method)</a>
 </li>
+        <li><a href="package/opennmt.layers.RNN.html#opennmt.layers.RNN.map_v1_weights">(opennmt.layers.RNN method)</a>
+</li>
         <li><a href="package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer.map_v1_weights">(opennmt.layers.SelfAttentionDecoderLayer method)</a>
 </li>
         <li><a href="package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer.map_v1_weights">(opennmt.layers.SelfAttentionEncoderLayer method)</a>
@@ -932,6 +948,8 @@
         <li><a href="package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper.map_v1_weights">(opennmt.layers.TransformerLayerWrapper method)</a>
 </li>
         <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.map_v1_weights">(opennmt.models.Model method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.map_v1_weights">(opennmt.models.SequenceToSequence method)</a>
 </li>
         <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.map_v1_weights">(opennmt.models.Transformer method)</a>
 </li>

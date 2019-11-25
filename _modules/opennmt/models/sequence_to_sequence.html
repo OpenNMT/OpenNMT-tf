@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -291,6 +291,17 @@
             <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="mi">5</span>
         <span class="p">}</span>
     <span class="p">})</span></div>
+
+<div class="viewcode-block" id="SequenceToSequence.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can not restore V1 model with multi features or multi source inputs&quot;</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;seq2seq&quot;</span><span class="p">]</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">m</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;encoder&quot;</span><span class="p">])</span>
+    <span class="n">m</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">])</span>
+    <span class="n">m</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;encoder&quot;</span><span class="p">])</span>
+    <span class="n">m</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">m</span></div>
 
 <div class="viewcode-block" id="SequenceToSequence.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>

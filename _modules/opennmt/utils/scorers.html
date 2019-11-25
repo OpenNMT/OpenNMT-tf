@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.2.1 documentation</title>
+  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.3.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -234,7 +234,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;rouge-1&quot;</span><span class="p">,</span> <span class="s2">&quot;rouge-2&quot;</span><span class="p">,</span> <span class="s2">&quot;rouge-l&quot;</span><span class="p">}</span>
 
   <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">rouge</span> <span class="k">import</span> <span class="n">FilesRouge</span>
+    <span class="kn">from</span> <span class="nn">rouge</span> <span class="k">import</span> <span class="n">FilesRouge</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
     <span class="n">files_rouge</span> <span class="o">=</span> <span class="n">FilesRouge</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">)</span>
     <span class="n">rouge_scores</span> <span class="o">=</span> <span class="n">files_rouge</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span><span class="n">avg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">rouge_scores</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores_name</span><span class="p">}</span></div>
@@ -245,13 +245,13 @@
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
-      <span class="kn">import</span> <span class="nn">sacrebleu</span>  <span class="c1"># pylint: disable=unused-import, unused-variable</span>
+      <span class="kn">import</span> <span class="nn">sacrebleu</span>  <span class="c1"># pylint: disable=unused-import, unused-variable, import-outside-toplevel</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;sacreBLEU evaluator requires Python 3&quot;</span><span class="p">)</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">BLEUScorer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;bleu&quot;</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">sacrebleu</span> <span class="k">import</span> <span class="n">corpus_bleu</span>
+    <span class="kn">from</span> <span class="nn">sacrebleu</span> <span class="k">import</span> <span class="n">corpus_bleu</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">ref_stream</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">sys_stream</span><span class="p">:</span>
       <span class="n">bleu</span> <span class="o">=</span> <span class="n">corpus_bleu</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">])</span>
       <span class="k">return</span> <span class="n">bleu</span><span class="o">.</span><span class="n">score</span></div>
