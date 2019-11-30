@@ -449,7 +449,8 @@ def _auto_tune_batch_size(config,
     model_description = os.path.join(model_dir, "model_description.py")
 
     args = [
-        "python", "-m", "opennmt.bin.main",
+        sys.executable or "python",
+        "-m", "opennmt.bin.main",
         "--config", config_path,
         "--model", model_description,
         "--checkpoint_path", model_dir,
