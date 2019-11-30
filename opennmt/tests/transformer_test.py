@@ -100,6 +100,12 @@ class TransformerTest(tf.test.TestCase):
     inputs, combined = self.evaluate([inputs, combined])
     self.assertAllEqual(inputs, combined)
 
+  def testRelativePositions(self):
+    positions = transformer.relative_positions(4, 2)
+    self.assertAllEqual(
+        self.evaluate(positions),
+        [[2, 3, 4, 4], [1, 2, 3, 4], [0, 1, 2, 3], [0, 0, 1, 2]])
+
   def testFeedForwardNetwork(self):
     ffn = transformer.FeedForwardNetwork(20, 10)
     x = tf.random.uniform([4, 5, 10])
@@ -123,6 +129,18 @@ class TransformerTest(tf.test.TestCase):
     _, cache = attention(x, cache=cache)
     self.assertEqual(cache[0].shape[2], 2)
     self.assertEqual(cache[1].shape[2], 2)
+
+  def testMultiHeadSelfAttentionRelativePositions(self):
+    attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
+    x = tf.random.uniform([2, 9, 10])
+    mask = tf.sequence_mask([9, 7])
+    y = attention(x, mask=mask)
+
+  def testMultiHeadSelfAttentionRelativePositionsWithCache(self):
+    attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
+    x = tf.random.uniform([4, 1, 10])
+    cache = (tf.zeros([4, 4, 0, 5]), tf.zeros([4, 4, 0, 5]))
+    _, cache = attention(x, cache=cache)
 
   def testMultiHeadAttention(self):
     attention = transformer.MultiHeadAttention(4, 20)

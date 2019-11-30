@@ -24,6 +24,7 @@ class SelfAttentionEncoder(Encoder):
                ffn_dropout=0.1,
                ffn_activation=tf.nn.relu,
                position_encoder_class=SinusoidalPositionEncoder,
+               maximum_relative_position=None,
                **kwargs):
     """Initializes the parameters of the encoder.
 
@@ -42,6 +43,9 @@ class SelfAttentionEncoder(Encoder):
       position_encoder_class: The :class:`opennmt.layers.PositionEncoder`
         class to use for position encoding (or a callable that returns an
         instance).
+      maximum_relative_position: Maximum relative position representation
+        (from https://arxiv.org/abs/1803.02155).
+      **kwargs: Additional layer arguments.
     """
     super(SelfAttentionEncoder, self).__init__(**kwargs)
     self.num_units = num_units
@@ -58,7 +62,8 @@ class SelfAttentionEncoder(Encoder):
             dropout=dropout,
             attention_dropout=attention_dropout,
             ffn_dropout=ffn_dropout,
-            ffn_activation=ffn_activation)
+            ffn_activation=ffn_activation,
+            maximum_relative_position=maximum_relative_position)
         for i in range(num_layers)]
 
   def call(self, inputs, sequence_length=None, training=None):

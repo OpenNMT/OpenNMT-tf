@@ -28,7 +28,8 @@ class Transformer(SequenceToSequence):
                ffn_activation=tf.nn.relu,
                position_encoder_class=SinusoidalPositionEncoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
-               share_encoders=False):
+               share_encoders=False,
+               maximum_relative_position=None):
     """Initializes a Transformer model.
 
     Args:
@@ -55,6 +56,8 @@ class Transformer(SequenceToSequence):
         :class:`opennmt.models.EmbeddingsSharingLevel` for possible values.
       share_encoders: In case of multi source architecture, whether to share the
         separate encoders parameters or not.
+      maximum_relative_position: Maximum relative position representation
+        (from https://arxiv.org/abs/1803.02155).
     """
     encoders = [
         SelfAttentionEncoder(
@@ -66,7 +69,8 @@ class Transformer(SequenceToSequence):
             attention_dropout=attention_dropout,
             ffn_dropout=ffn_dropout,
             ffn_activation=ffn_activation,
-            position_encoder_class=position_encoder_class)
+            position_encoder_class=position_encoder_class,
+            maximum_relative_position=maximum_relative_position)
         for _ in range(source_inputter.num_outputs)]
     if len(encoders) > 1:
       encoder = ParallelEncoder(
@@ -85,7 +89,8 @@ class Transformer(SequenceToSequence):
         ffn_dropout=ffn_dropout,
         ffn_activation=ffn_activation,
         position_encoder_class=position_encoder_class,
-        num_sources=source_inputter.num_outputs)
+        num_sources=source_inputter.num_outputs,
+        maximum_relative_position=maximum_relative_position)
 
     self._num_units = num_units
     super(Transformer, self).__init__(
