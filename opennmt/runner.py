@@ -83,7 +83,9 @@ class Runner(object):
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(config, model_config)
     misc.merge_dict(config, self._config)
+
     config["params"].setdefault("num_hypotheses", config["infer"].get("n_best", 1))
+    config["params"].setdefault("average_loss_in_time", config["train"]["batch_type"] == "tokens")
 
     if training:
       train_config = config["train"]
