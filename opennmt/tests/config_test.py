@@ -180,8 +180,10 @@ class ConfigTest(tf.test.TestCase):
     }
 
     original_v1_config = copy.deepcopy(v1_config)
-    self.assertDictEqual(config.convert_to_v2_config(v1_config), expected_v2_config)
+    v2_config = config.convert_to_v2_config(v1_config)
+    self.assertDictEqual(v2_config, expected_v2_config)
     self.assertDictEqual(v1_config, original_v1_config)
+    self.assertDictEqual(config.convert_to_v2_config(v2_config), expected_v2_config)
 
 
 if __name__ == "__main__":

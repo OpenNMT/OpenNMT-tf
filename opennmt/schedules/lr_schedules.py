@@ -6,6 +6,27 @@ import tensorflow as tf
 import numpy as np
 
 
+def get_lr_schedule_class(name):
+  """Returns the learning rate schedule class.
+
+  Args:
+    name: The schedule class name.
+
+  Returns:
+    A class extending ``tf.keras.optimizers.schedules.LearningRateSchedule``.
+
+  Raises:
+    ValueError: if :obj:`name` can not be resolved to an existing schedule.
+  """
+  schedule_class = None
+  if schedule_class is None:
+    schedule_class = getattr(tf.keras.optimizers.schedules, name, None)
+  if schedule_class is None:
+    schedule_class = getattr(sys.modules[__name__], name, None)
+  if schedule_class is None:
+    raise ValueError("Unknown learning rate schedule: %s" % name)
+  return schedule_class
+
 def make_learning_rate_schedule(initial_learning_rate,
                                 schedule_type,
                                 schedule_params=None,
@@ -34,17 +55,10 @@ def make_learning_rate_schedule(initial_learning_rate,
   See Also:
     :class:`opennmt.schedules.ScheduleWrapper`
   """
-  schedule_name = None
-  if schedule_name is None:
-    schedule_name = getattr(tf.keras.optimizers.schedules, schedule_type, None)
-  if schedule_name is None:
-    schedule_name = getattr(sys.modules[__name__], schedule_type, None)
-  if schedule_name is None:
-    raise ValueError("Unknown learning rate schedule: {}".format(schedule_type))
-
   if schedule_params is None:
     schedule_params = {}
-  schedule = schedule_name(initial_learning_rate, **schedule_params)
+  schedule_class = get_lr_schedule_class(schedule_type)
+  schedule = schedule_class(initial_learning_rate, **schedule_params)
   schedule = ScheduleWrapper(
       schedule,
       step_start=start_step,
