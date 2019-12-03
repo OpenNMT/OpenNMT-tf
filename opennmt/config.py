@@ -9,6 +9,8 @@ import tensorflow as tf
 import yaml
 
 from opennmt.models import catalog
+from opennmt.optimizers import utils as optimizers_lib
+from opennmt.schedules import lr_schedules as schedules_lib
 from opennmt.utils.misc import merge_dict
 
 
@@ -226,11 +228,15 @@ _V1_OPTIMIZER_MAP = {
 def _convert_to_v2_optimizer(params):
   optimizer = params.get("optimizer")
   if optimizer:
-    v2_optimizer = _V1_OPTIMIZER_MAP.get(optimizer)
-    if not v2_optimizer:
-      raise ValueError("params/optimizer should be manually converted: no registered "
-                       "conversion for optimizer %s" % optimizer)
-    params["optimizer"] = v2_optimizer
+    try:
+      # Check if the optimizer exists in V2.
+      optimizers_lib.get_optimizer_class(optimizer)
+    except ValueError:
+      v2_optimizer = _V1_OPTIMIZER_MAP.get(optimizer)
+      if not v2_optimizer:
+        raise ValueError("params/optimizer should be manually converted: no registered "
+                         "conversion for optimizer %s" % optimizer)
+      params["optimizer"] = v2_optimizer
 
   optimizer_params = params.get("optimizer_params")
   if optimizer_params:
@@ -241,15 +247,19 @@ def _convert_to_v2_lr_schedules(params):
   decay_type = params.get("decay_type")
   if not decay_type:
     return
-  if decay_type.startswith("noam_decay"):
-    params["decay_type"] = "NoamDecay"
-    if "decay_params" not in params:
-      model_dim = _delete_opt(params, "decay_rate")
-      warmup_steps = _delete_opt(params, "decay_steps")
-      params["decay_params"] = dict(model_dim=model_dim, warmup_steps=warmup_steps)
-  else:
-    raise ValueError("params/decay_type should be manually converted: no registered "
-                     "conversion for decay type %s" % decay_type)
+  try:
+    # Check if the learning rate schedule exists in V2.
+    schedules_lib.get_lr_schedule_class(decay_type)
+  except ValueError:
+    if decay_type.startswith("noam_decay"):
+      params["decay_type"] = "NoamDecay"
+      if "decay_params" not in params:
+        model_dim = _delete_opt(params, "decay_rate")
+        warmup_steps = _delete_opt(params, "decay_steps")
+        params["decay_params"] = dict(model_dim=model_dim, warmup_steps=warmup_steps)
+    else:
+      raise ValueError("params/decay_type should be manually converted: no registered "
+                       "conversion for decay type %s" % decay_type)
 
 def _convert_to_v2_step_accumulation(params, config):
   # Try to upgrade step accumulation to train/effective_batch_size.
