@@ -19,8 +19,14 @@ class MiscTest(tf.test.TestCase):
         self.layers = [Layer()]
 
     model = Model()
-    variable_name = misc.get_variable_name(model.layers[0].variable, model)
-    self.assertEqual(variable_name, "model/layers/0/variable/.ATTRIBUTES/VARIABLE_VALUE")
+    variable = model.layers[0].variable
+    expected_name = "model/layers/0/variable/.ATTRIBUTES/VARIABLE_VALUE"
+    variable_name = misc.get_variable_name(variable, model)
+    self.assertEqual(variable_name, expected_name)
+
+    variables_to_names, names_to_variables = misc.get_variables_name_mapping(model, root_key="model")
+    self.assertDictEqual(variables_to_names, {variable.experimental_ref(): expected_name})
+    self.assertDictEqual(names_to_variables, {expected_name: variable})
 
   def testSetDropout(self):
 

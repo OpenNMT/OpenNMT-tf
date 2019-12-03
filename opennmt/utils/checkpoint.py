@@ -166,6 +166,9 @@ def average_checkpoints(model_dir,
   num_checkpoints = len(checkpoints_path)
   last_step = int(checkpoints_path[-1].split("-")[-1])
 
+  # Get a map from variable names in the checkpoint to variables in the model.
+  _, names_to_variables = misc.get_variables_name_mapping(model, root_key=model_key)
+
   tf.get_logger().info("Averaging %d checkpoints...", num_checkpoints)
   for i, checkpoint_path in enumerate(reversed(checkpoints_path)):
     tf.get_logger().info("Reading checkpoint %s...", checkpoint_path)
@@ -178,8 +181,7 @@ def average_checkpoints(model_dir,
       for path in six.iterkeys(reader.get_variable_to_shape_map()):
         if not path.startswith(model_key) or ".OPTIMIZER_SLOT" in path:
           continue
-        variable_path = path.replace("/.ATTRIBUTES/VARIABLE_VALUE", "")
-        variable = misc.index_structure(trackables, variable_path)
+        variable = names_to_variables[path]
         value = reader.get_tensor(path)
         variable.assign_add(value / num_checkpoints)
 
