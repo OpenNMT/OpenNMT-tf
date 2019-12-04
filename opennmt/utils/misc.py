@@ -37,13 +37,39 @@ def get_devices(count=1, fallback_to_cpu=True):
     raise ValueError("Requested %d devices but only %d are visible" % (count, len(devices)))
   return [device.name for device in devices[0:count]]
 
+def get_variables_name_mapping(root, root_key=None):
+  """Returns mapping between variables and their name in the object-based
+  representation.
+
+  Args:
+    root: The root layer.
+    root_key: Key that was used to save :obj:`root`, if any.
+
+  Returns:
+    A dict mapping variables ref to names and a dict mapping variables name to
+    variables.
+  """
+  # TODO: find a way to implement this function using public APIs.
+  named_variables, _, _ = graph_view.ObjectGraphView(root).serialize_object_graph()
+  variables_to_names = {}
+  names_to_variables = {}
+  for saveable_object in named_variables:
+    variable = saveable_object.op
+    if not hasattr(variable, "experimental_ref"):  # Ignore non Tensor-like objects.
+      continue
+    name = saveable_object.name
+    if root_key is not None:
+      name = "%s/%s" % (root_key, name)
+    variables_to_names[variable.experimental_ref()] = name
+    names_to_variables[name] = variable
+  return variables_to_names, names_to_variables
+
 def get_variable_name(variable, root, model_key="model"):
   """Gets the variable name in the object-based representation."""
-  named_variables, _, _ = graph_view.ObjectGraphView(root).serialize_object_graph()
-  for saveable_object in named_variables:
-    if saveable_object.op.name == variable.name:
-      return "%s/%s" % (model_key, saveable_object.name)
-  return None
+  variables_to_names, _ = get_variables_name_mapping(root, root_key=model_key)
+  # In case of a MirroredVariable, look up the primary variable
+  variable = getattr(variable, "primary", variable)
+  return variables_to_names.get(variable.experimental_ref())
 
 def print_bytes(str_as_bytes, stream=None):
   """Prints a string viewed as bytes.
