@@ -6,6 +6,8 @@ from opennmt.models.catalog import LstmCnnCrfTagger
 from opennmt.models.catalog import LuongAttention
 from opennmt.models.catalog import Transformer as TransformerBase
 from opennmt.models.catalog import TransformerBig
+from opennmt.models.catalog import TransformerBigRelative
+from opennmt.models.catalog import TransformerRelative
 
 from opennmt.models.language_model import LanguageModel
 from opennmt.models.language_model import LanguageModelInputter
