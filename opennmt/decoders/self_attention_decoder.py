@@ -23,6 +23,7 @@ class SelfAttentionDecoder(decoder.Decoder):
                ffn_activation=tf.nn.relu,
                position_encoder_class=SinusoidalPositionEncoder,
                num_sources=1,
+               maximum_relative_position=None,
                **kwargs):
     """Initializes the parameters of the decoder.
 
@@ -42,6 +43,8 @@ class SelfAttentionDecoder(decoder.Decoder):
         class to use for position encoding (or a callable that returns an
         instance).
       num_sources: The number of source contexts expected by this decoder.
+      maximum_relative_position: Maximum relative position representation
+        (from https://arxiv.org/abs/1803.02155).
       **kwargs: Additional layer arguments.
     """
     super(SelfAttentionDecoder, self).__init__(num_sources=num_sources, **kwargs)
@@ -61,7 +64,8 @@ class SelfAttentionDecoder(decoder.Decoder):
             dropout=dropout,
             attention_dropout=attention_dropout,
             ffn_dropout=ffn_dropout,
-            ffn_activation=ffn_activation)
+            ffn_activation=ffn_activation,
+            maximum_relative_position=maximum_relative_position)
         for i in range(num_layers)]
 
   @property

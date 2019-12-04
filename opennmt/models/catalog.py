@@ -219,37 +219,56 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
         }
     })
 
-class Transformer(transformer.Transformer):
-  """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
-  def __init__(self):
-    super(Transformer, self).__init__(
-        source_inputter=inputters.WordEmbedder(
-            embedding_size=512),
-        target_inputter=inputters.WordEmbedder(
-            embedding_size=512),
+class _DefaultTransformer(transformer.Transformer):
+  def __init__(self, big=False, relative=False):
+    if big:
+      num_units = 1024
+      num_heads = 16
+      ffn_inner_dim = 4096
+    else:
+      num_units = 512
+      num_heads = 8
+      ffn_inner_dim = 2048
+    if relative:
+      position_encoder_class = None
+      maximum_relative_position = 20
+    else:
+      position_encoder_class = layers.SinusoidalPositionEncoder
+      maximum_relative_position = None
+    super(_DefaultTransformer, self).__init__(
+        source_inputter=inputters.WordEmbedder(embedding_size=num_units),
+        target_inputter=inputters.WordEmbedder(embedding_size=num_units),
         num_layers=6,
-        num_units=512,
-        num_heads=8,
-        ffn_inner_dim=2048,
+        num_units=num_units,
+        num_heads=num_heads,
+        ffn_inner_dim=ffn_inner_dim,
         dropout=0.1,
         attention_dropout=0.1,
-        ffn_dropout=0.1)
+        ffn_dropout=0.1,
+        position_encoder_class=position_encoder_class,
+        maximum_relative_position=maximum_relative_position)
 
-class TransformerBig(transformer.Transformer):
+class Transformer(_DefaultTransformer):
+  """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+
+class TransformerRelative(_DefaultTransformer):
+  """Defines a Transformer model using relative position representations as
+  described in https://arxiv.org/abs/1803.02155.
+  """
+  def __init__(self):
+    super(TransformerRelative, self).__init__(relative=True)
+
+class TransformerBig(_DefaultTransformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
   def __init__(self):
-    super(TransformerBig, self).__init__(
-        source_inputter=inputters.WordEmbedder(
-            embedding_size=1024),
-        target_inputter=inputters.WordEmbedder(
-            embedding_size=1024),
-        num_layers=6,
-        num_units=1024,
-        num_heads=16,
-        ffn_inner_dim=4096,
-        dropout=0.3,
-        attention_dropout=0.1,
-        ffn_dropout=0.1)
+    super(TransformerBig, self).__init__(big=True)
+
+class TransformerBigRelative(_DefaultTransformer):
+  """Defines a large Transformer model using relative position representations as
+  described in https://arxiv.org/abs/1803.02155.
+  """
+  def __init__(self):
+    super(TransformerBigRelative, self).__init__(big=True, relative=True)
 
 class GPT2Small(language_model.LanguageModel):
   """GPT-2 language model (small version) as described in:

@@ -65,6 +65,44 @@ def combine_heads(inputs):
   outputs = tf.reshape(outputs, [shape[0], shape[2], shape[1] * shape[3]])
   return outputs
 
+def relative_positions(length, maximum_position, with_cache=False):
+  """Builds the relative positions.
+
+  Args:
+    length: The maximum length of the sequence.
+    maximum_position: The maximum relative position to represent.
+    with_cache: Set to ``True`` if this function is called from a multi-head
+      attention layer with cache states.
+
+  Returns:
+    Positive relative positions with shape :math:`[T or 1, T]`.
+  """
+  if with_cache:
+    distance = tf.expand_dims(tf.range(-length + 1, 1, delta=1), 0)
+  else:
+    arange = tf.range(length)
+    distance = tf.expand_dims(arange, 0) - tf.expand_dims(arange, 1)  # Distance to the diagonal.
+  distance = tf.clip_by_value(distance, -maximum_position, maximum_position)
+  return distance + maximum_position  # Return positive indices.
+
+def matmul_with_relative_representations(a, b, transpose_b=False):  # pylint: disable=invalid-name
+  """Multiplies :obj:`a` with the relative representations :obj:`b`.
+
+  Args:
+    a: Tensor with shape :math:`[B, H, T, _]`.
+    b: Tensor with shape :math:`[T, T, _]`.
+
+  Returns:
+    Tensor with shape :math:`[B, H, T, T]`.
+  """
+  batch, head, time, _ = misc.shape_list(a)
+  a = tf.transpose(a, perm=[2, 0, 1, 3])
+  a = tf.reshape(a, [time, batch * head, -1])
+  c = tf.matmul(a, b, transpose_b=transpose_b)
+  c = tf.reshape(c, [time, batch, head, -1])
+  c = tf.transpose(c, perm=[1, 2, 0, 3])
+  return c
+
 
 class FeedForwardNetwork(tf.keras.layers.Layer):
   """Implements the Transformer's "Feed Forward" layer.
@@ -120,6 +158,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                num_units,
                dropout=0.1,
                return_attention=False,
+               maximum_relative_position=None,
                **kwargs):
     """Initializes this layer.
 
@@ -129,6 +168,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       dropout: The probability to drop units from the inputs.
       return_attention: If ``True``, also return the attention weights of the
         first head.
+      maximum_relative_position: Maximum relative position representation
+        (from https://arxiv.org/abs/1803.02155).
       kwargs: Additional layer arguments.
     """
     super(MultiHeadAttention, self).__init__(**kwargs)
@@ -136,13 +177,14 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       raise ValueError("Multi head attention requires that num_units is a"
                        " multiple of %s" % num_heads)
     self.num_heads = num_heads
-    self.num_units = num_units
+    self.num_units_per_head = num_units // num_heads
     self.linear_queries = common.Dense(num_units)
     self.linear_keys = common.Dense(num_units)
     self.linear_values = common.Dense(num_units)
     self.linear_output = common.Dense(num_units)
     self.dropout = dropout
     self.return_attention = return_attention
+    self.maximum_relative_position = maximum_relative_position
 
   def map_v1_weights(self, weights):
     # V1 used conv1d layers that have a leading dimensions.
@@ -166,6 +208,16 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       m += self.linear_values.map_v1_weights(_partial_weights("conv1d_1", 2, 1))
       m += self.linear_output.map_v1_weights(weights["conv1d_2"])
     return m
+
+  def build(self, input_shape):
+    if self.maximum_relative_position is not None:
+      relative_window_size = self.maximum_relative_position * 2 + 1
+      relative_repr_shape = [relative_window_size, self.num_units_per_head]
+      self.relative_position_keys = self.add_weight(
+          name="relative_position_keys", shape=relative_repr_shape)
+      self.relative_position_values = self.add_weight(
+          name="relative_position_values", shape=relative_repr_shape)
+    super(MultiHeadAttention, self).build(input_shape)
 
   def call(self, inputs, memory=None, mask=None, cache=None, training=None):  # pylint: disable=arguments-differ
     """Runs the layer.
@@ -195,7 +247,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     # Compute queries.
     queries = self.linear_queries(inputs)
     queries = split_heads(queries, self.num_heads)
-    queries *= (self.num_units // self.num_heads)**-0.5
+    queries *= self.num_units_per_head**-0.5
 
     # Compute keys and values.
     if memory is None:
@@ -212,10 +264,26 @@ class MultiHeadAttention(tf.keras.layers.Layer):
       else:
         keys, values = _compute_kv(memory)
 
+    if self.maximum_relative_position is not None:
+      if memory is not None:
+        raise ValueError("Relative position representations only supports self-attention")
+      keys_length = tf.shape(keys)[2]
+      relative_pos = relative_positions(
+          keys_length,
+          self.maximum_relative_position,
+          with_cache=bool(cache))
+      relative_repr_keys = tf.gather(self.relative_position_keys, relative_pos)
+      relative_repr_values = tf.gather(self.relative_position_values, relative_pos)
+    else:
+      relative_repr_keys = None
+      relative_repr_values = None
+
     cache = (keys, values)
 
     # Dot product attention.
     dot = tf.matmul(queries, keys, transpose_b=True)
+    if relative_repr_keys is not None:
+      dot += matmul_with_relative_representations(queries, relative_repr_keys, transpose_b=True)
     if mask is not None:
       mask = tf.cast(mask, tf.float32)
       if mask.shape.rank == 2:
@@ -225,6 +293,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
     drop_attn = common.dropout(attn, self.dropout, training=training)
     heads = tf.matmul(drop_attn, values)
+    if relative_repr_values is not None:
+      heads += matmul_with_relative_representations(drop_attn, relative_repr_values)
 
     # Concatenate all heads output.
     combined = combine_heads(heads)
@@ -277,6 +347,7 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
                attention_dropout=0.1,
                ffn_dropout=0.1,
                ffn_activation=tf.nn.relu,
+               maximum_relative_position=None,
                **kwargs):
     """Initializes the layer.
 
@@ -291,11 +362,16 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         the feed forward layer.
       ffn_activation: The activation function to apply between the two linear
         transformations of the feed forward layer.
+      maximum_relative_position: Maximum relative position representation
+        (from https://arxiv.org/abs/1803.02155).
       kwargs: Additional layer arguments.
     """
     super(SelfAttentionEncoderLayer, self).__init__(**kwargs)
     self.self_attention = MultiHeadAttention(
-        num_heads, num_units, dropout=attention_dropout)
+        num_heads,
+        num_units,
+        dropout=attention_dropout,
+        maximum_relative_position=maximum_relative_position)
     self.self_attention = TransformerLayerWrapper(
         self.self_attention, dropout)
     self.ffn = FeedForwardNetwork(
@@ -331,6 +407,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
                attention_dropout=0.1,
                ffn_dropout=0.1,
                ffn_activation=tf.nn.relu,
+               maximum_relative_position=None,
                **kwargs):
     """Initializes the layer.
 
@@ -346,13 +423,16 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         the feed forward layer.
       ffn_activation: The activation function to apply between the two linear
         transformations of the feed forward layer.
+      maximum_relative_position: Maximum relative position representation
+        (from https://arxiv.org/abs/1803.02155).
       **kwargs: Additional layer arguments.
     """
     super(SelfAttentionDecoderLayer, self).__init__(**kwargs)
     self.self_attention = MultiHeadAttention(
         num_heads,
         num_units,
-        dropout=attention_dropout)
+        dropout=attention_dropout,
+        maximum_relative_position=maximum_relative_position)
     self.self_attention = TransformerLayerWrapper(
         self.self_attention, dropout)
     self.attention = []
