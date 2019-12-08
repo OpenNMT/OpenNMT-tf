@@ -43,7 +43,7 @@ class EnDeTranslator(object):
   def _postprocess(self, outputs):
     texts = []
     for tokens, length in zip(outputs["tokens"].numpy(), outputs["length"].numpy()):
-      tokens = tokens[0][:length[0]]
+      tokens = tokens[0][:length[0]].tolist()
       texts.append(self._tokenizer.detokenize(tokens))
     return texts
 
