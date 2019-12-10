@@ -13,6 +13,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [2.4.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.4.0) (2019-12-10)
+
+### New features
+
 * Transformer models with relative position representation: `TransformerRelative` and `TransformerBigRelative`
 
 ### Fixes and improvements
