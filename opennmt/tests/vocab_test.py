@@ -152,12 +152,8 @@ class VocabTest(tf.test.TestCase):
         new_optimizer,
         mapping)
     variables = [new_variable] + [new_optimizer.get_slot(new_variable, slot) for slot in ("m", "v")]
-    variables = list(map(self.evaluate, variables))
-    for i, index in enumerate(mapping):
-      if index < 0:
-        continue
-      for variable in variables:
-        self.assertAllEqual(variable[i], expected[i])
+    for variable in self.evaluate(variables):
+      self.assertAllEqual(variable, expected)
 
 
 def _create_variable_and_slots(values):

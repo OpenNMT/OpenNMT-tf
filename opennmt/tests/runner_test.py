@@ -77,6 +77,7 @@ class RunnerTest(tf.test.TestCase):
     }
     runner = self._getTransliterationRunner(config)
     avg_dir = runner.train()
+    self.assertEqual(runner.model_dir, avg_dir)
     self.assertEndsWith(tf.train.latest_checkpoint(avg_dir), "145002")
     self.assertLen(tf.train.get_checkpoint_state(avg_dir).all_model_checkpoint_paths, 1)
     model_dir = os.path.dirname(avg_dir)
@@ -179,15 +180,25 @@ class RunnerTest(tf.test.TestCase):
     self.assertEqual(lines[0].strip(), "a t z m o n")
 
   def testUpdateVocab(self):
+    ar_file, en_file = self._makeTransliterationData()
+    max_step = 145002
     config = {
+        "data": {
+            "train_features_file": ar_file,
+            "train_labels_file": en_file
+        },
         "params": {
             "learning_rate": 0.0005,
             "optimizer": "Adam"
+        },
+        "train": {
+            "max_step": max_step,
+            "batch_size": 10
         }
     }
     runner = self._getTransliterationRunner(config)
 
-    # Reverse order of non special tokens.
+    # Reverse order of non special tokens and add a new token.
     new_en_vocab = os.path.join(self.get_temp_dir(), "en.vocab.new")
     with open(os.path.join(runner._config["model_dir"], "en.vocab")) as en_vocab, \
          open(new_en_vocab, "w") as new_vocab:
@@ -196,20 +207,21 @@ class RunnerTest(tf.test.TestCase):
         new_vocab.write(token)
       for token in reversed(tokens[3:]):
         new_vocab.write(token)
+      new_vocab.write("anewtoken\n")
 
     output_dir = os.path.join(self.get_temp_dir(), "updated_vocab")
     self.assertEqual(runner.update_vocab(output_dir, tgt_vocab=new_en_vocab), output_dir)
+    self.assertEqual(runner.model_dir, output_dir)
 
     # Check that the translation is unchanged.
-    new_config = copy.deepcopy(runner._config)
-    new_config["model_dir"] = output_dir
-    new_config["data"]["target_vocabulary"] = new_en_vocab
-    runner = Runner(runner._model, new_config)
-    ar_file, _ = self._makeTransliterationData()
     en_file = os.path.join(self.get_temp_dir(), "output.txt")
     runner.infer(ar_file, predictions_file=en_file)
     with open(en_file) as f:
       self.assertEqual(next(f).strip(), "a t z m o n")
+
+    # We should be able to continue training without error or NaN loss.
+    output_dir = runner.train()
+    self.assertEndsWith(tf.train.latest_checkpoint(output_dir), str(max_step))
 
   def testScore(self):
     runner = self._getTransliterationRunner()
