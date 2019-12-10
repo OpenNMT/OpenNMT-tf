@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.reducer &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.layers.reducer &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -183,7 +183,7 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">tensor_util</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">tensor_util</span>
 
 
 <span class="k">def</span> <span class="nf">pad_in_time</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">padding_length</span><span class="p">):</span>
@@ -276,7 +276,7 @@
     <span class="n">reduced</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x_flat</span><span class="p">,</span> <span class="n">y_flat</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">pack_sequence_as</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">reduced</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Reducer.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.Reducer.html#opennmt.layers.Reducer.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Reducer.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.Reducer.html#opennmt.layers.Reducer.__call__">[docs]</a>  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reduces all input elements.</span>
 
 <span class="sd">    Args:</span>
@@ -329,7 +329,7 @@
 <div class="viewcode-block" id="ConcatReducer"><a class="viewcode-back" href="../../../package/opennmt.layers.ConcatReducer.html#opennmt.layers.ConcatReducer">[docs]</a><span class="k">class</span> <span class="nc">ConcatReducer</span><span class="p">(</span><span class="n">Reducer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A reducer that concatenates the inputs.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
 
 <div class="viewcode-block" id="ConcatReducer.reduce"><a class="viewcode-back" href="../../../package/opennmt.layers.ConcatReducer.html#opennmt.layers.ConcatReducer.reduce">[docs]</a>  <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>

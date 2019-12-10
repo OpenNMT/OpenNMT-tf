@@ -157,6 +157,8 @@
 ./_sources/package/opennmt.models.Transformer.rst.txt
 ./_sources/package/opennmt.models.TransformerBase.rst.txt
 ./_sources/package/opennmt.models.TransformerBig.rst.txt
+./_sources/package/opennmt.models.TransformerBigRelative.rst.txt
+./_sources/package/opennmt.models.TransformerRelative.rst.txt
 ./_sources/package/opennmt.models.rst.txt
 ./_sources/package/opennmt.optimizers.make_optimizer.rst.txt
 ./_sources/package/opennmt.optimizers.rst.txt
@@ -374,6 +376,8 @@
 ./package/opennmt.models.Transformer.html
 ./package/opennmt.models.TransformerBase.html
 ./package/opennmt.models.TransformerBig.html
+./package/opennmt.models.TransformerBigRelative.html
+./package/opennmt.models.TransformerRelative.html
 ./package/opennmt.models.html
 ./package/opennmt.optimizers.html
 ./package/opennmt.optimizers.make_optimizer.html

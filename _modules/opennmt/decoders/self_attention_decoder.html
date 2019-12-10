@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.self_attention_decoder &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.decoders.self_attention_decoder &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -180,9 +180,9 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.decoders</span> <span class="k">import</span> <span class="n">decoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span><span class="p">,</span> <span class="n">transformer</span>
-<span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="k">import</span> <span class="n">SinusoidalPositionEncoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.decoders</span> <span class="kn">import</span> <span class="n">decoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">common</span><span class="p">,</span> <span class="n">transformer</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="kn">import</span> <span class="n">SinusoidalPositionEncoder</span>
 
 
 <div class="viewcode-block" id="SelfAttentionDecoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder">[docs]</a><span class="k">class</span> <span class="nc">SelfAttentionDecoder</span><span class="p">(</span><span class="n">decoder</span><span class="o">.</span><span class="n">Decoder</span><span class="p">):</span>
@@ -190,7 +190,7 @@
 <span class="sd">  https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SelfAttentionDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="SelfAttentionDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.SelfAttentionDecoder.html#opennmt.decoders.SelfAttentionDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
                <span class="n">num_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
@@ -201,6 +201,7 @@
                <span class="n">ffn_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
                <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">SinusoidalPositionEncoder</span><span class="p">,</span>
                <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+               <span class="n">maximum_relative_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the decoder.</span>
 
@@ -220,6 +221,8 @@
 <span class="sd">        class to use for position encoding (or a callable that returns an</span>
 <span class="sd">        instance).</span>
 <span class="sd">      num_sources: The number of source contexts expected by this decoder.</span>
+<span class="sd">      maximum_relative_position: Maximum relative position representation</span>
+<span class="sd">        (from https://arxiv.org/abs/1803.02155).</span>
 <span class="sd">      **kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttentionDecoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_sources</span><span class="o">=</span><span class="n">num_sources</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -239,7 +242,8 @@
             <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
             <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
             <span class="n">ffn_dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span>
-            <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">)</span>
+            <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
+            <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span></div>
 
   <span class="nd">@property</span>

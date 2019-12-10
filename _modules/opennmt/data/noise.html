@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -185,15 +185,15 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">constants</span>
-<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="k">import</span> <span class="n">text</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">text</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 
 
 <div class="viewcode-block" id="WordNoiser"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser">[docs]</a><span class="k">class</span> <span class="nc">WordNoiser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Applies noise to words sequences.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WordNoiser.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noises</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;￭&quot;</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="WordNoiser.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noises</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;￭&quot;</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noising class.</span>
 
 <span class="sd">    Args:</span>
@@ -219,7 +219,7 @@
     <span class="sd">&quot;&quot;&quot;Adds a noise to apply.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WordNoiser.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="WordNoiser.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__call__">[docs]</a>  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Applies noise on :obj:`tokens`.</span>
 
 <span class="sd">    Args:</span>
@@ -281,7 +281,7 @@
 <span class="k">class</span> <span class="nc">Noise</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for noise modules.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Noise.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.Noise.html#opennmt.data.Noise.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+<div class="viewcode-block" id="Noise.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.Noise.html#opennmt.data.Noise.__call__">[docs]</a>  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Applies noise on a sequence of words.</span>
 
 <span class="sd">    Args:</span>
@@ -326,7 +326,7 @@
 <div class="viewcode-block" id="WordDropout"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout">[docs]</a><span class="k">class</span> <span class="nc">WordDropout</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Randomly drops words in a sequence.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WordDropout.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
+<div class="viewcode-block" id="WordDropout.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
 
 <span class="sd">    Args:</span>
@@ -355,7 +355,7 @@
 <span class="sd">  fixed number of words.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WordOmission.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordOmission.html#opennmt.data.WordOmission.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+<div class="viewcode-block" id="WordOmission.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordOmission.html#opennmt.data.WordOmission.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
 
 <span class="sd">    Args:</span>
@@ -377,7 +377,7 @@
 <div class="viewcode-block" id="WordReplacement"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement">[docs]</a><span class="k">class</span> <span class="nc">WordReplacement</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Randomly replaces words.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WordReplacement.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probability</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">):</span>
+<div class="viewcode-block" id="WordReplacement.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probability</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
 
 <span class="sd">    Args:</span>
@@ -403,7 +403,7 @@
 <div class="viewcode-block" id="WordPermutation"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation">[docs]</a><span class="k">class</span> <span class="nc">WordPermutation</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Randomly permutes words in a sequence with a maximum distance.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WordPermutation.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_distance</span><span class="p">):</span>
+<div class="viewcode-block" id="WordPermutation.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_distance</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
 
 <span class="sd">    Args:</span>

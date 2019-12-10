@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -180,12 +180,12 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.models.sequence_to_sequence</span> <span class="k">import</span> <span class="n">SequenceToSequence</span><span class="p">,</span> <span class="n">EmbeddingsSharingLevel</span>
-<span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="k">import</span> <span class="n">ParallelEncoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.encoders.self_attention_encoder</span> <span class="k">import</span> <span class="n">SelfAttentionEncoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="k">import</span> <span class="n">SelfAttentionDecoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="k">import</span> <span class="n">SinusoidalPositionEncoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">merge_dict</span>
+<span class="kn">from</span> <span class="nn">opennmt.models.sequence_to_sequence</span> <span class="kn">import</span> <span class="n">SequenceToSequence</span><span class="p">,</span> <span class="n">EmbeddingsSharingLevel</span>
+<span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="kn">import</span> <span class="n">ParallelEncoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.encoders.self_attention_encoder</span> <span class="kn">import</span> <span class="n">SelfAttentionEncoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="kn">import</span> <span class="n">SelfAttentionDecoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="kn">import</span> <span class="n">SinusoidalPositionEncoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">merge_dict</span>
 
 
 <div class="viewcode-block" id="Transformer"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer">[docs]</a><span class="k">class</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">):</span>
@@ -193,7 +193,7 @@
 <span class="sd">  https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Transformer.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Transformer.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">source_inputter</span><span class="p">,</span>
                <span class="n">target_inputter</span><span class="p">,</span>
                <span class="n">num_layers</span><span class="p">,</span>
@@ -206,7 +206,8 @@
                <span class="n">ffn_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
                <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">SinusoidalPositionEncoder</span><span class="p">,</span>
                <span class="n">share_embeddings</span><span class="o">=</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
-               <span class="n">share_encoders</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+               <span class="n">share_encoders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">maximum_relative_position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes a Transformer model.</span>
 
 <span class="sd">    Args:</span>
@@ -233,6 +234,8 @@
 <span class="sd">        :class:`opennmt.models.EmbeddingsSharingLevel` for possible values.</span>
 <span class="sd">      share_encoders: In case of multi source architecture, whether to share the</span>
 <span class="sd">        separate encoders parameters or not.</span>
+<span class="sd">      maximum_relative_position: Maximum relative position representation</span>
+<span class="sd">        (from https://arxiv.org/abs/1803.02155).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">encoders</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">SelfAttentionEncoder</span><span class="p">(</span>
@@ -244,7 +247,8 @@
             <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
             <span class="n">ffn_dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span>
             <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
-            <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">)</span>
+            <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
+            <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">)]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
       <span class="n">encoder</span> <span class="o">=</span> <span class="n">ParallelEncoder</span><span class="p">(</span>
@@ -263,7 +267,8 @@
         <span class="n">ffn_dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span>
         <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
         <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
-        <span class="n">num_sources</span><span class="o">=</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">)</span>
+        <span class="n">num_sources</span><span class="o">=</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">,</span>
+        <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_num_units</span> <span class="o">=</span> <span class="n">num_units</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">Transformer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>

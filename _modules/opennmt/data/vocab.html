@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -187,7 +187,7 @@
 <div class="viewcode-block" id="Vocab"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab">[docs]</a><span class="k">class</span> <span class="nc">Vocab</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Vocabulary class.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Vocab.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Vocab.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes a vocabulary.</span>
 
 <span class="sd">    Args:</span>
@@ -233,11 +233,11 @@
     <span class="sd">&quot;&quot;&quot;Returns the list of words.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span>
 
-<div class="viewcode-block" id="Vocab.__len__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__len__">[docs]</a>  <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Vocab.__len__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__len__">[docs]</a>  <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the number of entries of the vocabulary.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span></div>
 
-<div class="viewcode-block" id="Vocab.__contains__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__contains__">[docs]</a>  <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+<div class="viewcode-block" id="Vocab.__contains__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__contains__">[docs]</a>  <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns ``True`` if the vocabulary contains :obj:`token`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
@@ -416,35 +416,12 @@
   <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_vocab</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>  <span class="c1"># &lt;unk&gt; token is always the last entry.</span>
   <span class="k">return</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">final_vocab</span>
 
-<span class="k">def</span> <span class="nf">_mirror_distribution</span><span class="p">(</span><span class="n">from_variable</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
-  <span class="n">rank</span> <span class="o">=</span> <span class="n">from_variable</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span>
-  <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-    <span class="n">mean_per_emb</span><span class="p">,</span> <span class="n">variance_per_emb</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="n">from_variable</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">global_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">mean_per_emb</span><span class="p">)</span>
-    <span class="n">global_variance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">variance_per_emb</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="n">global_mean</span><span class="p">,</span> <span class="n">global_variance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="n">from_variable</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported variable rank </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
-      <span class="n">shape</span><span class="p">,</span>
-      <span class="n">mean</span><span class="o">=</span><span class="n">global_mean</span><span class="p">,</span>
-      <span class="n">stddev</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">global_variance</span><span class="p">),</span>
-      <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-
 <span class="k">def</span> <span class="nf">update_variable</span><span class="p">(</span><span class="n">ref_variable</span><span class="p">,</span> <span class="n">new_variable</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Update a vocabulary variable, possibly copying previous entries based on</span>
 <span class="sd">  mapping.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="c1"># Ensure that new_variable has a value distribution similar to ref_variable.</span>
-  <span class="c1"># This is required for new words to produce an output distribution that is</span>
-  <span class="c1"># &quot;compatible&quot; with the next trained layer.</span>
-  <span class="n">new_variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">_mirror_distribution</span><span class="p">(</span>
-      <span class="n">ref_variable</span><span class="p">,</span>
-      <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">new_variable</span><span class="p">),</span>
-      <span class="n">dtype</span><span class="o">=</span><span class="n">new_variable</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
   <span class="n">ref</span> <span class="o">=</span> <span class="n">ref_variable</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-  <span class="n">new</span> <span class="o">=</span> <span class="n">new_variable</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+  <span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">new_variable</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">new_variable</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">as_numpy_dtype</span><span class="p">())</span>
   <span class="n">perm</span> <span class="o">=</span> <span class="kc">None</span>
   <span class="k">if</span> <span class="n">vocab_axis</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
     <span class="c1"># Make the dimension to index the first.</span>

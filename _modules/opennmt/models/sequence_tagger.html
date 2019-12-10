@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -182,16 +182,16 @@
 <span class="kn">import</span> <span class="nn">tensorflow_addons</span> <span class="k">as</span> <span class="nn">tfa</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="k">import</span> <span class="n">inputters</span>
-<span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="k">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="k">import</span> <span class="n">print_bytes</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.losses</span> <span class="k">import</span> <span class="n">cross_entropy_sequence_loss</span>
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inputters</span>
+<span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">print_bytes</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils.losses</span> <span class="kn">import</span> <span class="n">cross_entropy_sequence_loss</span>
 
 
 <div class="viewcode-block" id="SequenceTagger"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger">[docs]</a><span class="k">class</span> <span class="nc">SequenceTagger</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A sequence tagger.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SequenceTagger.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">crf_decoding</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="SequenceTagger.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">crf_decoding</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes a sequence tagger.</span>
 
 <span class="sd">    Args:</span>
@@ -297,7 +297,7 @@
 <div class="viewcode-block" id="TagsInputter"><a class="viewcode-back" href="../../../package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter">[docs]</a><span class="k">class</span> <span class="nc">TagsInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">TextInputter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Reading space-separated tags.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">TagsInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TagsInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -313,7 +313,7 @@
 <span class="k">class</span> <span class="nc">F1</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Defines a F1 metric.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the metric.</span>
 
 <span class="sd">    Args:</span>

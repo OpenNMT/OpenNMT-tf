@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.MultiHeadAttention &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.layers.MultiHeadAttention &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -207,13 +207,13 @@
 <h1>opennmt.layers.MultiHeadAttention<a class="headerlink" href="#opennmt-layers-multiheadattention" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.layers.MultiHeadAttention">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">MultiHeadAttention</code><span class="sig-paren">(</span><em class="sig-param">num_heads</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">return_attention=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttention" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">MultiHeadAttention</code><span class="sig-paren">(</span><em class="sig-param">num_heads</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">return_attention=False</em>, <em class="sig-param">maximum_relative_position=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttention" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the multi-head attention as described in
 <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
 <p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <dl class="method">
 <dt id="opennmt.layers.MultiHeadAttention.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_heads</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">return_attention=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttention.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_heads</em>, <em class="sig-param">num_units</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">return_attention=False</em>, <em class="sig-param">maximum_relative_position=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttention.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes this layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -223,6 +223,8 @@
 <li><p><strong>dropout</strong> – The probability to drop units from the inputs.</p></li>
 <li><p><strong>return_attention</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also return the attention weights of the
 first head.</p></li>
+<li><p><strong>maximum_relative_position</strong> – Maximum relative position representation
+(from <a class="reference external" href="https://arxiv.org/abs/1803.02155">https://arxiv.org/abs/1803.02155</a>).</p></li>
 <li><p><strong>kwargs</strong> – Additional layer arguments.</p></li>
 </ul>
 </dd>
@@ -233,6 +235,23 @@ first head.</p></li>
 <dt id="opennmt.layers.MultiHeadAttention.map_v1_weights">
 <code class="sig-name descname">map_v1_weights</code><span class="sig-paren">(</span><em class="sig-param">weights</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention.map_v1_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttention.map_v1_weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="opennmt.layers.MultiHeadAttention.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param">input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttention.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttention.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
+<p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
+can override if they need a state-creation step in-between
+layer instantiation and layer call.</p>
+<p>This is typically used to create the weights of <cite>Layer</cite> subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – Instance of <cite>TensorShape</cite>, or list of instances of
+<cite>TensorShape</cite> if the layer expects a list of inputs
+(one instance per input).</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="opennmt.layers.MultiHeadAttention.call">

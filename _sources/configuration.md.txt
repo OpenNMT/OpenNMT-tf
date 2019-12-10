@@ -98,7 +98,8 @@ params:
     type: l2  # can be "l1", "l2", "l1_l2" (case-insensitive).
     scale: 1e-4  # if using "l1_l2" regularization, this should be a YAML list.
 
-  # (optional) Average loss in the time dimension in addition to the batch dimension (default: False).
+  # (optional) Average loss in the time dimension in addition to the batch dimension
+  # (default: true when using "tokens" batch type, false otherwise).
   average_loss_in_time: false
 
   # (optional) The type of learning rate decay (default: null). See:

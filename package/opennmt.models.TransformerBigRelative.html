@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.RandomSampler &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.models.TransformerBigRelative &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.utils.Sampler" href="opennmt.utils.Sampler.html" />
-    <link rel="prev" title="opennmt.utils.ROUGEScorer" href="opennmt.utils.ROUGEScorer.html" /> 
+    <link rel="next" title="opennmt.models.TransformerRelative" href="opennmt.models.TransformerRelative.html" />
+    <link rel="prev" title="opennmt.models.TransformerBig" href="opennmt.models.TransformerBig.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -121,15 +121,14 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.models.html#classes">Classes</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="opennmt.utils.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="opennmt.utils.html#functions">Functions</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
@@ -184,9 +183,9 @@
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-          <li><a href="opennmt.utils.html">opennmt.utils module</a> &raquo;</li>
+          <li><a href="opennmt.models.html">opennmt.models module</a> &raquo;</li>
         
-      <li>opennmt.utils.RandomSampler</li>
+      <li>opennmt.models.TransformerBigRelative</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -203,29 +202,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="opennmt-utils-randomsampler">
-<h1>opennmt.utils.RandomSampler<a class="headerlink" href="#opennmt-utils-randomsampler" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="opennmt-models-transformerbigrelative">
+<h1>opennmt.models.TransformerBigRelative<a class="headerlink" href="#opennmt-models-transformerbigrelative" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="opennmt.utils.RandomSampler">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">RandomSampler</code><span class="sig-paren">(</span><em class="sig-param">from_top_k=None</em>, <em class="sig-param">temperature=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#RandomSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.RandomSampler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Randomly samples from model outputs.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.utils.Sampler.html#opennmt.utils.Sampler" title="opennmt.utils.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.Sampler</span></code></a></p>
-<dl class="method">
-<dt id="opennmt.utils.RandomSampler.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">from_top_k=None</em>, <em class="sig-param">temperature=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#RandomSampler.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.RandomSampler.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the random sampler.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>from_top_k</strong> – Sample from the top K predictions instead of the full
-distribution.</p></li>
-<li><p><strong>temperature</strong> – Divide logits by this value. High temperatures generate more
-random samples.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
+<dt id="opennmt.models.TransformerBigRelative">
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">TransformerBigRelative</code><a class="reference internal" href="../_modules/opennmt/models/catalog.html#TransformerBigRelative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.TransformerBigRelative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a large Transformer model using relative position representations as
+described in <a class="reference external" href="https://arxiv.org/abs/1803.02155">https://arxiv.org/abs/1803.02155</a>.</p>
+<p>Inherits from: <a class="reference internal" href="opennmt.models.Transformer.html#opennmt.models.Transformer" title="opennmt.models.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Transformer</span></code></a></p>
 </dd></dl>
 
 </div>
@@ -238,10 +222,10 @@ random samples.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.utils.Sampler.html" class="btn btn-neutral float-right" title="opennmt.utils.Sampler" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.models.TransformerRelative.html" class="btn btn-neutral float-right" title="opennmt.models.TransformerRelative" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.utils.ROUGEScorer.html" class="btn btn-neutral float-left" title="opennmt.utils.ROUGEScorer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.models.TransformerBig.html" class="btn btn-neutral float-left" title="opennmt.models.TransformerBig" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

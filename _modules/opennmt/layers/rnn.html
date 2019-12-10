@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.rnn &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.layers.rnn &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -181,14 +181,14 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">common</span>
-<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="k">import</span> <span class="n">reducer</span> <span class="k">as</span> <span class="n">reducer_lib</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">common</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">reducer</span> <span class="k">as</span> <span class="n">reducer_lib</span>
 
 
 <div class="viewcode-block" id="RNNCellWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper">[docs]</a><span class="k">class</span> <span class="nc">RNNCellWrapper</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A wrapper for RNN cells.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RNNCellWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="RNNCellWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">cell</span><span class="p">,</span>
                <span class="n">input_dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                <span class="n">output_dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -278,7 +278,7 @@
 <span class="k">class</span> <span class="nc">_RNNWrapper</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Extend a RNN layer to possibly make it bidirectional and format its outputs.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer_lib</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer_lib</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
 
 <span class="sd">    Args:</span>
@@ -327,7 +327,7 @@
 <div class="viewcode-block" id="RNN"><a class="viewcode-back" href="../../../package/opennmt.layers.RNN.html#opennmt.layers.RNN">[docs]</a><span class="k">class</span> <span class="nc">RNN</span><span class="p">(</span><span class="n">_RNNWrapper</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A simple RNN layer.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RNN.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.RNN.html#opennmt.layers.RNN.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer_lib</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="RNN.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.RNN.html#opennmt.layers.RNN.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer_lib</span><span class="o">.</span><span class="n">ConcatReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
 
 <span class="sd">    Args:</span>
@@ -367,7 +367,7 @@
 <span class="sd">    next layer.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="LSTM.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="LSTM.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">num_layers</span><span class="p">,</span>
                <span class="n">num_units</span><span class="p">,</span>
                <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>

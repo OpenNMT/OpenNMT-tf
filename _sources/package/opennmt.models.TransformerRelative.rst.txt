@@ -1,0 +1,8 @@
+opennmt.models.TransformerRelative
+==================================
+
+.. autoclass:: opennmt.models.TransformerRelative
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.models.Transformer`

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -277,7 +277,8 @@
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">l2</span>  <span class="c1"># can be &quot;l1&quot;, &quot;l2&quot;, &quot;l1_l2&quot; (case-insensitive).</span>
     <span class="nt">scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-4</span>  <span class="c1"># if using &quot;l1_l2&quot; regularization, this should be a YAML list.</span>
 
-  <span class="c1"># (optional) Average loss in the time dimension in addition to the batch dimension (default: False).</span>
+  <span class="c1"># (optional) Average loss in the time dimension in addition to the batch dimension</span>
+  <span class="c1"># (default: true when using &quot;tokens&quot; batch type, false otherwise).</span>
   <span class="nt">average_loss_in_time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) The type of learning rate decay (default: null). See:</span>

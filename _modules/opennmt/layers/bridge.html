@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.bridge &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.layers.bridge &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -214,7 +214,7 @@
 <span class="k">class</span> <span class="nc">Bridge</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for bridges.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Bridge.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.Bridge.html#opennmt.layers.Bridge.__call__">[docs]</a>  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="Bridge.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.Bridge.html#opennmt.layers.Bridge.__call__">[docs]</a>  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
     <span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
 
 <span class="sd">    Args:</span>
@@ -254,7 +254,7 @@
 <span class="sd">  encoder state to the decoder state size.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="DenseBridge.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DenseBridge.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the bridge.</span>
 
 <span class="sd">    Args:</span>

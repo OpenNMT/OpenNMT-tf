@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.encoder &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.encoders.encoder &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -184,7 +184,7 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.layers.reducer</span> <span class="k">import</span> <span class="n">JoinReducer</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers.reducer</span> <span class="kn">import</span> <span class="n">JoinReducer</span>
 
 
 <div class="viewcode-block" id="Encoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
@@ -219,7 +219,7 @@
 <span class="sd">  See for example &quot;Cascaded Encoder&quot; in https://arxiv.org/abs/1804.09849.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SequentialEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoders</span><span class="p">,</span> <span class="n">states_reducer</span><span class="o">=</span><span class="n">JoinReducer</span><span class="p">(),</span> <span class="n">transition_layer_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SequentialEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoders</span><span class="p">,</span> <span class="n">states_reducer</span><span class="o">=</span><span class="n">JoinReducer</span><span class="p">(),</span> <span class="n">transition_layer_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the parameters of the encoder.</span>
 
 <span class="sd">    Args:</span>
@@ -280,7 +280,7 @@
 <span class="sd">  See for example &quot;Multi-Columnn Encoder&quot; in https://arxiv.org/abs/1804.09849.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ParallelEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="ParallelEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">encoders</span><span class="p">,</span>
                <span class="n">outputs_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">states_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.3.0 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.4.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3
+                2.4
               </div>
             
           
@@ -184,13 +184,13 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="k">import</span> <span class="n">misc</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 
 
 <span class="k">class</span> <span class="nc">Checkpoint</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Wrapper around TensorFlow checkpoints utilities.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the wrapper.</span>
 
 <span class="sd">    Args:</span>
@@ -228,8 +228,17 @@
     <span class="sd">&quot;&quot;&quot;The model directory.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_dir</span>
 
-  <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Saves a checkpoint for :obj:`step`.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Saves a checkpoint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      step: The step to save for. If ``None``, get the value from ``optimizer.iterations``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The path to the saved checkpoint.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="o">.</span><span class="n">iterations</span>
     <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint_manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">checkpoint_number</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">path</span>
@@ -344,6 +353,9 @@
   <span class="n">num_checkpoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">)</span>
   <span class="n">last_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
+  <span class="c1"># Get a map from variable names in the checkpoint to variables in the model.</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>
+
   <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Averaging </span><span class="si">%d</span><span class="s2"> checkpoints...&quot;</span><span class="p">,</span> <span class="n">num_checkpoints</span><span class="p">)</span>
   <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">checkpoint_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">)):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading checkpoint </span><span class="si">%s</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">)</span>
@@ -356,8 +368,7 @@
       <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">get_variable_to_shape_map</span><span class="p">()):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">model_key</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.OPTIMIZER_SLOT&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
           <span class="k">continue</span>
-        <span class="n">variable_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/.ATTRIBUTES/VARIABLE_VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">variable</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">index_structure</span><span class="p">(</span><span class="n">trackables</span><span class="p">,</span> <span class="n">variable_path</span><span class="p">)</span>
+        <span class="n">variable</span> <span class="o">=</span> <span class="n">names_to_variables</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">variable</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">num_checkpoints</span><span class="p">)</span>
 
