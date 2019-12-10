@@ -50,8 +50,17 @@ class Checkpoint(object):
     """The model directory."""
     return self._model_dir
 
-  def save(self, step):
-    """Saves a checkpoint for :obj:`step`."""
+  def save(self, step=None):
+    """Saves a checkpoint.
+
+    Args:
+      step: The step to save for. If ``None``, get the value from ``optimizer.iterations``.
+
+    Returns:
+      The path to the saved checkpoint.
+    """
+    if step is None:
+      step = self._optimizer.iterations
     path = self._checkpoint_manager.save(checkpoint_number=step)
     tf.get_logger().info("Saved checkpoint %s", path)
     return path

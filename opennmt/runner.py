@@ -64,7 +64,7 @@ class Runner(object):
     """
     self._model = model
     self._optimizer = None
-    self._config = config
+    self._config = copy.deepcopy(config)
     self._auto_config = auto_config
     self._mixed_precision = mixed_precision
     if mixed_precision:
@@ -73,6 +73,16 @@ class Runner(object):
       np.random.seed(seed)
       random.seed(seed)
       tf.random.set_seed(seed)
+
+  @property
+  def model(self):
+    """The :class:`opennmt.models.Model` executed by this runner."""
+    return self._model
+
+  @property
+  def model_dir(self):
+    """The active model directory."""
+    return self._config["model_dir"]
 
   def _finalize_config(self, training=False, num_devices=1):
     # Configuration priority: user config > auto config > default config.
@@ -241,11 +251,13 @@ class Runner(object):
     optimizer = checkpoint.optimizer
     model.create_variables(optimizer=optimizer)
     trackables = dict(model=model, optimizer=optimizer)
-    return checkpoint_util.average_checkpoints(
+    output_dir = checkpoint_util.average_checkpoints(
         checkpoint.model_dir,
         output_dir,
         trackables,
         max_count=max_count)
+    self._config["model_dir"] = output_dir
+    return output_dir
 
   def update_vocab(self, output_dir, src_vocab=None, tgt_vocab=None):
     """Updates model vocabularies.
@@ -269,18 +281,19 @@ class Runner(object):
     model, optimizer = cur_checkpoint.model, cur_checkpoint.optimizer
     model.create_variables(optimizer=optimizer)
 
-    new_config = copy.deepcopy(config)
-    new_config["model_dir"] = output_dir
+    self._config["model_dir"] = output_dir
     if src_vocab is not None:
-      new_config["data"]["source_vocabulary"] = src_vocab
+      self._config["data"]["source_vocabulary"] = src_vocab
     if tgt_vocab is not None:
-      new_config["data"]["target_vocabulary"] = tgt_vocab
+      self._config["data"]["target_vocabulary"] = tgt_vocab
+    new_config = self._finalize_config()
     new_checkpoint = self._init_model(new_config)
     new_model, new_optimizer = new_checkpoint.model, new_checkpoint.optimizer
     new_model.create_variables(optimizer=new_optimizer)
 
     model.transfer_weights(new_model, new_optimizer=new_optimizer, optimizer=optimizer)
-    new_checkpoint.save(optimizer.iterations)
+    new_optimizer.iterations.assign(optimizer.iterations)
+    new_checkpoint.save()
     return output_dir
 
   def infer(self,
