@@ -13,7 +13,16 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Transformer models with relative position representation: `TransformerRelative` and `TransformerBigRelative`
+
 ### Fixes and improvements
+
+* Fix invalid iteration count in checkpoint after a vocabulary update
+* Fix possible NaN loss when retraining after a vocabulary update
+* Fix checkpoint averaging for models with custom variable names
+* Update `opennmt.convert_to_v2_config` to not fail on a V2 configuration
+* Change default value of `average_loss_in_time` based on `batch_type`
+* Reuse the same Python interpreter when running batch size auto-tuning
 
 ## [2.3.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.3.0) (2019-11-25)
 
