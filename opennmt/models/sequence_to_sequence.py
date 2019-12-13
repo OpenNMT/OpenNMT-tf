@@ -15,7 +15,7 @@ from opennmt.layers import reducer
 from opennmt.models import model
 from opennmt.utils import decoding
 from opennmt.utils import losses
-from opennmt.utils.misc import print_bytes, format_translation_output, merge_dict, shape_list
+from opennmt.utils import misc
 from opennmt.decoders import decoder as decoder_util
 
 
@@ -98,7 +98,7 @@ class SequenceToSequence(model.SequenceGenerator):
 
   def auto_config(self, num_replicas=1):
     config = super(SequenceToSequence, self).auto_config(num_replicas=num_replicas)
-    return merge_dict(config, {
+    return misc.merge_dict(config, {
         "params": {
             "beam_width": 4
         },
@@ -259,7 +259,7 @@ class SequenceToSequence(model.SequenceGenerator):
       # Merge batch and beam dimensions.
       original_shape = tf.shape(target_tokens)
       target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
-      align_shape = shape_list(alignment)
+      align_shape = misc.shape_list(alignment)
       attention = tf.reshape(
           alignment, [align_shape[0] * align_shape[1], align_shape[2], align_shape[3]])
       # We don't have attention for </s> but ensure that the attention time dimension matches
@@ -360,12 +360,12 @@ class SequenceToSequence(model.SequenceGenerator):
         score = prediction["log_probs"][i]
       if alignment_type:
         attention = prediction["alignment"][i][:target_length]
-      sentence = format_translation_output(
+      sentence = misc.format_translation_output(
           sentence,
           score=score,
           attention=attention,
           alignment_type=alignment_type)
-      print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+      misc.print_as_bytes(sentence, stream=stream)
 
   def transfer_weights(self, new_model, new_optimizer=None, optimizer=None, ignore_weights=None):
     updated_variables = []
