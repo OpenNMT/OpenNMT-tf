@@ -2,14 +2,12 @@
 
 import abc
 import itertools
-import six
 
 import tensorflow as tf
 
 from opennmt.layers.reducer import JoinReducer
 
 
-@six.add_metaclass(abc.ABCMeta)
 class Encoder(tf.keras.layers.Layer):
   """Base class for encoders."""
 

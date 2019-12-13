@@ -1,11 +1,8 @@
 """Base class for models."""
 
-from __future__ import print_function
-
 import abc
 import os
 import tempfile
-import six
 
 import tensorflow as tf
 
@@ -15,7 +12,6 @@ from opennmt.utils import losses
 from opennmt.utils import misc
 
 
-@six.add_metaclass(abc.ABCMeta)
 class Model(tf.keras.layers.Layer):
   """Base class for models."""
 
@@ -239,7 +235,7 @@ class Model(tf.keras.layers.Layer):
     # Set name attribute of the input TensorSpec.
     input_signature = {
         name:tf.TensorSpec.from_spec(spec, name=name)
-        for name, spec in six.iteritems(self.features_inputter.input_signature())}
+        for name, spec in self.features_inputter.input_signature().items()}
 
     @tf.function(input_signature=(input_signature,))
     def _run(features):
@@ -261,7 +257,7 @@ class Model(tf.keras.layers.Layer):
       if extra_assets:
         assets_extra = os.path.join(export_dir, "assets.extra")
         tf.io.gfile.makedirs(assets_extra)
-        for filename, path in six.iteritems(extra_assets):
+        for filename, path in extra_assets.items():
           tf.io.gfile.copy(path, os.path.join(assets_extra, filename), overwrite=True)
         tf.get_logger().info("Extra assets written to: %s", assets_extra)
 
@@ -383,7 +379,6 @@ class Model(tf.keras.layers.Layer):
     print(score, file=stream)
 
 
-@six.add_metaclass(abc.ABCMeta)
 class SequenceGenerator(Model):
   """Base class for models generating sequences."""
 
@@ -430,4 +425,4 @@ class SequenceGenerator(Model):
         token_level_scores=token_level_scores,
         attention=attention,
         alignment_type=alignment_type)
-    misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+    misc.print_as_bytes(sentence, stream=stream)

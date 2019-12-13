@@ -2,7 +2,6 @@
 
 import collections
 import os
-import six
 
 import tensorflow as tf
 
@@ -90,7 +89,7 @@ class Evaluator(object):
       self._metrics_name.update(scorer.scores_name)
     model_metrics = self._model.get_metrics()
     if model_metrics:
-      self._metrics_name.update(set(six.iterkeys(model_metrics)))
+      self._metrics_name.update(set(model_metrics.keys()))
 
     if early_stopping is not None:
       if early_stopping.metric not in self._metrics_name:
@@ -242,7 +241,7 @@ class Evaluator(object):
       if metrics:
         self._model.update_metrics(metrics, predictions, target)
       if output_file is not None:
-        predictions = {k:v.numpy() for k, v in six.iteritems(predictions)}
+        predictions = {k:v.numpy() for k, v in predictions.items()}
         for prediction in misc.extract_batches(predictions):
           self._model.print_prediction(prediction, stream=output_file)
     if loss_den == 0:
@@ -251,7 +250,7 @@ class Evaluator(object):
 
     results = dict(loss=loss, perplexity=tf.math.exp(loss))
     if metrics:
-      for name, metric in six.iteritems(metrics):
+      for name, metric in metrics.items():
         results[name] = metric.result()
     if self._save_predictions:
       tf.get_logger().info("Evaluation predictions saved to %s", output_path)
@@ -266,7 +265,7 @@ class Evaluator(object):
     return self._record_results(step, results)
 
   def _record_results(self, step, results):
-    for name, value in six.iteritems(results):
+    for name, value in results.items():
       if isinstance(value, tf.Tensor):
         results[name] = value.numpy()
     # Clear history for steps that are greater than step.
@@ -276,9 +275,9 @@ class Evaluator(object):
     tf.get_logger().info(
         "Evaluation result for step %d: %s",
         step,
-        " ; ".join("%s = %f" % (k, v) for k, v in six.iteritems(results)))
+        " ; ".join("%s = %f" % (k, v) for k, v in results.items()))
     with self._summary_writer.as_default():
-      for key, value in six.iteritems(results):
+      for key, value in results.items():
         tf.summary.scalar("%s/%s" % (_SUMMARIES_SCOPE, key), value, step=step)
       self._summary_writer.flush()
     return results

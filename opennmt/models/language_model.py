@@ -131,7 +131,7 @@ class LanguageModel(model.SequenceGenerator):
     tokens = prediction["tokens"][:target_length]
     sentence = self.examples_inputter.tokenizer.detokenize(tokens)
     sentence = misc.format_translation_output(sentence)
-    misc.print_bytes(tf.compat.as_bytes(sentence), stream=stream)
+    misc.print_as_bytes(sentence, stream=stream)
 
 
 class LanguageModelInputter(inputters.WordEmbedder):

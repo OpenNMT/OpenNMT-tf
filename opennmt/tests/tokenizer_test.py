@@ -24,7 +24,6 @@ class TokenizerTest(tf.test.TestCase):
     self.assertAllEqual(tokens.to_list(), tf.nest.map_structure(tf.compat.as_bytes, ref_tokens))
 
   def _testTokenizerOnString(self, tokenizer, text, ref_tokens):
-    ref_tokens = [tf.compat.as_text(token) for token in ref_tokens]
     tokens = tokenizer.tokenize(text)
     self.assertAllEqual(ref_tokens, tokens)
 
@@ -59,8 +58,6 @@ class TokenizerTest(tf.test.TestCase):
     self.assertAllEqual(self.evaluate(text), tf.nest.map_structure(tf.compat.as_bytes, ref_text))
 
   def _testDetokenizerOnString(self, tokenizer, tokens, ref_text):
-    tokens = [tf.compat.as_text(token) for token in tokens]
-    ref_text = tf.compat.as_text(ref_text)
     text = tokenizer.detokenize(tokens)
     self.assertAllEqual(ref_text, text)
 
@@ -115,8 +112,8 @@ class TokenizerTest(tf.test.TestCase):
     asset_dir = self.get_temp_dir()
     # Write a dummy BPE model.
     bpe_model_path = os.path.join(asset_dir, "model.bpe")
-    with open(bpe_model_path, "wb") as bpe_model_file:
-      bpe_model_file.write(b"#version: 0.2\ne s</w>\n")
+    with open(bpe_model_path, "w") as bpe_model_file:
+      bpe_model_file.write("#version: 0.2\ne s</w>\n")
 
     tokenizer = tokenizers.OpenNMTTokenizer(mode="conservative", bpe_model_path=bpe_model_path)
 

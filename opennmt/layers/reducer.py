@@ -1,7 +1,6 @@
 """Define reducers: objects that merge inputs."""
 
 import abc
-import six
 
 import tensorflow as tf
 
@@ -73,8 +72,7 @@ def pad_n_with_identity(inputs, sequence_lengths, identity_values=0):
   return padded, max_sequence_length
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Reducer(object):
+class Reducer(abc.ABC):
   """Base class for reducers."""
 
   def zip_and_reduce(self, x, y):

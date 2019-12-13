@@ -3,7 +3,6 @@
 import os
 import gzip
 import io
-import six
 import yaml
 
 import tensorflow as tf
@@ -32,9 +31,9 @@ class InputterTest(tf.test.TestCase):
 
     def _create_vocab(vocab_filename, vocab_size=10):
       vocab_file = os.path.join(self.get_temp_dir(), vocab_filename)
-      with open(vocab_file, mode="wb") as vocab:
+      with open(vocab_file, mode="w") as vocab:
         for i in range(vocab_size):
-          vocab.write(tf.compat.as_bytes("%d\n" % i))
+          vocab.write("%d\n" % i)
       return vocab_file
 
     def _visualize(embedding, vocab_file, num_oov_buckets=1):
@@ -80,7 +79,7 @@ class InputterTest(tf.test.TestCase):
       path = "%s.gz" % path
     with (gzip if compress else io).open(path, mode="wt", encoding="utf-8") as f:
       for line in lines:
-        f.write(u"%s\n" % tf.compat.as_text(line))
+        f.write("%s\n" % line)
     return path
 
   def _makeEmbeddingsFile(self, vectors, name="embedding", header=False):
@@ -145,7 +144,7 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual(self.evaluate(length), expected_length)
 
   def _checkFeatures(self, features, expected_shapes):
-    for name, expected_shape in six.iteritems(expected_shapes):
+    for name, expected_shape in expected_shapes.items():
       self.assertIn(name, features)
       self.assertTrue(features[name].shape.is_compatible_with(expected_shape))
 

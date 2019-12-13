@@ -2,14 +2,12 @@
 
 import math
 import abc
-import six
 
 import tensorflow as tf
 
 from opennmt.layers.reducer import SumReducer
 
 
-@six.add_metaclass(abc.ABCMeta)
 class PositionEncoder(tf.keras.layers.Layer):
   """Base class for position encoders."""
 

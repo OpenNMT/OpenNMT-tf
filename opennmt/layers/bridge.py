@@ -1,7 +1,6 @@
 """Define bridges: logic of passing the encoder state to the decoder."""
 
 import abc
-import six
 
 import tensorflow as tf
 
@@ -32,7 +31,6 @@ def assert_state_is_compatible(expected_state, state):
                          "with the target shape %s" % (y.shape, x.shape))
 
 
-@six.add_metaclass(abc.ABCMeta)
 class Bridge(tf.keras.layers.Layer):
   """Base class for bridges."""
 

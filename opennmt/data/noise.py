@@ -3,7 +3,6 @@
 """Noise modules."""
 
 import abc
-import six
 
 import tensorflow as tf
 
@@ -99,8 +98,7 @@ class WordNoiser(object):
       return tokens, sequence_length
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Noise(object):
+class Noise(abc.ABC):
   """Base class for noise modules."""
 
   def __call__(self, words):

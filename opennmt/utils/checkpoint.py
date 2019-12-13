@@ -2,7 +2,6 @@
 
 import copy
 import os
-import six
 
 import tensorflow as tf
 
@@ -130,7 +129,7 @@ def get_checkpoint_variables(checkpoint_path):
   reader = tf.train.load_checkpoint(checkpoint_path)
   return {
       name:reader.get_tensor(name)
-      for name in six.iterkeys(reader.get_variable_to_shape_map())}
+      for name in reader.get_variable_to_shape_map().keys()}
 
 def average_checkpoints(model_dir,
                         output_dir,
@@ -187,7 +186,7 @@ def average_checkpoints(model_dir,
         variable.assign(variable / num_checkpoints)
     else:
       reader = tf.train.load_checkpoint(checkpoint_path)
-      for path in six.iterkeys(reader.get_variable_to_shape_map()):
+      for path in reader.get_variable_to_shape_map().keys():
         if not path.startswith(model_key) or ".OPTIMIZER_SLOT" in path:
           continue
         variable = names_to_variables[path]
@@ -231,7 +230,7 @@ def _restore_v1_checkpoint(checkpoint_path, model, optimizer=None):
       v1_slots = None
     v2_variable.assign(v1_variable)
     if v1_slots is not None:
-      for slot_name, value in six.iteritems(v1_slots):
+      for slot_name, value in v1_slots.items():
         v2_slot = optimizer.get_slot(v2_variable, slot_name)
         v2_slot.assign(value)
   return step
@@ -239,7 +238,7 @@ def _restore_v1_checkpoint(checkpoint_path, model, optimizer=None):
 def _variables_to_structure(variables):
   """Represents variables a nested dictionary with scope names as keys."""
   structure = {}
-  for name, value in six.iteritems(variables):
+  for name, value in variables.items():
     fields = name.split("/")
     cur = structure
     for i, key in enumerate(fields):
@@ -257,7 +256,7 @@ def _merge_optimizer_slots(variables, slots):
   """
   if isinstance(variables, dict):
     merged = {}
-    for key, value in six.iteritems(variables):
+    for key, value in variables.items():
       if key not in slots:
         merged[key] = copy.deepcopy(value)
       else:
@@ -265,7 +264,7 @@ def _merge_optimizer_slots(variables, slots):
     return merged
   else:
     new_slots = {}
-    for name, value in six.iteritems(slots):
+    for name, value in slots.items():
       name = _V1_SLOTS_MAPPING.get(name)
       if name is None:
         # Just ignore the optimizer slots if their name is not listed.

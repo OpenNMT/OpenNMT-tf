@@ -4,10 +4,7 @@ The scripts takes the ARK data file and optionally the indexed target text
 to write aligned source and target data.
 """
 
-from __future__ import print_function
-
 import argparse
-import io
 import numpy as np
 import tensorflow as tf
 
@@ -72,7 +69,7 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix, compression_
   if compression_type == "GZIP":
     record_filename = "%s.gz" % record_filename
   record_writer = tf.io.TFRecordWriter(record_filename, options=compression_type)
-  text_writer = io.open(out_prefix + ".txt", encoding="utf-8", mode="w")
+  text_writer = open(out_prefix + ".txt", encoding="utf-8", mode="w")
 
   ark_buffer = {}
   text_buffer = {}
@@ -95,7 +92,7 @@ def ark_to_records_aligned(ark_filename, text_filename, out_prefix, compression_
 
     return None, None
 
-  with io.open(ark_filename, encoding="utf-8") as ark_file, open(text_filename, encoding="utf-8") as text_file: #pylint: disable=line-too-long
+  with open(ark_filename, encoding="utf-8") as ark_file, open(text_filename, encoding="utf-8") as text_file: #pylint: disable=line-too-long
     while True:
       ark_idx, vector = consume_next_vector(ark_file)
       text_idx, text = consume_next_text(text_file)
@@ -140,7 +137,7 @@ def ark_to_records(ark_filename, out_prefix, compression_type=None):
   record_writer = tf.io.TFRecordWriter(out_prefix + ".records", options=compression_type)
   count = 0
 
-  with io.open(ark_filename, encoding="utf-8") as ark_file:
+  with open(ark_filename, encoding="utf-8") as ark_file:
     while True:
       ark_idx, vector = consume_next_vector(ark_file)
       if not ark_idx:

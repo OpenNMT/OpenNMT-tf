@@ -3,7 +3,6 @@
 import abc
 import collections
 import os
-import six
 
 import numpy as np
 import tensorflow as tf
@@ -222,7 +221,6 @@ def _create_ids_to_tokens_table(ids, tokens):
   return tf.lookup.StaticHashTable(initializer, constants.UNKNOWN_TOKEN)
 
 
-@six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
@@ -297,7 +295,7 @@ class TextInputter(Inputter):
         # Call make_features again to fill the remaining noisy features.
         noisy_features = dict(tokens=noisy_tokens, length=noisy_length)
         noisy_features = self.make_features(features=noisy_features, training=training)
-        for key, value in six.iteritems(noisy_features):
+        for key, value in noisy_features.items():
           features["noisy_%s" % key] = value
     features["length"] = length
     features["tokens"] = tokens
@@ -432,7 +430,6 @@ class WordEmbedder(TextInputter):
     return [(self.embedding, weights["w_embs"])]
 
 
-@six.add_metaclass(abc.ABCMeta)
 class CharEmbedder(TextInputter):
   """Base class for character-aware inputters."""
 

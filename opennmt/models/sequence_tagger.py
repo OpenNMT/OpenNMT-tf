@@ -6,7 +6,7 @@ import numpy as np
 
 from opennmt import inputters
 from opennmt.models.model import Model
-from opennmt.utils.misc import print_bytes
+from opennmt.utils import misc
 from opennmt.utils.losses import cross_entropy_sequence_loss
 
 
@@ -113,7 +113,7 @@ class SequenceTagger(Model):
   def print_prediction(self, prediction, params=None, stream=None):
     tags = prediction["tags"][:prediction["length"]]
     sent = b" ".join(tags)
-    print_bytes(sent, stream=stream)
+    misc.print_as_bytes(sent, stream=stream)
 
 
 class TagsInputter(inputters.TextInputter):

@@ -4,15 +4,13 @@
 
 import sys
 import abc
-import six
 
 import tensorflow as tf
 
-from opennmt.utils.misc import print_bytes
+from opennmt.utils import misc
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Tokenizer(object):
+class Tokenizer(abc.ABC):
   """Base class for tokenizers."""
 
   @property
@@ -44,7 +42,7 @@ class Tokenizer(object):
       line = line.strip()
       tokens = self.tokenize(line)
       merged_tokens = delimiter.join(tokens)
-      print_bytes(tf.compat.as_bytes(merged_tokens), stream=output_stream)
+      misc.print_as_bytes(merged_tokens, stream=output_stream)
 
   def detokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
     """Detokenizes a stream of sentences.
@@ -57,7 +55,7 @@ class Tokenizer(object):
     for line in input_stream:
       tokens = line.strip().split(delimiter)
       string = self.detokenize(tokens)
-      print_bytes(tf.compat.as_bytes(string), stream=output_stream)
+      misc.print_as_bytes(string, stream=output_stream)
 
   def tokenize(self, text):
     """Tokenizes text.

@@ -1,7 +1,5 @@
 """Vocabulary utilities for Python scripts."""
 
-import six
-
 import tensorflow as tf
 import numpy as np
 
@@ -121,8 +119,7 @@ class Vocab(object):
     Args:
       token: The string to add.
     """
-    if isinstance(token, six.binary_type):
-      token = tf.compat.as_text(token)
+    token = tf.compat.as_text(token)
     if token not in self._token_to_id:
       index = self.size
       self._token_to_id[token] = index
@@ -143,11 +140,9 @@ class Vocab(object):
     """
     value = None
 
-    if isinstance(identifier, six.string_types):
-      if isinstance(identifier, six.binary_type):
-        identifier = tf.compat.as_text(identifier)
-      if identifier in self._token_to_id:
-        value = self._token_to_id[identifier]
+    if isinstance(identifier, (bytes, str)):
+      identifier = tf.compat.as_text(identifier)
+      value = self._token_to_id.get(identifier)
     elif identifier < self.size:
       value = self._id_to_token[identifier]
 
