@@ -1,5 +1,4 @@
 import os
-import sys
 
 import tensorflow as tf
 
@@ -18,14 +17,10 @@ class ScorersTest(tf.test.TestCase):
     return ref_path, hyp_path
 
   def testBLEUScorer(self):
-    if sys.version_info >= (3, 0):
-      bleu_scorer = scorers.BLEUScorer()
-      ref_path, hyp_path = self._make_perfect_hypothesis_file()
-      score = bleu_scorer(ref_path, hyp_path)
-      self.assertEqual(100, int(score))
-    else:
-      with self.assertRaises(ImportError):
-        bleu_scorer = scorers.BLEUScorer()
+    bleu_scorer = scorers.BLEUScorer()
+    ref_path, hyp_path = self._make_perfect_hypothesis_file()
+    score = bleu_scorer(ref_path, hyp_path)
+    self.assertEqual(100, int(score))
 
   def testROUGEScorer(self):
     rouge_scorer = scorers.ROUGEScorer()

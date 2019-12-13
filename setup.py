@@ -35,7 +35,7 @@ setup(
         "pyonmttok>=1.17.0,<2;platform_system=='Linux'",
         "pyyaml==5.1.*",
         "rouge==0.3.1",
-        "sacrebleu>=1.4.1,<2;python_version>='3.0'",
+        "sacrebleu>=1.4.1,<2",
         "tensorflow-addons>=0.6,<0.7"
     ],
     extras_require={
