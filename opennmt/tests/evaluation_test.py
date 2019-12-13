@@ -1,6 +1,5 @@
 import math
 import os
-import six
 
 import tensorflow as tf
 
@@ -54,7 +53,7 @@ class EvaluationTest(tf.test.TestCase):
 
   def _assertMetricsEqual(self, metrics, expected):
     self.assertLen(metrics, len(expected))
-    for name in six.iterkeys(expected):
+    for name in expected.keys():
       self.assertIn(name, metrics)
       self.assertAllClose(metrics[name], expected[name])
 

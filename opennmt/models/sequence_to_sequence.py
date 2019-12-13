@@ -2,8 +2,6 @@
 
 """Standard sequence-to-sequence model."""
 
-import six
-
 import tensorflow as tf
 import tensorflow_addons as tfa
 
@@ -298,7 +296,7 @@ class SequenceToSequence(model.SequenceGenerator):
     if num_hypotheses > 0:
       if num_hypotheses > beam_size:
         raise ValueError("n_best cannot be greater than beam_width")
-      for key, value in six.iteritems(predictions):
+      for key, value in predictions.items():
         predictions[key] = value[:, :num_hypotheses]
     return predictions
 
@@ -492,7 +490,7 @@ def _add_noise(tokens, lengths, params, subword_token, is_spacer=None):
     raise ValueError("Expected a list of noise modules")
   noises = []
   for module in params:
-    noise_type, args = six.next(six.iteritems(module))
+    noise_type, args = next(iter(module.items()))
     if not isinstance(args, list):
       args = [args]
     noise_type = noise_type.lower()

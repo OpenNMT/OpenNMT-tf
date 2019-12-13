@@ -1,13 +1,11 @@
 """Hypotheses file scoring."""
 
 import abc
-import six
 
 import tensorflow as tf
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Scorer(object):
+class Scorer(abc.ABC):
   """Scores hypotheses against references."""
 
   def __init__(self, name):

@@ -1,7 +1,6 @@
 """Main library entrypoint."""
 
 import copy
-import io
 import os
 import sys
 import random
@@ -9,7 +8,6 @@ import math
 import subprocess
 import time
 import tempfile
-import six
 import yaml
 
 import numpy as np
@@ -322,7 +320,7 @@ class Runner(object):
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
 
     if predictions_file:
-      stream = io.open(predictions_file, encoding="utf-8", mode="w")
+      stream = open(predictions_file, mode="w")
     else:
       stream = sys.stdout
 
@@ -342,7 +340,7 @@ class Runner(object):
       end_time = time.time()
       if log_time:
         total_time += end_time - start_time
-        batch_size = next(six.itervalues(predictions)).shape[0]
+        batch_size = next(iter(predictions.values())).shape[0]
         total_examples += batch_size
         length = predictions.get("length")
         if length is not None:
@@ -401,7 +399,7 @@ class Runner(object):
         prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
 
     if output_file:
-      stream = io.open(output_file, encoding="utf-8", mode="w")
+      stream = open(output_file, mode="w")
     else:
       stream = sys.stdout
 
@@ -482,7 +480,7 @@ def _auto_tune_batch_size(config,
       # Update configuration with current batch size and adjusted gradients
       # accumulation.
       config["train"]["batch_size"] = batch_size
-      with tf.io.gfile.GFile(config_path, mode="wb") as config_file:
+      with tf.io.gfile.GFile(config_path, mode="w") as config_file:
         yaml.dump(config, config_file)
 
       tf.get_logger().info("Trying training with batch size %d...", batch_size)

@@ -1,7 +1,6 @@
 """Define generic inputters."""
 
 import abc
-import six
 
 import tensorflow as tf
 
@@ -11,7 +10,6 @@ from opennmt.layers.reducer import ConcatReducer, JoinReducer
 from opennmt.utils import misc
 
 
-@six.add_metaclass(abc.ABCMeta)
 class Inputter(tf.keras.layers.Layer):
   """Base class for inputters."""
 
@@ -169,7 +167,6 @@ class Inputter(tf.keras.layers.Layer):
     return
 
 
-@six.add_metaclass(abc.ABCMeta)
 class MultiInputter(Inputter):
   """An inputter that gathers multiple inputters, possibly nested."""
 
@@ -275,7 +272,7 @@ class ParallelInputter(MultiInputter):
     if self.combine_features:
       signature = {}
       for i, inputter in enumerate(self.inputters):
-        for key, value in six.iteritems(inputter.input_signature()):
+        for key, value in inputter.input_signature().items():
           signature["{}_{}".format(key, i)] = value
       return signature
     else:
@@ -309,7 +306,7 @@ class ParallelInputter(MultiInputter):
             element=element[i] if element is not None else None,
             features=sub_features,
             training=training)
-        for key, value in six.iteritems(sub_features):
+        for key, value in sub_features.items():
           features["%s%s" % (prefix, key)] = value
       return features
     else:
@@ -331,7 +328,7 @@ class ParallelInputter(MultiInputter):
       leaves = self.get_leaf_inputters()
       first, others = leaves[0], leaves[1:]
       first.build(input_shape)
-      for name, attr in six.iteritems(first.__dict__):
+      for name, attr in first.__dict__.items():
         if (isinstance(attr, tf.Variable)
             or (isinstance(attr, tf.keras.layers.Layer) and attr.variables)):
           for inputter in others:

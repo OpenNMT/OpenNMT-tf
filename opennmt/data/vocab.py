@@ -1,7 +1,5 @@
 """Vocabulary utilities for Python scripts."""
 
-import six
-
 import tensorflow as tf
 import numpy as np
 
@@ -70,9 +68,9 @@ class Vocab(object):
       filename: The file to load from.
       tokenizer: A callable to tokenize a line of text.
     """
-    with tf.io.gfile.GFile(filename, mode="rb") as text:
+    with tf.io.gfile.GFile(filename, mode="r") as text:
       for line in text:
-        line = tf.compat.as_text(line.strip())
+        line = line.strip()
         if tokenizer:
           tokens = tokenizer.tokenize(line)
         else:
@@ -86,10 +84,10 @@ class Vocab(object):
     Args:
       path: The path where the vocabulary will be saved.
     """
-    with tf.io.gfile.GFile(path, mode="wb") as vocab:
+    with tf.io.gfile.GFile(path, mode="w") as vocab:
       for token in self._id_to_token:
-        vocab.write(tf.compat.as_bytes(token))
-        vocab.write(b"\n")
+        vocab.write(token)
+        vocab.write("\n")
 
   def load(self, path, file_format="default"):
     """Loads a serialized vocabulary.
@@ -102,14 +100,14 @@ class Vocab(object):
     Raises:
       ValueError: if :obj:`file_format` is invalid.
     """
-    with tf.io.gfile.GFile(path, mode="rb") as vocab:
+    with tf.io.gfile.GFile(path, mode="r") as vocab:
       for line in vocab:
-        token = line.rstrip(b"\r\n")
+        token = line.rstrip("\r\n")
         if file_format == "default":
           self.add(token)
         elif file_format == "sentencepiece":
-          token, _ = token.split(b"\t")
-          if token in (b"<unk>", b"<s>", b"</s>"):  # Ignore SentencePiece special tokens.
+          token, _ = token.split("\t")
+          if token in ("<unk>", "<s>", "</s>"):  # Ignore SentencePiece special tokens.
             continue
           self.add(token)
         else:
@@ -121,8 +119,6 @@ class Vocab(object):
     Args:
       token: The string to add.
     """
-    if isinstance(token, six.binary_type):
-      token = tf.compat.as_text(token)
     if token not in self._token_to_id:
       index = self.size
       self._token_to_id[token] = index
@@ -143,11 +139,8 @@ class Vocab(object):
     """
     value = None
 
-    if isinstance(identifier, six.string_types):
-      if isinstance(identifier, six.binary_type):
-        identifier = tf.compat.as_text(identifier)
-      if identifier in self._token_to_id:
-        value = self._token_to_id[identifier]
+    if isinstance(identifier, str):
+      value = self._token_to_id.get(identifier)
     elif identifier < self.size:
       value = self._id_to_token[identifier]
 

@@ -1,7 +1,5 @@
 """Script that merges configurations for debug or simplification."""
 
-from __future__ import print_function
-
 import argparse
 import yaml
 

@@ -2,14 +2,12 @@
 
 import collections
 import copy
+import copyreg
 import sys
 import inspect
 import heapq
 import os
 import threading
-import six
-
-from six.moves import copyreg
 
 import numpy as np
 import tensorflow as tf
@@ -71,18 +69,19 @@ def get_variable_name(variable, root, model_key="model"):
   variable = getattr(variable, "primary", variable)
   return variables_to_names.get(variable.experimental_ref())
 
-def print_bytes(str_as_bytes, stream=None):
-  """Prints a string viewed as bytes.
+def print_as_bytes(text, stream=None):
+  """Prints a string as bytes to non rely on :obj:`stream` default encoding.
 
   Args:
-    str_as_bytes: The bytes to print.
+    text: The text to print.
     stream: The stream to print to (``sys.stdout`` if not set).
   """
   if stream is None:
     stream = sys.stdout
-  write_buffer = stream.buffer if hasattr(stream, "buffer") else stream
-  write_buffer.write(str_as_bytes)
-  write_buffer.write(b"\n")
+  if not isinstance(text, bytes):
+    text = text.encode("utf-8")
+  stream.buffer.write(text)
+  stream.buffer.write(b"\n")
   stream.flush()
 
 def format_translation_output(sentence,
@@ -202,7 +201,7 @@ def gather_all_layers(layer):
   if not isinstance(layer, tf.Module):
     return layers
   layers.add(layer)
-  for value in six.itervalues(layer.__dict__):
+  for value in layer.__dict__.values():
     if isinstance(value, tf.Module):
       layers.update(gather_all_layers(value))
     elif isinstance(value, list):
@@ -217,7 +216,7 @@ def set_dropout(root_layer, dropout):
     dropout: The dropout value to set.
   """
   for layer in gather_all_layers(root_layer):
-    for attr, value in six.iteritems(layer.__dict__):
+    for attr, value in layer.__dict__.items():
       if isinstance(value, tf.keras.layers.Dropout):
         value.rate = dropout
       elif "dropout" in attr:
@@ -231,11 +230,11 @@ def extract_batches(tensors):
       yield tensor
   else:
     batch_size = None
-    for value in six.itervalues(tensors):
+    for value in tensors.values():
       batch_size = batch_size or value.shape[0]
     for b in range(batch_size):
       yield {
-          key: value[b] for key, value in six.iteritems(tensors)
+          key: value[b] for key, value in tensors.items()
       }
 
 def extract_prefixed_keys(dictionary, prefix):
@@ -243,7 +242,7 @@ def extract_prefixed_keys(dictionary, prefix):
   with :obj:`prefix`.
   """
   sub_dict = {}
-  for key, value in six.iteritems(dictionary):
+  for key, value in dictionary.items():
     if key.startswith(prefix):
       original_key = key[len(prefix):]
       sub_dict[original_key] = value
@@ -254,7 +253,7 @@ def extract_suffixed_keys(dictionary, suffix):
   with :obj:`suffix`.
   """
   sub_dict = {}
-  for key, value in six.iteritems(dictionary):
+  for key, value in dictionary.items():
     if key.endswith(suffix):
       original_key = key[:-len(suffix)]
       sub_dict[original_key] = value
@@ -270,7 +269,7 @@ def merge_dict(dict1, dict2):
   Returns:
     The merged dictionary :obj:`dict1`.
   """
-  for key, value in six.iteritems(dict2):
+  for key, value in dict2.items():
     if isinstance(value, dict):
       dict1[key] = merge_dict(dict1.get(key, {}), value)
     else:
@@ -299,7 +298,7 @@ def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
         tensor = tf.io.parse_tensor(
             tensor_proto.SerializeToString(), tf.as_dtype(tensor_proto.dtype))
         summaries[event.step][value.tag] = tf.get_static_value(tensor)
-  return list(sorted(six.iteritems(summaries), key=lambda x: x[0]))
+  return list(sorted(summaries.items(), key=lambda x: x[0]))
 
 class OrderRestorer(object):
   """Helper class to restore out-of-order elements in order."""

@@ -3,7 +3,6 @@
 import collections
 import os
 import time
-import six
 
 import tensorflow as tf
 
@@ -97,7 +96,7 @@ class Trainer(object):
         if i == 0 or (i + 1) % accum_steps == 0:
           self._apply_gradients()
 
-        for key, value in six.iteritems(num_words):
+        for key, value in num_words.items():
           accum_num_words[key] += value.numpy()
         step = self._optimizer.iterations.numpy()
         if step == last_step:
@@ -196,7 +195,7 @@ class Trainer(object):
     loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
     num_words = {
         k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
-        for k, v in six.iteritems(per_replica_words)}
+        for k, v in per_replica_words.items()}
     return loss, num_words
 
   def _accumulate_gradients_on_replica(self, source, target):
@@ -245,7 +244,7 @@ def _report_training_status(step, loss, learning_rate, accum_num_words, last_rep
   tf.summary.experimental.set_step(step)
   new_report_time = time.time()
   words_per_sec_fmt = []
-  for key, value in six.iteritems(accum_num_words):
+  for key, value in accum_num_words.items():
     avg = int(value / (new_report_time - last_report_time))
     accum_num_words[key] = 0
     tf.summary.scalar(

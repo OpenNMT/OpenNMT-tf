@@ -11,8 +11,8 @@ class ScorersTest(tf.test.TestCase):
   def _make_perfect_hypothesis_file(self):
     ref_path = os.path.join(self.get_temp_dir(), "ref.txt")
     hyp_path = os.path.join(self.get_temp_dir(), "hyp.txt")
-    with open(ref_path, "wb") as ref_file, open(hyp_path, "wb") as hyp_file:
-      text = b"Hello world !\nHow is it going ?\n"
+    with open(ref_path, "w") as ref_file, open(hyp_path, "w") as hyp_file:
+      text = "Hello world !\nHow is it going ?\n"
       ref_file.write(text)
       hyp_file.write(text)
     return ref_path, hyp_path

@@ -3,7 +3,6 @@
 import abc
 import collections
 import os
-import six
 
 import numpy as np
 import tensorflow as tf
@@ -36,22 +35,22 @@ def save_embeddings_metadata(log_dir, variable_name, vocabulary_file, num_oov_bu
   filename = "%s.txt" % "_".join(variable_name.split("/")[:-2])
   metadata_path = os.path.join(log_dir, filename)
 
-  with tf.io.gfile.GFile(vocabulary_file, mode="rb") as src, \
-       tf.io.gfile.GFile(metadata_path, mode="wb") as dst:
+  with tf.io.gfile.GFile(vocabulary_file, mode="r") as src, \
+       tf.io.gfile.GFile(metadata_path, mode="w") as dst:
     ws_index = 0
     for line in src:
       # The TensorBoard code checks line.trim().length == 0 when loading the
       # metadata file so make sure lines are not dropped.
-      if not line.decode("utf-8").replace(u"\uFEFF", u"").strip():
-        dst.write(tf.compat.as_bytes("<whitespace%d>\n" % ws_index))
+      if not line.replace(u"\uFEFF", u"").strip():
+        dst.write("<whitespace%d>\n" % ws_index)
         ws_index += 1
       else:
         dst.write(line)
     if num_oov_buckets == 1:
-      dst.write(b"<unk>\n")
+      dst.write("<unk>\n")
     else:
       for i in range(num_oov_buckets):
-        dst.write(tf.compat.as_bytes("<unk%d>\n" % i))
+        dst.write("<unk%d>\n" % i)
 
   config = projector.ProjectorConfig()
 
@@ -222,7 +221,6 @@ def _create_ids_to_tokens_table(ids, tokens):
   return tf.lookup.StaticHashTable(initializer, constants.UNKNOWN_TOKEN)
 
 
-@six.add_metaclass(abc.ABCMeta)
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
@@ -297,7 +295,7 @@ class TextInputter(Inputter):
         # Call make_features again to fill the remaining noisy features.
         noisy_features = dict(tokens=noisy_tokens, length=noisy_length)
         noisy_features = self.make_features(features=noisy_features, training=training)
-        for key, value in six.iteritems(noisy_features):
+        for key, value in noisy_features.items():
           features["noisy_%s" % key] = value
     features["length"] = length
     features["tokens"] = tokens
@@ -432,7 +430,6 @@ class WordEmbedder(TextInputter):
     return [(self.embedding, weights["w_embs"])]
 
 
-@six.add_metaclass(abc.ABCMeta)
 class CharEmbedder(TextInputter):
   """Base class for character-aware inputters."""
 
