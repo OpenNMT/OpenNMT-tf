@@ -42,7 +42,7 @@ class Tokenizer(abc.ABC):
       line = line.strip()
       tokens = self.tokenize(line)
       merged_tokens = delimiter.join(tokens)
-      misc.print_as_bytes(merged_tokens)
+      misc.print_as_bytes(merged_tokens, stream=output_stream)
 
   def detokenize_stream(self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "):
     """Detokenizes a stream of sentences.
@@ -55,7 +55,7 @@ class Tokenizer(abc.ABC):
     for line in input_stream:
       tokens = line.strip().split(delimiter)
       string = self.detokenize(tokens)
-      misc.print_as_bytes(string)
+      misc.print_as_bytes(string, stream=output_stream)
 
   def tokenize(self, text):
     """Tokenizes text.
