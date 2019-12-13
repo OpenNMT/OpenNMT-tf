@@ -1,7 +1,5 @@
 """Standalone script to detokenize a corpus."""
 
-from __future__ import print_function
-
 import argparse
 
 from opennmt import tokenizers

@@ -1,7 +1,6 @@
 """Base class and functions for dynamic decoders."""
 
 import abc
-import six
 
 import tensorflow as tf
 
@@ -61,7 +60,6 @@ def get_sampling_probability(step,
   return 1.0 - read_probability
 
 
-@six.add_metaclass(abc.ABCMeta)
 class Decoder(tf.keras.layers.Layer):
   """Base class for decoders."""
 

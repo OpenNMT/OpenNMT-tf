@@ -1,12 +1,9 @@
 """Example of a translation client."""
 
-from __future__ import print_function
-
 import argparse
 import tensorflow as tf
 import pyonmttok
 import grpc
-import six
 
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
