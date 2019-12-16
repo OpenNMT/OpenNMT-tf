@@ -43,7 +43,7 @@ def consume_next_vector(ark_file):
     if end:
       break
 
-  return idx, np.asarray(vector, dtype=tf.float32)
+  return idx, np.asarray(vector, dtype=np.float32)
 
 def consume_next_text(text_file):
   """Consumes the next text line from `text_file`."""
