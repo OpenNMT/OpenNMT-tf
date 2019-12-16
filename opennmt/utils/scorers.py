@@ -64,10 +64,6 @@ class BLEUScorer(Scorer):
   """Scorer using sacreBLEU."""
 
   def __init__(self):
-    try:
-      import sacrebleu  # pylint: disable=unused-import, unused-variable, import-outside-toplevel
-    except ImportError:
-      raise ImportError("sacreBLEU evaluator requires Python 3")
     super(BLEUScorer, self).__init__("bleu")
 
   def __call__(self, ref_path, hyp_path):
