@@ -238,7 +238,7 @@ def update_variable(ref_variable, new_variable, mapping, vocab_axis=0):
   mapping.
   """
   ref = ref_variable.numpy()
-  new = np.zeros(new_variable.shape.as_list(), dtype=new_variable.dtype.as_numpy_dtype())
+  new = np.zeros(new_variable.shape.as_list(), dtype=new_variable.dtype.as_numpy_dtype)
   perm = None
   if vocab_axis != 0:
     # Make the dimension to index the first.
