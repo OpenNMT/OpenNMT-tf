@@ -105,8 +105,9 @@ class GradientAccumulator(object):
       replica_context = tf.distribute.get_replica_context()
       if replica_context is None:
         return self._gradients
-      return (
-          gradient.device_map.select_for_current_replica(gradient.values, replica_context)
-          for gradient in self._gradients)
+      replica_id = replica_context.replica_id_in_sync_group
+      if not isinstance(replica_id, int):
+        replica_id = tf.get_static_value(replica_id)
+      return (gradient.values[replica_id] for gradient in self._gradients)
     else:
       return self._gradients
