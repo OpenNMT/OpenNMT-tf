@@ -133,12 +133,6 @@ def classes_in_module(module, public_only=False):
           if (inspect.isclass(getattr(module, symbol))
               and (not public_only or not symbol.startswith("_"))))
 
-def function_args(fun):
-  """Returns the name of :obj:`fun` arguments."""
-  if hasattr(inspect, "getfullargspec"):
-    return inspect.getfullargspec(fun).args
-  return inspect.getargspec(fun).args  # pylint: disable=deprecated-method
-
 def count_lines(filename):
   """Returns the number of lines of the file :obj:`filename`."""
   with tf.io.gfile.GFile(filename, mode="rb") as f:
