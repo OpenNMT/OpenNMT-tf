@@ -12,7 +12,7 @@ setup(
     description="Neural machine translation and sequence learning using TensorFlow",
     author="OpenNMT",
     author_email="guillaume.klein@systrangroup.com",
-    url="http://opennmt.net",
+    url="https://opennmt.net",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -25,8 +25,8 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence"
     ],
     project_urls={
-        "Documentation": "http://opennmt.net/OpenNMT-tf/",
-        "Forum": "http://forum.opennmt.net/",
+        "Documentation": "https://opennmt.net/OpenNMT-tf/",
+        "Forum": "https://forum.opennmt.net/",
         "Gitter": "https://gitter.im/OpenNMT/OpenNMT-tf",
         "Source": "https://github.com/OpenNMT/OpenNMT-tf/"
     },

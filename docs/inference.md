@@ -54,9 +54,9 @@ params:
 
 Noising the decoded output is also a possible decoding strategy for back-translation, as described in [Edunov et al. 2018](https://arxiv.org/abs/1808.09381). 3 types of noise are currently implemented:
 
-* [`dropout`](http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordDropout): randomly drop words in the sequence
-* [`replacement`](http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordReplacement): randomly replace words by a filler token
-* [`permutation`](http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordPermutation): randomly permute words with a maximum distance
+* [`dropout`](https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordDropout): randomly drop words in the sequence
+* [`replacement`](https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordReplacement): randomly replace words by a filler token
+* [`permutation`](https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordPermutation): randomly permute words with a maximum distance
 
 which can be combined in sequence, e.g.:
 

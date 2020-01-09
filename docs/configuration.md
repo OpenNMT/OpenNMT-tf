@@ -146,7 +146,7 @@ params:
   # (optional) Sequence of noise to apply to the decoding output. Each element
   # should be a noise type (can be: "dropout", "replacement", "permutation") and
   # the module arguments
-  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.data.noise.html)
+  # (see https://opennmt.net/OpenNMT-tf/package/opennmt.data.noise.html)
   decoding_noise:
     - dropout: 0.1
     - replacement: [0.1, ｟unk｠]

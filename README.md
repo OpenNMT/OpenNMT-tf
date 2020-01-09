@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/OpenNMT/OpenNMT-tf.svg?branch=master)](https://travis-ci.org/OpenNMT/OpenNMT-tf) [![PyPI version](https://badge.fury.io/py/OpenNMT-tf.svg)](https://badge.fury.io/py/OpenNMT-tf) [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](http://opennmt.net/OpenNMT-tf/) [![Gitter](https://badges.gitter.im/OpenNMT/OpenNMT-tf.svg)](https://gitter.im/OpenNMT/OpenNMT-tf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build Status](https://api.travis-ci.org/OpenNMT/OpenNMT-tf.svg?branch=master)](https://travis-ci.org/OpenNMT/OpenNMT-tf) [![PyPI version](https://badge.fury.io/py/OpenNMT-tf.svg)](https://badge.fury.io/py/OpenNMT-tf) [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://opennmt.net/OpenNMT-tf/) [![Gitter](https://badges.gitter.im/OpenNMT/OpenNMT-tf.svg)](https://gitter.im/OpenNMT/OpenNMT-tf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # OpenNMT-tf
 
@@ -32,17 +32,17 @@ opennmt.models.SequenceToSequence(
     share_embeddings=opennmt.models.EmbeddingsSharingLevel.TARGET)
 ```
 
-The [`opennmt`](http://opennmt.net/OpenNMT-tf/package/opennmt.html) package exposes other building blocks that can be used to design:
+The [`opennmt`](https://opennmt.net/OpenNMT-tf/package/opennmt.html) package exposes other building blocks that can be used to design:
 
-* [multiple input features](http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html)
-* [mixed embedding representation](http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.MixedInputter.html)
-* [multi-source context](http://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html)
-* [cascaded](http://opennmt.net/OpenNMT-tf/package/opennmt.encoders.SequentialEncoder.html) or [multi-column](http://opennmt.net/OpenNMT-tf/package/opennmt.encoders.ParallelEncoder.html) encoder
-* [hybrid sequence to sequence models](http://opennmt.net/OpenNMT-tf/package/opennmt.models.SequenceToSequence.html)
+* [multiple input features](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html)
+* [mixed embedding representation](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.MixedInputter.html)
+* [multi-source context](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html)
+* [cascaded](https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.SequentialEncoder.html) or [multi-column](https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.ParallelEncoder.html) encoder
+* [hybrid sequence to sequence models](https://opennmt.net/OpenNMT-tf/package/opennmt.models.SequenceToSequence.html)
 
 Standard models such as the Transformer are defined in a [model catalog](opennmt/models/catalog.py) and can be used without additional configuration.
 
-*Find more information about model configuration in the [documentation](http://opennmt.net/OpenNMT-tf/model.html).*
+*Find more information about model configuration in the [documentation](https://opennmt.net/OpenNMT-tf/model.html).*
 
 ### Full TensorFlow 2.0 integration
 
@@ -52,11 +52,11 @@ OpenNMT-tf is fully integrated in the TensorFlow 2.0 ecosystem:
 * Multi-GPU training with [`tf.distribute`](https://www.tensorflow.org/api_docs/python/tf/distribute)
 * Mixed precision support via a [graph optimization pass](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite)
 * Visualization with [TensorBoard](https://www.tensorflow.org/tensorboard)
-* `tf.function` graph tracing that can be [exported to a SavedModel](http://opennmt.net/OpenNMT-tf/serving.html) and served with [TensorFlow Serving](examples/serving/tensorflow_serving) or [Python](examples/serving/python)
+* `tf.function` graph tracing that can be [exported to a SavedModel](https://opennmt.net/OpenNMT-tf/serving.html) and served with [TensorFlow Serving](examples/serving/tensorflow_serving) or [Python](examples/serving/python)
 
 ### Dynamic data pipeline
 
-OpenNMT-tf does not require to compile the data before the training. Instead, it can directly read text files and preprocess the data when needed by the training. This allows [on-the-fly tokenization](http://opennmt.net/OpenNMT-tf/tokenization.html) and data augmentation by injecting random noise.
+OpenNMT-tf does not require to compile the data before the training. Instead, it can directly read text files and preprocess the data when needed by the training. This allows [on-the-fly tokenization](https://opennmt.net/OpenNMT-tf/tokenization.html) and data augmentation by injecting random noise.
 
 ### Model fine-tuning
 
@@ -81,7 +81,7 @@ OpenNMT-tf also implements most of the techniques commonly used to train and eva
 * checkpoint averaging
 * ... and more!
 
-*See the [documentation](http://opennmt.net/OpenNMT-tf/) to learn how to use these features.*
+*See the [documentation](https://opennmt.net/OpenNMT-tf/) to learn how to use these features.*
 
 ## Usage
 
@@ -96,7 +96,7 @@ pip install --upgrade pip
 pip install OpenNMT-tf
 ```
 
-*See the [documentation](http://opennmt.net/OpenNMT-tf/installation.html) for more information.*
+*See the [documentation](https://opennmt.net/OpenNMT-tf/installation.html) for more information.*
 
 ### Command line
 
@@ -114,11 +114,11 @@ that are passed to the main script:
 onmt-main --model_type <model> --config <config_file.yml> --auto_config <run_type> <run_options>
 ```
 
-*For more information and examples on how to use OpenNMT-tf, please visit [our documentation](http://opennmt.net/OpenNMT-tf).*
+*For more information and examples on how to use OpenNMT-tf, please visit [our documentation](https://opennmt.net/OpenNMT-tf).*
 
 ### Library
 
-OpenNMT-tf also exposes [well-defined and stable APIs](http://opennmt.net/OpenNMT-tf/package/opennmt.html), from high-level training utilities to low-level model layers and dataset transformations.
+OpenNMT-tf also exposes [well-defined and stable APIs](https://opennmt.net/OpenNMT-tf/package/opennmt.html), from high-level training utilities to low-level model layers and dataset transformations.
 
 For example, the `Runner` class can be used to train and evaluate models with few lines of code:
 
@@ -167,10 +167,10 @@ More examples using OpenNMT-tf as a library can be found online:
 * The directory [examples/library](examples/library) contains additional examples that use OpenNMT-tf as a library
 * [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `opennmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
 
-*For a complete overview of the APIs, see the [package documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html).*
+*For a complete overview of the APIs, see the [package documentation](https://opennmt.net/OpenNMT-tf/package/opennmt.html).*
 
 ## Additional resources
 
-* [Documentation](http://opennmt.net/OpenNMT-tf)
-* [Forum](http://forum.opennmt.net)
+* [Documentation](https://opennmt.net/OpenNMT-tf)
+* [Forum](https://forum.opennmt.net)
 * [Gitter](https://gitter.im/OpenNMT/OpenNMT-tf)
