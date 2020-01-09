@@ -55,7 +55,8 @@ class Trainer(object):
     """Runs the training.
 
     Args:
-      dataset: A training dataset.
+      dataset: A ``tf.data.Dataset`` or a function taking a ``tf.distribute.InputContext``
+        instance and returning a ``tf.data.Dataset``.
       max_step: The final training step.
       accum_steps: The number of gradient accumulation steps.
       report_steps: Report status every this many steps.
@@ -84,13 +85,8 @@ class Trainer(object):
         self._checkpoint.save(0)
       self._model.visualize(self._checkpoint.model_dir)
 
-      for i, (loss, num_words, skipped) in enumerate(
+      for i, (loss, num_words) in enumerate(
           self._accumulate_next_gradients(dataset, report_steps=report_steps)):
-        if skipped:
-          # We assume only the last partial batch can possibly be skipped.
-          tf.get_logger().warning("Batch %d is partial, i.e. some training replicas "
-                                  "received an empty batch as input. Skipping.", i + 1)
-          break
         if tf.math.is_nan(loss):
           raise RuntimeError("Model diverged with loss = NaN.")
         if i == 0 or (i + 1) % accum_steps == 0:
@@ -138,8 +134,9 @@ class Trainer(object):
     # sometimes fails to split the batches (noticed with tokens batch type).
     # We also assume for now that we are training with a single worker
     # otherwise we would need to correctly shard the input dataset.
+    dataset_fn = dataset if callable(dataset) else lambda _: dataset
     distributed_dataset = self._strategy.experimental_distribute_datasets_from_function(
-        lambda _: dataset)
+        dataset_fn)
 
     @dataset_util.function_on_next(distributed_dataset)
     def _fn(next_fn):
@@ -152,39 +149,9 @@ class Trainer(object):
             tf.equal(self._gradient_accumulator.step, 0))
       with tf.summary.record_if(should_record_summaries):
         per_replica_source, per_replica_target = next_fn()
-        return self._maybe_accumulate_gradients(per_replica_source, per_replica_target)
+        return self._accumulate_gradients(per_replica_source, per_replica_target)
 
     return _fn()  # pylint: disable=no-value-for-parameter
-
-  def _maybe_accumulate_gradients(self, per_replica_source, per_replica_target):
-    """Accumulates the gradients if all synchronous batches are non empty (cross-replica)."""
-
-    def _run():
-      loss, num_words = self._accumulate_gradients(per_replica_source, per_replica_target)
-      return loss, num_words, False
-
-    def _skip():
-      loss = tf.constant(0, dtype=tf.float32)
-      num_words = {}
-      if "length" in per_replica_source:
-        num_words["source"] = tf.constant(0, dtype=tf.int32)
-      if "length" in per_replica_target:
-        num_words["target"] = tf.constant(0, dtype=tf.int32)
-      return loss, num_words, True
-
-    # We verify here that each replica receives a non empty batch. If not,
-    # we skip this iteration. This typically happens at the last iteration
-    # when training on a finite dataset.
-    # TODO: is there a simpler way to handle this case?
-    per_replica_non_empty_batch = self._strategy.experimental_run_v2(
-        lambda tensor: tf.math.count_nonzero(tf.shape(tensor)[0]),
-        args=(tf.nest.flatten(per_replica_source)[0],))
-    non_empty_batch_count = self._strategy.reduce(
-        tf.distribute.ReduceOp.SUM, per_replica_non_empty_batch, None)
-    return tf.cond(
-        tf.math.equal(non_empty_batch_count, self._strategy.num_replicas_in_sync),
-        true_fn=_run,
-        false_fn=_skip)
 
   def _accumulate_gradients(self, per_replica_source, per_replica_target):
     """Accumulates the gradients (cross-replica)."""
