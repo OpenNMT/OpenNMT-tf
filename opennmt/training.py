@@ -208,7 +208,7 @@ class Trainer(object):
     loss = self._model.compute_loss(outputs, target, training=True)
     if isinstance(loss, tuple):
       training_loss = loss[0] / loss[1]
-      reported_loss = loss[0] / loss[2]
+      reported_loss = loss[0] / loss[2] if len(loss) > 2 else training_loss
     else:
       training_loss, reported_loss = loss, loss
     variables = self._model.trainable_variables
