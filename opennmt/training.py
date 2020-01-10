@@ -1,6 +1,5 @@
 """Training related classes and functions."""
 
-import collections
 import os
 import time
 
@@ -37,6 +36,7 @@ class Trainer(object):
       optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(optimizer, "dynamic")
     self._optimizer = optimizer
 
+    self._words_counters = {}
     with self._strategy.scope():
       # Create some variables under the strategy scope.
       _ = self._optimizer.iterations
@@ -75,8 +75,8 @@ class Trainer(object):
       return
 
     self._gradient_accumulator.reset()
+    self._words_counters.clear()
 
-    accum_num_words = collections.defaultdict(int)
     last_report_time = time.time()
     last_step = 0
 
@@ -85,15 +85,13 @@ class Trainer(object):
         self._checkpoint.save(0)
       self._model.visualize(self._checkpoint.model_dir)
 
-      for i, (loss, num_words) in enumerate(
+      for i, loss in enumerate(
           self._accumulate_next_gradients(dataset, report_steps=report_steps)):
         if tf.math.is_nan(loss):
           raise RuntimeError("Model diverged with loss = NaN.")
         if i == 0 or (i + 1) % accum_steps == 0:
           self._apply_gradients()
 
-        for key, value in num_words.items():
-          accum_num_words[key] += value.numpy()
         step = self._optimizer.iterations.numpy()
         if step == last_step:
           continue  # Do not process same step twice.
@@ -103,8 +101,9 @@ class Trainer(object):
               step,
               loss,
               self._optimizer.learning_rate,
-              accum_num_words,
+              self._words_counters,
               last_report_time)
+          self._reset_words_counters()
         if save_steps is not None and step % save_steps == 0:
           self._checkpoint.save(step)
         if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
@@ -155,15 +154,11 @@ class Trainer(object):
 
   def _accumulate_gradients(self, per_replica_source, per_replica_target):
     """Accumulates the gradients (cross-replica)."""
-    per_replica_loss, per_replica_words = self._strategy.experimental_run_v2(
+    per_replica_loss = self._strategy.experimental_run_v2(
         self._accumulate_gradients_on_replica,
         args=(per_replica_source, per_replica_target))
-    # TODO: these reductions could be delayed until _step is called.
-    loss = self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
-    num_words = {
-        k:self._strategy.reduce(tf.distribute.ReduceOp.SUM, v, None)
-        for k, v in per_replica_words.items()}
-    return loss, num_words
+    # TODO: this reduction could be delayed until _step is called.
+    return self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
 
   def _accumulate_gradients_on_replica(self, source, target):
     """Accumulates the gradients (in replica)."""
@@ -183,12 +178,35 @@ class Trainer(object):
     gradients = self._optimizer.get_gradients(training_loss, variables)
     self._gradient_accumulator(gradients)
     tf.summary.scalar("gradients/global_norm", tf.linalg.global_norm(gradients))
-    num_words = {}
-    if "length" in source:
-      num_words["source"] = tf.reduce_sum(source["length"])
-    if "length" in target:
-      num_words["target"] = tf.reduce_sum(target["length"])
-    return reported_loss, num_words
+    self._update_words_counter("source", source)
+    self._update_words_counter("target", target)
+    return reported_loss
+
+  def _update_words_counter(self, name, features):
+    """Accumulates number of source and target tokens to report throughput."""
+    length = features.get("length")
+    if length is None:
+      return
+    num_words = tf.reduce_sum(length)
+    counter = self._words_counters.get(name)
+    if counter is None:
+      counter = tf.Variable(
+          tf.constant(0, dtype=tf.int64),
+          trainable=False,
+          synchronization=tf.VariableSynchronization.ON_READ,
+          aggregation=tf.VariableAggregation.SUM)
+      self._words_counters[name] = counter
+    counter.assign_add(tf.cast(num_words, tf.int64), read_value=False)
+
+  @tf.function
+  def _reset_words_counters(self):
+    """Resets the variables that count words (cross-replica)."""
+    self._strategy.experimental_run_v2(self._reset_words_counters_on_replica)
+
+  def _reset_words_counters_on_replica(self):
+    """Resets the variables that count words (in replica)."""
+    for counter in self._words_counters.values():
+      counter.assign(tf.constant(0, dtype=tf.int64), read_value=False)
 
   @tf.function
   def _apply_gradients(self):
@@ -207,18 +225,18 @@ class Trainer(object):
     self._gradient_accumulator.reset()
 
 
-def _report_training_status(step, loss, learning_rate, accum_num_words, last_report_time):
+def _report_training_status(step, loss, learning_rate, words_counters, last_report_time):
   tf.summary.experimental.set_step(step)
   new_report_time = time.time()
   words_per_sec_fmt = []
-  for key, value in accum_num_words.items():
-    avg = int(value / (new_report_time - last_report_time))
-    accum_num_words[key] = 0
+  for name, counter in words_counters.items():
+    sync_counter = counter.read_value()  # Aggregate values from all replicas.
+    avg = int(sync_counter.numpy() / (new_report_time - last_report_time))
     tf.summary.scalar(
-        "words_per_sec/%s" % key,
+        "words_per_sec/%s" % name,
         avg,
-        description="%s words per second" % key.capitalize())
-    fmt = "%s words/s = %d" % (key, avg)
+        description="%s words per second" % name.capitalize())
+    fmt = "%s words/s = %d" % (name, avg)
     words_per_sec_fmt.append(fmt)
   words_per_sec_fmt = sorted(words_per_sec_fmt)
   if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
