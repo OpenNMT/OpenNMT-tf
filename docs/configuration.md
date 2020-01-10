@@ -41,6 +41,10 @@ data:
   source_vocabulary: data/toy-ende/src-vocab.txt
   target_vocabulary: data/toy-ende/tgt-vocab.txt
 
+  # (optional) During export save the vocabularies as model assets, otherwise embed
+  # them in the graph itself (default: True).
+  export_vocabulary_assets: True
+
   # (optional) Tokenization configuration (or path to a configuration file).
   # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
   source_tokenization:
