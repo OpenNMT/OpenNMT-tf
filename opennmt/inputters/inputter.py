@@ -490,7 +490,8 @@ class ExampleInputter(ParallelInputter):
                             num_shards=1,
                             shard_index=0,
                             num_threads=4,
-                            prefetch_buffer_size=None):
+                            prefetch_buffer_size=None,
+                            cardinality_multiple=1):
     """Builds a dataset to be used for training. It supports the full training
     pipeline, including:
 
@@ -525,6 +526,8 @@ class ExampleInputter(ParallelInputter):
       num_threads: The number of elements processed in parallel.
       prefetch_buffer_size: The number of batches to prefetch asynchronously. If
         ``None``, use an automatically tuned value.
+      cardinality_multiple: Ensure that the dataset cardinality is a multiple of
+        this value when :obj:`single_pass` is ``True``.
 
     Returns:
       A ``tf.data.Dataset``.
@@ -550,5 +553,6 @@ class ExampleInputter(ParallelInputter):
         shard_index=shard_index,
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
-        prefetch_buffer_size=prefetch_buffer_size))
+        prefetch_buffer_size=prefetch_buffer_size,
+        cardinality_multiple=cardinality_multiple))
     return dataset

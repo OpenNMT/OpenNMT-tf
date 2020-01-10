@@ -1,12 +1,14 @@
 import os
 
+from parameterized import parameterized
+
 import tensorflow as tf
 
 from opennmt.data import dataset as dataset_util
 from opennmt.tests import test_util
 
 
-class DataTest(tf.test.TestCase):
+class DatasetTest(tf.test.TestCase):
 
   def testDatasetSize(self):
     path = test_util.make_data_file(
@@ -27,6 +29,16 @@ class DataTest(tf.test.TestCase):
     self.assertEqual(batch_size, single_element["x"].shape[0])
     with self.assertRaises(StopIteration):
       next(iterator)
+
+  @parameterized.expand([
+      [11, 5, 15],
+      [10, 5, 10],
+      [5, 20, 20]
+  ])
+  def testMakeCardinalityMultipleOf(self, dataset_size, divisor, expected_size):
+    dataset = tf.data.Dataset.range(dataset_size)
+    dataset = dataset.apply(dataset_util.make_cardinality_multiple_of(divisor))
+    self.assertLen(list(iter(dataset)), expected_size)
 
   def testRandomShard(self):
     dataset_size = 42

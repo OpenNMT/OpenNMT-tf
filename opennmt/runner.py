@@ -159,7 +159,7 @@ class Runner(object):
     else:
       batch_size_multiple = 1
 
-    dataset = model.examples_inputter.make_training_dataset(
+    dataset_fn = lambda input_context: model.examples_inputter.make_training_dataset(
         data_config["train_features_file"],
         data_config.get("train_labels_file"),
         train_config["batch_size"],
@@ -170,7 +170,10 @@ class Runner(object):
         maximum_features_length=train_config.get("maximum_features_length"),
         maximum_labels_length=train_config.get("maximum_labels_length"),
         single_pass=train_config.get("single_pass", False),
-        prefetch_buffer_size=train_config.get("prefetch_buffer_size"))
+        num_shards=input_context.num_input_pipelines,
+        shard_index=input_context.input_pipeline_id,
+        prefetch_buffer_size=train_config.get("prefetch_buffer_size"),
+        cardinality_multiple=input_context.num_replicas_in_sync)
 
     if with_eval:
       evaluator = evaluation.Evaluator.from_config(model, config)
@@ -195,7 +198,7 @@ class Runner(object):
         devices=misc.get_devices(count=num_devices),
         mixed_precision=self._mixed_precision)
     trainer(
-        dataset,
+        dataset_fn,
         max_step=train_config.get("max_step"),
         accum_steps=accum_steps,
         report_steps=train_config.get("save_summary_steps", 100),

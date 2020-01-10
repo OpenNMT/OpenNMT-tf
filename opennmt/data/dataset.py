@@ -101,6 +101,47 @@ def filter_examples_by_length(maximum_features_length=None,
 
   return lambda dataset: dataset.filter(_predicate)
 
+def make_cardinality_multiple_of(divisor):
+  """Transformation that ensures that the dataset cardinality is a multiple of
+  :obj:`divisor`.
+
+  Args:
+    divisor: The value that should divide the dataset size.
+
+  Returns:
+    A ``tf.data.Dataset`` transformation.
+  """
+  if divisor == 1:
+    return lambda dataset: dataset
+
+  def _continue_iter(num_consumed, element):
+    # Continue iterating if the current element is from the original dataset or
+    # if the number of consumed batches is not a multiple of divisor.
+    is_original = element[0]
+    return tf.math.logical_or(is_original, tf.math.not_equal(num_consumed % divisor, 0))
+
+  def _retrieve_element(num_consumed, element):
+    _ = num_consumed
+    return element[1]
+
+  def _transform(dataset):
+    # Nothing to do for infinite datasets.
+    if tf.data.experimental.cardinality(dataset) == tf.data.experimental.INFINITE_CARDINALITY:
+      return dataset
+
+    # Concatenate extra batches with a flag.
+    extra_batches = dataset.repeat()
+    dataset = dataset.map(lambda *x: (tf.constant(True), x))
+    extra_batches = extra_batches.map(lambda *x: (tf.constant(False), x))
+    dataset = dataset.concatenate(extra_batches)
+
+    # Take all original batches and the number of extra batches required.
+    dataset = dataset.enumerate()
+    dataset = dataset.apply(tf.data.experimental.take_while(_continue_iter))
+    return dataset.map(_retrieve_element)  # Retrieve the element only.
+
+  return _transform
+
 def random_shard(shard_size, dataset_size):
   """Transformation that shards the dataset in a random order.
 
@@ -284,7 +325,8 @@ def training_pipeline(batch_size,
                       shard_index=0,
                       num_threads=None,
                       shuffle_buffer_size=None,
-                      prefetch_buffer_size=None):
+                      prefetch_buffer_size=None,
+                      cardinality_multiple=1):
   """Transformation that defines a complete training data pipeline.
 
   Args:
@@ -312,12 +354,15 @@ def training_pipeline(batch_size,
     shuffle_buffer_size: The number of elements from which to sample.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value.
+    cardinality_multiple: Ensure that the dataset cardinality is a multiple of
+      this value when :obj:`single_pass` is ``True``.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
 
   See Also:
     - :func:`opennmt.data.batch_sequence_dataset`
+    - :func:`opennmt.data.make_cardinality_multiple_of`
     - :func:`opennmt.data.filter_examples_by_length`
     - :func:`opennmt.data.filter_irregular_batches`
     - :func:`opennmt.data.shuffle_dataset`
@@ -345,6 +390,8 @@ def training_pipeline(batch_size,
     dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
     if not single_pass:
       dataset = dataset.repeat()
+    else:
+      dataset = dataset.apply(make_cardinality_multiple_of(cardinality_multiple))
     dataset = dataset.prefetch(prefetch_buffer_size)
     return dataset
 
