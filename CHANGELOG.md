@@ -19,7 +19,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
-* Fix error when reading loss return by a sequence classifier model
+* Fix error when reading loss returned by a sequence classifier model
 * Fix error on sequences of length 1 in the sequence tagger with CRF
 * Rollback to export vocabularies as file assets
 * Remove some synchronization points when training multiple replicas
