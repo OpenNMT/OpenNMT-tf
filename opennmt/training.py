@@ -101,9 +101,8 @@ class Trainer(object):
               step,
               loss,
               self._optimizer.learning_rate,
-              self._words_counters,
+              self._synchronize_words_counters(),
               last_report_time)
-          self._reset_words_counters()
         if save_steps is not None and step % save_steps == 0:
           self._checkpoint.save(step)
         if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
@@ -199,9 +198,12 @@ class Trainer(object):
     counter.assign_add(tf.cast(num_words, tf.int64), read_value=False)
 
   @tf.function
-  def _reset_words_counters(self):
-    """Resets the variables that count words (cross-replica)."""
+  def _synchronize_words_counters(self):
+    """Synchronizes and resets words counters values across replicas."""
+    sync_words_counters = {
+        name:counter.read_value() for name, counter in self._words_counters.items()}
     self._strategy.experimental_run_v2(self._reset_words_counters_on_replica)
+    return sync_words_counters
 
   def _reset_words_counters_on_replica(self):
     """Resets the variables that count words (in replica)."""
@@ -230,8 +232,7 @@ def _report_training_status(step, loss, learning_rate, words_counters, last_repo
   new_report_time = time.time()
   words_per_sec_fmt = []
   for name, counter in words_counters.items():
-    sync_counter = counter.read_value()  # Aggregate values from all replicas.
-    avg = int(sync_counter.numpy() / (new_report_time - last_report_time))
+    avg = int(counter.numpy() / (new_report_time - last_report_time))
     tf.summary.scalar(
         "words_per_sec/%s" % name,
         avg,
