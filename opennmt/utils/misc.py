@@ -2,12 +2,10 @@
 
 import collections
 import copy
-import copyreg
 import sys
 import inspect
 import heapq
 import os
-import threading
 
 import numpy as np
 import tensorflow as tf
@@ -183,9 +181,6 @@ def index_structure(structure, path):
 
 def clone_layer(layer):
   """Clones a layer."""
-  # TODO: clean this up when this change is released:
-  # https://github.com/tensorflow/tensorflow/commit/4fd10c487c7e287f99b9a1831316add453dcba04
-  copyreg.pickle(threading.local, lambda _: (threading.local, []))
   return copy.deepcopy(layer)
 
 def gather_all_layers(layer):
