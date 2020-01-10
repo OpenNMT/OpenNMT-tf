@@ -49,19 +49,6 @@ class RNNCellWrapper(common.LayerWrapper):
     return self.cell.get_initial_state(
         inputs=inputs, batch_size=batch_size, dtype=dtype)
 
-
-class _StackedRNNCells(tf.keras.layers.StackedRNNCells):
-
-  # To pass the training flag to the cell, tf.keras.layers.RNN checks that the
-  # cell call method explicitly takes the "training" argument, which
-  # tf.keras.layers.StackedRNNCells do not.
-  # TODO: remove this when this change is released:
-  # https://github.com/tensorflow/tensorflow/commit/df2b252fa380994cd9236cc56b06557bcf12a9d3
-  def call(self, inputs, states, constants=None, training=None, **kwargs):
-    kwargs["training"] = training
-    return super(_StackedRNNCells, self).call(inputs, states, constants=constants, **kwargs)
-
-
 def make_rnn_cell(num_layers,
                   num_units,
                   dropout=0,
@@ -94,7 +81,7 @@ def make_rnn_cell(num_layers,
       cell = RNNCellWrapper(
           cell, output_dropout=dropout, residual_connection=residual_connections)
     cells.append(cell)
-  return _StackedRNNCells(cells)
+  return tf.keras.layers.StackedRNNCells(cells)
 
 
 class _RNNWrapper(tf.keras.layers.Layer):
