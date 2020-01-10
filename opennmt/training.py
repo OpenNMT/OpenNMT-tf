@@ -5,7 +5,6 @@ import time
 
 import tensorflow as tf
 
-from opennmt.data import dataset as dataset_util
 from opennmt.optimizers import utils as optimizer_util
 from opennmt.utils import misc
 
@@ -136,8 +135,12 @@ class Trainer(object):
     distributed_dataset = self._strategy.experimental_distribute_datasets_from_function(
         dataset_fn)
 
-    @dataset_util.function_on_next(distributed_dataset)
-    def _fn(next_fn):
+    # Get the next element within the tf.function for more pipelining.
+    # See: https://github.com/tensorflow/tensorflow/issues/29075#issuecomment-513390242
+    iterator = iter(distributed_dataset)
+
+    @tf.function
+    def _accumulate_next():
       tf.summary.experimental.set_step(self._optimizer.iterations)
       if report_steps is None:
         should_record_summaries = False
@@ -146,10 +149,14 @@ class Trainer(object):
             tf.equal(self._optimizer.iterations % report_steps, 0),
             tf.equal(self._gradient_accumulator.step, 0))
       with tf.summary.record_if(should_record_summaries):
-        per_replica_source, per_replica_target = next_fn()
+        per_replica_source, per_replica_target = next(iterator)
         return self._accumulate_gradients(per_replica_source, per_replica_target)
 
-    return _fn()  # pylint: disable=no-value-for-parameter
+    while True:
+      try:
+        yield _accumulate_next()
+      except tf.errors.OutOfRangeError:
+        break
 
   def _accumulate_gradients(self, per_replica_source, per_replica_target):
     """Accumulates the gradients (cross-replica)."""
