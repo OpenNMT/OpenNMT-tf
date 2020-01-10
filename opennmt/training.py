@@ -85,16 +85,7 @@ class Trainer(object):
         self._checkpoint.save(0)
       self._model.visualize(self._checkpoint.model_dir)
 
-      for i, loss in enumerate(
-          self._accumulate_next_gradients(dataset, report_steps=report_steps)):
-        if tf.math.is_nan(loss):
-          raise RuntimeError("Model diverged with loss = NaN.")
-        if i == 0 or (i + 1) % accum_steps == 0:
-          self._apply_gradients()
-
-        step = self._optimizer.iterations.numpy()
-        if step == last_step:
-          continue  # Do not process same step twice.
+      for step, loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
         last_step = step
         if step % report_steps == 0:
           last_report_time = _report_training_status(
@@ -113,9 +104,9 @@ class Trainer(object):
         if step == max_step:
           break
 
-    if evaluator is not None and step != evaluator.last_evaluated_step:
-      self._evaluate(evaluator, step, export_on_best=export_on_best)
-    self._checkpoint.save(step)
+    if evaluator is not None and last_step != evaluator.last_evaluated_step:
+      self._evaluate(evaluator, last_step, export_on_best=export_on_best)
+    self._checkpoint.save(last_step)
 
   def _evaluate(self, evaluator, step, export_on_best=None):
     metrics = evaluator(step)
@@ -124,6 +115,15 @@ class Trainer(object):
       tf.get_logger().info("Exporting SavedModel to %s (best %s so far: %f)",
                            export_dir, export_on_best, metrics[export_on_best])
       self._model.export(export_dir)
+
+  def _steps(self, dataset, accum_steps=1, report_steps=None):
+    """Returns a generator over training steps."""
+    for i, loss in enumerate(self._accumulate_next_gradients(dataset, report_steps=report_steps)):
+      if tf.math.is_nan(loss):
+        raise RuntimeError("Model diverged with loss = NaN.")
+      if i == 0 or (i + 1) % accum_steps == 0:
+        self._apply_gradients()
+        yield self._optimizer.iterations.numpy(), loss
 
   def _accumulate_next_gradients(self, dataset, report_steps=None):
     """Accumulates the gradients from the next element in :obj:`dataset`."""
