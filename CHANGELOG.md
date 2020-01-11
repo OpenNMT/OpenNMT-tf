@@ -13,7 +13,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
-* Update to TensorFlow 2.1<br/>OpenNMT-tf now depends on the pip package `tensorflow` instead of `tensorflow-gpu`. The package `tensorflow` now includes GPU support by default. If you are upgrading an existing environment, we recommend uninstalling the `tensorflow-gpu` package before doing so.
+* Update to TensorFlow 2.1<br/>OpenNMT-tf now depends on the `tensorflow` pip package instead of `tensorflow-gpu`. The `tensorflow` package now includes GPU support by default. If you are upgrading an existing environment, we recommend uninstalling the `tensorflow-gpu` package before doing so.
 * Update to TensorFlow Addons 0.7 with Windows support
 * Data parameter `export_vocabulary_assets` to embed word vocabularies in the graph itself
 
