@@ -2,6 +2,7 @@
 
 import copy
 import os
+import tempfile
 
 import tensorflow as tf
 
