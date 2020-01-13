@@ -156,7 +156,7 @@ def main():
   tf.config.threading.set_intra_op_parallelism_threads(args.intra_op_parallelism_threads)
   tf.config.threading.set_inter_op_parallelism_threads(args.inter_op_parallelism_threads)
   if args.gpu_allow_growth:
-    for device in tf.config.experimental.list_physical_devices(device_type="GPU"):
+    for device in tf.config.list_physical_devices(device_type="GPU"):
       tf.config.experimental.set_memory_growth(device, enable=True)
 
   # Load and merge run configurations.

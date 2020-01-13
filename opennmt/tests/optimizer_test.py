@@ -36,16 +36,10 @@ class OptimizerTest(tf.test.TestCase):
     self.assertEqual(accumulator.step, 0)
     self.assertAllEqual(accumulator.gradients[0], [0.0, 0.0])
 
-  @test_util.new_context
+  @test_util.run_with_two_cpu_devices
   def testGradientAccumulatorDistributionStrategy(self):
-    physical_devices = tf.config.experimental.list_physical_devices("CPU")
-    tf.config.experimental.set_virtual_device_configuration(
-        physical_devices[0],
-        [tf.config.experimental.VirtualDeviceConfiguration(),
-         tf.config.experimental.VirtualDeviceConfiguration()])
-
-    devices = tf.config.experimental.list_logical_devices(device_type="CPU")
-    strategy = tf.distribute.MirroredStrategy(devices=[device.name for device in devices])
+    devices = tf.config.list_logical_devices(device_type="CPU")
+    strategy = tf.distribute.MirroredStrategy(devices=devices[:2])
 
     with strategy.scope():
       accumulator = utils.GradientAccumulator()

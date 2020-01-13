@@ -1,5 +1,7 @@
 import unittest
 
+import tensorflow as tf
+
 from tensorflow.python.eager import context
 from tensorflow.python.framework import ops
 
@@ -42,10 +44,16 @@ def _reset_context():
   context._context = None
   ops.enable_eager_execution_internal()
 
-def new_context(fn):
-  """Runs :obj:`fn` in a new Eager context, e.g. to set different virtual devices."""
+def run_with_two_cpu_devices(fn):
+  """Defines 2 logical devices before running :obj:`fn`."""
   def decorator(*args, **kwargs):
     _reset_context()
+    physical_devices = tf.config.list_physical_devices("CPU")
+    if len(physical_devices) == 1:
+      tf.config.set_logical_device_configuration(
+          physical_devices[0],
+          [tf.config.LogicalDeviceConfiguration(),
+           tf.config.LogicalDeviceConfiguration()])
     try:
       return fn(*args, **kwargs)
     finally:

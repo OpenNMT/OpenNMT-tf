@@ -91,14 +91,8 @@ class RunnerTest(tf.test.TestCase):
     with open(en_file) as f:
       self.assertEqual(next(f).strip(), "a t z m o n")
 
-  @test_util.new_context
+  @test_util.run_with_two_cpu_devices
   def testTrainDistribute(self):
-    physical_devices = tf.config.experimental.list_physical_devices("CPU")
-    tf.config.experimental.set_virtual_device_configuration(
-        physical_devices[0],
-        [tf.config.experimental.VirtualDeviceConfiguration(),
-         tf.config.experimental.VirtualDeviceConfiguration()])
-
     ar_file, en_file  = self._makeTransliterationData()
     config = {
         "data": {
