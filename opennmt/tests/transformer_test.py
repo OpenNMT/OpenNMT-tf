@@ -142,6 +142,13 @@ class TransformerTest(tf.test.TestCase):
     cache = (tf.zeros([4, 4, 0, 5]), tf.zeros([4, 4, 0, 5]))
     _, cache = attention(x, cache=cache)
 
+  def testMultiHeadSelfAttentionSpan(self):
+    attention = transformer.MultiHeadAttention(4, 20, span=1)
+    queries = tf.random.uniform([4, 5, 10])
+    mask = tf.sequence_mask([4, 3, 5, 2])
+    context, _ = attention(queries, mask=mask)
+    self.assertListEqual(context.shape.as_list(), [4, 5, 20])
+
   def testMultiHeadAttention(self):
     attention = transformer.MultiHeadAttention(4, 20)
     queries = tf.random.uniform([4, 5, 10])

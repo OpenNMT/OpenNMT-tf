@@ -1,5 +1,6 @@
 """Define the self-attention encoder."""
 
+import math
 import tensorflow as tf
 
 from opennmt.layers import transformer
@@ -25,6 +26,7 @@ class SelfAttentionEncoder(Encoder):
                ffn_activation=tf.nn.relu,
                position_encoder_class=SinusoidalPositionEncoder,
                maximum_relative_position=None,
+               attention_span=None,
                **kwargs):
     """Initializes the parameters of the encoder.
 
@@ -45,6 +47,8 @@ class SelfAttentionEncoder(Encoder):
         instance).
       maximum_relative_position: Maximum relative position representation
         (from https://arxiv.org/abs/1803.02155).
+      attention_span: Maximum relative position to attend to
+        (from https://arxiv.org/abs/1904.03107).
       **kwargs: Additional layer arguments.
     """
     super(SelfAttentionEncoder, self).__init__(**kwargs)
@@ -54,6 +58,12 @@ class SelfAttentionEncoder(Encoder):
     if position_encoder_class is not None:
       self.position_encoder = position_encoder_class()
     self.layer_norm = common.LayerNorm()
+
+    if attention_span is None:
+      num_unconstrained_layers = num_layers
+    else:
+      num_unconstrained_layers = math.floor(num_layers / 2)
+    num_constrained_layers = num_layers - num_unconstrained_layers
     self.layers = [
         transformer.SelfAttentionEncoderLayer(
             num_units,
@@ -63,8 +73,19 @@ class SelfAttentionEncoder(Encoder):
             attention_dropout=attention_dropout,
             ffn_dropout=ffn_dropout,
             ffn_activation=ffn_activation,
+            maximum_relative_position=maximum_relative_position,
+            attention_span=attention_span)
+        for i in range(num_constrained_layers)] + [
+        transformer.SelfAttentionEncoderLayer(
+            num_units,
+            num_heads,
+            ffn_inner_dim,
+            dropout=dropout,
+            attention_dropout=attention_dropout,
+            ffn_dropout=ffn_dropout,
+            ffn_activation=ffn_activation,
             maximum_relative_position=maximum_relative_position)
-        for i in range(num_layers)]
+        for i in range(num_unconstrained_layers)]
 
   def call(self, inputs, sequence_length=None, training=None):
     inputs *= self.num_units**0.5

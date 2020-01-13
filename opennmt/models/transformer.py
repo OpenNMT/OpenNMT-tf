@@ -29,7 +29,8 @@ class Transformer(SequenceToSequence):
                position_encoder_class=SinusoidalPositionEncoder,
                share_embeddings=EmbeddingsSharingLevel.NONE,
                share_encoders=False,
-               maximum_relative_position=None):
+               maximum_relative_position=None,
+               attention_span=None):
     """Initializes a Transformer model.
 
     Args:
@@ -58,6 +59,8 @@ class Transformer(SequenceToSequence):
         separate encoders parameters or not.
       maximum_relative_position: Maximum relative position representation
         (from https://arxiv.org/abs/1803.02155).
+      attention_span: Maximum relative position to attend to
+        (from https://arxiv.org/abs/1904.03107).
     """
     encoders = [
         SelfAttentionEncoder(
@@ -70,7 +73,8 @@ class Transformer(SequenceToSequence):
             ffn_dropout=ffn_dropout,
             ffn_activation=ffn_activation,
             position_encoder_class=position_encoder_class,
-            maximum_relative_position=maximum_relative_position)
+            maximum_relative_position=maximum_relative_position,
+            attention_span=attention_span)
         for _ in range(source_inputter.num_outputs)]
     if len(encoders) > 1:
       encoder = ParallelEncoder(

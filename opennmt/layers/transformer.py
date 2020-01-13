@@ -159,6 +159,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                dropout=0.1,
                return_attention=False,
                maximum_relative_position=None,
+               attention_span=None,
                **kwargs):
     """Initializes this layer.
 
@@ -170,6 +171,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         first head.
       maximum_relative_position: Maximum relative position representation
         (from https://arxiv.org/abs/1803.02155).
+      attention_span: Maximum relative position to attend to
+        (from https://arxiv.org/abs/1904.03107).
       kwargs: Additional layer arguments.
     """
     super(MultiHeadAttention, self).__init__(**kwargs)
@@ -185,6 +188,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     self.dropout = dropout
     self.return_attention = return_attention
     self.maximum_relative_position = maximum_relative_position
+    self.attention_span = attention_span
 
   def map_v1_weights(self, weights):
     # V1 used conv1d layers that have a leading dimensions.
@@ -282,6 +286,15 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
     # Dot product attention.
     dot = tf.matmul(queries, keys, transpose_b=True)
+
+    if self.attention_span is not None:
+      batch_size = keys.shape[0]
+      maximum_length = keys.shape[1]
+      span_mask = tf.linalg.band_part(
+          tf.ones(dot.shape), self.attention_span, self.attention_span)
+      span_mask = tf.cast(span_mask, tf.float32)
+      dot = tf.cast(tf.cast(dot, tf.float32) * span_mask + ((1.0 - span_mask) * tf.float32.min), dot.dtype)
+
     if relative_repr_keys is not None:
       dot += matmul_with_relative_representations(queries, relative_repr_keys, transpose_b=True)
     if mask is not None:
@@ -348,6 +361,7 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
                ffn_dropout=0.1,
                ffn_activation=tf.nn.relu,
                maximum_relative_position=None,
+               attention_span=None,
                **kwargs):
     """Initializes the layer.
 
@@ -364,6 +378,8 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         transformations of the feed forward layer.
       maximum_relative_position: Maximum relative position representation
         (from https://arxiv.org/abs/1803.02155).
+      attention_span: Maximum relative position to attend to
+        (from https://arxiv.org/abs/1904.03107).
       kwargs: Additional layer arguments.
     """
     super(SelfAttentionEncoderLayer, self).__init__(**kwargs)
@@ -371,7 +387,8 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         num_heads,
         num_units,
         dropout=attention_dropout,
-        maximum_relative_position=maximum_relative_position)
+        maximum_relative_position=maximum_relative_position,
+        attention_span=attention_span)
     self.self_attention = TransformerLayerWrapper(
         self.self_attention, dropout)
     self.ffn = FeedForwardNetwork(

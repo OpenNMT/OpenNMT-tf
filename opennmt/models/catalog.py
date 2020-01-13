@@ -220,7 +220,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
     })
 
 class _DefaultTransformer(transformer.Transformer):
-  def __init__(self, big=False, relative=False):
+  def __init__(self, big=False, relative=False, conv=False):
     if big:
       num_units = 1024
       num_heads = 16
@@ -235,6 +235,8 @@ class _DefaultTransformer(transformer.Transformer):
     else:
       position_encoder_class = layers.SinusoidalPositionEncoder
       maximum_relative_position = None
+    attention_span = 5 if conv else None
+
     super(_DefaultTransformer, self).__init__(
         source_inputter=inputters.WordEmbedder(embedding_size=num_units),
         target_inputter=inputters.WordEmbedder(embedding_size=num_units),
@@ -246,7 +248,8 @@ class _DefaultTransformer(transformer.Transformer):
         attention_dropout=0.1,
         ffn_dropout=0.1,
         position_encoder_class=position_encoder_class,
-        maximum_relative_position=maximum_relative_position)
+        maximum_relative_position=maximum_relative_position,
+        attention_span=attention_span)
 
 class Transformer(_DefaultTransformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
@@ -257,6 +260,11 @@ class TransformerRelative(_DefaultTransformer):
   """
   def __init__(self):
     super(TransformerRelative, self).__init__(relative=True)
+
+class TransformerConv(_DefaultTransformer):
+  """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+  def __init__(self):
+    super(TransformerBig, self).__init__(conv=True)
 
 class TransformerBig(_DefaultTransformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
@@ -269,6 +277,13 @@ class TransformerBigRelative(_DefaultTransformer):
   """
   def __init__(self):
     super(TransformerBigRelative, self).__init__(big=True, relative=True)
+
+class TransformerBigConv(_DefaultTransformer):
+  """Defines a large Transformer model using relative position representations as
+  described in https://arxiv.org/abs/1803.02155.
+  """
+  def __init__(self):
+    super(TransformerBigRelative, self).__init__(big=True, conv=True)
 
 class GPT2Small(language_model.LanguageModel):
   """GPT-2 language model (small version) as described in:
