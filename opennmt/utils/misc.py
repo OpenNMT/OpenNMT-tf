@@ -26,12 +26,12 @@ def get_devices(count=1, fallback_to_cpu=True):
   Raises:
     ValueError: if :obj:`count` is greater than the number of visible devices.
   """
-  devices = tf.config.experimental.list_logical_devices(device_type="GPU")
+  devices = tf.config.list_logical_devices(device_type="GPU")
   if not devices and fallback_to_cpu:
-    devices = tf.config.experimental.list_logical_devices(device_type="CPU")
+    devices = tf.config.list_logical_devices(device_type="CPU")
   if len(devices) < count:
     raise ValueError("Requested %d devices but only %d are visible" % (count, len(devices)))
-  return [device.name for device in devices[0:count]]
+  return devices[0:count]
 
 def get_variables_name_mapping(root, root_key=None):
   """Returns mapping between variables and their name in the object-based
