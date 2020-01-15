@@ -288,10 +288,12 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     dot = tf.matmul(queries, keys, transpose_b=True)
 
     if self.attention_span is not None:
-      batch_size = keys.shape[0]
-      maximum_length = keys.shape[1]
+      if memory is not None:
+        raise ValueError("Attention Span only supports self-attention")
+      maximum_length = tf.shape(keys)[2]
+      attention_span = tf.math.minimum(self.attention_span, maximum_length)
       span_mask = tf.linalg.band_part(
-          tf.ones(dot.shape), self.attention_span, self.attention_span)
+          tf.ones(tf.shape(dot)), attention_span, attention_span)
       span_mask = tf.cast(span_mask, tf.float32)
       dot = tf.cast(tf.cast(dot, tf.float32) * span_mask + ((1.0 - span_mask) * tf.float32.min), dot.dtype)
 

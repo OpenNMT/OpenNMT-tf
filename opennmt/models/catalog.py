@@ -264,7 +264,7 @@ class TransformerRelative(_DefaultTransformer):
 class TransformerConv(_DefaultTransformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
   def __init__(self):
-    super(TransformerBig, self).__init__(conv=True)
+    super(TransformerConv, self).__init__(conv=True)
 
 class TransformerBig(_DefaultTransformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
@@ -283,7 +283,7 @@ class TransformerBigConv(_DefaultTransformer):
   described in https://arxiv.org/abs/1803.02155.
   """
   def __init__(self):
-    super(TransformerBigRelative, self).__init__(big=True, conv=True)
+    super(TransformerBigConv, self).__init__(big=True, conv=True)
 
 class GPT2Small(language_model.LanguageModel):
   """GPT-2 language model (small version) as described in:
