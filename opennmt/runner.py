@@ -193,10 +193,9 @@ class Runner(object):
     else:
       accum_steps = 1
 
-    trainer = training_util.Trainer(
+    trainer = training_util.DistributionStrategyTrainer(
         checkpoint,
-        devices=misc.get_devices(count=num_devices),
-        mixed_precision=self._mixed_precision)
+        devices=misc.get_devices(count=num_devices))
     trainer(
         dataset_fn,
         max_step=train_config.get("max_step"),
