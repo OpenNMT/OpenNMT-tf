@@ -27,6 +27,7 @@ Functions
    opennmt.data.filter_irregular_batches
    opennmt.data.get_dataset_size
    opennmt.data.inference_pipeline
+   opennmt.data.make_cardinality_multiple_of
    opennmt.data.random_shard
    opennmt.data.shuffle_dataset
    opennmt.data.tokens_to_chars

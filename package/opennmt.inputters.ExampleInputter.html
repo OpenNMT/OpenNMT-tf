@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -281,7 +281,7 @@ formation.</p></li>
 
 <dl class="method">
 <dt id="opennmt.inputters.ExampleInputter.make_training_dataset">
-<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for training. It supports the full training
 pipeline, including:</p>
 <ul class="simple">
@@ -318,6 +318,8 @@ distributed setting).</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
+<li><p><strong>cardinality_multiple</strong> – Ensure that the dataset cardinality is a multiple of
+this value when <code class="xref py py-obj docutils literal notranslate"><span class="pre">single_pass</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

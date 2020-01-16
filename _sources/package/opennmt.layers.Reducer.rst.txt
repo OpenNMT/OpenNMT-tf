@@ -5,4 +5,4 @@ opennmt.layers.Reducer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`builtins.object`
+    Inherits from: :class:`abc.ABC`

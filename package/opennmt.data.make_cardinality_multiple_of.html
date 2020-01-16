@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders module &mdash; OpenNMT-tf 2.5.0 documentation</title>
+  <title>opennmt.data.make_cardinality_multiple_of &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.decoders.AttentionalRNNDecoder" href="opennmt.decoders.AttentionalRNNDecoder.html" />
-    <link rel="prev" title="opennmt.data.training_pipeline" href="opennmt.data.training_pipeline.html" /> 
+    <link rel="next" title="opennmt.data.random_shard" href="opennmt.data.random_shard.html" />
+    <link rel="prev" title="opennmt.data.inference_pipeline" href="opennmt.data.inference_pipeline.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -116,12 +116,12 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.decoders module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="opennmt.data.html#classes">Classes</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.data.html#functions">Functions</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
@@ -184,7 +184,9 @@
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-      <li>opennmt.decoders module</li>
+          <li><a href="opennmt.data.html">opennmt.data module</a> &raquo;</li>
+        
+      <li>opennmt.data.make_cardinality_multiple_of</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -201,29 +203,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-opennmt.decoders">
-<span id="opennmt-decoders-module"></span><h1>opennmt.decoders module<a class="headerlink" href="#module-opennmt.decoders" title="Permalink to this headline">¶</a></h1>
-<p>Module defining decoders.</p>
-<div class="section" id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.AttentionalRNNDecoder.html">opennmt.decoders.AttentionalRNNDecoder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.Decoder.html">opennmt.decoders.Decoder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.RNMTPlusDecoder.html">opennmt.decoders.RNMTPlusDecoder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.RNNDecoder.html">opennmt.decoders.RNNDecoder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.SelfAttentionDecoder.html">opennmt.decoders.SelfAttentionDecoder</a></li>
-</ul>
-</div>
-</div>
-<div class="section" id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.decoders.get_sampling_probability.html">opennmt.decoders.get_sampling_probability</a></li>
-</ul>
-</div>
-</div>
+  <div class="section" id="opennmt-data-make-cardinality-multiple-of">
+<h1>opennmt.data.make_cardinality_multiple_of<a class="headerlink" href="#opennmt-data-make-cardinality-multiple-of" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="opennmt.data.make_cardinality_multiple_of">
+<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">make_cardinality_multiple_of</code><span class="sig-paren">(</span><em class="sig-param">divisor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#make_cardinality_multiple_of"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.make_cardinality_multiple_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transformation that ensures that the dataset cardinality is a multiple of
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">divisor</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>divisor</strong> – The value that should divide the dataset size.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> transformation.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -234,10 +230,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.decoders.AttentionalRNNDecoder.html" class="btn btn-neutral float-right" title="opennmt.decoders.AttentionalRNNDecoder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.data.random_shard.html" class="btn btn-neutral float-right" title="opennmt.data.random_shard" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.data.training_pipeline.html" class="btn btn-neutral float-left" title="opennmt.data.training_pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.data.inference_pipeline.html" class="btn btn-neutral float-left" title="opennmt.data.inference_pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -41,6 +41,10 @@ data:
   source_vocabulary: data/toy-ende/src-vocab.txt
   target_vocabulary: data/toy-ende/tgt-vocab.txt
 
+  # (optional) During export save the vocabularies as model assets, otherwise embed
+  # them in the graph itself (default: True).
+  export_vocabulary_assets: True
+
   # (optional) Tokenization configuration (or path to a configuration file).
   # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
   source_tokenization:
@@ -146,7 +150,7 @@ params:
   # (optional) Sequence of noise to apply to the decoding output. Each element
   # should be a noise type (can be: "dropout", "replacement", "permutation") and
   # the module arguments
-  # (see http://opennmt.net/OpenNMT-tf/package/opennmt.data.noise.html)
+  # (see https://opennmt.net/OpenNMT-tf/package/opennmt.data.noise.html)
   decoding_noise:
     - dropout: 0.1
     - replacement: [0.1, ｟unk｠]

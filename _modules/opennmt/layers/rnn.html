@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.rnn &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.layers.rnn &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -227,19 +227,6 @@
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span>
         <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div></div>
 
-
-<span class="k">class</span> <span class="nc">_StackedRNNCells</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">StackedRNNCells</span><span class="p">):</span>
-
-  <span class="c1"># To pass the training flag to the cell, tf.keras.layers.RNN checks that the</span>
-  <span class="c1"># cell call method explicitly takes the &quot;training&quot; argument, which</span>
-  <span class="c1"># tf.keras.layers.StackedRNNCells do not.</span>
-  <span class="c1"># TODO: remove this when this change is released:</span>
-  <span class="c1"># https://github.com/tensorflow/tensorflow/commit/df2b252fa380994cd9236cc56b06557bcf12a9d3</span>
-  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;training&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">training</span>
-    <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_StackedRNNCells</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="n">constants</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="make_rnn_cell"><a class="viewcode-back" href="../../../package/opennmt.layers.make_rnn_cell.html#opennmt.layers.make_rnn_cell">[docs]</a><span class="k">def</span> <span class="nf">make_rnn_cell</span><span class="p">(</span><span class="n">num_layers</span><span class="p">,</span>
                   <span class="n">num_units</span><span class="p">,</span>
                   <span class="n">dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -272,7 +259,7 @@
       <span class="n">cell</span> <span class="o">=</span> <span class="n">RNNCellWrapper</span><span class="p">(</span>
           <span class="n">cell</span><span class="p">,</span> <span class="n">output_dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span> <span class="n">residual_connection</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">)</span>
     <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">_StackedRNNCells</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span></div>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">StackedRNNCells</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span></div>
 
 
 <span class="k">class</span> <span class="nc">_RNNWrapper</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>

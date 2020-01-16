@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -180,8 +180,6 @@
 
 <span class="sd">&quot;&quot;&quot;Standard sequence-to-sequence model.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">six</span>
-
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_addons</span> <span class="k">as</span> <span class="nn">tfa</span>
 
@@ -195,7 +193,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="n">model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">decoding</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">losses</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">print_bytes</span><span class="p">,</span> <span class="n">format_translation_output</span><span class="p">,</span> <span class="n">merge_dict</span><span class="p">,</span> <span class="n">shape_list</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders</span> <span class="kn">import</span> <span class="n">decoder</span> <span class="k">as</span> <span class="n">decoder_util</span>
 
 
@@ -278,7 +276,7 @@
 
 <div class="viewcode-block" id="SequenceToSequence.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
         <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;beam_width&quot;</span><span class="p">:</span> <span class="mi">4</span>
         <span class="p">},</span>
@@ -439,7 +437,7 @@
       <span class="c1"># Merge batch and beam dimensions.</span>
       <span class="n">original_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">)</span>
       <span class="n">target_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
-      <span class="n">align_shape</span> <span class="o">=</span> <span class="n">shape_list</span><span class="p">(</span><span class="n">alignment</span><span class="p">)</span>
+      <span class="n">align_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">alignment</span><span class="p">)</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
           <span class="n">alignment</span><span class="p">,</span> <span class="p">[</span><span class="n">align_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
       <span class="c1"># We don&#39;t have attention for &lt;/s&gt; but ensure that the attention time dimension matches</span>
@@ -476,7 +474,7 @@
     <span class="k">if</span> <span class="n">num_hypotheses</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">num_hypotheses</span> <span class="o">&gt;</span> <span class="n">beam_size</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_best cannot be greater than beam_width&quot;</span><span class="p">)</span>
-      <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">predictions</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">predictions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:,</span> <span class="p">:</span><span class="n">num_hypotheses</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">predictions</span>
 
@@ -540,12 +538,12 @@
         <span class="n">score</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;log_probs&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
       <span class="k">if</span> <span class="n">alignment_type</span><span class="p">:</span>
         <span class="n">attention</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][:</span><span class="n">target_length</span><span class="p">]</span>
-      <span class="n">sentence</span> <span class="o">=</span> <span class="n">format_translation_output</span><span class="p">(</span>
+      <span class="n">sentence</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">format_translation_output</span><span class="p">(</span>
           <span class="n">sentence</span><span class="p">,</span>
           <span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
           <span class="n">attention</span><span class="o">=</span><span class="n">attention</span><span class="p">,</span>
           <span class="n">alignment_type</span><span class="o">=</span><span class="n">alignment_type</span><span class="p">)</span>
-      <span class="n">print_bytes</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">sentence</span><span class="p">),</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div>
+      <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequenceToSequence.transfer_weights"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.transfer_weights">[docs]</a>  <span class="k">def</span> <span class="nf">transfer_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_model</span><span class="p">,</span> <span class="n">new_optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">updated_variables</span> <span class="o">=</span> <span class="p">[]</span>
@@ -670,7 +668,7 @@
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected a list of noise modules&quot;</span><span class="p">)</span>
   <span class="n">noises</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-    <span class="n">noise_type</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">module</span><span class="p">))</span>
+    <span class="n">noise_type</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
       <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
     <span class="n">noise_type</span> <span class="o">=</span> <span class="n">noise_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>

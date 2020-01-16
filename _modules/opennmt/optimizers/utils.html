@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -232,62 +232,65 @@
 
 
 <span class="k">class</span> <span class="nc">GradientAccumulator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Distribution strategies-aware gradient accumulation utility.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;Gradient accumulation utility.</span>
+
+<span class="sd">  When used with a distribution strategy, the accumulator should be called in a</span>
+<span class="sd">  replica context. Gradients will be accumulated locally on each replica and</span>
+<span class="sd">  without synchronization. Users should then call ``.gradients``, scale the</span>
+<span class="sd">  gradients if required, and pass the result to ``apply_gradients``.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="c1"># We use the ON_READ synchronization policy so that no synchronization is</span>
+  <span class="c1"># performed on assignment. To get the value, we call .value() which returns the</span>
+  <span class="c1"># value on the current replica without synchronization.</span>
 
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the accumulator.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
-        <span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
-        <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">aggregation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">VariableAggregation</span><span class="o">.</span><span class="n">ONLY_FIRST_REPLICA</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="o">=</span> <span class="kc">None</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Number of accumulated steps.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+          <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+          <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">synchronization</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">ON_READ</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The accumulated gradients.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_replica_gradients</span><span class="p">())</span>
+    <span class="sd">&quot;&quot;&quot;The accumulated gradients on the current replica.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The accumulator should be called first to initialize the gradients&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradients</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Accumulates :obj:`gradients`.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Accumulates :obj:`gradients` on the current replica.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
+      <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span>  <span class="c1"># Create the step variable.</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gradient</span><span class="p">),</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+          <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+              <span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gradient</span><span class="p">),</span>
+              <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">synchronization</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">ON_READ</span><span class="p">)</span>
           <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">])</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">):</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected </span><span class="si">%s</span><span class="s2"> gradients, but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
           <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">gradients</span><span class="p">)))</span>
 
-    <span class="k">for</span> <span class="n">accum_gradient</span><span class="p">,</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_replica_gradients</span><span class="p">(),</span> <span class="n">gradients</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">accum_gradient</span><span class="p">,</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">,</span> <span class="n">gradients</span><span class="p">):</span>
       <span class="n">accum_gradient</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
-
     <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Resets the accumulated gradients.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-      <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_replica_gradients</span><span class="p">():</span>
-        <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gradient</span><span class="p">))</span>
-
-  <span class="k">def</span> <span class="nf">_get_replica_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">has_strategy</span><span class="p">():</span>
-      <span class="c1"># In a replica context, we want to accumulate gradients on each replica</span>
-      <span class="c1"># without synchronization, so we directly assign the value of the</span>
-      <span class="c1"># current replica.</span>
-      <span class="n">replica_context</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">get_replica_context</span><span class="p">()</span>
-      <span class="k">if</span> <span class="n">replica_context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span>
-      <span class="k">return</span> <span class="p">(</span>
-          <span class="n">gradient</span><span class="o">.</span><span class="n">device_map</span><span class="o">.</span><span class="n">select_for_current_replica</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">replica_context</span><span class="p">)</span>
-          <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span>
+    <span class="sd">&quot;&quot;&quot;Resets the accumulated gradients on the current replica.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
+      <span class="k">return</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gradient</span><span class="p">))</span>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -279,6 +279,47 @@
 
   <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_predicate</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="make_cardinality_multiple_of"><a class="viewcode-back" href="../../../package/opennmt.data.make_cardinality_multiple_of.html#opennmt.data.make_cardinality_multiple_of">[docs]</a><span class="k">def</span> <span class="nf">make_cardinality_multiple_of</span><span class="p">(</span><span class="n">divisor</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Transformation that ensures that the dataset cardinality is a multiple of</span>
+<span class="sd">  :obj:`divisor`.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    divisor: The value that should divide the dataset size.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A ``tf.data.Dataset`` transformation.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">divisor</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span>
+
+  <span class="k">def</span> <span class="nf">_continue_iter</span><span class="p">(</span><span class="n">num_consumed</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+    <span class="c1"># Continue iterating if the current element is from the original dataset or</span>
+    <span class="c1"># if the number of consumed batches is not a multiple of divisor.</span>
+    <span class="n">is_original</span> <span class="o">=</span> <span class="n">element</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">is_original</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="n">num_consumed</span> <span class="o">%</span> <span class="n">divisor</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">_retrieve_element</span><span class="p">(</span><span class="n">num_consumed</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">num_consumed</span>
+    <span class="k">return</span> <span class="n">element</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+  <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="c1"># Nothing to do for infinite datasets.</span>
+    <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">cardinality</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">INFINITE_CARDINALITY</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="c1"># Concatenate extra batches with a flag.</span>
+    <span class="n">extra_batches</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">extra_batches</span> <span class="o">=</span> <span class="n">extra_batches</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">extra_batches</span><span class="p">)</span>
+
+    <span class="c1"># Take all original batches and the number of extra batches required.</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">enumerate</span><span class="p">()</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">take_while</span><span class="p">(</span><span class="n">_continue_iter</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_retrieve_element</span><span class="p">)</span>  <span class="c1"># Retrieve the element only.</span>
+
+  <span class="k">return</span> <span class="n">_transform</span></div>
+
 <div class="viewcode-block" id="random_shard"><a class="viewcode-back" href="../../../package/opennmt.data.random_shard.html#opennmt.data.random_shard">[docs]</a><span class="k">def</span> <span class="nf">random_shard</span><span class="p">(</span><span class="n">shard_size</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Transformation that shards the dataset in a random order.</span>
 
@@ -462,7 +503,8 @@
                       <span class="n">shard_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                       <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                      <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">cardinality_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Transformation that defines a complete training data pipeline.</span>
 
 <span class="sd">  Args:</span>
@@ -490,12 +532,15 @@
 <span class="sd">    shuffle_buffer_size: The number of elements from which to sample.</span>
 <span class="sd">    prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
 <span class="sd">      ``None``, use an automatically tuned value.</span>
+<span class="sd">    cardinality_multiple: Ensure that the dataset cardinality is a multiple of</span>
+<span class="sd">      this value when :obj:`single_pass` is ``True``.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A ``tf.data.Dataset`` transformation.</span>
 
 <span class="sd">  See Also:</span>
 <span class="sd">    - :func:`opennmt.data.batch_sequence_dataset`</span>
+<span class="sd">    - :func:`opennmt.data.make_cardinality_multiple_of`</span>
 <span class="sd">    - :func:`opennmt.data.filter_examples_by_length`</span>
 <span class="sd">    - :func:`opennmt.data.filter_irregular_batches`</span>
 <span class="sd">    - :func:`opennmt.data.shuffle_dataset`</span>
@@ -523,6 +568,8 @@
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">filter_irregular_batches</span><span class="p">(</span><span class="n">batch_multiplier</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">single_pass</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">make_cardinality_multiple_of</span><span class="p">(</span><span class="n">cardinality_multiple</span><span class="p">))</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">prefetch_buffer_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataset</span>
 

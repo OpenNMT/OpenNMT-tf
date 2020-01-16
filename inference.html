@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Inference &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>Inference &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -233,9 +233,9 @@
 <h2>Noising<a class="headerlink" href="#noising" title="Permalink to this headline">¶</a></h2>
 <p>Noising the decoded output is also a possible decoding strategy for back-translation, as described in <a class="reference external" href="https://arxiv.org/abs/1808.09381">Edunov et al. 2018</a>. 3 types of noise are currently implemented:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordDropout"><code class="docutils literal notranslate"><span class="pre">dropout</span></code></a>: randomly drop words in the sequence</p></li>
-<li><p><a class="reference external" href="http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordReplacement"><code class="docutils literal notranslate"><span class="pre">replacement</span></code></a>: randomly replace words by a filler token</p></li>
-<li><p><a class="reference external" href="http://opennmt.net/OpenNMT-tf/package/opennmt.data.WordPermutation"><code class="docutils literal notranslate"><span class="pre">permutation</span></code></a>: randomly permute words with a maximum distance</p></li>
+<li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordDropout"><code class="docutils literal notranslate"><span class="pre">dropout</span></code></a>: randomly drop words in the sequence</p></li>
+<li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordReplacement"><code class="docutils literal notranslate"><span class="pre">replacement</span></code></a>: randomly replace words by a filler token</p></li>
+<li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordPermutation"><code class="docutils literal notranslate"><span class="pre">permutation</span></code></a>: randomly permute words with a maximum distance</p></li>
 </ul>
 <p>which can be combined in sequence, e.g.:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>

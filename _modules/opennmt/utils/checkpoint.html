@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -180,7 +180,7 @@
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -308,7 +308,7 @@
   <span class="n">reader</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
   <span class="k">return</span> <span class="p">{</span>
       <span class="n">name</span><span class="p">:</span><span class="n">reader</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-      <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">get_variable_to_shape_map</span><span class="p">())}</span>
+      <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_variable_to_shape_map</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
 
 <div class="viewcode-block" id="average_checkpoints"><a class="viewcode-back" href="../../../package/opennmt.utils.average_checkpoints.html#opennmt.utils.average_checkpoints">[docs]</a><span class="k">def</span> <span class="nf">average_checkpoints</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span>
                         <span class="n">output_dir</span><span class="p">,</span>
@@ -365,7 +365,7 @@
         <span class="n">variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">variable</span> <span class="o">/</span> <span class="n">num_checkpoints</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">reader</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
-      <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">get_variable_to_shape_map</span><span class="p">()):</span>
+      <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_variable_to_shape_map</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">model_key</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.OPTIMIZER_SLOT&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
           <span class="k">continue</span>
         <span class="n">variable</span> <span class="o">=</span> <span class="n">names_to_variables</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
@@ -409,7 +409,7 @@
       <span class="n">v1_slots</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">v2_variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">v1_variable</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">v1_slots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">for</span> <span class="n">slot_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">v1_slots</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">slot_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">v1_slots</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">v2_slot</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">v2_variable</span><span class="p">,</span> <span class="n">slot_name</span><span class="p">)</span>
         <span class="n">v2_slot</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">step</span>
@@ -417,7 +417,7 @@
 <span class="k">def</span> <span class="nf">_variables_to_structure</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Represents variables a nested dictionary with scope names as keys.&quot;&quot;&quot;</span>
   <span class="n">structure</span> <span class="o">=</span> <span class="p">{}</span>
-  <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+  <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
     <span class="n">cur</span> <span class="o">=</span> <span class="n">structure</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
@@ -435,7 +435,7 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
     <span class="n">merged</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
       <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">:</span>
         <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
@@ -443,7 +443,7 @@
     <span class="k">return</span> <span class="n">merged</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="n">new_slots</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">slots</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">slots</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
       <span class="n">name</span> <span class="o">=</span> <span class="n">_V1_SLOTS_MAPPING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Just ignore the optimizer slots if their name is not listed.</span>

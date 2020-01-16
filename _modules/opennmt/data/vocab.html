@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.4.0 documentation</title>
+  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.5.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.4
+                2.5
               </div>
             
           
@@ -177,8 +177,6 @@
             
   <h1>Source code for opennmt.data.vocab</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Vocabulary utilities for Python scripts.&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -299,8 +297,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">      token: The string to add.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
-      <span class="n">token</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">token</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">:</span>
       <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
@@ -321,11 +318,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
-      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
-        <span class="n">identifier</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">identifier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+      <span class="n">identifier</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+      <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">identifier</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
       <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span>
 
@@ -421,7 +416,7 @@
 <span class="sd">  mapping.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">ref</span> <span class="o">=</span> <span class="n">ref_variable</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-  <span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">new_variable</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">new_variable</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">as_numpy_dtype</span><span class="p">())</span>
+  <span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">new_variable</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">new_variable</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">as_numpy_dtype</span><span class="p">)</span>
   <span class="n">perm</span> <span class="o">=</span> <span class="kc">None</span>
   <span class="k">if</span> <span class="n">vocab_axis</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
     <span class="c1"># Make the dimension to index the first.</span>

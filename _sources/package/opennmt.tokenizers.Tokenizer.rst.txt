@@ -5,4 +5,4 @@ opennmt.tokenizers.Tokenizer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`builtins.object`
+    Inherits from: :class:`abc.ABC`
