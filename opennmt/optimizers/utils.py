@@ -62,14 +62,23 @@ class GradientAccumulator(object):
   gradients if required, and pass the result to ``apply_gradients``.
   """
 
+  # We use the ON_READ synchronization policy so that no synchronization is
+  # performed on assignment. To get the value, we call .value() which returns the
+  # value on the current replica without synchronization.
+
   def __init__(self):
     """Initializes the accumulator."""
     self._gradients = []
-    self._accum_steps = tf.Variable(tf.constant(0, dtype=tf.int64), trainable=False)
+    self._accum_steps = None
 
   @property
   def step(self):
     """Number of accumulated steps."""
+    if self._accum_steps is None:
+      self._accum_steps = tf.Variable(
+          tf.constant(0, dtype=tf.int64),
+          trainable=False,
+          synchronization=tf.VariableSynchronization.ON_READ)
     return self._accum_steps.value()
 
   @property
@@ -77,40 +86,30 @@ class GradientAccumulator(object):
     """The accumulated gradients on the current replica."""
     if not self._gradients:
       raise ValueError("The accumulator should be called first to initialize the gradients")
-    return list(gradient.value() for gradient in _get_replica_local_variables(self._gradients))
+    return list(gradient.value() for gradient in self._gradients)
 
   def __call__(self, gradients):
     """Accumulates :obj:`gradients` on the current replica."""
     if not self._gradients:
+      _ = self.step  # Create the step variable.
       self._gradients.extend([
-          tf.Variable(tf.zeros_like(gradient), trainable=False)
+          tf.Variable(
+              tf.zeros_like(gradient),
+              trainable=False,
+              synchronization=tf.VariableSynchronization.ON_READ)
           for gradient in gradients])
     if len(gradients) != len(self._gradients):
       raise ValueError("Expected %s gradients, but got %d" % (
           len(self._gradients), len(gradients)))
 
-    # In a replica context, we want to accumulate gradients on each replica
-    # without synchronization, so we directly assign the value of the
-    # current replica.
-    for accum_gradient, gradient in zip(_get_replica_local_variables(self._gradients), gradients):
+    for accum_gradient, gradient in zip(self._gradients, gradients):
       accum_gradient.assign_add(gradient)
-    _get_replica_local_variables(self._accum_steps).assign_add(1)
+    self._accum_steps.assign_add(1)
 
   def reset(self):
     """Resets the accumulated gradients on the current replica."""
-    if self._gradients:
-      _get_replica_local_variables(self._accum_steps).assign(0)
-      for gradient in _get_replica_local_variables(self._gradients):
-        gradient.assign(tf.zeros_like(gradient))
-
-
-def _get_replica_local_variables(variables):
-  if not tf.distribute.has_strategy():
-    return variables
-  if tf.distribute.in_cross_replica_context():
-    raise RuntimeError("GradientAccumulator should be used in a replica context")
-  replica_context = tf.distribute.get_replica_context()
-  replica_id = replica_context.replica_id_in_sync_group
-  if not isinstance(replica_id, int):
-    replica_id = tf.get_static_value(replica_id)
-  return tf.nest.map_structure(lambda variable: variable.values[replica_id], variables)
+    if not self._gradients:
+      return
+    self._accum_steps.assign(0)
+    for gradient in self._gradients:
+      gradient.assign(tf.zeros_like(gradient))
