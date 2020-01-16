@@ -70,7 +70,7 @@ class Trainer(abc.ABC):
       iterations = self._optimizer.iterations
       tf.summary.experimental.set_step(iterations)
 
-      last_report_step = 0
+      last_report_step = iterations.numpy()
       last_report_time = time.time()
       for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
         if tf.math.is_nan(loss):
