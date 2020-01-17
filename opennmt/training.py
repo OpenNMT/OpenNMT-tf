@@ -349,6 +349,8 @@ def _report_training_status(step,
 
   if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
     learning_rate = learning_rate(step)
+  elif isinstance(learning_rate, tf.Variable):
+    learning_rate = learning_rate.value()
 
   tf.get_logger().info(
       "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
