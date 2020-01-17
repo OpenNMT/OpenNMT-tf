@@ -81,7 +81,8 @@ class SelfAttentionEncoder(Encoder):
             maximum_relative_position=maximum_relative_position,
             attention_span=attention_span,
             num_attended_heads=num_attended_heads)
-        for _ in range(num_constrained_layers)] + [
+        for _ in range(num_constrained_layers)]
+    self.layers += [
         transformer.SelfAttentionEncoderLayer(
             num_units,
             num_heads,
