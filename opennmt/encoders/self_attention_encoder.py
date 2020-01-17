@@ -81,7 +81,7 @@ class SelfAttentionEncoder(Encoder):
             maximum_relative_position=maximum_relative_position,
             attention_span=attention_span,
             num_attended_heads=num_attended_heads)
-        for i in range(num_constrained_layers)] + [
+        for _ in range(num_constrained_layers)] + [
         transformer.SelfAttentionEncoderLayer(
             num_units,
             num_heads,
@@ -91,7 +91,7 @@ class SelfAttentionEncoder(Encoder):
             ffn_dropout=ffn_dropout,
             ffn_activation=ffn_activation,
             maximum_relative_position=maximum_relative_position)
-        for i in range(num_unconstrained_layers)]
+        for _ in range(num_unconstrained_layers)]
 
   def call(self, inputs, sequence_length=None, training=None):
     inputs *= self.num_units**0.5

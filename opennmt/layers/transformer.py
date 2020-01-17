@@ -318,7 +318,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
           attention_span)
       span_mask = tf.concat([head_span_mask] * self.num_attended_heads, axis=3)
       span_mask = tf.cast(span_mask, tf.float32)
-      dot = tf.cast(tf.cast(dot, tf.float32) * span_mask + ((1.0 - span_mask) * tf.float32.min), dot.dtype)
+      dot = tf.cast(
+          tf.cast(dot, tf.float32) * span_mask + ((1.0 - span_mask) * tf.float32.min), dot.dtype)
 
     if relative_repr_keys is not None:
       dot += matmul_with_relative_representations(queries, relative_repr_keys, transpose_b=True)
