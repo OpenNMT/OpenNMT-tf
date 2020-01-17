@@ -235,7 +235,12 @@ class _DefaultTransformer(transformer.Transformer):
     else:
       position_encoder_class = layers.SinusoidalPositionEncoder
       maximum_relative_position = None
-    attention_span = 5 if conv else None
+    if conv:
+      attention_span = 5
+      num_attended_heads = 3
+    else:
+      attention_span = None
+      num_attended_heads = 1
 
     super(_DefaultTransformer, self).__init__(
         source_inputter=inputters.WordEmbedder(embedding_size=num_units),
@@ -249,7 +254,8 @@ class _DefaultTransformer(transformer.Transformer):
         ffn_dropout=0.1,
         position_encoder_class=position_encoder_class,
         maximum_relative_position=maximum_relative_position,
-        attention_span=attention_span)
+        attention_span=attention_span,
+        num_attended_heads=num_attended_heads)
 
 class Transformer(_DefaultTransformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""

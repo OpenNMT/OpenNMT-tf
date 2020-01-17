@@ -27,6 +27,7 @@ class SelfAttentionEncoder(Encoder):
                position_encoder_class=SinusoidalPositionEncoder,
                maximum_relative_position=None,
                attention_span=None,
+               num_attended_heads=1,
                **kwargs):
     """Initializes the parameters of the encoder.
 
@@ -49,6 +50,10 @@ class SelfAttentionEncoder(Encoder):
         (from https://arxiv.org/abs/1803.02155).
       attention_span: Maximum relative position to attend to
         (from https://arxiv.org/abs/1904.03107).
+      num_attended_heads: How many heads should be attended. Defaults to 1
+        as each head only attends to itself in vanilla Transformer. Increase to
+        an odd number < `num_heads` to also model head interaction.
+        (from ttps://arxiv.org/abs/1904.03107).
       **kwargs: Additional layer arguments.
     """
     super(SelfAttentionEncoder, self).__init__(**kwargs)
@@ -74,7 +79,8 @@ class SelfAttentionEncoder(Encoder):
             ffn_dropout=ffn_dropout,
             ffn_activation=ffn_activation,
             maximum_relative_position=maximum_relative_position,
-            attention_span=attention_span)
+            attention_span=attention_span,
+            num_attended_heads=num_attended_heads)
         for i in range(num_constrained_layers)] + [
         transformer.SelfAttentionEncoderLayer(
             num_units,
