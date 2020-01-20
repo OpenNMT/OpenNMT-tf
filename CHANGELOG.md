@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.5.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.5.1) (2020-01-20)
+
+### Fixes and improvements
+
+* Fix first value of steps per second metric when continuing a training
+* Fix reporting of learning rate values with some optimizers
+
 ## [2.5.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.5.0) (2020-01-16)
 
 ### New features
