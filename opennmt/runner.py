@@ -17,6 +17,7 @@ from opennmt import evaluation
 from opennmt import models
 from opennmt import training as training_util
 from opennmt.utils import checkpoint as checkpoint_util
+from opennmt.utils import exporters
 from opennmt.utils import misc
 
 
@@ -204,7 +205,8 @@ class Runner(object):
         save_steps=train_config.get("save_checkpoints_steps", 5000),
         evaluator=evaluator,
         eval_steps=eval_config.get("steps", 5000),
-        export_on_best=eval_config.get("export_on_best"))
+        export_on_best=eval_config.get("export_on_best"),
+        exporter=exporters.make_exporter(eval_config.get("export_format", "saved_model")))
     average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
     if average_last_checkpoints > 0:
       return self.average_checkpoints(
@@ -368,16 +370,18 @@ class Runner(object):
     if predictions_file:
       stream.close()
 
-  def export(self, export_dir, checkpoint_path=None):
+  def export(self, export_dir, checkpoint_path=None, exporter=None):
     """Exports a model.
 
     Args:
       export_dir: The export directory.
       checkpoint_path: The checkpoint path to export. If ``None``, the latest is used.
+      exporter: A :class:`opennmt.utils.Exporter` instance. Defaults to
+        :class:`opennmt.utils.SavedModelExporter`.
    """
     checkpoint, _ = self._init_run()
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    checkpoint.model.export(export_dir)
+    checkpoint.model.export(export_dir, exporter=exporter)
 
   def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.

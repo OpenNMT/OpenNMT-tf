@@ -93,12 +93,26 @@ class Transformer(SequenceToSequence):
         maximum_relative_position=maximum_relative_position)
 
     self._num_units = num_units
+    self._num_layers = num_layers
+    self._num_heads = num_heads
+    self._is_vanilla_transformer = (
+        isinstance(encoder, SelfAttentionEncoder)
+        and ffn_activation == tf.nn.relu
+        and position_encoder_class == SinusoidalPositionEncoder
+        and maximum_relative_position is None)
     super(Transformer, self).__init__(
         source_inputter,
         target_inputter,
         encoder,
         decoder,
         share_embeddings=share_embeddings)
+
+  @property
+  def ctranslate2_spec(self):
+    if not self._is_vanilla_transformer:
+      return None
+    import ctranslate2  # pylint: disable=import-outside-toplevel
+    return ctranslate2.specs.TransformerSpec(self._num_layers, self._num_heads)
 
   def auto_config(self, num_replicas=1):
     config = super(Transformer, self).auto_config(num_replicas=num_replicas)

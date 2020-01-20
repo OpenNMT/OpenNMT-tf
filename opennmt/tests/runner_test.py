@@ -11,6 +11,7 @@ import tensorflow as tf
 
 from opennmt import Runner
 from opennmt.config import load_model
+from opennmt.utils import exporters
 from opennmt.utils import misc
 from opennmt.tests import test_util
 
@@ -265,6 +266,19 @@ class RunnerTest(tf.test.TestCase):
     result = tf.nest.map_structure(lambda x: x[0, 0], outputs)
     tokens = result["tokens"][:result["length"]]
     self.assertAllEqual(tokens, [b"a", b"t", b"z", b"m", b"o", b"n"])
+
+  def testCTranslate2Export(self):
+    try:
+      import ctranslate2
+    except ImportError:
+      self.skipTest("ctranslate2 module is not available")
+    export_dir = os.path.join(self.get_temp_dir(), "export")
+    runner = self._getTransliterationRunner()
+    runner.export(export_dir, exporter=exporters.make_exporter("ctranslate2"))
+    self.assertTrue(ctranslate2.contains_model(export_dir))
+    translator = ctranslate2.Translator(export_dir)
+    output = translator.translate_batch([["آ" ,"ت" ,"ز" ,"م" ,"و" ,"ن"]])
+    self.assertListEqual(output[0][0]["tokens"], ["a", "t", "z", "m", "o", "n"])
 
 
 if __name__ == "__main__":

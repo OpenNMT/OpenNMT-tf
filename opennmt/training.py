@@ -43,7 +43,8 @@ class Trainer(abc.ABC):
                save_steps=5000,
                evaluator=None,
                eval_steps=5000,
-               export_on_best=None):
+               export_on_best=None,
+               exporter=None):
     """Runs the training.
 
     Args:
@@ -56,8 +57,10 @@ class Trainer(abc.ABC):
       evaluator: A :class:`opennmt.evaluation.Evaluator` instance to call for
         evaluation.
       eval_steps: Evaluate every this many steps.
-      export_on_best: Export a SavedModel when this evaluation metric has the
+      export_on_best: Export a model when this evaluation metric has the
         best value so far.
+      exporter: A :class:`opennmt.utils.Exporter` instance to for model export.
+        Defaults to :class:`opennmt.utils.SavedModelExporter`.
     """
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
       tf.get_logger().warning("Model already reached max_step = %d. Exiting.", max_step)
@@ -89,7 +92,7 @@ class Trainer(abc.ABC):
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step)
         if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
-          self._evaluate(evaluator, step, export_on_best=export_on_best)
+          self._evaluate(evaluator, step, export_on_best=export_on_best, exporter=exporter)
           if evaluator.should_stop():
             tf.get_logger().warning("Early stopping conditions are met. Exiting.")
             break
@@ -97,7 +100,7 @@ class Trainer(abc.ABC):
           break
 
       if evaluator is not None and step != evaluator.last_evaluated_step:
-        self._evaluate(evaluator, step, export_on_best=export_on_best)
+        self._evaluate(evaluator, step, export_on_best=export_on_best, exporter=exporter)
       self._save_checkpoint(step)
 
   @abc.abstractmethod
@@ -162,16 +165,16 @@ class Trainer(abc.ABC):
       return
     self._checkpoint.save(step)
 
-  def _evaluate(self, evaluator, step, export_on_best=None):
+  def _evaluate(self, evaluator, step, export_on_best=None, exporter=None):
     """Runs evaluation for step."""
     if not self._is_master:
       return
     metrics = evaluator(step)
     if export_on_best is not None and evaluator.is_best(export_on_best):
       export_dir = os.path.join(self._checkpoint.model_dir, "export", str(step))
-      tf.get_logger().info("Exporting SavedModel to %s (best %s so far: %f)",
+      tf.get_logger().info("Exporting model to %s (best %s so far: %f)",
                            export_dir, export_on_best, metrics[export_on_best])
-      self._model.export(export_dir)
+      self._model.export(export_dir, exporter=exporter)
 
 
 class BasicTrainer(Trainer):

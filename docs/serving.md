@@ -1,6 +1,8 @@
 # Serving
 
-## Exporting a SavedModel
+## TensorFlow
+
+### Exporting a SavedModel
 
 OpenNMT-tf can export [SavedModel](https://www.tensorflow.org/guide/saved_model) packages for inference in other environments, for example with [TensorFlow Serving](https://www.tensorflow.org/serving/). A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:
 
@@ -15,7 +17,7 @@ toy-ende/export/
     └── variables.index
 ```
 
-### Manual export
+#### Manual export
 
 Models can be exported using the `export` run type:
 
@@ -25,11 +27,11 @@ onmt-main --config my_config.yml --auto_config export --export_dir ~/my-models/e
 
 It's a good idea to re-export your model with a more recent version as it can improve performance.
 
-### Automatic export
+#### Automatic export
 
-When training with `train --with_eval`, it is possible to automatically export a SavedModel when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:
+When training with `train --with_eval`, it is possible to automatically export a model when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:
 
-```
+```yaml
 eval:
   external_evaluators: bleu
   export_on_best: bleu
@@ -37,7 +39,7 @@ eval:
 
 These models are saved in the model directory under `export/<step>`.
 
-## Running a SavedModel
+### Running a SavedModel
 
 When using an exported model, you need to know the input and output nodes of your model. You can use the [`saved_model_cli`](https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel) script provided by TensorFlow for inspection, e.g.:
 
@@ -48,9 +50,30 @@ saved_model_cli show --dir ~/my-models/ende \
 
 Some examples using exported models are available in the [`examples/serving`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) directory.
 
-## Input preprocessing and tokenization
+### Input preprocessing and tokenization
 
 TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see the *Tokenization* page for more details). In this case, these functions should be run outside of the TensorFlow engine, either by the client or a proxy server.
 
 * The OpenNMT-tf [serving example](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) uses the client approach to implement a simple interactive translation loop
 * The project [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these [instructions](https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844).
+
+## CTranslate2
+
+[CTranslate2](https://github.com/OpenNMT/CTranslate2) is an optimized inference engine for OpenNMT models that is typically faster and more customizable than the TensorFlow runtime.
+
+Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf. An additional `export_format` option should be configured to select this export type:
+
+**Manual export**
+
+```bash
+onmt-main [...] export --export_dir ~/my-models/ende --export_format ctranslate2
+```
+
+**Automatic export**
+
+```yaml
+eval:
+  external_evaluators: bleu
+  export_on_best: bleu
+  export_format: ctranslate2
+```

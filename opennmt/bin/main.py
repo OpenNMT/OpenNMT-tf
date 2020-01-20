@@ -10,6 +10,7 @@ from opennmt import __version__
 from opennmt.models import catalog
 from opennmt.runner import Runner
 from opennmt.config import load_model, load_config
+from opennmt.utils import exporters
 from opennmt.utils.misc import classes_in_module
 
 
@@ -120,6 +121,9 @@ def main():
   parser_export.add_argument(
       "--export_dir", required=True,
       help="The directory of the exported model.")
+  parser_export.add_argument(
+      "--export_format", choices=["saved_model", "ctranslate2"], default="saved_model",
+      help="Format of the exported model.")
 
   parser_score = subparsers.add_parser("score", help="Scoring.")
   parser_score.add_argument("--features_file", nargs="+", required=True,
@@ -201,7 +205,8 @@ def main():
   elif args.run == "export":
     runner.export(
         args.export_dir,
-        checkpoint_path=args.checkpoint_path)
+        checkpoint_path=args.checkpoint_path,
+        export_format=exporters.make_exporter(args.export_format))
   elif args.run == "score":
     runner.score(
         args.features_file,

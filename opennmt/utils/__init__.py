@@ -12,6 +12,10 @@ from opennmt.utils.decoding import RandomSampler
 from opennmt.utils.decoding import Sampler
 from opennmt.utils.decoding import dynamic_decode
 
+from opennmt.utils.exporters import CTranslate2Exporter
+from opennmt.utils.exporters import Exporter
+from opennmt.utils.exporters import SavedModelExporter
+
 from opennmt.utils.losses import cross_entropy_loss
 from opennmt.utils.losses import cross_entropy_sequence_loss
 from opennmt.utils.losses import guided_alignment_cost
