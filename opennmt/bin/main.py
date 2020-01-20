@@ -206,7 +206,7 @@ def main():
     runner.export(
         args.export_dir,
         checkpoint_path=args.checkpoint_path,
-        export_format=exporters.make_exporter(args.export_format))
+        exporter=exporters.make_exporter(args.export_format))
   elif args.run == "score":
     runner.score(
         args.features_file,
