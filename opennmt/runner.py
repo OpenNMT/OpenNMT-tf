@@ -330,6 +330,7 @@ class Runner(object):
 
     ordered_writer = None
     infer_fn = tf.function(model.infer, input_signature=(dataset.element_spec,))
+    infer_fn.get_concrete_function()  # Trace the function now.
     write_fn = lambda prediction: (
         model.print_prediction(prediction, params=infer_config, stream=stream))
 
