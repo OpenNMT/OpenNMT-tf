@@ -1,13 +1,12 @@
 """Base class for models."""
 
 import abc
-import os
-import tempfile
 
 import tensorflow as tf
 
 from opennmt import optimizers
 from opennmt import schedules
+from opennmt.utils import exporters
 from opennmt.utils import losses
 from opennmt.utils import misc
 
@@ -49,6 +48,11 @@ class Model(tf.keras.layers.Layer):
           layer = misc.index_structure(self, layer_path)
           layer.trainable = False
     return super(Model, self).trainable_weights
+
+  @property
+  def ctranslate2_spec(self):
+    """The equivalent CTranslate2 model specification."""
+    return None
 
   def auto_config(self, num_replicas=1):
     """Returns automatic configuration values specific to this model.
@@ -245,21 +249,17 @@ class Model(tf.keras.layers.Layer):
 
     return _run
 
-  def export(self, export_dir):
-    """Exports the model to a SavedModel.
+  def export(self, export_dir, exporter=None):
+    """Exports the model for serving.
 
     Args:
       export_dir: The output directory.
+      exporter: A :class:`opennmt.utils.Exporter` instance. Defaults to
+        :class:`opennmt.utils.SavedModelExporter`.
     """
-    tf.saved_model.save(self, export_dir, signatures=self.serve_function())
-    with tempfile.TemporaryDirectory() as tmp_dir:
-      extra_assets = self.export_assets(tmp_dir)
-      if extra_assets:
-        assets_extra = os.path.join(export_dir, "assets.extra")
-        tf.io.gfile.makedirs(assets_extra)
-        for filename, path in extra_assets.items():
-          tf.io.gfile.copy(path, os.path.join(assets_extra, filename), overwrite=True)
-        tf.get_logger().info("Extra assets written to: %s", assets_extra)
+    if exporter is None:
+      exporter = exporters.SavedModelExporter()
+    exporter.export(self, export_dir)
 
   def create_variables(self, optimizer=None):
     """Creates the model variables by running it once.
