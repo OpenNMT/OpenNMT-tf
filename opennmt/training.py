@@ -59,7 +59,7 @@ class Trainer(abc.ABC):
       eval_steps: Evaluate every this many steps.
       export_on_best: Export a model when this evaluation metric has the
         best value so far.
-      exporter: A :class:`opennmt.utils.Exporter` instance to for model export.
+      exporter: A :class:`opennmt.utils.Exporter` instance to export the model.
         Defaults to :class:`opennmt.utils.SavedModelExporter`.
     """
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
