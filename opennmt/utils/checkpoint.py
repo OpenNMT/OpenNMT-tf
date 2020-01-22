@@ -50,6 +50,14 @@ class Checkpoint(object):
     """The model directory."""
     return self._model_dir
 
+  @property
+  def last_saved_step(self):
+    """The last training step that was saved."""
+    latest_checkpoint = self._checkpoint_manager.latest_checkpoint
+    if latest_checkpoint is None:
+      return None
+    return _get_step_from_checkpoint_prefix(latest_checkpoint)
+
   def save(self, step=None):
     """Saves a checkpoint.
 
@@ -109,6 +117,10 @@ class Checkpoint(object):
     tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
     return checkpoint_path
 
+
+def _get_step_from_checkpoint_prefix(prefix):
+  """Extracts the training step from the checkpoint file prefix."""
+  return int(prefix.split("-")[-1])
 
 def is_v1_checkpoint(checkpoint_path):
   """Returns ``True`` if the checkpoint at :obj:`checkpoint_path` has been
@@ -173,7 +185,7 @@ def average_checkpoints(model_dir,
   if len(checkpoints_path) > max_count:
     checkpoints_path = checkpoints_path[-max_count:]
   num_checkpoints = len(checkpoints_path)
-  last_step = int(checkpoints_path[-1].split("-")[-1])
+  last_step = _get_step_from_checkpoint_prefix(checkpoints_path[-1])
 
   # Get a map from variable names in the checkpoint to variables in the model.
   _, names_to_variables = misc.get_variables_name_mapping(model, root_key=model_key)

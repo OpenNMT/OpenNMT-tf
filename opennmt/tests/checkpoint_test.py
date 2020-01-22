@@ -26,6 +26,21 @@ class _DummyModel(tf.keras.layers.Layer):
 
 class CheckpointTest(tf.test.TestCase):
 
+  def testLastSavedStep(self):
+    model = _DummyModel()
+    model(tf.random.uniform([4, 10]))
+    model_dir = os.path.join(self.get_temp_dir(), "model")
+    checkpoint = checkpoint_util.Checkpoint(model, model_dir=model_dir)
+    self.assertIsNone(checkpoint.last_saved_step)
+    checkpoint.save(10)
+    self.assertEqual(checkpoint.last_saved_step, 10)
+    checkpoint.save(20)
+    self.assertEqual(checkpoint.last_saved_step, 20)
+
+    # Property should not be bound to an instance.
+    checkpoint = checkpoint_util.Checkpoint(model, model_dir=model_dir)
+    self.assertEqual(checkpoint.last_saved_step, 20)
+
   def testCheckpointAveraging(self):
     model = _DummyModel()
     optimizer = tf.keras.optimizers.Adam()
