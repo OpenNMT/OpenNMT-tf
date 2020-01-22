@@ -69,7 +69,7 @@ class BLEUScorer(Scorer):
   def __call__(self, ref_path, hyp_path):
     from sacrebleu import corpus_bleu  # pylint: disable=import-outside-toplevel
     with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(hyp_path) as sys_stream:
-      bleu = corpus_bleu(sys_stream, [ref_stream])
+      bleu = corpus_bleu(sys_stream, [ref_stream], force=True)
       return bleu.score
 
 
