@@ -221,6 +221,10 @@ train:
   # Set 0 or null to disable shuffling, -1 to match the number of training examples.
   sample_buffer_size: 500000
 
+  # (optional) Moving average decay. Reasonable values are close to 1, e.g. 0.9999, see
+  # https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
+  # (default: null)
+  moving_average_decay: 0.9999
   # (optional) Number of checkpoints to average at the end of the training to the directory
   # model_dir/avg (default: 0).
   average_last_checkpoints: 8

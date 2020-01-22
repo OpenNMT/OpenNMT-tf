@@ -1,6 +1,7 @@
 """Training related classes and functions."""
 
 import abc
+import contextlib
 import os
 import time
 
@@ -44,7 +45,8 @@ class Trainer(abc.ABC):
                evaluator=None,
                eval_steps=5000,
                export_on_best=None,
-               exporter=None):
+               exporter=None,
+               moving_average_decay=None):
     """Runs the training.
 
     Args:
@@ -61,6 +63,9 @@ class Trainer(abc.ABC):
         best value so far.
       exporter: A :class:`opennmt.utils.Exporter` instance to export the model.
         Defaults to :class:`opennmt.utils.SavedModelExporter`.
+      moving_average_decay: If set, maintain an exponential moving average of the model
+        variables using this decay value (usually close to 1, e.g. 0.9999). See
+        https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage.
     """
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
       tf.get_logger().warning("Model already reached max_step = %d. Exiting.", max_step)
@@ -73,11 +78,22 @@ class Trainer(abc.ABC):
       iterations = self._optimizer.iterations
       tf.summary.experimental.set_step(iterations)
 
+      moving_average = None
       last_report_step = iterations.numpy()
       last_report_time = time.time()
       for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
         if tf.math.is_nan(loss):
           raise RuntimeError("Model diverged with loss = NaN.")
+
+        if moving_average_decay is not None and self._is_master:
+          if moving_average is None:
+            moving_average = MovingAverage(
+                self._model.trainable_variables,
+                iterations,
+                decay=moving_average_decay)
+          else:
+            moving_average.update()
+
         step = iterations.numpy()
         if step % report_steps == 0:
           _report_training_status(
@@ -90,9 +106,14 @@ class Trainer(abc.ABC):
           last_report_step = step
           last_report_time = time.time()
         if step == 1 or (save_steps is not None and step % save_steps == 0):
-          self._save_checkpoint(step)
+          self._save_checkpoint(step, moving_average=moving_average)
         if evaluator is not None and eval_steps is not None and step % eval_steps == 0:
-          self._evaluate(evaluator, step, export_on_best=export_on_best, exporter=exporter)
+          self._evaluate(
+              evaluator,
+              step,
+              export_on_best=export_on_best,
+              exporter=exporter,
+              moving_average=moving_average)
           if evaluator.should_stop():
             tf.get_logger().warning("Early stopping conditions are met. Exiting.")
             break
@@ -100,8 +121,13 @@ class Trainer(abc.ABC):
           break
 
       if evaluator is not None and step != evaluator.last_evaluated_step:
-        self._evaluate(evaluator, step, export_on_best=export_on_best, exporter=exporter)
-      self._save_checkpoint(step)
+        self._evaluate(
+            evaluator,
+            step,
+            export_on_best=export_on_best,
+            exporter=exporter,
+            moving_average=moving_average)
+      self._save_checkpoint(step, moving_average=moving_average)
 
   @abc.abstractmethod
   def _steps(self, dataset, accum_steps=1, report_steps=None):
@@ -159,22 +185,24 @@ class Trainer(abc.ABC):
       self._model.visualize(self._checkpoint.model_dir)
     return training_loss, reported_loss
 
-  def _save_checkpoint(self, step):
+  def _save_checkpoint(self, step, moving_average=None):
     """Saves a checkpoint for step."""
     if not self._is_master:
       return
-    self._checkpoint.save(step)
+    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
+      self._checkpoint.save(step)
 
-  def _evaluate(self, evaluator, step, export_on_best=None, exporter=None):
+  def _evaluate(self, evaluator, step, export_on_best=None, exporter=None, moving_average=None):
     """Runs evaluation for step."""
     if not self._is_master:
       return
-    metrics = evaluator(step)
-    if export_on_best is not None and evaluator.is_best(export_on_best):
-      export_dir = os.path.join(self._checkpoint.model_dir, "export", str(step))
-      tf.get_logger().info("Exporting model to %s (best %s so far: %f)",
-                           export_dir, export_on_best, metrics[export_on_best])
-      self._model.export(export_dir, exporter=exporter)
+    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
+      metrics = evaluator(step)
+      if export_on_best is not None and evaluator.is_best(export_on_best):
+        export_dir = os.path.join(self._checkpoint.model_dir, "export", str(step))
+        tf.get_logger().info("Exporting model to %s (best %s so far: %f)",
+                             export_dir, export_on_best, metrics[export_on_best])
+        self._model.export(export_dir, exporter=exporter)
 
 
 class BasicTrainer(Trainer):
@@ -363,3 +391,60 @@ def _report_training_status(step,
       loss)
   tf.summary.scalar("loss", loss, description="Training loss")
   tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
+
+
+class MovingAverage(object):
+  """Object holding an exponential moving average of variables."""
+
+  def __init__(self, variables, step, decay=0.9999):
+    """Initializes the moving average object.
+
+    Args:
+      variables: The list of variable for which to maintain a moving average.
+      step: The training step counter as a ``tf.Variable``.
+      decay: The decay rate of the exponential moving average. Usually close to
+        1, e.g. 0.9999, see the complete formula on
+        https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage.
+
+    Raises:
+      TypeError: is :obj:`step` is not a ``tf.Variable``.
+    """
+    if not isinstance(step, tf.Variable):
+      raise TypeError("step should be a tf.Variable")
+    if decay < 0.9 or decay > 1:
+      tf.get_logger().warning("Moving average decay should be close to 1 (e.g. 0.9999) but you "
+                              "passed %f, is it correct? See https://www.tensorflow.org/api_docs"
+                              "/python/tf/train/ExponentialMovingAverage for details about the "
+                              "formula and recommended decay values.")
+    self._ema = tf.train.ExponentialMovingAverage(decay, num_updates=step)
+    self._variables = variables
+    self.update()
+
+  @tf.function
+  def update(self):
+    """Updates the moving average of the variables."""
+    self._ema.apply(var_list=list(map(_get_primary_variable, self._variables)))
+
+  @contextlib.contextmanager
+  def shadow_variables(self):
+    """Returns a context manager that assigns the variables to their moving
+    average value on enter and restores the previous value on exit.
+
+    Returns:
+      A context manager.
+    """
+    # TODO: Do we want to shadow the values on all replicas?
+    previous_values = []
+    for variable in self._variables:
+      previous_values.append(variable.value())
+      variable.assign(self._ema.average(_get_primary_variable(variable)))
+    yield
+    for previous_value, variable in zip(previous_values, self._variables):
+      variable.assign(previous_value)
+
+
+def _get_primary_variable(variable):
+  """Returns the primary variable of a MirroredVariable if possible, else the
+  variable itself.
+  """
+  return getattr(variable, "primary", variable)
