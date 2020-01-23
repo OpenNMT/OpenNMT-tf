@@ -273,7 +273,7 @@ class Model(tf.keras.layers.Layer):
     features = tf.nest.map_structure(
         lambda spec: tf.fill(
             [dim or 1 for dim in spec.shape.as_list()[1:]],
-            tf.constant("" if spec.dtype is tf.string else 1, dtype=spec.dtype)),
+            tf.constant("a" if spec.dtype is tf.string else 1, dtype=spec.dtype)),
         self.examples_inputter.input_signature())
     features = self.examples_inputter.make_features(features=features)
 
