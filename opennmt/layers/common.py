@@ -77,34 +77,8 @@ class Dense(tf.keras.layers.Dense):
     return m
 
 
-class LayerNorm(tf.keras.layers.Layer):
+class LayerNorm(tf.keras.layers.LayerNormalization):
   """Layer normalization."""
-
-  def __init__(self, epsilon=1e-4, **kwargs):
-    """Initializes this layer.
-
-    Args:
-      epsilon: The epsilon value to use.
-      kwargs: Additional layer arguments.
-    """
-    super(LayerNorm, self).__init__(**kwargs)
-    self.epsilon = epsilon
-
-  def build(self, input_shape):
-    """Creates the variables."""
-    depth = input_shape[-1]
-    self.beta = self.add_weight(
-        "beta", [depth], initializer=tf.keras.initializers.Constant(0))
-    self.gamma = self.add_weight(
-        "gamma", [depth], initializer=tf.keras.initializers.Constant(1))
-    super(LayerNorm, self).build(input_shape)
-
-  def call(self, x):  # pylint: disable=arguments-differ
-    """Normalizes :obj:`x`."""
-    mean = tf.reduce_mean(x, axis=[-1], keepdims=True)
-    variance = tf.reduce_mean(tf.square(x - mean), axis=[-1], keepdims=True)
-    norm_x = (x - mean) * tf.math.rsqrt(variance + self.epsilon)
-    return norm_x * self.gamma + self.beta
 
   def map_v1_weights(self, weights):
     return [
