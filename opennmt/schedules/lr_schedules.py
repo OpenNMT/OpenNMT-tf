@@ -1,10 +1,15 @@
 """Define learning rate decay functions."""
 
-import sys
-
 import tensorflow as tf
 import numpy as np
 
+from opennmt.utils import misc
+
+
+_LR_SCHEDULES_REGISTRY = misc.ClassRegistry(
+    base_class=tf.keras.optimizers.schedules.LearningRateSchedule)
+
+register_learning_rate_schedule = _LR_SCHEDULES_REGISTRY.register  # pylint: disable=invalid-name
 
 def get_lr_schedule_class(name):
   """Returns the learning rate schedule class.
@@ -22,7 +27,7 @@ def get_lr_schedule_class(name):
   if schedule_class is None:
     schedule_class = getattr(tf.keras.optimizers.schedules, name, None)
   if schedule_class is None:
-    schedule_class = getattr(sys.modules[__name__], name, None)
+    schedule_class = _LR_SCHEDULES_REGISTRY.get(name)
   if schedule_class is None:
     raise ValueError("Unknown learning rate schedule: %s" % name)
   return schedule_class
@@ -99,6 +104,7 @@ class ScheduleWrapper(tf.keras.optimizers.schedules.LearningRateSchedule):
     return tf.maximum(learning_rate, self.minimum_learning_rate)
 
 
+@register_learning_rate_schedule
 class NoamDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Defines the decay function described in https://arxiv.org/abs/1706.03762."""
 
@@ -121,6 +127,7 @@ class NoamDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
             * tf.minimum(tf.pow(step, -0.5), step * tf.pow(self.warmup_steps, -1.5)))
 
 
+@register_learning_rate_schedule
 class RsqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Decay based on the reciprocal of the step square root."""
 
@@ -139,6 +146,7 @@ class RsqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
     return self.scale * tf.math.rsqrt(tf.maximum(step, self.warmup_steps))
 
 
+@register_learning_rate_schedule
 class CosineAnnealing(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Decay using a cosine annealing schedule."""
 
@@ -168,6 +176,7 @@ class CosineAnnealing(tf.keras.optimizers.schedules.LearningRateSchedule):
     return tf.cond(tf.less(step, self.warmup_steps), true_fn=linear, false_fn=annealing)
 
 
+@register_learning_rate_schedule
 class RNMTPlusDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
   """Defines the decay function described in https://arxiv.org/abs/1804.09849."""
 

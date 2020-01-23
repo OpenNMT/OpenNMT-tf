@@ -3,6 +3,8 @@ import os
 import filecmp
 import yaml
 
+from parameterized import parameterized
+
 import tensorflow as tf
 
 from opennmt import config
@@ -45,12 +47,24 @@ class ConfigTest(tf.test.TestCase):
     model = config.load_model_from_catalog(model_name)
     self.assertIsInstance(model, Model)
 
-  def testLoadModel(self):
-    model_name = "Transformer"
+  @parameterized.expand([
+      ("Transformer",),
+      ("TransformerBase",),
+  ])
+  def testLoadModel(self, model_name):
     model_dir = self.get_temp_dir()
     model = config.load_model(model_dir, model_name=model_name)
     self.assertTrue(os.path.exists(os.path.join(model_dir, "model_description.py")))
     self.assertIsInstance(model, Model)
+    model = config.load_model(model_dir)
+    self.assertIsInstance(model, Model)
+
+  def testLoadModelDescriptionCompat(self):
+    model_dir = self.get_temp_dir()
+    description = os.path.join(model_dir, "model_description.py")
+    with open(description, "w") as description_file:
+      description_file.write("from opennmt.models import catalog\n")
+      description_file.write("model = catalog.Transformer\n")
     model = config.load_model(model_dir)
     self.assertIsInstance(model, Model)
 

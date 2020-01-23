@@ -8,6 +8,8 @@ from opennmt.models.catalog import Transformer as TransformerBase
 from opennmt.models.catalog import TransformerBig
 from opennmt.models.catalog import TransformerBigRelative
 from opennmt.models.catalog import TransformerRelative
+from opennmt.models.catalog import get_model_from_catalog
+from opennmt.models.catalog import register_model_in_catalog
 
 from opennmt.models.language_model import LanguageModel
 from opennmt.models.language_model import LanguageModelInputter

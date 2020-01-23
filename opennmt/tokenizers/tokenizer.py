@@ -4,6 +4,7 @@
 
 import sys
 import abc
+import yaml
 
 import tensorflow as tf
 
@@ -261,6 +262,47 @@ class Tokenizer(abc.ABC):
     raise NotImplementedError()
 
 
+_TOKENIZERS_REGISTRY = misc.ClassRegistry(base_class=Tokenizer)
+
+register_tokenizer = _TOKENIZERS_REGISTRY.register  # pylint: disable=invalid-name
+
+def make_tokenizer(config=None):
+  """Creates a tokenizer instance from the configuration.
+
+  Args:
+    config: Path to a configuration file or the configuration dictionary.
+
+  Returns:
+    A :class:`opennmt.tokenizers.Tokenizer` instance.
+
+  Raises:
+    ValueError: if :obj:`config` is invalid.
+  """
+  if config:
+    if isinstance(config, str) and tf.io.gfile.exists(config):
+      with tf.io.gfile.GFile(config, mode="rb") as config_file:
+        config = yaml.load(config_file, Loader=yaml.UnsafeLoader)
+    if isinstance(config, dict):
+      tokenizer_type = config.get("type")
+      if tokenizer_type is None:
+        tokenizer_type = "OpenNMTTokenizer"
+        tokenizer_params = config
+      else:
+        tokenizer_params = config.get("params", {})
+      tokenizer_class = _TOKENIZERS_REGISTRY.get(tokenizer_type)
+      if tokenizer_class is None:
+        raise ValueError("%s is not in list of accepted tokenizers: %s" % (
+            tokenizer_type, ", ".join(sorted(_TOKENIZERS_REGISTRY.class_names))))
+      tokenizer = tokenizer_class(**tokenizer_params)
+    else:
+      raise ValueError("Invalid tokenization configuration: %s" % str(config))
+  else:
+    # If the tokenization was not configured, we assume that an external tokenization
+    # was used and we don't include the tokenizer in the exported graph.
+    tokenizer = SpaceTokenizer(in_graph=False)
+  return tokenizer
+
+@register_tokenizer
 class SpaceTokenizer(Tokenizer):
   """A tokenizer that splits on spaces."""
 
@@ -299,6 +341,7 @@ class SpaceTokenizer(Tokenizer):
     return " ".join(tokens)
 
 
+@register_tokenizer
 class CharacterTokenizer(Tokenizer):
   """A tokenizer that splits unicode characters."""
 
