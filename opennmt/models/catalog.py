@@ -281,17 +281,21 @@ class _DefaultTransformer(transformer.Transformer):
         position_encoder_class=position_encoder_class,
         maximum_relative_position=maximum_relative_position)
 
-@register_model_in_catalog(alias="TransformerBase")
-class Transformer(_DefaultTransformer):
+@register_model_in_catalog(alias="Transformer")
+class TransformerBase(_DefaultTransformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
 
-@register_model_in_catalog(alias="TransformerBaseRelative")
-class TransformerRelative(_DefaultTransformer):
+@register_model_in_catalog(alias="TransformerRelative")
+class TransformerBaseRelative(_DefaultTransformer):
   """Defines a Transformer model using relative position representations as
   described in https://arxiv.org/abs/1803.02155.
   """
   def __init__(self):
     super(TransformerRelative, self).__init__(relative=True)
+
+# Backward compatibility with model descriptions that directly accessed the catalog module.
+Transformer = TransformerBase
+TransformerRelative = TransformerBaseRelative
 
 @register_model_in_catalog
 class TransformerBig(_DefaultTransformer):
