@@ -213,7 +213,8 @@ class LanguageModelInputter(inputters.WordEmbedder):
                             num_shards=1,
                             shard_index=0,
                             num_threads=4,
-                            prefetch_buffer_size=None):
+                            prefetch_buffer_size=None,
+                            cardinality_multiple=1):
     """See :meth:`opennmt.inputters.ExampleInputter.make_training_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=True)
@@ -221,16 +222,17 @@ class LanguageModelInputter(inputters.WordEmbedder):
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
-        length_bucket_width=length_bucket_width,
-        single_pass=single_pass,
+        batch_size_multiple=batch_size_multiple,
         process_fn=lambda x: self.make_features(element=x, training=True),
+        length_bucket_width=length_bucket_width,
+        features_length_fn=self.get_length,
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        single_pass=single_pass,
+        num_shards=num_shards,
+        shard_index=shard_index,
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
-        features_length_fn=self.get_length,
-        batch_size_multiple=batch_size_multiple,
-        num_shards=num_shards,
-        shard_index=shard_index))
+        cardinality_multiple=cardinality_multiple))
     return dataset

@@ -9,6 +9,8 @@ from parameterized import parameterized
 
 import tensorflow as tf
 
+from opennmt import decoders
+from opennmt import models
 from opennmt import Runner
 from opennmt.config import load_model
 from opennmt.utils import exporters
@@ -140,6 +142,34 @@ class RunnerTest(tf.test.TestCase):
     export_dir = os.path.join(model_dir, "export", "145002")
     self.assertTrue(os.path.exists(export_dir))
     self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
+
+  def testTrainLanguageModel(self):
+    src = test_util.make_data_file(
+        os.path.join(self.get_temp_dir(), "src.txt"),
+        ["1 2 3 4", "5 6 7 8 9", "3 2"])
+    vocab = test_util.make_vocab(
+        os.path.join(self.get_temp_dir(), "vocab.txt"),
+        list(map(str, range(10))))
+    config = {
+        "data": {
+            "train_features_file": src,
+            "vocabulary": vocab,
+        },
+        "params": {
+            "learning_rate": 0.0005,
+            "optimizer": "Adam"
+        },
+        "train": {
+            "batch_size": 10,
+            "max_step": 2,
+        },
+    }
+    model = models.LanguageModel(
+        decoders.SelfAttentionDecoder(2, num_units=32, ffn_inner_dim=32),
+        embedding_size=16,
+        reuse_embedding=False)
+    runner = Runner(model, config)
+    runner.train()
 
   def testEvaluate(self):
     ar_file, en_file  = self._makeTransliterationData()
