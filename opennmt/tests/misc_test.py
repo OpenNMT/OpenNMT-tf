@@ -131,9 +131,9 @@ class MiscTest(tf.test.TestCase):
     self.assertEqual(registry.get("TransformerLarge"), models.TransformerBig)
     self.assertSetEqual(registry.class_names, set(["TransformerBig", "TransformerLarge"]))
 
-    registry.register(models.TransformerRelative, alias="TransformerBaseRelative")
-    self.assertEqual(registry.get("TransformerRelative"), models.TransformerRelative)
-    self.assertEqual(registry.get("TransformerBaseRelative"), models.TransformerRelative)
+    registry.register(models.TransformerBaseRelative, alias="TransformerRelative")
+    self.assertEqual(registry.get("TransformerBaseRelative"), models.TransformerBaseRelative)
+    self.assertEqual(registry.get("TransformerRelative"), models.TransformerBaseRelative)
 
     with self.assertRaises(ValueError):
       registry.register(models.TransformerBig)
