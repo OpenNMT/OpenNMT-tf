@@ -20,7 +20,8 @@ def get_dataset_size(dataset, batch_size=5000):
 
   Args:
     dataset: A finite dataset.
-    batch_size: The batch size to use or ``None`` to scan the dataset as-is.
+    batch_size: The batch size to use to improve the scan performance, or
+      ``None`` to scan the dataset as-is.
 
   Returns:
     The dataset size.
@@ -63,8 +64,8 @@ def filter_examples_by_length(maximum_features_length=None,
   Args:
     maximum_features_length: The maximum length or list of maximum lengths of
       the features sequence(s). ``None`` to not constrain the length.
-    maximum_labels_length: The maximum length of the labels sequence.
-      ``None`` to not constrain the length.
+    maximum_labels_length: The maximum length or list of maximum lengths of
+      the labels sequence(s). ``None`` to not constrain the length.
     features_length_fn: A function mapping features to a sequence length.
     labels_length_fn: A function mapping labels to a sequence length.
 
@@ -222,12 +223,12 @@ def batch_sequence_dataset(batch_size,
 
   Bucketing makes the batches contain sequences of similar lengths to optimize
   the training efficiency. For example, if :obj:`length_bucket_width` is 5,
-  sequences will be organized by the following buckets:
+  sequences will be organized by the following length buckets:
 
   1 - 5 | 6 - 10 | 11 - 15 | ...
 
   Then when building the next batch, sequences will be selected from the same
-  bucket.
+  length bucket.
 
   If the dataset has parallel elements (e.g. a parallel source and target
   dataset), the element is assigned to the bucket corresponding to the maximum
@@ -240,7 +241,8 @@ def batch_sequence_dataset(batch_size,
     batch_multiplier: The batch size multiplier.
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
       resulting batch size is a multiple of this value.
-    length_bucket_width: The sequence length bucket width.
+    length_bucket_width: The width of the length buckets to select batch
+      candidates from. ``None`` to not constrain batch formation.
     length_fn: A function or list of functions (in case of a parallel dataset)
       that take features as argument and return the associated sequence length.
     padded_shapes: The padded shapes for this dataset. If ``None``, the shapes
@@ -251,6 +253,8 @@ def batch_sequence_dataset(batch_size,
 
   Raises:
     ValueError: if :obj:`batch_type` is not one of "examples" or "tokens".
+    ValueError: if the number of length functions in :obj:`length_fn` does not
+      match the number of parallel elements.
 
   See Also:
     :func:`opennmt.data.batch_dataset`
@@ -330,7 +334,6 @@ def training_pipeline(batch_size,
   """Transformation that defines a complete training data pipeline.
 
   Args:
-    dataset: The base dataset.
     batch_size: The batch size to use.
     batch_type: The training batching stragety to use: can be "examples" or
       "tokens".
@@ -406,7 +409,6 @@ def inference_pipeline(batch_size,
   """Transformation that defines a complete inference data pipeline.
 
   Args:
-    dataset: The base dataset.
     batch_size: The batch size to use.
     process_fn: The processing function to apply on each element.
     length_bucket_width: The width of the length buckets to select batch
@@ -424,7 +426,7 @@ def inference_pipeline(batch_size,
 
   Raises:
     ValueError: if :obj:`length_bucket_width` is set but not :obj:`length_fn`
-      or the dataset does not output a dictionary.
+    ValueError: if the dataset does not output a dictionary structure.
   """
 
   def _inject_index(index, x):

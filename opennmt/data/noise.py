@@ -45,8 +45,8 @@ class WordNoiser(object):
 
     Args:
       tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.
-      sequence_length: When :obj:`tokens` is ND, the length of each sequence in
-        the batch.
+      sequence_length: When :obj:`tokens` is a batch, the length of each
+        sequence in the batch.
       keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the
         new lengths.
 
