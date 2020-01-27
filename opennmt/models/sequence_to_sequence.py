@@ -430,7 +430,18 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
         data_file, training=training)
     if self.alignment_file is None or not training:
       return dataset
-    return tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(self.alignment_file)))
+    if not isinstance(dataset, list):
+      return tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(self.alignment_file)))
+    datasets = dataset
+    alignment_files = self.alignment_file
+    if not isinstance(alignment_files, list):
+      alignment_files = [alignment_files]
+    if len(alignment_files) != len(datasets):
+      raise ValueError("%d alignment files were provided, but %d were expected to match the "
+                       "number of data files" % (len(alignment_files), len(datasets)))
+    return [
+        tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(alignment_file)))
+        for dataset, alignment_file in zip(datasets, alignment_files)]
 
   def make_features(self, element=None, features=None, training=None):
     if training and self.alignment_file is not None:

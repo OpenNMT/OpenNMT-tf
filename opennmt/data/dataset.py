@@ -3,6 +3,72 @@
 import numpy as np
 import tensorflow as tf
 
+from opennmt.utils import misc
+
+
+def make_datasets(dataset_cls, filenames):
+  """Creates instances of :obj:`dataset_cls`.
+
+  Args:
+    dataset_cls: A class inheriting from ``tf.data.Dataset``.
+    filenames: A list of filenames or a single filename.
+
+  Returns:
+    A list of ``tf.data.Dataset`` instances if multiple :obj:`filenames` are
+    passed, otherwise a single ``tf.data.Dataset``.
+
+  Raises:
+    ValueError: if :obj:`filenames` is empty.
+  """
+  if not isinstance(filenames, list):
+    filenames = [filenames]
+  elif not filenames:
+    raise ValueError("At least one data file is required")
+  datasets = [
+      dataset_cls(filename, compression_type="GZIP" if misc.is_gzip_file(filename) else None)
+      for filename in filenames]
+  if len(datasets) == 1:
+    return datasets[0]
+  return datasets
+
+def normalize_weights(datasets, weights=None, sizes=None):
+  """Returns normalized dataset weights based on datasets sizes.
+
+  Args:
+    datasets: A list of ``tf.data.Dataset`` instances.
+    weights: An optional list of dataset weights.
+    sizes: The size of each dataset, if known.
+
+  Returns:
+    A normalized list of weights that can be used as sampling probabilities.
+
+  Raises:
+    ValueError: if the length of :obj:`weights` or :obj:`sizes` does not match
+      the length of :obj:`datasets`.
+  """
+  if not datasets:
+    return []
+  if len(datasets) == 1:
+    return [1.]
+
+  if weights is None:
+    weights = [1 / len(datasets)] * len(datasets)
+  elif len(weights) != len(datasets):
+    raise ValueError("Got %d datasets but %d weights" % (len(datasets), len(weights)))
+
+  if sizes is None:
+    sizes = [int(get_dataset_size(dataset)) for dataset in datasets]
+  elif len(sizes) != len(datasets):
+    raise ValueError("Got %d datasets but %d sizes" % (len(datasets), len(sizes)))
+
+  # Weights should be normalized by the dataset size relative to the total size.
+  total_size = sum(sizes)
+  weights = [weight * (size / total_size) for weight, size in zip(weights, sizes)]
+
+  # Convert weights to probabilities.
+  logits = tf.math.log(tf.constant(weights, dtype=tf.float32))
+  probabilities = tf.nn.softmax(logits).numpy().tolist()
+  return probabilities
 
 def _get_output_shapes(dataset):
   """Returns the outputs shapes of the dataset.
@@ -371,11 +437,42 @@ def training_pipeline(batch_size,
     - :func:`opennmt.data.shuffle_dataset`
   """
 
-  def _pipeline(dataset):
+  def _make_weighted_dataset(datasets, weights):
+    if single_pass:
+      raise ValueError("single_pass parameter is not compatible with weighted datasets")
+    if not datasets:
+      raise ValueError("At least one dataset is required")
+    if weights is not None and len(weights) != len(datasets):
+      raise ValueError("%d dataset weights were provided, but %d were expected to match the "
+                       "number of data files" % (len(weights), len(datasets)))
+    if num_shards > 1:
+      datasets = [dataset.shard(num_shards, shard_index) for dataset in datasets]
+    weights = normalize_weights(datasets, weights=weights)
+    datasets = [dataset.repeat() for dataset in datasets]
+    dataset = tf.data.experimental.sample_from_datasets(datasets, weights=weights)
+    if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
+      if shuffle_buffer_size < 0:
+        raise ValueError("shuffle_buffer_size < 0 is not compatible with weighted datasets")
+      dataset = dataset.shuffle(shuffle_buffer_size)
+    return dataset
+
+  def _make_single_dataset(dataset):
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
       dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
+    return dataset
+
+  def _pipeline(dataset):
+    if isinstance(dataset, tuple):
+      dataset, weights = dataset
+    else:
+      weights = None
+    is_weighted_dataset = isinstance(dataset, list)
+    if is_weighted_dataset:
+      dataset = _make_weighted_dataset(dataset, weights)
+    else:
+      dataset = _make_single_dataset(dataset)
     if process_fn is not None:
       dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
     dataset = dataset.apply(filter_examples_by_length(
@@ -392,7 +489,8 @@ def training_pipeline(batch_size,
         length_fn=[features_length_fn, labels_length_fn]))
     dataset = dataset.apply(filter_irregular_batches(batch_multiplier))
     if not single_pass:
-      dataset = dataset.repeat()
+      if not is_weighted_dataset:  # Weighted dataset is repeated before sampling.
+        dataset = dataset.repeat()
     else:
       dataset = dataset.apply(make_cardinality_multiple_of(cardinality_multiple))
     dataset = dataset.prefetch(prefetch_buffer_size)

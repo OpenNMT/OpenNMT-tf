@@ -174,7 +174,8 @@ class Runner(object):
         num_shards=input_context.num_input_pipelines,
         shard_index=input_context.input_pipeline_id,
         prefetch_buffer_size=train_config.get("prefetch_buffer_size"),
-        cardinality_multiple=input_context.num_replicas_in_sync)
+        cardinality_multiple=input_context.num_replicas_in_sync,
+        weights=data_config.get("train_files_weights"))
 
     if with_eval:
       evaluator = evaluation.Evaluator.from_config(model, config)

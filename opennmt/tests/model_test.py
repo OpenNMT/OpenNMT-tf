@@ -230,6 +230,20 @@ class ModelTest(tf.test.TestCase):
     loss = model.compute_loss(outputs, labels, training=True)
     loss = loss[0] / loss[1]
 
+  def testSequenceToSequenceWithGuidedAlignmentAndWeightedDataset(self):
+    model, _ = _seq2seq_model()
+    features_file, labels_file, data_config = self._makeToyEnDeData(with_alignments=True)
+    model.initialize(data_config)
+    with self.assertRaisesRegex(ValueError, "expected to match"):
+      model.examples_inputter.make_training_dataset(
+          [features_file, features_file], [labels_file, labels_file], 16)
+    data_config["train_alignments"] = [
+        data_config["train_alignments"], data_config["train_alignments"]]
+    model.initialize(data_config)
+    dataset = model.examples_inputter.make_training_dataset(
+        [features_file, features_file], [labels_file, labels_file], 16)
+    self.assertIsInstance(dataset, tf.data.Dataset)
+
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
     model, params = _seq2seq_model()
     params["replace_unknown_target"] = True
