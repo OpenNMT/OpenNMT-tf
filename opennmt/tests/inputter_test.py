@@ -410,6 +410,33 @@ class InputterTest(tf.test.TestCase):
     for field in ("ids", "length", "tokens"):
       self.assertIn(field, labels)
 
+  def testWeightedDataset(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
+    data_file = self._makeTextFile("data.txt", ["hello world !"])
+    source_inputter = text_inputter.WordEmbedder(embedding_size=10)
+    target_inputter = text_inputter.WordEmbedder(embedding_size=10)
+    example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+    example_inputter.initialize({
+        "source_vocabulary": vocab_file,
+        "target_vocabulary": vocab_file})
+    with self.assertRaisesRegex(ValueError, "same number"):
+      example_inputter.make_training_dataset(
+          [data_file, data_file], [data_file], batch_size=16)
+    with self.assertRaisesRegex(ValueError, "expected to match"):
+      example_inputter.make_training_dataset(
+          [data_file, data_file], [data_file, data_file], batch_size=16, weights=[0.5])
+    dataset = example_inputter.make_training_dataset(
+        [data_file, data_file],
+        [data_file, data_file],
+        batch_size=16)
+    self.assertIsInstance(dataset, tf.data.Dataset)
+    dataset = example_inputter.make_training_dataset(
+        [data_file, data_file],
+        [data_file, data_file],
+        batch_size=16,
+        weights=[0.2, 0.8])
+    self.assertIsInstance(dataset, tf.data.Dataset)
+
   def testExampleInputterAsset(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     source_inputter = text_inputter.WordEmbedder(embedding_size=10)

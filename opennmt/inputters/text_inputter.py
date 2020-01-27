@@ -11,6 +11,7 @@ from tensorboard.plugins import projector
 from google.protobuf import text_format
 
 from opennmt import constants, tokenizers
+from opennmt.data import dataset as dataset_util
 from opennmt.data import text
 from opennmt.data.vocab import Vocab
 from opennmt.inputters.inputter import Inputter
@@ -282,8 +283,7 @@ class TextInputter(Inputter):
     return self.tokenizer.export_assets(asset_dir, asset_prefix=asset_prefix)
 
   def make_dataset(self, data_file, training=None):
-    return tf.data.TextLineDataset(
-        data_file, compression_type="GZIP" if misc.is_gzip_file(data_file) else None)
+    return dataset_util.make_datasets(tf.data.TextLineDataset, data_file)
 
   def make_features(self, element=None, features=None, training=None):
     """Tokenizes raw text."""

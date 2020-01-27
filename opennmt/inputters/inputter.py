@@ -57,7 +57,7 @@ class Inputter(tf.keras.layers.Layer):
       training: Run in training mode.
 
     Returns:
-      A non transformed ``tf.data.Dataset`` instance.
+      A ``tf.data.Dataset`` instance or a list of ``tf.data.Dataset`` instances.
     """
     raise NotImplementedError()
 
@@ -263,10 +263,28 @@ class ParallelInputter(MultiInputter):
   def make_dataset(self, data_file, training=None):
     if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
       raise ValueError("The number of data files must be the same as the number of inputters")
-    datasets = [
-        inputter.make_dataset(data, training=training)
-        for inputter, data in zip(self.inputters, data_file)]
-    return tf.data.Dataset.zip(tuple(datasets))
+
+    num_files = -1
+    datasets = []
+    for i, (inputter, data) in enumerate(zip(self.inputters, data_file)):
+      dataset = inputter.make_dataset(data, training=training)
+      if not isinstance(dataset, list):
+        dataset = [dataset]
+      datasets.append(dataset)
+      if num_files < 0:
+        num_files = len(dataset)
+      elif len(dataset) != num_files:
+        raise ValueError("All parallel inputs must have the same number of data files, "
+                         "saw %d files for input 0 but got %d files for input %d" % (
+                             num_files, len(dataset), i))
+
+    parallel_datasets = [
+        tf.data.Dataset.zip(tuple(parallel_dataset)) for parallel_dataset in zip(*datasets)]
+    if len(parallel_datasets) == 1:
+      return parallel_datasets[0]
+    if not training:
+      raise ValueError("Only training data can be configured to multiple files")
+    return parallel_datasets
 
   def input_signature(self):
     if self.combine_features:
@@ -491,7 +509,8 @@ class ExampleInputter(ParallelInputter):
                             shard_index=0,
                             num_threads=4,
                             prefetch_buffer_size=None,
-                            cardinality_multiple=1):
+                            cardinality_multiple=1,
+                            weights=None):
     """Builds a dataset to be used for training. It supports the full training
     pipeline, including:
 
@@ -502,8 +521,8 @@ class ExampleInputter(ParallelInputter):
     * prefetching
 
     Args:
-      features_file: The evaluation source file.
-      labels_file: The evaluation target file.
+      features_file: The source file or a list of training source files.
+      labels_file: The target file or a list of training target files.
       batch_size: The batch size to use.
       batch_type: The training batching stragety to use: can be "examples" or
         "tokens".
@@ -528,6 +547,8 @@ class ExampleInputter(ParallelInputter):
         ``None``, use an automatically tuned value.
       cardinality_multiple: Ensure that the dataset cardinality is a multiple of
         this value when :obj:`single_pass` is ``True``.
+      weights: An optional list of weights to create a weighted dataset out of
+        multiple training files.
 
     Returns:
       A ``tf.data.Dataset``.
@@ -537,7 +558,9 @@ class ExampleInputter(ParallelInputter):
     """
     map_func = lambda *arg: self.make_features(element=arg, training=True)
     dataset = self.make_dataset([features_file, labels_file], training=True)
-    dataset = dataset.apply(dataset_util.training_pipeline(
+    if weights is not None:
+      dataset = (dataset, weights)
+    dataset = dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
@@ -554,5 +577,5 @@ class ExampleInputter(ParallelInputter):
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
-        cardinality_multiple=cardinality_multiple))
+        cardinality_multiple=cardinality_multiple)(dataset)
     return dataset

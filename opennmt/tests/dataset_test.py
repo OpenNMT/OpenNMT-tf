@@ -10,6 +10,38 @@ from opennmt.tests import test_util
 
 class DatasetTest(tf.test.TestCase):
 
+  @parameterized.expand([
+      [(4, 2), None, (4 / 6, 2 / 6)],
+      [(4, 2), (0.2, 0.4), (0.5, 0.5)],
+  ])
+  def testNormalizeWeights(self, sizes, weights, expected_weights):
+    datasets = list(map(tf.data.Dataset.range, sizes))
+    weights = dataset_util.normalize_weights(datasets, weights=weights)
+    for weight, expected_weight in zip(weights, expected_weights):
+      self.assertAllClose(weight, expected_weight)
+
+  @parameterized.expand([
+      [(1, 1, 1), None, (1/3, 1/3, 1/3)],
+      [(1, 2, 6), None, (1/9, 2/9, 6/9)],
+      [(1, 1, 1), (0.2, 0.7, 0.1), (0.2, 0.7, 0.1)],
+      [(1, 1, 1), (0.4, 1.4, 0.2), (0.2, 0.7, 0.1)],
+  ])
+  def testDatasetWeighting(self, sizes, weights, target_distribution):
+    datasets = [
+        tf.data.Dataset.from_tensor_slices([i] * size)
+        for i, size in enumerate(sizes)]
+    if weights is not None:
+      datasets = (datasets, weights)
+    dataset = dataset_util.training_pipeline(batch_size=20, shuffle_buffer_size=5000)(datasets)
+    counts = [0] * len(sizes)
+    # Check that after 2000 batches we are close to the target distribution.
+    for x in dataset.take(2000):
+      for i, _ in enumerate(counts):
+        counts[i] += int(tf.math.count_nonzero(x == i))
+    total_count = sum(counts)
+    for count, freq in zip(counts, target_distribution):
+      self.assertNear(count / total_count, freq, 0.05)
+
   def testDatasetSize(self):
     path = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "file.txt"),

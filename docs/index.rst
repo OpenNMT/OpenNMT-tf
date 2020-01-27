@@ -17,8 +17,10 @@ Content
    model.md
    configuration.md
    data.md
+   vocabulary.md
    tokenization.md
    embeddings.md
+   alignments.md
 
 .. toctree::
    :caption: Usage

@@ -3,8 +3,8 @@
 import tensorflow as tf
 import numpy as np
 
+from opennmt.data import dataset as dataset_util
 from opennmt.inputters.inputter import Inputter
-from opennmt.utils import misc
 
 
 class SequenceRecordInputter(Inputter):
@@ -26,8 +26,7 @@ class SequenceRecordInputter(Inputter):
     self.input_depth = input_depth
 
   def make_dataset(self, data_file, training=None):
-    return tf.data.TFRecordDataset(
-        data_file, compression_type="GZIP" if misc.is_gzip_file(data_file) else None)
+    return dataset_util.make_datasets(tf.data.TFRecordDataset, data_file)
 
   def input_signature(self):
     return {
