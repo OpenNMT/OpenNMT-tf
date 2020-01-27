@@ -15,6 +15,7 @@ OpenNMT-tf can be used to train several types of models, here is a non exhaustiv
 * [MS-UEdin Submission to the WMT2018 APE Shared Task: Dual-Source Transformer for Automatic Post-Editing](https://arxiv.org/abs/1809.00188) (Junczys-Dowmunt et al. 2018)
 * [Scaling Neural Machine Translation](https://arxiv.org/abs/1806.00187) (Ott et al. 2018)
 * [The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation](https://arxiv.org/abs/1804.09849) (Chen et al. 2018)
+* [Self-Attention with Relative Position Representations](https://arxiv.org/abs/1803.02155) (Shaw et al. 2018)
 
 **Speech recognition**
 
@@ -40,7 +41,37 @@ onmt-main --model_type Transformer [...]
 
 ## Custom models
 
-Models are defined from Python code to allow a high level of modeling freedom. They are `opennmt.models.Model` instances that use [available](package/opennmt.html) or user-defined modules. Some of these modules are defined to contain other modules and can be used to design complex architectures:
+OpenNMT-tf can load custom model definitions from external Python files. They should include a callable `model` that returns a [`opennmt.models.Model`](https://opennmt.net/OpenNMT-tf/package/opennmt.models.Model.html) instance, for example:
+
+```python
+import opennmt
+
+class MyCustomTransformer(opennmt.models.Transformer):
+    def __init__(self):
+        super().__init__(
+            source_inputter=opennmt.inputters.WordEmbedder(embedding_size=512),
+            target_inputter=opennmt.inputters.WordEmbedder(embedding_size=512),
+            num_layers=6,
+            num_units=512,
+            num_heads=8,
+            ffn_inner_dim=2048,
+            dropout=0.1,
+            attention_dropout=0.1,
+            ffn_dropout=0.1,
+            share_embeddings=opennmt.models.EmbeddingsSharingLevel.ALL)
+
+    # Here you can override any method from the Model class for a customized behavior.
+
+model = MyCustomTransformer
+```
+
+The custom model file should then be selected with the `--model` command line option, e.g.:
+
+```bash
+onmt-main --model config/models/custom_model.py [...]
+```
+
+This approach offers a high level of modeling freedom without changing the core implementation. Additionally, some public modules are defined to contain other modules and can be used to design complex architectures:
 
 * `opennmt.encoders.ParallelEncoder`
 * `opennmt.encoders.SequentialEncoder`
@@ -49,8 +80,4 @@ Models are defined from Python code to allow a high level of modeling freedom. T
 
 For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).
 
-Some examples are available in the directory [`config/models`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models) in the Git repository. The custom model file should be selected with the `--model` command line option, e.g.:
-
-```bash
-onmt-main --model config/models/custom_model.py [...]
-```
+Some examples are available in the directory [`config/models`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models) in the Git repository.

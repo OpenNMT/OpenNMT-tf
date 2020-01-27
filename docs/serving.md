@@ -17,27 +17,13 @@ toy-ende/export/
     └── variables.index
 ```
 
-#### Manual export
-
-Models can be exported using the `export` run type:
+Models can be manually exported using the `export` run type:
 
 ```bash
 onmt-main --config my_config.yml --auto_config export --export_dir ~/my-models/ende
 ```
 
-It's a good idea to re-export your model with a more recent version as it can improve performance.
-
-#### Automatic export
-
-When training with `train --with_eval`, it is possible to automatically export a model when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:
-
-```yaml
-eval:
-  external_evaluators: bleu
-  export_on_best: bleu
-```
-
-These models are saved in the model directory under `export/<step>`.
+Automatic evaluation during the training can also export models, see *Training* section to learn more.
 
 ### Running a SavedModel
 
@@ -63,17 +49,8 @@ TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such
 
 Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf. An additional `export_format` option should be configured to select this export type:
 
-**Manual export**
-
 ```bash
 onmt-main [...] export --export_dir ~/my-models/ende --export_format ctranslate2
 ```
 
-**Automatic export**
-
-```yaml
-eval:
-  external_evaluators: bleu
-  export_on_best: bleu
-  export_format: ctranslate2
-```
+The same option is available in the `eval` block of the YAML configuration when exporting models during the training.

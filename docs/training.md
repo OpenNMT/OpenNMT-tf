@@ -14,7 +14,6 @@ then open the URL displayed in the shell to monitor and visualize several data, 
 * training speed
 * learning rate
 * gradients norm
-* computation graphs
 * word embeddings
 * decoder sampling probability
 
@@ -36,6 +35,18 @@ data:
 
 By default, it will run every 5000 training steps and report evaluation results in the console output and on TensorBoard.
 
+### Export model on best metric
+
+Automatic evaluation can also export an inference model when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:
+
+```yaml
+eval:
+  external_evaluators: bleu
+  export_on_best: bleu
+```
+
+These models are saved in the model directory under `export/<step>`. See also the *Serving* section for more information about exported models.
+
 ### Early stopping
 
 Early stopping is useful to stop the training automatically when the model performance is not improving anymore.
@@ -51,9 +62,9 @@ eval:
     steps: 4
 ```
 
-## Replicated training
+## Multi-GPU training
 
-OpenNMT-tf training can make use of multiple GPUs with *in-graph replication*. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches `N` times larger, where `N` is the number of used GPUs.
+OpenNMT-tf training can make use of multiple GPUs. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches `N` times larger, where `N` is the number of used GPUs.
 
 For example, if your machine has 4 GPUs, simply add the `--num_gpus` option:
 

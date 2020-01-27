@@ -19,7 +19,44 @@ score:
   # Scoring specific configuration
 ```
 
-Here is an exhaustive and documented configuration:
+## Automatic configuration
+
+Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the `--auto_config` flag:
+
+```bash
+onmt-main --model_type Transformer --config my_data.yml --auto_config train
+```
+
+The user provided `my_data.yml` file will minimally require the data configuration (see the *Quickstart* for example). You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
+
+At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.
+
+**Note:** default training values usually assume GPUs with at least 8GB of memory and a large system memory:
+
+* If you encounter GPU out of memory issues, try overriding `batch_size` to a lower value.
+* If you encounter CPU out of memory issues, try overriding `sample_buffer_size` to a fixed value.
+
+## Multiple configuration files
+
+The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
+
+```bash
+onmt-main --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
+    config/data/toy-ende.yml [...]
+```
+
+If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
+
+If you are unsure about the configuration that is actually used or simply prefer working with a single file, consider using the `merge_config` script:
+
+```bash
+onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
+    config/data/toy-ende.yml > config/my_config.yml
+```
+
+## Reference
+
+Below is an exhaustive and documented configuration. **You should NOT copy and use this configuration, instead you should only define the parameters that you need.**
 
 ```yaml
 # The directory where models and summaries will be saved. It is created if it does not exist.
@@ -292,39 +329,4 @@ score:
   with_token_level: false
   # (optional) Also output the alignments (can be: null, hard, soft, default: null).
   with_alignments: null
-```
-
-## Automatic configuration
-
-Predefined models declare default parameters that should give solid performance out of the box. To enable automatic configuration, use the `--auto_config` flag:
-
-```bash
-onmt-main --model_type Transformer --config my_data.yml --auto_config train
-```
-
-The user provided `my_data.yml` file will minimally require the data configuration. You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
-
-At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.
-
-**Note:** default training values usually assume GPUs with at least 8GB of memory and a large system memory:
-
-* If you encounter GPU out of memory issues, try overriding `batch_size` to a lower value.
-* If you encounter CPU out of memory issues, try overriding `sample_buffer_size` to a fixed value.
-
-## Multiple configuration files
-
-The command line accepts multiple configuration files so that some parts can be made reusable, e.g:
-
-```bash
-onmt-main --config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
-    config/data/toy-ende.yml [...]
-```
-
-If a configuration key is duplicated, the value defined in the rightmost configuration file has priority.
-
-If you are unsure about the configuration that is actually used or simply prefer working with a single file, consider using the `merge_config` script:
-
-```bash
-onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
-    config/data/toy-ende.yml > config/my_config.yml
 ```
