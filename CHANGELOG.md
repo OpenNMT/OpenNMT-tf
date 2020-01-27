@@ -13,11 +13,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Multiple training files can be configured in `train_features_file`/`train_labels_file`, and `train_files_weights` optionally assign a weight to each file (see *Data* section in the documentation)
 * Support exporting compatible models to CTranslate2 format (see `export_format` option)
 * `moving_average_decay` training parameter to enable exponential moving average of the model variables
 
 ### Fixes and improvements
 
+* Fix error when starting a language model training
 * Use `tf.keras.layers.LayerNormalization` instead of custom implementation for improved efficiency
 * Fix possible duplicate call to checkpoint saving at the end of the training
 * Ignore BLEU evaluation warning when run on tokenized data (which also caused duplicated logs for the rest of the training)
