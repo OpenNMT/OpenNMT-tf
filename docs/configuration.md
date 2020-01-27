@@ -30,6 +30,10 @@ data:
   train_features_file: data/toy-ende/src-train.txt
   train_labels_file: data/toy-ende/tgt-train.txt
 
+  # (optional) A list with the weights of each training files, if multiple training
+  # files were configured (default: null).
+  train_files_weights: null
+
   # (optional) Pharaoh alignments of the training files.
   train_alignments: data/toy-ende/alignments-train.txt
 
