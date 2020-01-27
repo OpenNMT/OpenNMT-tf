@@ -67,10 +67,7 @@ def load_model_from_catalog(name):
   Raises:
     ValueError: if the model :obj:`name` does not exist in the model catalog.
   """
-  model_class = getattr(catalog, name, None)
-  if model_class is None:
-    raise ValueError("The model '%s' does not exist in the model catalog" % name)
-  return model_class()
+  return catalog.get_model_from_catalog(name)
 
 def load_model(model_dir,
                model_file=None,
@@ -114,8 +111,9 @@ def load_model(model_dir,
       model = load_model_from_catalog(model_name)
       if serialize_model:
         with tf.io.gfile.GFile(model_description_path, mode="w") as model_description_file:
-          model_description_file.write("from opennmt.models import catalog\n")
-          model_description_file.write("model = catalog.%s\n" % model_name)
+          model_description_file.write(
+              "from opennmt import models\n"
+              "model = lambda: models.get_model_from_catalog(\"%s\")\n" % model_name)
   elif tf.io.gfile.exists(model_description_path):
     tf.get_logger().info("Loading model description from %s", model_description_path)
     model = load_model_from_file(model_description_path)

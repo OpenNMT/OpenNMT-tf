@@ -8,12 +8,40 @@ from opennmt import encoders
 from opennmt import inputters
 from opennmt import layers
 from opennmt.models import language_model
+from opennmt.models import model
 from opennmt.models import sequence_tagger
 from opennmt.models import sequence_to_sequence
 from opennmt.models import transformer
-from opennmt.utils.misc import merge_dict
+from opennmt.utils import misc
 
 
+_CATALOG_MODELS_REGISTRY = misc.ClassRegistry(base_class=model.Model)
+
+register_model_in_catalog = _CATALOG_MODELS_REGISTRY.register  # pylint: disable=invalid-name
+
+def list_model_names_from_catalog():
+  """Lists the models name registered in the catalog."""
+  return _CATALOG_MODELS_REGISTRY.class_names
+
+def get_model_from_catalog(name):
+  """Gets a model from the catalog.
+
+  Args:
+    name: The model name in the catalog.
+
+  Returns:
+    A :class:`opennmt.models.Model` instance.
+
+  Raises:
+    ValueError: if the model :obj:`name` does not exist in the catalog.
+  """
+  model_class = _CATALOG_MODELS_REGISTRY.get(name)
+  if model_class is None:
+    raise ValueError("The model '%s' does not exist in the model catalog" % name)
+  return model_class()
+
+
+@register_model_in_catalog
 class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
   """Defines a model similar to the "Listen, Attend and Spell" model described
   in https://arxiv.org/abs/1508.01211.
@@ -40,7 +68,7 @@ class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
 
   def auto_config(self, num_replicas=1):
     config = super(ListenAttendSpell, self).auto_config(num_replicas=num_replicas)
-    return merge_dict(config, {
+    return misc.merge_dict(config, {
         "params": {
             "optimizer": "SGD",
             "learning_rate": 0.2,
@@ -60,7 +88,7 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
 
   def auto_config(self, num_replicas=1):
     config = super(_RNNBase, self).auto_config(num_replicas=num_replicas)
-    return merge_dict(config, {
+    return misc.merge_dict(config, {
         "params": {
             "optimizer": "Adam",
             "learning_rate": 0.0002
@@ -72,6 +100,7 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
         }
     })
 
+@register_model_in_catalog
 class LuongAttention(_RNNBase):
   """Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025."""
   def __init__(self):
@@ -95,6 +124,7 @@ class LuongAttention(_RNNBase):
             dropout=0.2,
             residual_connections=False))
 
+@register_model_in_catalog
 class NMTBigV1(_RNNBase):
   """Defines a bidirectional LSTM encoder-decoder model.
 
@@ -125,6 +155,7 @@ class NMTBigV1(_RNNBase):
             dropout=0.3,
             residual_connections=False))
 
+@register_model_in_catalog
 class NMTMediumV1(_RNNBase):
   """Defines a medium-sized bidirectional LSTM encoder-decoder model.
 
@@ -155,6 +186,7 @@ class NMTMediumV1(_RNNBase):
             dropout=0.3,
             residual_connections=False))
 
+@register_model_in_catalog
 class NMTSmallV1(_RNNBase):
   """Defines a small unidirectional LSTM encoder-decoder model.
 
@@ -183,6 +215,7 @@ class NMTSmallV1(_RNNBase):
             dropout=0.3,
             residual_connections=False))
 
+@register_model_in_catalog
 class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
   """Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354."""
   def __init__(self):
@@ -209,7 +242,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
 
   def auto_config(self, num_replicas=1):
     config = super(LstmCnnCrfTagger, self).auto_config(num_replicas=num_replicas)
-    return merge_dict(config, {
+    return misc.merge_dict(config, {
         "params": {
             "optimizer": "Adam",
             "learning_rate": 0.001
@@ -248,21 +281,29 @@ class _DefaultTransformer(transformer.Transformer):
         position_encoder_class=position_encoder_class,
         maximum_relative_position=maximum_relative_position)
 
-class Transformer(_DefaultTransformer):
+@register_model_in_catalog(alias="Transformer")
+class TransformerBase(_DefaultTransformer):
   """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
 
-class TransformerRelative(_DefaultTransformer):
+@register_model_in_catalog(alias="TransformerRelative")
+class TransformerBaseRelative(_DefaultTransformer):
   """Defines a Transformer model using relative position representations as
   described in https://arxiv.org/abs/1803.02155.
   """
   def __init__(self):
     super(TransformerRelative, self).__init__(relative=True)
 
+# Backward compatibility with model descriptions that directly accessed the catalog module.
+Transformer = TransformerBase
+TransformerRelative = TransformerBaseRelative
+
+@register_model_in_catalog
 class TransformerBig(_DefaultTransformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
   def __init__(self):
     super(TransformerBig, self).__init__(big=True)
 
+@register_model_in_catalog
 class TransformerBigRelative(_DefaultTransformer):
   """Defines a large Transformer model using relative position representations as
   described in https://arxiv.org/abs/1803.02155.
@@ -270,6 +311,7 @@ class TransformerBigRelative(_DefaultTransformer):
   def __init__(self):
     super(TransformerBigRelative, self).__init__(big=True, relative=True)
 
+@register_model_in_catalog
 class GPT2Small(language_model.LanguageModel):
   """GPT-2 language model (small version) as described in:
 
@@ -290,7 +332,7 @@ class GPT2Small(language_model.LanguageModel):
 
   def auto_config(self, num_replicas=1):
     config = super(GPT2Small, self).auto_config(num_replicas=num_replicas)
-    return merge_dict(config, {
+    return misc.merge_dict(config, {
         "params": {
             "average_loss_in_time": True,
             "optimizer": "Adam",

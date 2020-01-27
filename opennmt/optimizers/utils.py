@@ -7,6 +7,12 @@ import tensorflow_addons as tfa
 
 from tensorflow_addons.optimizers.weight_decay_optimizers import DecoupledWeightDecayExtension
 
+from opennmt.utils import misc
+
+
+_OPTIMIZERS_REGISTRY = misc.ClassRegistry(base_class=tf.keras.optimizers.Optimizer)
+
+register_optimizer = _OPTIMIZERS_REGISTRY.register  # pylint: disable=invalid-name
 
 def get_optimizer_class(name):
   """Returns the optimizer class.
@@ -25,6 +31,8 @@ def get_optimizer_class(name):
     optimizer_class = getattr(tf.keras.optimizers, name, None)
   if optimizer_class is None:
     optimizer_class = getattr(tfa.optimizers, name, None)
+  if optimizer_class is None:
+    optimizer_class = _OPTIMIZERS_REGISTRY.get(name)
   if optimizer_class is None:
     raise ValueError("Unknown optimizer class: %s" % name)
   return optimizer_class

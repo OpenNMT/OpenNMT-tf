@@ -148,8 +148,10 @@ class TokenizerTest(tf.test.TestCase):
     self.assertIsInstance(
         tokenizers.make_tokenizer(config_path),
         tokenizers.OpenNMTTokenizer)
-    with self.assertRaises(ValueError):
+    with self.assertRaisesRegex(ValueError, "is not in list of"):
       tokenizers.make_tokenizer({"type": "UnknownTokenizer"})
+    with self.assertRaisesRegex(ValueError, "is not in list of"):
+      tokenizers.make_tokenizer({"type": "Tokenizer"})
 
 
 if __name__ == "__main__":

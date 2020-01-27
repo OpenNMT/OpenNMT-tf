@@ -22,6 +22,15 @@ class OptimizerTest(tf.test.TestCase):
     self.assertIsInstance(adam_w, tf.keras.optimizers.Adam)
     self.assertIsInstance(adam_w, DecoupledWeightDecayExtension)
 
+  def testCustomOptimizerRegistration(self):
+
+    @utils.register_optimizer
+    class MyCustomAdam(tf.keras.optimizers.Adam):
+      pass
+
+    optimizer = utils.make_optimizer("MyCustomAdam", 0.002)
+    self.assertIsInstance(optimizer, MyCustomAdam)
+
   def testGradientAccumulator(self):
     accumulator = utils.GradientAccumulator()
     accumulator([tf.constant([1.0, 2.0])])

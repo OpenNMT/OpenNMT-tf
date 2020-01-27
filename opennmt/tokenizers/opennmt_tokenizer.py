@@ -8,7 +8,7 @@ import tensorflow as tf
 
 import pyonmttok
 
-from opennmt.tokenizers.tokenizer import Tokenizer
+from opennmt.tokenizers import tokenizer
 
 
 def _make_config_asset_file(config, asset_path):
@@ -21,7 +21,8 @@ def _make_config_asset_file(config, asset_path):
     yaml.dump(asset_config, stream=asset_file, default_flow_style=False)
 
 
-class OpenNMTTokenizer(Tokenizer):
+@tokenizer.register_tokenizer
+class OpenNMTTokenizer(tokenizer.Tokenizer):
   """Uses the OpenNMT tokenizer."""
 
   def __init__(self, **kwargs):

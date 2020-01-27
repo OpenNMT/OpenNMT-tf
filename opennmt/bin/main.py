@@ -11,7 +11,6 @@ from opennmt.models import catalog
 from opennmt.runner import Runner
 from opennmt.config import load_model, load_config
 from opennmt.utils import exporters
-from opennmt.utils.misc import classes_in_module
 
 
 _PYTHON_TO_TENSORFLOW_LOGGING_LEVEL = {
@@ -61,7 +60,7 @@ def main():
   parser.add_argument("--auto_config", default=False, action="store_true",
                       help="Enable automatic configuration values.")
   parser.add_argument("--model_type", default="",
-                      choices=list(classes_in_module(catalog, public_only=True)),
+                      choices=list(sorted(catalog.list_model_names_from_catalog())),
                       help="Model type from the catalog.")
   parser.add_argument("--model", default="",
                       help="Custom model configuration file.")

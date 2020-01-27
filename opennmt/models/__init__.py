@@ -4,10 +4,14 @@ from opennmt.models.catalog import GPT2Small
 from opennmt.models.catalog import ListenAttendSpell
 from opennmt.models.catalog import LstmCnnCrfTagger
 from opennmt.models.catalog import LuongAttention
-from opennmt.models.catalog import Transformer as TransformerBase
+from opennmt.models.catalog import TransformerBase
+from opennmt.models.catalog import TransformerBaseRelative
+# Export TransformerRelative for backward compatibility.
+from opennmt.models.catalog import TransformerBaseRelative as TransformerRelative  # pylint: disable=reimported
 from opennmt.models.catalog import TransformerBig
 from opennmt.models.catalog import TransformerBigRelative
-from opennmt.models.catalog import TransformerRelative
+from opennmt.models.catalog import get_model_from_catalog
+from opennmt.models.catalog import register_model_in_catalog
 
 from opennmt.models.language_model import LanguageModel
 from opennmt.models.language_model import LanguageModelInputter

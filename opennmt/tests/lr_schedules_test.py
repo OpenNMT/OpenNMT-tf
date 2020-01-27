@@ -21,6 +21,11 @@ class LRSchedulesTest(tf.test.TestCase):
     step = tf.constant(1, dtype=tf.int64)
     schedule(step)
 
+  def testGetScheduleClass(self):
+    with self.assertRaises(ValueError):
+      lr_schedules.get_lr_schedule_class("ScheduleWrapper")
+    lr_schedules.get_lr_schedule_class("NoamDecay") == lr_schedules.NoamDecay
+
   def testMakeSchedule(self):
     wrapper = lr_schedules.make_learning_rate_schedule(
         2.0, "ExponentialDecay", dict(decay_steps=1000, decay_rate=0.7))

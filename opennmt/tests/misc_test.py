@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
+from opennmt import models
 from opennmt.utils import misc
 
 
@@ -120,6 +121,24 @@ class MiscTest(tf.test.TestCase):
     self.assertTupleEqual(events[2], (2, "toto"))
     self.assertTupleEqual(events[3], (3, "foo"))
     self.assertTupleEqual(events[4], (4, "titi"))
+
+  def testClassRegistry(self):
+    registry = misc.ClassRegistry(base_class=models.Model)
+    self.assertIsNone(registry.get("TransformerBig"))
+    registry.register(models.TransformerBig)
+    self.assertEqual(registry.get("TransformerBig"), models.TransformerBig)
+    registry.register(models.TransformerBig, name="TransformerLarge")
+    self.assertEqual(registry.get("TransformerLarge"), models.TransformerBig)
+    self.assertSetEqual(registry.class_names, set(["TransformerBig", "TransformerLarge"]))
+
+    registry.register(models.TransformerBaseRelative, alias="TransformerRelative")
+    self.assertEqual(registry.get("TransformerBaseRelative"), models.TransformerBaseRelative)
+    self.assertEqual(registry.get("TransformerRelative"), models.TransformerBaseRelative)
+
+    with self.assertRaises(ValueError):
+      registry.register(models.TransformerBig)
+    with self.assertRaises(TypeError):
+      registry.register(misc.ClassRegistry)
 
 
 if __name__ == "__main__":
