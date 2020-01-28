@@ -190,3 +190,11 @@ class SelfAttentionDecoder(decoder.Decoder):
           for _ in range(self.num_sources)]
       cache.append(dict(self_kv=self_kv, memory_kv=memory_kv))
     return cache
+
+  def _get_state_reorder_flags(self):
+    # We don't need to reorder memory_kv as it is the same for all beams.
+    return [
+        {
+            "self_kv": (True, True),
+            "memory_kv": [(False, False) for _ in range(self.num_sources)]
+        } for _ in self.layers]

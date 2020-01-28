@@ -389,6 +389,11 @@ class Decoder(tf.keras.layers.Layer):
     else:
       input_fn = lambda ids: tf.nn.embedding_lookup(embeddings, ids)
 
+    # TODO: find a better way to pass the state reorder flags.
+    if hasattr(decoding_strategy, "_set_state_reorder_flags"):
+      state_reorder_flags = self._get_state_reorder_flags()
+      decoding_strategy._set_state_reorder_flags(state_reorder_flags)  # pylint: disable=protected-access
+
     return decoding.dynamic_decode(
         lambda ids, step, state: self(input_fn(ids), step, state),
         start_ids,
@@ -417,6 +422,15 @@ class Decoder(tf.keras.layers.Layer):
       The decoder state as a nested structure of tensors.
     """
     raise NotImplementedError()
+
+  def _get_state_reorder_flags(self):
+    """Returns a structure that marks states that should be reordered during beam search.
+    By default all states are reordered.
+
+    Returns:
+      The same structure as the decoder state with tensors replaced by booleans.
+    """
+    return None
 
   def _assert_is_initialized(self):
     """Raises an expection if the decoder was not initialized."""
