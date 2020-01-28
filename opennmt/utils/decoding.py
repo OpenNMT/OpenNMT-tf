@@ -227,10 +227,17 @@ class BeamSearch(DecodingStrategy):
     self.beam_size = beam_size
     self.length_penalty = length_penalty
     self.coverage_penalty = coverage_penalty
+    self._state_reorder_flags = None
 
   @property
   def num_hypotheses(self):
     return self.beam_size
+
+  def _set_state_reorder_flags(self, state_reorder_flags):
+    """Sets state reorder flags, a structure matching the decoder state that
+    indicates which tensor should be reorded during beam search.
+    """
+    self._state_reorder_flags = state_reorder_flags
 
   def _initialize(self, batch_size, start_ids, attention_size=None):
     start_ids = tfa.seq2seq.tile_batch(start_ids, self.beam_size)
@@ -323,7 +330,7 @@ class BeamSearch(DecodingStrategy):
     if accumulated_attention is not None:
       accumulated_attention = tf.gather(accumulated_attention, beam_indices)
       extra_vars.append(accumulated_attention)
-    state = tf.nest.map_structure(lambda s: _gather_state(s, beam_indices), state)
+    state = _reorder_state(state, beam_indices, reorder_flags=self._state_reorder_flags)
     return word_ids, cum_log_probs, finished, state, tuple(extra_vars)
 
   def _finalize(self, outputs, end_id, extra_vars, attention=None):
@@ -498,11 +505,19 @@ def dynamic_decode(symbols_to_logits_fn,
       state=state)
 
 
-def _gather_state(tensor, indices):
-  """Gather batch indices from the tensor."""
-  if isinstance(tensor, tf.TensorArray) or tensor.shape.ndims == 0:
-    return tensor
-  return tf.gather(tensor, indices)
+def _reorder_state(state, indices, reorder_flags=None):
+  """Gather batch indices from the state tensors."""
+
+  def _reorder_one(tensor, reorder=True):
+    if not reorder or isinstance(tensor, tf.TensorArray) or tensor.shape.ndims == 0:
+      return tensor
+    return tf.gather(tensor, indices)
+
+  args = [state]
+  if reorder_flags is not None:
+    tf.nest.assert_same_structure(state, reorder_flags)
+    args.append(reorder_flags)
+  return tf.nest.map_structure(_reorder_one, *args)
 
 def _get_shape_invariants(tensor):
   """Returns the shape of the tensor but sets middle dims to None."""
