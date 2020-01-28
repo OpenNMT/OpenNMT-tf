@@ -13,6 +13,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [2.6.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.6.0) (2020-01-28)
+
+### New features
+
 * Multiple training files can be configured in `train_features_file`/`train_labels_file`, and `train_files_weights` optionally assign a weight to each file (see *Data* section in the documentation)
 * Support exporting compatible models to CTranslate2 format (see `export_format` option)
 * `moving_average_decay` training parameter to enable exponential moving average of the model variables
