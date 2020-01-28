@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.Runner &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.Runner &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -101,8 +101,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -114,6 +116,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#classes">Classes</a><ul class="current">
@@ -318,13 +321,15 @@ the end of the inference loop.</p></li>
 
 <dl class="method">
 <dt id="opennmt.Runner.export">
-<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">export_dir</em>, <em class="sig-param">checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.export" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">export_dir</em>, <em class="sig-param">checkpoint_path=None</em>, <em class="sig-param">exporter=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.export" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports a model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>export_dir</strong> – The export directory.</p></li>
 <li><p><strong>checkpoint_path</strong> – The checkpoint path to export. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the latest is used.</p></li>
+<li><p><strong>exporter</strong> – A <a class="reference internal" href="opennmt.utils.Exporter.html#opennmt.utils.Exporter" title="opennmt.utils.Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.Exporter</span></code></a> instance. Defaults to
+<a class="reference internal" href="opennmt.utils.SavedModelExporter.html#opennmt.utils.SavedModelExporter" title="opennmt.utils.SavedModelExporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.SavedModelExporter</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>

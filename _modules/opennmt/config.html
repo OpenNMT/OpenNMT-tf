@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.config &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -245,10 +248,7 @@
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if the model :obj:`name` does not exist in the model catalog.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">model_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">model_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist in the model catalog&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">model_class</span><span class="p">()</span>
+  <span class="k">return</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../package/opennmt.load_model.html#opennmt.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span>
                <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -292,8 +292,9 @@
       <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_description_file</span><span class="p">:</span>
-          <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;from opennmt.models import catalog</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-          <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;model = catalog.</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_name</span><span class="p">)</span>
+          <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+              <span class="s2">&quot;from opennmt import models</span><span class="se">\n</span><span class="s2">&quot;</span>
+              <span class="s2">&quot;model = lambda: models.get_model_from_catalog(</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_name</span><span class="p">)</span>
   <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">)</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">)</span>

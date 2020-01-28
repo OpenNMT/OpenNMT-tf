@@ -1,0 +1,8 @@
+opennmt.utils.SavedModelExporter
+================================
+
+.. autoclass:: opennmt.utils.SavedModelExporter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.Exporter`

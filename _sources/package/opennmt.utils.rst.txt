@@ -11,12 +11,15 @@ Classes
    opennmt.utils.BLEUScorer
    opennmt.utils.BeamSearch
    opennmt.utils.BestSampler
+   opennmt.utils.CTranslate2Exporter
    opennmt.utils.DecodingResult
    opennmt.utils.DecodingStrategy
+   opennmt.utils.Exporter
    opennmt.utils.GreedySearch
    opennmt.utils.ROUGEScorer
    opennmt.utils.RandomSampler
    opennmt.utils.Sampler
+   opennmt.utils.SavedModelExporter
    opennmt.utils.Scorer
 Functions
 ---------

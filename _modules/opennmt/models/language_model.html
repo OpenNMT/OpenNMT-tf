@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -391,26 +394,31 @@
                             <span class="n">num_shards</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                             <span class="n">shard_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                             <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-                            <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                            <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">cardinality_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                            <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;See :meth:`opennmt.inputters.ExampleInputter.make_training_dataset`.&quot;&quot;&quot;</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">labels_file</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_dataset</span><span class="p">(</span><span class="n">features_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">dataset_util</span><span class="o">.</span><span class="n">training_pipeline</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_util</span><span class="o">.</span><span class="n">training_pipeline</span><span class="p">(</span>
         <span class="n">batch_size</span><span class="p">,</span>
         <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
         <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
-        <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
-        <span class="n">single_pass</span><span class="o">=</span><span class="n">single_pass</span><span class="p">,</span>
+        <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
         <span class="n">process_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
+        <span class="n">features_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_length</span><span class="p">,</span>
+        <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
+        <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
+        <span class="n">single_pass</span><span class="o">=</span><span class="n">single_pass</span><span class="p">,</span>
+        <span class="n">num_shards</span><span class="o">=</span><span class="n">num_shards</span><span class="p">,</span>
+        <span class="n">shard_index</span><span class="o">=</span><span class="n">shard_index</span><span class="p">,</span>
         <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
         <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="n">shuffle_buffer_size</span><span class="p">,</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">prefetch_buffer_size</span><span class="p">,</span>
-        <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
-        <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
-        <span class="n">features_length_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_length</span><span class="p">,</span>
-        <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
-        <span class="n">num_shards</span><span class="o">=</span><span class="n">num_shards</span><span class="p">,</span>
-        <span class="n">shard_index</span><span class="o">=</span><span class="n">shard_index</span><span class="p">))</span>
+        <span class="n">cardinality_multiple</span><span class="o">=</span><span class="n">cardinality_multiple</span><span class="p">)(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataset</span></div></div>
 </pre></div>
 

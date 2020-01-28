@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -228,6 +231,14 @@
     <span class="sd">&quot;&quot;&quot;The model directory.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_dir</span>
 
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">last_saved_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The last training step that was saved.&quot;&quot;&quot;</span>
+    <span class="n">latest_checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint_manager</span><span class="o">.</span><span class="n">latest_checkpoint</span>
+    <span class="k">if</span> <span class="n">latest_checkpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">_get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">latest_checkpoint</span><span class="p">)</span>
+
   <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Saves a checkpoint.</span>
 
@@ -287,6 +298,10 @@
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Restored checkpoint </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">checkpoint_path</span>
 
+
+<span class="k">def</span> <span class="nf">_get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Extracts the training step from the checkpoint file prefix.&quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
 <div class="viewcode-block" id="is_v1_checkpoint"><a class="viewcode-back" href="../../../package/opennmt.utils.is_v1_checkpoint.html#opennmt.utils.is_v1_checkpoint">[docs]</a><span class="k">def</span> <span class="nf">is_v1_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns ``True`` if the checkpoint at :obj:`checkpoint_path` has been</span>
@@ -351,7 +366,7 @@
   <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_count</span><span class="p">:</span>
     <span class="n">checkpoints_path</span> <span class="o">=</span> <span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="n">max_count</span><span class="p">:]</span>
   <span class="n">num_checkpoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">)</span>
-  <span class="n">last_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+  <span class="n">last_step</span> <span class="o">=</span> <span class="n">_get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
   <span class="c1"># Get a map from variable names in the checkpoint to variables in the model.</span>
   <span class="n">_</span><span class="p">,</span> <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>

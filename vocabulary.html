@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Vocabulary &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tokenization" href="tokenization.html" />
+    <link rel="prev" title="Data" href="data.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenNMT-tf
+          
+
+          
+            
+            <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.6
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Configuration</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Vocabulary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-vocabularies">Building vocabularies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#from-tokenized-files">from tokenized files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-raw-files">from raw files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-sentencepiece-training">from SentencePiece training</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-vocabularies">Configuring vocabularies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serving.html">Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenNMT-tf</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Vocabulary</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="vocabulary">
+<h1>Vocabulary<a class="headerlink" href="#vocabulary" title="Permalink to this headline">¶</a></h1>
+<p>For text inputs, vocabulary files should be provided in the data configuration. A vocabulary file is a simple text file with <strong>one token per line</strong>. It shoud starts with these 3 special tokens:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;blank&gt;
+&lt;s&gt;
+&lt;/s&gt;
+</pre></div>
+</div>
+<div class="section" id="building-vocabularies">
+<h2>Building vocabularies<a class="headerlink" href="#building-vocabularies" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can be used to generate vocabulary files in multiple ways:</p>
+<div class="section" id="from-tokenized-files">
+<h3>from tokenized files<a class="headerlink" href="#from-tokenized-files" title="Permalink to this headline">¶</a></h3>
+<p>The script can be run directly on tokenized files. For example the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --size <span class="m">50000</span> --save_vocab vocab.txt train.txt.tok
+</pre></div>
+</div>
+<p>extracts the 50,000 most frequent tokens from <code class="docutils literal notranslate"><span class="pre">train.txt.tok</span></code> and saves them to <code class="docutils literal notranslate"><span class="pre">vocab.txt</span></code>.</p>
+</div>
+<div class="section" id="from-raw-files">
+<h3>from raw files<a class="headerlink" href="#from-raw-files" title="Permalink to this headline">¶</a></h3>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> splits each line on spaces. It is possible to define a custom tokenization with the <code class="docutils literal notranslate"><span class="pre">--tokenizer_config</span></code> option. See the <em>Tokenization</em> section for more information.</p>
+</div>
+<div class="section" id="from-sentencepiece-training">
+<h3>from SentencePiece training<a class="headerlink" href="#from-sentencepiece-training" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> can also prepare a SentencePiece vocabulary and model from raw data. For example the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --sentencepiece --size <span class="m">32000</span> --save_vocab sp train.txt.raw
+</pre></div>
+</div>
+<p>will produce the SentencePiece model <code class="docutils literal notranslate"><span class="pre">sp.model</span></code> and the vocabulary <code class="docutils literal notranslate"><span class="pre">sp.vocab</span></code> of size 32,000. Additional SentencePiece <a class="reference external" href="https://github.com/google/sentencepiece/blob/master/src/spm_train_main.cc">training options</a> can be passed to the <code class="docutils literal notranslate"><span class="pre">--sentencepiece</span></code> argument in the format <code class="docutils literal notranslate"><span class="pre">option=value</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">--sentencepiece</span> <span class="pre">character_coverage=0.98</span> <span class="pre">num_threads=4</span></code>.</p>
+</div>
+</div>
+<div class="section" id="configuring-vocabularies">
+<h2>Configuring vocabularies<a class="headerlink" href="#configuring-vocabularies" title="Permalink to this headline">¶</a></h2>
+<p>In most cases, you should configure vocabularies with <code class="docutils literal notranslate"><span class="pre">source_vocabulary</span></code> and <code class="docutils literal notranslate"><span class="pre">target_vocabulary</span></code> in <code class="docutils literal notranslate"><span class="pre">data</span></code> block of the YAML configuration, for example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">source_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span>
+  <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt_vocab.txt</span>
+</pre></div>
+</div>
+<p>However, some models may require a different configuration:</p>
+<ul class="simple">
+<li><p>Language models require a single vocabulary:</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">vocab.txt</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Parallel inputs require indexed vocabularies:</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">source_1_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_vocab.txt</span>  <span class="c1"># Vocabulary of the 1st source input.</span>
+  <span class="nt">source_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>  <span class="c1"># Vocabulary of the 2nd source input.</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Nested parallel inputs require an additional level of indexing:</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">source_1_1_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_1_vocab.txt</span>
+  <span class="nt">source_1_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_2_vocab.txt</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tokenization.html" class="btn btn-neutral float-right" title="Tokenization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="data.html" class="btn btn-neutral float-left" title="Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

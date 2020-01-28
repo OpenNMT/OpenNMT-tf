@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -195,6 +198,7 @@
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">training</span> <span class="k">as</span> <span class="n">training_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">checkpoint</span> <span class="k">as</span> <span class="n">checkpoint_util</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">exporters</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 
 
@@ -351,7 +355,8 @@
         <span class="n">num_shards</span><span class="o">=</span><span class="n">input_context</span><span class="o">.</span><span class="n">num_input_pipelines</span><span class="p">,</span>
         <span class="n">shard_index</span><span class="o">=</span><span class="n">input_context</span><span class="o">.</span><span class="n">input_pipeline_id</span><span class="p">,</span>
         <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">),</span>
-        <span class="n">cardinality_multiple</span><span class="o">=</span><span class="n">input_context</span><span class="o">.</span><span class="n">num_replicas_in_sync</span><span class="p">)</span>
+        <span class="n">cardinality_multiple</span><span class="o">=</span><span class="n">input_context</span><span class="o">.</span><span class="n">num_replicas_in_sync</span><span class="p">,</span>
+        <span class="n">weights</span><span class="o">=</span><span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train_files_weights&quot;</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">with_eval</span><span class="p">:</span>
       <span class="n">evaluator</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">Evaluator</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
@@ -382,7 +387,9 @@
         <span class="n">save_steps</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;save_checkpoints_steps&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
         <span class="n">evaluator</span><span class="o">=</span><span class="n">evaluator</span><span class="p">,</span>
         <span class="n">eval_steps</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
-        <span class="n">export_on_best</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_on_best&quot;</span><span class="p">))</span>
+        <span class="n">export_on_best</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_on_best&quot;</span><span class="p">),</span>
+        <span class="n">exporter</span><span class="o">=</span><span class="n">exporters</span><span class="o">.</span><span class="n">make_exporter</span><span class="p">(</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_format&quot;</span><span class="p">,</span> <span class="s2">&quot;saved_model&quot;</span><span class="p">)),</span>
+        <span class="n">moving_average_decay</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;moving_average_decay&quot;</span><span class="p">))</span>
     <span class="n">average_last_checkpoints</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">average_last_checkpoints</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">average_checkpoints</span><span class="p">(</span>
@@ -506,6 +513,7 @@
 
     <span class="n">ordered_writer</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">infer_fn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">infer</span><span class="p">,</span> <span class="n">input_signature</span><span class="o">=</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span><span class="p">,))</span>
+    <span class="n">infer_fn</span><span class="o">.</span><span class="n">get_concrete_function</span><span class="p">()</span>  <span class="c1"># Trace the function now.</span>
     <span class="n">write_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">prediction</span><span class="p">:</span> <span class="p">(</span>
         <span class="n">model</span><span class="o">.</span><span class="n">print_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">infer_config</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">))</span>
 
@@ -546,16 +554,18 @@
     <span class="k">if</span> <span class="n">predictions_file</span><span class="p">:</span>
       <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Runner.export"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.export">[docs]</a>  <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner.export"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.export">[docs]</a>  <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exporter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exports a model.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      export_dir: The export directory.</span>
 <span class="sd">      checkpoint_path: The checkpoint path to export. If ``None``, the latest is used.</span>
+<span class="sd">      exporter: A :class:`opennmt.utils.Exporter` instance. Defaults to</span>
+<span class="sd">        :class:`opennmt.utils.SavedModelExporter`.</span>
 <span class="sd">   &quot;&quot;&quot;</span>
     <span class="n">checkpoint</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_run</span><span class="p">()</span>
     <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">checkpoint</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">export_dir</span><span class="p">)</span></div>
+    <span class="n">checkpoint</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">exporter</span><span class="o">=</span><span class="n">exporter</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.score"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.score">[docs]</a>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features_file</span><span class="p">,</span> <span class="n">predictions_file</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Scores existing predictions.</span>

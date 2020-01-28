@@ -1,0 +1,8 @@
+opennmt.utils.Exporter
+======================
+
+.. autoclass:: opennmt.utils.Exporter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`abc.ABC`

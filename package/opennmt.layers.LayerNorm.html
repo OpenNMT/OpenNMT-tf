@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.LayerNorm &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.layers.LayerNorm &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -101,8 +101,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -114,6 +116,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
@@ -207,35 +210,9 @@
 <h1>opennmt.layers.LayerNorm<a class="headerlink" href="#opennmt-layers-layernorm" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.layers.LayerNorm">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">LayerNorm</code><span class="sig-paren">(</span><em class="sig-param">epsilon=0.0001</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerNorm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">LayerNorm</code><span class="sig-paren">(</span><em class="sig-param">axis=-1</em>, <em class="sig-param">epsilon=0.001</em>, <em class="sig-param">center=True</em>, <em class="sig-param">scale=True</em>, <em class="sig-param">beta_initializer='zeros'</em>, <em class="sig-param">gamma_initializer='ones'</em>, <em class="sig-param">beta_regularizer=None</em>, <em class="sig-param">gamma_regularizer=None</em>, <em class="sig-param">beta_constraint=None</em>, <em class="sig-param">gamma_constraint=None</em>, <em class="sig-param">trainable=True</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerNorm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Layer normalization.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
-<dl class="method">
-<dt id="opennmt.layers.LayerNorm.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">epsilon=0.0001</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerNorm.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes this layer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>epsilon</strong> – The epsilon value to use.</p></li>
-<li><p><strong>kwargs</strong> – Additional layer arguments.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.layers.LayerNorm.build">
-<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param">input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerNorm.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the variables.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.layers.LayerNorm.call">
-<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerNorm.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>Normalizes <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>.</p>
-</dd></dl>
-
+<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.layers.normalization.LayerNormalization</span></code></p>
 <dl class="method">
 <dt id="opennmt.layers.LayerNorm.map_v1_weights">
 <code class="sig-name descname">map_v1_weights</code><span class="sig-paren">(</span><em class="sig-param">weights</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerNorm.map_v1_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerNorm.map_v1_weights" title="Permalink to this definition">¶</a></dt>

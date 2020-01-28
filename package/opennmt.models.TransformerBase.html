@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.TransformerBase &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.models.TransformerBase &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.models.TransformerBig" href="opennmt.models.TransformerBig.html" />
+    <link rel="next" title="opennmt.models.TransformerBaseRelative" href="opennmt.models.TransformerBaseRelative.html" />
     <link rel="prev" title="opennmt.models.Transformer" href="opennmt.models.Transformer.html" /> 
 </head>
 
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -101,8 +101,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -114,6 +116,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
@@ -123,6 +126,7 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="opennmt.models.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="opennmt.models.html#functions">Functions</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
@@ -204,10 +208,11 @@
             
   <div class="section" id="opennmt-models-transformerbase">
 <h1>opennmt.models.TransformerBase<a class="headerlink" href="#opennmt-models-transformerbase" title="Permalink to this headline">¶</a></h1>
-<dl class="attribute">
+<dl class="class">
 <dt id="opennmt.models.TransformerBase">
-<code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">TransformerBase</code><a class="headerlink" href="#opennmt.models.TransformerBase" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.catalog.Transformer</span></code></p>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">TransformerBase</code><span class="sig-paren">(</span><em class="sig-param">big=False</em>, <em class="sig-param">relative=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/catalog.html#TransformerBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.TransformerBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a Transformer model as decribed in <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
+<p>Inherits from: <a class="reference internal" href="opennmt.models.Transformer.html#opennmt.models.Transformer" title="opennmt.models.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Transformer</span></code></a></p>
 </dd></dl>
 
 </div>
@@ -220,7 +225,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.models.TransformerBig.html" class="btn btn-neutral float-right" title="opennmt.models.TransformerBig" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.models.TransformerBaseRelative.html" class="btn btn-neutral float-right" title="opennmt.models.TransformerBaseRelative" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="opennmt.models.Transformer.html" class="btn btn-neutral float-left" title="opennmt.models.Transformer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

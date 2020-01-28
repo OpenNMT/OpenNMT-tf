@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.batch_sequence_dataset &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.data.batch_sequence_dataset &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -101,8 +101,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -114,6 +116,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a><ul class="current">
@@ -213,10 +216,10 @@
 with optional bucketing of sequences.</p>
 <p>Bucketing makes the batches contain sequences of similar lengths to optimize
 the training efficiency. For example, if <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_bucket_width</span></code> is 5,
-sequences will be organized by the following buckets:</p>
+sequences will be organized by the following length buckets:</p>
 <p>1 - 5 | 6 - 10 | 11 - 15 | …</p>
 <p>Then when building the next batch, sequences will be selected from the same
-bucket.</p>
+length bucket.</p>
 <p>If the dataset has parallel elements (e.g. a parallel source and target
 dataset), the element is assigned to the bucket corresponding to the maximum
 length of all parallel elements.</p>
@@ -229,7 +232,8 @@ length of all parallel elements.</p>
 <li><p><strong>batch_multiplier</strong> – The batch size multiplier.</p></li>
 <li><p><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
 resulting batch size is a multiple of this value.</p></li>
-<li><p><strong>length_bucket_width</strong> – The sequence length bucket width.</p></li>
+<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
+candidates from. <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch formation.</p></li>
 <li><p><strong>length_fn</strong> – A function or list of functions (in case of a parallel dataset)
 that take features as argument and return the associated sequence length.</p></li>
 <li><p><strong>padded_shapes</strong> – The padded shapes for this dataset. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the shapes
@@ -240,7 +244,11 @@ are automatically inferred from the dataset output shapes.</p></li>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> transformation.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is not one of “examples” or “tokens”.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is not one of “examples” or “tokens”.</p></li>
+<li><p><strong>ValueError</strong> – if the number of length functions in <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_fn</span></code> does not
+    match the number of parallel elements.</p></li>
+</ul>
 </dd>
 </dl>
 <div class="admonition seealso">

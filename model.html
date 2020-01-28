@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Model &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>Model &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -105,8 +105,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -118,6 +120,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -197,6 +200,7 @@
 <li><p><a class="reference external" href="https://arxiv.org/abs/1809.00188">MS-UEdin Submission to the WMT2018 APE Shared Task: Dual-Source Transformer for Automatic Post-Editing</a> (Junczys-Dowmunt et al. 2018)</p></li>
 <li><p><a class="reference external" href="https://arxiv.org/abs/1806.00187">Scaling Neural Machine Translation</a> (Ott et al. 2018)</p></li>
 <li><p><a class="reference external" href="https://arxiv.org/abs/1804.09849">The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation</a> (Chen et al. 2018)</p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/1803.02155">Self-Attention with Relative Position Representations</a> (Shaw et al. 2018)</p></li>
 </ul>
 <p><strong>Speech recognition</strong></p>
 <ul class="simple">
@@ -220,7 +224,33 @@
 </div>
 <div class="section" id="custom-models">
 <h2>Custom models<a class="headerlink" href="#custom-models" title="Permalink to this headline">¶</a></h2>
-<p>Models are defined from Python code to allow a high level of modeling freedom. They are <code class="docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code> instances that use <a class="reference external" href="package/opennmt.html">available</a> or user-defined modules. Some of these modules are defined to contain other modules and can be used to design complex architectures:</p>
+<p>OpenNMT-tf can load custom model definitions from external Python files. They should include a callable <code class="docutils literal notranslate"><span class="pre">model</span></code> that returns a <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.Model.html"><code class="docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance, for example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">opennmt</span>
+
+<span class="k">class</span> <span class="nc">MyCustomTransformer</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">source_inputter</span><span class="o">=</span><span class="n">opennmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+            <span class="n">target_inputter</span><span class="o">=</span><span class="n">opennmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">),</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">share_embeddings</span><span class="o">=</span><span class="n">opennmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">)</span>
+
+    <span class="c1"># Here you can override any method from the Model class for a customized behavior.</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">MyCustomTransformer</span>
+</pre></div>
+</div>
+<p>The custom model file should then be selected with the <code class="docutils literal notranslate"><span class="pre">--model</span></code> command line option, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model config/models/custom_model.py <span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+</div>
+<p>This approach offers a high level of modeling freedom without changing the core implementation. Additionally, some public modules are defined to contain other modules and can be used to design complex architectures:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.SequentialEncoder</span></code></p></li>
@@ -228,10 +258,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></p></li>
 </ul>
 <p>For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).</p>
-<p>Some examples are available in the directory <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models"><code class="docutils literal notranslate"><span class="pre">config/models</span></code></a> in the Git repository. The custom model file should be selected with the <code class="docutils literal notranslate"><span class="pre">--model</span></code> command line option, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model config/models/custom_model.py <span class="o">[</span>...<span class="o">]</span>
-</pre></div>
-</div>
+<p>Some examples are available in the directory <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models"><code class="docutils literal notranslate"><span class="pre">config/models</span></code></a> in the Git repository.</p>
 </div>
 </div>
 

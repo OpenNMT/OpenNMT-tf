@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -101,8 +101,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -114,6 +116,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
@@ -281,7 +284,7 @@ formation.</p></li>
 
 <dl class="method">
 <dt id="opennmt.inputters.ExampleInputter.make_training_dataset">
-<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em>, <em class="sig-param">weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for training. It supports the full training
 pipeline, including:</p>
 <ul class="simple">
@@ -294,8 +297,8 @@ pipeline, including:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>features_file</strong> – The evaluation source file.</p></li>
-<li><p><strong>labels_file</strong> – The evaluation target file.</p></li>
+<li><p><strong>features_file</strong> – The source file or a list of training source files.</p></li>
+<li><p><strong>labels_file</strong> – The target file or a list of training target files.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
 <li><p><strong>batch_type</strong> – The training batching stragety to use: can be “examples” or
 “tokens”.</p></li>
@@ -320,6 +323,8 @@ distributed setting).</p></li>
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
 <li><p><strong>cardinality_multiple</strong> – Ensure that the dataset cardinality is a multiple of
 this value when <code class="xref py py-obj docutils literal notranslate"><span class="pre">single_pass</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>weights</strong> – An optional list of weights to create a weighted dataset out of
+multiple training files.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -181,6 +184,72 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
+
+
+<span class="k">def</span> <span class="nf">make_datasets</span><span class="p">(</span><span class="n">dataset_cls</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates instances of :obj:`dataset_cls`.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    dataset_cls: A class inheriting from ``tf.data.Dataset``.</span>
+<span class="sd">    filenames: A list of filenames or a single filename.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A list of ``tf.data.Dataset`` instances if multiple :obj:`filenames` are</span>
+<span class="sd">    passed, otherwise a single ``tf.data.Dataset``.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`filenames` is empty.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filenames</span><span class="p">]</span>
+  <span class="k">elif</span> <span class="ow">not</span> <span class="n">filenames</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one data file is required&quot;</span><span class="p">)</span>
+  <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="n">dataset_cls</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">compression_type</span><span class="o">=</span><span class="s2">&quot;GZIP&quot;</span> <span class="k">if</span> <span class="n">misc</span><span class="o">.</span><span class="n">is_gzip_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">]</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">datasets</span>
+
+<span class="k">def</span> <span class="nf">normalize_weights</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Returns normalized dataset weights based on datasets sizes.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    datasets: A list of ``tf.data.Dataset`` instances.</span>
+<span class="sd">    weights: An optional list of dataset weights.</span>
+<span class="sd">    sizes: The size of each dataset, if known.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A normalized list of weights that can be used as sampling probabilities.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if the length of :obj:`weights` or :obj:`sizes` does not match</span>
+<span class="sd">      the length of :obj:`datasets`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">datasets</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">[]</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mf">1.</span><span class="p">]</span>
+
+  <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Got </span><span class="si">%d</span><span class="s2"> datasets but </span><span class="si">%d</span><span class="s2"> weights&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)))</span>
+
+  <span class="k">if</span> <span class="n">sizes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+  <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Got </span><span class="si">%d</span><span class="s2"> datasets but </span><span class="si">%d</span><span class="s2"> sizes&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)))</span>
+
+  <span class="c1"># Weights should be normalized by the dataset size relative to the total size.</span>
+  <span class="n">total_size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
+  <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">size</span> <span class="o">/</span> <span class="n">total_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">weight</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">sizes</span><span class="p">)]</span>
+
+  <span class="c1"># Convert weights to probabilities.</span>
+  <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+  <span class="n">probabilities</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+  <span class="k">return</span> <span class="n">probabilities</span>
 
 <span class="k">def</span> <span class="nf">_get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the outputs shapes of the dataset.</span>
@@ -198,7 +267,8 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">    dataset: A finite dataset.</span>
-<span class="sd">    batch_size: The batch size to use or ``None`` to scan the dataset as-is.</span>
+<span class="sd">    batch_size: The batch size to use to improve the scan performance, or</span>
+<span class="sd">      ``None`` to scan the dataset as-is.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    The dataset size.</span>
@@ -241,8 +311,8 @@
 <span class="sd">  Args:</span>
 <span class="sd">    maximum_features_length: The maximum length or list of maximum lengths of</span>
 <span class="sd">      the features sequence(s). ``None`` to not constrain the length.</span>
-<span class="sd">    maximum_labels_length: The maximum length of the labels sequence.</span>
-<span class="sd">      ``None`` to not constrain the length.</span>
+<span class="sd">    maximum_labels_length: The maximum length or list of maximum lengths of</span>
+<span class="sd">      the labels sequence(s). ``None`` to not constrain the length.</span>
 <span class="sd">    features_length_fn: A function mapping features to a sequence length.</span>
 <span class="sd">    labels_length_fn: A function mapping labels to a sequence length.</span>
 
@@ -400,12 +470,12 @@
 
 <span class="sd">  Bucketing makes the batches contain sequences of similar lengths to optimize</span>
 <span class="sd">  the training efficiency. For example, if :obj:`length_bucket_width` is 5,</span>
-<span class="sd">  sequences will be organized by the following buckets:</span>
+<span class="sd">  sequences will be organized by the following length buckets:</span>
 
 <span class="sd">  1 - 5 | 6 - 10 | 11 - 15 | ...</span>
 
 <span class="sd">  Then when building the next batch, sequences will be selected from the same</span>
-<span class="sd">  bucket.</span>
+<span class="sd">  length bucket.</span>
 
 <span class="sd">  If the dataset has parallel elements (e.g. a parallel source and target</span>
 <span class="sd">  dataset), the element is assigned to the bucket corresponding to the maximum</span>
@@ -418,7 +488,8 @@
 <span class="sd">    batch_multiplier: The batch size multiplier.</span>
 <span class="sd">    batch_size_multiple: When :obj:`batch_type` is &quot;tokens&quot;, ensure that the</span>
 <span class="sd">      resulting batch size is a multiple of this value.</span>
-<span class="sd">    length_bucket_width: The sequence length bucket width.</span>
+<span class="sd">    length_bucket_width: The width of the length buckets to select batch</span>
+<span class="sd">      candidates from. ``None`` to not constrain batch formation.</span>
 <span class="sd">    length_fn: A function or list of functions (in case of a parallel dataset)</span>
 <span class="sd">      that take features as argument and return the associated sequence length.</span>
 <span class="sd">    padded_shapes: The padded shapes for this dataset. If ``None``, the shapes</span>
@@ -429,6 +500,8 @@
 
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if :obj:`batch_type` is not one of &quot;examples&quot; or &quot;tokens&quot;.</span>
+<span class="sd">    ValueError: if the number of length functions in :obj:`length_fn` does not</span>
+<span class="sd">      match the number of parallel elements.</span>
 
 <span class="sd">  See Also:</span>
 <span class="sd">    :func:`opennmt.data.batch_dataset`</span>
@@ -508,7 +581,6 @@
   <span class="sd">&quot;&quot;&quot;Transformation that defines a complete training data pipeline.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    dataset: The base dataset.</span>
 <span class="sd">    batch_size: The batch size to use.</span>
 <span class="sd">    batch_type: The training batching stragety to use: can be &quot;examples&quot; or</span>
 <span class="sd">      &quot;tokens&quot;.</span>
@@ -546,11 +618,42 @@
 <span class="sd">    - :func:`opennmt.data.shuffle_dataset`</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_make_weighted_dataset</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">single_pass</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;single_pass parameter is not compatible with weighted datasets&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">datasets</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one dataset is required&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> dataset weights were provided, but </span><span class="si">%d</span><span class="s2"> were expected to match the &quot;</span>
+                       <span class="s2">&quot;number of data files&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">num_shards</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">shard_index</span><span class="p">)</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">normalize_weights</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">sample_from_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shuffle_buffer_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;shuffle_buffer_size &lt; 0 is not compatible with weighted datasets&quot;</span><span class="p">)</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">shuffle_buffer_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+  <span class="k">def</span> <span class="nf">_make_single_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">num_shards</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">shard_index</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shuffle_buffer_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">shuffle_dataset</span><span class="p">(</span><span class="n">shuffle_buffer_size</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+  <span class="k">def</span> <span class="nf">_pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+      <span class="n">dataset</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">dataset</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_weighted_dataset</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_weighted_dataset</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">_make_weighted_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">_make_single_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">process_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">process_fn</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">num_threads</span> <span class="ow">or</span> <span class="mi">4</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">filter_examples_by_length</span><span class="p">(</span>
@@ -567,7 +670,8 @@
         <span class="n">length_fn</span><span class="o">=</span><span class="p">[</span><span class="n">features_length_fn</span><span class="p">,</span> <span class="n">labels_length_fn</span><span class="p">]))</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">filter_irregular_batches</span><span class="p">(</span><span class="n">batch_multiplier</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">single_pass</span><span class="p">:</span>
-      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">is_weighted_dataset</span><span class="p">:</span>  <span class="c1"># Weighted dataset is repeated before sampling.</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">make_cardinality_multiple_of</span><span class="p">(</span><span class="n">cardinality_multiple</span><span class="p">))</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">prefetch_buffer_size</span><span class="p">)</span>
@@ -584,7 +688,6 @@
   <span class="sd">&quot;&quot;&quot;Transformation that defines a complete inference data pipeline.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    dataset: The base dataset.</span>
 <span class="sd">    batch_size: The batch size to use.</span>
 <span class="sd">    process_fn: The processing function to apply on each element.</span>
 <span class="sd">    length_bucket_width: The width of the length buckets to select batch</span>
@@ -602,7 +705,7 @@
 
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if :obj:`length_bucket_width` is set but not :obj:`length_fn`</span>
-<span class="sd">      or the dataset does not output a dictionary.</span>
+<span class="sd">    ValueError: if the dataset does not output a dictionary structure.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">_inject_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>

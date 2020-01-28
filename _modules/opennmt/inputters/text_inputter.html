@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -189,6 +192,7 @@
 <span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="kn">import</span> <span class="n">text_format</span>
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">constants</span><span class="p">,</span> <span class="n">tokenizers</span>
+<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">dataset</span> <span class="k">as</span> <span class="n">dataset_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">text</span>
 <span class="kn">from</span> <span class="nn">opennmt.data.vocab</span> <span class="kn">import</span> <span class="n">Vocab</span>
 <span class="kn">from</span> <span class="nn">opennmt.inputters.inputter</span> <span class="kn">import</span> <span class="n">Inputter</span>
@@ -460,8 +464,7 @@
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span>
-        <span class="n">data_file</span><span class="p">,</span> <span class="n">compression_type</span><span class="o">=</span><span class="s2">&quot;GZIP&quot;</span> <span class="k">if</span> <span class="n">misc</span><span class="o">.</span><span class="n">is_gzip_file</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">dataset_util</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">,</span> <span class="n">data_file</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tokenizes raw text.&quot;&quot;&quot;</span>

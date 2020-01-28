@@ -17,8 +17,10 @@ Content
    model.md
    configuration.md
    data.md
+   vocabulary.md
    tokenization.md
    embeddings.md
+   alignments.md
 
 .. toctree::
    :caption: Usage
@@ -34,4 +36,5 @@ Content
    :caption: API
    :maxdepth: 1
 
+   api_examples.md
    package/opennmt

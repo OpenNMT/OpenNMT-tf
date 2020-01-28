@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -100,8 +100,10 @@
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -113,6 +115,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -287,8 +290,6 @@
 </li>
         <li><a href="package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork.__init__">(opennmt.layers.FeedForwardNetwork method)</a>
 </li>
-        <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.__init__">(opennmt.layers.LayerNorm method)</a>
-</li>
         <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.__init__">(opennmt.layers.LayerWrapper method)</a>
 </li>
         <li><a href="package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.__init__">(opennmt.layers.LSTM method)</a>
@@ -334,6 +335,8 @@
         <li><a href="package/opennmt.tokenizers.SpaceTokenizer.html#opennmt.tokenizers.SpaceTokenizer.__init__">(opennmt.tokenizers.SpaceTokenizer method)</a>
 </li>
         <li><a href="package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.__init__">(opennmt.utils.BeamSearch method)</a>
+</li>
+        <li><a href="package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter.__init__">(opennmt.utils.CTranslate2Exporter method)</a>
 </li>
         <li><a href="package/opennmt.utils.RandomSampler.html#opennmt.utils.RandomSampler.__init__">(opennmt.utils.RandomSampler method)</a>
 </li>
@@ -419,8 +422,6 @@
 </li>
         <li><a href="package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge.build">(opennmt.layers.DenseBridge method)</a>
 </li>
-        <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.build">(opennmt.layers.LayerNorm method)</a>
-</li>
         <li><a href="package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention.build">(opennmt.layers.MultiHeadAttention method)</a>
 </li>
         <li><a href="package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.build">(opennmt.layers.PositionEmbedder method)</a>
@@ -491,8 +492,6 @@
 </li>
         <li><a href="package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork.call">(opennmt.layers.FeedForwardNetwork method)</a>
 </li>
-        <li><a href="package/opennmt.layers.LayerNorm.html#opennmt.layers.LayerNorm.call">(opennmt.layers.LayerNorm method)</a>
-</li>
         <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.call">(opennmt.layers.LayerWrapper method)</a>
 </li>
         <li><a href="package/opennmt.layers.LSTM.html#opennmt.layers.LSTM.call">(opennmt.layers.LSTM method)</a>
@@ -562,6 +561,14 @@
 </li>
       <li><a href="package/opennmt.utils.cross_entropy_sequence_loss.html#opennmt.utils.cross_entropy_sequence_loss">cross_entropy_sequence_loss() (in module opennmt.utils)</a>
 </li>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.ctranslate2_spec">ctranslate2_spec() (opennmt.models.Model property)</a>
+
+      <ul>
+        <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.ctranslate2_spec">(opennmt.models.Transformer property)</a>
+</li>
+      </ul></li>
+      <li><a href="package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter">CTranslate2Exporter (class in opennmt.utils)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -617,6 +624,8 @@
       <ul>
         <li><a href="package/opennmt.Runner.html#opennmt.Runner.export">(opennmt.Runner method)</a>
 </li>
+        <li><a href="package/opennmt.utils.Exporter.html#opennmt.utils.Exporter.export">(opennmt.utils.Exporter method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -634,6 +643,8 @@
         <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.export_assets">(opennmt.tokenizers.Tokenizer method)</a>
 </li>
       </ul></li>
+      <li><a href="package/opennmt.utils.Exporter.html#opennmt.utils.Exporter">Exporter (class in opennmt.utils)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -706,6 +717,8 @@
         <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.get_metrics">(opennmt.models.SequenceTagger method)</a>
 </li>
       </ul></li>
+      <li><a href="package/opennmt.models.get_model_from_catalog.html#opennmt.models.get_model_from_catalog">get_model_from_catalog() (in module opennmt.models)</a>
+</li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.get_optimizer">get_optimizer() (opennmt.models.Model method)</a>
 </li>
       <li><a href="package/opennmt.decoders.get_sampling_probability.html#opennmt.decoders.get_sampling_probability">get_sampling_probability() (in module opennmt.decoders)</a>
@@ -1164,6 +1177,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.Sampler.html#opennmt.utils.Sampler">Sampler (class in opennmt.utils)</a>
 </li>
+      <li><a href="package/opennmt.utils.SavedModelExporter.html#opennmt.utils.SavedModelExporter">SavedModelExporter (class in opennmt.utils)</a>
+</li>
       <li><a href="package/opennmt.schedules.ScheduleWrapper.html#opennmt.schedules.ScheduleWrapper">ScheduleWrapper (class in opennmt.schedules)</a>
 </li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.score">score() (opennmt.models.Model method)</a>
@@ -1282,10 +1297,10 @@
 </li>
       <li><a href="package/opennmt.Runner.html#opennmt.Runner.train">train() (opennmt.Runner method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.trainable_weights">trainable_weights() (opennmt.models.Model property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.data.training_pipeline.html#opennmt.data.training_pipeline">training_pipeline() (in module opennmt.data)</a>
 </li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.transfer_weights">transfer_weights() (opennmt.models.Model method)</a>
@@ -1296,7 +1311,9 @@
       </ul></li>
       <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer">Transformer (class in opennmt.models)</a>
 </li>
-      <li><a href="package/opennmt.models.TransformerBase.html#opennmt.models.TransformerBase">TransformerBase (in module opennmt.models)</a>
+      <li><a href="package/opennmt.models.TransformerBase.html#opennmt.models.TransformerBase">TransformerBase (class in opennmt.models)</a>
+</li>
+      <li><a href="package/opennmt.models.TransformerBaseRelative.html#opennmt.models.TransformerBaseRelative">TransformerBaseRelative (class in opennmt.models)</a>
 </li>
       <li><a href="package/opennmt.models.TransformerBig.html#opennmt.models.TransformerBig">TransformerBig (class in opennmt.models)</a>
 </li>
@@ -1304,7 +1321,7 @@
 </li>
       <li><a href="package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper">TransformerLayerWrapper (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.models.TransformerRelative.html#opennmt.models.TransformerRelative">TransformerRelative (class in opennmt.models)</a>
+      <li><a href="package/opennmt.models.TransformerRelative.html#opennmt.models.TransformerRelative">TransformerRelative (in module opennmt.models)</a>
 </li>
   </ul></td>
 </tr></table>

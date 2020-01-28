@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -223,8 +226,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">      tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.</span>
-<span class="sd">      sequence_length: When :obj:`tokens` is ND, the length of each sequence in</span>
-<span class="sd">        the batch.</span>
+<span class="sd">      sequence_length: When :obj:`tokens` is a batch, the length of each</span>
+<span class="sd">        sequence in the batch.</span>
 <span class="sd">      keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the</span>
 <span class="sd">        new lengths.</span>
 

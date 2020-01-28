@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Inference" href="inference.html" />
-    <link rel="prev" title="Embeddings" href="embeddings.html" /> 
+    <link rel="prev" title="Alignments" href="alignments.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -101,18 +101,21 @@
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#monitoring">Monitoring</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#automatic-evaluation">Automatic evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#export-model-on-best-metric">Export model on best metric</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#early-stopping">Early stopping</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#replicated-training">Replicated training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multi-gpu-training">Multi-GPU training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixed-precision-training">Mixed precision training</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#maximizing-the-fp16-performance">Maximizing the FP16 performance</a></li>
 </ul>
@@ -131,6 +134,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -208,7 +212,6 @@
 <li><p>training speed</p></li>
 <li><p>learning rate</p></li>
 <li><p>gradients norm</p></li>
-<li><p>computation graphs</p></li>
 <li><p>word embeddings</p></li>
 <li><p>decoder sampling probability</p></li>
 </ul>
@@ -226,6 +229,16 @@
 </pre></div>
 </div>
 <p>By default, it will run every 5000 training steps and report evaluation results in the console output and on TensorBoard.</p>
+<div class="section" id="export-model-on-best-metric">
+<h3>Export model on best metric<a class="headerlink" href="#export-model-on-best-metric" title="Permalink to this headline">¶</a></h3>
+<p>Automatic evaluation can also export an inference model when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
+  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+  <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+</pre></div>
+</div>
+<p>These models are saved in the model directory under <code class="docutils literal notranslate"><span class="pre">export/&lt;step&gt;</span></code>. See also the <em>Serving</em> section for more information about exported models.</p>
+</div>
 <div class="section" id="early-stopping">
 <h3>Early stopping<a class="headerlink" href="#early-stopping" title="Permalink to this headline">¶</a></h3>
 <p>Early stopping is useful to stop the training automatically when the model performance is not improving anymore.</p>
@@ -240,9 +253,9 @@
 </div>
 </div>
 </div>
-<div class="section" id="replicated-training">
-<h2>Replicated training<a class="headerlink" href="#replicated-training" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf training can make use of multiple GPUs with <em>in-graph replication</em>. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of used GPUs.</p>
+<div class="section" id="multi-gpu-training">
+<h2>Multi-GPU training<a class="headerlink" href="#multi-gpu-training" title="Permalink to this headline">¶</a></h2>
+<p>OpenNMT-tf training can make use of multiple GPUs. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of used GPUs.</p>
 <p>For example, if your machine has 4 GPUs, simply add the <code class="docutils literal notranslate"><span class="pre">--num_gpus</span></code> option:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> train --num_gpus <span class="m">4</span>
 </pre></div>
@@ -304,7 +317,7 @@ onmt-main --model_type NMTSmall --auto_config --config data.yml train
         <a href="inference.html" class="btn btn-neutral float-right" title="Inference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="embeddings.html" class="btn btn-neutral float-left" title="Embeddings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="alignments.html" class="btn btn-neutral float-left" title="Alignments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

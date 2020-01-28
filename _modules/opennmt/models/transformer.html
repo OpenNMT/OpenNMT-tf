@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -99,8 +99,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -112,6 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
 </ul>
 
@@ -271,12 +274,26 @@
         <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_num_units</span> <span class="o">=</span> <span class="n">num_units</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_num_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_num_heads</span> <span class="o">=</span> <span class="n">num_heads</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_is_vanilla_transformer</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">SelfAttentionEncoder</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">ffn_activation</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span>
+        <span class="ow">and</span> <span class="n">position_encoder_class</span> <span class="o">==</span> <span class="n">SinusoidalPositionEncoder</span>
+        <span class="ow">and</span> <span class="n">maximum_relative_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">Transformer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">source_inputter</span><span class="p">,</span>
         <span class="n">target_inputter</span><span class="p">,</span>
         <span class="n">encoder</span><span class="p">,</span>
         <span class="n">decoder</span><span class="p">,</span>
         <span class="n">share_embeddings</span><span class="o">=</span><span class="n">share_embeddings</span><span class="p">)</span></div>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">ctranslate2_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_vanilla_transformer</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+    <span class="kn">import</span> <span class="nn">ctranslate2</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+    <span class="k">return</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">TransformerSpec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_layers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_heads</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Transformer.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Transformer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>

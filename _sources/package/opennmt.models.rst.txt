@@ -25,6 +25,13 @@ Classes
    opennmt.models.TagsInputter
    opennmt.models.Transformer
    opennmt.models.TransformerBase
+   opennmt.models.TransformerBaseRelative
    opennmt.models.TransformerBig
    opennmt.models.TransformerBigRelative
    opennmt.models.TransformerRelative
+Functions
+---------
+
+.. toctree::
+
+   opennmt.models.get_model_from_catalog

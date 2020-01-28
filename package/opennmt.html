@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt module &mdash; OpenNMT-tf 2.5.1 documentation</title>
+  <title>opennmt module &mdash; OpenNMT-tf 2.6.0 documentation</title>
   
 
   
@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.data module" href="opennmt.data.html" />
-    <link rel="prev" title="Frequently Asked Questions" href="../faq.html" /> 
+    <link rel="prev" title="API examples" href="../api_examples.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.5
+                2.6
               </div>
             
           
@@ -101,8 +101,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -114,6 +116,7 @@
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">opennmt module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
@@ -352,9 +355,14 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.TagsInputter.html">opennmt.models.TagsInputter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.Transformer.html">opennmt.models.Transformer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.TransformerBase.html">opennmt.models.TransformerBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.TransformerBaseRelative.html">opennmt.models.TransformerBaseRelative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.TransformerBig.html">opennmt.models.TransformerBig</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.TransformerBigRelative.html">opennmt.models.TransformerBigRelative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.TransformerRelative.html">opennmt.models.TransformerRelative</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.models.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.models.get_model_from_catalog.html">opennmt.models.get_model_from_catalog</a></li>
 </ul>
 </li>
 </ul>
@@ -400,12 +408,15 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BLEUScorer.html">opennmt.utils.BLEUScorer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BeamSearch.html">opennmt.utils.BeamSearch</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.BestSampler.html">opennmt.utils.BestSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.CTranslate2Exporter.html">opennmt.utils.CTranslate2Exporter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.DecodingResult.html">opennmt.utils.DecodingResult</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.DecodingStrategy.html">opennmt.utils.DecodingStrategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.Exporter.html">opennmt.utils.Exporter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.GreedySearch.html">opennmt.utils.GreedySearch</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.ROUGEScorer.html">opennmt.utils.ROUGEScorer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.RandomSampler.html">opennmt.utils.RandomSampler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.Sampler.html">opennmt.utils.Sampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.SavedModelExporter.html">opennmt.utils.SavedModelExporter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.Scorer.html">opennmt.utils.Scorer</a></li>
 </ul>
 </li>
@@ -470,7 +481,7 @@
         <a href="opennmt.data.html" class="btn btn-neutral float-right" title="opennmt.data module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../faq.html" class="btn btn-neutral float-left" title="Frequently Asked Questions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../api_examples.html" class="btn btn-neutral float-left" title="API examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
