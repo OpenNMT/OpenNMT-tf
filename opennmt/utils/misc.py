@@ -308,6 +308,9 @@ class OrderRestorer(object):
   def push(self, x):
     """Push event :obj:`x`."""
     index = self._index_fn(x)
+    if index is None:
+      self._callback_fn(x)
+      return
     if index < self._next_index:
       raise ValueError("Event index %d was already notified" % index)
     self._elements[index] = x

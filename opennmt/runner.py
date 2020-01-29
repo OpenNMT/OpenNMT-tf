@@ -330,11 +330,15 @@ class Runner(object):
     else:
       stream = sys.stdout
 
-    ordered_writer = None
     infer_fn = tf.function(model.infer, input_signature=(dataset.element_spec,))
     infer_fn.get_concrete_function()  # Trace the function now.
+
+    # Inference might return out-of-order predictions. The OrderRestorer utility is
+    # used to write predictions in their original order.
     write_fn = lambda prediction: (
         model.print_prediction(prediction, params=infer_config, stream=stream))
+    index_fn = lambda prediction: prediction.get("index")
+    ordered_writer = misc.OrderRestorer(index_fn, write_fn)
 
     total_time = 0
     total_tokens = 0
@@ -344,6 +348,8 @@ class Runner(object):
     for source in dataset:
       predictions = infer_fn(source)
       predictions = tf.nest.map_structure(lambda t: t.numpy(), predictions)
+      for prediction in misc.extract_batches(predictions):
+        ordered_writer.push(prediction)
       if log_time:
         batch_size = next(iter(predictions.values())).shape[0]
         total_examples += batch_size
@@ -352,14 +358,6 @@ class Runner(object):
           if len(length.shape) == 2:
             length = length[:, 0]
           total_tokens += sum(length)
-      for prediction in misc.extract_batches(predictions):
-        if "index" in prediction:
-          if ordered_writer is None:
-            ordered_writer = misc.OrderRestorer(
-                index_fn=lambda prediction: prediction["index"], callback_fn=write_fn)
-          ordered_writer.push(prediction)
-        else:
-          write_fn(prediction)
 
     if log_time:
       end_time = time.time()
