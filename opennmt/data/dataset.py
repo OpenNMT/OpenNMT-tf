@@ -85,13 +85,15 @@ def get_dataset_size(dataset, batch_size=5000):
   """Get the dataset size.
 
   Args:
-    dataset: A finite dataset.
+    dataset: A dataset.
     batch_size: The batch size to use to improve the scan performance, or
       ``None`` to scan the dataset as-is.
 
   Returns:
-    The dataset size.
+    The dataset size or ``None`` if the dataset is infinite.
   """
+  if tf.data.experimental.cardinality(dataset) == tf.data.experimental.INFINITE_CARDINALITY:
+    return None
   if batch_size is not None:
     dataset = dataset.batch(batch_size)
 

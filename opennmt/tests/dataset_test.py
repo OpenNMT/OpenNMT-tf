@@ -50,6 +50,10 @@ class DatasetTest(tf.test.TestCase):
     size = dataset_util.get_dataset_size(dataset)
     self.assertEqual(self.evaluate(size), 15)
 
+  def testDatasetSizeInfinite(self):
+    dataset = tf.data.Dataset.range(5).repeat()
+    self.assertIsNone(dataset_util.get_dataset_size(dataset))
+
   def testIrregularBatches(self):
     batch_size = 12
     dataset = tf.data.Dataset.range(batch_size * 2 - 1)
