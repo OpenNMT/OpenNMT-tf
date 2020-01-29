@@ -344,9 +344,7 @@ class Runner(object):
     for source in dataset:
       predictions = infer_fn(source)
       predictions = tf.nest.map_structure(lambda t: t.numpy(), predictions)
-      end_time = time.time()
       if log_time:
-        total_time += end_time - start_time
         batch_size = next(iter(predictions.values())).shape[0]
         total_examples += batch_size
         length = predictions.get("length")
@@ -362,9 +360,10 @@ class Runner(object):
           ordered_writer.push(prediction)
         else:
           write_fn(prediction)
-      start_time = time.time()
 
     if log_time:
+      end_time = time.time()
+      total_time = end_time - start_time
       tf.get_logger().info("Total prediction time (s): %f", total_time)
       tf.get_logger().info(
           "Average prediction time (s): %f", total_time / total_examples)
