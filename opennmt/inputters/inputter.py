@@ -347,8 +347,7 @@ class ParallelInputter(MultiInputter):
       first, others = leaves[0], leaves[1:]
       first.build(input_shape)
       for name, attr in first.__dict__.items():
-        if (isinstance(attr, tf.Variable)
-            or (isinstance(attr, tf.keras.layers.Layer) and attr.variables)):
+        if isinstance(attr, tf.Variable) or (isinstance(attr, tf.Module) and attr.variables):
           for inputter in others:
             setattr(inputter, name, attr)
             inputter.built = True
