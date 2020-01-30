@@ -4,7 +4,7 @@ This page presents a minimal workflow to get you started in using OpenNMT-tf.
 
 ## Step 0: Install OpenNMT-tf
 
-We recommend using [`virtualenv`](https://virtualenv.pypa.io/en/stable/) to setup and configure the environment for this quickstart:
+We recommend using [virtualenv](https://virtualenv.pypa.io/en/stable/) to setup and configure the environment for this quickstart:
 
 ```bash
 virtualenv -p /usr/bin/python3 pyenv
@@ -76,5 +76,5 @@ To go further, here are some pointers:
 
 * Download larger training sets, for example from a [WMT task](http://www.statmt.org/wmt16/translation-task.html)
 * Run existing [training recipes](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts)
-* Discover the [configuration reference](configuration.html) to tune hyperparameters
+* Discover the [configuration reference](configuration.md) to tune hyperparameters
 * Explore the other sections to learn about advanced topics

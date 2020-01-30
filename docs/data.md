@@ -1,6 +1,6 @@
 # Data
 
-Data files are configured in the `data` block of the YAML configuration file (see *Parameters* section). For example, here is a typical data configuration for a sequence to sequence model:
+Data files are configured in the `data` block of the YAML configuration file (see [Parameters](configuration.md)). For example, here is a typical data configuration for a sequence to sequence model:
 
 ```yaml
 data:
@@ -27,7 +27,7 @@ The format of the data files is defined by the `opennmt.inputters.Inputter` modu
 All `opennmt.inputters.TextInputter` inputters expect a text file as input where:
 
 * sentences are separated by a **newline**
-* tokens are separated by a **space** (unless a custom tokenizer is set, see [Tokenization](tokenization.html))
+* tokens are separated by a **space** (unless a custom tokenizer is set, see [Tokenization](tokenization.md))
 
 For example:
 

@@ -24,6 +24,7 @@ extensions = [
     "sphinx.ext.githubpages"]
 
 source_suffix = [".rst", ".md"]
+exclude_patterns = ["README.md"]
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {}

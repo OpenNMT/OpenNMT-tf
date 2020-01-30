@@ -24,7 +24,7 @@ extracts the 50,000 most frequent tokens from `train.txt.tok` and saves them to 
 
 ### from raw files
 
-By default, `onmt-build-vocab` splits each line on spaces. It is possible to define a custom tokenization with the `--tokenizer_config` option. See the *Tokenization* section for more information.
+By default, `onmt-build-vocab` splits each line on spaces. It is possible to define a custom tokenization with the `--tokenizer_config` option. See [Tokenization](tokenization.md) for more information.
 
 ### from SentencePiece training
 
