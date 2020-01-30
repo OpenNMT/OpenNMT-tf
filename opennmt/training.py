@@ -2,7 +2,6 @@
 
 import abc
 import contextlib
-import os
 import time
 
 import tensorflow as tf
@@ -44,8 +43,6 @@ class Trainer(abc.ABC):
                save_steps=5000,
                evaluator=None,
                eval_steps=5000,
-               export_on_best=None,
-               exporter=None,
                moving_average_decay=None):
     """Runs the training.
 
@@ -59,10 +56,6 @@ class Trainer(abc.ABC):
       evaluator: A :class:`opennmt.evaluation.Evaluator` instance to call for
         evaluation.
       eval_steps: Evaluate every this many steps.
-      export_on_best: Export a model when this evaluation metric has the
-        best value so far.
-      exporter: A :class:`opennmt.utils.Exporter` instance to export the model.
-        Defaults to :class:`opennmt.utils.SavedModelExporter`.
       moving_average_decay: If set, maintain an exponential moving average of the model
         variables using this decay value (usually close to 1, e.g. 0.9999). See
         https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage.
@@ -108,12 +101,7 @@ class Trainer(abc.ABC):
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step, moving_average=moving_average)
         if eval_steps is not None and step % eval_steps == 0:
-          early_stop = self._evaluate(
-              evaluator,
-              step,
-              export_on_best=export_on_best,
-              exporter=exporter,
-              moving_average=moving_average)
+          early_stop = self._evaluate(evaluator, step, moving_average=moving_average)
           if early_stop:
             tf.get_logger().warning("Early stopping conditions are met. Exiting.")
             break
@@ -121,12 +109,7 @@ class Trainer(abc.ABC):
           break
 
       self._save_checkpoint(step, moving_average=moving_average)
-      self._evaluate(
-          evaluator,
-          step,
-          export_on_best=export_on_best,
-          exporter=exporter,
-          moving_average=moving_average)
+      self._evaluate(evaluator, step, moving_average=moving_average)
 
   @abc.abstractmethod
   def _steps(self, dataset, accum_steps=1, report_steps=None):
@@ -191,17 +174,12 @@ class Trainer(abc.ABC):
     with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
       self._checkpoint.save(step)
 
-  def _evaluate(self, evaluator, step, export_on_best=None, exporter=None, moving_average=None):
+  def _evaluate(self, evaluator, step, moving_average=None):
     """Runs evaluation for step. Returns ``True`` is early conditions are met."""
     if not self._is_master or evaluator is None or step == evaluator.last_evaluated_step:
       return False
     with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
-      metrics = evaluator(step)
-      if export_on_best is not None and evaluator.is_best(export_on_best):
-        export_dir = os.path.join(self._checkpoint.model_dir, "export", str(step))
-        tf.get_logger().info("Exporting model to %s (best %s so far: %f)",
-                             export_dir, export_on_best, metrics[export_on_best])
-        self._model.export(export_dir, exporter=exporter)
+      evaluator(step)
       return evaluator.should_stop()
 
 
