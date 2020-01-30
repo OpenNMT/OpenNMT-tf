@@ -45,7 +45,7 @@ eval:
   export_on_best: bleu
 ```
 
-These models are saved in the model directory under `export/<step>`. See also the *Serving* section for more information about exported models.
+These models are saved in the model directory under `export/<step>`. See also [Serving](serving.md) for more information about exported models.
 
 ### Early stopping
 
