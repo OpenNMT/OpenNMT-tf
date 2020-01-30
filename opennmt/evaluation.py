@@ -5,6 +5,7 @@ import os
 
 import tensorflow as tf
 
+from opennmt.utils import exporters
 from opennmt.utils import misc
 from opennmt.utils import scorers as scorers_lib
 
@@ -29,7 +30,9 @@ class Evaluator(object):
                scorers=None,
                save_predictions=False,
                early_stopping=None,
-               eval_dir=None):
+               model_dir=None,
+               export_on_best=None,
+               exporter=None):
     """Initializes the evaluator.
 
     Args:
@@ -42,13 +45,29 @@ class Evaluator(object):
       save_predictions: Save evaluation predictions to a file. This is ``True``
         when :obj:`external_evaluator` is set.
       early_stopping: An ``EarlyStopping`` instance.
-      eval_dir: Directory where predictions can be saved.
+      model_dir: The active model directory.
+      export_on_best: Export a model when this evaluation metric has the
+        best value so far.
+      exporter: A :class:`opennmt.utils.Exporter` instance to export the model.
+        Defaults to :class:`opennmt.utils.SavedModelExporter`.
 
     Raises:
-      ValueError: If predictions should be saved but the model is not compatible.
-      ValueError: If predictions should be saved but :obj:`eval_dir` is ``None``.
+      ValueError: If :obj:`save_predictions` is set but the model is not compatible.
+      ValueError: If :obj:`save_predictions` is set but :obj:`model_dir` is ``None``.
+      ValueError: If :obj:`export_on_best` is set but :obj:`model_dir` is ``None``.
       ValueError: If the :obj:`early_stopping` configuration is invalid.
     """
+    if model_dir is not None:
+      export_dir = os.path.join(model_dir, "export")
+      eval_dir = os.path.join(model_dir, "eval")
+    else:
+      if save_predictions:
+        raise ValueError("Saving evaluation predictions requires model_dir to be set")
+      if export_on_best is not None:
+        raise ValueError("Exporting models requires model_dir to be set")
+      export_dir = None
+      eval_dir = None
+
     if scorers is None:
       scorers = []
     if scorers:
@@ -56,8 +75,6 @@ class Evaluator(object):
     if save_predictions:
       if model.unsupervised:
         raise ValueError("This model does not support saving evaluation predictions")
-      if eval_dir is None:
-        raise ValueError("Saving evaluation predictions requires eval_dir to be set")
       if not tf.io.gfile.exists(eval_dir):
         tf.io.gfile.makedirs(eval_dir)
     self._model = model
@@ -99,6 +116,10 @@ class Evaluator(object):
         raise ValueError("Early stopping steps should greater than 0")
     self._early_stopping = early_stopping
 
+    self._export_on_best = export_on_best
+    self._exporter = exporter
+    self._export_dir = export_dir
+
   @classmethod
   def from_config(cls, model, config, features_file=None, labels_file=None):
     """Creates an evaluator from the configuration.
@@ -120,10 +141,11 @@ class Evaluator(object):
     """
     if (features_file is None) != (labels_file is None):
       raise ValueError("features_file and labels_file should be both set for evaluation")
-    scorers = config["eval"].get("external_evaluators")
+    eval_config = config["eval"]
+    scorers = eval_config.get("external_evaluators")
     if scorers is not None:
       scorers = scorers_lib.make_scorers(scorers)
-    early_stopping_config = config["eval"].get("early_stopping")
+    early_stopping_config = eval_config.get("early_stopping")
     if early_stopping_config is not None:
       early_stopping = EarlyStopping(
           metric=early_stopping_config.get("metric", "loss"),
@@ -135,11 +157,23 @@ class Evaluator(object):
         model,
         features_file or config["data"]["eval_features_file"],
         labels_file or config["data"].get("eval_labels_file"),
-        config["eval"]["batch_size"],
+        eval_config["batch_size"],
         scorers=scorers,
-        save_predictions=config["eval"].get("save_eval_predictions", False),
+        save_predictions=eval_config.get("save_eval_predictions", False),
         early_stopping=early_stopping,
-        eval_dir=os.path.join(config["model_dir"], "eval"))
+        model_dir=config["model_dir"],
+        export_on_best=eval_config.get("export_on_best"),
+        exporter=exporters.make_exporter(eval_config.get("export_format", "saved_model")))
+
+  @property
+  def predictions_dir(self):
+    """The directory containing saved predictions."""
+    return self._eval_dir
+
+  @property
+  def export_dir(self):
+    """The directory containing exported models."""
+    return self._export_dir
 
   @property
   def metrics_name(self):
@@ -262,12 +296,15 @@ class Evaluator(object):
         else:
           results[scorer.name] = score
 
-    return self._record_results(step, results)
-
-  def _record_results(self, step, results):
     for name, value in results.items():
       if isinstance(value, tf.Tensor):
         results[name] = value.numpy()
+
+    self._record_results(step, results)
+    self._maybe_export(step, results)
+    return results
+
+  def _record_results(self, step, results):
     # Clear history for steps that are greater than step.
     while self._metrics_history and self._metrics_history[-1][0] > step:
       self._metrics_history.pop()
@@ -280,7 +317,14 @@ class Evaluator(object):
       for key, value in results.items():
         tf.summary.scalar("%s/%s" % (_SUMMARIES_SCOPE, key), value, step=step)
       self._summary_writer.flush()
-    return results
+
+  def _maybe_export(self, step, results):
+    if self._export_on_best is None or not self.is_best(self._export_on_best):
+      return
+    export_dir = os.path.join(self._export_dir, str(step))
+    tf.get_logger().info("Exporting model to %s (best %s so far: %f)",
+                         export_dir, self._export_on_best, results[self._export_on_best])
+    self._model.export(export_dir, exporter=self._exporter)
 
 
 def early_stop(metrics, steps, min_improvement=0, higher_is_better=False):

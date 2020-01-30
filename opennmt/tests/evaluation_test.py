@@ -6,6 +6,7 @@ import tensorflow as tf
 from opennmt import evaluation
 from opennmt import inputters
 from opennmt import models
+from opennmt.utils import exporters
 from opennmt.utils import scorers
 
 
@@ -48,6 +49,10 @@ class TestModel(models.Model):
   def compute_loss(self, outputs, labels, training=True):
     return self.next_loss
 
+class TestExporter(exporters.Exporter):
+  def _export_model(self, model, export_dir):
+    tf.io.gfile.makedirs(export_dir)  # Just create an empty directory.
+
 
 class EvaluationTest(tf.test.TestCase):
 
@@ -60,7 +65,7 @@ class EvaluationTest(tf.test.TestCase):
   def testEvaluationMetric(self):
     features_file = os.path.join(self.get_temp_dir(), "features.txt")
     labels_file = os.path.join(self.get_temp_dir(), "labels.txt")
-    eval_dir = os.path.join(self.get_temp_dir(), "eval")
+    model_dir = self.get_temp_dir()
     with open(features_file, "w") as features, open(labels_file, "w") as labels:
       features.write("1\n2\n")
       labels.write("1\n2\n")
@@ -73,7 +78,9 @@ class EvaluationTest(tf.test.TestCase):
         labels_file,
         batch_size=1,
         early_stopping=early_stopping,
-        eval_dir=eval_dir)
+        model_dir=model_dir,
+        export_on_best="loss",
+        exporter=TestExporter())
     self.assertSetEqual(evaluator.metrics_name, {"loss", "perplexity", "a", "b"})
     model.next_loss.assign(1)
     metrics_5 = evaluator(5)
@@ -81,12 +88,14 @@ class EvaluationTest(tf.test.TestCase):
         metrics_5, {"loss": 1.0, "perplexity": math.exp(1.0), "a": 2, "b": 3})
     self.assertFalse(evaluator.should_stop())
     self.assertTrue(evaluator.is_best("loss"))
+    self.assertTrue(os.path.isdir(os.path.join(evaluator.export_dir, str(5))))
     model.next_loss.assign(4)
     metrics_10 = evaluator(10)
     self._assertMetricsEqual(
         metrics_10, {"loss": 4.0, "perplexity": math.exp(4.0), "a": 5, "b": 6})
     self.assertTrue(evaluator.should_stop())
     self.assertFalse(evaluator.is_best("loss"))
+    self.assertFalse(os.path.isdir(os.path.join(evaluator.export_dir, str(10))))
     self.assertLen(evaluator.metrics_history, 2)
     self._assertMetricsEqual(evaluator.metrics_history[0][1], metrics_5)
     self._assertMetricsEqual(evaluator.metrics_history[1][1], metrics_10)
@@ -97,7 +106,9 @@ class EvaluationTest(tf.test.TestCase):
         features_file,
         labels_file,
         batch_size=1,
-        eval_dir=eval_dir)
+        model_dir=model_dir,
+        export_on_best="loss",
+        exporter=TestExporter())
     self.assertLen(evaluator.metrics_history, 2)
     self._assertMetricsEqual(evaluator.metrics_history[0][1], metrics_5)
     self._assertMetricsEqual(evaluator.metrics_history[1][1], metrics_10)
@@ -107,13 +118,14 @@ class EvaluationTest(tf.test.TestCase):
     self._assertMetricsEqual(
         evaluator(7), {"loss": 7.0, "perplexity": math.exp(7.0), "a": 8, "b": 9})
     self.assertFalse(evaluator.is_best("loss"))
+    self.assertFalse(os.path.isdir(os.path.join(evaluator.export_dir, str(10))))
     recorded_steps = list(step for step, _ in evaluator.metrics_history)
     self.assertListEqual(recorded_steps, [5, 7])
 
   def testEvaluationWithRougeScorer(self):
     features_file = os.path.join(self.get_temp_dir(), "features.txt")
     labels_file = os.path.join(self.get_temp_dir(), "labels.txt")
-    eval_dir = os.path.join(self.get_temp_dir(), "eval")
+    model_dir = self.get_temp_dir()
     with open(features_file, "w") as features, open(labels_file, "w") as labels:
       features.write("1\n2\n")
       labels.write("1\n2\n")
@@ -125,7 +137,7 @@ class EvaluationTest(tf.test.TestCase):
         labels_file,
         batch_size=1,
         scorers=[scorers.ROUGEScorer()],
-        eval_dir=eval_dir)
+        model_dir=model_dir)
     self.assertNotIn("rouge", evaluator.metrics_name)
     self.assertIn("rouge-1", evaluator.metrics_name)
     self.assertIn("rouge-2", evaluator.metrics_name)

@@ -17,7 +17,6 @@ from opennmt import evaluation
 from opennmt import models
 from opennmt import training as training_util
 from opennmt.utils import checkpoint as checkpoint_util
-from opennmt.utils import exporters
 from opennmt.utils import misc
 
 
@@ -206,8 +205,6 @@ class Runner(object):
         save_steps=train_config.get("save_checkpoints_steps", 5000),
         evaluator=evaluator,
         eval_steps=eval_config.get("steps", 5000),
-        export_on_best=eval_config.get("export_on_best"),
-        exporter=exporters.make_exporter(eval_config.get("export_format", "saved_model")),
         moving_average_decay=train_config.get("moving_average_decay"))
     average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
     if average_last_checkpoints > 0:
