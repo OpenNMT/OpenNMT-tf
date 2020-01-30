@@ -174,7 +174,7 @@ def index_structure(structure, path, path_separator="/"):
     elif isinstance(structure, dict):
       structure = structure.get(key)
       if structure is None:
-        raise ValueError("Dictionnary referenced by path '%s' does not have the "
+        raise ValueError("Dictionary referenced by path '%s' does not have the "
                          "key '%s'" % (current_path, key))
     else:
       structure = getattr(structure, key, None)
