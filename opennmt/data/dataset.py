@@ -84,6 +84,12 @@ def _get_output_shapes(dataset):
 def get_dataset_size(dataset, batch_size=5000):
   """Get the dataset size.
 
+  Example:
+
+    >>> dataset = tf.data.Dataset.range(5)
+    >>> opennmt.data.get_dataset_size(dataset).numpy()
+    5
+
   Args:
     dataset: A finite dataset.
     batch_size: The batch size to use to improve the scan performance, or
@@ -105,6 +111,13 @@ def get_dataset_size(dataset, batch_size=5000):
 def filter_irregular_batches(multiple):
   """Transformation that filters out batches based on their size.
 
+  Example:
+
+    >>> dataset = tf.data.Dataset.range(10).batch(3)
+    >>> dataset = dataset.apply(opennmt.data.filter_irregular_batches(3))
+    >>> len(list(iter(dataset)))
+    3
+
   Args:
     multiple: The divisor of the batch size.
 
@@ -125,7 +138,12 @@ def filter_examples_by_length(maximum_features_length=None,
                               maximum_labels_length=None,
                               features_length_fn=None,
                               labels_length_fn=None):
-  """Transformation that constrains examples length.
+  """Transformation that filters out examples with zero length or length that is
+  greater than the configured maximum.
+
+  Example:
+
+    >>> dataset = dataset.apply(opennmt.data.filter_examples_by_length(...))
 
   Args:
     maximum_features_length: The maximum length or list of maximum lengths of
@@ -172,11 +190,23 @@ def make_cardinality_multiple_of(divisor):
   """Transformation that ensures that the dataset cardinality is a multiple of
   :obj:`divisor`.
 
+  Example:
+
+    >>> dataset = tf.data.Dataset.range(7)
+    >>> dataset = dataset.apply(opennmt.data.make_cardinality_multiple_of(10))
+    >>> len(list(iter(dataset)))
+    10
+
   Args:
     divisor: The value that should divide the dataset size.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
+
+  Tip:
+    This transformation is useful when training multiple replicas on a finite
+    dataset. It ensures that each replica receives a non empty batch in the last
+    training iteration.
   """
   if divisor == 1:
     return lambda dataset: dataset
@@ -212,6 +242,13 @@ def make_cardinality_multiple_of(divisor):
 def random_shard(shard_size, dataset_size):
   """Transformation that shards the dataset in a random order.
 
+  Example:
+
+    >>> dataset = tf.data.Dataset.range(6)
+    >>> dataset = dataset.apply(opennmt.data.random_shard(2, 6)
+    >>> list(dataset.as_numpy_iterator())
+    [0, 1, 4, 5, 2, 3]
+
   Args:
     shard_size: The number of examples in each shard.
     dataset_size: The total number of examples in the dataset.
@@ -233,6 +270,13 @@ def random_shard(shard_size, dataset_size):
 
 def shuffle_dataset(buffer_size, shuffle_shards=True):
   """Transformation that shuffles the dataset based on its size.
+
+  Example:
+
+    >>> dataset = tf.data.Dataset.range(6)
+    >>> dataset = dataset.apply(opennmt.data.shuffle_dataset(3))
+    >>> list(dataset.as_numpy_iterator())
+    [2, 3, 1, 0, 4, 5]
 
   Args:
     buffer_size: The number of elements from which to sample.
@@ -260,6 +304,10 @@ def shuffle_dataset(buffer_size, shuffle_shards=True):
 
 def batch_dataset(batch_size, padded_shapes=None):
   """Transformation that batches a dataset.
+
+  Example:
+
+    >>> dataset = dataset.apply(opennmt.data.batch_dataset(...))
 
   Args:
     batch_size: The batch size.
@@ -299,6 +347,10 @@ def batch_sequence_dataset(batch_size,
   If the dataset has parallel elements (e.g. a parallel source and target
   dataset), the element is assigned to the bucket corresponding to the maximum
   length of all parallel elements.
+
+  Example:
+
+    >>> dataset = dataset.apply(opennmt.data.batch_sequence_dataset(...))
 
   Args:
     batch_size: The batch size.
@@ -397,7 +449,20 @@ def training_pipeline(batch_size,
                       shuffle_buffer_size=None,
                       prefetch_buffer_size=None,
                       cardinality_multiple=1):
-  """Transformation that defines a complete training data pipeline.
+  """Transformation that applies most of the dataset operations commonly used
+  for training on sequence data:
+
+  * sharding
+  * shuffling
+  * processing
+  * filtering
+  * bucketization
+  * batching
+  * prefetching
+
+  Example:
+
+    >>> dataset = dataset.apply(opennmt.data.training_pipeline(...))
 
   Args:
     batch_size: The batch size to use.
@@ -504,7 +569,11 @@ def inference_pipeline(batch_size,
                        length_fn=None,
                        num_threads=None,
                        prefetch_buffer_size=None):
-  """Transformation that defines a complete inference data pipeline.
+  """Transformation that applies dataset operations for inference.
+
+  Example:
+
+    >>> dataset = dataset.apply(opennmt.data.inference_pipeline(...))
 
   Args:
     batch_size: The batch size to use.
@@ -513,7 +582,7 @@ def inference_pipeline(batch_size,
       candidates from. If set, this means the inference pipeline will be
       reordered based on the examples length, the application is then
       responsible to restore the predictions in order. An "index" key will be
-      inserted in the examples dict.
+      inserted in the examples dictionary.
     length_fn: A function mapping features to a sequence length.
     num_threads: The number of elements processed in parallel.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
@@ -523,8 +592,9 @@ def inference_pipeline(batch_size,
     A ``tf.data.Dataset`` transformation.
 
   Raises:
-    ValueError: if :obj:`length_bucket_width` is set but not :obj:`length_fn`
-    ValueError: if the dataset does not output a dictionary structure.
+    ValueError: if :obj:`length_bucket_width` is set but not :obj:`length_fn`.
+    ValueError: if :obj:`length_bucket_width` is set but the dataset does not
+      output a dictionary structure.
   """
 
   def _inject_index(index, x):

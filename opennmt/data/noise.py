@@ -52,6 +52,10 @@ class WordNoiser(object):
 
     Returns:
       A tuple with the noisy version of :obj:`tokens` and the new lengths.
+
+    Raises:
+      ValueError: if :obj:`tokens` is a batch of string but
+        :obj:`sequence_length` is not passed.
     """
     with tf.device("cpu:0"):
       return self._call(tokens, sequence_length, keep_shape)
@@ -144,7 +148,15 @@ class Noise(abc.ABC):
 
 
 class WordDropout(Noise):
-  """Randomly drops words in a sequence."""
+  """Randomly drops words in a sequence.
+
+  Example:
+
+    >>> noise = opennmt.data.WordDropout(0.5)
+    >>> words = tf.constant(["a", "b", "c"])
+    >>> noise(words).numpy()
+    array([b'a', b'b'], dtype=object)
+  """
 
   def __init__(self, dropout):
     """Initializes the noise module.
@@ -173,6 +185,13 @@ class WordOmission(Noise):
 
   This is different than :class:`opennmt.data.WordDropout` as it drops a
   fixed number of words.
+
+  Example:
+
+    >>> noise = opennmt.data.WordOmission(1)
+    >>> words = tf.constant(["a", "b", "c"])
+    >>> noise(words).numpy()
+    array([b'b', b'c'], dtype=object)
   """
 
   def __init__(self, count):
@@ -195,7 +214,15 @@ class WordOmission(Noise):
 
 
 class WordReplacement(Noise):
-  """Randomly replaces words."""
+  """Randomly replaces words.
+
+  Example:
+
+    >>> noise = opennmt.data.WordReplacement(0.5)
+    >>> words = tf.constant(["a", "b", "c"])
+    >>> noise(words).numpy()
+    array([b'a', b'<unk>', b'c'], dtype=object)
+  """
 
   def __init__(self, probability, filler=constants.UNKNOWN_TOKEN):
     """Initializes the noise module.
@@ -221,7 +248,15 @@ class WordReplacement(Noise):
 
 
 class WordPermutation(Noise):
-  """Randomly permutes words in a sequence with a maximum distance."""
+  """Randomly permutes words in a sequence with a maximum distance.
+
+  Example:
+
+    >>> noise = opennmt.data.WordPermutation(3)
+    >>> words = tf.constant(["0", "1", "2", "3", "4", "5", "6"])
+    >>> noise(words).numpy()
+    array([b'1', b'0', b'2', b'4', b'3', b'6', b'5'], dtype=object)
+  """
 
   def __init__(self, max_distance):
     """Initializes the noise module.

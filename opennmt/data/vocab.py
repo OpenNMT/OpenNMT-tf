@@ -5,7 +5,20 @@ import numpy as np
 
 
 class Vocab(object):
-  """Vocabulary class."""
+  """Vocabulary class.
+
+  Example:
+
+    >>> vocab = opennmt.data.Vocab.from_file("wmtende.vocab")
+    >>> len(vocab)
+    32000
+    >>> "be" in vocab
+    True
+    >>> vocab.lookup("be")
+    377
+    >>> vocab.lookup(377)
+    'be'
+  """
 
   def __init__(self, special_tokens=None):
     """Initializes a vocabulary.
