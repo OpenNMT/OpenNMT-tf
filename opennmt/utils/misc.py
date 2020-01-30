@@ -177,27 +177,18 @@ def clone_layer(layer):
   """Clones a layer."""
   return copy.deepcopy(layer)
 
-def gather_all_layers(layer):
-  """Returns all nested layer starting from :obj:`layer`."""
-  layers = set()
-  if not isinstance(layer, tf.Module):
-    return layers
-  layers.add(layer)
-  for value in layer.__dict__.values():
-    if isinstance(value, tf.Module):
-      layers.update(gather_all_layers(value))
-    elif isinstance(value, list):
-      for sub_layer in value:
-        layers.update(gather_all_layers(sub_layer))
-  return layers
-
 def set_dropout(root_layer, dropout):
   """Overrides all dropout values in :obj:`root_layer` and its descendants.
 
   Args:
     dropout: The dropout value to set.
+
+  Raises:
+    ValueError: if :obj:`root_layer` is not a ``tf.Module``.
   """
-  for layer in gather_all_layers(root_layer):
+  if not isinstance(root_layer, tf.Module):
+    raise ValueError("Layer should be a tf.Module")
+  for layer in (root_layer,) + root_layer.submodules:
     for attr, value in layer.__dict__.items():
       if isinstance(value, tf.keras.layers.Dropout):
         value.rate = dropout
