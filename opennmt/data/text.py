@@ -8,6 +8,11 @@ import tensorflow as tf
 def tokens_to_chars(tokens):
   """Splits tokens into unicode characters.
 
+  Example:
+
+    >>> opennmt.data.tokens_to_chars(["hello", "world"])
+    <tf.RaggedTensor [[b'h', b'e', b'l', b'l', b'o'], [b'w', b'o', b'r', b'l', b'd']]>
+
   Args:
     tokens: A string ``tf.Tensor`` of shape :math:`[T]`.
 
@@ -19,13 +24,10 @@ def tokens_to_chars(tokens):
 def tokens_to_words(tokens, subword_token="￭", is_spacer=None):
   """Converts a sequence of tokens to a sequence of words.
 
-  For example, if a BPE tokenization produces this sequence:
+  Example:
 
-      ["He@@", "llo", "W@@", "orld", "@@!"]
-
-  this function will return the tensor:
-
-      [["He@@", "llo", ""], ["W@@", "orld", "@@!"]]
+    >>> opennmt.data.tokens_to_words(["He@@", "llo", "W@@", "orld", "@@!"], subword_token="@@")
+    <tf.RaggedTensor [[b'He@@', b'llo'], [b'W@@', b'orld', b'@@!']]>
 
   Args:
     tokens: A 1D string ``tf.Tensor``.
@@ -59,6 +61,15 @@ def alignment_matrix_from_pharaoh(alignment_line,
                                   target_length,
                                   dtype=tf.float32):
   """Parse Pharaoh alignments into an alignment matrix.
+
+  Example:
+
+    >>> opennmt.data.alignment_matrix_from_pharaoh("0-0 1-2 1-3 2-1", 3, 4)
+    <tf.Tensor: shape=(4, 3), dtype=float32, numpy=
+    array([[1., 0., 0.],
+           [0., 0., 1.],
+           [0., 1., 0.],
+           [0., 1., 0.]], dtype=float32)>
 
   Args:
     alignment_line: A string ``tf.Tensor`` in the Pharaoh format.

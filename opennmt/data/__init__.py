@@ -1,4 +1,4 @@
-"""Data manipulation module."""
+"""This module exposes classes and functions that help creating and processing data."""
 
 from opennmt.data.dataset import batch_dataset
 from opennmt.data.dataset import batch_sequence_dataset
