@@ -156,21 +156,31 @@ def shape_list(x):
     ret.append(dim)
   return ret
 
-def index_structure(structure, path):
+def index_structure(structure, path, path_separator="/"):
   """Follows :obj:`path` in a nested structure of objects, lists, and dicts."""
-  for key in path.split("/"):
+  keys = path.split(path_separator)
+  for i, key in enumerate(keys):
+    current_path = "%s%s" % (path_separator, path_separator.join(keys[:i]))
     if isinstance(structure, list):
       try:
         index = int(key)
-        structure = structure[index] if index < len(structure) else None
       except ValueError:
-        raise ValueError("Expected a list index, got %s instead" % key)
+        raise ValueError("Object referenced by path '%s' is a list, but got non "
+                         "integer index '%s'" % (current_path, key))
+      if index < 0 or index >= len(structure):
+        raise ValueError("List referenced by path '%s' has length %d, but got "
+                         "out of range index %d" % (current_path, len(structure), index))
+      structure = structure[index]
     elif isinstance(structure, dict):
       structure = structure.get(key)
+      if structure is None:
+        raise ValueError("Dictionnary referenced by path '%s' does not have the "
+                         "key '%s'" % (current_path, key))
     else:
       structure = getattr(structure, key, None)
-    if structure is None:
-      raise ValueError("Invalid path in structure: %s" % path)
+      if structure is None:
+        raise ValueError("Object referenced by path '%s' does not have the "
+                         "attribute '%s'" % (current_path, key))
   return structure
 
 def clone_layer(layer):
