@@ -47,6 +47,8 @@ class Model(tf.keras.layers.Layer):
         for layer_path in freeze_layers:
           layer = misc.index_structure(self, layer_path)
           layer.trainable = False
+        tf.get_logger().info("%d weights are frozen by the freeze_layers parameter" % (
+            len(self.non_trainable_weights)))
     return super(Model, self).trainable_weights
 
   @property
