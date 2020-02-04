@@ -15,6 +15,11 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+* Log the number of frozen weights when using the parameter `freeze_layers`
+* More helpful error messages when layer names configured in `freeze_layers` are incorrect
+* Improve beam search efficiency by avoiding some unecessary state reordering
+* Add usage examples for symbols in `opennmt.data`
+
 ## [2.6.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.6.0) (2020-01-28)
 
 ### New features
