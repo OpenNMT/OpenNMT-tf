@@ -386,7 +386,7 @@ def dynamic_decode(symbols_to_logits_fn,
     end_id: ID of the end of sequence token.
     initial_state: Initial decoder state.
     decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`
-      instance that define the decoding logic. Defaults to a greedy search.
+      instance that defines the decoding logic. Defaults to a greedy search.
     sampler: A :class:`opennmt.utils.Sampler` instance that samples
       predictions from the model output. Defaults to an argmax sampling.
     maximum_iterations: The maximum number of iterations to decode for.
