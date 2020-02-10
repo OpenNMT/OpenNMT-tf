@@ -1,3 +1,5 @@
+import os
+
 from setuptools import setup, find_packages
 
 tests_require = [
@@ -5,11 +7,18 @@ tests_require = [
     "nose2"
 ]
 
+def get_long_description():
+    readme_path = os.path.join(os.path.dirname(__file__), "README.md")
+    with open(readme_path, encoding="utf-8") as readme_file:
+        return readme_file.read()
+
 setup(
     name="OpenNMT-tf",
     version="2.6.0",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
+    long_description=get_long_description(),
+    long_description_content_type="text/markdown",
     author="OpenNMT",
     author_email="guillaume.klein@systrangroup.com",
     url="https://opennmt.net",
@@ -31,6 +40,7 @@ setup(
         "Source": "https://github.com/OpenNMT/OpenNMT-tf/"
     },
     keywords="tensorflow opennmt nmt neural machine translation",
+    python_requires='>=3.5',
     install_requires=[
         "ctranslate2>=1.4,<2;platform_system=='Linux'",
         "pyonmttok>=1.18.1,<2;platform_system=='Linux'",
