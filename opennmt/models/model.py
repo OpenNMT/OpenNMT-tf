@@ -18,7 +18,6 @@ class Model(tf.keras.layers.Layer):
     super(Model, self).__init__()
     self.examples_inputter = examples_inputter
     self.params = {}
-    self.initialized = False
     self._frozen_layers = False
 
   @property
@@ -85,16 +84,10 @@ class Model(tf.keras.layers.Layer):
     if dropout is not None:
       misc.set_dropout(self, dropout)
     self.examples_inputter.initialize(data_config)
-    self.initialized = True
 
   def build(self, input_shape):
     self.examples_inputter.build(input_shape)
     self.built = True
-
-  def __call__(self, *args, **kwargs):  # pylint: disable=arguments-differ
-    if not self.initialized:
-      raise ValueError("The model should be first initialized with initialize()")
-    return super(Model, self).__call__(*args, **kwargs)
 
   @abc.abstractmethod
   def call(self, features, labels=None, training=None, step=None):  # pylint: disable=arguments-differ
