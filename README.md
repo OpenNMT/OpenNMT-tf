@@ -9,7 +9,7 @@ OpenNMT-tf is a general purpose sequence learning toolkit using TensorFlow 2.0. 
 * sequence classification
 * language modeling
 
-The project is production-oriented and comes with [backward compatibility guarantees](CHANGELOG.md).
+The project is production-oriented and comes with [backward compatibility guarantees](https://github.com/OpenNMT/OpenNMT-tf/blob/master/CHANGELOG.md).
 
 ## Key features
 
@@ -40,7 +40,7 @@ The [`opennmt`](https://opennmt.net/OpenNMT-tf/package/opennmt.html) package exp
 * [cascaded](https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.SequentialEncoder.html) or [multi-column](https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.ParallelEncoder.html) encoder
 * [hybrid sequence to sequence models](https://opennmt.net/OpenNMT-tf/package/opennmt.models.SequenceToSequence.html)
 
-Standard models such as the Transformer are defined in a [model catalog](opennmt/models/catalog.py) and can be used without additional configuration.
+Standard models such as the Transformer are defined in a [model catalog](https://github.com/OpenNMT/OpenNMT-tf/blob/master/opennmt/models/catalog.py) and can be used without additional configuration.
 
 *Find more information about model configuration in the [documentation](https://opennmt.net/OpenNMT-tf/model.html).*
 
@@ -52,7 +52,7 @@ OpenNMT-tf is fully integrated in the TensorFlow 2.0 ecosystem:
 * Multi-GPU training with [`tf.distribute`](https://www.tensorflow.org/api_docs/python/tf/distribute)
 * Mixed precision support via a [graph optimization pass](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite)
 * Visualization with [TensorBoard](https://www.tensorflow.org/tensorboard)
-* `tf.function` graph tracing that can be [exported to a SavedModel](https://opennmt.net/OpenNMT-tf/serving.html) and served with [TensorFlow Serving](examples/serving/tensorflow_serving) or [Python](examples/serving/python)
+* `tf.function` graph tracing that can be [exported to a SavedModel](https://opennmt.net/OpenNMT-tf/serving.html) and served with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/tensorflow_serving) or [Python](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/python)
 
 ### Dynamic data pipeline
 
@@ -164,7 +164,7 @@ decoding_result = decoder.dynamic_decode(
 
 More examples using OpenNMT-tf as a library can be found online:
 
-* The directory [examples/library](examples/library) contains additional examples that use OpenNMT-tf as a library
+* The directory [examples/library](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/library) contains additional examples that use OpenNMT-tf as a library
 * [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `opennmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
 
 *For a complete overview of the APIs, see the [package documentation](https://opennmt.net/OpenNMT-tf/package/opennmt.html).*
