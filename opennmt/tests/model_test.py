@@ -529,6 +529,18 @@ class ModelTest(tf.test.TestCase):
     _check_weight_and_slots(
         lambda model: model.decoder.output_layer.kernel, tgt_mapping, vocab_axis=1)
 
+  @parameterized.expand([
+      [models.TransformerBase()],
+      [models.TransformerBaseRelative()],
+      [models.TransformerBig()],
+      [models.TransformerBigRelative()]
+  ])
+  def testCTranslate2Spec(self, model):
+    try:
+      self.assertIsNotNone(model.ctranslate2_spec)
+    except ImportError:
+      self.skipTest("ctranslate2 module is not available")
+
 
 if __name__ == "__main__":
   tf.test.main()
