@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -570,6 +570,11 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
 
+    <span class="c1"># TODO: find a better way to pass the state reorder flags.</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">decoding_strategy</span><span class="p">,</span> <span class="s2">&quot;_set_state_reorder_flags&quot;</span><span class="p">):</span>
+      <span class="n">state_reorder_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state_reorder_flags</span><span class="p">()</span>
+      <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">_set_state_reorder_flags</span><span class="p">(</span><span class="n">state_reorder_flags</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
+
     <span class="k">return</span> <span class="n">decoding</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="p">(</span><span class="n">input_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
         <span class="n">start_ids</span><span class="p">,</span>
@@ -598,6 +603,15 @@
 <span class="sd">      The decoder state as a nested structure of tensors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">_get_state_reorder_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a structure that marks states that should be reordered during beam search.</span>
+<span class="sd">    By default all states are reordered.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The same structure as the decoder state with tensors replaced by booleans.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span>
 
   <span class="k">def</span> <span class="nf">_assert_is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raises an expection if the decoder was not initialized.&quot;&quot;&quot;</span>

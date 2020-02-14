@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.inference_pipeline &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.inference_pipeline &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -211,7 +211,11 @@
 <dl class="function">
 <dt id="opennmt.data.inference_pipeline">
 <code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">inference_pipeline</code><span class="sig-paren">(</span><em class="sig-param">batch_size</em>, <em class="sig-param">process_fn=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">length_fn=None</em>, <em class="sig-param">num_threads=None</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#inference_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.inference_pipeline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transformation that defines a complete inference data pipeline.</p>
+<dd><p>Transformation that applies dataset operations for inference.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -221,7 +225,7 @@
 candidates from. If set, this means the inference pipeline will be
 reordered based on the examples length, the application is then
 responsible to restore the predictions in order. An “index” key will be
-inserted in the examples dict.</p></li>
+inserted in the examples dictionary.</p></li>
 <li><p><strong>length_fn</strong> – A function mapping features to a sequence length.</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
@@ -233,8 +237,9 @@ inserted in the examples dict.</p></li>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_bucket_width</span></code> is set but not <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_fn</span></code></p></li>
-<li><p><strong>ValueError</strong> – if the dataset does not output a dictionary structure.</p></li>
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_bucket_width</span></code> is set but not <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_fn</span></code>.</p></li>
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_bucket_width</span></code> is set but the dataset does not
+    output a dictionary structure.</p></li>
 </ul>
 </dd>
 </dl>

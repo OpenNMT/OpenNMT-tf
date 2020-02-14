@@ -27,7 +27,7 @@ Predefined models declare default parameters that should give solid performance 
 onmt-main --model_type Transformer --config my_data.yml --auto_config train
 ```
 
-The user provided `my_data.yml` file will minimally require the data configuration (see the *Quickstart* for example). You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
+The user provided `my_data.yml` file will minimally require the data configuration (see [Quickstart](quickstart.md) for example). You might want to also configure checkpoint related settings, the logging frequency, and the number of training steps.
 
 At the start of the training, the configuration values actually used will be logged. If you want to change some of them, simply add the parameter in your configuration file to override the default value.
 

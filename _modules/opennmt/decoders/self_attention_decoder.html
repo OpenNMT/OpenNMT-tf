@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.self_attention_decoder &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.decoders.self_attention_decoder &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -370,7 +370,15 @@
           <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">))</span>
           <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">)]</span>
       <span class="n">cache</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">self_kv</span><span class="o">=</span><span class="n">self_kv</span><span class="p">,</span> <span class="n">memory_kv</span><span class="o">=</span><span class="n">memory_kv</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">cache</span></div>
+    <span class="k">return</span> <span class="n">cache</span>
+
+  <span class="k">def</span> <span class="nf">_get_state_reorder_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># We don&#39;t need to reorder memory_kv as it is the same for all beams.</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;self_kv&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="s2">&quot;memory_kv&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">)]</span>
+        <span class="p">}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">]</span></div>
 </pre></div>
 
            </div>

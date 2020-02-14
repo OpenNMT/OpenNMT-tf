@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.WordOmission &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.WordOmission &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -214,6 +214,13 @@
 <dd><p>Randomly omits words in a sequence.</p>
 <p>This is different than <a class="reference internal" href="opennmt.data.WordDropout.html#opennmt.data.WordDropout" title="opennmt.data.WordDropout"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.data.WordDropout</span></code></a> as it drops a
 fixed number of words.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">noise</span> <span class="o">=</span> <span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">WordOmission</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">noise</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="go">array([b&#39;b&#39;, b&#39;c&#39;], dtype=object)</span>
+</pre></div>
+</div>
 <p>Inherits from: <a class="reference internal" href="opennmt.data.Noise.html#opennmt.data.Noise" title="opennmt.data.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.data.Noise</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.data.WordOmission.__init__">

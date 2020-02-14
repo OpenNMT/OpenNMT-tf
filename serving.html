@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -210,7 +210,7 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --config my_config.yml --auto_config <span class="nb">export</span> --export_dir ~/my-models/ende
 </pre></div>
 </div>
-<p>Automatic evaluation during the training can also export models, see <em>Training</em> section to learn more.</p>
+<p>Automatic evaluation during the training can also export models, see <a class="reference internal" href="training.html"><span class="doc">Training</span></a> to learn more.</p>
 </div>
 <div class="section" id="running-a-savedmodel">
 <h3>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline">¶</a></h3>
@@ -223,7 +223,7 @@
 </div>
 <div class="section" id="input-preprocessing-and-tokenization">
 <h3>Input preprocessing and tokenization<a class="headerlink" href="#input-preprocessing-and-tokenization" title="Permalink to this headline">¶</a></h3>
-<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see the <em>Tokenization</em> page for more details). In this case, these functions should be run outside of the TensorFlow engine, either by the client or a proxy server.</p>
+<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a> for more details). In this case, these functions should be run outside of the TensorFlow engine, either by the client or a proxy server.</p>
 <ul class="simple">
 <li><p>The OpenNMT-tf <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving">serving example</a> uses the client approach to implement a simple interactive translation loop</p></li>
 <li><p>The project <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker">nmt-wizard-docker</a> uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844">instructions</a>.</p></li>

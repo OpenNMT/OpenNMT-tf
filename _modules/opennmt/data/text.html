@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.text &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.text &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -189,6 +189,11 @@
 <div class="viewcode-block" id="tokens_to_chars"><a class="viewcode-back" href="../../../package/opennmt.data.tokens_to_chars.html#opennmt.data.tokens_to_chars">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_chars</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Splits tokens into unicode characters.</span>
 
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; opennmt.data.tokens_to_chars([&quot;hello&quot;, &quot;world&quot;])</span>
+<span class="sd">    &lt;tf.RaggedTensor [[b&#39;h&#39;, b&#39;e&#39;, b&#39;l&#39;, b&#39;l&#39;, b&#39;o&#39;], [b&#39;w&#39;, b&#39;o&#39;, b&#39;r&#39;, b&#39;l&#39;, b&#39;d&#39;]]&gt;</span>
+
 <span class="sd">  Args:</span>
 <span class="sd">    tokens: A string ``tf.Tensor`` of shape :math:`[T]`.</span>
 
@@ -200,13 +205,10 @@
 <div class="viewcode-block" id="tokens_to_words"><a class="viewcode-back" href="../../../package/opennmt.data.tokens_to_words.html#opennmt.data.tokens_to_words">[docs]</a><span class="k">def</span> <span class="nf">tokens_to_words</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;￭&quot;</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Converts a sequence of tokens to a sequence of words.</span>
 
-<span class="sd">  For example, if a BPE tokenization produces this sequence:</span>
+<span class="sd">  Example:</span>
 
-<span class="sd">      [&quot;He@@&quot;, &quot;llo&quot;, &quot;W@@&quot;, &quot;orld&quot;, &quot;@@!&quot;]</span>
-
-<span class="sd">  this function will return the tensor:</span>
-
-<span class="sd">      [[&quot;He@@&quot;, &quot;llo&quot;, &quot;&quot;], [&quot;W@@&quot;, &quot;orld&quot;, &quot;@@!&quot;]]</span>
+<span class="sd">    &gt;&gt;&gt; opennmt.data.tokens_to_words([&quot;He@@&quot;, &quot;llo&quot;, &quot;W@@&quot;, &quot;orld&quot;, &quot;@@!&quot;], subword_token=&quot;@@&quot;)</span>
+<span class="sd">    &lt;tf.RaggedTensor [[b&#39;He@@&#39;, b&#39;llo&#39;], [b&#39;W@@&#39;, b&#39;orld&#39;, b&#39;@@!&#39;]]&gt;</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    tokens: A 1D string ``tf.Tensor``.</span>
@@ -240,6 +242,15 @@
                                   <span class="n">target_length</span><span class="p">,</span>
                                   <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Parse Pharaoh alignments into an alignment matrix.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; opennmt.data.alignment_matrix_from_pharaoh(&quot;0-0 1-2 1-3 2-1&quot;, 3, 4)</span>
+<span class="sd">    &lt;tf.Tensor: shape=(4, 3), dtype=float32, numpy=</span>
+<span class="sd">    array([[1., 0., 0.],</span>
+<span class="sd">           [0., 0., 1.],</span>
+<span class="sd">           [0., 1., 0.],</span>
+<span class="sd">           [0., 1., 0.]], dtype=float32)&gt;</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    alignment_line: A string ``tf.Tensor`` in the Pharaoh format.</span>

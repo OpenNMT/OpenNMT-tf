@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.batch_sequence_dataset &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.batch_sequence_dataset &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -223,6 +223,10 @@ length bucket.</p>
 <p>If the dataset has parallel elements (e.g. a parallel source and target
 dataset), the element is assigned to the bucket corresponding to the maximum
 length of all parallel elements.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">batch_sequence_dataset</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -198,7 +198,6 @@
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">training</span> <span class="k">as</span> <span class="n">training_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">checkpoint</span> <span class="k">as</span> <span class="n">checkpoint_util</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">exporters</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 
 
@@ -387,8 +386,6 @@
         <span class="n">save_steps</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;save_checkpoints_steps&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
         <span class="n">evaluator</span><span class="o">=</span><span class="n">evaluator</span><span class="p">,</span>
         <span class="n">eval_steps</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
-        <span class="n">export_on_best</span><span class="o">=</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_on_best&quot;</span><span class="p">),</span>
-        <span class="n">exporter</span><span class="o">=</span><span class="n">exporters</span><span class="o">.</span><span class="n">make_exporter</span><span class="p">(</span><span class="n">eval_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_format&quot;</span><span class="p">,</span> <span class="s2">&quot;saved_model&quot;</span><span class="p">)),</span>
         <span class="n">moving_average_decay</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;moving_average_decay&quot;</span><span class="p">))</span>
     <span class="n">average_last_checkpoints</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">average_last_checkpoints</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -511,11 +508,15 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
-    <span class="n">ordered_writer</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">infer_fn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">infer</span><span class="p">,</span> <span class="n">input_signature</span><span class="o">=</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span><span class="p">,))</span>
     <span class="n">infer_fn</span><span class="o">.</span><span class="n">get_concrete_function</span><span class="p">()</span>  <span class="c1"># Trace the function now.</span>
+
+    <span class="c1"># Inference might return out-of-order predictions. The OrderRestorer utility is</span>
+    <span class="c1"># used to write predictions in their original order.</span>
     <span class="n">write_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">prediction</span><span class="p">:</span> <span class="p">(</span>
         <span class="n">model</span><span class="o">.</span><span class="n">print_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">infer_config</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">))</span>
+    <span class="n">index_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">prediction</span><span class="p">:</span> <span class="n">prediction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+    <span class="n">ordered_writer</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">OrderRestorer</span><span class="p">(</span><span class="n">index_fn</span><span class="p">,</span> <span class="n">write_fn</span><span class="p">)</span>
 
     <span class="n">total_time</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">total_tokens</span> <span class="o">=</span> <span class="mi">0</span>
@@ -525,9 +526,9 @@
     <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
       <span class="n">predictions</span> <span class="o">=</span> <span class="n">infer_fn</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
       <span class="n">predictions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">)</span>
-      <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+      <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">misc</span><span class="o">.</span><span class="n">extract_batches</span><span class="p">(</span><span class="n">predictions</span><span class="p">):</span>
+        <span class="n">ordered_writer</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">log_time</span><span class="p">:</span>
-        <span class="n">total_time</span> <span class="o">+=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">total_examples</span> <span class="o">+=</span> <span class="n">batch_size</span>
         <span class="n">length</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length&quot;</span><span class="p">)</span>
@@ -535,17 +536,10 @@
           <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">length</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">length</span> <span class="o">=</span> <span class="n">length</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
           <span class="n">total_tokens</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
-      <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">misc</span><span class="o">.</span><span class="n">extract_batches</span><span class="p">(</span><span class="n">predictions</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">:</span>
-          <span class="k">if</span> <span class="n">ordered_writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ordered_writer</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">OrderRestorer</span><span class="p">(</span>
-                <span class="n">index_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">prediction</span><span class="p">:</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">],</span> <span class="n">callback_fn</span><span class="o">=</span><span class="n">write_fn</span><span class="p">)</span>
-          <span class="n">ordered_writer</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">write_fn</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
-      <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">log_time</span><span class="p">:</span>
+      <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+      <span class="n">total_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Total prediction time (s): </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">total_time</span><span class="p">)</span>
       <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
           <span class="s2">&quot;Average prediction time (s): </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">total_time</span> <span class="o">/</span> <span class="n">total_examples</span><span class="p">)</span>

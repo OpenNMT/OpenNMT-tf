@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.Vocab &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.Vocab &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -212,6 +212,18 @@
 <dt id="opennmt.data.Vocab">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">Vocab</code><span class="sig-paren">(</span><em class="sig-param">special_tokens=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#Vocab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.Vocab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vocabulary class.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vocab</span> <span class="o">=</span> <span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;wmtende.vocab&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>
+<span class="go">32000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;be&quot;</span> <span class="ow">in</span> <span class="n">vocab</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vocab</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s2">&quot;be&quot;</span><span class="p">)</span>
+<span class="go">377</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vocab</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="mi">377</span><span class="p">)</span>
+<span class="go">&#39;be&#39;</span>
+</pre></div>
+</div>
 <p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
 <dl class="method">
 <dt id="opennmt.data.Vocab.__init__">

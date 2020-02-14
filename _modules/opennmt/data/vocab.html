@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -186,7 +186,20 @@
 
 
 <div class="viewcode-block" id="Vocab"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab">[docs]</a><span class="k">class</span> <span class="nc">Vocab</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Vocabulary class.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;Vocabulary class.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; vocab = opennmt.data.Vocab.from_file(&quot;wmtende.vocab&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; len(vocab)</span>
+<span class="sd">    32000</span>
+<span class="sd">    &gt;&gt;&gt; &quot;be&quot; in vocab</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; vocab.lookup(&quot;be&quot;)</span>
+<span class="sd">    377</span>
+<span class="sd">    &gt;&gt;&gt; vocab.lookup(377)</span>
+<span class="sd">    &#39;be&#39;</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Vocab.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes a vocabulary.</span>

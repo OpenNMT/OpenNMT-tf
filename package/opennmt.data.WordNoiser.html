@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.WordNoiser &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.WordNoiser &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -259,6 +259,10 @@ new lengths.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A tuple with the noisy version of <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> and the new lengths.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a batch of string but
+    <code class="xref py py-obj docutils literal notranslate"><span class="pre">sequence_length</span></code> is not passed.</p>
 </dd>
 </dl>
 </dd></dl>

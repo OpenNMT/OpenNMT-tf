@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.random_shard &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.random_shard &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -212,6 +212,13 @@
 <dt id="opennmt.data.random_shard">
 <code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">random_shard</code><span class="sig-paren">(</span><em class="sig-param">shard_size</em>, <em class="sig-param">dataset_size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#random_shard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.random_shard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that shards the dataset in a random order.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">random_shard</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">as_numpy_iterator</span><span class="p">())</span>
+<span class="go">[0, 1, 4, 5, 2, 3]</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.tokens_to_words &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.tokens_to_words &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -212,14 +212,11 @@
 <dt id="opennmt.data.tokens_to_words">
 <code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">tokens_to_words</code><span class="sig-paren">(</span><em class="sig-param">tokens</em>, <em class="sig-param">subword_token='￭'</em>, <em class="sig-param">is_spacer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/text.html#tokens_to_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.tokens_to_words" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a sequence of tokens to a sequence of words.</p>
-<p>For example, if a BPE tokenization produces this sequence:</p>
-<blockquote>
-<div><p>[“He&#64;&#64;”, “llo”, “W&#64;&#64;”, “orld”, “&#64;&#64;!”]</p>
-</div></blockquote>
-<p>this function will return the tensor:</p>
-<blockquote>
-<div><p>[[“He&#64;&#64;”, “llo”, “”], [“W&#64;&#64;”, “orld”, “&#64;&#64;!”]]</p>
-</div></blockquote>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tokens_to_words</span><span class="p">([</span><span class="s2">&quot;He@@&quot;</span><span class="p">,</span> <span class="s2">&quot;llo&quot;</span><span class="p">,</span> <span class="s2">&quot;W@@&quot;</span><span class="p">,</span> <span class="s2">&quot;orld&quot;</span><span class="p">,</span> <span class="s2">&quot;@@!&quot;</span><span class="p">],</span> <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;@@&quot;</span><span class="p">)</span>
+<span class="go">&lt;tf.RaggedTensor [[b&#39;He@@&#39;, b&#39;llo&#39;], [b&#39;W@@&#39;, b&#39;orld&#39;, b&#39;@@!&#39;]]&gt;</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

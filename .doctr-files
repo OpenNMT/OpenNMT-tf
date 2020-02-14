@@ -1,4 +1,3 @@
-./README.html
 ./_modules/index.html
 ./_modules/opennmt/config.html
 ./_modules/opennmt/data/dataset.html
@@ -41,7 +40,6 @@
 ./_modules/opennmt/utils/misc.html
 ./_modules/opennmt/utils/scorers.html
 ./_modules/opennmt/utils/tensor.html
-./_sources/README.md.txt
 ./_sources/alignments.md.txt
 ./_sources/api_examples.md.txt
 ./_sources/configuration.md.txt

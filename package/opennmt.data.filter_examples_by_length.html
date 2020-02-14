@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.filter_examples_by_length &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.filter_examples_by_length &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -211,7 +211,12 @@
 <dl class="function">
 <dt id="opennmt.data.filter_examples_by_length">
 <code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">filter_examples_by_length</code><span class="sig-paren">(</span><em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">features_length_fn=None</em>, <em class="sig-param">labels_length_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#filter_examples_by_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.filter_examples_by_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transformation that constrains examples length.</p>
+<dd><p>Transformation that filters out examples with zero length or length that is
+greater than the configured maximum.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">filter_examples_by_length</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

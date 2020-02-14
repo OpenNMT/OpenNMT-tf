@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -407,11 +407,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">=</span> <span class="n">beam_size</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">length_penalty</span> <span class="o">=</span> <span class="n">length_penalty</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">coverage_penalty</span> <span class="o">=</span> <span class="n">coverage_penalty</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">coverage_penalty</span> <span class="o">=</span> <span class="n">coverage_penalty</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span> <span class="o">=</span> <span class="kc">None</span></div>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">num_hypotheses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span>
+
+  <span class="k">def</span> <span class="nf">_set_state_reorder_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_reorder_flags</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets state reorder flags, a structure matching the decoder state that</span>
+<span class="sd">    indicates which tensor should be reorded during beam search.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span> <span class="o">=</span> <span class="n">state_reorder_flags</span>
 
   <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">start_ids</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">start_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">)</span>
@@ -504,7 +511,7 @@
     <span class="k">if</span> <span class="n">accumulated_attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">accumulated_attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">accumulated_attention</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">)</span>
       <span class="n">extra_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accumulated_attention</span><span class="p">)</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">_gather_state</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">),</span> <span class="n">state</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">_reorder_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">,</span> <span class="n">reorder_flags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">word_ids</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extra_vars</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">extra_vars</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -560,7 +567,7 @@
 <span class="sd">    end_id: ID of the end of sequence token.</span>
 <span class="sd">    initial_state: Initial decoder state.</span>
 <span class="sd">    decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`</span>
-<span class="sd">      instance that define the decoding logic. Defaults to a greedy search.</span>
+<span class="sd">      instance that defines the decoding logic. Defaults to a greedy search.</span>
 <span class="sd">    sampler: A :class:`opennmt.utils.Sampler` instance that samples</span>
 <span class="sd">      predictions from the model output. Defaults to an argmax sampling.</span>
 <span class="sd">    maximum_iterations: The maximum number of iterations to decode for.</span>
@@ -679,11 +686,19 @@
       <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">_gather_state</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Gather batch indices from the tensor.&quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">tensor</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_reorder_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">reorder_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Gather batch indices from the state tensors.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">_reorder_one</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">reorder</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">tensor</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+
+  <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span><span class="p">]</span>
+  <span class="k">if</span> <span class="n">reorder_flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">assert_same_structure</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">reorder_flags</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reorder_flags</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">_reorder_one</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">_get_shape_invariants</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the shape of the tensor but sets middle dims to None.&quot;&quot;&quot;</span>

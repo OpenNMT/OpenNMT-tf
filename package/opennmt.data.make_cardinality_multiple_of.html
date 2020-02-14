@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.make_cardinality_multiple_of &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.make_cardinality_multiple_of &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -213,6 +213,13 @@
 <code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">make_cardinality_multiple_of</code><span class="sig-paren">(</span><em class="sig-param">divisor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#make_cardinality_multiple_of"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.make_cardinality_multiple_of" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that ensures that the dataset cardinality is a multiple of
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">divisor</span></code>.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">make_cardinality_multiple_of</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+<span class="go">10</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>divisor</strong> – The value that should divide the dataset size.</p>
@@ -221,6 +228,12 @@
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> transformation.</p>
 </dd>
 </dl>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This transformation is useful when training multiple replicas on a finite
+dataset. It ensures that each replica receives a non empty batch in the last
+training iteration.</p>
+</div>
 </dd></dl>
 
 </div>

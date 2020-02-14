@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.tokens_to_chars &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.tokens_to_chars &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -212,6 +212,11 @@
 <dt id="opennmt.data.tokens_to_chars">
 <code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">tokens_to_chars</code><span class="sig-paren">(</span><em class="sig-param">tokens</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/text.html#tokens_to_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.tokens_to_chars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits tokens into unicode characters.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tokens_to_chars</span><span class="p">([</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;world&quot;</span><span class="p">])</span>
+<span class="go">&lt;tf.RaggedTensor [[b&#39;h&#39;, b&#39;e&#39;, b&#39;l&#39;, b&#39;l&#39;, b&#39;o&#39;], [b&#39;w&#39;, b&#39;o&#39;, b&#39;r&#39;, b&#39;l&#39;, b&#39;d&#39;]]&gt;</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tokens</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of shape <span class="math notranslate nohighlight">\([T]\)</span>.</p>

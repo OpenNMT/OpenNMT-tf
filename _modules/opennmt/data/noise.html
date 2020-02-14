@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -233,6 +233,10 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple with the noisy version of :obj:`tokens` and the new lengths.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`tokens` is a batch of string but</span>
+<span class="sd">        :obj:`sequence_length` is not passed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">)</span></div>
@@ -325,7 +329,15 @@
 
 
 <div class="viewcode-block" id="WordDropout"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout">[docs]</a><span class="k">class</span> <span class="nc">WordDropout</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Randomly drops words in a sequence.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;Randomly drops words in a sequence.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordDropout(0.5)</span>
+<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">    array([b&#39;a&#39;, b&#39;b&#39;], dtype=object)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WordDropout.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
@@ -354,6 +366,13 @@
 
 <span class="sd">  This is different than :class:`opennmt.data.WordDropout` as it drops a</span>
 <span class="sd">  fixed number of words.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordOmission(1)</span>
+<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">    array([b&#39;b&#39;, b&#39;c&#39;], dtype=object)</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WordOmission.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordOmission.html#opennmt.data.WordOmission.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
@@ -376,7 +395,15 @@
 
 
 <div class="viewcode-block" id="WordReplacement"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement">[docs]</a><span class="k">class</span> <span class="nc">WordReplacement</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Randomly replaces words.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;Randomly replaces words.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordReplacement(0.5)</span>
+<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">    array([b&#39;a&#39;, b&#39;&lt;unk&gt;&#39;, b&#39;c&#39;], dtype=object)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WordReplacement.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probability</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
@@ -402,7 +429,15 @@
 
 
 <div class="viewcode-block" id="WordPermutation"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation">[docs]</a><span class="k">class</span> <span class="nc">WordPermutation</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Randomly permutes words in a sequence with a maximum distance.&quot;&quot;&quot;</span>
+  <span class="sd">&quot;&quot;&quot;Randomly permutes words in a sequence with a maximum distance.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordPermutation(3)</span>
+<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">    array([b&#39;1&#39;, b&#39;0&#39;, b&#39;2&#39;, b&#39;4&#39;, b&#39;3&#39;, b&#39;6&#39;, b&#39;5&#39;], dtype=object)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WordPermutation.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_distance</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>Data &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -198,7 +198,7 @@
             
   <div class="section" id="data">
 <h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
-<p>Data files are configured in the <code class="docutils literal notranslate"><span class="pre">data</span></code> block of the YAML configuration file (see <em>Parameters</em> section). For example, here is a typical data configuration for a sequence to sequence model:</p>
+<p>Data files are configured in the <code class="docutils literal notranslate"><span class="pre">data</span></code> block of the YAML configuration file (see <a class="reference internal" href="configuration.html"><span class="doc">Parameters</span></a>). For example, here is a typical data configuration for a sequence to sequence model:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
   <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/train.en</span>
   <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/train.de</span>
@@ -223,7 +223,7 @@
 <p>All <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.TextInputter</span></code> inputters expect a text file as input where:</p>
 <ul class="simple">
 <li><p>sentences are separated by a <strong>newline</strong></p></li>
-<li><p>tokens are separated by a <strong>space</strong> (unless a custom tokenizer is set, see <a class="reference external" href="tokenization.html">Tokenization</a>)</p></li>
+<li><p>tokens are separated by a <strong>space</strong> (unless a custom tokenizer is set, see <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a>)</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ head -5 data/toy-ende/src-train.txt

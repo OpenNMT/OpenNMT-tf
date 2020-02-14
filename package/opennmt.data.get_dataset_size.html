@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.get_dataset_size &mdash; OpenNMT-tf 2.6.0 documentation</title>
+  <title>opennmt.data.get_dataset_size &mdash; OpenNMT-tf 2.7.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.6
+                2.7
               </div>
             
           
@@ -212,16 +212,22 @@
 <dt id="opennmt.data.get_dataset_size">
 <code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">get_dataset_size</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">batch_size=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.get_dataset_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the dataset size.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="go">5</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> – A finite dataset.</p></li>
+<li><p><strong>dataset</strong> – A dataset.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use to improve the scan performance, or
 <code class="docutils literal notranslate"><span class="pre">None</span></code> to scan the dataset as-is.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The dataset size.</p>
+<dd class="field-even"><p>The dataset size or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the dataset is infinite.</p>
 </dd>
 </dl>
 </dd></dl>
