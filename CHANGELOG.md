@@ -13,6 +13,8 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Update TensorFlow Addons to 0.8
+
 ### Fixes and improvements
 
 * Log the number of frozen weights when using the parameter `freeze_layers`
