@@ -19,6 +19,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Enable CTranslate2 export for `TransformerBaseRelative` and `TransformerBigRelative` models
 * Update TensorFlow Addons to 0.8
 
 ### Fixes and improvements
