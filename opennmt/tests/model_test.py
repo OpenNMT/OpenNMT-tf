@@ -541,6 +541,17 @@ class ModelTest(tf.test.TestCase):
     except ImportError:
       self.skipTest("ctranslate2 module is not available")
 
+  def testTransformerWithDifferentEncoderDecoderLayers(self):
+    model = models.Transformer(
+        inputters.WordEmbedder(32),
+        inputters.WordEmbedder(32),
+        num_layers=(6, 3),
+        num_units=32,
+        num_heads=8,
+        ffn_inner_dim=64)
+    self.assertLen(model.encoder.layers, 6)
+    self.assertLen(model.decoder.layers, 3)
+
 
 if __name__ == "__main__":
   tf.test.main()
