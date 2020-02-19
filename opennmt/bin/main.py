@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import sys
 
 import tensorflow as tf
 
@@ -151,7 +152,18 @@ def main():
       "--tgt_vocab", default=None,
       help="Path to the new target vocabulary.")
 
-  args = parser.parse_args()
+  # When using an option that takes multiple values just before the run type,
+  # the run type is treated as a value of this option. To fix this issue, we
+  # inject a placeholder option just before the run type to clearly separate it.
+  parser.add_argument("--placeholder", action="store_true", help=argparse.SUPPRESS)
+  run_types = set(subparsers.choices.keys())
+  args = sys.argv[1:]
+  for i, arg in enumerate(args):
+    if arg in run_types:
+      args.insert(i, "--placeholder")
+      break
+
+  args = parser.parse_args(args)
   if hasattr(args, "features_file") and args.features_file and len(args.features_file) == 1:
     args.features_file = args.features_file[0]
 
