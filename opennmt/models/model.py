@@ -59,7 +59,7 @@ class Model(tf.keras.layers.Layer):
     """Returns automatic configuration values specific to this model.
 
     Args:
-      num_replicas: The number of concurrent model replicas used for the
+      num_replicas: The number of synchronous model replicas used for the
         training.
 
     Returns:
@@ -96,7 +96,7 @@ class Model(tf.keras.layers.Layer):
     Args:
       features: A nested structure of features ``tf.Tensor``.
       labels: A nested structure of labels ``tf.Tensor``.
-      training: Run in training mode.
+      training: If ``True``, run in training mode.
       step: The current training step.
 
     Returns:
@@ -129,10 +129,10 @@ class Model(tf.keras.layers.Layer):
 
     Args:
       features: A nested structure of features ``tf.Tensor``.
-      labels: A nested structure of features ``tf.Tensor``.
+      labels: A nested structure of labels ``tf.Tensor``.
 
     Returns:
-      The loss and predictions.
+      A tuple with the loss and the model predictions.
     """
     outputs, predictions = self(features, labels=labels)
     loss = self.compute_loss(outputs, labels, training=False)
@@ -157,7 +157,7 @@ class Model(tf.keras.layers.Layer):
     Args:
       outputs: The model outputs (usually unscaled probabilities).
       labels: The dict of labels ``tf.Tensor``.
-      training: Compute training loss.
+      training: If ``True``, compute the loss for training.
 
     Returns:
       The loss or a tuple ``(numerator, train_denominator, stats_denominator)``
@@ -355,7 +355,7 @@ class Model(tf.keras.layers.Layer):
     """Prints the model prediction.
 
     Args:
-      prediction: The evaluated prediction.
+      prediction: The model prediction.
       params: (optional) Dictionary of formatting parameters.
       stream: (optional) The stream to print to.
     """
