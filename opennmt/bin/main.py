@@ -88,7 +88,8 @@ def main():
   parser.add_argument("--mixed_precision", default=False, action="store_true",
                       help="Enable mixed precision.")
 
-  subparsers = parser.add_subparsers(help="Run type.", dest="run")
+  subparsers = parser.add_subparsers(help="Run type.", dest="run_type")
+  subparsers.required = True
   parser_train = subparsers.add_parser("train", help="Training.")
   parser_train.add_argument(
       "--with_eval", default=False, action="store_true",
@@ -196,36 +197,36 @@ def main():
       mixed_precision=args.mixed_precision,
       seed=args.seed)
 
-  if args.run == "train":
+  if args.run_type == "train":
     runner.train(
         num_devices=args.num_gpus,
         with_eval=args.with_eval,
         checkpoint_path=args.checkpoint_path)
-  elif args.run == "eval":
+  elif args.run_type == "eval":
     metrics = runner.evaluate(
         checkpoint_path=args.checkpoint_path,
         features_file=args.features_file,
         labels_file=args.labels_file)
     print(metrics)
-  elif args.run == "infer":
+  elif args.run_type == "infer":
     runner.infer(
         args.features_file,
         predictions_file=args.predictions_file,
         checkpoint_path=args.checkpoint_path,
         log_time=args.log_prediction_time)
-  elif args.run == "export":
+  elif args.run_type == "export":
     runner.export(
         args.export_dir,
         checkpoint_path=args.checkpoint_path,
         exporter=exporters.make_exporter(args.export_format))
-  elif args.run == "score":
+  elif args.run_type == "score":
     runner.score(
         args.features_file,
         args.predictions_file,
         checkpoint_path=args.checkpoint_path)
-  elif args.run == "average_checkpoints":
+  elif args.run_type == "average_checkpoints":
     runner.average_checkpoints(args.output_dir, max_count=args.max_count)
-  elif args.run == "update_vocab":
+  elif args.run_type == "update_vocab":
     runner.update_vocab(
         args.output_dir,
         src_vocab=args.src_vocab,
