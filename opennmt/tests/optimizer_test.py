@@ -65,8 +65,9 @@ class OptimizerTest(tf.test.TestCase):
     @tf.function
     def accumulate(grad1, grad2):
       with strategy.scope():
-        gradient_placeholder.values[0].assign(grad1)
-        gradient_placeholder.values[1].assign(grad2)
+        local_variables = strategy.experimental_local_results(gradient_placeholder)
+        local_variables[0].assign(grad1)
+        local_variables[1].assign(grad2)
         strategy.experimental_run_v2(accumulate_on_replica, args=(gradient_placeholder,))
 
     @tf.function
@@ -74,18 +75,21 @@ class OptimizerTest(tf.test.TestCase):
       with strategy.scope():
         strategy.experimental_run_v2(apply_on_replica)
 
+    def _check_local_values(grad1, grad2):
+      values = strategy.experimental_local_results(accumulator._gradients[0])
+      self.assertAllEqual(values[0].value(), grad1)
+      self.assertAllEqual(values[1].value(), grad2)
+
     accumulate([1.0, 2.0], [-1.0, 1.0])
     accumulate([3.0, -1.0], [-1.0, -1.0])
     accumulate([-2.0, 2.0], [3.0, -2.0])
     self.assertEqual(accumulator.step, 3)
-    self.assertAllEqual(accumulator._gradients[0].values[0].value(), [2.0, 3.0])
-    self.assertAllEqual(accumulator._gradients[0].values[1].value(), [1.0, -2.0])
+    _check_local_values([2.0, 3.0], [1.0, -2.0])
     apply_grad()
     self.assertAllEqual(variable.value(), [1.0, 2.0])  # [4.0 - (2.0 + 1.0), 3.0 - (3.0 - 2.0)]
     accumulator.reset()
     self.assertEqual(accumulator.step, 0)
-    self.assertAllEqual(accumulator._gradients[0].values[0].value(), [0.0, 0.0])
-    self.assertAllEqual(accumulator._gradients[0].values[1].value(), [0.0, 0.0])
+    _check_local_values([0.0, 0.0], [0.0, 0.0])
 
 
 if __name__ == "__main__":
