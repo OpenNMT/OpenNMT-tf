@@ -17,10 +17,12 @@ def _generate_source_context(batch_size,
   memory = [
       tf.random.uniform([batch_size, time, depth], dtype=dtype)
       for time in memory_time]
+  initial_state = tuple(None for _ in range(num_sources))
   if num_sources == 1:
     memory_sequence_length = memory_sequence_length[0]
     memory = memory[0]
-  return memory, memory_sequence_length
+    initial_state = initial_state[0]
+  return memory, memory_sequence_length, initial_state
 
 
 class DecoderTest(tf.test.TestCase):
@@ -66,13 +68,12 @@ class DecoderTest(tf.test.TestCase):
     vocab_size = 10
     time_dim = 5
     depth = 6
-    memory, memory_sequence_length = _generate_source_context(
+    memory, memory_sequence_length, initial_state = _generate_source_context(
         batch_size,
         depth,
         num_sources=num_sources,
         dtype=dtype)
 
-    initial_state = None
     if initial_state_fn is not None:
       initial_state = initial_state_fn(batch_size, dtype)
     decoder.initialize(vocab_size=vocab_size)

@@ -165,13 +165,12 @@ class Decoder(tf.keras.layers.Layer):
     self.memory = memory
     self.memory_sequence_length = memory_sequence_length
     if batch_size is None or dtype is None:
-      if initial_state is None and memory is None:
+      sentinel = tf.nest.flatten(memory)[0]
+      if sentinel is None:
+        sentinel = tf.nest.flatten(initial_state)[0]
+      if sentinel is None:
         raise ValueError("If batch_size or dtype are not set, then either "
                          "memory or initial_state should be set")
-      template = initial_state
-      if template is None:
-        template = memory
-      sentinel = tf.nest.flatten(template)[0]
       if batch_size is None:
         batch_size = tf.shape(sentinel)[0]
       if dtype is None:
