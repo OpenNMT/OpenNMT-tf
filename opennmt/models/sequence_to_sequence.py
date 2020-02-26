@@ -227,8 +227,9 @@ class SequenceToSequence(model.SequenceGenerator):
       # Tile encoder outputs to prepare for beam search.
       encoder_outputs = tfa.seq2seq.tile_batch(encoder_outputs, beam_size)
       encoder_sequence_length = tfa.seq2seq.tile_batch(encoder_sequence_length, beam_size)
-      if encoder_state is not None:
-        encoder_state = tfa.seq2seq.tile_batch(encoder_state, beam_size)
+      encoder_state = tf.nest.map_structure(
+          lambda state: tfa.seq2seq.tile_batch(state, beam_size) if state is not None else None,
+          encoder_state)
 
     # Dynamically decodes from the encoder outputs.
     initial_state = self.decoder.initial_state(
