@@ -63,6 +63,17 @@ class TextTest(tf.test.TestCase):
     self._testPharaohAlignments(
         "0-0 1-2 1-1 2-4", [3, 5], [[1, 0, 0], [0, 1, 0], [0, 1, 0], [0, 0, 0], [0, 0, 1]])
 
+  @parameterized.expand([[True], [False]])
+  def testInvalidPharaohAlignments(self, run_as_function):
+    func = text.alignment_matrix_from_pharaoh
+    if run_as_function:
+      func = tf.function(func)
+
+    with self.assertRaisesRegex(tf.errors.InvalidArgumentError, "source"):
+      func(tf.constant("0-0 1-1 2-3 3-2"), 2, 4)
+    with self.assertRaisesRegex(tf.errors.InvalidArgumentError, "target"):
+      func(tf.constant("0-0 1-2 1-1 2-4"), 3, 4)
+
 
 if __name__ == "__main__":
   tf.test.main()
