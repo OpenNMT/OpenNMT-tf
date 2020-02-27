@@ -93,7 +93,7 @@ def alignment_matrix_from_pharaoh(alignment_line,
   maximum_ids = tf.reduce_max(sparse_indices, axis=0)
   assert_source_length = _assert_in_range(maximum_ids[0], source_length, alignment_line, "source")
   assert_target_length = _assert_in_range(maximum_ids[1], target_length, alignment_line, "target")
-  with tf.control_dependencies([assert_source_length, assert_source_length]):
+  with tf.control_dependencies([assert_source_length, assert_target_length]):
     alignment_matrix_sparse = tf.sparse.SparseTensor(
         sparse_indices, sparse_values, [source_length, target_length])
     alignment_matrix = tf.sparse.to_dense(alignment_matrix_sparse, validate_indices=False)
