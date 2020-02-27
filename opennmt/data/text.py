@@ -90,7 +90,22 @@ def alignment_matrix_from_pharaoh(alignment_line,
   sparse_values = tf.ones([tf.shape(sparse_indices)[0]], dtype=dtype)
   source_length = tf.cast(source_length, tf.int64)
   target_length = tf.cast(target_length, tf.int64)
-  alignment_matrix_sparse = tf.sparse.SparseTensor(
-      sparse_indices, sparse_values, [source_length, target_length])
-  alignment_matrix = tf.sparse.to_dense(alignment_matrix_sparse, validate_indices=False)
-  return tf.transpose(alignment_matrix)
+  maximum_ids = tf.reduce_max(sparse_indices, axis=0)
+  assert_source_length = _assert_in_range(maximum_ids[0], source_length, alignment_line, "source")
+  assert_target_length = _assert_in_range(maximum_ids[1], target_length, alignment_line, "target")
+  with tf.control_dependencies([assert_source_length, assert_target_length]):
+    alignment_matrix_sparse = tf.sparse.SparseTensor(
+        sparse_indices, sparse_values, [source_length, target_length])
+    alignment_matrix = tf.sparse.to_dense(alignment_matrix_sparse, validate_indices=False)
+    return tf.transpose(alignment_matrix)
+
+
+def _assert_in_range(maximum_id, length, line, name):
+  return tf.debugging.assert_less(
+      maximum_id,
+      length,
+      message=tf.strings.format(
+          "Length mismatch for alignment line {}: actual %s length is {}, but "
+          "got %s id {} which is out of range. Please check that the alignment "
+          "file is correctly aligned to the training file." % (name, name),
+          [line, length, maximum_id]))
