@@ -533,7 +533,14 @@ class ModelTest(tf.test.TestCase):
       [models.TransformerBase()],
       [models.TransformerBaseRelative()],
       [models.TransformerBig()],
-      [models.TransformerBigRelative()]
+      [models.TransformerBigRelative()],
+      [models.Transformer(
+          inputters.WordEmbedder(32),
+          inputters.WordEmbedder(32),
+          num_layers=(6, 3),
+          num_units=32,
+          num_heads=8,
+          ffn_inner_dim=64)],
   ])
   def testCTranslate2Spec(self, model):
     try:

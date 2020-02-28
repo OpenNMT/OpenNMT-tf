@@ -104,7 +104,6 @@ class Transformer(SequenceToSequence):
     self._with_relative_position = maximum_relative_position is not None
     self._is_ct2_compatible = (
         isinstance(encoder, SelfAttentionEncoder)
-        and num_encoder_layers == num_decoder_layers
         and ffn_activation == tf.nn.relu
         and ((self._with_relative_position and position_encoder_class is None)
              or (not self._with_relative_position
@@ -122,7 +121,7 @@ class Transformer(SequenceToSequence):
       return None
     import ctranslate2  # pylint: disable=import-outside-toplevel
     return ctranslate2.specs.TransformerSpec(
-        self._num_encoder_layers,
+        (self._num_encoder_layers, self._num_decoder_layers),
         self._num_heads,
         with_relative_position=self._with_relative_position)
 
