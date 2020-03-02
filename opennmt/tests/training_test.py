@@ -33,7 +33,6 @@ class TrainingTest(tf.test.TestCase):
     moving_average.update()
     self.assertAllEqual(self.evaluate(variables), [3.0, 4.0])
     with moving_average.shadow_variables():
-      print(variables)
       self.assertAllClose(self.evaluate(variables), [2.8, 3.8])
     self.assertAllEqual(self.evaluate(variables), [3.0, 4.0])
 

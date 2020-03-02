@@ -64,8 +64,17 @@ def get_variable_name(variable, root, model_key="model"):
   """Gets the variable name in the object-based representation."""
   variables_to_names, _ = get_variables_name_mapping(root, root_key=model_key)
   # In case of a MirroredVariable, look up the primary variable
-  variable = getattr(variable, "primary", variable)
+  variable = get_primary_variable(variable)
   return variables_to_names.get(variable.experimental_ref())
+
+def get_primary_variable(variable):
+  """If :obj:`variable` is distributed, returns the primary component."""
+  # TODO: use a public API to get the primary variable.
+  for attribute_name in ("primary", "_primary"):
+    attribute = getattr(variable, attribute_name, None)
+    if attribute is not None:
+      return attribute
+  return variable
 
 def print_as_bytes(text, stream=None):
   """Prints a string as bytes to non rely on :obj:`stream` default encoding.
