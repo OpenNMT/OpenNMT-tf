@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.7.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.8.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.7
+                2.8
               </div>
             
           
@@ -408,8 +408,9 @@
       <span class="c1"># Tile encoder outputs to prepare for beam search.</span>
       <span class="n">encoder_outputs</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span>
       <span class="n">encoder_sequence_length</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">encoder_sequence_length</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">encoder_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">encoder_state</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">encoder_state</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span>
+      <span class="n">encoder_state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+          <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+          <span class="n">encoder_state</span><span class="p">)</span>
 
     <span class="c1"># Dynamically decodes from the encoder outputs.</span>
     <span class="n">initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">initial_state</span><span class="p">(</span>

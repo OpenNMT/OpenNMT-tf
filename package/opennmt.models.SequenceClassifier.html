@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.SequenceClassifier &mdash; OpenNMT-tf 2.7.0 documentation</title>
+  <title>opennmt.models.SequenceClassifier &mdash; OpenNMT-tf 2.8.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.7
+                2.8
               </div>
             
           
@@ -257,7 +257,7 @@ layer instantiation and layer call.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>features</strong> – A nested structure of features <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
 <li><p><strong>labels</strong> – A nested structure of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
-<li><p><strong>training</strong> – Run in training mode.</p></li>
+<li><p><strong>training</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, run in training mode.</p></li>
 <li><p><strong>step</strong> – The current training step.</p></li>
 </ul>
 </dd>
@@ -281,7 +281,7 @@ layer instantiation and layer call.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outputs</strong> – The model outputs (usually unscaled probabilities).</p></li>
 <li><p><strong>labels</strong> – The dict of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
-<li><p><strong>training</strong> – Compute training loss.</p></li>
+<li><p><strong>training</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, compute the loss for training.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -325,7 +325,7 @@ batch-normalized for training vs. token-normalized for reporting).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>prediction</strong> – The evaluated prediction.</p></li>
+<li><p><strong>prediction</strong> – The model prediction.</p></li>
 <li><p><strong>params</strong> – (optional) Dictionary of formatting parameters.</p></li>
 <li><p><strong>stream</strong> – (optional) The stream to print to.</p></li>
 </ul>

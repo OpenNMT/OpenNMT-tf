@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.7.0 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.8.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.7
+                2.8
               </div>
             
           
@@ -240,7 +240,7 @@
     <span class="sd">&quot;&quot;&quot;Returns automatic configuration values specific to this model.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      num_replicas: The number of concurrent model replicas used for the</span>
+<span class="sd">      num_replicas: The number of synchronous model replicas used for the</span>
 <span class="sd">        training.</span>
 
 <span class="sd">    Returns:</span>
@@ -277,7 +277,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">      features: A nested structure of features ``tf.Tensor``.</span>
 <span class="sd">      labels: A nested structure of labels ``tf.Tensor``.</span>
-<span class="sd">      training: Run in training mode.</span>
+<span class="sd">      training: If ``True``, run in training mode.</span>
 <span class="sd">      step: The current training step.</span>
 
 <span class="sd">    Returns:</span>
@@ -310,10 +310,10 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">      features: A nested structure of features ``tf.Tensor``.</span>
-<span class="sd">      labels: A nested structure of features ``tf.Tensor``.</span>
+<span class="sd">      labels: A nested structure of labels ``tf.Tensor``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      The loss and predictions.</span>
+<span class="sd">      A tuple with the loss and the model predictions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -338,7 +338,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">      outputs: The model outputs (usually unscaled probabilities).</span>
 <span class="sd">      labels: The dict of labels ``tf.Tensor``.</span>
-<span class="sd">      training: Compute training loss.</span>
+<span class="sd">      training: If ``True``, compute the loss for training.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      The loss or a tuple ``(numerator, train_denominator, stats_denominator)``</span>
@@ -536,7 +536,7 @@
     <span class="sd">&quot;&quot;&quot;Prints the model prediction.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      prediction: The evaluated prediction.</span>
+<span class="sd">      prediction: The model prediction.</span>
 <span class="sd">      params: (optional) Dictionary of formatting parameters.</span>
 <span class="sd">      stream: (optional) The stream to print to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>

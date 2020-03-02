@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.7.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.8.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.7
+                2.8
               </div>
             
           
@@ -245,8 +245,17 @@
   <span class="sd">&quot;&quot;&quot;Gets the variable name in the object-based representation.&quot;&quot;&quot;</span>
   <span class="n">variables_to_names</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>
   <span class="c1"># In case of a MirroredVariable, look up the primary variable</span>
-  <span class="n">variable</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+  <span class="n">variable</span> <span class="o">=</span> <span class="n">get_primary_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">variables_to_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">get_primary_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;If :obj:`variable` is distributed, returns the primary component.&quot;&quot;&quot;</span>
+  <span class="c1"># TODO: use a public API to get the primary variable.</span>
+  <span class="k">for</span> <span class="n">attribute_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span> <span class="s2">&quot;_primary&quot;</span><span class="p">):</span>
+    <span class="n">attribute</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">attribute</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">attribute</span>
+  <span class="k">return</span> <span class="n">variable</span>
 
 <span class="k">def</span> <span class="nf">print_as_bytes</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Prints a string as bytes to non rely on :obj:`stream` default encoding.</span>

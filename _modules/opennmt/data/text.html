@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.text &mdash; OpenNMT-tf 2.7.0 documentation</title>
+  <title>opennmt.data.text &mdash; OpenNMT-tf 2.8.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.7
+                2.8
               </div>
             
           
@@ -271,10 +271,25 @@
   <span class="n">sparse_values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sparse_indices</span><span class="p">)[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
   <span class="n">source_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">source_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
   <span class="n">target_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">target_length</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-  <span class="n">alignment_matrix_sparse</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">SparseTensor</span><span class="p">(</span>
-      <span class="n">sparse_indices</span><span class="p">,</span> <span class="n">sparse_values</span><span class="p">,</span> <span class="p">[</span><span class="n">source_length</span><span class="p">,</span> <span class="n">target_length</span><span class="p">])</span>
-  <span class="n">alignment_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">to_dense</span><span class="p">(</span><span class="n">alignment_matrix_sparse</span><span class="p">,</span> <span class="n">validate_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">alignment_matrix</span><span class="p">)</span></div>
+  <span class="n">maximum_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sparse_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+  <span class="n">assert_source_length</span> <span class="o">=</span> <span class="n">_assert_in_range</span><span class="p">(</span><span class="n">maximum_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">source_length</span><span class="p">,</span> <span class="n">alignment_line</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">)</span>
+  <span class="n">assert_target_length</span> <span class="o">=</span> <span class="n">_assert_in_range</span><span class="p">(</span><span class="n">maximum_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">target_length</span><span class="p">,</span> <span class="n">alignment_line</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_source_length</span><span class="p">,</span> <span class="n">assert_target_length</span><span class="p">]):</span>
+    <span class="n">alignment_matrix_sparse</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">SparseTensor</span><span class="p">(</span>
+        <span class="n">sparse_indices</span><span class="p">,</span> <span class="n">sparse_values</span><span class="p">,</span> <span class="p">[</span><span class="n">source_length</span><span class="p">,</span> <span class="n">target_length</span><span class="p">])</span>
+    <span class="n">alignment_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">to_dense</span><span class="p">(</span><span class="n">alignment_matrix_sparse</span><span class="p">,</span> <span class="n">validate_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">alignment_matrix</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_assert_in_range</span><span class="p">(</span><span class="n">maximum_id</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_less</span><span class="p">(</span>
+      <span class="n">maximum_id</span><span class="p">,</span>
+      <span class="n">length</span><span class="p">,</span>
+      <span class="n">message</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+          <span class="s2">&quot;Length mismatch for alignment line </span><span class="si">{}</span><span class="s2">: actual </span><span class="si">%s</span><span class="s2"> length is </span><span class="si">{}</span><span class="s2">, but &quot;</span>
+          <span class="s2">&quot;got </span><span class="si">%s</span><span class="s2"> id </span><span class="si">{}</span><span class="s2"> which is out of range. Please check that the alignment &quot;</span>
+          <span class="s2">&quot;file is correctly aligned to the training file.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
+          <span class="p">[</span><span class="n">line</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">maximum_id</span><span class="p">]))</span>
 </pre></div>
 
            </div>
