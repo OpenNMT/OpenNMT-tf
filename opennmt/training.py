@@ -402,7 +402,7 @@ class MovingAverage(object):
   @tf.function
   def update(self):
     """Updates the moving average of the variables."""
-    self._ema.apply(var_list=list(map(_get_primary_variable, self._variables)))
+    self._ema.apply(var_list=list(map(misc.get_primary_variable, self._variables)))
 
   @contextlib.contextmanager
   def shadow_variables(self):
@@ -416,14 +416,7 @@ class MovingAverage(object):
     previous_values = []
     for variable in self._variables:
       previous_values.append(variable.value())
-      variable.assign(self._ema.average(_get_primary_variable(variable)))
+      variable.assign(self._ema.average(misc.get_primary_variable(variable)))
     yield
     for previous_value, variable in zip(previous_values, self._variables):
       variable.assign(previous_value)
-
-
-def _get_primary_variable(variable):
-  """Returns the primary variable of a MirroredVariable if possible, else the
-  variable itself.
-  """
-  return getattr(variable, "primary", variable)
