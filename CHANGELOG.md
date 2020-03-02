@@ -13,7 +13,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Allow setting different number of encoder/decoder layers in `Transformer` constructor
+
 ### Fixes and improvements
+
+* Fix decoder initialization with multi source encoder
+* Fix command line parsing when `--config` is used before the run type
+* Log more information on length mismatch when parsing alignments
 
 ## [2.7.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.7.0) (2020-02-14)
 
