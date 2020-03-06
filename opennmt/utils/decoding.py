@@ -308,6 +308,7 @@ class BeamSearch(DecodingStrategy):
 
     # Sample predictions.
     sample_ids, sample_scores = sampler(scores, num_samples=self.beam_size)
+    cum_log_probs = tf.reshape(_gather_from_word_indices(total_probs, sample_ids), [-1])
     sample_ids = tf.reshape(sample_ids, [-1])
     sample_scores = tf.reshape(sample_scores, [-1])
 
@@ -322,7 +323,6 @@ class BeamSearch(DecodingStrategy):
     sequence_lengths = tf.where(finished, x=sequence_lengths, y=sequence_lengths + 1)
 
     # Update state and flags.
-    cum_log_probs = _gather_from_word_indices(total_probs, sample_ids)
     finished = tf.gather(finished, beam_indices)
     sequence_lengths = tf.gather(sequence_lengths, beam_indices)
     parent_ids = parent_ids.write(step, beam_ids)
@@ -543,13 +543,7 @@ def _sample_from(logits, num_samples, temperature=None):
 
 def _gather_from_word_indices(tensor, indices):
   """Index the depth dim of a 2D tensor."""
-  output_shape = misc.shape_list(indices)
-  batch_size = tf.shape(tensor)[0]
-  num_indices = tf.size(indices) // batch_size
-  batch_pos = tf.range(batch_size * num_indices) // num_indices
-  tensor = tf.gather_nd(tensor, tf.stack([batch_pos, tf.reshape(indices, [-1])], axis=-1))
-  tensor = tf.reshape(tensor, output_shape)
-  return tensor
+  return tf.gather(tensor, indices, axis=-1, batch_dims=1)
 
 def _lengths_from_ids(ids, end_id):
   """Compute sequence lengths from word ids."""

@@ -57,6 +57,12 @@ class DecodingTest(tf.test.TestCase):
         logits_fn, [1, 1], end_id=2, minimum_iterations=2)
     self.assertAllEqual(self.evaluate(lengths), [[2], [3]])
 
+  def testGatherFromWordIndices(self):
+    tensor = tf.reshape(tf.range(30, dtype=tf.int32), [3, 10])
+    indices = tf.constant([[5, 3], [0, 8], [4, 2]], dtype=tf.int32)
+    output = decoding._gather_from_word_indices(tensor, indices)
+    self.assertAllEqual(self.evaluate(output), [[5, 3], [10, 18], [24, 22]])
+
 
 if __name__ == "__main__":
   tf.test.main()
