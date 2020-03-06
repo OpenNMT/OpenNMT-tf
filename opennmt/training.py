@@ -166,6 +166,11 @@ class Trainer(abc.ABC):
     if first_call and self._is_master:
       self._model.visualize(self._checkpoint.model_dir)
       tf.get_logger().info("Number of model parameters: %d", self._model.count_params())
+      tf.get_logger().info(
+          "Number of model weights: %d (trainable = %d, non trainable = %d)",
+          len(self._model.weights),
+          len(self._model.trainable_weights),
+          len(self._model.non_trainable_weights))
     return training_loss, reported_loss
 
   def _save_checkpoint(self, step, moving_average=None):

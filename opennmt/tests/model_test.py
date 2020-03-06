@@ -468,6 +468,8 @@ class ModelTest(tf.test.TestCase):
 
     _assert_layer_not_trainable(model.decoder.output_layer)
     _assert_layer_not_trainable(model.encoder.layers[0])
+    self.assertEqual(model.encoder.layers[0].ffn.output_dropout, 0)
+    self.assertEqual(model.encoder.layers[0].self_attention.output_dropout, 0)
 
   def testTransferWeightsNewVocab(self):
 

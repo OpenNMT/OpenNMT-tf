@@ -18,7 +18,6 @@ class Model(tf.keras.layers.Layer):
     super(Model, self).__init__()
     self.examples_inputter = examples_inputter
     self.params = {}
-    self._frozen_layers = False
 
   @property
   def unsupervised(self):
@@ -34,21 +33,6 @@ class Model(tf.keras.layers.Layer):
   def labels_inputter(self):
     """The inputter producing labels."""
     return getattr(self.examples_inputter, "labels_inputter", None)
-
-  @property
-  def trainable_weights(self):
-    if not self._frozen_layers:
-      self._frozen_layers = True
-      freeze_layers = self.params.get("freeze_layers")
-      if freeze_layers:
-        if not isinstance(freeze_layers, list):
-          freeze_layers = [freeze_layers]
-        for layer_path in freeze_layers:
-          layer = misc.index_structure(self, layer_path)
-          layer.trainable = False
-        tf.get_logger().info("%d weights are frozen by the freeze_layers parameter" % (
-            len(self.non_trainable_weights)))
-    return super(Model, self).trainable_weights
 
   @property
   def ctranslate2_spec(self):
@@ -86,6 +70,14 @@ class Model(tf.keras.layers.Layer):
     self.examples_inputter.initialize(data_config)
 
   def build(self, input_shape):
+    freeze_layers = self.params.get("freeze_layers")
+    if freeze_layers:
+      if not isinstance(freeze_layers, list):
+        freeze_layers = [freeze_layers]
+      for layer_path in freeze_layers:
+        layer = misc.index_structure(self, layer_path)
+        layer.trainable = False
+        misc.set_dropout(layer, 0)  # Disable dropout in frozen layers.
     self.examples_inputter.build(input_shape)
     self.built = True
 
