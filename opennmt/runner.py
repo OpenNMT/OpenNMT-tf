@@ -144,6 +144,7 @@ class Runner(object):
     Returns:
       The path to the final model directory.
     """
+    devices = misc.get_devices(count=num_devices)
     checkpoint, config = self._init_run(num_devices=num_devices, training=True)
     checkpoint.restore(
         checkpoint_path=checkpoint_path, weights_only=checkpoint_path is not None)
@@ -194,9 +195,7 @@ class Runner(object):
     else:
       accum_steps = 1
 
-    trainer = training_util.DistributionStrategyTrainer(
-        checkpoint,
-        devices=misc.get_devices(count=num_devices))
+    trainer = training_util.DistributionStrategyTrainer(checkpoint, devices=devices)
     trainer(
         dataset_fn,
         max_step=train_config.get("max_step"),

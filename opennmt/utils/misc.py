@@ -30,7 +30,8 @@ def get_devices(count=1, fallback_to_cpu=True):
   if not devices and fallback_to_cpu:
     devices = tf.config.list_logical_devices(device_type="CPU")
   if len(devices) < count:
-    raise ValueError("Requested %d devices but only %d are visible" % (count, len(devices)))
+    raise ValueError("Requested %d devices but only %d %s visible" % (
+        count, len(devices), "is" if len(devices) == 1 else "are"))
   return devices[0:count]
 
 def get_variables_name_mapping(root, root_key=None):
