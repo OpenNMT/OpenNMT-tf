@@ -39,7 +39,7 @@ The command line parser has been improved to better manage task specifc options 
 onmt-main <general options> train <train options>
 ```
 
-Also, some options has been changed:
+Also, some options have changed:
 
 * the run type `train_and_eval` has been replaced by `train --with_eval`
 * the main script now includes the `average_checkpoints` and `update_vocab` tasks
