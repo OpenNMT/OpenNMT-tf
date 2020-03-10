@@ -81,7 +81,8 @@ testset=newstest2017-ende
 
 export PATH=$SP_PATH:$PATH
 
-wget -nc https://raw.githubusercontent.com/OpenNMT/OpenNMT-tf/master/third_party/input-from-sgm.perl
+# retrieve file preparation from Moses repository
+wget -nc https://raw.githubusercontent.com/moses-smt/mosesdecoder/master/scripts/ems/support/input-from-sgm.perl
 
 ##################################################################################
 # Starting from here, original files are supposed to be in $DATA_PATH
