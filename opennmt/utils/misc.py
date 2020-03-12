@@ -209,7 +209,7 @@ def set_dropout(root_layer, dropout):
   if not isinstance(root_layer, tf.Module):
     raise ValueError("Layer should be a tf.Module")
   for layer in (root_layer,) + root_layer.submodules:
-    for attr, value in layer.__dict__.items():
+    for attr, value in layer.__dict__.copy().items():
       if isinstance(value, tf.keras.layers.Dropout):
         value.rate = dropout
       elif "dropout" in attr:
