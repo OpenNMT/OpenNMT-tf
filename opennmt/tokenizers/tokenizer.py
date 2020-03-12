@@ -218,8 +218,7 @@ class Tokenizer(abc.ABC):
     return tf.map_fn(
         lambda x: self._detokenize_tensor(x[0][:x[1]]),
         (tokens, sequence_length),
-        dtype=tf.string,
-        back_prop=False)
+        dtype=tf.string)
 
   def _detokenize_ragged_tensor(self, tokens):
     """Detokenizes a batch of tokens as a ``tf.RaggedTensor``

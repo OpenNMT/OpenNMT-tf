@@ -85,8 +85,7 @@ class WordNoiser(object):
         raise ValueError("sequence_length must be passed for 2D inputs")
       tokens, sequence_length = tf.map_fn(
           lambda arg: self._call(*arg, keep_shape=True),
-          (tokens, sequence_length),
-          back_prop=False)
+          (tokens, sequence_length))
       if not keep_shape:
         tokens = tokens[:, :tf.reduce_max(sequence_length)]
       return tokens, sequence_length
