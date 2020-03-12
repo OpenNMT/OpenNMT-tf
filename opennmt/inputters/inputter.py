@@ -346,7 +346,7 @@ class ParallelInputter(MultiInputter):
       leaves = self.get_leaf_inputters()
       first, others = leaves[0], leaves[1:]
       first.build(input_shape)
-      for name, attr in first.__dict__.items():
+      for name, attr in first.__dict__.copy().items():
         if isinstance(attr, tf.Variable) or (isinstance(attr, tf.Module) and attr.variables):
           for inputter in others:
             setattr(inputter, name, attr)
