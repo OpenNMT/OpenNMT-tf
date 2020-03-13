@@ -45,7 +45,7 @@ setup(
         "ctranslate2>=1.7,<2;platform_system=='Linux'",
         "pyonmttok>=1.18.1,<2;platform_system=='Linux'",
         "pyyaml>=5.3,<5.4",
-        "rouge==0.3.1",
+        "rouge>=1.0,<2",
         "sacrebleu>=1.4.3,<2",
         "tensorflow>=2.1,<2.2",
         "tensorflow-addons>=0.8.1,<0.9"
