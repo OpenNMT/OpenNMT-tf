@@ -268,7 +268,8 @@ class DistributionStrategyTrainer(Trainer):
             tf.equal(self._gradient_accumulator.step, 0))
       with tf.summary.record_if(should_record_summaries):
         per_replica_source, per_replica_target = next(iterator)
-        return self._accumulate_gradients(per_replica_source, per_replica_target)
+        return self._accumulate_gradients(
+            per_replica_source, per_replica_target, should_record_summaries)
 
     while True:
       try:
@@ -276,21 +277,21 @@ class DistributionStrategyTrainer(Trainer):
       except tf.errors.OutOfRangeError:
         break
 
-  def _accumulate_gradients(self, per_replica_source, per_replica_target):
+  def _accumulate_gradients(self, per_replica_source, per_replica_target, should_record_summaries):
     """Accumulates the gradients (cross-replica)."""
     per_replica_loss = self._strategy.experimental_run_v2(
         self._accumulate_gradients_on_replica,
-        args=(per_replica_source, per_replica_target))
+        args=(per_replica_source, per_replica_target, should_record_summaries))
     # TODO: this reduction could be delayed until _step is called.
     return self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
 
-  def _accumulate_gradients_on_replica(self, source, target):
+  def _accumulate_gradients_on_replica(self, source, target, should_record_summaries):
     """Accumulates the gradients (in replica)."""
     training_loss, reported_loss = self._run_model(source, target)
     variables = self._model.trainable_variables
     gradients = self._optimizer.get_gradients(training_loss, variables)
     self._gradient_accumulator(gradients)
-    tf.summary.scalar("gradients/global_norm", tf.linalg.global_norm(gradients))
+    _summarize_gradients(gradients, should_record_summaries)
     self._update_words_counter("source", source)
     self._update_words_counter("target", target)
     return reported_loss
@@ -375,6 +376,15 @@ def _report_training_status(step,
       loss)
   tf.summary.scalar("loss", loss, description="Training loss")
   tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
+
+def _summarize_gradients(gradients, should_record):
+  # Only compute the gradients global norm when the value is actually recorded.
+  tf.summary.scalar(
+      "gradients/global_norm",
+      tf.cond(
+          should_record,
+          true_fn=lambda: tf.linalg.global_norm(gradients),
+          false_fn=lambda: tf.constant(0, dtype=gradients[0].dtype)))
 
 
 class MovingAverage(object):
