@@ -55,8 +55,8 @@ class ROUGEScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     from rouge import FilesRouge  # pylint: disable=import-outside-toplevel
-    files_rouge = FilesRouge(hyp_path, ref_path)
-    rouge_scores = files_rouge.get_scores(avg=True)
+    scorer = FilesRouge(metrics=list(self.scores_name))
+    rouge_scores = scorer.get_scores(hyp_path, ref_path, avg=True)
     return {name:rouge_scores[name]["f"] for name in self.scores_name}
 
 
