@@ -310,7 +310,7 @@ class DistributionStrategyTrainer(Trainer):
           synchronization=tf.VariableSynchronization.ON_READ,
           aggregation=tf.VariableAggregation.SUM)
       self._words_counters[name] = counter
-    counter.assign_add(tf.cast(num_words, tf.int64), read_value=False)
+    counter.assign_add(tf.cast(num_words, tf.int64))
 
   @tf.function
   def _synchronize_words_counters(self):
@@ -323,7 +323,7 @@ class DistributionStrategyTrainer(Trainer):
   def _reset_words_counters_on_replica(self):
     """Resets the variables that count words (in replica)."""
     for counter in self._words_counters.values():
-      counter.assign(tf.constant(0, dtype=tf.int64), read_value=False)
+      counter.assign(tf.constant(0, dtype=tf.int64))
 
   @tf.function
   def _apply_gradients(self):
