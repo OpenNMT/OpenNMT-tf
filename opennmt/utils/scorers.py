@@ -78,7 +78,7 @@ class WERScorer(Scorer):
     super(WERScorer, self).__init__("wer")
 
   def __call__(self, ref_path, hyp_path):
-    from wer import wer, sentence_wer
+    from opennmt.utils.wer import wer, sentence_wer
     wer_score=wer(ref_path,hyp_path)
     return (1.0-wer_score)
 
