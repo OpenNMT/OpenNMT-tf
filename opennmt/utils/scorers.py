@@ -75,12 +75,42 @@ class BLEUScorer(Scorer):
 class WERScorer(Scorer):
   """Scorer for WER."""
   def __init__(self):
-    super(WERScorer, self).__init__("wer")
+    super(WERScorer, self).__init__("iwer")
 
   def __call__(self, ref_path, hyp_path):
     from opennmt.utils.wer import wer, sentence_wer
     wer_score=wer(ref_path,hyp_path)
     return (1.0-wer_score)
+
+class FMEASUREScorer(Scorer):
+  """Scorer for F-measure."""
+  def __init__(self):
+    super(FMEASUREScorer, self).__init__("fmeasure")
+
+  def __call__(self, ref_path, hyp_path):
+    from opennmt.utils.fmeasure import fmeasure
+    precision_score,recall_score,fmeasure_score=fmeasure(ref_path,hyp_path)
+    return fmeasure_score
+
+class PRECISIONScorer(Scorer):
+  """Scorer for Precision."""
+  def __init__(self):
+    super(PRECISIONScorer, self).__init__("fmeasure")
+
+  def __call__(self, ref_path, hyp_path):
+    from opennmt.utils.fmeasure import fmeasure
+    precision_score,recall_score,fmeasure_score=fmeasure(ref_path,hyp_path)
+    return precision_score
+
+class RECALLScorer(Scorer):
+  """Scorer for Recall."""
+  def __init__(self):
+    super(RECALLScorer, self).__init__("fmeasure")
+
+  def __call__(self, ref_path, hyp_path):
+    from opennmt.utils.fmeasure import fmeasure
+    precision_score,recall_score,fmeasure_score=fmeasure(ref_path,hyp_path)
+    return recall_score
 
 
 
@@ -106,8 +136,14 @@ def make_scorers(names):
       scorer = BLEUScorer()
     elif name == "rouge":
       scorer = ROUGEScorer()
-    elif name == "wer":
+    elif name == "iwer":
       scorer = WERScorer()
+    elif name == "precision":
+      scorer = PRECISIONScorer()
+    elif name == "recall":
+      scorer = RECALLScorer()
+    elif name == "fmeasure":
+      scorer = FMEASUREScorer()
     else:
       raise ValueError("No scorer associated with the name: {}".format(name))
     scorers.append(scorer)
