@@ -108,7 +108,7 @@ def make_scorers(names):
       scorer = ROUGEScorer()
     elif name == "wer":
       scorer = WERScorer()
-     else:
+    else:
       raise ValueError("No scorer associated with the name: {}".format(name))
     scorers.append(scorer)
   return scorers
