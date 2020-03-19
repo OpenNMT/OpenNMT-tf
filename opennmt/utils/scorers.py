@@ -72,6 +72,17 @@ class BLEUScorer(Scorer):
       bleu = corpus_bleu(sys_stream, [ref_stream], force=True)
       return bleu.score
 
+class WERScorer(Scorer):
+  """Scorer for WER."""
+  def __init__(self):
+    super(WERScorer, self).__init__("wer")
+
+  def __call__(self, ref_path, hyp_path):
+    from wer import wer, sentence_wer
+    wer_score=wer(ref_path,hyp_path)
+    return (1.0-wer_score)
+
+
 
 def make_scorers(names):
   """Returns a list of scorers.
@@ -95,7 +106,9 @@ def make_scorers(names):
       scorer = BLEUScorer()
     elif name == "rouge":
       scorer = ROUGEScorer()
-    else:
+    elif name == "wer":
+      scorer = WERScorer()
+     else:
       raise ValueError("No scorer associated with the name: {}".format(name))
     scorers.append(scorer)
   return scorers
