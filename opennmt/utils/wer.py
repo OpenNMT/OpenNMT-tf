@@ -1,5 +1,5 @@
 """Hypotheses file scoring."""
-
+import numpy
 
 """ Compute Word Error Rate between two files """
 def wer(ref_path, hyp_path):
@@ -16,7 +16,7 @@ def wer(ref_path, hyp_path):
         hyp_line=hyp_fp.readline()
     if line_cpt > 0:
         return (wer_score/line_cpt)
-    else return 1.0
+    return 1.0
 
 """ Compute Word Error Rate between two sentences (as list of words) """
 def sentence_wer(ref_sent, hyp_sent):
