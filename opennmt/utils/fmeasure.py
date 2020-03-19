@@ -2,7 +2,7 @@
 
 
 """ Compute Precision Recall and F-Measure between two files """
-def fmeasure(ref_path, hyp_path)
+def fmeasure(ref_path, hyp_path):
     ref=open(ref_path)
     hyp=open(hyp_path)
     listtags=[]
@@ -65,6 +65,12 @@ def fmeasure(ref_path, hyp_path)
     precision={}
     recall={}
     for tag in listtags:
+        if tag not in nbrtagok:
+            nbrtagok[tag]=0
+        if tag not in nbrtaghyp:
+            nbrtaghyp[tag]=0
+        if tag not in nbrtagref:
+            nbrtagref[tag]=0
         if nbrtaghyp[tag] != 0:
             precision[tag]=nbrtagok[tag]/nbrtaghyp[tag]
         else:
@@ -76,9 +82,9 @@ def fmeasure(ref_path, hyp_path)
         fullprecision=fullprecision+precision[tag]
         fullrecall=fullrecall+recall[tag]
         tagcpt=tagcpt+1
-        print(tag+":\t"+str(round(100*precision[tag],2))+"\t"+str(round(100*recall[tag],2))+"\t"+str(round((200*precision[tag]*recall[tag])/(precision[tag]+recall[tag]),2)))
+#        print(tag+":\t"+str(round(100*precision[tag],2))+"\t"+str(round(100*recall[tag],2))+"\t"+str(round((200*precision[tag]*recall[tag])/(precision[tag]+recall[tag]),2)))
     #    print("Recall    "+tag+": "+str(100*recall[tag]))
     fullprecision=round(100*fullprecision/tagcpt,2)/100
     fullrecall=round(100*fullrecall/tagcpt,2)/100
-    fullfmeasure=(round((200*fullprecision*fullrecall)/(fullprecision+fullrecall),2)))/100
+    fullfmeasure=(round((200*fullprecision*fullrecall)/(fullprecision+fullrecall),2))/100
     return fullprecision, fullrecall, fullfmeasure
