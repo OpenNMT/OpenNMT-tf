@@ -75,6 +75,10 @@ class Trainer(abc.ABC):
       last_report_step = iterations.numpy()
       last_report_time = time.time()
 
+      global competence
+      if competence is None:
+        competence = tf.Variable(1.0, dtype=tf.float32)
+
       competence.assign(tf.cast(tf.math.minimum(int(last_report_step)/50000.+0.1, 1.0),tf.float32))
 
       for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
