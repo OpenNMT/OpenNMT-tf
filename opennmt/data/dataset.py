@@ -6,6 +6,7 @@ import tensorflow as tf
 from opennmt.utils import misc
 
 competence = None
+count_filter_competence = None
 
 def make_datasets(dataset_cls, filenames):
   """Creates instances of :obj:`dataset_cls`.
@@ -451,7 +452,8 @@ def training_pipeline(batch_size,
                       num_threads=None,
                       shuffle_buffer_size=None,
                       prefetch_buffer_size=None,
-                      cardinality_multiple=1):
+                      cardinality_multiple=1,
+                      competence_learner=None):
   """Transformation that applies most of the dataset operations commonly used
   for training on sequence data:
 
@@ -527,24 +529,18 @@ def training_pipeline(batch_size,
   def parse_float_func(line):
     return tf.strings.to_number(line, out_type=tf.dtypes.float32)
 
-  def filter_competence(ds): 
-    return ds.filter(lambda x, y: y < competence)
-
   def _make_single_dataset(dataset):
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
 
-
-    dataset = tf.data.Dataset.zip((dataset, tf.data.TextLineDataset("src-train.difficulty").map(parse_float_func)))
+    if competence_learner:
+      dataset = tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(competence_learner._difficulty_file).map(parse_float_func)))
 
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
       dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
 
-    global competence
-    if competence is None:
-      competence = tf.Variable(1.0, dtype=tf.float32)
-
-    dataset = dataset.apply(filter_competence).map(lambda x,y: x)
+    if competence_learner:
+      dataset = dataset.apply(competence_learner.filter()).map(lambda x,_: x)
 
     return dataset
 

@@ -18,7 +18,7 @@ from opennmt import models
 from opennmt import training as training_util
 from opennmt.utils import checkpoint as checkpoint_util
 from opennmt.utils import misc
-
+from opennmt.data.competence import CompetenceLearner
 
 # These options require a value but we can fallback to a default one.
 _CONFIG_FALLBACK = {
@@ -118,6 +118,10 @@ class Runner(object):
   def _init_model(self, config):
     model = misc.clone_layer(self._model)
     model.initialize(config["data"], params=config["params"])
+    if "competence_learner" in config["data"]:
+      self._competence_learner = CompetenceLearner(config)
+    else:
+      self._competence_learner = None
     if "optimizer" in config["params"]:
       optimizer = model.get_optimizer()
     else:
@@ -175,7 +179,8 @@ class Runner(object):
         shard_index=input_context.input_pipeline_id,
         prefetch_buffer_size=train_config.get("prefetch_buffer_size"),
         cardinality_multiple=input_context.num_replicas_in_sync,
-        weights=data_config.get("train_files_weights"))
+        weights=data_config.get("train_files_weights"),
+        competence_learner=self._competence_learner)
 
     if with_eval:
       evaluator = evaluation.Evaluator.from_config(model, config)
@@ -204,7 +209,8 @@ class Runner(object):
         save_steps=train_config.get("save_checkpoints_steps", 5000),
         evaluator=evaluator,
         eval_steps=eval_config.get("steps", 5000),
-        moving_average_decay=train_config.get("moving_average_decay"))
+        moving_average_decay=train_config.get("moving_average_decay"),
+        competence_learner=self._competence_learner)
     average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
     if average_last_checkpoints > 0:
       return self.average_checkpoints(

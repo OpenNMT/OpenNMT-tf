@@ -8,7 +8,6 @@ import tensorflow as tf
 
 from opennmt.optimizers import utils as optimizer_util
 from opennmt.utils import misc
-from opennmt.data.dataset import competence
 
 class Trainer(abc.ABC):
   """Base class for model trainer."""
@@ -43,7 +42,8 @@ class Trainer(abc.ABC):
                save_steps=5000,
                evaluator=None,
                eval_steps=5000,
-               moving_average_decay=None):
+               moving_average_decay=None,
+               competence_learner=None):
     """Runs the training.
 
     Args:
@@ -75,11 +75,8 @@ class Trainer(abc.ABC):
       last_report_step = iterations.numpy()
       last_report_time = time.time()
 
-      global competence
-      if competence is None:
-        competence = tf.Variable(1.0, dtype=tf.float32)
-
-      competence.assign(tf.cast(tf.math.minimum(int(last_report_step)/50000.+0.1, 1.0),tf.float32))
+      if competence_learner:
+        competence_learner.set_rate(last_report_step).init_counter()
 
       for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
         if tf.math.is_nan(loss):
@@ -102,11 +99,15 @@ class Trainer(abc.ABC):
               self._optimizer.learning_rate,
               self._get_words_counters(),
               last_report_step,
-              last_report_time)
+              last_report_time,
+              competence_learner and competence_learner.filtered_rate)
           last_report_step = step
-          last_report_time = time.time()
+          if competence_learner:
+            competence_learner.init_counter()
 
-        competence.assign(tf.cast(tf.math.minimum(step/50000.+0.1, 1.0),tf.float32))
+          last_report_time = time.time()
+        if competence_learner:
+          competence_learner.set_rate(step)
 
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step, moving_average=moving_average)
@@ -357,7 +358,8 @@ def _report_training_status(step,
                             learning_rate,
                             words_counters,
                             last_report_step,
-                            last_report_time):
+                            last_report_time,
+                            competence_filter_rate):
   elapsed_time = time.time() - last_report_time
 
   steps_per_sec = (step - last_report_step) / elapsed_time
@@ -378,12 +380,20 @@ def _report_training_status(step,
   elif isinstance(learning_rate, tf.Variable):
     learning_rate = learning_rate.value()
 
+  if not competence_filter_rate:
+    competence_msg = ""
+  else:
+    competence_msg = "; Competence-Filter = %.1f%%" % (int(1000*competence_filter_rate)/10.0)
+    tf.summary.scalar("filter_competence", competence_filter_rate, description="Competence (%)")
+
   tf.get_logger().info(
-      "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
+      "Step = %d ; %s ; Learning rate = %f ; Loss = %f%s",
       step,
       ", ".join([steps_per_sec_fmt] + list(sorted(words_per_sec_fmt))),
       learning_rate,
-      loss)
+      loss,
+      competence_msg
+      )
   tf.summary.scalar("loss", loss, description="Training loss")
   tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
 

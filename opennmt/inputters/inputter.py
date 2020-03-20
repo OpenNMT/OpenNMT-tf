@@ -9,7 +9,6 @@ from opennmt.layers import common
 from opennmt.layers.reducer import ConcatReducer, JoinReducer
 from opennmt.utils import misc
 
-
 class Inputter(tf.keras.layers.Layer):
   """Base class for inputters."""
 
@@ -509,7 +508,8 @@ class ExampleInputter(ParallelInputter):
                             num_threads=4,
                             prefetch_buffer_size=None,
                             cardinality_multiple=1,
-                            weights=None):
+                            weights=None,
+                            competence_learner=None):
     """Builds a dataset to be used for training. It supports the full training
     pipeline, including:
 
@@ -576,5 +576,6 @@ class ExampleInputter(ParallelInputter):
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
-        cardinality_multiple=cardinality_multiple)(dataset)
+        cardinality_multiple=cardinality_multiple,
+        competence_learner=competence_learner)(dataset)
     return dataset
