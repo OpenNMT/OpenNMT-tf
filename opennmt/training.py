@@ -8,7 +8,7 @@ import tensorflow as tf
 
 from opennmt.optimizers import utils as optimizer_util
 from opennmt.utils import misc
-
+from opennmt.data.dataset import competence
 
 class Trainer(abc.ABC):
   """Base class for model trainer."""
@@ -74,10 +74,13 @@ class Trainer(abc.ABC):
       moving_average = None
       last_report_step = iterations.numpy()
       last_report_time = time.time()
+
+      competence.assign(tf.cast(tf.math.minimum(int(last_report_step)/50000.+0.1, 1.0),tf.float32))
+
       for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
         if tf.math.is_nan(loss):
           raise RuntimeError("Model diverged with loss = NaN.")
-
+  
         if moving_average_decay is not None and self._is_master:
           if moving_average is None:
             moving_average = MovingAverage(
@@ -98,6 +101,9 @@ class Trainer(abc.ABC):
               last_report_time)
           last_report_step = step
           last_report_time = time.time()
+
+        competence.assign(tf.cast(tf.math.minimum(step/50000.+0.1, 1.0),tf.float32))
+
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step, moving_average=moving_average)
         if eval_steps is not None and step % eval_steps == 0:

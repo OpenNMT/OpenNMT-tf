@@ -5,6 +5,7 @@ import tensorflow as tf
 
 from opennmt.utils import misc
 
+competence = tf.Variable(1.0, dtype=tf.float32)
 
 def make_datasets(dataset_cls, filenames):
   """Creates instances of :obj:`dataset_cls`.
@@ -292,13 +293,13 @@ def shuffle_dataset(buffer_size, shuffle_shards=True):
 
   def _shuffle(dataset):
     sample_size = buffer_size
+    dataset_size = get_dataset_size(dataset)
     if sample_size < 0 or shuffle_shards:
-      dataset_size = get_dataset_size(dataset)
-      tf.get_logger().info("Training on %d examples", dataset_size)
       if sample_size < 0:
         sample_size = dataset_size
       elif sample_size < dataset_size:
         dataset = dataset.apply(random_shard(sample_size, dataset_size))
+    tf.get_logger().info("Shuffling - training on %d examples (competence=%f)", dataset_size, competence.numpy())
     dataset = dataset.shuffle(sample_size)
     return dataset
 
@@ -523,9 +524,19 @@ def training_pipeline(batch_size,
       dataset = dataset.shuffle(shuffle_buffer_size)
     return dataset
 
+  def parse_float_func(line):
+    return tf.strings.to_number(line, out_type=tf.dtypes.float32)
+
+  def filter_competence(ds): 
+    return ds.filter(lambda x, y: y < competence)
+
   def _make_single_dataset(dataset):
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
+
+    dataset = tf.data.Dataset.zip((dataset, tf.data.TextLineDataset("src-train.difficulty").map(parse_float_func)))
+    dataset = dataset.apply(filter_competence).map(lambda x,y: x)
+
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
       dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
     return dataset
