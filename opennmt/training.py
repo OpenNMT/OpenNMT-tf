@@ -43,7 +43,7 @@ class Trainer(abc.ABC):
                evaluator=None,
                eval_steps=5000,
                moving_average_decay=None,
-               competence_learner=None):
+               curriculum_learner=None):
     """Runs the training.
 
     Args:
@@ -75,8 +75,8 @@ class Trainer(abc.ABC):
       last_report_step = iterations.numpy()
       last_report_time = time.time()
 
-      if competence_learner:
-        competence_learner.set_rate(last_report_step).init_counter()
+      if curriculum_learner:
+        curriculum_learner.set_rate(last_report_step).init_counter()
 
       for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
         if tf.math.is_nan(loss):
@@ -100,14 +100,15 @@ class Trainer(abc.ABC):
               self._get_words_counters(),
               last_report_step,
               last_report_time,
-              competence_learner and competence_learner.filtered_rate)
+              curriculum_learner and curriculum_learner.filtered_rate)
           last_report_step = step
-          if competence_learner:
-            competence_learner.init_counter()
+          if curriculum_learner:
+            curriculum_learner.init_counter()
 
           last_report_time = time.time()
-        if competence_learner:
-          competence_learner.set_rate(step)
+
+        if curriculum_learner:
+          curriculum_learner.set_rate(step)
 
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step, moving_average=moving_average)
@@ -359,7 +360,7 @@ def _report_training_status(step,
                             words_counters,
                             last_report_step,
                             last_report_time,
-                            competence_filter_rate):
+                            curriculum_filter_rate):
   elapsed_time = time.time() - last_report_time
 
   steps_per_sec = (step - last_report_step) / elapsed_time
@@ -380,11 +381,11 @@ def _report_training_status(step,
   elif isinstance(learning_rate, tf.Variable):
     learning_rate = learning_rate.value()
 
-  if not competence_filter_rate:
-    competence_msg = ""
+  if not curriculum_filter_rate:
+    curriculum_msg = ""
   else:
-    competence_msg = "; Competence-Filter = %.1f%%" % (int(1000*competence_filter_rate)/10.0)
-    tf.summary.scalar("filter_competence", competence_filter_rate, description="Competence (%)")
+    curriculum_msg = "; Curriculum-Filter = %.1f%%" % (int(1000*curriculum_filter_rate)/10.0)
+    tf.summary.scalar("filter_curriculum", curriculum_filter_rate, description="Curriculum (%)")
 
   tf.get_logger().info(
       "Step = %d ; %s ; Learning rate = %f ; Loss = %f%s",
@@ -392,7 +393,7 @@ def _report_training_status(step,
       ", ".join([steps_per_sec_fmt] + list(sorted(words_per_sec_fmt))),
       learning_rate,
       loss,
-      competence_msg
+      curriculum_msg
       )
   tf.summary.scalar("loss", loss, description="Training loss")
   tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")

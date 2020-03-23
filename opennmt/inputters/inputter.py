@@ -509,7 +509,7 @@ class ExampleInputter(ParallelInputter):
                             prefetch_buffer_size=None,
                             cardinality_multiple=1,
                             weights=None,
-                            competence_learner=None):
+                            curriculum_learner=None):
     """Builds a dataset to be used for training. It supports the full training
     pipeline, including:
 
@@ -577,5 +577,5 @@ class ExampleInputter(ParallelInputter):
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
         cardinality_multiple=cardinality_multiple,
-        competence_learner=competence_learner)(dataset)
+        curriculum_learner=curriculum_learner)(dataset)
     return dataset

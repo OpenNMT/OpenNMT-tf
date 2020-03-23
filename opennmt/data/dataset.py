@@ -5,9 +5,6 @@ import tensorflow as tf
 
 from opennmt.utils import misc
 
-competence = None
-count_filter_competence = None
-
 def make_datasets(dataset_cls, filenames):
   """Creates instances of :obj:`dataset_cls`.
 
@@ -453,7 +450,7 @@ def training_pipeline(batch_size,
                       shuffle_buffer_size=None,
                       prefetch_buffer_size=None,
                       cardinality_multiple=1,
-                      competence_learner=None):
+                      curriculum_learner=None):
   """Transformation that applies most of the dataset operations commonly used
   for training on sequence data:
 
@@ -533,14 +530,14 @@ def training_pipeline(batch_size,
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
 
-    if competence_learner:
-      dataset = tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(competence_learner._difficulty_file).map(parse_float_func)))
+    if curriculum_learner:
+      dataset = tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(curriculum_learner._difficulty_file).map(parse_float_func)))
 
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
       dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
 
-    if competence_learner:
-      dataset = dataset.apply(competence_learner.filter()).map(lambda x,_: x)
+    if curriculum_learner:
+      dataset = dataset.apply(curriculum_learner.filter()).map(lambda x,_: x)
 
     return dataset
 
