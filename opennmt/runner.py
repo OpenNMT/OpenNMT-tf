@@ -109,7 +109,8 @@ class Runner(object):
         train_config["batch_size"] = _auto_tune_batch_size(
             config,
             max_batch_size=max_batch_size,
-            num_devices=num_devices)
+            num_devices=num_devices,
+            mixed_precision=self._mixed_precision)
 
     tf.get_logger().info(
         "Using parameters:\n%s", yaml.dump(config, indent=2, default_flow_style=False))
@@ -428,7 +429,8 @@ def _auto_tune_batch_size(config,
                           min_range=256,
                           sample_iterations=10,
                           num_devices=1,
-                          scaling_factor=0.8):
+                          scaling_factor=0.8,
+                          mixed_precision=False):
   """Find the largest token-based batch size that can be used with this
   configuration.
 
@@ -449,6 +451,7 @@ def _auto_tune_batch_size(config,
     sample_iterations: The number of training iterations.
     num_devices: The number of devices to use.
     scaling_factor: Scale the found batch size by this value.
+    mixed_precision: If ``True``, run the autotuning with mixed precision.
 
   Returns:
     The autotuned batch size.
@@ -469,8 +472,13 @@ def _auto_tune_batch_size(config,
         "--config", config_path,
         "--model", model_description,
         "--checkpoint_path", model_dir,
+    ]
+    if mixed_precision:
+      args.extend(["--mixed_precision"])
+    args.extend([
         "train",
-        "--num_gpus", str(num_devices)]
+        "--num_gpus", str(num_devices),
+    ])
 
     tf.get_logger().info(
         "Searching the largest batch size between %d and %d with a precision of %d...",
