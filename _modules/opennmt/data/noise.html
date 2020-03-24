@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.8.0 documentation</title>
+  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.8.1 documentation</title>
   
 
   
@@ -266,8 +266,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for 2D inputs&quot;</span><span class="p">)</span>
       <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
           <span class="k">lambda</span> <span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-          <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">),</span>
-          <span class="n">back_prop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+          <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">))</span>
       <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_shape</span><span class="p">:</span>
         <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:,</span> <span class="p">:</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)]</span>
       <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span>

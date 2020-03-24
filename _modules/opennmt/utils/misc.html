@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.8.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.8.1 documentation</title>
   
 
   
@@ -211,7 +211,8 @@
   <span class="k">if</span> <span class="ow">not</span> <span class="n">devices</span> <span class="ow">and</span> <span class="n">fallback_to_cpu</span><span class="p">:</span>
     <span class="n">devices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">list_logical_devices</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;CPU&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested </span><span class="si">%d</span><span class="s2"> devices but only </span><span class="si">%d</span><span class="s2"> are visible&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)))</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested </span><span class="si">%d</span><span class="s2"> devices but only </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> visible&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">),</span> <span class="s2">&quot;is&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;are&quot;</span><span class="p">))</span>
   <span class="k">return</span> <span class="n">devices</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">count</span><span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -389,7 +390,7 @@
   <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_layer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Layer should be a tf.Module&quot;</span><span class="p">)</span>
   <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">(</span><span class="n">root_layer</span><span class="p">,)</span> <span class="o">+</span> <span class="n">root_layer</span><span class="o">.</span><span class="n">submodules</span><span class="p">:</span>
-    <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
       <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">):</span>
         <span class="n">value</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">dropout</span>
       <span class="k">elif</span> <span class="s2">&quot;dropout&quot;</span> <span class="ow">in</span> <span class="n">attr</span><span class="p">:</span>

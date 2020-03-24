@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.8.0 documentation</title>
+  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.8.1 documentation</title>
   
 
   
@@ -236,8 +236,8 @@
 
   <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">rouge</span> <span class="kn">import</span> <span class="n">FilesRouge</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
-    <span class="n">files_rouge</span> <span class="o">=</span> <span class="n">FilesRouge</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">)</span>
-    <span class="n">rouge_scores</span> <span class="o">=</span> <span class="n">files_rouge</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span><span class="n">avg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">scorer</span> <span class="o">=</span> <span class="n">FilesRouge</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scores_name</span><span class="p">))</span>
+    <span class="n">rouge_scores</span> <span class="o">=</span> <span class="n">scorer</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">avg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">rouge_scores</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores_name</span><span class="p">}</span></div>
 
 

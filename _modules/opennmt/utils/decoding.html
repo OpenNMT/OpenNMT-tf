@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.8.0 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.8.1 documentation</title>
   
 
   
@@ -489,6 +489,7 @@
 
     <span class="c1"># Sample predictions.</span>
     <span class="n">sample_ids</span><span class="p">,</span> <span class="n">sample_scores</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">)</span>
+    <span class="n">cum_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_gather_from_word_indices</span><span class="p">(</span><span class="n">total_probs</span><span class="p">,</span> <span class="n">sample_ids</span><span class="p">),</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">sample_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sample_ids</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">sample_scores</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sample_scores</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
@@ -503,7 +504,6 @@
     <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">sequence_lengths</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">sequence_lengths</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Update state and flags.</span>
-    <span class="n">cum_log_probs</span> <span class="o">=</span> <span class="n">_gather_from_word_indices</span><span class="p">(</span><span class="n">total_probs</span><span class="p">,</span> <span class="n">sample_ids</span><span class="p">)</span>
     <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">)</span>
     <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">sequence_lengths</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">)</span>
     <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">parent_ids</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">beam_ids</span><span class="p">)</span>
@@ -724,13 +724,7 @@
 
 <span class="k">def</span> <span class="nf">_gather_from_word_indices</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Index the depth dim of a 2D tensor.&quot;&quot;&quot;</span>
-  <span class="n">output_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
-  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">num_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
-  <span class="n">batch_pos</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">num_indices</span><span class="p">)</span> <span class="o">//</span> <span class="n">num_indices</span>
-  <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">batch_pos</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-  <span class="n">tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tensor</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">_lengths_from_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">end_id</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Compute sequence lengths from word ids.&quot;&quot;&quot;</span>

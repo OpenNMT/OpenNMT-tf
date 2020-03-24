@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers.tokenizer &mdash; OpenNMT-tf 2.8.0 documentation</title>
+  <title>opennmt.tokenizers.tokenizer &mdash; OpenNMT-tf 2.8.1 documentation</title>
   
 
   
@@ -399,8 +399,7 @@
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
         <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">),</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
-        <span class="n">back_prop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Detokenizes a batch of tokens as a ``tf.RaggedTensor``</span>

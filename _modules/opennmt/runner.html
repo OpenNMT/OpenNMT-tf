@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.8.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.8.1 documentation</title>
   
 
   
@@ -290,7 +290,8 @@
         <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_auto_tune_batch_size</span><span class="p">(</span>
             <span class="n">config</span><span class="p">,</span>
             <span class="n">max_batch_size</span><span class="o">=</span><span class="n">max_batch_size</span><span class="p">,</span>
-            <span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
+            <span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span>
+            <span class="n">mixed_precision</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span><span class="p">)</span>
 
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="s2">&quot;Using parameters:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
@@ -325,6 +326,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      The path to the final model directory.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">devices</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_devices</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">num_devices</span><span class="p">)</span>
     <span class="n">checkpoint</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_run</span><span class="p">(</span><span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span>
         <span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="n">checkpoint_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
@@ -375,9 +377,7 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="n">accum_steps</span> <span class="o">=</span> <span class="mi">1</span>
 
-    <span class="n">trainer</span> <span class="o">=</span> <span class="n">training_util</span><span class="o">.</span><span class="n">DistributionStrategyTrainer</span><span class="p">(</span>
-        <span class="n">checkpoint</span><span class="p">,</span>
-        <span class="n">devices</span><span class="o">=</span><span class="n">misc</span><span class="o">.</span><span class="n">get_devices</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">num_devices</span><span class="p">))</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">training_util</span><span class="o">.</span><span class="n">DistributionStrategyTrainer</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="n">devices</span><span class="p">)</span>
     <span class="n">trainer</span><span class="p">(</span>
         <span class="n">dataset_fn</span><span class="p">,</span>
         <span class="n">max_step</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_step&quot;</span><span class="p">),</span>
@@ -610,7 +610,8 @@
                           <span class="n">min_range</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
                           <span class="n">sample_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                           <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                          <span class="n">scaling_factor</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+                          <span class="n">scaling_factor</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                          <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Find the largest token-based batch size that can be used with this</span>
 <span class="sd">  configuration.</span>
 
@@ -631,6 +632,7 @@
 <span class="sd">    sample_iterations: The number of training iterations.</span>
 <span class="sd">    num_devices: The number of devices to use.</span>
 <span class="sd">    scaling_factor: Scale the found batch size by this value.</span>
+<span class="sd">    mixed_precision: If ``True``, run the autotuning with mixed precision.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    The autotuned batch size.</span>
@@ -651,8 +653,13 @@
         <span class="s2">&quot;--config&quot;</span><span class="p">,</span> <span class="n">config_path</span><span class="p">,</span>
         <span class="s2">&quot;--model&quot;</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span>
         <span class="s2">&quot;--checkpoint_path&quot;</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
+      <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--mixed_precision&quot;</span><span class="p">])</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
         <span class="s2">&quot;train&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--num_gpus&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_devices</span><span class="p">)]</span>
+        <span class="s2">&quot;--num_gpus&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_devices</span><span class="p">),</span>
+    <span class="p">])</span>
 
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="s2">&quot;Searching the largest batch size between </span><span class="si">%d</span><span class="s2"> and </span><span class="si">%d</span><span class="s2"> with a precision of </span><span class="si">%d</span><span class="s2">...&quot;</span><span class="p">,</span>
