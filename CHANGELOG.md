@@ -15,6 +15,10 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.8.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.8.1) (2020-03-24)
+
+### Fixes and improvements
+
 * Disable dropout in layers that are frozen by the `freeze_layers` parameter
 * Fix batch size autotuning that ignored the mixed precision flag
 * Fix sparse gradients that were unnecessarily converted to dense gradients in mixed precision training
