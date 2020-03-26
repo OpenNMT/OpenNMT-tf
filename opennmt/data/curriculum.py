@@ -24,6 +24,9 @@ class CurriculumLearner:
         self._type = "linear"
       elif cfg_cl["type"] == "sqroot":
         self._type = "sqroot"
+      elif cfg_cl["type"] == "steps":
+      	self._type = "steps"
+      	self._nsteps = cfg_cl.get("nsteps", 10)
       else:
         raise ValueError("Invalid Competence Learner type")
       self._sample = cfg_cl.get("sample", False)
@@ -55,11 +58,13 @@ class CurriculumLearner:
     Args:
       step: the current learning step.
     """
-    if self._type == "linear":
+    if self._type == "steps":
+       rate = int(step/(self._final_step/self._nsteps))*(1.0-self._initial_value)/self._nsteps+self._initial_value
+    elif self._type == "linear":
       rate = step*(1.0-self._initial_value)/self._final_step+self._initial_value
     else:
-      self._initial_value_square = self._initial_value*self._initial_value
-      rate = math.sqrt(step*(1.0-self._initial_value_square)/self._final_step+self._initial_value_square)
+      _initial_value_square = self._initial_value*self._initial_value
+      rate = math.sqrt(step*(1.0-_initial_value_square)/self._final_step+_initial_value_square)
     self._competence.assign(tf.cast(tf.math.minimum(rate, 1.0), tf.float32))
     return self
 

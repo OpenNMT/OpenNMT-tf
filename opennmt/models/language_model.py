@@ -215,7 +215,8 @@ class LanguageModelInputter(inputters.WordEmbedder):
                             num_threads=4,
                             prefetch_buffer_size=None,
                             cardinality_multiple=1,
-                            weights=None):
+                            weights=None,
+                            curriculum_learner=None):
     """See :meth:`opennmt.inputters.ExampleInputter.make_training_dataset`."""
     _ = labels_file
     dataset = self.make_dataset(features_file, training=True)
@@ -237,5 +238,6 @@ class LanguageModelInputter(inputters.WordEmbedder):
         num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
-        cardinality_multiple=cardinality_multiple)(dataset)
+        cardinality_multiple=cardinality_multiple,
+        curriculum_learner=curriculum_learner)(dataset)
     return dataset

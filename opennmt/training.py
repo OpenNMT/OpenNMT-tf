@@ -100,6 +100,7 @@ class Trainer(abc.ABC):
               self._get_words_counters(),
               last_report_step,
               last_report_time,
+              curriculum_learner and curriculum_learner.competence,
               curriculum_learner and curriculum_learner.filtered_rate)
           last_report_step = step
           if curriculum_learner:
@@ -360,6 +361,7 @@ def _report_training_status(step,
                             words_counters,
                             last_report_step,
                             last_report_time,
+                            curriculum_competence,
                             curriculum_filter_rate):
   elapsed_time = time.time() - last_report_time
 
@@ -384,8 +386,11 @@ def _report_training_status(step,
   if not curriculum_filter_rate:
     curriculum_msg = ""
   else:
-    curriculum_msg = "; Curriculum-Filter = %.1f%%" % (int(1000*curriculum_filter_rate)/10.0)
-    tf.summary.scalar("filter_curriculum", curriculum_filter_rate, description="Curriculum (%)")
+    curriculum_msg = "; Curriculum-Competence/Filter = %.1f%%/%.1f%%" % (
+                  int(1000*curriculum_competence)/10.0,
+                  int(1000*curriculum_filter_rate)/10.0)
+    tf.summary.scalar("curriculum/competence", curriculum_competence, description="Competence (%)")
+    tf.summary.scalar("curriculum/filtered_rate", curriculum_filter_rate, description="Filtered (%)")
 
   tf.get_logger().info(
       "Step = %d ; %s ; Learning rate = %f ; Loss = %f%s",
