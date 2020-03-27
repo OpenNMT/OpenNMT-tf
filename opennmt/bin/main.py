@@ -177,7 +177,7 @@ def main():
 
   gpus = tf.config.list_physical_devices(device_type="GPU")
   if args.horovod:
-    import horovod.tensorflow as hvd
+    import horovod.tensorflow as hvd  # pylint: disable=import-outside-toplevel
     hvd.init()
     if gpus:
       local_gpu = gpus[hvd.local_rank()]

@@ -138,7 +138,7 @@ class Trainer(abc.ABC):
     Returns:
       A dictionary mapping a counter name to a Python value.
     """
-    counters = {name:value.numpy() for name, value in self._words_counters().items()}
+    counters = {name:value.numpy() for name, value in self._words_counters.items()}
     self._reset_words_counters()
     return counters
 
@@ -169,8 +169,8 @@ class Trainer(abc.ABC):
       return False
     else:
       return tf.logical_and(
-        tf.equal(self._optimizer.iterations % report_steps, 0),
-        tf.equal(self._gradient_accumulator.step, 0))
+          tf.equal(self._optimizer.iterations % report_steps, 0),
+          tf.equal(self._gradient_accumulator.step, 0))
 
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
@@ -255,7 +255,7 @@ class HorovodTrainer(Trainer):
     super().__init__(checkpoint, is_master=hvd.rank() == 0)
     self._hvd = hvd
 
-  def __call__(self, *args, **kwargs):
+  def __call__(self, *args, **kwargs):  # pylint: disable=arguments-differ
     super().__call__(*args, **kwargs)
     self._hvd.shutdown()
 
