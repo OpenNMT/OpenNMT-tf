@@ -82,11 +82,11 @@ class Runner(object):
     """The active model directory."""
     return self._config["model_dir"]
 
-  def _finalize_config(self, training=False, num_devices=1):
+  def _finalize_config(self, training=False, num_replicas=1, num_devices=1):
     # Configuration priority: user config > auto config > default config.
     config = copy.deepcopy(_CONFIG_FALLBACK)
     if self._auto_config:
-      model_config = self._model.auto_config(num_replicas=num_devices)
+      model_config = self._model.auto_config(num_replicas=num_replicas)
       if not model_config:
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(config, model_config)
@@ -130,23 +130,30 @@ class Runner(object):
         keep_checkpoint_max=config["train"].get("keep_checkpoint_max", 8))
     return checkpoint
 
-  def _init_run(self, training=False, num_devices=1):
-    config = self._finalize_config(training=training, num_devices=num_devices)
+  def _init_run(self, training=False, num_replicas=1, num_devices=1):
+    config = self._finalize_config(
+        training=training,
+        num_replicas=num_replicas,
+        num_devices=num_devices)
     return self._init_model(config), config
 
-  def train(self, num_devices=1, with_eval=False, checkpoint_path=None):
+  def train(self, num_devices=1, with_eval=False, checkpoint_path=None, hvd=None):
     """Runs the training loop.
 
     Args:
       num_devices: Number of devices to use for training.
       with_eval: Enable evaluation during training.
       checkpoint_path: The checkpoint path to load the model weights from it.
+      hvd: Optional Horovod module.
 
     Returns:
       The path to the final model directory.
     """
-    devices = misc.get_devices(count=num_devices)
-    checkpoint, config = self._init_run(num_devices=num_devices, training=True)
+    num_replicas = num_devices if hvd is None else hvd.size()
+    checkpoint, config = self._init_run(
+        training=True,
+        num_replicas=num_replicas,
+        num_devices=num_devices)
     checkpoint.restore(
         checkpoint_path=checkpoint_path, weights_only=checkpoint_path is not None)
 
@@ -188,7 +195,7 @@ class Runner(object):
       accum_steps = _count_batch_accum(
           train_config["batch_size"],
           train_config["effective_batch_size"],
-          num_replicas=num_devices)
+          num_replicas=num_replicas)
       tf.get_logger().info(
           "Accumulate gradients of %d iterations to reach effective batch size of %d",
           accum_steps,
@@ -196,7 +203,14 @@ class Runner(object):
     else:
       accum_steps = 1
 
-    trainer = training_util.DistributionStrategyTrainer(checkpoint, devices=devices)
+    if hvd is not None:
+      if num_devices > 1:
+        raise ValueError("num_devices (or num_gpus) should be set to 1 when using Horovod")
+      trainer = training_util.HorovodTrainer(checkpoint, hvd)
+    else:
+      devices = misc.get_devices(count=num_devices)
+      trainer = training_util.DistributionStrategyTrainer(checkpoint, devices=devices)
+
     trainer(
         dataset_fn,
         max_step=train_config.get("max_step"),

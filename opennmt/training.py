@@ -24,6 +24,8 @@ class Trainer(abc.ABC):
     self._is_master = is_master
     self._model = checkpoint.model
     self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
+    self._words_counters = {}
+    self._gradient_accumulator = optimizer_util.GradientAccumulator()
 
     optimizer = checkpoint.optimizer
     if optimizer is None:
@@ -89,15 +91,17 @@ class Trainer(abc.ABC):
 
         step = iterations.numpy()
         if step % report_steps == 0:
-          _report_training_status(
-              step,
-              loss,
-              self._optimizer.learning_rate,
-              self._get_words_counters(),
-              last_report_step,
-              last_report_time)
-          last_report_step = step
-          last_report_time = time.time()
+          words_counters = self._get_words_counters()
+          if self._is_master:
+            _report_training_status(
+                step,
+                loss,
+                self._optimizer.learning_rate,
+                words_counters,
+                last_report_step,
+                last_report_time)
+            last_report_step = step
+            last_report_time = time.time()
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step, moving_average=moving_average)
         if eval_steps is not None and step % eval_steps == 0:
@@ -134,7 +138,39 @@ class Trainer(abc.ABC):
     Returns:
       A dictionary mapping a counter name to a Python value.
     """
-    return {}
+    counters = {name:value.numpy() for name, value in self._words_counters().items()}
+    self._reset_words_counters()
+    return counters
+
+  def _reset_words_counters(self):
+    """Resets the variables that count words."""
+    for counter in self._words_counters.values():
+      counter.assign(tf.constant(0, dtype=tf.int64))
+
+  def _update_words_counter(self, name, features):
+    """Accumulates number of source and target tokens to report throughput."""
+    length = features.get("length")
+    if length is None:
+      return
+    num_words = tf.reduce_sum(length)
+    counter = self._words_counters.get(name)
+    if counter is None:
+      counter = tf.Variable(
+          tf.constant(0, dtype=tf.int64),
+          trainable=False,
+          synchronization=tf.VariableSynchronization.ON_READ,
+          aggregation=tf.VariableAggregation.SUM)
+      self._words_counters[name] = counter
+    counter.assign_add(tf.cast(num_words, tf.int64))
+
+  def _should_record_summaries(self, report_steps):
+    """Returns a boolean tensor to be used in tf.summary.record_if."""
+    if report_steps is None or not self._is_master:
+      return False
+    else:
+      return tf.logical_and(
+        tf.equal(self._optimizer.iterations % report_steps, 0),
+        tf.equal(self._gradient_accumulator.step, 0))
 
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
@@ -163,6 +199,8 @@ class Trainer(abc.ABC):
       training_loss, reported_loss = loss, loss
     training_loss = self._model.regularize_loss(
         training_loss, variables=self._model.trainable_variables)
+    self._update_words_counter("source", source)
+    self._update_words_counter("target", target)
     if first_call and self._is_master:
       self._model.visualize(self._checkpoint.model_dir)
       tf.get_logger().info("Number of model parameters: %d", self._model.count_params())
@@ -210,6 +248,63 @@ class BasicTrainer(Trainer):
       yield _step(source, target)
 
 
+class HorovodTrainer(Trainer):
+  """Trainer compatible with Horovod distributed training."""
+
+  def __init__(self, checkpoint, hvd):
+    super().__init__(checkpoint, is_master=hvd.rank() == 0)
+    self._hvd = hvd
+
+  def __call__(self, *args, **kwargs):
+    super().__call__(*args, **kwargs)
+    self._hvd.shutdown()
+
+  def _get_words_counters(self):
+    counters = {
+        name:self._hvd.allreduce(value, op=self._hvd.Sum).numpy()
+        for name, value in self._words_counters.items()}
+    self._reset_words_counters()
+    return counters
+
+  def _steps(self, dataset, accum_steps=1, report_steps=None):
+    if callable(dataset):
+      dataset = dataset(tf.distribute.InputContext(
+          num_input_pipelines=self._hvd.size(),
+          input_pipeline_id=self._hvd.rank(),
+          num_replicas_in_sync=self._hvd.size()))
+
+    @tf.function(input_signature=dataset.element_spec)
+    def _forward(source, target):
+      should_record_summaries = self._should_record_summaries(report_steps)
+      with tf.summary.record_if(should_record_summaries):
+        training_loss, reported_loss = self._run_model(source, target)
+        gradients = self._optimizer.get_gradients(training_loss, self._model.trainable_variables)
+        self._gradient_accumulator(gradients)
+        _summarize_gradients(gradients, should_record_summaries)
+      return reported_loss
+
+    @tf.function
+    def _step():
+      grad_scale = self._gradient_accumulator.step * self._hvd.size()
+      gradients = [
+          self._hvd.allreduce(
+              gradient / tf.cast(grad_scale, gradient.dtype),
+              op=self._hvd.Sum)
+          for gradient in self._gradient_accumulator.gradients]
+      self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
+      self._gradient_accumulator.reset()
+
+    for i, (source, target) in enumerate(dataset):
+      loss = _forward(source, target)
+      _assert_loss_is_finite(loss)
+      if i == 0 or (i + 1) % accum_steps == 0:
+        _step()
+        if i == 0:
+          self._hvd.broadcast_variables(self._model.variables, root_rank=0)
+          self._hvd.broadcast_variables(self._optimizer.variables(), root_rank=0)
+        yield loss
+
+
 class DistributionStrategyTrainer(Trainer):
   """Trainer based on distribution strategies."""
 
@@ -224,11 +319,9 @@ class DistributionStrategyTrainer(Trainer):
     if not devices:
       devices = misc.get_devices(count=1)  # Train with 1 device by default.
     self._strategy = tf.distribute.MirroredStrategy(devices=devices)
-    self._words_counters = {}
     with self._strategy.scope():
       # Create some variables under the strategy scope.
       _ = self._optimizer.iterations
-      self._gradient_accumulator = optimizer_util.GradientAccumulator()
 
   def _get_words_counters(self):
     return {name:value.numpy() for name, value in self._synchronize_words_counters().items()}
@@ -237,8 +330,7 @@ class DistributionStrategyTrainer(Trainer):
     self._gradient_accumulator.reset()
     self._words_counters.clear()
     for i, loss in enumerate(self._accumulate_next_gradients(dataset, report_steps=report_steps)):
-      if tf.math.is_nan(loss):
-        raise RuntimeError("Model diverged with loss = NaN.")
+      _assert_loss_is_finite(loss)
       if i == 0 or (i + 1) % accum_steps == 0:
         self._apply_gradients()
         yield loss
@@ -260,12 +352,7 @@ class DistributionStrategyTrainer(Trainer):
 
     @tf.function
     def _accumulate_next():
-      if report_steps is None:
-        should_record_summaries = False
-      else:
-        should_record_summaries = tf.logical_and(
-            tf.equal(self._optimizer.iterations % report_steps, 0),
-            tf.equal(self._gradient_accumulator.step, 0))
+      should_record_summaries = self._should_record_summaries(report_steps)
       with tf.summary.record_if(should_record_summaries):
         per_replica_source, per_replica_target = next(iterator)
         return self._accumulate_gradients(
@@ -292,38 +379,15 @@ class DistributionStrategyTrainer(Trainer):
     gradients = self._optimizer.get_gradients(training_loss, variables)
     self._gradient_accumulator(gradients)
     _summarize_gradients(gradients, should_record_summaries)
-    self._update_words_counter("source", source)
-    self._update_words_counter("target", target)
     return reported_loss
-
-  def _update_words_counter(self, name, features):
-    """Accumulates number of source and target tokens to report throughput."""
-    length = features.get("length")
-    if length is None:
-      return
-    num_words = tf.reduce_sum(length)
-    counter = self._words_counters.get(name)
-    if counter is None:
-      counter = tf.Variable(
-          tf.constant(0, dtype=tf.int64),
-          trainable=False,
-          synchronization=tf.VariableSynchronization.ON_READ,
-          aggregation=tf.VariableAggregation.SUM)
-      self._words_counters[name] = counter
-    counter.assign_add(tf.cast(num_words, tf.int64))
 
   @tf.function
   def _synchronize_words_counters(self):
     """Synchronizes and resets words counters values across replicas."""
     sync_words_counters = {
         name:counter.read_value() for name, counter in self._words_counters.items()}
-    self._strategy.experimental_run_v2(self._reset_words_counters_on_replica)
+    self._strategy.experimental_run_v2(self._reset_words_counters)
     return sync_words_counters
-
-  def _reset_words_counters_on_replica(self):
-    """Resets the variables that count words (in replica)."""
-    for counter in self._words_counters.values():
-      counter.assign(tf.constant(0, dtype=tf.int64))
 
   @tf.function
   def _apply_gradients(self):
@@ -377,8 +441,14 @@ def _report_training_status(step,
   tf.summary.scalar("loss", loss, description="Training loss")
   tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
 
+def _assert_loss_is_finite(loss):
+  if tf.math.is_nan(loss):
+    raise RuntimeError("Model diverged with loss = NaN.")
+
 def _summarize_gradients(gradients, should_record):
   # Only compute the gradients global norm when the value is actually recorded.
+  if isinstance(should_record, bool) and not should_record:
+    return
   tf.summary.scalar(
       "gradients/global_norm",
       tf.cond(
