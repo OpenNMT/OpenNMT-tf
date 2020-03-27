@@ -258,10 +258,6 @@ class HorovodTrainer(Trainer):
     super().__init__(model, optimizer, checkpoint=checkpoint, is_master=hvd.rank() == 0)
     self._hvd = hvd
 
-  def __call__(self, *args, **kwargs):  # pylint: disable=arguments-differ
-    super().__call__(*args, **kwargs)
-    self._hvd.shutdown()
-
   def _get_words_counters(self):
     counters = {
         name:self._hvd.allreduce(value, op=self._hvd.Sum).numpy()
