@@ -179,12 +179,14 @@ def main():
   if args.horovod:
     import horovod.tensorflow as hvd  # pylint: disable=import-outside-toplevel
     hvd.init()
+    is_master = hvd.rank() == 0
     if gpus:
       local_gpu = gpus[hvd.local_rank()]
       tf.config.experimental.set_visible_devices(local_gpu, device_type="GPU")
       gpus = [local_gpu]
   else:
     hvd = None
+    is_master = True
 
   if args.gpu_allow_growth:
     for device in gpus:
@@ -197,14 +199,15 @@ def main():
   if args.data_dir:
     config["data"] = _prefix_paths(args.data_dir, config["data"])
 
-  if not tf.io.gfile.exists(config["model_dir"]):
+  if is_master and not tf.io.gfile.exists(config["model_dir"]):
     tf.get_logger().info("Creating model directory %s", config["model_dir"])
     tf.io.gfile.makedirs(config["model_dir"])
 
   model = load_model(
       config["model_dir"],
       model_file=args.model,
-      model_name=args.model_type)
+      model_name=args.model_type,
+      serialize_model=is_master)
   runner = Runner(
       model,
       config,

@@ -16,7 +16,7 @@ class Checkpoint(object):
     """Initializes the wrapper.
 
     Args:
-      model: A :class:`opennmt.models.model.Model` to save.
+      model: A :class:`opennmt.models.Model` to save.
       optimizer: The optimizer instance.
       model_dir: The directory where checkpoints will be saved. If not set, a
         temporary directory will be used.
@@ -34,6 +34,27 @@ class Checkpoint(object):
     self._checkpoint = tf.train.Checkpoint(**trackables)
     self._checkpoint_manager = tf.train.CheckpointManager(
         self._checkpoint, model_dir, keep_checkpoint_max)
+
+  @classmethod
+  def from_config(cls, config, model, optimizer=None):
+    """Creates a checkpoint wrapper from the configuration.
+
+    Args:
+      config: The user configuration.
+      model: A :class:`opennmt.models.Model` to save.
+      optimizer: The optimizer instance.
+
+    Returns:
+      A :class:`openmt.utils.Checkpoint` instance.
+    """
+    train_config = config.get("train")
+    if train_config is None:
+      train_config = {}
+    return cls(
+        model,
+        optimizer=optimizer,
+        model_dir=config.get("model_dir"),
+        keep_checkpoint_max=train_config.get("keep_checkpoint_max", 8))
 
   @property
   def model(self):

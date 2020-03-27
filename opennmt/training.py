@@ -13,7 +13,7 @@ from opennmt.utils import misc
 class Trainer(abc.ABC):
   """Base class for model trainer."""
 
-  def __init__(self, checkpoint, is_master=True):
+  def __init__(self, model, optimizer, checkpoint=None, is_master=True):
     """Initializes the trainer.
 
     Args:
@@ -22,12 +22,14 @@ class Trainer(abc.ABC):
     """
     self._checkpoint = checkpoint
     self._is_master = is_master
-    self._model = checkpoint.model
-    self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
+    self._model = model
+    if checkpoint is not None:
+      self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
+    else:
+      self._summary_writer = tf.summary.create_noop_writer()
     self._words_counters = {}
     self._gradient_accumulator = optimizer_util.GradientAccumulator()
 
-    optimizer = checkpoint.optimizer
     if optimizer is None:
       raise ValueError("No optimizer is defined")
     graph_optimizer_options = tf.config.optimizer.get_experimental_options()
@@ -202,7 +204,8 @@ class Trainer(abc.ABC):
     self._update_words_counter("source", source)
     self._update_words_counter("target", target)
     if first_call and self._is_master:
-      self._model.visualize(self._checkpoint.model_dir)
+      if self._checkpoint is not None:
+        self._model.visualize(self._checkpoint.model_dir)
       tf.get_logger().info("Number of model parameters: %d", self._model.count_params())
       tf.get_logger().info(
           "Number of model weights: %d (trainable = %d, non trainable = %d)",
@@ -213,7 +216,7 @@ class Trainer(abc.ABC):
 
   def _save_checkpoint(self, step, moving_average=None):
     """Saves a checkpoint for step."""
-    if not self._is_master or step == self._checkpoint.last_saved_step:
+    if not self._is_master or self._checkpoint is None or step == self._checkpoint.last_saved_step:
       return
     with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
       self._checkpoint.save(step)
@@ -251,8 +254,8 @@ class BasicTrainer(Trainer):
 class HorovodTrainer(Trainer):
   """Trainer compatible with Horovod distributed training."""
 
-  def __init__(self, checkpoint, hvd):
-    super().__init__(checkpoint, is_master=hvd.rank() == 0)
+  def __init__(self, model, optimizer, hvd, checkpoint=None):
+    super().__init__(model, optimizer, checkpoint=checkpoint, is_master=hvd.rank() == 0)
     self._hvd = hvd
 
   def __call__(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -308,14 +311,14 @@ class HorovodTrainer(Trainer):
 class DistributionStrategyTrainer(Trainer):
   """Trainer based on distribution strategies."""
 
-  def __init__(self, checkpoint, devices=None):
+  def __init__(self, model, optimizer, checkpoint=None, devices=None):
     """Initializes the trainer.
 
     Args:
       checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance.
       devices: List of device strings to use for training.
     """
-    super(DistributionStrategyTrainer, self).__init__(checkpoint)
+    super(DistributionStrategyTrainer, self).__init__(model, optimizer, checkpoint=checkpoint)
     if not devices:
       devices = misc.get_devices(count=1)  # Train with 1 device by default.
     self._strategy = tf.distribute.MirroredStrategy(devices=devices)
