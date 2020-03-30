@@ -238,6 +238,7 @@ class Trainer(abc.ABC):
       self._words_counters[name] = counter
     counter.assign_add(tf.cast(num_words, tf.int64))
 
+  @tf.function
   def _get_words_counters(self):
     """Returns the accumulated words counters and resets them.
 
@@ -248,7 +249,7 @@ class Trainer(abc.ABC):
     """
     counters = {}
     for name, counter in self._words_counters.items():
-      counters[name] = self._all_reduce_sum(counter).numpy()
+      counters[name] = self._all_reduce_sum(counter.read_value())
       counter.assign(tf.constant(0, dtype=tf.int64))
     return counters
 
@@ -414,7 +415,7 @@ def _report_training_status(step,
 
   words_per_sec_fmt = []
   for name, counter in words_counters.items():
-    avg = int(counter / elapsed_time)
+    avg = int(counter.numpy() / elapsed_time)
     tf.summary.scalar(
         "words_per_sec/%s" % name,
         avg,
