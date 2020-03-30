@@ -336,9 +336,6 @@ class DistributionStrategyTrainer(Trainer):
       # Create some variables under the strategy scope.
       _ = self._optimizer.iterations
 
-  def _get_words_counters(self):
-    return {name:value.numpy() for name, value in self._synchronize_words_counters().items()}
-
   def _steps(self, dataset, accum_steps=1, report_steps=None):
     self._gradient_accumulator.reset()
     self._words_counters.clear()
@@ -389,14 +386,6 @@ class DistributionStrategyTrainer(Trainer):
         kwargs=dict(record_summaries=record_summaries))
     # TODO: this reduction could be delayed until _step is called.
     return self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
-
-  @tf.function
-  def _synchronize_words_counters(self):
-    """Synchronizes and resets words counters values across replicas."""
-    sync_words_counters = {
-        name:counter.read_value() for name, counter in self._words_counters.items()}
-    self._strategy.experimental_run_v2(self._reset_words_counters)
-    return sync_words_counters
 
   @tf.function
   def _apply_gradients(self):
