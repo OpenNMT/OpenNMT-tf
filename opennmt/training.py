@@ -39,6 +39,11 @@ class Trainer(abc.ABC):
       optimizer = _LossScaleOptimizer(optimizer, "dynamic")
     self._optimizer = optimizer
 
+  @property
+  def num_replicas(self):
+    """Number of synchronous training replicas."""
+    return 1
+
   def __call__(self,
                dataset,
                max_step=None,
@@ -70,6 +75,9 @@ class Trainer(abc.ABC):
     if evaluator is not None and evaluator.should_stop():
       tf.get_logger().warning("Early stopping conditions are already met. Exiting.")
       return
+
+    self._gradient_accumulator.reset()
+    self._words_counters.clear()
 
     with self._summary_writer.as_default():
       iterations = self._optimizer.iterations
@@ -117,6 +125,21 @@ class Trainer(abc.ABC):
       self._save_checkpoint(step, moving_average=moving_average)
       self._evaluate(evaluator, step, moving_average=moving_average)
 
+  def _save_checkpoint(self, step, moving_average=None):
+    """Saves a checkpoint for step."""
+    if not self._is_master or self._checkpoint is None or step == self._checkpoint.last_saved_step:
+      return
+    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
+      self._checkpoint.save(step)
+
+  def _evaluate(self, evaluator, step, moving_average=None):
+    """Runs evaluation for step. Returns ``True`` is early conditions are met."""
+    if not self._is_master or evaluator is None or step == evaluator.last_evaluated_step:
+      return False
+    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
+      evaluator(step)
+      return evaluator.should_stop()
+
   @abc.abstractmethod
   def _steps(self, dataset, accum_steps=1, report_steps=None):
     """Returns a generator over training steps (i.e. parameters update).
@@ -131,39 +154,6 @@ class Trainer(abc.ABC):
       A generator that yields a loss value to report for this step.
     """
     raise NotImplementedError()
-
-  def _get_words_counters(self):
-    """Returns the accumulated words counters and resets them.
-
-    This is used to report the words per second in the training logs.
-
-    Returns:
-      A dictionary mapping a counter name to a Python value.
-    """
-    counters = {name:value.numpy() for name, value in self._words_counters.items()}
-    self._reset_words_counters()
-    return counters
-
-  def _reset_words_counters(self):
-    """Resets the variables that count words."""
-    for counter in self._words_counters.values():
-      counter.assign(tf.constant(0, dtype=tf.int64))
-
-  def _update_words_counter(self, name, features):
-    """Accumulates number of source and target tokens to report throughput."""
-    length = features.get("length")
-    if length is None:
-      return
-    num_words = tf.reduce_sum(length)
-    counter = self._words_counters.get(name)
-    if counter is None:
-      counter = tf.Variable(
-          tf.constant(0, dtype=tf.int64),
-          trainable=False,
-          synchronization=tf.VariableSynchronization.ON_READ,
-          aggregation=tf.VariableAggregation.SUM)
-      self._words_counters[name] = counter
-    counter.assign_add(tf.cast(num_words, tf.int64))
 
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
@@ -223,31 +213,48 @@ class Trainer(abc.ABC):
       _summarize_gradients(gradients, record_summaries)
     return reported_loss
 
-  def _step(self, num_replicas=1, reduce_fn=None):
+  def _step(self):
     """Applies gradients and resets accumulation."""
-    gradient_scale = self._gradient_accumulator.step * num_replicas
+    gradient_scale = self._gradient_accumulator.step * self.num_replicas
     gradients = [
-        gradient / tf.cast(gradient_scale, gradient.dtype)
+        self._all_reduce_sum(gradient / tf.cast(gradient_scale, gradient.dtype))
         for gradient in self._gradient_accumulator.gradients]
-    if reduce_fn is not None:
-      gradients = [reduce_fn(gradient) for gradient in gradients]
     self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
     self._gradient_accumulator.reset()
 
-  def _save_checkpoint(self, step, moving_average=None):
-    """Saves a checkpoint for step."""
-    if not self._is_master or self._checkpoint is None or step == self._checkpoint.last_saved_step:
+  def _update_words_counter(self, name, features):
+    """Accumulates number of source and target tokens to report throughput."""
+    length = features.get("length")
+    if length is None:
       return
-    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
-      self._checkpoint.save(step)
+    num_words = tf.reduce_sum(length)
+    counter = self._words_counters.get(name)
+    if counter is None:
+      counter = tf.Variable(
+          tf.constant(0, dtype=tf.int64),
+          trainable=False,
+          synchronization=tf.VariableSynchronization.ON_READ,
+          aggregation=tf.VariableAggregation.SUM)
+      self._words_counters[name] = counter
+    counter.assign_add(tf.cast(num_words, tf.int64))
 
-  def _evaluate(self, evaluator, step, moving_average=None):
-    """Runs evaluation for step. Returns ``True`` is early conditions are met."""
-    if not self._is_master or evaluator is None or step == evaluator.last_evaluated_step:
-      return False
-    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
-      evaluator(step)
-      return evaluator.should_stop()
+  def _get_words_counters(self):
+    """Returns the accumulated words counters and resets them.
+
+    This is used to report the words per second in the training logs.
+
+    Returns:
+      A dictionary mapping a counter name to a Python value.
+    """
+    counters = {}
+    for name, counter in self._words_counters.items():
+      counters[name] = self._all_reduce_sum(counter).numpy()
+      counter.assign(tf.constant(0, dtype=tf.int64))
+    return counters
+
+  def _all_reduce_sum(self, value):
+    """Reduces the value across all replicas."""
+    return value
 
 
 class BasicTrainer(Trainer):
@@ -278,12 +285,12 @@ class HorovodTrainer(Trainer):
     super().__init__(model, optimizer, checkpoint=checkpoint, is_master=hvd.rank() == 0)
     self._hvd = hvd
 
-  def _get_words_counters(self):
-    counters = {
-        name:self._hvd.allreduce(value, op=self._hvd.Sum).numpy()
-        for name, value in self._words_counters.items()}
-    self._reset_words_counters()
-    return counters
+  @property
+  def num_replicas(self):
+    return self._hvd.size()
+
+  def _all_reduce_sum(self, value):
+    return self._hvd.allreduce(value, op=self._hvd.Sum)
 
   def _steps(self, dataset, accum_steps=1, report_steps=None):
     if callable(dataset):
@@ -303,9 +310,7 @@ class HorovodTrainer(Trainer):
 
     @tf.function
     def _step():
-      return self._step(
-          num_replicas=self._hvd.size(),
-          reduce_fn=lambda gradient: self._hvd.allreduce(gradient, op=self._hvd.Sum))
+      return self._step()
 
     for i, (source, target) in enumerate(dataset):
       loss = _forward(source, target)
@@ -336,12 +341,11 @@ class DistributionStrategyTrainer(Trainer):
       # Create some variables under the strategy scope.
       _ = self._optimizer.iterations
 
-  def _get_words_counters(self):
-    return {name:value.numpy() for name, value in self._synchronize_words_counters().items()}
+  @property
+  def num_replicas(self):
+    return self._strategy.num_replicas_in_sync
 
   def _steps(self, dataset, accum_steps=1, report_steps=None):
-    self._gradient_accumulator.reset()
-    self._words_counters.clear()
     for i, loss in enumerate(self._accumulate_next_gradients(dataset, report_steps=report_steps)):
       _assert_loss_is_finite(loss)
       if i == 0 or (i + 1) % accum_steps == 0:
@@ -391,18 +395,9 @@ class DistributionStrategyTrainer(Trainer):
     return self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
 
   @tf.function
-  def _synchronize_words_counters(self):
-    """Synchronizes and resets words counters values across replicas."""
-    sync_words_counters = {
-        name:counter.read_value() for name, counter in self._words_counters.items()}
-    self._strategy.experimental_run_v2(self._reset_words_counters)
-    return sync_words_counters
-
-  @tf.function
   def _apply_gradients(self):
     """Applies the gradients (cross-replica)."""
-    self._strategy.experimental_run_v2(
-        self._step, kwargs=dict(num_replicas=self._strategy.num_replicas_in_sync))
+    self._strategy.experimental_run_v2(self._step)
 
 
 def _report_training_status(step,
