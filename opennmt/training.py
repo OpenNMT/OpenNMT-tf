@@ -165,15 +165,6 @@ class Trainer(abc.ABC):
       self._words_counters[name] = counter
     counter.assign_add(tf.cast(num_words, tf.int64))
 
-  def _should_record_summaries(self, report_steps):
-    """Returns a boolean tensor to be used in tf.summary.record_if."""
-    if report_steps is None or not self._is_master:
-      return False
-    else:
-      return tf.logical_and(
-          tf.equal(self._optimizer.iterations % report_steps, 0),
-          tf.equal(self._gradient_accumulator.step, 0))
-
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
 
@@ -213,6 +204,35 @@ class Trainer(abc.ABC):
           len(self._model.trainable_weights),
           len(self._model.non_trainable_weights))
     return training_loss, reported_loss
+
+  def _should_record_summaries(self, report_steps):
+    """Returns a boolean tensor to be used in tf.summary.record_if."""
+    if report_steps is None or not self._is_master:
+      return False
+    else:
+      return tf.logical_and(
+          tf.equal(self._optimizer.iterations % report_steps, 0),
+          tf.equal(self._gradient_accumulator.step, 0))
+
+  def _forward(self, source, target, record_summaries=False):
+    """Forwards a training example and accumulates the gradients."""
+    with tf.summary.record_if(record_summaries):
+      training_loss, reported_loss = self._run_model(source, target)
+      gradients = self._optimizer.get_gradients(training_loss, self._model.trainable_variables)
+      self._gradient_accumulator(gradients)
+      _summarize_gradients(gradients, record_summaries)
+    return reported_loss
+
+  def _step(self, num_replicas=1, reduce_fn=None):
+    """Applies gradients and resets accumulation."""
+    gradient_scale = self._gradient_accumulator.step * num_replicas
+    gradients = [
+        gradient / tf.cast(gradient_scale, gradient.dtype)
+        for gradient in self._gradient_accumulator.gradients]
+    if reduce_fn is not None:
+      gradients = [reduce_fn(gradient) for gradient in gradients]
+    self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
+    self._gradient_accumulator.reset()
 
   def _save_checkpoint(self, step, moving_average=None):
     """Saves a checkpoint for step."""
@@ -272,26 +292,20 @@ class HorovodTrainer(Trainer):
           input_pipeline_id=self._hvd.rank(),
           num_replicas_in_sync=self._hvd.size()))
 
+    # Wrap forward and step with tf.function.
+
     @tf.function(input_signature=dataset.element_spec)
     def _forward(source, target):
-      should_record_summaries = self._should_record_summaries(report_steps)
-      with tf.summary.record_if(should_record_summaries):
-        training_loss, reported_loss = self._run_model(source, target)
-        gradients = self._optimizer.get_gradients(training_loss, self._model.trainable_variables)
-        self._gradient_accumulator(gradients)
-        _summarize_gradients(gradients, should_record_summaries)
-      return reported_loss
+      return self._forward(
+          source,
+          target,
+          record_summaries=self._should_record_summaries(report_steps))
 
     @tf.function
     def _step():
-      grad_scale = self._gradient_accumulator.step * self._hvd.size()
-      gradients = [
-          self._hvd.allreduce(
-              gradient / tf.cast(grad_scale, gradient.dtype),
-              op=self._hvd.Sum)
-          for gradient in self._gradient_accumulator.gradients]
-      self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
-      self._gradient_accumulator.reset()
+      return self._step(
+          num_replicas=self._hvd.size(),
+          reduce_fn=lambda gradient: self._hvd.allreduce(gradient, op=self._hvd.Sum))
 
     for i, (source, target) in enumerate(dataset):
       loss = _forward(source, target)
@@ -351,11 +365,12 @@ class DistributionStrategyTrainer(Trainer):
 
     @tf.function
     def _accumulate_next():
-      should_record_summaries = self._should_record_summaries(report_steps)
-      with tf.summary.record_if(should_record_summaries):
-        per_replica_source, per_replica_target = next(iterator)
-        return self._accumulate_gradients(
-            per_replica_source, per_replica_target, should_record_summaries)
+      record_summaries = self._should_record_summaries(report_steps)
+      per_replica_source, per_replica_target = next(iterator)
+      return self._accumulate_gradients(
+          per_replica_source,
+          per_replica_target,
+          record_summaries=record_summaries)
 
     while True:
       try:
@@ -363,22 +378,17 @@ class DistributionStrategyTrainer(Trainer):
       except tf.errors.OutOfRangeError:
         break
 
-  def _accumulate_gradients(self, per_replica_source, per_replica_target, should_record_summaries):
+  def _accumulate_gradients(self,
+                            per_replica_source,
+                            per_replica_target,
+                            record_summaries=False):
     """Accumulates the gradients (cross-replica)."""
     per_replica_loss = self._strategy.experimental_run_v2(
-        self._accumulate_gradients_on_replica,
-        args=(per_replica_source, per_replica_target, should_record_summaries))
+        self._forward,
+        args=(per_replica_source, per_replica_target),
+        kwargs=dict(record_summaries=record_summaries))
     # TODO: this reduction could be delayed until _step is called.
     return self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
-
-  def _accumulate_gradients_on_replica(self, source, target, should_record_summaries):
-    """Accumulates the gradients (in replica)."""
-    training_loss, reported_loss = self._run_model(source, target)
-    variables = self._model.trainable_variables
-    gradients = self._optimizer.get_gradients(training_loss, variables)
-    self._gradient_accumulator(gradients)
-    _summarize_gradients(gradients, should_record_summaries)
-    return reported_loss
 
   @tf.function
   def _synchronize_words_counters(self):
@@ -391,18 +401,8 @@ class DistributionStrategyTrainer(Trainer):
   @tf.function
   def _apply_gradients(self):
     """Applies the gradients (cross-replica)."""
-    self._strategy.experimental_run_v2(self._apply_gradients_on_replica)
-
-  def _apply_gradients_on_replica(self):
-    """Applies the gradients (in replica)."""
-    variables = self._model.trainable_variables
-    # optimizer.apply_gradients will sum the gradients accross replicas.
-    gradient_scale = self._gradient_accumulator.step * self._strategy.num_replicas_in_sync
-    grads_and_vars = [
-        (gradient / tf.cast(gradient_scale, gradient.dtype), variable)
-        for gradient, variable in zip(self._gradient_accumulator.gradients, variables)]
-    self._optimizer.apply_gradients(grads_and_vars)
-    self._gradient_accumulator.reset()
+    self._strategy.experimental_run_v2(
+        self._step, kwargs=dict(num_replicas=self._strategy.num_replicas_in_sync))
 
 
 def _report_training_status(step,
