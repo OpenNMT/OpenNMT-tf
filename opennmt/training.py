@@ -71,6 +71,9 @@ class Trainer(abc.ABC):
       tf.get_logger().warning("Early stopping conditions are already met. Exiting.")
       return
 
+    self._gradient_accumulator.reset()
+    self._words_counters.clear()
+
     with self._summary_writer.as_default():
       iterations = self._optimizer.iterations
       tf.summary.experimental.set_step(iterations)
@@ -337,8 +340,6 @@ class DistributionStrategyTrainer(Trainer):
       _ = self._optimizer.iterations
 
   def _steps(self, dataset, accum_steps=1, report_steps=None):
-    self._gradient_accumulator.reset()
-    self._words_counters.clear()
     for i, loss in enumerate(self._accumulate_next_gradients(dataset, report_steps=report_steps)):
       _assert_loss_is_finite(loss)
       if i == 0 or (i + 1) % accum_steps == 0:
