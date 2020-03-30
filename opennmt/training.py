@@ -117,6 +117,21 @@ class Trainer(abc.ABC):
       self._save_checkpoint(step, moving_average=moving_average)
       self._evaluate(evaluator, step, moving_average=moving_average)
 
+  def _save_checkpoint(self, step, moving_average=None):
+    """Saves a checkpoint for step."""
+    if not self._is_master or self._checkpoint is None or step == self._checkpoint.last_saved_step:
+      return
+    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
+      self._checkpoint.save(step)
+
+  def _evaluate(self, evaluator, step, moving_average=None):
+    """Runs evaluation for step. Returns ``True`` is early conditions are met."""
+    if not self._is_master or evaluator is None or step == evaluator.last_evaluated_step:
+      return False
+    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
+      evaluator(step)
+      return evaluator.should_stop()
+
   @abc.abstractmethod
   def _steps(self, dataset, accum_steps=1, report_steps=None):
     """Returns a generator over training steps (i.e. parameters update).
@@ -131,39 +146,6 @@ class Trainer(abc.ABC):
       A generator that yields a loss value to report for this step.
     """
     raise NotImplementedError()
-
-  def _get_words_counters(self):
-    """Returns the accumulated words counters and resets them.
-
-    This is used to report the words per second in the training logs.
-
-    Returns:
-      A dictionary mapping a counter name to a Python value.
-    """
-    counters = {name:value.numpy() for name, value in self._words_counters.items()}
-    self._reset_words_counters()
-    return counters
-
-  def _reset_words_counters(self):
-    """Resets the variables that count words."""
-    for counter in self._words_counters.values():
-      counter.assign(tf.constant(0, dtype=tf.int64))
-
-  def _update_words_counter(self, name, features):
-    """Accumulates number of source and target tokens to report throughput."""
-    length = features.get("length")
-    if length is None:
-      return
-    num_words = tf.reduce_sum(length)
-    counter = self._words_counters.get(name)
-    if counter is None:
-      counter = tf.Variable(
-          tf.constant(0, dtype=tf.int64),
-          trainable=False,
-          synchronization=tf.VariableSynchronization.ON_READ,
-          aggregation=tf.VariableAggregation.SUM)
-      self._words_counters[name] = counter
-    counter.assign_add(tf.cast(num_words, tf.int64))
 
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
@@ -234,20 +216,38 @@ class Trainer(abc.ABC):
     self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
     self._gradient_accumulator.reset()
 
-  def _save_checkpoint(self, step, moving_average=None):
-    """Saves a checkpoint for step."""
-    if not self._is_master or self._checkpoint is None or step == self._checkpoint.last_saved_step:
+  def _update_words_counter(self, name, features):
+    """Accumulates number of source and target tokens to report throughput."""
+    length = features.get("length")
+    if length is None:
       return
-    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
-      self._checkpoint.save(step)
+    num_words = tf.reduce_sum(length)
+    counter = self._words_counters.get(name)
+    if counter is None:
+      counter = tf.Variable(
+          tf.constant(0, dtype=tf.int64),
+          trainable=False,
+          synchronization=tf.VariableSynchronization.ON_READ,
+          aggregation=tf.VariableAggregation.SUM)
+      self._words_counters[name] = counter
+    counter.assign_add(tf.cast(num_words, tf.int64))
 
-  def _evaluate(self, evaluator, step, moving_average=None):
-    """Runs evaluation for step. Returns ``True`` is early conditions are met."""
-    if not self._is_master or evaluator is None or step == evaluator.last_evaluated_step:
-      return False
-    with moving_average.shadow_variables() if moving_average is not None else contextlib.suppress():
-      evaluator(step)
-      return evaluator.should_stop()
+  def _get_words_counters(self):
+    """Returns the accumulated words counters and resets them.
+
+    This is used to report the words per second in the training logs.
+
+    Returns:
+      A dictionary mapping a counter name to a Python value.
+    """
+    counters = {name:value.numpy() for name, value in self._words_counters.items()}
+    self._reset_words_counters()
+    return counters
+
+  def _reset_words_counters(self):
+    """Resets the variables that count words."""
+    for counter in self._words_counters.values():
+      counter.assign(tf.constant(0, dtype=tf.int64))
 
 
 class BasicTrainer(Trainer):
