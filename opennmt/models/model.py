@@ -198,9 +198,13 @@ class Model(tf.keras.layers.Layer):
     """Returns the optimizer for this model.
 
     Returns:
-      A ``tf.keras.optimizers.Optimizer`` instance.
+      A ``tf.keras.optimizers.Optimizer`` instance or ``None`` if no optimizer
+      is configured.
     """
     params = self.params
+    optimizer_name = params.get("optimizer")
+    if optimizer_name is None:
+      return None
     learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
     if params.get("decay_type") is not None:
       schedule_params = params.get("decay_params", {})
@@ -214,7 +218,7 @@ class Model(tf.keras.layers.Layer):
     if optimizer_params is None:
       optimizer_params = {}
     optimizer = optimizers.make_optimizer(
-        params["optimizer"], learning_rate, **optimizer_params)
+        optimizer_name, learning_rate, **optimizer_params)
     return optimizer
 
   def serve_function(self):

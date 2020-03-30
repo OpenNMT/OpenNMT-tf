@@ -97,6 +97,9 @@ def main():
   parser_train.add_argument(
       "--num_gpus", type=int, default=1,
       help="Number of GPUs to use for in-graph replication.")
+  parser_train.add_argument(
+      "--horovod", default=False, action="store_true",
+      help="Enable Horovod training mode.")
 
   parser_eval = subparsers.add_parser("eval", help="Evaluation.")
   parser_eval.add_argument(
@@ -171,8 +174,22 @@ def main():
   _set_log_level(getattr(logging, args.log_level))
   tf.config.threading.set_intra_op_parallelism_threads(args.intra_op_parallelism_threads)
   tf.config.threading.set_inter_op_parallelism_threads(args.inter_op_parallelism_threads)
+
+  gpus = tf.config.list_physical_devices(device_type="GPU")
+  if args.horovod:
+    import horovod.tensorflow as hvd  # pylint: disable=import-outside-toplevel
+    hvd.init()
+    is_master = hvd.rank() == 0
+    if gpus:
+      local_gpu = gpus[hvd.local_rank()]
+      tf.config.experimental.set_visible_devices(local_gpu, device_type="GPU")
+      gpus = [local_gpu]
+  else:
+    hvd = None
+    is_master = True
+
   if args.gpu_allow_growth:
-    for device in tf.config.list_physical_devices(device_type="GPU"):
+    for device in gpus:
       tf.config.experimental.set_memory_growth(device, enable=True)
 
   # Load and merge run configurations.
@@ -182,14 +199,15 @@ def main():
   if args.data_dir:
     config["data"] = _prefix_paths(args.data_dir, config["data"])
 
-  if not tf.io.gfile.exists(config["model_dir"]):
+  if is_master and not tf.io.gfile.exists(config["model_dir"]):
     tf.get_logger().info("Creating model directory %s", config["model_dir"])
     tf.io.gfile.makedirs(config["model_dir"])
 
   model = load_model(
       config["model_dir"],
       model_file=args.model,
-      model_name=args.model_type)
+      model_name=args.model_type,
+      serialize_model=is_master)
   runner = Runner(
       model,
       config,
@@ -201,7 +219,8 @@ def main():
     runner.train(
         num_devices=args.num_gpus,
         with_eval=args.with_eval,
-        checkpoint_path=args.checkpoint_path)
+        checkpoint_path=args.checkpoint_path,
+        hvd=hvd)
   elif args.run_type == "eval":
     metrics = runner.evaluate(
         checkpoint_path=args.checkpoint_path,

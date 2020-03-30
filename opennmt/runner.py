@@ -82,11 +82,11 @@ class Runner(object):
     """The active model directory."""
     return self._config["model_dir"]
 
-  def _finalize_config(self, training=False, num_devices=1):
+  def _finalize_config(self, training=False, num_replicas=1, num_devices=1):
     # Configuration priority: user config > auto config > default config.
     config = copy.deepcopy(_CONFIG_FALLBACK)
     if self._auto_config:
-      model_config = self._model.auto_config(num_replicas=num_devices)
+      model_config = self._model.auto_config(num_replicas=num_replicas)
       if not model_config:
         raise NotImplementedError("This model does not define any automatic configuration values")
       misc.merge_dict(config, model_config)
@@ -119,38 +119,34 @@ class Runner(object):
   def _init_model(self, config):
     model = misc.clone_layer(self._model)
     model.initialize(config["data"], params=config["params"])
-    if "optimizer" in config["params"]:
-      optimizer = model.get_optimizer()
-    else:
-      optimizer = None
-    checkpoint = checkpoint_util.Checkpoint(
-        model,
-        optimizer=optimizer,
-        model_dir=config.get("model_dir"),
-        keep_checkpoint_max=config["train"].get("keep_checkpoint_max", 8))
-    return checkpoint
+    return model
 
-  def _init_run(self, training=False, num_devices=1):
-    config = self._finalize_config(training=training, num_devices=num_devices)
-    return self._init_model(config), config
-
-  def train(self, num_devices=1, with_eval=False, checkpoint_path=None):
+  def train(self, num_devices=1, with_eval=False, checkpoint_path=None, hvd=None):
     """Runs the training loop.
 
     Args:
       num_devices: Number of devices to use for training.
       with_eval: Enable evaluation during training.
       checkpoint_path: The checkpoint path to load the model weights from it.
+      hvd: Optional Horovod module.
 
     Returns:
       The path to the final model directory.
     """
-    devices = misc.get_devices(count=num_devices)
-    checkpoint, config = self._init_run(num_devices=num_devices, training=True)
-    checkpoint.restore(
-        checkpoint_path=checkpoint_path, weights_only=checkpoint_path is not None)
+    if hvd is None:
+      num_replicas = num_devices
+      is_master = True
+    else:
+      num_replicas = hvd.size()
+      is_master = hvd.rank() == 0
 
-    model = checkpoint.model
+    config = self._finalize_config(
+        training=True,
+        num_replicas=num_replicas,
+        num_devices=num_devices)
+    model = self._init_model(config)
+    optimizer = model.get_optimizer()
+
     data_config = config["data"]
     train_config = config["train"]
     eval_config = config["eval"]
@@ -178,17 +174,21 @@ class Runner(object):
         cardinality_multiple=input_context.num_replicas_in_sync,
         weights=data_config.get("train_files_weights"))
 
-    if with_eval:
-      evaluator = evaluation.Evaluator.from_config(model, config)
-    else:
-      evaluator = None
+    checkpoint = None
+    evaluator = None
+    if is_master:
+      checkpoint = checkpoint_util.Checkpoint.from_config(config, model, optimizer=optimizer)
+      checkpoint.restore(
+          checkpoint_path=checkpoint_path, weights_only=checkpoint_path is not None)
+      if with_eval:
+        evaluator = evaluation.Evaluator.from_config(model, config)
 
     # Set gradients accumulation based on the requested effective batch size.
     if train_config.get("effective_batch_size") is not None:
       accum_steps = _count_batch_accum(
           train_config["batch_size"],
           train_config["effective_batch_size"],
-          num_replicas=num_devices)
+          num_replicas=num_replicas)
       tf.get_logger().info(
           "Accumulate gradients of %d iterations to reach effective batch size of %d",
           accum_steps,
@@ -196,7 +196,16 @@ class Runner(object):
     else:
       accum_steps = 1
 
-    trainer = training_util.DistributionStrategyTrainer(checkpoint, devices=devices)
+    if hvd is not None:
+      if num_devices > 1:
+        raise ValueError("num_devices (or num_gpus) should be set to 1 when using Horovod")
+      trainer = training_util.HorovodTrainer(
+          model, optimizer, hvd, checkpoint=checkpoint)
+    else:
+      devices = misc.get_devices(count=num_devices)
+      trainer = training_util.DistributionStrategyTrainer(
+          model, optimizer, checkpoint=checkpoint, devices=devices)
+
     trainer(
         dataset_fn,
         max_step=train_config.get("max_step"),
@@ -206,6 +215,9 @@ class Runner(object):
         evaluator=evaluator,
         eval_steps=eval_config.get("steps", 5000),
         moving_average_decay=train_config.get("moving_average_decay"))
+
+    if checkpoint is None:
+      return None
     average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
     if average_last_checkpoints > 0:
       return self.average_checkpoints(
@@ -226,11 +238,13 @@ class Runner(object):
     Returns:
       A dict of evaluation metrics.
     """
-    checkpoint, config = self._init_run()
+    config = self._finalize_config()
+    model = self._init_model(config)
+    checkpoint = checkpoint_util.Checkpoint.from_config(config, model)
     checkpoint_path = checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
     step = int(checkpoint_path.split("-")[-1])
     evaluator = evaluation.Evaluator.from_config(
-        checkpoint.model,
+        model,
         config,
         features_file=features_file,
         labels_file=labels_file)
@@ -246,10 +260,11 @@ class Runner(object):
     Returns:
       The path to the directory containing the averaged checkpoint.
     """
-    checkpoint, _ = self._init_run()
+    config = self._finalize_config()
+    model = self._init_model(config)
+    optimizer = model.get_optimizer()
+    checkpoint = checkpoint_util.Checkpoint.from_config(config, model, optimizer=optimizer)
     checkpoint.restore()
-    model = checkpoint.model
-    optimizer = checkpoint.optimizer
     model.create_variables(optimizer=optimizer)
     trackables = dict(model=model, optimizer=optimizer)
     output_dir = checkpoint_util.average_checkpoints(
@@ -277,9 +292,10 @@ class Runner(object):
     if src_vocab is None and tgt_vocab is None:
       return config["model_dir"]
 
-    cur_checkpoint = self._init_model(config)
+    model = self._init_model(config)
+    optimizer = model.get_optimizer()
+    cur_checkpoint = checkpoint_util.Checkpoint.from_config(config, model, optimizer=optimizer)
     cur_checkpoint.restore()
-    model, optimizer = cur_checkpoint.model, cur_checkpoint.optimizer
     model.create_variables(optimizer=optimizer)
 
     self._config["model_dir"] = output_dir
@@ -288,8 +304,10 @@ class Runner(object):
     if tgt_vocab is not None:
       self._config["data"]["target_vocabulary"] = tgt_vocab
     new_config = self._finalize_config()
-    new_checkpoint = self._init_model(new_config)
-    new_model, new_optimizer = new_checkpoint.model, new_checkpoint.optimizer
+    new_model = self._init_model(new_config)
+    new_optimizer = new_model.get_optimizer()
+    new_checkpoint = checkpoint_util.Checkpoint.from_config(
+        new_config, new_model, optimizer=new_optimizer)
     new_model.create_variables(optimizer=new_optimizer)
 
     model.transfer_weights(new_model, new_optimizer=new_optimizer, optimizer=optimizer)
@@ -312,9 +330,10 @@ class Runner(object):
       log_time: If ``True``, several time metrics will be printed in the logs at
         the end of the inference loop.
     """
-    checkpoint, config = self._init_run()
+    config = self._finalize_config()
+    model = self._init_model(config)
+    checkpoint = checkpoint_util.Checkpoint.from_config(config, model)
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    model = checkpoint.model
     infer_config = config["infer"]
     dataset = model.examples_inputter.make_inference_dataset(
         features_file,
@@ -376,9 +395,11 @@ class Runner(object):
       exporter: A :class:`opennmt.utils.Exporter` instance. Defaults to
         :class:`opennmt.utils.SavedModelExporter`.
    """
-    checkpoint, _ = self._init_run()
+    config = self._finalize_config()
+    model = self._init_model(config)
+    checkpoint = checkpoint_util.Checkpoint.from_config(config, model)
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    checkpoint.model.export(export_dir, exporter=exporter)
+    model.export(export_dir, exporter=exporter)
 
   def score(self, features_file, predictions_file, checkpoint_path=None, output_file=None):
     """Scores existing predictions.
@@ -391,9 +412,10 @@ class Runner(object):
       output_file: The file where the scores are saved. Otherwise, they will be
         printed on the standard output.
     """
-    checkpoint, config = self._init_run()
+    config = self._finalize_config()
+    model = self._init_model(config)
+    checkpoint = checkpoint_util.Checkpoint.from_config(config, model)
     checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    model = checkpoint.model
     score_config = config["score"]
     dataset = model.examples_inputter.make_evaluation_dataset(
         features_file,
