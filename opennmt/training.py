@@ -39,6 +39,11 @@ class Trainer(abc.ABC):
       optimizer = _LossScaleOptimizer(optimizer, "dynamic")
     self._optimizer = optimizer
 
+  @property
+  def num_replicas(self):
+    """Number of synchronous training replicas."""
+    return 1
+
   def __call__(self,
                dataset,
                max_step=None,
@@ -208,14 +213,12 @@ class Trainer(abc.ABC):
       _summarize_gradients(gradients, record_summaries)
     return reported_loss
 
-  def _step(self, num_replicas=1, reduce_fn=None):
+  def _step(self):
     """Applies gradients and resets accumulation."""
-    gradient_scale = self._gradient_accumulator.step * num_replicas
+    gradient_scale = self._gradient_accumulator.step * self.num_replicas
     gradients = [
-        gradient / tf.cast(gradient_scale, gradient.dtype)
+        self._all_reduce_sum(gradient / tf.cast(gradient_scale, gradient.dtype))
         for gradient in self._gradient_accumulator.gradients]
-    if reduce_fn is not None:
-      gradients = [reduce_fn(gradient) for gradient in gradients]
     self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
     self._gradient_accumulator.reset()
 
@@ -243,14 +246,15 @@ class Trainer(abc.ABC):
     Returns:
       A dictionary mapping a counter name to a Python value.
     """
-    counters = {name:value.numpy() for name, value in self._words_counters.items()}
-    self._reset_words_counters()
+    counters = {}
+    for name, counter in self._words_counters.items():
+      counters[name] = self._all_reduce_sum(counter).numpy()
+      counter.assign(tf.constant(0, dtype=tf.int64))
     return counters
 
-  def _reset_words_counters(self):
-    """Resets the variables that count words."""
-    for counter in self._words_counters.values():
-      counter.assign(tf.constant(0, dtype=tf.int64))
+  def _all_reduce_sum(self, value):
+    """Reduces the value across all replicas."""
+    return value
 
 
 class BasicTrainer(Trainer):
@@ -281,12 +285,12 @@ class HorovodTrainer(Trainer):
     super().__init__(model, optimizer, checkpoint=checkpoint, is_master=hvd.rank() == 0)
     self._hvd = hvd
 
-  def _get_words_counters(self):
-    counters = {
-        name:self._hvd.allreduce(value, op=self._hvd.Sum).numpy()
-        for name, value in self._words_counters.items()}
-    self._reset_words_counters()
-    return counters
+  @property
+  def num_replicas(self):
+    return self._hvd.size()
+
+  def _all_reduce_sum(self, value):
+    return self._hvd.allreduce(value, op=self._hvd.Sum)
 
   def _steps(self, dataset, accum_steps=1, report_steps=None):
     if callable(dataset):
@@ -306,9 +310,7 @@ class HorovodTrainer(Trainer):
 
     @tf.function
     def _step():
-      return self._step(
-          num_replicas=self._hvd.size(),
-          reduce_fn=lambda gradient: self._hvd.allreduce(gradient, op=self._hvd.Sum))
+      return self._step()
 
     for i, (source, target) in enumerate(dataset):
       loss = _forward(source, target)
@@ -338,6 +340,10 @@ class DistributionStrategyTrainer(Trainer):
     with self._strategy.scope():
       # Create some variables under the strategy scope.
       _ = self._optimizer.iterations
+
+  @property
+  def num_replicas(self):
+    return self._strategy.num_replicas_in_sync
 
   def _steps(self, dataset, accum_steps=1, report_steps=None):
     for i, loss in enumerate(self._accumulate_next_gradients(dataset, report_steps=report_steps)):
@@ -391,8 +397,7 @@ class DistributionStrategyTrainer(Trainer):
   @tf.function
   def _apply_gradients(self):
     """Applies the gradients (cross-replica)."""
-    self._strategy.experimental_run_v2(
-        self._step, kwargs=dict(num_replicas=self._strategy.num_replicas_in_sync))
+    self._strategy.experimental_run_v2(self._step)
 
 
 def _report_training_status(step,
