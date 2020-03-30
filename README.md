@@ -49,7 +49,7 @@ Standard models such as the Transformer are defined in a [model catalog](https:/
 OpenNMT-tf is fully integrated in the TensorFlow 2.0 ecosystem:
 
 * Reusable layers extending [`tf.keras.layers.Layer`](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Layer)
-* Multi-GPU training with [`tf.distribute`](https://www.tensorflow.org/api_docs/python/tf/distribute)
+* Multi-GPU training with [`tf.distribute`](https://www.tensorflow.org/api_docs/python/tf/distribute) and distributed training with [Horovod](https://github.com/horovod/horovod)
 * Mixed precision support via a [graph optimization pass](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite)
 * Visualization with [TensorBoard](https://www.tensorflow.org/tensorboard)
 * `tf.function` graph tracing that can be [exported to a SavedModel](https://opennmt.net/OpenNMT-tf/serving.html) and served with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/tensorflow_serving) or [Python](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/python)

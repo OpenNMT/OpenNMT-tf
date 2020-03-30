@@ -82,7 +82,9 @@ The `--horovod` training flag enables distributed training with Horovod:
 onmt-main [...] train --horovod
 ```
 
-See the [Horovod documentation](https://horovod.readthedocs.io/en/latest/index.html) for more information on installation and usage.
+Similar to multi-GPU training, this is equivalent to train with batches `N` times larger, where `N` is the total number of Horovod processes.
+
+See the [Horovod documentation](https://horovod.readthedocs.io/en/latest/index.html) for more information about installation and usage.
 
 ## Mixed precision training
 
