@@ -182,7 +182,7 @@ def make_scorers(names):
     elif name == "fmeasure":
       scorer = FMEASUREScorer()
     elif name == "prfmeasure":
-      scorer = FMEASUREScorer()
+      scorer = PRFScorer()
     else:
       raise ValueError("No scorer associated with the name: {}".format(name))
     scorers.append(scorer)
