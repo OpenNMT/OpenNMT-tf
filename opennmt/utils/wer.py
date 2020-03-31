@@ -2,8 +2,8 @@
 import numpy
 import pyter
 
-""" Compute Word Error Rate between two files """
 def wer(ref_path, hyp_path):
+  """ Compute Word Error Rate between two files """
   ref_fp = open(ref_path)
   hyp_fp = open(hyp_path)
   ref_line = ref_fp.readline()
@@ -11,18 +11,20 @@ def wer(ref_path, hyp_path):
   wer_score = 0.0
   line_cpt = 0.0
   while ref_line and hyp_line:
-    wer_score = wer_score+(pyter.edit_distance(ref_line.strip().split(), hyp_line.strip().split())/len(ref_line.strip().split()))
+    wer_score = wer_score+(pyter.edit_distance(ref_line.strip().split(), \
+                hyp_line.strip().split())/len(ref_line.strip().split()))
     line_cpt = line_cpt+1
     ref_line = ref_fp.readline()
     hyp_line = hyp_fp.readline()
+  mean_wer = 1.0
   if line_cpt > 0:
-    return (wer_score/line_cpt)
-  else:
-    return 1.0
+    mean_wer = wer_score/line_cpt
+  return mean_wer
 
-""" Compute Word Error Rate between two sentences (as list of words) """
 def sentence_wer(ref_sent, hyp_sent):
-  mwer = numpy.zeros((len(ref_sent)+1)*(len(hyp_sent)+1), dtype=numpy.uint8).reshape((len(ref_sent)+1, len(hyp_sent)+1))
+  """ Compute Word Error Rate between two sentences (as list of words) """
+  mwer = numpy.zeros((len(ref_sent)+1)*(len(hyp_sent)+1), \
+         dtype=numpy.uint8).reshape((len(ref_sent)+1, len(hyp_sent)+1))
   for i in range(len(ref_sent)+1):
     mwer[i][0] = i
   for j in range(len(hyp_sent)+1):
@@ -36,4 +38,7 @@ def sentence_wer(ref_sent, hyp_sent):
         insert = mwer[i][j-1] + 1
         delete = mwer[i-1][j] + 1
         mwer[i][j] = min(substitute, insert, delete)
-  return (mwer[len(ref_sent)][len(hyp_sent)]/len(ref_sent))
+  sent_wer = 1.0
+  if len(ref_sent) > 0:
+    sent_wer = mwer[len(ref_sent)][len(hyp_sent)]/len(ref_sent)
+  return sent_wer

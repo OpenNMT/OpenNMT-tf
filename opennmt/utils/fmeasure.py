@@ -1,8 +1,11 @@
 """Hypotheses file scoring for Precision Recall and F-Measure."""
 
-
-""" Compute Precision Recall and F-Measure between two files """
-def fmeasure(ref_path, hyp_path, return_precision_only=False, return_recall_only=False, return_fmeasure_only=False):
+def fmeasure(ref_path,
+             hyp_path,
+             return_precision_only=False,
+             return_recall_only=False,
+             return_fmeasure_only=False):
+  """Compute Precision Recall and F-Measure between two files"""
   ref = open(ref_path)
   hyp = open(hyp_path)
   listtags = []
@@ -24,7 +27,6 @@ def fmeasure(ref_path, hyp_path, return_precision_only=False, return_recall_only
     lineref = []
     for tag in tabline:
       lineref.append(tag)
-      #classref[linecpt][tagcpt] = 
       if tag in nbrtagref.keys():
         nbrtagref[tag] = nbrtagref[tag]+1
       else:

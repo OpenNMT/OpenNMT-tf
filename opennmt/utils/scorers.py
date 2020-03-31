@@ -78,12 +78,12 @@ class WERScorer(Scorer):
     super(WERScorer, self).__init__("wer")
 
   def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.wer import wer
+    from opennmt.utils.wer import wer # pylint: disable=import-outside-toplevel
     wer_score = wer(ref_path, hyp_path)
     return wer_score
 
-  """ Since the score shall be the lower the better """
   def lower_is_better(self):
+    """ Since the score shall be the lower the better """
     return True
 
 class TERScorer(Scorer):
@@ -92,12 +92,12 @@ class TERScorer(Scorer):
     super(TERScorer, self).__init__("ter")
 
   def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.ter import ter
+    from opennmt.utils.ter import ter # pylint: disable=import-outside-toplevel
     ter_score = ter(ref_path, hyp_path)
     return ter_score
 
-  """ Since the score shall be the lower the better """
   def lower_is_better(self):
+    """ Since the score shall be the lower the better """
     return True
 
 
@@ -108,7 +108,7 @@ class FMEASUREScorer(Scorer):
     super(FMEASUREScorer, self).__init__("fmeasure")
 
   def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.fmeasure import fmeasure
+    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
     fmeasure_score = fmeasure(ref_path, hyp_path, False, False, True)
     return fmeasure_score
 
@@ -118,7 +118,7 @@ class PRECISIONScorer(Scorer):
     super(PRECISIONScorer, self).__init__("precision")
 
   def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.fmeasure import fmeasure
+    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
     precision_score = fmeasure(ref_path, hyp_path, True, False, False)
     return precision_score
 
@@ -128,7 +128,7 @@ class RECALLScorer(Scorer):
     super(RECALLScorer, self).__init__("recall")
 
   def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.fmeasure import fmeasure
+    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
     recall_score = fmeasure(ref_path, hyp_path, False, True, False)
     return recall_score
 
@@ -143,9 +143,8 @@ class PRFScorer(Scorer):
 
 
   def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.fmeasure import fmeasure
+    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
     precision_score, recall_score, fmeasure_score = fmeasure(ref_path, hyp_path)
-    
     return {"precision":precision_score, "recall":recall_score, "fmeasure":fmeasure_score}
 
 
