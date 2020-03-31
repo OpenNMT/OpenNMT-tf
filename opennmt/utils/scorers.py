@@ -79,7 +79,7 @@ class WERScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     from opennmt.utils.wer import wer
-    wer_score=wer(ref_path,hyp_path)
+    wer_score = wer(ref_path, hyp_path)
     return wer_score
 
   """ Since the score shall be the lower the better """
@@ -93,7 +93,7 @@ class TERScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     from opennmt.utils.ter import ter
-    ter_score=ter(ref_path,hyp_path)
+    ter_score = ter(ref_path, hyp_path)
     return ter_score
 
   """ Since the score shall be the lower the better """
@@ -109,27 +109,27 @@ class FMEASUREScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     from opennmt.utils.fmeasure import fmeasure
-    precision_score,recall_score,fmeasure_score=fmeasure(ref_path,hyp_path)
+    fmeasure_score = fmeasure(ref_path, hyp_path, False, False, True)
     return fmeasure_score
 
 class PRECISIONScorer(Scorer):
   """Scorer for Precision."""
   def __init__(self):
-    super(PRECISIONScorer, self).__init__("fmeasure")
+    super(PRECISIONScorer, self).__init__("precision")
 
   def __call__(self, ref_path, hyp_path):
     from opennmt.utils.fmeasure import fmeasure
-    precision_score,recall_score,fmeasure_score=fmeasure(ref_path,hyp_path)
+    precision_score = fmeasure(ref_path, hyp_path, True, False, False)
     return precision_score
 
 class RECALLScorer(Scorer):
   """Scorer for Recall."""
   def __init__(self):
-    super(RECALLScorer, self).__init__("fmeasure")
+    super(RECALLScorer, self).__init__("recall")
 
   def __call__(self, ref_path, hyp_path):
     from opennmt.utils.fmeasure import fmeasure
-    precision_score,recall_score,fmeasure_score=fmeasure(ref_path,hyp_path)
+    recall_score = fmeasure(ref_path, hyp_path, False, True, False)
     return recall_score
 
 class PRFScorer(Scorer):
@@ -144,9 +144,9 @@ class PRFScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     from opennmt.utils.fmeasure import fmeasure
-    precision_score,recall_score,fmeasure_score=fmeasure(ref_path,hyp_path)
+    precision_score, recall_score, fmeasure_score = fmeasure(ref_path, hyp_path)
     
-    return {"precision":precision_score,"recall":recall_score,"fmeasure":fmeasure_score}
+    return {"precision":precision_score, "recall":recall_score, "fmeasure":fmeasure_score}
 
 
 def make_scorers(names):
