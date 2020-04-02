@@ -8,6 +8,7 @@ def fmeasure(ref_path,
   """Compute Precision Recall and F-Measure between two files"""
   ref = open(ref_path)
   hyp = open(hyp_path)
+  list_null_tags = ["X","null","NULL", "Null","O"]
   listtags = []
   linecpt = 0
   classref = []
@@ -27,7 +28,7 @@ def fmeasure(ref_path,
     lineref = []
     for tag in tabline:
       lineref.append(tag)
-      if tag in nbrtagref.keys():
+      if tag in nbrtagref.keys() and tag not in list_null_tags:
         nbrtagref[tag] = nbrtagref[tag]+1
       else:
         nbrtagref[tag] = 1
@@ -65,6 +66,9 @@ def fmeasure(ref_path,
   fullrecall = 0
   precision = {}
   recall = {}
+  fulltagok = 0.00
+  fulltaghyp = 0.00
+  fulltagref = 0.00
   for tag in listtags:
     if tag not in nbrtagok:
       nbrtagok[tag] = 0
@@ -80,11 +84,15 @@ def fmeasure(ref_path,
       recall[tag] = nbrtagok[tag]/nbrtagref[tag]
     else:
       recall[tag] = 0
-    fullprecision = fullprecision+precision[tag]
-    fullrecall = fullrecall+recall[tag]
+    if tag not in list_null_tags:
+      fulltagok = fulltagok+nbrtagok[tag]
+      fulltaghyp = fulltaghyp+nbrtaghyp[tag]
+      fulltagref = fulltagref+nbrtagref[tag]
+#      fullprecision = fullprecision+precision[tag]
+#      fullrecall = fullrecall+recall[tag]
     tagcpt = tagcpt+1
-  fullprecision = round(100*fullprecision/tagcpt, 2)/100
-  fullrecall = round(100*fullrecall/tagcpt, 2)/100
+  fullprecision = round(100*fulltagok/fulltaghyp, 2)/100
+  fullrecall = round(100*fulltagok/fulltagref, 2)/100
   fullfmeasure = (round((200*fullprecision*fullrecall)/(fullprecision+fullrecall), 2))/100
   if return_precision_only:
     return fullprecision
