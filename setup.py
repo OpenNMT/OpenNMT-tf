@@ -49,7 +49,7 @@ setup(
         "sacrebleu>=1.4.3,<2",
         "tensorflow>=2.1,<2.2",
         "tensorflow-addons>=0.8.1,<0.9",
-        "pyter3>=0.3"
+        "pyter3==0.3"
     ],
     extras_require={
         "tests": tests_require,
