@@ -102,36 +102,6 @@ class TERScorer(Scorer):
 
 
 
-class FMEASUREScorer(Scorer):
-  """Scorer for F-measure."""
-  def __init__(self):
-    super(FMEASUREScorer, self).__init__("fmeasure")
-
-  def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
-    fmeasure_score = fmeasure(ref_path, hyp_path, False, False, True)
-    return fmeasure_score
-
-class PRECISIONScorer(Scorer):
-  """Scorer for Precision."""
-  def __init__(self):
-    super(PRECISIONScorer, self).__init__("precision")
-
-  def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
-    precision_score = fmeasure(ref_path, hyp_path, True, False, False)
-    return precision_score
-
-class RECALLScorer(Scorer):
-  """Scorer for Recall."""
-  def __init__(self):
-    super(RECALLScorer, self).__init__("recall")
-
-  def __call__(self, ref_path, hyp_path):
-    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
-    recall_score = fmeasure(ref_path, hyp_path, False, True, False)
-    return recall_score
-
 class PRFScorer(Scorer):
   """Scorer for F-measure."""
   def __init__(self):
@@ -174,12 +144,6 @@ def make_scorers(names):
       scorer = WERScorer()
     elif name == "ter":
       scorer = TERScorer()
-    elif name == "precision":
-      scorer = PRECISIONScorer()
-    elif name == "recall":
-      scorer = RECALLScorer()
-    elif name == "fmeasure":
-      scorer = FMEASUREScorer()
     elif name == "prfmeasure":
       scorer = PRFScorer()
     else:
