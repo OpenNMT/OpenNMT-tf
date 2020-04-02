@@ -8,7 +8,7 @@ def fmeasure(ref_path,
   """Compute Precision Recall and F-Measure between two files"""
   ref = open(ref_path)
   hyp = open(hyp_path)
-  list_null_tags = ["X","null","NULL", "Null","O"]
+  list_null_tags = ["X", "null", "NULL", "Null", "O"]
   listtags = []
   linecpt = 0
   classref = []
