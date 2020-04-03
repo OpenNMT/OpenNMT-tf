@@ -30,5 +30,6 @@ from opennmt.utils.scorers import ROUGEScorer
 from opennmt.utils.scorers import Scorer
 from opennmt.utils.scorers import TERScorer
 from opennmt.utils.scorers import WERScorer
+from opennmt.utils.scorers import register_scorer
 
 from opennmt.utils.tensor import roll_sequence
