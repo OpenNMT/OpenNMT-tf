@@ -18,4 +18,3 @@ def ter(ref_path, hyp_path):
   if line_cpt > 0:
     mean_ter = ter_score/line_cpt
   return mean_ter
-  

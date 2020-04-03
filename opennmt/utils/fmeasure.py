@@ -20,7 +20,7 @@ def fmeasure(ref_path,
       nbrtagref[tag] = 0
       nbrtaghyp[tag] = 0
       nbrtagok[tag] = 0
-    for line in ref:
+    for line in ref_fp:
       line = line.strip()
       tabline = line.split(' ')
       tagcpt = 0
@@ -35,7 +35,7 @@ def fmeasure(ref_path,
       classref.append(lineref)
       linecpt = linecpt+1
     linecpt = 0
-    for line in hyp:
+    for line in hyp_fp:
       line = line.strip()
       tabline = line.split(' ')
       tagcpt = 0
@@ -59,7 +59,7 @@ def fmeasure(ref_path,
       classhyp.append(linehyp)
       classrandom.append(linerandom)
       linecpt = linecpt+1
-  
+
   tagcpt = 0
   fullprecision = 0
   fullrecall = 0
