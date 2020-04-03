@@ -7,9 +7,10 @@ import tensorflow as tf
 from rouge import FilesRouge
 from sacrebleu import corpus_bleu
 
-from opennmt.utils.wer import wer
-from opennmt.utils.ter import ter
+from opennmt.utils import misc
 from opennmt.utils.fmeasure import fmeasure
+from opennmt.utils.ter import ter
+from opennmt.utils.wer import wer
 
 
 class Scorer(abc.ABC):
@@ -50,6 +51,11 @@ class Scorer(abc.ABC):
     return not self.lower_is_better()
 
 
+_SCORERS_REGISTRY = misc.ClassRegistry(base_class=Scorer)
+register_scorer = _SCORERS_REGISTRY.register  # pylint: disable=invalid-name
+
+
+@register_scorer(name="rouge")
 class ROUGEScorer(Scorer):
   """ROUGE scorer based on https://github.com/pltrdy/rouge."""
 
@@ -66,6 +72,7 @@ class ROUGEScorer(Scorer):
     return {name:rouge_scores[name]["f"] for name in self.scores_name}
 
 
+@register_scorer(name="bleu")
 class BLEUScorer(Scorer):
   """Scorer using sacreBLEU."""
 
@@ -78,6 +85,7 @@ class BLEUScorer(Scorer):
       return bleu.score
 
 
+@register_scorer(name="wer")
 class WERScorer(Scorer):
   """Scorer for WER."""
 
@@ -93,6 +101,7 @@ class WERScorer(Scorer):
     return True
 
 
+@register_scorer(name="ter")
 class TERScorer(Scorer):
   """Scorer for TER."""
 
@@ -108,6 +117,7 @@ class TERScorer(Scorer):
     return True
 
 
+@register_scorer(name="prfmeasure", alias="prf")
 class PRFScorer(Scorer):
   """Scorer for F-measure."""
 
@@ -120,7 +130,11 @@ class PRFScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     precision_score, recall_score, fmeasure_score = fmeasure(ref_path, hyp_path)
-    return {"precision":precision_score, "recall":recall_score, "fmeasure":fmeasure_score}
+    return {
+        "precision": precision_score,
+        "recall": recall_score,
+        "fmeasure": fmeasure_score
+    }
 
 
 def make_scorers(names):
@@ -139,19 +153,8 @@ def make_scorers(names):
     names = [names]
   scorers = []
   for name in names:
-    name = name.lower()
-    scorer = None
-    if name == "bleu":
-      scorer = BLEUScorer()
-    elif name == "rouge":
-      scorer = ROUGEScorer()
-    elif name == "wer":
-      scorer = WERScorer()
-    elif name == "ter":
-      scorer = TERScorer()
-    elif name == "prfmeasure":
-      scorer = PRFScorer()
-    else:
+    scorer_class = _SCORERS_REGISTRY.get(name.lower())
+    if scorer_class is None:
       raise ValueError("No scorer associated with the name: {}".format(name))
-    scorers.append(scorer)
+    scorers.append(scorer_class())
   return scorers

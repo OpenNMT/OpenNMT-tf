@@ -32,6 +32,21 @@ class ScorersTest(tf.test.TestCase):
     self.assertIn("rouge-2", score)
     self.assertAlmostEqual(1.0, score["rouge-1"])
 
+  def testMakeScorers(self):
+
+    def _check_scorers(scorers, instances):
+      self.assertLen(scorers, len(instances))
+      for scorer, instance in zip(scorers, instances):
+        self.assertIsInstance(scorer, instance)
+
+    _check_scorers(scorers.make_scorers("bleu"), [scorers.BLEUScorer])
+    _check_scorers(scorers.make_scorers("BLEU"), [scorers.BLEUScorer])
+    _check_scorers(
+        scorers.make_scorers(["BLEU", "rouge"]),
+        [scorers.BLEUScorer, scorers.ROUGEScorer])
+    _check_scorers(scorers.make_scorers("prf"), [scorers.PRFScorer])
+    _check_scorers(scorers.make_scorers("prfmeasure"), [scorers.PRFScorer])
+
 
 if __name__ == "__main__":
   tf.test.main()
