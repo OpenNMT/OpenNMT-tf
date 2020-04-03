@@ -25,7 +25,11 @@ from opennmt.utils.losses import regularization_penalty
 from opennmt.utils.misc import format_translation_output
 
 from opennmt.utils.scorers import BLEUScorer
+from opennmt.utils.scorers import PRFScorer
 from opennmt.utils.scorers import ROUGEScorer
 from opennmt.utils.scorers import Scorer
+from opennmt.utils.scorers import TERScorer
+from opennmt.utils.scorers import WERScorer
+from opennmt.utils.scorers import register_scorer
 
 from opennmt.utils.tensor import roll_sequence
