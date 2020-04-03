@@ -183,7 +183,8 @@ class Trainer(abc.ABC):
     training_loss = self._model.regularize_loss(
         training_loss, variables=self._model.trainable_variables)
     self._update_words_counter("source", source)
-    self._update_words_counter("target", target)
+    if not self._model.unsupervised:
+      self._update_words_counter("target", target)
     if first_call and self._is_master:
       if self._checkpoint is not None:
         self._model.visualize(self._checkpoint.model_dir)
