@@ -72,6 +72,51 @@ class BLEUScorer(Scorer):
       bleu = corpus_bleu(sys_stream, [ref_stream], force=True)
       return bleu.score
 
+class WERScorer(Scorer):
+  """Scorer for WER."""
+  def __init__(self):
+    super(WERScorer, self).__init__("wer")
+
+  def __call__(self, ref_path, hyp_path):
+    from opennmt.utils.wer import wer # pylint: disable=import-outside-toplevel
+    wer_score = wer(ref_path, hyp_path)
+    return wer_score
+
+  def lower_is_better(self):
+    """ Since the score shall be the lower the better """
+    return True
+
+class TERScorer(Scorer):
+  """Scorer for TER."""
+  def __init__(self):
+    super(TERScorer, self).__init__("ter")
+
+  def __call__(self, ref_path, hyp_path):
+    from opennmt.utils.ter import ter # pylint: disable=import-outside-toplevel
+    ter_score = ter(ref_path, hyp_path)
+    return ter_score
+
+  def lower_is_better(self):
+    """ Since the score shall be the lower the better """
+    return True
+
+
+
+class PRFScorer(Scorer):
+  """Scorer for F-measure."""
+  def __init__(self):
+    super(PRFScorer, self).__init__("prfmeasure")
+
+  @property
+  def scores_name(self):
+    return {"precision", "recall", "fmeasure"}
+
+
+  def __call__(self, ref_path, hyp_path):
+    from opennmt.utils.fmeasure import fmeasure  # pylint: disable=import-outside-toplevel
+    precision_score, recall_score, fmeasure_score = fmeasure(ref_path, hyp_path)
+    return {"precision":precision_score, "recall":recall_score, "fmeasure":fmeasure_score}
+
 
 def make_scorers(names):
   """Returns a list of scorers.
@@ -95,6 +140,12 @@ def make_scorers(names):
       scorer = BLEUScorer()
     elif name == "rouge":
       scorer = ROUGEScorer()
+    elif name == "wer":
+      scorer = WERScorer()
+    elif name == "ter":
+      scorer = TERScorer()
+    elif name == "prfmeasure":
+      scorer = PRFScorer()
     else:
       raise ValueError("No scorer associated with the name: {}".format(name))
     scorers.append(scorer)
