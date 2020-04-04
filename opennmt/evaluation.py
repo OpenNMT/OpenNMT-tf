@@ -334,7 +334,7 @@ class Evaluator(object):
     self._model.export(export_dir, exporter=self._exporter)
 
   def _maybe_garbage_collect_exports(self):
-    if self._max_exports_to_keep is None:
+    if self._max_exports_to_keep is None or not os.path.exists(self._export_dir):
       return
     exported_steps = list(sorted(map(int, os.listdir(self._export_dir))))
     num_exports = len(exported_steps)
