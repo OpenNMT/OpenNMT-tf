@@ -2,6 +2,7 @@
 
 import collections
 import os
+import shutil
 
 import tensorflow as tf
 
@@ -32,7 +33,8 @@ class Evaluator(object):
                early_stopping=None,
                model_dir=None,
                export_on_best=None,
-               exporter=None):
+               exporter=None,
+               max_exports_to_keep=5):
     """Initializes the evaluator.
 
     Args:
@@ -50,6 +52,8 @@ class Evaluator(object):
         best value so far.
       exporter: A :class:`opennmt.utils.Exporter` instance to export the model.
         Defaults to :class:`opennmt.utils.SavedModelExporter`.
+      max_exports_to_keep: Maximum number of exports to keep. Older exports will
+        be garbage collected. Set to ``None`` to keep all exports.
 
     Raises:
       ValueError: If :obj:`save_predictions` is set but the model is not compatible.
@@ -119,6 +123,7 @@ class Evaluator(object):
     self._export_on_best = export_on_best
     self._exporter = exporter
     self._export_dir = export_dir
+    self._max_exports_to_keep = max_exports_to_keep
 
   @classmethod
   def from_config(cls, model, config, features_file=None, labels_file=None):
@@ -163,7 +168,8 @@ class Evaluator(object):
         early_stopping=early_stopping,
         model_dir=config["model_dir"],
         export_on_best=eval_config.get("export_on_best"),
-        exporter=exporters.make_exporter(eval_config.get("export_format", "saved_model")))
+        exporter=exporters.make_exporter(eval_config.get("export_format", "saved_model")),
+        max_exports_to_keep=eval_config.get("max_exports_to_keep", 5))
 
   @property
   def predictions_dir(self):
@@ -302,6 +308,7 @@ class Evaluator(object):
 
     self._record_results(step, results)
     self._maybe_export(step, results)
+    self._maybe_garbage_collect_exports()
     return results
 
   def _record_results(self, step, results):
@@ -325,6 +332,16 @@ class Evaluator(object):
     tf.get_logger().info("Exporting model to %s (best %s so far: %f)",
                          export_dir, self._export_on_best, results[self._export_on_best])
     self._model.export(export_dir, exporter=self._exporter)
+
+  def _maybe_garbage_collect_exports(self):
+    if self._max_exports_to_keep is None or not os.path.exists(self._export_dir):
+      return
+    exported_steps = list(sorted(map(int, os.listdir(self._export_dir))))
+    num_exports = len(exported_steps)
+    if num_exports > self._max_exports_to_keep:
+      steps_to_remove = exported_steps[:num_exports - self._max_exports_to_keep]
+      for step in steps_to_remove:
+        shutil.rmtree(os.path.join(self._export_dir, str(step)))
 
 
 def early_stop(metrics, steps, min_improvement=0, higher_is_better=False):

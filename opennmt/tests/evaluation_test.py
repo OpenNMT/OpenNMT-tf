@@ -70,7 +70,6 @@ class EvaluationTest(tf.test.TestCase):
       features.write("1\n2\n")
       labels.write("1\n2\n")
     model = TestModel({"a": [2, 5, 8], "b": [3, 6, 9]})
-    model.initialize({})
     early_stopping = evaluation.EarlyStopping(metric="loss", min_improvement=0, steps=1)
     evaluator = evaluation.Evaluator(
         model,
@@ -130,7 +129,6 @@ class EvaluationTest(tf.test.TestCase):
       features.write("1\n2\n")
       labels.write("1\n2\n")
     model = TestModel()
-    model.initialize({})
     evaluator = evaluation.Evaluator(
         model,
         features_file,
@@ -142,6 +140,38 @@ class EvaluationTest(tf.test.TestCase):
     self.assertIn("rouge-1", evaluator.metrics_name)
     self.assertIn("rouge-2", evaluator.metrics_name)
     self.assertIn("rouge-l", evaluator.metrics_name)
+
+  def testExportsGarbageCollection(self):
+    features_file = os.path.join(self.get_temp_dir(), "features.txt")
+    labels_file = os.path.join(self.get_temp_dir(), "labels.txt")
+    model_dir = self.get_temp_dir()
+    with open(features_file, "w") as features, open(labels_file, "w") as labels:
+      features.write("1\n2\n")
+      labels.write("1\n2\n")
+    model = TestModel()
+    exporter = TestExporter()
+    evaluator = evaluation.Evaluator(
+        model,
+        features_file,
+        labels_file,
+        batch_size=1,
+        model_dir=model_dir,
+        export_on_best="loss",
+        exporter=exporter,
+        max_exports_to_keep=2)
+
+    # Generate some pre-existing exports.
+    for step in (5, 10, 15):
+      exporter.export(model, os.path.join(evaluator.export_dir, str(step)))
+
+    def _eval_step(step, loss, expected_exported_steps):
+      model.next_loss.assign(loss)
+      evaluator(step)
+      exported_steps = list(sorted(map(int, os.listdir(evaluator.export_dir))))
+      self.assertListEqual(exported_steps, expected_exported_steps)
+
+    _eval_step(20, 3, [15, 20])  # Exports 5 and 10 should be removed.
+    _eval_step(25, 2, [20, 25])  # Export 15 should be removed.
 
   def testEarlyStop(self):
     self.assertFalse(

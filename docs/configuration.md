@@ -289,6 +289,8 @@ eval:
   export_on_best: bleu
   # (optional) Format of the exported model (can be: "saved_model, "ctranslate2", default: "saved_model").
   export_format: saved_model
+  # (optional) Maximum number of exports to keep on disk (default: 5).
+  max_exports_to_keep: 5
 
   # (optional) Early stopping condition.
   # Should be read as: stop the training if "metric" did not improve more
