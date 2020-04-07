@@ -13,7 +13,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Horovod support with the training flag `--horovod`
+* New external scorers: Word Error Rate (`wer`), Translation Error Rate (`ter`), and Precision-Recall-FMeasure (`prf`)
+* Evaluation parameter `max_exports_to_keep` to limit the number of exported models
+
 ### Fixes and improvements
+
+* Do not report "target words/s" when training language models
 
 ## [2.8.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.8.1) (2020-03-24)
 
