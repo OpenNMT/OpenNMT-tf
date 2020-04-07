@@ -1,0 +1,8 @@
+opennmt.utils.TERScorer
+=======================
+
+.. autoclass:: opennmt.utils.TERScorer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.Scorer`

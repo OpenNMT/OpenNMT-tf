@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.8.1 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.9.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.8
+                2.9
               </div>
             
           
@@ -379,9 +379,13 @@
     <span class="sd">&quot;&quot;&quot;Returns the optimizer for this model.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A ``tf.keras.optimizers.Optimizer`` instance.</span>
+<span class="sd">      A ``tf.keras.optimizers.Optimizer`` instance or ``None`` if no optimizer</span>
+<span class="sd">      is configured.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+    <span class="n">optimizer_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">optimizer_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
     <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">schedule_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
@@ -395,7 +399,7 @@
     <span class="k">if</span> <span class="n">optimizer_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">optimizer_params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">make_optimizer</span><span class="p">(</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">],</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_params</span><span class="p">)</span>
+        <span class="n">optimizer_name</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">optimizer</span></div>
 
 <div class="viewcode-block" id="Model.serve_function"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.serve_function">[docs]</a>  <span class="k">def</span> <span class="nf">serve_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

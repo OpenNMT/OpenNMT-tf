@@ -16,11 +16,14 @@ Classes
    opennmt.utils.DecodingStrategy
    opennmt.utils.Exporter
    opennmt.utils.GreedySearch
+   opennmt.utils.PRFScorer
    opennmt.utils.ROUGEScorer
    opennmt.utils.RandomSampler
    opennmt.utils.Sampler
    opennmt.utils.SavedModelExporter
    opennmt.utils.Scorer
+   opennmt.utils.TERScorer
+   opennmt.utils.WERScorer
 Functions
 ---------
 

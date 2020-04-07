@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.8.1 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.9.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.8
+                2.9
               </div>
             
           
@@ -197,7 +197,7 @@
     <span class="sd">&quot;&quot;&quot;Initializes the wrapper.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      model: A :class:`opennmt.models.model.Model` to save.</span>
+<span class="sd">      model: A :class:`opennmt.models.Model` to save.</span>
 <span class="sd">      optimizer: The optimizer instance.</span>
 <span class="sd">      model_dir: The directory where checkpoints will be saved. If not set, a</span>
 <span class="sd">        temporary directory will be used.</span>
@@ -215,6 +215,27 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="o">**</span><span class="n">trackables</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint_manager</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">CheckpointManager</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">keep_checkpoint_max</span><span class="p">)</span>
+
+  <span class="nd">@classmethod</span>
+  <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a checkpoint wrapper from the configuration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      config: The user configuration.</span>
+<span class="sd">      model: A :class:`opennmt.models.Model` to save.</span>
+<span class="sd">      optimizer: The optimizer instance.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`openmt.utils.Checkpoint` instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">train_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">train_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">train_config</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+        <span class="n">model_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_dir&quot;</span><span class="p">),</span>
+        <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

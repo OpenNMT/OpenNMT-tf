@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 2.8.1 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.9.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                2.8
+                2.9
               </div>
             
           
@@ -839,16 +839,22 @@
 </li>
       <li><a href="package/opennmt.load_config.html#opennmt.load_config">load_config() (in module opennmt)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.load_model.html#opennmt.load_model">load_model() (in module opennmt)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.inputters.load_pretrained_embeddings.html#opennmt.inputters.load_pretrained_embeddings">load_pretrained_embeddings() (in module opennmt.inputters)</a>
 </li>
       <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.lookup">lookup() (opennmt.data.Vocab method)</a>
 </li>
       <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.lower_is_better">lower_is_better() (opennmt.utils.Scorer method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.utils.TERScorer.html#opennmt.utils.TERScorer.lower_is_better">(opennmt.utils.TERScorer method)</a>
 </li>
+        <li><a href="package/opennmt.utils.WERScorer.html#opennmt.utils.WERScorer.lower_is_better">(opennmt.utils.WERScorer method)</a>
+</li>
+      </ul></li>
       <li><a href="package/opennmt.layers.LSTM.html#opennmt.layers.LSTM">LSTM (class in opennmt.layers)</a>
 </li>
       <li><a href="package/opennmt.models.LstmCnnCrfTagger.html#opennmt.models.LstmCnnCrfTagger">LstmCnnCrfTagger (class in opennmt.models)</a>
@@ -1079,6 +1085,8 @@
 </li>
       <li><a href="package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder">PositionEncoder (class in opennmt.layers)</a>
 </li>
+      <li><a href="package/opennmt.utils.PRFScorer.html#opennmt.utils.PRFScorer">PRFScorer (class in opennmt.utils)</a>
+</li>
       <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.print_prediction">print_prediction() (opennmt.models.LanguageModel method)</a>
 
       <ul>
@@ -1191,9 +1199,11 @@
       </ul></li>
       <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer">Scorer (class in opennmt.utils)</a>
 </li>
-      <li><a href="package/opennmt.utils.ROUGEScorer.html#opennmt.utils.ROUGEScorer.scores_name">scores_name() (opennmt.utils.ROUGEScorer property)</a>
+      <li><a href="package/opennmt.utils.PRFScorer.html#opennmt.utils.PRFScorer.scores_name">scores_name() (opennmt.utils.PRFScorer property)</a>
 
       <ul>
+        <li><a href="package/opennmt.utils.ROUGEScorer.html#opennmt.utils.ROUGEScorer.scores_name">(opennmt.utils.ROUGEScorer property)</a>
+</li>
         <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.scores_name">(opennmt.utils.Scorer property)</a>
 </li>
       </ul></li>
@@ -1221,10 +1231,10 @@
 </li>
       <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.serialize">serialize() (opennmt.data.Vocab method)</a>
 </li>
-      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.serve_function">serve_function() (opennmt.models.Model method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.serve_function">serve_function() (opennmt.models.Model method)</a>
+</li>
       <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.set_decoder_mode">set_decoder_mode() (opennmt.inputters.WordEmbedder method)</a>
 </li>
       <li><a href="package/opennmt.layers.Dense.html#opennmt.layers.Dense.set_kernel">set_kernel() (opennmt.layers.Dense method)</a>
@@ -1282,6 +1292,8 @@
       <li><a href="package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter">TagsInputter (class in opennmt.models)</a>
 </li>
       <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.TARGET">TARGET (opennmt.models.EmbeddingsSharingLevel attribute)</a>
+</li>
+      <li><a href="package/opennmt.utils.TERScorer.html#opennmt.utils.TERScorer">TERScorer (class in opennmt.utils)</a>
 </li>
       <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter">TextInputter (class in opennmt.inputters)</a>
 </li>
@@ -1369,16 +1381,18 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.utils.WERScorer.html#opennmt.utils.WERScorer">WERScorer (class in opennmt.utils)</a>
+</li>
       <li><a href="package/opennmt.data.WordDropout.html#opennmt.data.WordDropout">WordDropout (class in opennmt.data)</a>
 </li>
       <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder">WordEmbedder (class in opennmt.inputters)</a>
 </li>
       <li><a href="package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser">WordNoiser (class in opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.data.WordOmission.html#opennmt.data.WordOmission">WordOmission (class in opennmt.data)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.data.WordOmission.html#opennmt.data.WordOmission">WordOmission (class in opennmt.data)</a>
+</li>
       <li><a href="package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation">WordPermutation (class in opennmt.data)</a>
 </li>
       <li><a href="package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement">WordReplacement (class in opennmt.data)</a>

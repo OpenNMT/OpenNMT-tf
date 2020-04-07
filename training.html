@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training &mdash; OpenNMT-tf 2.8.1 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 2.9.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.8
+                2.9
               </div>
             
           
@@ -116,6 +116,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#multi-gpu-training">Multi-GPU training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distributed-training-with-horovod">Distributed training with Horovod</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixed-precision-training">Mixed precision training</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#maximizing-the-fp16-performance">Maximizing the FP16 performance</a></li>
 </ul>
@@ -261,6 +262,15 @@
 </pre></div>
 </div>
 <p>Note that evaluation and inference will run on a single device.</p>
+</div>
+<div class="section" id="distributed-training-with-horovod">
+<h2>Distributed training with Horovod<a class="headerlink" href="#distributed-training-with-horovod" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">--horovod</span></code> training flag enables distributed training with Horovod:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> train --horovod
+</pre></div>
+</div>
+<p>Similar to multi-GPU training, this is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the total number of Horovod processes.</p>
+<p>See the <a class="reference external" href="https://horovod.readthedocs.io/en/latest/index.html">Horovod documentation</a> for more information about installation and usage.</p>
 </div>
 <div class="section" id="mixed-precision-training">
 <h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline">¶</a></h2>

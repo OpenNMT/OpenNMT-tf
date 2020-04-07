@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.Runner &mdash; OpenNMT-tf 2.8.1 documentation</title>
+  <title>opennmt.Runner &mdash; OpenNMT-tf 2.9.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.8
+                2.9
               </div>
             
           
@@ -230,7 +230,7 @@
 
 <dl class="method">
 <dt id="opennmt.Runner.train">
-<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">num_devices=1</em>, <em class="sig-param">with_eval=False</em>, <em class="sig-param">checkpoint_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.train" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">num_devices=1</em>, <em class="sig-param">with_eval=False</em>, <em class="sig-param">checkpoint_path=None</em>, <em class="sig-param">hvd=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the training loop.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -238,6 +238,7 @@
 <li><p><strong>num_devices</strong> – Number of devices to use for training.</p></li>
 <li><p><strong>with_eval</strong> – Enable evaluation during training.</p></li>
 <li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</p></li>
+<li><p><strong>hvd</strong> – Optional Horovod module.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

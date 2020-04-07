@@ -74,6 +74,18 @@ onmt-main [...] train --num_gpus 4
 
 Note that evaluation and inference will run on a single device.
 
+## Distributed training with Horovod
+
+The `--horovod` training flag enables distributed training with Horovod:
+
+```bash
+onmt-main [...] train --horovod
+```
+
+Similar to multi-GPU training, this is equivalent to train with batches `N` times larger, where `N` is the total number of Horovod processes.
+
+See the [Horovod documentation](https://horovod.readthedocs.io/en/latest/index.html) for more information about installation and usage.
+
 ## Mixed precision training
 
 Mixed precision can be enabled with the `--mixed_precision` flag:

@@ -1,0 +1,8 @@
+opennmt.utils.PRFScorer
+=======================
+
+.. autoclass:: opennmt.utils.PRFScorer
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`opennmt.utils.Scorer`
