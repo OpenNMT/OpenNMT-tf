@@ -108,6 +108,9 @@ def main():
   parser_eval.add_argument(
       "--labels_file", default=None,
       help="Output labels files.")
+  parser_eval.add_argument(
+      "--horovod", default=False, action="store_true",
+      help="Enable Horovod eval mode.")
 
   parser_infer = subparsers.add_parser("infer", help="Inference.")
   parser_infer.add_argument(
@@ -120,6 +123,9 @@ def main():
   parser_infer.add_argument(
       "--log_prediction_time", default=False, action="store_true",
       help="Logs some prediction time metrics.")
+  parser_infer.add_argument(
+      "--horovod", default=False, action="store_true",
+      help="Enable Horovod infer mode.")
 
   parser_export = subparsers.add_parser("export", help="Model export.")
   parser_export.add_argument(
@@ -128,12 +134,18 @@ def main():
   parser_export.add_argument(
       "--export_format", choices=["saved_model", "ctranslate2"], default="saved_model",
       help="Format of the exported model.")
+  parser_export.add_argument(
+      "--horovod", default=False, action="store_true",
+      help="Enable Horovod export mode.")
 
   parser_score = subparsers.add_parser("score", help="Scoring.")
   parser_score.add_argument("--features_file", nargs="+", required=True,
                             help="Features file.")
   parser_score.add_argument("--predictions_file", default=None,
                             help="Predictions to score.")
+  parser_score.add_argument(
+      "--horovod", default=False, action="store_true",
+      help="Enable Horovod score mode.")
 
   parser_average_checkpoints = subparsers.add_parser(
       "average_checkpoints", help="Checkpoint averaging.")
@@ -143,6 +155,9 @@ def main():
   parser_average_checkpoints.add_argument(
       "--max_count", type=int, default=8,
       help="The maximal number of checkpoints to average.")
+  parser_average_checkpoints.add_argument(
+      "--horovod", default=False, action="store_true",
+      help="Enable Horovod average checkpointing mode.")
 
   parser_update_vocab = subparsers.add_parser(
       "update_vocab", help="Update model vocabularies in checkpoint.")
@@ -155,6 +170,9 @@ def main():
   parser_update_vocab.add_argument(
       "--tgt_vocab", default=None,
       help="Path to the new target vocabulary.")
+  parser_update_vocab.add_argument(
+      "--horovod", default=False, action="store_true",
+      help="Enable Horovod update vocabulary mode.")
 
   # When using an option that takes multiple values just before the run type,
   # the run type is treated as a value of this option. To fix this issue, we
