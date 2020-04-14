@@ -176,7 +176,7 @@ def main():
   tf.config.threading.set_inter_op_parallelism_threads(args.inter_op_parallelism_threads)
 
   gpus = tf.config.list_physical_devices(device_type="GPU")
-  if args.horovod:
+  if hasattr(args, "horovod") and args.horovod:
     import horovod.tensorflow as hvd  # pylint: disable=import-outside-toplevel
     hvd.init()
     is_master = hvd.rank() == 0
