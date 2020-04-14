@@ -15,6 +15,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.9.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.1) (2020-04-14)
+
+### Fixes and improvements
+
+* Fix error in onmt-main when using run types other than train
+
 ## [2.9.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.0) (2020-04-07)
 
 ### New features
