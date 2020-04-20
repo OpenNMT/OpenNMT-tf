@@ -1,7 +1,24 @@
+import os
+
 import tensorflow as tf
 
+from opennmt import inputters
+from opennmt import models
 from opennmt import training
 from opennmt.tests import test_util
+
+
+def _make_seq2seq_model(temp_dir):
+  vocab = test_util.make_vocab(os.path.join(temp_dir, "vocab.txt"), ["1", "2", "3", "4"])
+  model = models.Transformer(
+      source_inputter=inputters.WordEmbedder(20),
+      target_inputter=inputters.WordEmbedder(20),
+      num_layers=3,
+      num_units=20,
+      num_heads=4,
+      ffn_inner_dim=40)
+  model.initialize(dict(source_vocabulary=vocab, target_vocabulary=vocab))
+  return model
 
 
 class TrainingTest(tf.test.TestCase):
@@ -35,6 +52,19 @@ class TrainingTest(tf.test.TestCase):
     with moving_average.shadow_variables():
       self.assertAllClose(self.evaluate(variables), [2.8, 3.8])
     self.assertAllEqual(self.evaluate(variables), [3.0, 4.0])
+
+  def testEmptyTrainingDataset(self):
+    model = _make_seq2seq_model(self.get_temp_dir())
+    optimizer = tf.keras.optimizers.SGD(1.0)
+    trainer = training.DistributionStrategyTrainer(model, optimizer)
+
+    empty_file = os.path.join(self.get_temp_dir(), "train.txt")
+    with open(empty_file, "w"):
+      pass
+    dataset = model.examples_inputter.make_training_dataset(empty_file, empty_file, 32)
+
+    with self.assertRaisesRegex(RuntimeError, "No training steps"):
+      trainer(dataset)
 
 
 if __name__ == "__main__":

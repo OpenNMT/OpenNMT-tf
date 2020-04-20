@@ -83,6 +83,7 @@ class Trainer(abc.ABC):
       iterations = self._optimizer.iterations
       tf.summary.experimental.set_step(iterations)
 
+      step = None
       moving_average = None
       last_report_step = iterations.numpy()
       last_report_time = time.time()
@@ -122,6 +123,11 @@ class Trainer(abc.ABC):
         if step == max_step:
           break
 
+      if step is None:
+        raise RuntimeError("No training steps were executed. This usually means the "
+                           "training file is empty or all examples were filtered out. "
+                           "For the latter, verify that the maximum_*_length values are "
+                           "consistent with your data.")
       self._save_checkpoint(step, moving_average=moving_average)
       self._evaluate(evaluator, step, moving_average=moving_average)
 
