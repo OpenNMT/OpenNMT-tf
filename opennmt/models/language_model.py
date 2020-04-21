@@ -216,7 +216,6 @@ class LanguageModelInputter(inputters.WordEmbedder):
                             shuffle_buffer_size=None,
                             length_bucket_width=None,
                             maximum_features_length=None,
-                            maximum_labels_length=None,
                             single_pass=False,
                             num_shards=1,
                             shard_index=0,
