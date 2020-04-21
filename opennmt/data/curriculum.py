@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-"""Competence Learning module."""
+"""Curriculum Learning module."""
 
 import tensorflow as tf
 import math
+
+def _parse_float_func(line):
+  return tf.strings.to_number(line, out_type=tf.dtypes.float32)
 
 class CurriculumLearner:
   """Defines curriculum learning filtering strategy."""
@@ -67,6 +70,9 @@ class CurriculumLearner:
       rate = math.sqrt(step*(1.0-_initial_value_square)/self._final_step+_initial_value_square)
     self._competence.assign(tf.cast(tf.math.minimum(rate, 1.0), tf.float32))
     return self
+
+  def score_dataset(self):
+    return tf.data.TextLineDataset(self._difficulty_file).map(_parse_float_func)
 
   def init_counter(self):
     """Initializes counter for reporting statistic on actual filtered

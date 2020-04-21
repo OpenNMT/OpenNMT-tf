@@ -437,7 +437,7 @@ def training_pipeline(batch_size,
                       batch_type="examples",
                       batch_multiplier=1,
                       batch_size_multiple=1,
-                      process_fn=None,
+                      process_fns=[],
                       length_bucket_width=None,
                       features_length_fn=None,
                       labels_length_fn=None,
@@ -449,8 +449,7 @@ def training_pipeline(batch_size,
                       num_threads=None,
                       shuffle_buffer_size=None,
                       prefetch_buffer_size=None,
-                      cardinality_multiple=1,
-                      curriculum_learner=None):
+                      cardinality_multiple=1):
   """Transformation that applies most of the dataset operations commonly used
   for training on sequence data:
 
@@ -473,7 +472,7 @@ def training_pipeline(batch_size,
     batch_multiplier: The batch size multiplier.
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
       resulting batch size is a multiple of this value.
-    process_fn: The processing function to apply on each element.
+    process_fns: A list of transformation functions to apply on the dataset.
     length_bucket_width: The width of the length buckets to select batch
       candidates from. ``None`` to not constrain batch formation.
     features_length_fn: A function mapping features to a sequence length.
@@ -523,21 +522,12 @@ def training_pipeline(batch_size,
       dataset = dataset.shuffle(shuffle_buffer_size)
     return dataset
 
-  def parse_float_func(line):
-    return tf.strings.to_number(line, out_type=tf.dtypes.float32)
-
   def _make_single_dataset(dataset):
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
 
-    if curriculum_learner:
-      dataset = tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(curriculum_learner._difficulty_file).map(parse_float_func)))
-
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
       dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
-
-    if curriculum_learner:
-      dataset = dataset.apply(curriculum_learner.filter()).map(lambda x,_: x)
 
     return dataset
 
@@ -551,8 +541,8 @@ def training_pipeline(batch_size,
       dataset = _make_weighted_dataset(dataset, weights)
     else:
       dataset = _make_single_dataset(dataset)
-    if process_fn is not None:
-      dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
+    for process_fn in process_fns:
+      dataset = dataset.apply(process_fn)
     dataset = dataset.apply(filter_examples_by_length(
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length,
@@ -571,13 +561,14 @@ def training_pipeline(batch_size,
         dataset = dataset.repeat()
     else:
       dataset = dataset.apply(make_cardinality_multiple_of(cardinality_multiple))
+
     dataset = dataset.prefetch(prefetch_buffer_size)
     return dataset
 
   return _pipeline
 
 def inference_pipeline(batch_size,
-                       process_fn=None,
+                       process_fns=[],
                        length_bucket_width=None,
                        length_fn=None,
                        num_threads=None,
@@ -590,7 +581,7 @@ def inference_pipeline(batch_size,
 
   Args:
     batch_size: The batch size to use.
-    process_fn: The processing function to apply on each element.
+    process_fns: List of processing transformation to apply to each element.
     length_bucket_width: The width of the length buckets to select batch
       candidates from. If set, this means the inference pipeline will be
       reordered based on the examples length, the application is then
@@ -615,8 +606,8 @@ def inference_pipeline(batch_size,
     return x
 
   def _pipeline(dataset):
-    if process_fn is not None:
-      dataset = dataset.map(process_fn, num_parallel_calls=num_threads)
+    for process_fn in process_fns:
+      dataset = dataset.apply(process_fn)
     if length_bucket_width is not None and length_bucket_width > 0:
       if length_fn is None:
         raise ValueError("length_fn is required when reordering by length")
