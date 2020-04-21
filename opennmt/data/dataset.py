@@ -523,10 +523,8 @@ def training_pipeline(batch_size,
   def _make_single_dataset(dataset):
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
-
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
       dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
-
     return dataset
 
   def _pipeline(dataset):
@@ -554,7 +552,6 @@ def training_pipeline(batch_size,
         dataset = dataset.repeat()
     else:
       dataset = dataset.apply(make_cardinality_multiple_of(cardinality_multiple))
-
     dataset = dataset.prefetch(prefetch_buffer_size)
     return dataset
 
