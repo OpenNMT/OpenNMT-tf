@@ -547,12 +547,12 @@ def training_pipeline(batch_size,
       dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
     for transform_fn in transform_fns:
       dataset = dataset.apply(transform_fn)
-    if features_length_fn or labels_length_fn: # should be now be called as a transform_fn
-      dataset = dataset.apply(filter_examples_by_length(
-          maximum_features_length=maximum_features_length,
-          maximum_labels_length=maximum_labels_length,
-          features_length_fn=features_length_fn,
-          labels_length_fn=labels_length_fn))
+    # the following is now by default part of transform_fn
+    dataset = dataset.apply(filter_examples_by_length(
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        features_length_fn=features_length_fn,
+        labels_length_fn=labels_length_fn))
     dataset = dataset.apply(batch_sequence_dataset(
         batch_size,
         batch_type=batch_type,
