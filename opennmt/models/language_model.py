@@ -235,7 +235,6 @@ class LanguageModelInputter(inputters.WordEmbedder):
                          dataset.map(map_func))
     transform_fns.append(dataset_util.filter_examples_by_length(
         maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
         features_length_fn=self.get_length))
     dataset = dataset_util.training_pipeline(
         batch_size,
