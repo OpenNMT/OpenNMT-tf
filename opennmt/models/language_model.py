@@ -232,7 +232,8 @@ class LanguageModelInputter(inputters.WordEmbedder):
     transform_fns = []
     map_func = lambda x: self.make_features(element=x, training=True)
     transform_fns.append(lambda dataset:
-                         dataset.map(map_func))
+                         dataset.map(map_func,
+                                     num_parallel_calls=num_threads or 4))
     transform_fns.append(dataset_util.filter_examples_by_length(
         maximum_features_length=maximum_features_length,
         features_length_fn=self.get_length))
