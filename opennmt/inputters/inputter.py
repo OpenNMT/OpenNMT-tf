@@ -90,8 +90,8 @@ class Inputter(tf.keras.layers.Layer):
     """
     map_func = lambda *arg: self.make_features(element=misc.item_or_tuple(arg), training=False)
     transform_fns = [lambda dataset:
-                        dataset.map(map_func,
-                                    num_parallel_calls=num_threads or 4)]
+                     dataset.map(map_func,
+                                 num_parallel_calls=num_threads or 4)]
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
@@ -488,8 +488,8 @@ class ExampleInputter(ParallelInputter):
     """
     map_func = lambda *arg: self.make_features(element=arg, training=False)
     transform_fns = [lambda dataset:
-                        dataset.map(map_func,
-                                    num_parallel_calls=num_threads or 4)]
+                     dataset.map(map_func,
+                                 num_parallel_calls=num_threads or 4)]
     dataset = self.make_dataset([features_file, labels_file], training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
@@ -567,13 +567,13 @@ class ExampleInputter(ParallelInputter):
     transform_fns = []
     map_func = lambda *arg: self.make_features(element=arg, training=True)
     transform_fns.append(lambda dataset:
-                          dataset.map(map_func,
-                                      num_parallel_calls=num_threads or 4))
+                         dataset.map(map_func,
+                                     num_parallel_calls=num_threads or 4))
     transform_fns.append(dataset_util.filter_examples_by_length(
-                        maximum_features_length=maximum_features_length,
-                        maximum_labels_length=maximum_labels_length,
-                        features_length_fn=self.features_inputter.get_length,
-                        labels_length_fn=self.labels_inputter.get_length))
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        features_length_fn=self.features_inputter.get_length,
+        labels_length_fn=self.labels_inputter.get_length))
     dataset = dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,

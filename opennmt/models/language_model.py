@@ -175,8 +175,8 @@ class LanguageModelInputter(inputters.WordEmbedder):
     dataset = self.make_dataset(features_file, training=False)
     map_func = lambda x: self.make_features(element=x, training=False)[0]
     transform_fns = [lambda dataset:
-                       dataset.map(map_func,
-                                   num_parallel_calls=num_threads or 4)]
+                     dataset.map(map_func,
+                                 num_parallel_calls=num_threads or 4)]
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         transform_fns=transform_fns,
@@ -197,8 +197,8 @@ class LanguageModelInputter(inputters.WordEmbedder):
     dataset = self.make_dataset(features_file, training=False)
     map_func = lambda x: self.make_features(element=x, training=False)
     transform_fns = [lambda dataset:
-                       dataset.map(map_func,
-                                   num_parallel_calls=num_threads or 4)]
+                     dataset.map(map_func,
+                                 num_parallel_calls=num_threads or 4)]
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         transform_fns=transform_fns,
@@ -232,11 +232,11 @@ class LanguageModelInputter(inputters.WordEmbedder):
     transform_fns = []
     map_func = lambda x: self.make_features(element=x, training=True)
     transform_fns.append(lambda dataset:
-                           dataset.map(map_func))
+                         dataset.map(map_func))
     transform_fns.append(dataset_util.filter_examples_by_length(
-                         maximum_features_length=maximum_features_length,
-                         maximum_labels_length=maximum_labels_length,
-                         features_length_fn=self.get_length))
+        maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
+        features_length_fn=self.get_length))
     dataset = dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,
