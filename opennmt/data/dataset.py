@@ -293,11 +293,11 @@ def shuffle_dataset(buffer_size, shuffle_shards=True):
     sample_size = buffer_size
     if sample_size < 0 or shuffle_shards:
       dataset_size = get_dataset_size(dataset)
+      tf.get_logger().info("Training on %d examples", dataset_size)
       if sample_size < 0:
         sample_size = dataset_size
       elif sample_size < dataset_size:
         dataset = dataset.apply(random_shard(sample_size, dataset_size))
-      tf.get_logger().info("Shuffling - training on %d examples", dataset_size)
     dataset = dataset.shuffle(sample_size)
     return dataset
 
