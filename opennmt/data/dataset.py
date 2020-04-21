@@ -439,6 +439,7 @@ def training_pipeline(batch_size,
                       batch_multiplier=1,
                       batch_size_multiple=1,
                       process_fn=None,
+                      transform_fns=[],
                       length_bucket_width=None,
                       features_length_fn=None,
                       labels_length_fn=None,
@@ -474,6 +475,8 @@ def training_pipeline(batch_size,
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
       resulting batch size is a multiple of this value.
     process_fn: The processing function to apply on each element.
+    transform_fns: list of transformation functions (map or filter) to apply on
+      the batch. More generic than `process_fn`. 
     length_bucket_width: The width of the length buckets to select batch
       candidates from. ``None`` to not constrain batch formation.
     features_length_fn: A function mapping features to a sequence length.
@@ -542,11 +545,14 @@ def training_pipeline(batch_size,
       dataset = _make_single_dataset(dataset)
     if process_fn is not None:
       dataset = dataset.map(process_fn, num_parallel_calls=num_threads or 4)
-    dataset = dataset.apply(filter_examples_by_length(
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
-        features_length_fn=features_length_fn,
-        labels_length_fn=labels_length_fn))
+    for transform_fn in transform_fns:
+      dataset = dataset.apply(transform_fn)
+    if features_length_fn or labels_length_fn: # should be now be called as a transform_fn
+      dataset = dataset.apply(filter_examples_by_length(
+          maximum_features_length=maximum_features_length,
+          maximum_labels_length=maximum_labels_length,
+          features_length_fn=features_length_fn,
+          labels_length_fn=labels_length_fn))
     dataset = dataset.apply(batch_sequence_dataset(
         batch_size,
         batch_type=batch_type,
@@ -567,6 +573,7 @@ def training_pipeline(batch_size,
 
 def inference_pipeline(batch_size,
                        process_fn=None,
+                       transform_fns=None,
                        length_bucket_width=None,
                        length_fn=None,
                        num_threads=None,
@@ -580,6 +587,8 @@ def inference_pipeline(batch_size,
   Args:
     batch_size: The batch size to use.
     process_fn: The processing function to apply on each element.
+    transform_fns: list of transformation functions (only map for inference)
+      to apply on the batch. More generic than `process_fn`. 
     length_bucket_width: The width of the length buckets to select batch
       candidates from. If set, this means the inference pipeline will be
       reordered based on the examples length, the application is then
@@ -606,6 +615,8 @@ def inference_pipeline(batch_size,
   def _pipeline(dataset):
     if process_fn is not None:
       dataset = dataset.map(process_fn, num_parallel_calls=num_threads)
+    for transform_fn in transform_fns:
+      dataset = dataset.apply(transform_fn)
     if length_bucket_width is not None and length_bucket_width > 0:
       if length_fn is None:
         raise ValueError("length_fn is required when reordering by length")
