@@ -222,22 +222,33 @@ class LanguageModelInputter(inputters.WordEmbedder):
     dataset = self.make_dataset(features_file, training=True)
     if weights is not None:
       dataset = (dataset, weights)
+
+    process_fns = []
+
+    if curriculum_learner:
+      dataset = tf.data.Dataset.zip((dataset, curriculum_learner.score_dataset()))
+      process_fns = [curriculum_learner.filter(),
+                     lambda dataset: dataset.map(lambda x,_: x)]
+
+    process_fns.append(lambda dataset:
+                          dataset.map(lambda x: self.make_features(element=x, training=True)))
+
+    process_fns.append(dataset_util.filter_examples_by_length(
+                         maximum_features_length=maximum_features_length,
+                         maximum_labels_length=maximum_labels_length,
+                         features_length_fn=self.get_length))
+
     dataset = dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,
         batch_multiplier=batch_multiplier,
         batch_size_multiple=batch_size_multiple,
-        process_fn=lambda x: self.make_features(element=x, training=True),
+        process_fns=process_fns,
         length_bucket_width=length_bucket_width,
-        features_length_fn=self.get_length,
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
         single_pass=single_pass,
         num_shards=num_shards,
         shard_index=shard_index,
-        num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
-        cardinality_multiple=cardinality_multiple,
-        curriculum_learner=curriculum_learner)(dataset)
+        cardinality_multiple=cardinality_multiple)(dataset)
     return dataset

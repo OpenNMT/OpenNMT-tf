@@ -561,17 +561,19 @@ class ExampleInputter(ParallelInputter):
       :func:`opennmt.data.training_pipeline`
     """
     map_func = lambda *arg: self.make_features(element=arg, training=True)
-    process_fns = [lambda dataset:
-                      dataset.map(map_func,
-                                  num_parallel_calls=num_threads or 4)]
     dataset = self.make_dataset([features_file, labels_file], training=True)
     if weights is not None:
       dataset = (dataset, weights)
 
+    process_fns = []
     if curriculum_learner:
       dataset = tf.data.Dataset.zip((dataset, curriculum_learner.score_dataset()))
       process_fns = [curriculum_learner.filter(),
-                     lambda dataset: dataset.map(lambda x,_: x)]+process_fns
+                     lambda dataset: dataset.map(lambda x,_: x)]
+
+    process_fns.append(lambda dataset:
+                          dataset.map(map_func,
+                                      num_parallel_calls=num_threads or 4))
 
     process_fns.append(dataset_util.filter_examples_by_length(
                         maximum_features_length=maximum_features_length,
