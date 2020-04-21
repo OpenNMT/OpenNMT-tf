@@ -216,6 +216,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
                             shuffle_buffer_size=None,
                             length_bucket_width=None,
                             maximum_features_length=None,
+                            maximum_labels_length=None,
                             single_pass=False,
                             num_shards=1,
                             shard_index=0,
@@ -235,6 +236,7 @@ class LanguageModelInputter(inputters.WordEmbedder):
                                      num_parallel_calls=num_threads or 4))
     transform_fns.append(dataset_util.filter_examples_by_length(
         maximum_features_length=maximum_features_length,
+        maximum_labels_length=maximum_labels_length,
         features_length_fn=self.get_length))
     dataset = dataset_util.training_pipeline(
         batch_size,
