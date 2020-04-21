@@ -97,7 +97,6 @@ class Inputter(tf.keras.layers.Layer):
         process_fns=process_fns,
         length_bucket_width=length_bucket_width,
         length_fn=self.get_length,
-        num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size))
     return dataset
 
@@ -574,6 +573,12 @@ class ExampleInputter(ParallelInputter):
       process_fns = [curriculum_learner.filter(),
                      lambda dataset: dataset.map(lambda x,_: x)]+process_fns
 
+    process_fns.append(dataset_util.filter_examples_by_length(
+                        maximum_features_length=maximum_features_length,
+                        maximum_labels_length=maximum_labels_length,
+                        features_length_fn=self.features_inputter.get_length,
+                        labels_length_fn=self.labels_inputter.get_length))
+
     dataset = dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,
@@ -581,14 +586,9 @@ class ExampleInputter(ParallelInputter):
         batch_size_multiple=batch_size_multiple,
         process_fns=process_fns,
         length_bucket_width=length_bucket_width,
-        features_length_fn=self.features_inputter.get_length,
-        labels_length_fn=self.labels_inputter.get_length,
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
         single_pass=single_pass,
         num_shards=num_shards,
         shard_index=shard_index,
-        num_threads=num_threads,
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
         cardinality_multiple=cardinality_multiple)(dataset)

@@ -446,7 +446,6 @@ def training_pipeline(batch_size,
                       single_pass=False,
                       num_shards=1,
                       shard_index=0,
-                      num_threads=None,
                       shuffle_buffer_size=None,
                       prefetch_buffer_size=None,
                       cardinality_multiple=1):
@@ -485,7 +484,6 @@ def training_pipeline(batch_size,
     num_shards: The number of data shards (usually the number of workers in a
       distributed setting).
     shard_index: The shard index this data pipeline should read from.
-    num_threads: The number of elements processed in parallel.
     shuffle_buffer_size: The number of elements from which to sample.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value.
@@ -543,11 +541,6 @@ def training_pipeline(batch_size,
       dataset = _make_single_dataset(dataset)
     for process_fn in process_fns:
       dataset = dataset.apply(process_fn)
-    dataset = dataset.apply(filter_examples_by_length(
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
-        features_length_fn=features_length_fn,
-        labels_length_fn=labels_length_fn))
     dataset = dataset.apply(batch_sequence_dataset(
         batch_size,
         batch_type=batch_type,
@@ -571,7 +564,6 @@ def inference_pipeline(batch_size,
                        process_fns=[],
                        length_bucket_width=None,
                        length_fn=None,
-                       num_threads=None,
                        prefetch_buffer_size=None):
   """Transformation that applies dataset operations for inference.
 
@@ -588,7 +580,6 @@ def inference_pipeline(batch_size,
       responsible to restore the predictions in order. An "index" key will be
       inserted in the examples dictionary.
     length_fn: A function mapping features to a sequence length.
-    num_threads: The number of elements processed in parallel.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value.
 
