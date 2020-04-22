@@ -54,6 +54,10 @@ OpenNMT-tf is fully integrated in the TensorFlow 2.0 ecosystem:
 * Visualization with [TensorBoard](https://www.tensorflow.org/tensorboard)
 * `tf.function` graph tracing that can be [exported to a SavedModel](https://opennmt.net/OpenNMT-tf/serving.html) and served with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/tensorflow_serving) or [Python](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/python)
 
+### Compatibility with CTranslate2
+
+[CTranslate2](https://github.com/OpenNMT/CTranslate2) is an optimized inference engine for OpenNMT models featuring fast CPU and GPU execution, model quantization, parallel translations, dynamic memory usage, interactive decoding, and more! OpenNMT-tf can [automatically export](https://opennmt.net/OpenNMT-tf/serving.html#ctranslate2) models to be used in CTranslate2.
+
 ### Dynamic data pipeline
 
 OpenNMT-tf does not require to compile the data before the training. Instead, it can directly read text files and preprocess the data when needed by the training. This allows [on-the-fly tokenization](https://opennmt.net/OpenNMT-tf/tokenization.html) and data augmentation by injecting random noise.
