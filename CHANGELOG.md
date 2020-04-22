@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.9.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.2) (2020-04-22)
+
+### Fixes and improvements
+
+* Pin `sacrebleu` package to version 1.4.4 to fix installation issue on Windows
+* Clarify error when the training dataset is empty
+
 ## [2.9.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.1) (2020-04-14)
 
 ### Fixes and improvements
