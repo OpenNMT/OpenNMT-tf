@@ -23,7 +23,7 @@ Do you think a feature is missing or would be a great addition to the project? P
 *You want to share some code, that's great!*
 
 * If you want to contribute with code but are unsure what to do,
-  * search for *TODO* comments in the code: these are small dev tasks that should be addressed at some point
+  * search for *TODO* comments in the code: these are small dev tasks that should be addressed at some point.
   * look for GitHub issues marked with the *help wanted* label: these are developments that we find particularly suited for community contributions.
 * If you are planning to make a large change to the existing code, consider asking first on [the forum](http://forum.opennmt.net/) or [Gitter](https://gitter.im/OpenNMT/OpenNMT-tf) to confirm that it is welcome.
 
@@ -39,11 +39,13 @@ and **should**:
 
 ## Testing
 
-Tests are located in the `opennmt/tests` directory. Running them requires the following Python packages:
+We recommend installing the project in editable mode with the tests dependencies:
 
 ```bash
-pip install parameterized nose2
+pip install -e .[tests]
 ```
+
+Tests are located in the `opennmt/tests` directory.
 
 * To run all tests:
 
