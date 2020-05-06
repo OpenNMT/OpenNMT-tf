@@ -103,6 +103,15 @@ class TokenizerTest(tf.test.TestCase):
         [["Hello", "world", "￭!"], ["Test"], ["My", "name"]],
         ["Hello world!", "Test", "My name"])
 
+  def testOpenNMTTokenizerEmptyTensor(self):
+    tokenizer = tokenizers.OpenNMTTokenizer()
+    tokens = tokenizer.tokenize(tf.constant(""))
+    self.assertIs(tokens.dtype, tf.string)
+    self.assertListEqual(tokens.shape.as_list(), [0])
+    text = tokenizer.detokenize(tokens)
+    self.assertIs(text.dtype, tf.string)
+    self.assertListEqual(text.shape.as_list(), [])
+
   def testOpenNMTTokenizerArguments(self):
     tokenizer = tokenizers.OpenNMTTokenizer(
         mode="aggressive", spacer_annotate=True, spacer_new=True)
