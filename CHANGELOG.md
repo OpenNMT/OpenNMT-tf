@@ -15,6 +15,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.9.3](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.3) (2020-05-06)
+
+### Fixes and improvements
+
+* Fix type error when online tokenization is called on an empty line
+
 ## [2.9.2](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.2) (2020-04-22)
 
 ### Fixes and improvements
