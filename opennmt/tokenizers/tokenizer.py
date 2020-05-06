@@ -159,7 +159,7 @@ class Tokenizer(abc.ABC):
     def _python_wrapper(string_t):
       string = tf.compat.as_text(string_t.numpy())
       tokens = self._tokenize_string(string)
-      return tf.constant(tokens)
+      return tf.constant(tokens, dtype=tf.string)
     tokens = tf.py_function(_python_wrapper, [text], tf.string)
     tokens.set_shape([None])
     return tokens
