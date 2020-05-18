@@ -88,10 +88,16 @@ class Inputter(tf.keras.layers.Layer):
     See Also:
       :func:`opennmt.data.inference_pipeline`
     """
-    map_func = lambda *arg: self.make_features(element=misc.item_or_tuple(arg), training=False)
-    transform_fns = [lambda dataset:
-                     dataset.map(map_func,
-                                 num_parallel_calls=num_threads or 4)]
+
+    def _map_fn(*arg):
+      features = self.make_features(element=misc.item_or_tuple(arg), training=False)
+      if isinstance(features, (list, tuple)):
+        # Special case for unsupervised inputters that always return a tuple (features, labels).
+        return features[0]
+      return features
+
+    transform_fns = [lambda dataset: dataset.map(_map_fn, num_parallel_calls=num_threads or 1)]
+
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
@@ -431,38 +437,8 @@ class MixedInputter(MultiInputter):
     return outputs
 
 
-class ExampleInputter(ParallelInputter):
-  """An inputter that returns training examples (parallel features and labels)."""
-
-  def __init__(self, features_inputter, labels_inputter, share_parameters=False):
-    """Initializes this inputter.
-
-    Args:
-      features_inputter: An inputter producing the features (source).
-      labels_inputter: An inputter producing the labels (target).
-      share_parameters: Share the inputters parameters.
-    """
-    self.features_inputter = features_inputter
-    self.features_inputter.asset_prefix = "source"
-    self.labels_inputter = labels_inputter
-    self.labels_inputter.asset_prefix = "target"
-    super(ExampleInputter, self).__init__(
-        [self.features_inputter, self.labels_inputter],
-        share_parameters=share_parameters,
-        combine_features=False)
-
-  def make_inference_dataset(self,
-                             features_file,
-                             batch_size,
-                             length_bucket_width=None,
-                             num_threads=1,
-                             prefetch_buffer_size=None):
-    return self.features_inputter.make_inference_dataset(
-        features_file,
-        batch_size,
-        length_bucket_width=length_bucket_width,
-        num_threads=num_threads,
-        prefetch_buffer_size=prefetch_buffer_size)
+class ExampleInputterAdapter:
+  """Extends an inputter with methods to build evaluation and training datasets."""
 
   def make_evaluation_dataset(self,
                               features_file,
@@ -486,11 +462,15 @@ class ExampleInputter(ParallelInputter):
     See Also:
       :func:`opennmt.data.inference_pipeline`
     """
-    map_func = lambda *arg: self.make_features(element=arg, training=False)
-    transform_fns = [lambda dataset:
-                     dataset.map(map_func,
-                                 num_parallel_calls=num_threads or 4)]
-    dataset = self.make_dataset([features_file, labels_file], training=False)
+    if labels_file is not None:
+      data_files = [features_file, labels_file]
+    else:
+      data_files = features_file
+
+    map_fn = lambda *arg: self.make_features(element=misc.item_or_tuple(arg), training=False)
+    transform_fns = [lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 1)]
+
+    dataset = self.make_dataset(data_files, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         transform_fns=transform_fns,
@@ -561,19 +541,27 @@ class ExampleInputter(ParallelInputter):
     See Also:
       :func:`opennmt.data.training_pipeline`
     """
-    dataset = self.make_dataset([features_file, labels_file], training=True)
+    if labels_file is not None:
+      data_files = [features_file, labels_file]
+      filter_fn = dataset_util.filter_examples_by_length(
+          maximum_features_length=maximum_features_length,
+          maximum_labels_length=maximum_labels_length,
+          features_length_fn=self.features_inputter.get_length,
+          labels_length_fn=self.labels_inputter.get_length)
+    else:
+      data_files = features_file
+      filter_fn = dataset_util.filter_examples_by_length(
+          maximum_features_length=maximum_features_length,
+          features_length_fn=self.get_length)
+
+    map_fn = lambda *arg: self.make_features(element=misc.item_or_tuple(arg), training=True)
+    transform_fns = [
+        lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 4),
+        filter_fn]
+
+    dataset = self.make_dataset(data_files, training=True)
     if weights is not None:
       dataset = (dataset, weights)
-    transform_fns = []
-    map_func = lambda *arg: self.make_features(element=arg, training=True)
-    transform_fns.append(lambda dataset:
-                         dataset.map(map_func,
-                                     num_parallel_calls=num_threads or 4))
-    transform_fns.append(dataset_util.filter_examples_by_length(
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
-        features_length_fn=self.features_inputter.get_length,
-        labels_length_fn=self.labels_inputter.get_length))
     dataset = dataset_util.training_pipeline(
         batch_size,
         batch_type=batch_type,
@@ -589,3 +577,37 @@ class ExampleInputter(ParallelInputter):
         prefetch_buffer_size=prefetch_buffer_size,
         cardinality_multiple=cardinality_multiple)(dataset)
     return dataset
+
+
+class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
+  """An inputter that returns training examples (parallel features and labels)."""
+
+  def __init__(self, features_inputter, labels_inputter, share_parameters=False):
+    """Initializes this inputter.
+
+    Args:
+      features_inputter: An inputter producing the features (source).
+      labels_inputter: An inputter producing the labels (target).
+      share_parameters: Share the inputters parameters.
+    """
+    self.features_inputter = features_inputter
+    self.features_inputter.asset_prefix = "source"
+    self.labels_inputter = labels_inputter
+    self.labels_inputter.asset_prefix = "target"
+    super(ExampleInputter, self).__init__(
+        [self.features_inputter, self.labels_inputter],
+        share_parameters=share_parameters,
+        combine_features=False)
+
+  def make_inference_dataset(self,
+                             features_file,
+                             batch_size,
+                             length_bucket_width=None,
+                             num_threads=1,
+                             prefetch_buffer_size=None):
+    return self.features_inputter.make_inference_dataset(
+        features_file,
+        batch_size,
+        length_bucket_width=length_bucket_width,
+        num_threads=num_threads,
+        prefetch_buffer_size=prefetch_buffer_size)
