@@ -160,6 +160,9 @@ class Inputter(tf.keras.layers.Layer):
     Returns:
       A boolean.
     """
+    if isinstance(features, (list, tuple)):
+      # Special case for unsupervised inputters that always return a tuple (features, labels).
+      features = features[0]
     length = self.get_length(features)
     if length is None:
       return True
