@@ -410,6 +410,28 @@ class InputterTest(tf.test.TestCase):
     for field in ("ids", "length", "tokens"):
       self.assertIn(field, labels)
 
+  def testExampleInputterFiltering(self):
+    vocab_file = self._makeTextFile("vocab.txt", ["a", "b", "c", "d"])
+    features_file = self._makeTextFile("features.txt", ["a b c d", "a b c", "a a c", "a"])
+    labels_file = self._makeTextFile("labels.txt", ["a b c d", "a", "a a c d d", ""])
+
+    example_inputter = inputter.ExampleInputter(
+        text_inputter.WordEmbedder(embedding_size=10),
+        text_inputter.WordEmbedder(embedding_size=10))
+    example_inputter.initialize({"source_vocabulary": vocab_file, "target_vocabulary": vocab_file})
+
+    dataset = example_inputter.make_training_dataset(
+        features_file,
+        labels_file,
+        batch_size=1,
+        maximum_features_length=3,
+        maximum_labels_length=4,
+        single_pass=True)
+    examples = list(iter(dataset))
+    self.assertLen(examples, 1)
+    self.assertAllEqual(examples[0][0]["ids"], [[0, 1, 2]])
+    self.assertAllEqual(examples[0][1]["ids"], [[0]])
+
   def testWeightedDataset(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
