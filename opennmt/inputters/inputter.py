@@ -150,6 +150,24 @@ class Inputter(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
+  def keep_for_training(self, features, maximum_length=None):
+    """Returns ``True`` if this example should be kept for training.
+
+    Args:
+      features: A dictionary of ``tf.Tensor``.
+      maximum_length: The maximum length used for training.
+
+    Returns:
+      A boolean.
+    """
+    length = self.get_length(features)
+    if length is None:
+      return True
+    is_valid = tf.greater(length, 0)
+    if maximum_length is not None:
+      is_valid = tf.logical_and(is_valid, tf.less_equal(length, maximum_length))
+    return is_valid
+
   def call(self, features, training=None):  # pylint: disable=arguments-differ
     """Creates the model input from the features (e.g. word embeddings).
 
@@ -305,15 +323,17 @@ class ParallelInputter(MultiInputter):
     else:
       return tuple(inputter.input_signature() for inputter in self.inputters)
 
-  def get_length(self, features, ignore_special_tokens=False):
-    lengths = []
-    for i, inputter in enumerate(self.inputters):
+  def _features_iterator(self, features):
+    for i, _ in enumerate(self.inputters):
       if self.combine_features:
-        sub_features = misc.extract_prefixed_keys(features, "inputter_{}_".format(i))
+        yield misc.extract_prefixed_keys(features, "inputter_{}_".format(i))
       else:
-        sub_features = features[i]
-      lengths.append(inputter.get_length(
-          sub_features, ignore_special_tokens=ignore_special_tokens))
+        yield features[i]
+
+  def get_length(self, features, ignore_special_tokens=False):
+    lengths = [
+        inputter.get_length(sub_features, ignore_special_tokens=ignore_special_tokens)
+        for inputter, sub_features in zip(self.inputters, self._features_iterator(features))]
     if self.reducer is None:
       return lengths
     else:
@@ -348,6 +368,24 @@ class ParallelInputter(MultiInputter):
             training=training)
       return tuple(features)
 
+  def keep_for_training(self, features, maximum_length=None):
+    if not isinstance(maximum_length, list):
+      maximum_length = [maximum_length]
+    # Unset maximum lengths are set to None (i.e. no constraint).
+    maximum_length += [None] * (len(self.inputters) - len(maximum_length))
+    constraints = []
+    for inputter, sub_features, max_length in \
+        zip(self.inputters, self._features_iterator(features), maximum_length):
+      keep = inputter.keep_for_training(sub_features, maximum_length=max_length)
+      if isinstance(keep, bool):
+        if not keep:
+          return False
+        continue
+      constraints.append(keep)
+    if not constraints:
+      return True
+    return tf.reduce_all(constraints)
+
   def build(self, input_shape):
     if self.share_parameters:
       # When sharing parameters, build the first leaf inputter and then set
@@ -366,13 +404,9 @@ class ParallelInputter(MultiInputter):
     super(ParallelInputter, self).build(input_shape)
 
   def call(self, features, training=None):
-    transformed = []
-    for i, inputter in enumerate(self.inputters):
-      if self.combine_features:
-        sub_features = misc.extract_prefixed_keys(features, "inputter_{}_".format(i))
-      else:
-        sub_features = features[i]
-      transformed.append(inputter(sub_features, training=training))
+    transformed = [
+        inputter(sub_features, training=training)
+        for inputter, sub_features in zip(self.inputters, self._features_iterator(features))]
     if self.reducer is not None:
       transformed = self.reducer(transformed)
     return transformed
@@ -543,21 +577,17 @@ class ExampleInputterAdapter:
     """
     if labels_file is not None:
       data_files = [features_file, labels_file]
-      filter_fn = dataset_util.filter_examples_by_length(
-          maximum_features_length=maximum_features_length,
-          maximum_labels_length=maximum_labels_length,
-          features_length_fn=self.features_inputter.get_length,
-          labels_length_fn=self.labels_inputter.get_length)
+      maximum_length = [maximum_features_length, maximum_labels_length]
     else:
       data_files = features_file
-      filter_fn = dataset_util.filter_examples_by_length(
-          maximum_features_length=maximum_features_length,
-          features_length_fn=self.get_length)
+      maximum_length = maximum_features_length
 
     map_fn = lambda *arg: self.make_features(element=misc.item_or_tuple(arg), training=True)
+    filter_fn = lambda *arg: (
+        self.keep_for_training(misc.item_or_tuple(arg), maximum_length=maximum_length))
     transform_fns = [
         lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 4),
-        filter_fn]
+        lambda dataset: dataset.filter(filter_fn)]
 
     dataset = self.make_dataset(data_files, training=True)
     if weights is not None:
