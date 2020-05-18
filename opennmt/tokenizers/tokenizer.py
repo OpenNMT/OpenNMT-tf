@@ -143,7 +143,6 @@ class Tokenizer(abc.ABC):
       tokens = [tf.compat.as_text(token) for token in tokens]
       return self._detokenize_string(tokens)
 
-  @tf.autograph.experimental.do_not_convert
   def _tokenize_tensor(self, text):
     """Tokenizes a tensor.
 
@@ -182,7 +181,6 @@ class Tokenizer(abc.ABC):
         lambda x: tf.strings.reduce_join(self._tokenize_tensor(x), axis=0, separator=" "), text)
     return tf.strings.split(tokens, sep=" ")
 
-  @tf.autograph.experimental.do_not_convert
   def _detokenize_tensor(self, tokens):
     """Detokenizes tokens.
 

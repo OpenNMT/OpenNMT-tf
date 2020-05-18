@@ -2,15 +2,8 @@ import argparse
 import os
 
 import tensorflow as tf
-
-# TensorFlow Addons lazily loads custom ops. So we call the op with invalid inputs
-# just to trigger the registration.
-# See also: https://github.com/tensorflow/addons/issues/1151.
 import tensorflow_addons as tfa
-try:
-    tfa.seq2seq.gather_tree(0, 0, 0, 0)
-except tf.errors.InvalidArgumentError:
-    pass
+tfa.register_all()  # Register custom ops.
 
 import pyonmttok
 

@@ -86,7 +86,8 @@ class GradientAccumulator(object):
       self._accum_steps = tf.Variable(
           tf.constant(0, dtype=tf.int64),
           trainable=False,
-          synchronization=tf.VariableSynchronization.ON_READ)
+          synchronization=tf.VariableSynchronization.ON_READ,
+          aggregation=tf.VariableAggregation.ONLY_FIRST_REPLICA)
     return self._accum_steps.value()
 
   @property
@@ -120,4 +121,4 @@ class GradientAccumulator(object):
       return
     self._accum_steps.assign(0)
     for gradient in self._gradients:
-      gradient.assign(tf.zeros_like(gradient))
+      gradient.assign(tf.zeros(gradient.shape, dtype=gradient.dtype))

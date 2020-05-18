@@ -47,8 +47,8 @@ setup(
         "pyyaml>=5.3,<5.4",
         "rouge>=1.0,<2",
         "sacrebleu>=1.4.9,<2",
-        "tensorflow>=2.1,<2.2",
-        "tensorflow-addons>=0.8.1,<0.9",
+        "tensorflow>=2.2,<2.3",
+        "tensorflow-addons>=0.10,<0.11",
         "pyter3==0.3"
     ],
     extras_require={

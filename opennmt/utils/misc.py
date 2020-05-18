@@ -52,12 +52,12 @@ def get_variables_name_mapping(root, root_key=None):
   names_to_variables = {}
   for saveable_object in named_variables:
     variable = saveable_object.op
-    if not hasattr(variable, "experimental_ref"):  # Ignore non Tensor-like objects.
+    if not hasattr(variable, "ref"):  # Ignore non Tensor-like objects.
       continue
     name = saveable_object.name
     if root_key is not None:
       name = "%s/%s" % (root_key, name)
-    variables_to_names[variable.experimental_ref()] = name
+    variables_to_names[variable.ref()] = name
     names_to_variables[name] = variable
   return variables_to_names, names_to_variables
 
@@ -66,7 +66,7 @@ def get_variable_name(variable, root, model_key="model"):
   variables_to_names, _ = get_variables_name_mapping(root, root_key=model_key)
   # In case of a MirroredVariable, look up the primary variable
   variable = get_primary_variable(variable)
-  return variables_to_names.get(variable.experimental_ref())
+  return variables_to_names.get(variable.ref())
 
 def get_primary_variable(variable):
   """If :obj:`variable` is distributed, returns the primary component."""

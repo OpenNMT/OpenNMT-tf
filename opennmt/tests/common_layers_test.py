@@ -16,7 +16,7 @@ class CommonLayersTest(tf.test.TestCase):
     layer = common.Dense(10, weight=weight, transpose=transpose)
     x = tf.ones(input_shape)
     y = layer(x)
-    self.assertEqual(layer.kernel.experimental_ref(), weight.experimental_ref())
+    self.assertEqual(layer.kernel.ref(), weight.ref())
     self.assertEqual(self.evaluate(tf.reduce_sum(y)), 0)
 
   def testLayerNorm(self):
