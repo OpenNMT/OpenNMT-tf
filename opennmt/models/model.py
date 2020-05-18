@@ -299,11 +299,11 @@ class Model(tf.keras.layers.Layer):
       raise ValueError("Transferring weights to another model type is not supported")
     if ignore_weights is None:
       ignore_weights = set()
-    ignore_weights_ref = set(weight.experimental_ref() for weight in ignore_weights)
+    ignore_weights_ref = set(weight.ref() for weight in ignore_weights)
     weights = self.weights
     new_weights = new_model.weights
     for weight, new_weight in zip(weights, new_weights):
-      if new_weight.experimental_ref() not in ignore_weights_ref:
+      if new_weight.ref() not in ignore_weights_ref:
         new_weight.assign(weight)
         if new_optimizer is not None and optimizer is not None:
           for slot_name in new_optimizer.get_slot_names():

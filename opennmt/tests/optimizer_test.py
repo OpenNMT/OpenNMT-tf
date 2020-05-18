@@ -68,12 +68,12 @@ class OptimizerTest(tf.test.TestCase):
         local_variables = strategy.experimental_local_results(gradient_placeholder)
         local_variables[0].assign(grad1)
         local_variables[1].assign(grad2)
-        strategy.experimental_run_v2(accumulate_on_replica, args=(gradient_placeholder,))
+        strategy.run(accumulate_on_replica, args=(gradient_placeholder,))
 
     @tf.function
     def apply_grad():
       with strategy.scope():
-        strategy.experimental_run_v2(apply_on_replica)
+        strategy.run(apply_on_replica)
 
     def _check_local_values(grad1, grad2):
       values = strategy.experimental_local_results(accumulator._gradients[0])

@@ -195,8 +195,8 @@ class ModelTest(tf.test.TestCase):
     self.assertTrue(model.decoder.initialized)
     model.build(None)
     self.assertEqual(
-        model.labels_inputter.embedding.experimental_ref(),
-        model.decoder.output_layer.weight.experimental_ref())
+        model.labels_inputter.embedding.ref(),
+        model.decoder.output_layer.weight.ref())
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.EVAL],
@@ -459,12 +459,12 @@ class ModelTest(tf.test.TestCase):
     model.create_variables()
     trainable_variables = model.trainable_variables
     self.assertNotEmpty(trainable_variables)
-    trainable_variables_ref = set(variable.experimental_ref() for variable in trainable_variables)
+    trainable_variables_ref = set(variable.ref() for variable in trainable_variables)
 
     def _assert_layer_not_trainable(layer):
       self.assertFalse(layer.trainable)
       for variable in layer.variables:
-        self.assertNotIn(variable.experimental_ref(), trainable_variables_ref)
+        self.assertNotIn(variable.ref(), trainable_variables_ref)
 
     _assert_layer_not_trainable(model.decoder.output_layer)
     _assert_layer_not_trainable(model.encoder.layers[0])

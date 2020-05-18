@@ -26,7 +26,7 @@ class MiscTest(tf.test.TestCase):
     self.assertEqual(variable_name, expected_name)
 
     variables_to_names, names_to_variables = misc.get_variables_name_mapping(model, root_key="model")
-    self.assertDictEqual(variables_to_names, {variable.experimental_ref(): expected_name})
+    self.assertDictEqual(variables_to_names, {variable.ref(): expected_name})
     self.assertDictEqual(names_to_variables, {expected_name: variable})
 
   def testSetDropout(self):

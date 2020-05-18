@@ -250,8 +250,8 @@ def _restore_v1_checkpoint(checkpoint_path, model, optimizer=None):
       del v1_structure[_V1_OPTIM_SCOPE]
       v1_structure = _merge_optimizer_slots(v1_structure, slots)
   mapping = model.map_v1_weights(v1_structure)
-  existing_variables = set(variable.experimental_ref() for variable in model.variables)
-  mapped_variables = set(variable.experimental_ref() for variable, _ in mapping)
+  existing_variables = set(variable.ref() for variable in model.variables)
+  mapped_variables = set(variable.ref() for variable, _ in mapping)
   missing_mapping = existing_variables.difference(mapped_variables)
   if missing_mapping:
     raise ValueError("The following variables were not mapped: %s" % (

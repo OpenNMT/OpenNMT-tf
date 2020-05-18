@@ -395,7 +395,7 @@ class DistributionStrategyTrainer(Trainer):
                             per_replica_target,
                             record_summaries=False):
     """Accumulates the gradients (cross-replica)."""
-    per_replica_loss = self._strategy.experimental_run_v2(
+    per_replica_loss = self._strategy.run(
         self._forward,
         args=(per_replica_source, per_replica_target),
         kwargs=dict(record_summaries=record_summaries))
@@ -405,7 +405,7 @@ class DistributionStrategyTrainer(Trainer):
   @tf.function
   def _apply_gradients(self):
     """Applies the gradients (cross-replica)."""
-    self._strategy.experimental_run_v2(self._step)
+    self._strategy.run(self._step)
 
 
 def _report_training_status(step,
