@@ -326,17 +326,18 @@ class ParallelInputter(MultiInputter):
     else:
       return tuple(inputter.input_signature() for inputter in self.inputters)
 
-  def _features_iterator(self, features):
-    for i, _ in enumerate(self.inputters):
-      if self.combine_features:
-        yield misc.extract_prefixed_keys(features, "inputter_{}_".format(i))
-      else:
-        yield features[i]
+  def _index_features(self, features, index):
+    if self.combine_features:
+      return misc.extract_prefixed_keys(features, "inputter_{}_".format(index))
+    else:
+      return features[index]
 
   def get_length(self, features, ignore_special_tokens=False):
     lengths = [
-        inputter.get_length(sub_features, ignore_special_tokens=ignore_special_tokens)
-        for inputter, sub_features in zip(self.inputters, self._features_iterator(features))]
+        inputter.get_length(
+            self._index_features(features, i),
+            ignore_special_tokens=ignore_special_tokens)
+        for i, inputter in enumerate(self.inputters)]
     if self.reducer is None:
       return lengths
     else:
@@ -377,9 +378,9 @@ class ParallelInputter(MultiInputter):
     # Unset maximum lengths are set to None (i.e. no constraint).
     maximum_length += [None] * (len(self.inputters) - len(maximum_length))
     constraints = []
-    for inputter, sub_features, max_length in \
-        zip(self.inputters, self._features_iterator(features), maximum_length):
-      keep = inputter.keep_for_training(sub_features, maximum_length=max_length)
+    for i, inputter in enumerate(self.inputters):
+      keep = inputter.keep_for_training(
+          self._index_features(features, i), maximum_length=maximum_length[i])
       if isinstance(keep, bool):
         if not keep:
           return False
@@ -408,8 +409,8 @@ class ParallelInputter(MultiInputter):
 
   def call(self, features, training=None):
     transformed = [
-        inputter(sub_features, training=training)
-        for inputter, sub_features in zip(self.inputters, self._features_iterator(features))]
+        inputter(self._index_features(features, i), training=training)
+        for i, inputter in enumerate(self.inputters)]
     if self.reducer is not None:
       transformed = self.reducer(transformed)
     return transformed
