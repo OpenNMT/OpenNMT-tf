@@ -514,7 +514,7 @@ class _LossScaleOptimizer(tf.keras.mixed_precision.experimental.LossScaleOptimiz
   # https://github.com/tensorflow/tensorflow/commit/d1dd08dd2807ac80a4508686618419826463374b
 
   def get_unscaled_gradients(self, grads):
-    loss_scale_reciprocal = 1. / self.loss_scale()
+    loss_scale_reciprocal = 1. / self._loss_scale()
     return [
         _multiply_gradient(g, loss_scale_reciprocal) if g is not None else None
         for g in grads

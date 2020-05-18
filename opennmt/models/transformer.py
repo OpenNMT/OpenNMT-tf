@@ -104,7 +104,7 @@ class Transformer(SequenceToSequence):
     self._with_relative_position = maximum_relative_position is not None
     self._is_ct2_compatible = (
         isinstance(encoder, SelfAttentionEncoder)
-        and ffn_activation == tf.nn.relu
+        and ffn_activation is tf.nn.relu
         and ((self._with_relative_position and position_encoder_class is None)
              or (not self._with_relative_position
                  and position_encoder_class == SinusoidalPositionEncoder)))
