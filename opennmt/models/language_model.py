@@ -3,7 +3,6 @@
 import tensorflow as tf
 
 from opennmt import inputters
-from opennmt.data import dataset as dataset_util
 from opennmt.models import model
 from opennmt.utils import decoding
 from opennmt.utils import losses
@@ -134,7 +133,7 @@ class LanguageModel(model.SequenceGenerator):
     misc.print_as_bytes(sentence, stream=stream)
 
 
-class LanguageModelInputter(inputters.WordEmbedder):
+class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAdapter):
   """A special inputter for language modeling.
 
   This is a single word embedder that simply produces labels by shifting the
@@ -165,91 +164,3 @@ class LanguageModelInputter(inputters.WordEmbedder):
         element=element, features=base_features.copy(), training=training)
 
     return features, labels
-
-  def make_inference_dataset(self,
-                             features_file,
-                             batch_size,
-                             length_bucket_width=None,
-                             num_threads=1,
-                             prefetch_buffer_size=None):
-    dataset = self.make_dataset(features_file, training=False)
-    map_func = lambda x: self.make_features(element=x, training=False)[0]
-    transform_fns = [lambda dataset:
-                     dataset.map(map_func,
-                                 num_parallel_calls=num_threads or 4)]
-    dataset = dataset.apply(dataset_util.inference_pipeline(
-        batch_size,
-        transform_fns=transform_fns,
-        length_bucket_width=length_bucket_width,
-        length_fn=self.get_length,
-        num_threads=num_threads,
-        prefetch_buffer_size=prefetch_buffer_size))
-    return dataset
-
-  def make_evaluation_dataset(self,
-                              features_file,
-                              labels_file,
-                              batch_size,
-                              num_threads=1,
-                              prefetch_buffer_size=None):
-    """See :meth:`opennmt.inputters.ExampleInputter.make_evaluation_dataset`."""
-    _ = labels_file
-    dataset = self.make_dataset(features_file, training=False)
-    map_func = lambda x: self.make_features(element=x, training=False)
-    transform_fns = [lambda dataset:
-                     dataset.map(map_func,
-                                 num_parallel_calls=num_threads or 4)]
-    dataset = dataset.apply(dataset_util.inference_pipeline(
-        batch_size,
-        transform_fns=transform_fns,
-        num_threads=num_threads,
-        prefetch_buffer_size=prefetch_buffer_size))
-    return dataset
-
-  def make_training_dataset(self,
-                            features_file,
-                            labels_file,
-                            batch_size,
-                            batch_type="examples",
-                            batch_multiplier=1,
-                            batch_size_multiple=1,
-                            shuffle_buffer_size=None,
-                            length_bucket_width=None,
-                            maximum_features_length=None,
-                            maximum_labels_length=None,
-                            single_pass=False,
-                            num_shards=1,
-                            shard_index=0,
-                            num_threads=4,
-                            prefetch_buffer_size=None,
-                            cardinality_multiple=1,
-                            weights=None):
-    """See :meth:`opennmt.inputters.ExampleInputter.make_training_dataset`."""
-    _ = labels_file
-    dataset = self.make_dataset(features_file, training=True)
-    if weights is not None:
-      dataset = (dataset, weights)
-    transform_fns = []
-    map_func = lambda x: self.make_features(element=x, training=True)
-    transform_fns.append(lambda dataset:
-                         dataset.map(map_func,
-                                     num_parallel_calls=num_threads or 4))
-    transform_fns.append(dataset_util.filter_examples_by_length(
-        maximum_features_length=maximum_features_length,
-        maximum_labels_length=maximum_labels_length,
-        features_length_fn=self.get_length))
-    dataset = dataset_util.training_pipeline(
-        batch_size,
-        batch_type=batch_type,
-        batch_multiplier=batch_multiplier,
-        batch_size_multiple=batch_size_multiple,
-        transform_fns=transform_fns,
-        length_bucket_width=length_bucket_width,
-        single_pass=single_pass,
-        num_shards=num_shards,
-        shard_index=shard_index,
-        num_threads=num_threads,
-        shuffle_buffer_size=shuffle_buffer_size,
-        prefetch_buffer_size=prefetch_buffer_size,
-        cardinality_multiple=cardinality_multiple)(dataset)
-    return dataset

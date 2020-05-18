@@ -5,6 +5,7 @@ e.g., from a line of text to a sequence of embeddings.
 """
 
 from opennmt.inputters.inputter import ExampleInputter
+from opennmt.inputters.inputter import ExampleInputterAdapter
 from opennmt.inputters.inputter import Inputter
 from opennmt.inputters.inputter import MixedInputter
 from opennmt.inputters.inputter import MultiInputter
