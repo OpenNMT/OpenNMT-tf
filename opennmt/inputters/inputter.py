@@ -582,9 +582,13 @@ class ExampleInputterAdapter:
     if labels_file is not None:
       data_files = [features_file, labels_file]
       maximum_length = [maximum_features_length, maximum_labels_length]
+      features_length_fn = self.features_inputter.get_length
+      labels_length_fn = self.labels_inputter.get_length
     else:
       data_files = features_file
       maximum_length = maximum_features_length
+      features_length_fn = self.get_length
+      labels_length_fn = None
 
     map_fn = lambda *arg: self.make_features(element=misc.item_or_tuple(arg), training=True)
     filter_fn = lambda *arg: (
@@ -603,6 +607,8 @@ class ExampleInputterAdapter:
         batch_size_multiple=batch_size_multiple,
         transform_fns=transform_fns,
         length_bucket_width=length_bucket_width,
+        features_length_fn=features_length_fn,
+        labels_length_fn=labels_length_fn,
         single_pass=single_pass,
         num_shards=num_shards,
         shard_index=shard_index,
