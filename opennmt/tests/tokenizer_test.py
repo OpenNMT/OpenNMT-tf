@@ -112,6 +112,16 @@ class TokenizerTest(tf.test.TestCase):
     self.assertIs(text.dtype, tf.string)
     self.assertListEqual(text.shape.as_list(), [])
 
+  def testOpenNMTTokenizerInFunction(self):
+    tokenizer = tokenizers.OpenNMTTokenizer()
+
+    @tf.function
+    def _tokenize(text):
+      return tokenizer.tokenize(text)
+
+    tokens = _tokenize(tf.constant("Hello world!"))
+    self.assertAllEqual(self.evaluate(tokens), [b"Hello", b"world", b"!"])
+
   def testOpenNMTTokenizerArguments(self):
     tokenizer = tokenizers.OpenNMTTokenizer(
         mode="aggressive", spacer_annotate=True, spacer_new=True)
