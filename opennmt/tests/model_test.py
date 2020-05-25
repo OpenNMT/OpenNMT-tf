@@ -318,6 +318,15 @@ class ModelTest(tf.test.TestCase):
         prediction_heads=["tokens", "length"],
         params=params)
 
+  def testLanguageModelServing(self):
+    _, data_config = self._makeToyLMData()
+    decoder = decoders.SelfAttentionDecoder(
+        2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0)
+    model = models.LanguageModel(decoder, embedding_size=16)
+    model.initialize(data_config)
+    function = model.serve_function()
+    function.get_concrete_function()
+
   def testLanguageModelInputter(self):
     vocabulary_path = test_util.make_vocab(
         os.path.join(self.get_temp_dir(), "vocab.txt"), ["a", "b", "c"])
