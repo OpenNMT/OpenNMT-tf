@@ -13,7 +13,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Update to TensorFlow 2.2 and TensorFlow Addons 0.10
+* Inputters can override the method `keep_for_training` to customize data filtering during the training
+
 ### Fixes and improvements
+
+* Fix serving function for language models
+* Update SacreBLEU to 1.4.9
 
 ## [2.9.3](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.3) (2020-05-06)
 
