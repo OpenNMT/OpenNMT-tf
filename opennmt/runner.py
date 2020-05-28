@@ -347,6 +347,7 @@ class Runner(object):
       stream = sys.stdout
 
     infer_fn = tf.function(model.infer, input_signature=(dataset.element_spec,))
+    tf.get_logger().info("Tracing and optimizing the inference graph...")
     infer_fn.get_concrete_function()  # Trace the function now.
 
     # Inference might return out-of-order predictions. The OrderRestorer utility is
@@ -361,11 +362,31 @@ class Runner(object):
     total_examples = 0
     start_time = time.time()
 
+    # When the inference dataset is bucketized, it can happen that no output is
+    # written in a long time. To avoid confusion and give the impression that
+    # the process is stuck, we ensure that something is logged regularly.
+    max_time_without_output = 10
+    last_output_time = start_time
+
     for source in dataset:
       predictions = infer_fn(source)
       predictions = tf.nest.map_structure(lambda t: t.numpy(), predictions)
+      batch_time = time.time()
+
       for prediction in misc.extract_batches(predictions):
-        ordered_writer.push(prediction)
+        written = ordered_writer.push(prediction)
+        if written:
+          last_output_time = batch_time
+        else:
+          time_without_output = batch_time - last_output_time
+          if time_without_output >= max_time_without_output:
+            tf.get_logger().info(
+                "%d predictions are buffered, but waiting for the prediction of "
+                "line %d to advance the output...",
+                ordered_writer.buffer_size,
+                ordered_writer.next_index + 1)
+            last_output_time = batch_time
+
       if log_time:
         batch_size = next(iter(predictions.values())).shape[0]
         total_examples += batch_size
