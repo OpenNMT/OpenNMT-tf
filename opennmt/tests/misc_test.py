@@ -108,11 +108,11 @@ class MiscTest(tf.test.TestCase):
     restorer = misc.OrderRestorer(
         index_fn=lambda x: x[0],
         callback_fn=lambda x: events.append(x))
-    restorer.push((2, "toto"))
-    restorer.push((1, "tata"))
-    restorer.push((3, "foo"))
-    restorer.push((0, "bar"))
-    restorer.push((4, "titi"))
+    self.assertFalse(restorer.push((2, "toto")))
+    self.assertFalse(restorer.push((1, "tata")))
+    self.assertFalse(restorer.push((3, "foo")))
+    self.assertTrue(restorer.push((0, "bar")))
+    self.assertTrue(restorer.push((4, "titi")))
     with self.assertRaises(ValueError):
       restorer.push((2, "invalid"))
     self.assertEqual(len(events), 5)

@@ -311,24 +311,36 @@ class OrderRestorer(object):
     self._elements = {}
     self._heap = []
 
+  @property
+  def buffer_size(self):
+    """Number of elements waiting to be notified."""
+    return len(self._heap)
+
+  @property
+  def next_index(self):
+    """The next index to be notified."""
+    return self._next_index
+
   def _try_notify(self):
+    old_index = self._next_index
     while self._heap and self._heap[0] == self._next_index:
       index = heapq.heappop(self._heap)
       value = self._elements.pop(index)
       self._callback_fn(value)
       self._next_index += 1
+    return self._next_index != old_index
 
   def push(self, x):
     """Push event :obj:`x`."""
     index = self._index_fn(x)
     if index is None:
       self._callback_fn(x)
-      return
+      return True
     if index < self._next_index:
       raise ValueError("Event index %d was already notified" % index)
     self._elements[index] = x
     heapq.heappush(self._heap, index)
-    self._try_notify()
+    return self._try_notify()
 
 class ClassRegistry(object):
   """Helper class to create a registry of classes."""
