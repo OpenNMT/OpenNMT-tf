@@ -285,6 +285,11 @@ class TextInputter(Inputter):
   def make_dataset(self, data_file, training=None):
     return dataset_util.make_datasets(tf.data.TextLineDataset, data_file)
 
+  def get_dataset_size(self, data_file):
+    if isinstance(data_file, list):
+      return list(map(misc.count_lines, data_file))
+    return misc.count_lines(data_file)
+
   def make_features(self, element=None, features=None, training=None):
     """Tokenizes raw text."""
     if features is None:

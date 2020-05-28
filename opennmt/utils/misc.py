@@ -135,13 +135,15 @@ def item_or_tuple(x):
   else:
     return x
 
-def count_lines(filename):
+def count_lines(filename, buffer_size=65536):
   """Returns the number of lines of the file :obj:`filename`."""
   with tf.io.gfile.GFile(filename, mode="rb") as f:
-    i = 0
-    for i, _ in enumerate(f):
-      pass
-    return i + 1
+    num_lines = 0
+    while True:
+      data = f.read(buffer_size)
+      if not data:
+        return num_lines
+      num_lines += data.count(b"\n")
 
 def is_gzip_file(filename):
   """Returns ``True`` if :obj:`filename` is a GZIP file."""

@@ -270,7 +270,7 @@ def random_shard(shard_size, dataset_size):
 
   return _random_shard
 
-def shuffle_dataset(buffer_size, shuffle_shards=True):
+def shuffle_dataset(buffer_size, shuffle_shards=True, dataset_size=None):
   """Transformation that shuffles the dataset based on its size.
 
   Example:
@@ -285,6 +285,8 @@ def shuffle_dataset(buffer_size, shuffle_shards=True):
     shuffle_shards: When :obj:`buffer_size` is smaller than the dataset size,
       the dataset is first sharded in a random order to add another level of
       shuffling.
+    dataset_size: If the dataset size is already known, it can be passed here to
+      avoid a slower generic computation of the dataset size later.
 
   Returns:
     A ``tf.data.Dataset`` transformation.
@@ -293,12 +295,14 @@ def shuffle_dataset(buffer_size, shuffle_shards=True):
   def _shuffle(dataset):
     sample_size = buffer_size
     if sample_size < 0 or shuffle_shards:
-      dataset_size = get_dataset_size(dataset)
-      tf.get_logger().info("Training on %d examples", dataset_size)
+      total_size = dataset_size
+      if total_size is None:
+        total_size = get_dataset_size(dataset)
+      tf.get_logger().info("Training on %d examples", total_size)
       if sample_size < 0:
-        sample_size = dataset_size
-      elif sample_size < dataset_size:
-        dataset = dataset.apply(random_shard(sample_size, dataset_size))
+        sample_size = total_size
+      elif sample_size < total_size:
+        dataset = dataset.apply(random_shard(sample_size, total_size))
     dataset = dataset.shuffle(sample_size)
     return dataset
 
@@ -449,6 +453,7 @@ def training_pipeline(batch_size,
                       num_shards=1,
                       shard_index=0,
                       num_threads=None,
+                      dataset_size=None,
                       shuffle_buffer_size=None,
                       prefetch_buffer_size=None,
                       cardinality_multiple=1):
@@ -490,6 +495,8 @@ def training_pipeline(batch_size,
       distributed setting).
     shard_index: The shard index this data pipeline should read from.
     num_threads: The number of elements processed in parallel.
+    dataset_size: If the dataset size is already known, it can be passed here to
+      avoid a slower generic computation of the dataset size later.
     shuffle_buffer_size: The number of elements from which to sample.
     prefetch_buffer_size: The number of batches to prefetch asynchronously. If
       ``None``, use an automatically tuned value.
@@ -506,6 +513,12 @@ def training_pipeline(batch_size,
     - :func:`opennmt.data.filter_irregular_batches`
     - :func:`opennmt.data.shuffle_dataset`
   """
+  if dataset_size is not None and num_shards > 1:
+    # Update dataset_size based on the shard size.
+    if isinstance(dataset_size, list):
+      dataset_size = [size // num_shards for size in dataset_size]
+    else:
+      dataset_size //= num_shards
 
   def _make_weighted_dataset(datasets, weights):
     if single_pass:
@@ -517,7 +530,7 @@ def training_pipeline(batch_size,
                        "number of data files" % (len(weights), len(datasets)))
     if num_shards > 1:
       datasets = [dataset.shard(num_shards, shard_index) for dataset in datasets]
-    weights = normalize_weights(datasets, weights=weights)
+    weights = normalize_weights(datasets, weights=weights, sizes=dataset_size)
     datasets = [dataset.repeat() for dataset in datasets]
     dataset = tf.data.experimental.sample_from_datasets(datasets, weights=weights)
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
@@ -530,7 +543,7 @@ def training_pipeline(batch_size,
     if num_shards > 1:
       dataset = dataset.shard(num_shards, shard_index)
     if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
-      dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size))
+      dataset = dataset.apply(shuffle_dataset(shuffle_buffer_size, dataset_size=dataset_size))
     return dataset
 
   def _pipeline(dataset):
