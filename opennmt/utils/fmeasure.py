@@ -9,21 +9,15 @@ def fmeasure(ref_path,
   with open(ref_path) as ref_fp, open(hyp_path) as hyp_fp:
     list_null_tags = ["X", "null", "NULL", "Null", "O"]
     listtags = []
-    linecpt = 0
     classref = []
     classrandom = []
     classhyp = []
     nbrtagref = {}
     nbrtaghyp = {}
     nbrtagok = {}
-    for tag in listtags:
-      nbrtagref[tag] = 0
-      nbrtaghyp[tag] = 0
-      nbrtagok[tag] = 0
     for line in ref_fp:
       line = line.strip()
       tabline = line.split(' ')
-      tagcpt = 0
       lineref = []
       for tag in tabline:
         lineref.append(tag)
@@ -31,36 +25,29 @@ def fmeasure(ref_path,
           nbrtagref[tag] = nbrtagref[tag]+1
         else:
           nbrtagref[tag] = 1
-        tagcpt = tagcpt+1
       classref.append(lineref)
-      linecpt = linecpt+1
-    linecpt = 0
-    for line in hyp_fp:
+    for line, lineref in zip(hyp_fp, classref):
       line = line.strip()
       tabline = line.split(' ')
-      tagcpt = 0
       linehyp = []
       linerandom = []
-      for tag in tabline:
+      for tagcpt, tag in enumerate(tabline):
         linehyp.append(tag)
         if tag not in listtags:
           listtags.append(tag)
         linerandom.append(tag)
-        if tag == classref[linecpt][tagcpt]:
+        if tagcpt < len(lineref) and tag == lineref[tagcpt]:
           if tag in nbrtagok.keys():
             nbrtagok[tag] = nbrtagok[tag]+1
           else:
             nbrtagok[tag] = 1
-        tagcpt = tagcpt+1
         if tag in nbrtaghyp.keys():
           nbrtaghyp[tag] = nbrtaghyp[tag]+1
         else:
           nbrtaghyp[tag] = 1
       classhyp.append(linehyp)
       classrandom.append(linerandom)
-      linecpt = linecpt+1
 
-  tagcpt = 0
   fullprecision = 0
   fullrecall = 0
   precision = {}
@@ -87,12 +74,11 @@ def fmeasure(ref_path,
       fulltagok = fulltagok+nbrtagok[tag]
       fulltaghyp = fulltaghyp+nbrtaghyp[tag]
       fulltagref = fulltagref+nbrtagref[tag]
-#      fullprecision = fullprecision+precision[tag]
-#      fullrecall = fullrecall+recall[tag]
-    tagcpt = tagcpt+1
-  fullprecision = round(100*fulltagok/fulltaghyp, 2)/100
-  fullrecall = round(100*fulltagok/fulltagref, 2)/100
-  fullfmeasure = (round((200*fullprecision*fullrecall)/(fullprecision+fullrecall), 2))/100
+  fullprecision = fulltagok / fulltaghyp if fulltaghyp != 0 else 0
+  fullrecall = fulltagok / fulltagref if fulltagref != 0 else 0
+  fullfmeasure = (
+      (2 * fullprecision * fullrecall) / (fullprecision + fullrecall)
+      if (fullprecision + fullrecall) != 0 else 0)
   if return_precision_only:
     return fullprecision
   if return_recall_only:
