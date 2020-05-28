@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.training_pipeline &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.data.training_pipeline &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -210,7 +210,7 @@
 <h1>opennmt.data.training_pipeline<a class="headerlink" href="#opennmt-data-training-pipeline" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.data.training_pipeline">
-<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">training_pipeline</code><span class="sig-paren">(</span><em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">process_fn=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">features_length_fn=None</em>, <em class="sig-param">labels_length_fn=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=None</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#training_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.training_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">training_pipeline</code><span class="sig-paren">(</span><em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">process_fn=None</em>, <em class="sig-param">transform_fns=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">features_length_fn=None</em>, <em class="sig-param">labels_length_fn=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=None</em>, <em class="sig-param">dataset_size=None</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#training_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.training_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that applies most of the dataset operations commonly used
 for training on sequence data:</p>
 <ul class="simple">
@@ -236,6 +236,8 @@ for training on sequence data:</p>
 <li><p><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
 resulting batch size is a multiple of this value.</p></li>
 <li><p><strong>process_fn</strong> – The processing function to apply on each element.</p></li>
+<li><p><strong>transform_fns</strong> – List of dataset transformation functions (applied after
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">process_fn</span></code> if defined).</p></li>
 <li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
 candidates from. <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch formation.</p></li>
 <li><p><strong>features_length_fn</strong> – A function mapping features to a sequence length.</p></li>
@@ -249,6 +251,8 @@ the features sequence(s). <code class="docutils literal notranslate"><span class
 distributed setting).</p></li>
 <li><p><strong>shard_index</strong> – The shard index this data pipeline should read from.</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
+<li><p><strong>dataset_size</strong> – If the dataset size is already known, it can be passed here to
+avoid a slower generic computation of the dataset size later.</p></li>
 <li><p><strong>shuffle_buffer_size</strong> – The number of elements from which to sample.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>

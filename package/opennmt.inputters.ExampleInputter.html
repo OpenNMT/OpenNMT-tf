@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.inputters.Inputter" href="opennmt.inputters.Inputter.html" />
+    <link rel="next" title="opennmt.inputters.ExampleInputterAdapter" href="opennmt.inputters.ExampleInputterAdapter.html" />
     <link rel="prev" title="opennmt.inputters.CharRNNEmbedder" href="opennmt.inputters.CharRNNEmbedder.html" /> 
 </head>
 
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -257,86 +257,6 @@ formation.</p></li>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="opennmt.inputters.ExampleInputter.make_evaluation_dataset">
-<code class="sig-name descname">make_evaluation_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_evaluation_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_evaluation_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds a dataset to be used for evaluation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>features_file</strong> – The evaluation source file.</p></li>
-<li><p><strong>labels_file</strong> – The evaluation target file.</p></li>
-<li><p><strong>batch_size</strong> – The batch size to use.</p></li>
-<li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
-<li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline" title="opennmt.data.inference_pipeline"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.data.inference_pipeline()</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.ExampleInputter.make_training_dataset">
-<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em>, <em class="sig-param">weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds a dataset to be used for training. It supports the full training
-pipeline, including:</p>
-<ul class="simple">
-<li><p>sharding</p></li>
-<li><p>shuffling</p></li>
-<li><p>filtering</p></li>
-<li><p>bucketing</p></li>
-<li><p>prefetching</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>features_file</strong> – The source file or a list of training source files.</p></li>
-<li><p><strong>labels_file</strong> – The target file or a list of training target files.</p></li>
-<li><p><strong>batch_size</strong> – The batch size to use.</p></li>
-<li><p><strong>batch_type</strong> – The training batching stragety to use: can be “examples” or
-“tokens”.</p></li>
-<li><p><strong>batch_multiplier</strong> – The batch size multiplier to prepare splitting accross
-replicated graph parts.</p></li>
-<li><p><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
-resulting batch size is a multiple of this value.</p></li>
-<li><p><strong>shuffle_buffer_size</strong> – The number of elements from which to sample.</p></li>
-<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
-candidates from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch
-formation.</p></li>
-<li><p><strong>maximum_features_length</strong> – The maximum length or list of maximum lengths of
-the features sequence(s). <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</p></li>
-<li><p><strong>maximum_labels_length</strong> – The maximum length of the labels sequence.
-<code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</p></li>
-<li><p><strong>single_pass</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, makes a single pass over the training data.</p></li>
-<li><p><strong>num_shards</strong> – The number of data shards (usually the number of workers in a
-distributed setting).</p></li>
-<li><p><strong>shard_index</strong> – The shard index this data pipeline should read from.</p></li>
-<li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
-<li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
-<li><p><strong>cardinality_multiple</strong> – Ensure that the dataset cardinality is a multiple of
-this value when <code class="xref py py-obj docutils literal notranslate"><span class="pre">single_pass</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
-<li><p><strong>weights</strong> – An optional list of weights to create a weighted dataset out of
-multiple training files.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="opennmt.data.training_pipeline.html#opennmt.data.training_pipeline" title="opennmt.data.training_pipeline"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.data.training_pipeline()</span></code></a></p>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -349,7 +269,7 @@ multiple training files.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.inputters.Inputter.html" class="btn btn-neutral float-right" title="opennmt.inputters.Inputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.inputters.ExampleInputterAdapter.html" class="btn btn-neutral float-right" title="opennmt.inputters.ExampleInputterAdapter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="opennmt.inputters.CharRNNEmbedder.html" class="btn btn-neutral float-left" title="opennmt.inputters.CharRNNEmbedder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

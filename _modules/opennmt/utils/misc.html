@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -233,12 +233,12 @@
   <span class="n">names_to_variables</span> <span class="o">=</span> <span class="p">{}</span>
   <span class="k">for</span> <span class="n">saveable_object</span> <span class="ow">in</span> <span class="n">named_variables</span><span class="p">:</span>
     <span class="n">variable</span> <span class="o">=</span> <span class="n">saveable_object</span><span class="o">.</span><span class="n">op</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="s2">&quot;experimental_ref&quot;</span><span class="p">):</span>  <span class="c1"># Ignore non Tensor-like objects.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="s2">&quot;ref&quot;</span><span class="p">):</span>  <span class="c1"># Ignore non Tensor-like objects.</span>
       <span class="k">continue</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">saveable_object</span><span class="o">.</span><span class="n">name</span>
     <span class="k">if</span> <span class="n">root_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">root_key</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-    <span class="n">variables_to_names</span><span class="p">[</span><span class="n">variable</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">()]</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">variables_to_names</span><span class="p">[</span><span class="n">variable</span><span class="o">.</span><span class="n">ref</span><span class="p">()]</span> <span class="o">=</span> <span class="n">name</span>
     <span class="n">names_to_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span>
   <span class="k">return</span> <span class="n">variables_to_names</span><span class="p">,</span> <span class="n">names_to_variables</span>
 
@@ -247,7 +247,7 @@
   <span class="n">variables_to_names</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>
   <span class="c1"># In case of a MirroredVariable, look up the primary variable</span>
   <span class="n">variable</span> <span class="o">=</span> <span class="n">get_primary_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">variables_to_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">())</span>
+  <span class="k">return</span> <span class="n">variables_to_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">ref</span><span class="p">())</span>
 
 <span class="k">def</span> <span class="nf">get_primary_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;If :obj:`variable` is distributed, returns the primary component.&quot;&quot;&quot;</span>
@@ -316,13 +316,15 @@
   <span class="k">else</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">x</span>
 
-<span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">buffer_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns the number of lines of the file :obj:`filename`.&quot;&quot;&quot;</span>
   <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-      <span class="k">pass</span>
-    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">num_lines</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+      <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">num_lines</span>
+      <span class="n">num_lines</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">is_gzip_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Returns ``True`` if :obj:`filename` is a GZIP file.&quot;&quot;&quot;</span>
@@ -490,24 +492,36 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="o">=</span> <span class="p">[]</span>
 
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">buffer_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Number of elements waiting to be notified.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">)</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">next_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The next index to be notified.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span>
+
   <span class="k">def</span> <span class="nf">_try_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">old_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span>
     <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span><span class="p">:</span>
       <span class="n">index</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">)</span>
       <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_callback_fn</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span> <span class="o">!=</span> <span class="n">old_index</span>
 
   <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Push event :obj:`x`.&quot;&quot;&quot;</span>
     <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_callback_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-      <span class="k">return</span>
+      <span class="k">return</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Event index </span><span class="si">%d</span><span class="s2"> was already notified&quot;</span> <span class="o">%</span> <span class="n">index</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
     <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_try_notify</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_notify</span><span class="p">()</span>
 
 <span class="k">class</span> <span class="nc">ClassRegistry</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Helper class to create a registry of classes.&quot;&quot;&quot;</span>

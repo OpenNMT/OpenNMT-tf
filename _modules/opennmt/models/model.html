@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -416,6 +416,9 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">input_signature</span><span class="o">=</span><span class="p">(</span><span class="n">input_signature</span><span class="p">,))</span>
     <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
       <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="c1"># Special case for unsupervised inputters that always return a tuple (features, labels).</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
       <span class="n">_</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
       <span class="k">return</span> <span class="n">predictions</span>
 
@@ -480,11 +483,11 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Transferring weights to another model type is not supported&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ignore_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">ignore_weights</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="n">ignore_weights_ref</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">ignore_weights</span><span class="p">)</span>
+    <span class="n">ignore_weights_ref</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">ignore_weights</span><span class="p">)</span>
     <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span>
     <span class="n">new_weights</span> <span class="o">=</span> <span class="n">new_model</span><span class="o">.</span><span class="n">weights</span>
     <span class="k">for</span> <span class="n">weight</span><span class="p">,</span> <span class="n">new_weight</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">new_weights</span><span class="p">):</span>
-      <span class="k">if</span> <span class="n">new_weight</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ignore_weights_ref</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">new_weight</span><span class="o">.</span><span class="n">ref</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ignore_weights_ref</span><span class="p">:</span>
         <span class="n">new_weight</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">new_optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
           <span class="k">for</span> <span class="n">slot_name</span> <span class="ow">in</span> <span class="n">new_optimizer</span><span class="o">.</span><span class="n">get_slot_names</span><span class="p">():</span>

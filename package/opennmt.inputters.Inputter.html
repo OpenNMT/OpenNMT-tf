@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.inputters.MixedInputter" href="opennmt.inputters.MixedInputter.html" />
-    <link rel="prev" title="opennmt.inputters.ExampleInputter" href="opennmt.inputters.ExampleInputter.html" /> 
+    <link rel="prev" title="opennmt.inputters.ExampleInputterAdapter" href="opennmt.inputters.ExampleInputterAdapter.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -269,6 +269,24 @@ by the user.</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.inputters.Inputter.get_dataset_size">
+<code class="sig-name descname">get_dataset_size</code><span class="sig-paren">(</span><em class="sig-param">data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dataset size.</p>
+<p>If the inputter can efficiently compute the dataset size from a training
+file on disk, it can optionally override this method. Otherwise, we may
+compute the size later with a generic and slower approach (iterating over
+the dataset instance).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_file</strong> – The data file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The dataset size or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.inputters.Inputter.make_inference_dataset">
 <code class="sig-name descname">make_inference_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.make_inference_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for inference.</p>
@@ -347,6 +365,23 @@ augment.</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.inputters.Inputter.keep_for_training">
+<code class="sig-name descname">keep_for_training</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">maximum_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.keep_for_training"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.keep_for_training" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this example should be kept for training.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>maximum_length</strong> – The maximum length used for training.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A boolean.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.inputters.Inputter.call">
 <code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the model input from the features (e.g. word embeddings).</p>
@@ -393,7 +428,7 @@ augment.</p></li>
         <a href="opennmt.inputters.MixedInputter.html" class="btn btn-neutral float-right" title="opennmt.inputters.MixedInputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.inputters.ExampleInputter.html" class="btn btn-neutral float-left" title="opennmt.inputters.ExampleInputter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.inputters.ExampleInputterAdapter.html" class="btn btn-neutral float-left" title="opennmt.inputters.ExampleInputterAdapter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -285,7 +285,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span> <span class="o">=</span> <span class="n">maximum_relative_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_is_ct2_compatible</span> <span class="o">=</span> <span class="p">(</span>
         <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">SelfAttentionEncoder</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="n">ffn_activation</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span>
+        <span class="ow">and</span> <span class="n">ffn_activation</span> <span class="ow">is</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span>
         <span class="ow">and</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span> <span class="ow">and</span> <span class="n">position_encoder_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
              <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span>
                  <span class="ow">and</span> <span class="n">position_encoder_class</span> <span class="o">==</span> <span class="n">SinusoidalPositionEncoder</span><span class="p">)))</span>

@@ -1,0 +1,8 @@
+opennmt.inputters.ExampleInputterAdapter
+========================================
+
+.. autoclass:: opennmt.inputters.ExampleInputterAdapter
+    :members:
+    :undoc-members:
+
+    Inherits from: :class:`builtins.object`

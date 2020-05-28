@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -528,6 +528,7 @@
       <span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
     <span class="n">infer_fn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">infer</span><span class="p">,</span> <span class="n">input_signature</span><span class="o">=</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span><span class="p">,))</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tracing and optimizing the inference graph...&quot;</span><span class="p">)</span>
     <span class="n">infer_fn</span><span class="o">.</span><span class="n">get_concrete_function</span><span class="p">()</span>  <span class="c1"># Trace the function now.</span>
 
     <span class="c1"># Inference might return out-of-order predictions. The OrderRestorer utility is</span>
@@ -542,11 +543,31 @@
     <span class="n">total_examples</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
+    <span class="c1"># When the inference dataset is bucketized, it can happen that no output is</span>
+    <span class="c1"># written in a long time. To avoid confusion and give the impression that</span>
+    <span class="c1"># the process is stuck, we ensure that something is logged regularly.</span>
+    <span class="n">max_time_without_output</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">last_output_time</span> <span class="o">=</span> <span class="n">start_time</span>
+
     <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
       <span class="n">predictions</span> <span class="o">=</span> <span class="n">infer_fn</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
       <span class="n">predictions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">)</span>
+      <span class="n">batch_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
       <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">misc</span><span class="o">.</span><span class="n">extract_batches</span><span class="p">(</span><span class="n">predictions</span><span class="p">):</span>
-        <span class="n">ordered_writer</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="n">ordered_writer</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">written</span><span class="p">:</span>
+          <span class="n">last_output_time</span> <span class="o">=</span> <span class="n">batch_time</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">time_without_output</span> <span class="o">=</span> <span class="n">batch_time</span> <span class="o">-</span> <span class="n">last_output_time</span>
+          <span class="k">if</span> <span class="n">time_without_output</span> <span class="o">&gt;=</span> <span class="n">max_time_without_output</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> predictions are buffered, but waiting for the prediction of &quot;</span>
+                <span class="s2">&quot;line </span><span class="si">%d</span><span class="s2"> to advance the output...&quot;</span><span class="p">,</span>
+                <span class="n">ordered_writer</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">,</span>
+                <span class="n">ordered_writer</span><span class="o">.</span><span class="n">next_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">last_output_time</span> <span class="o">=</span> <span class="n">batch_time</span>
+
       <span class="k">if</span> <span class="n">log_time</span><span class="p">:</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">total_examples</span> <span class="o">+=</span> <span class="n">batch_size</span>

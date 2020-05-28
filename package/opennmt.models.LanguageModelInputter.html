@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.LanguageModelInputter &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.models.LanguageModelInputter &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -234,47 +234,6 @@ by the user.</p></li>
 <dt id="opennmt.models.LanguageModelInputter.make_features">
 <code class="sig-name descname">make_features</code><span class="sig-paren">(</span><em class="sig-param">element=None</em>, <em class="sig-param">features=None</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter.make_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts words tokens to ids.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.models.LanguageModelInputter.make_inference_dataset">
-<code class="sig-name descname">make_inference_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter.make_inference_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds a dataset to be used for inference.</p>
-<p>For evaluation and training datasets, see
-<a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter" title="opennmt.inputters.ExampleInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>features_file</strong> – The test file.</p></li>
-<li><p><strong>batch_size</strong> – The batch size to use.</p></li>
-<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
-candidates from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch
-formation.</p></li>
-<li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
-<li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
-<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline" title="opennmt.data.inference_pipeline"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.data.inference_pipeline()</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.models.LanguageModelInputter.make_evaluation_dataset">
-<code class="sig-name descname">make_evaluation_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter.make_evaluation_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter.make_evaluation_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_evaluation_dataset" title="opennmt.inputters.ExampleInputter.make_evaluation_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter.make_evaluation_dataset()</span></code></a>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.models.LanguageModelInputter.make_training_dataset">
-<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em>, <em class="sig-param">weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/language_model.html#LanguageModelInputter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.LanguageModelInputter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_training_dataset" title="opennmt.inputters.ExampleInputter.make_training_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter.make_training_dataset()</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>

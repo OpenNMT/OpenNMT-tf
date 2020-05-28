@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.MultiInputter &mdash; OpenNMT-tf 2.10.0 documentation</title>
+  <title>opennmt.inputters.ExampleInputterAdapter &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.inputters.ParallelInputter" href="opennmt.inputters.ParallelInputter.html" />
-    <link rel="prev" title="opennmt.inputters.MixedInputter" href="opennmt.inputters.MixedInputter.html" /> 
+    <link rel="next" title="opennmt.inputters.Inputter" href="opennmt.inputters.Inputter.html" />
+    <link rel="prev" title="opennmt.inputters.ExampleInputter" href="opennmt.inputters.ExampleInputter.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -189,7 +189,7 @@
         
           <li><a href="opennmt.inputters.html">opennmt.inputters module</a> &raquo;</li>
         
-      <li>opennmt.inputters.MultiInputter</li>
+      <li>opennmt.inputters.ExampleInputterAdapter</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -206,104 +206,91 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="opennmt-inputters-multiinputter">
-<h1>opennmt.inputters.MultiInputter<a class="headerlink" href="#opennmt-inputters-multiinputter" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="opennmt-inputters-exampleinputteradapter">
+<h1>opennmt.inputters.ExampleInputterAdapter<a class="headerlink" href="#opennmt-inputters-exampleinputteradapter" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="opennmt.inputters.MultiInputter">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">MultiInputter</code><span class="sig-paren">(</span><em class="sig-param">inputters</em>, <em class="sig-param">reducer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter" title="Permalink to this definition">¶</a></dt>
-<dd><p>An inputter that gathers multiple inputters, possibly nested.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter" title="opennmt.inputters.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter</span></code></a></p>
+<dt id="opennmt.inputters.ExampleInputterAdapter">
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">ExampleInputterAdapter</code><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputterAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputterAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends an inputter with methods to build evaluation and training datasets.</p>
+<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
 <dl class="method">
-<dt id="opennmt.inputters.MultiInputter.num_outputs">
-<em class="property">property </em><code class="sig-name descname">num_outputs</code><a class="headerlink" href="#opennmt.inputters.MultiInputter.num_outputs" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of parallel outputs produced by this inputter.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.MultiInputter.get_leaf_inputters">
-<code class="sig-name descname">get_leaf_inputters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.get_leaf_inputters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter.get_leaf_inputters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of all leaf Inputter instances.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.MultiInputter.initialize">
-<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em>, <em class="sig-param">asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter.initialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the inputter.</p>
+<dt id="opennmt.inputters.ExampleInputterAdapter.make_evaluation_dataset">
+<code class="sig-name descname">make_evaluation_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputterAdapter.make_evaluation_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputterAdapter.make_evaluation_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a dataset to be used for evaluation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_config</strong> – A dictionary containing the data configuration set
-by the user.</p></li>
-<li><p><strong>asset_prefix</strong> – The prefix to attach to assets filename.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.MultiInputter.export_assets">
-<code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em>, <em class="sig-param">asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter.export_assets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exports assets used by this tokenizer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>asset_dir</strong> – The directory where assets can be written.</p></li>
-<li><p><strong>asset_prefix</strong> – The prefix to attach to assets filename.</p></li>
+<li><p><strong>features_file</strong> – The evaluation source file.</p></li>
+<li><p><strong>labels_file</strong> – The evaluation target file.</p></li>
+<li><p><strong>batch_size</strong> – The batch size to use.</p></li>
+<li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
+<li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary containing additional assets used by the inputter.</p>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline" title="opennmt.data.inference_pipeline"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.data.inference_pipeline()</span></code></a></p>
+</div>
 </dd></dl>
 
 <dl class="method">
-<dt id="opennmt.inputters.MultiInputter.make_dataset">
-<em class="property">abstract </em><code class="sig-name descname">make_dataset</code><span class="sig-paren">(</span><em class="sig-param">data_file</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the base dataset required by this inputter.</p>
+<dt id="opennmt.inputters.ExampleInputterAdapter.make_training_dataset">
+<code class="sig-name descname">make_training_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">batch_multiplier=1</em>, <em class="sig-param">batch_size_multiple=1</em>, <em class="sig-param">shuffle_buffer_size=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">maximum_features_length=None</em>, <em class="sig-param">maximum_labels_length=None</em>, <em class="sig-param">single_pass=False</em>, <em class="sig-param">num_shards=1</em>, <em class="sig-param">shard_index=0</em>, <em class="sig-param">num_threads=4</em>, <em class="sig-param">prefetch_buffer_size=None</em>, <em class="sig-param">cardinality_multiple=1</em>, <em class="sig-param">weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputterAdapter.make_training_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputterAdapter.make_training_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a dataset to be used for training. It supports the full training
+pipeline, including:</p>
+<ul class="simple">
+<li><p>sharding</p></li>
+<li><p>shuffling</p></li>
+<li><p>filtering</p></li>
+<li><p>bucketing</p></li>
+<li><p>prefetching</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_file</strong> – The data file.</p></li>
-<li><p><strong>training</strong> – Run in training mode.</p></li>
+<li><p><strong>features_file</strong> – The source file or a list of training source files.</p></li>
+<li><p><strong>labels_file</strong> – The target file or a list of training target files.</p></li>
+<li><p><strong>batch_size</strong> – The batch size to use.</p></li>
+<li><p><strong>batch_type</strong> – The training batching stragety to use: can be “examples” or
+“tokens”.</p></li>
+<li><p><strong>batch_multiplier</strong> – The batch size multiplier to prepare splitting accross
+replicated graph parts.</p></li>
+<li><p><strong>batch_size_multiple</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens”, ensure that the
+resulting batch size is a multiple of this value.</p></li>
+<li><p><strong>shuffle_buffer_size</strong> – The number of elements from which to sample.</p></li>
+<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
+candidates from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch
+formation.</p></li>
+<li><p><strong>maximum_features_length</strong> – The maximum length or list of maximum lengths of
+the features sequence(s). <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</p></li>
+<li><p><strong>maximum_labels_length</strong> – The maximum length of the labels sequence.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain the length.</p></li>
+<li><p><strong>single_pass</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, makes a single pass over the training data.</p></li>
+<li><p><strong>num_shards</strong> – The number of data shards (usually the number of workers in a
+distributed setting).</p></li>
+<li><p><strong>shard_index</strong> – The shard index this data pipeline should read from.</p></li>
+<li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
+<li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
+<li><p><strong>cardinality_multiple</strong> – Ensure that the dataset cardinality is a multiple of
+this value when <code class="xref py py-obj docutils literal notranslate"><span class="pre">single_pass</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>weights</strong> – An optional list of weights to create a weighted dataset out of
+multiple training files.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instance or a list of <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instances.</p>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code>.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.MultiInputter.get_dataset_size">
-<code class="sig-name descname">get_dataset_size</code><span class="sig-paren">(</span><em class="sig-param">data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the dataset size.</p>
-<p>If the inputter can efficiently compute the dataset size from a training
-file on disk, it can optionally override this method. Otherwise, we may
-compute the size later with a generic and slower approach (iterating over
-the dataset instance).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data_file</strong> – The data file.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The dataset size or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.MultiInputter.visualize">
-<code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param">model_root</em>, <em class="sig-param">log_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter.visualize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Visualizes the transformation, usually embeddings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_root</strong> – The root model object.</p></li>
-<li><p><strong>log_dir</strong> – The active log directory.</p></li>
-</ul>
-</dd>
-</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="opennmt.data.training_pipeline.html#opennmt.data.training_pipeline" title="opennmt.data.training_pipeline"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.data.training_pipeline()</span></code></a></p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -318,10 +305,10 @@ the dataset instance).</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.inputters.ParallelInputter.html" class="btn btn-neutral float-right" title="opennmt.inputters.ParallelInputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.inputters.Inputter.html" class="btn btn-neutral float-right" title="opennmt.inputters.Inputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.inputters.MixedInputter.html" class="btn btn-neutral float-left" title="opennmt.inputters.MixedInputter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.inputters.ExampleInputter.html" class="btn btn-neutral float-left" title="opennmt.inputters.ExampleInputter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

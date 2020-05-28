@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -194,6 +194,7 @@
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -619,6 +620,8 @@
       </ul></li>
       <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter">ExampleInputter (class in opennmt.inputters)</a>
 </li>
+      <li><a href="package/opennmt.inputters.ExampleInputterAdapter.html#opennmt.inputters.ExampleInputterAdapter">ExampleInputterAdapter (class in opennmt.inputters)</a>
+</li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.export">export() (opennmt.models.Model method)</a>
 
       <ul>
@@ -692,7 +695,15 @@
       <li><a href="package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.get_config">get_config() (opennmt.layers.LayerWrapper method)</a>
 </li>
       <li><a href="package/opennmt.data.get_dataset_size.html#opennmt.data.get_dataset_size">get_dataset_size() (in module opennmt.data)</a>
+
+      <ul>
+        <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.get_dataset_size">(opennmt.inputters.Inputter method)</a>
 </li>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.get_dataset_size">(opennmt.inputters.MultiInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.get_dataset_size">(opennmt.inputters.TextInputter method)</a>
+</li>
+      </ul></li>
       <li><a href="package/opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper.get_initial_state">get_initial_state() (opennmt.layers.RNNCellWrapper method)</a>
 </li>
       <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.get_leaf_inputters">get_leaf_inputters() (opennmt.inputters.MultiInputter method)</a>
@@ -820,6 +831,18 @@
   </ul></td>
 </tr></table>
 
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.keep_for_training">keep_for_training() (opennmt.inputters.Inputter method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.keep_for_training">(opennmt.inputters.ParallelInputter method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -887,12 +910,8 @@
         <li><a href="package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter.make_dataset">(opennmt.models.SequenceToSequenceInputter method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_evaluation_dataset">make_evaluation_dataset() (opennmt.inputters.ExampleInputter method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_evaluation_dataset">(opennmt.models.LanguageModelInputter method)</a>
+      <li><a href="package/opennmt.inputters.ExampleInputterAdapter.html#opennmt.inputters.ExampleInputterAdapter.make_evaluation_dataset">make_evaluation_dataset() (opennmt.inputters.ExampleInputterAdapter method)</a>
 </li>
-      </ul></li>
       <li><a href="package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.make_features">make_features() (opennmt.inputters.CharEmbedder method)</a>
 
       <ul>
@@ -922,8 +941,6 @@
       <ul>
         <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_inference_dataset">(opennmt.inputters.Inputter method)</a>
 </li>
-        <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_inference_dataset">(opennmt.models.LanguageModelInputter method)</a>
-</li>
       </ul></li>
       <li><a href="package/opennmt.schedules.make_learning_rate_schedule.html#opennmt.schedules.make_learning_rate_schedule">make_learning_rate_schedule() (in module opennmt.schedules)</a>
 </li>
@@ -933,14 +950,8 @@
 </li>
       <li><a href="package/opennmt.tokenizers.make_tokenizer.html#opennmt.tokenizers.make_tokenizer">make_tokenizer() (in module opennmt.tokenizers)</a>
 </li>
-      <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_training_dataset">make_training_dataset() (opennmt.inputters.ExampleInputter method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_training_dataset">(opennmt.models.LanguageModelInputter method)</a>
+      <li><a href="package/opennmt.inputters.ExampleInputterAdapter.html#opennmt.inputters.ExampleInputterAdapter.make_training_dataset">make_training_dataset() (opennmt.inputters.ExampleInputterAdapter method)</a>
 </li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.map_v1_weights">map_v1_weights() (opennmt.decoders.AttentionalRNNDecoder method)</a>
 
       <ul>
@@ -977,6 +988,8 @@
         <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.map_v1_weights">(opennmt.models.Transformer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.max_margin_loss.html#opennmt.utils.max_margin_loss">max_margin_loss() (in module opennmt.utils)</a>
 </li>
       <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.maximum_sources">maximum_sources() (opennmt.decoders.Decoder property)</a>

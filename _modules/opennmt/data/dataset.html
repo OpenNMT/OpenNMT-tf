@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -451,7 +451,7 @@
 
   <span class="k">return</span> <span class="n">_random_shard</span></div>
 
-<div class="viewcode-block" id="shuffle_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.shuffle_dataset.html#opennmt.data.shuffle_dataset">[docs]</a><span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">,</span> <span class="n">shuffle_shards</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="shuffle_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.shuffle_dataset.html#opennmt.data.shuffle_dataset">[docs]</a><span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">,</span> <span class="n">shuffle_shards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dataset_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Transformation that shuffles the dataset based on its size.</span>
 
 <span class="sd">  Example:</span>
@@ -466,6 +466,8 @@
 <span class="sd">    shuffle_shards: When :obj:`buffer_size` is smaller than the dataset size,</span>
 <span class="sd">      the dataset is first sharded in a random order to add another level of</span>
 <span class="sd">      shuffling.</span>
+<span class="sd">    dataset_size: If the dataset size is already known, it can be passed here to</span>
+<span class="sd">      avoid a slower generic computation of the dataset size later.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A ``tf.data.Dataset`` transformation.</span>
@@ -474,12 +476,14 @@
   <span class="k">def</span> <span class="nf">_shuffle</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
     <span class="n">sample_size</span> <span class="o">=</span> <span class="n">buffer_size</span>
     <span class="k">if</span> <span class="n">sample_size</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">shuffle_shards</span><span class="p">:</span>
-      <span class="n">dataset_size</span> <span class="o">=</span> <span class="n">get_dataset_size</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-      <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training on </span><span class="si">%d</span><span class="s2"> examples&quot;</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">)</span>
+      <span class="n">total_size</span> <span class="o">=</span> <span class="n">dataset_size</span>
+      <span class="k">if</span> <span class="n">total_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">total_size</span> <span class="o">=</span> <span class="n">get_dataset_size</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training on </span><span class="si">%d</span><span class="s2"> examples&quot;</span><span class="p">,</span> <span class="n">total_size</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">sample_size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">sample_size</span> <span class="o">=</span> <span class="n">dataset_size</span>
-      <span class="k">elif</span> <span class="n">sample_size</span> <span class="o">&lt;</span> <span class="n">dataset_size</span><span class="p">:</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">random_shard</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">))</span>
+        <span class="n">sample_size</span> <span class="o">=</span> <span class="n">total_size</span>
+      <span class="k">elif</span> <span class="n">sample_size</span> <span class="o">&lt;</span> <span class="n">total_size</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">random_shard</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">total_size</span><span class="p">))</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataset</span>
 
@@ -620,6 +624,7 @@
                       <span class="n">batch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                       <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                       <span class="n">process_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">transform_fns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">features_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">labels_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -629,6 +634,7 @@
                       <span class="n">num_shards</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                       <span class="n">shard_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                       <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">dataset_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">cardinality_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -655,6 +661,8 @@
 <span class="sd">    batch_size_multiple: When :obj:`batch_type` is &quot;tokens&quot;, ensure that the</span>
 <span class="sd">      resulting batch size is a multiple of this value.</span>
 <span class="sd">    process_fn: The processing function to apply on each element.</span>
+<span class="sd">    transform_fns: List of dataset transformation functions (applied after</span>
+<span class="sd">      :obj:`process_fn` if defined).</span>
 <span class="sd">    length_bucket_width: The width of the length buckets to select batch</span>
 <span class="sd">      candidates from. ``None`` to not constrain batch formation.</span>
 <span class="sd">    features_length_fn: A function mapping features to a sequence length.</span>
@@ -668,6 +676,8 @@
 <span class="sd">      distributed setting).</span>
 <span class="sd">    shard_index: The shard index this data pipeline should read from.</span>
 <span class="sd">    num_threads: The number of elements processed in parallel.</span>
+<span class="sd">    dataset_size: If the dataset size is already known, it can be passed here to</span>
+<span class="sd">      avoid a slower generic computation of the dataset size later.</span>
 <span class="sd">    shuffle_buffer_size: The number of elements from which to sample.</span>
 <span class="sd">    prefetch_buffer_size: The number of batches to prefetch asynchronously. If</span>
 <span class="sd">      ``None``, use an automatically tuned value.</span>
@@ -684,6 +694,12 @@
 <span class="sd">    - :func:`opennmt.data.filter_irregular_batches`</span>
 <span class="sd">    - :func:`opennmt.data.shuffle_dataset`</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">dataset_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_shards</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="c1"># Update dataset_size based on the shard size.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset_size</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="n">dataset_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span> <span class="o">//</span> <span class="n">num_shards</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">dataset_size</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">dataset_size</span> <span class="o">//=</span> <span class="n">num_shards</span>
 
   <span class="k">def</span> <span class="nf">_make_weighted_dataset</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">single_pass</span><span class="p">:</span>
@@ -695,7 +711,7 @@
                        <span class="s2">&quot;number of data files&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)))</span>
     <span class="k">if</span> <span class="n">num_shards</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
       <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">shard_index</span><span class="p">)</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
-    <span class="n">weights</span> <span class="o">=</span> <span class="n">normalize_weights</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">normalize_weights</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">dataset_size</span><span class="p">)</span>
     <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">sample_from_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shuffle_buffer_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -708,7 +724,7 @@
     <span class="k">if</span> <span class="n">num_shards</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">shard_index</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shuffle_buffer_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">shuffle_dataset</span><span class="p">(</span><span class="n">shuffle_buffer_size</span><span class="p">))</span>
+      <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">shuffle_dataset</span><span class="p">(</span><span class="n">shuffle_buffer_size</span><span class="p">,</span> <span class="n">dataset_size</span><span class="o">=</span><span class="n">dataset_size</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">dataset</span>
 
   <span class="k">def</span> <span class="nf">_pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
@@ -723,6 +739,9 @@
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">_make_single_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">process_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">process_fn</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">num_threads</span> <span class="ow">or</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">transform_fns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">transform_fn</span> <span class="ow">in</span> <span class="n">transform_fns</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">transform_fn</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">filter_examples_by_length</span><span class="p">(</span>
         <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
         <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
@@ -748,6 +767,7 @@
 
 <div class="viewcode-block" id="inference_pipeline"><a class="viewcode-back" href="../../../package/opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline">[docs]</a><span class="k">def</span> <span class="nf">inference_pipeline</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span>
                        <span class="n">process_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">transform_fns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -761,6 +781,8 @@
 <span class="sd">  Args:</span>
 <span class="sd">    batch_size: The batch size to use.</span>
 <span class="sd">    process_fn: The processing function to apply on each element.</span>
+<span class="sd">    transform_fns: List of dataset transformation functions (applied after</span>
+<span class="sd">      :obj:`process_fn` if defined).</span>
 <span class="sd">    length_bucket_width: The width of the length buckets to select batch</span>
 <span class="sd">      candidates from. If set, this means the inference pipeline will be</span>
 <span class="sd">      reordered based on the examples length, the application is then</span>
@@ -787,6 +809,9 @@
   <span class="k">def</span> <span class="nf">_pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">process_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">process_fn</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">num_threads</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">transform_fns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">transform_fn</span> <span class="ow">in</span> <span class="n">transform_fns</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">transform_fn</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">length_bucket_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">length_bucket_width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">length_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length_fn is required when reordering by length&quot;</span><span class="p">)</span>

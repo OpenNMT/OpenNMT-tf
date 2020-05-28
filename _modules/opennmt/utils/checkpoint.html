@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -431,8 +431,8 @@
       <span class="k">del</span> <span class="n">v1_structure</span><span class="p">[</span><span class="n">_V1_OPTIM_SCOPE</span><span class="p">]</span>
       <span class="n">v1_structure</span> <span class="o">=</span> <span class="n">_merge_optimizer_slots</span><span class="p">(</span><span class="n">v1_structure</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
   <span class="n">mapping</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">v1_structure</span><span class="p">)</span>
-  <span class="n">existing_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
-  <span class="n">mapped_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">experimental_ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">)</span>
+  <span class="n">existing_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+  <span class="n">mapped_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">ref</span><span class="p">()</span> <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">)</span>
   <span class="n">missing_mapping</span> <span class="o">=</span> <span class="n">existing_variables</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">mapped_variables</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">missing_mapping</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following variables were not mapped: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>

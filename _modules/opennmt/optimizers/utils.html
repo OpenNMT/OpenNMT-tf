@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -267,7 +267,8 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
           <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
           <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">synchronization</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">ON_READ</span><span class="p">)</span>
+          <span class="n">synchronization</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">ON_READ</span><span class="p">,</span>
+          <span class="n">aggregation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">VariableAggregation</span><span class="o">.</span><span class="n">ONLY_FIRST_REPLICA</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
 
   <span class="nd">@property</span>
@@ -301,7 +302,7 @@
       <span class="k">return</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
-      <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gradient</span><span class="p">))</span>
+      <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gradient</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
 </pre></div>
 
            </div>

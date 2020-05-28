@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -465,6 +465,11 @@
 
 <div class="viewcode-block" id="TextInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">dataset_util</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">,</span> <span class="n">data_file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TextInputter.get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.get_dataset_size">[docs]</a>  <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">misc</span><span class="o">.</span><span class="n">count_lines</span><span class="p">,</span> <span class="n">data_file</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">count_lines</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tokenizes raw text.&quot;&quot;&quot;</span>

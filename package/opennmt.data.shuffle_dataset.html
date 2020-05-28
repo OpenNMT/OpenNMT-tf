@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.shuffle_dataset &mdash; OpenNMT-tf 2.9.3 documentation</title>
+  <title>opennmt.data.shuffle_dataset &mdash; OpenNMT-tf 2.10.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.9
+                2.10
               </div>
             
           
@@ -210,7 +210,7 @@
 <h1>opennmt.data.shuffle_dataset<a class="headerlink" href="#opennmt-data-shuffle-dataset" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.data.shuffle_dataset">
-<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">shuffle_dataset</code><span class="sig-paren">(</span><em class="sig-param">buffer_size</em>, <em class="sig-param">shuffle_shards=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#shuffle_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.shuffle_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">shuffle_dataset</code><span class="sig-paren">(</span><em class="sig-param">buffer_size</em>, <em class="sig-param">shuffle_shards=True</em>, <em class="sig-param">dataset_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#shuffle_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.shuffle_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that shuffles the dataset based on its size.</p>
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
@@ -226,6 +226,8 @@
 <li><p><strong>shuffle_shards</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">buffer_size</span></code> is smaller than the dataset size,
 the dataset is first sharded in a random order to add another level of
 shuffling.</p></li>
+<li><p><strong>dataset_size</strong> – If the dataset size is already known, it can be passed here to
+avoid a slower generic computation of the dataset size later.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

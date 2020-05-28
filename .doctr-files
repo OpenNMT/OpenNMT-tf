@@ -96,6 +96,7 @@
 ./_sources/package/opennmt.inputters.CharEmbedder.rst.txt
 ./_sources/package/opennmt.inputters.CharRNNEmbedder.rst.txt
 ./_sources/package/opennmt.inputters.ExampleInputter.rst.txt
+./_sources/package/opennmt.inputters.ExampleInputterAdapter.rst.txt
 ./_sources/package/opennmt.inputters.Inputter.rst.txt
 ./_sources/package/opennmt.inputters.MixedInputter.rst.txt
 ./_sources/package/opennmt.inputters.MultiInputter.rst.txt
@@ -327,6 +328,7 @@
 ./package/opennmt.inputters.CharEmbedder.html
 ./package/opennmt.inputters.CharRNNEmbedder.html
 ./package/opennmt.inputters.ExampleInputter.html
+./package/opennmt.inputters.ExampleInputterAdapter.html
 ./package/opennmt.inputters.Inputter.html
 ./package/opennmt.inputters.MixedInputter.html
 ./package/opennmt.inputters.MultiInputter.html
