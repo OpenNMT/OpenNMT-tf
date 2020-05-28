@@ -19,6 +19,9 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * Fix serving function for language models
+* Fix possible crash when using the `prf` evaluator
+* Reduce time to start the training by optimizing the computation of the training data size
+* Add more logs during inference to indicate that progress is being made and the process is not "stuck"
 * Update SacreBLEU to 1.4.9
 
 ## [2.9.3](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.9.3) (2020-05-06)
