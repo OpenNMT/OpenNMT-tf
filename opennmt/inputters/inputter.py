@@ -61,6 +61,23 @@ class Inputter(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
+  def get_dataset_size(self, data_file):
+    """Returns the dataset size.
+
+    If the inputter can efficiently compute the dataset size from a training
+    file on disk, it can optionally override this method. Otherwise, we may
+    compute the size later with a generic and slower approach (iterating over
+    the dataset instance).
+
+    Args:
+      data_file: The data file.
+
+    Returns:
+      The dataset size or ``None``.
+    """
+    _ = data_file
+    return None
+
   def make_inference_dataset(self,
                              features_file,
                              batch_size,
@@ -248,6 +265,13 @@ class MultiInputter(Inputter):
   @abc.abstractmethod
   def make_dataset(self, data_file, training=None):
     raise NotImplementedError()
+
+  def get_dataset_size(self, data_file):
+    for inputter, data in zip(self.inputters, data_file):
+      size = inputter.get_dataset_size(data)
+      if size is not None:
+        return size
+    return None
 
   def visualize(self, model_root, log_dir):
     for inputter in self.inputters:
@@ -613,6 +637,7 @@ class ExampleInputterAdapter:
         num_shards=num_shards,
         shard_index=shard_index,
         num_threads=num_threads,
+        dataset_size=self.get_dataset_size(data_files),
         shuffle_buffer_size=shuffle_buffer_size,
         prefetch_buffer_size=prefetch_buffer_size,
         cardinality_multiple=cardinality_multiple)(dataset)
