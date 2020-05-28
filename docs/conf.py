@@ -10,8 +10,8 @@ project = "OpenNMT-tf"
 author = "OpenNMT"
 language = "en"
 
-version = "2.9"  # The short X.Y version.
-release = "2.9.3"  # The full version, including alpha/beta/rc tags.
+version = "2.10"  # The short X.Y version.
+release = "2.10.0"  # The full version, including alpha/beta/rc tags.
 
 extensions = [
     "recommonmark",
