@@ -1,7 +1,7 @@
 """Training related classes and functions."""
 
-import abc
 import contextlib
+import itertools
 import time
 
 import tensorflow as tf
@@ -10,14 +10,17 @@ from opennmt.optimizers import utils as optimizer_util
 from opennmt.utils import misc
 
 
-class Trainer(abc.ABC):
-  """Base class for model trainer."""
+class Trainer:
+  """Base class for model trainer, implementing single-GPU training."""
 
   def __init__(self, model, optimizer, checkpoint=None, is_master=True):
     """Initializes the trainer.
 
     Args:
-      checkpoint: A :class:`opennmt.utils.Checkpoint` instance.
+      model: A :class:`opennmt.models.Model` instance to train.
+      optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+      checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
+        not set, no checkpoints will be saved.
       is_master: Whether this trainer instance is the master trainer.
     """
     self._checkpoint = checkpoint
@@ -146,7 +149,20 @@ class Trainer(abc.ABC):
       evaluator(step)
       return evaluator.should_stop()
 
-  @abc.abstractmethod
+  def _finalize_dataset(self, dataset):
+    """Returns the final dataset instance to be used for training.
+
+    Args:
+      dataset: A ``tf.data.Dataset`` or a function taking a ``tf.distribute.InputContext``
+        instance and returning a ``tf.data.Dataset``.
+
+    Returns:
+      A ``tf.data.Dataset``.
+    """
+    if callable(dataset):
+      dataset = dataset(tf.distribute.InputContext())
+    return dataset
+
   def _steps(self, dataset, accum_steps=1, report_steps=None):
     """Returns a generator over training steps (i.e. parameters update).
 
@@ -159,7 +175,37 @@ class Trainer(abc.ABC):
     Returns:
       A generator that yields a loss value to report for this step.
     """
-    raise NotImplementedError()
+    dataset = self._finalize_dataset(dataset)
+    iterator = iter(dataset)
+
+    # Wrap forward and step with tf.function.
+    # We get the next dataset element within the function for increased efficiency.
+
+    @tf.function
+    def _forward():
+      source, target = next(iterator)
+      return self._forward(
+          source,
+          target,
+          record_summaries=self._should_record_summaries(report_steps))
+
+    @tf.function
+    def _step():
+      return self._step()
+
+    for i in itertools.count():
+      try:
+        loss = _forward()
+      except tf.errors.OutOfRangeError:  # Dataset iterator exhausted.
+        break
+      if tf.math.is_nan(loss):
+        raise RuntimeError("Model diverged with loss = NaN.")
+
+      if i == 0 or (i + 1) % accum_steps == 0:
+        _step()
+        if i == 0:
+          self._broadcast_variables()
+        yield loss
 
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
@@ -260,36 +306,28 @@ class Trainer(abc.ABC):
       counter.assign(tf.constant(0, dtype=tf.int64))
     return counters
 
+  def _broadcast_variables(self):
+    """Broadcasts variables to other replicas, if required."""
+    return
+
   def _all_reduce_sum(self, value):
     """Reduces the value across all replicas."""
     return value
-
-
-class BasicTrainer(Trainer):
-  """Basic single GPU trainer."""
-
-  def _steps(self, dataset, accum_steps=1, report_steps=None):
-    if accum_steps != 1:
-      raise ValueError("BasicTrainer does not support gradient accumulation")
-    if callable(dataset):
-      dataset = dataset(tf.distribute.InputContext())
-
-    @tf.function(input_signature=dataset.element_spec)
-    def _step(source, target):
-      training_loss, reported_loss = self._run_model(source, target)
-      variables = self._model.trainable_variables
-      gradients = self._optimizer.get_gradients(training_loss, variables)
-      self._optimizer.apply_gradients(list(zip(gradients, variables)))
-      return reported_loss
-
-    for source, target in dataset:
-      yield _step(source, target)
 
 
 class HorovodTrainer(Trainer):
   """Trainer compatible with Horovod distributed training."""
 
   def __init__(self, model, optimizer, hvd, checkpoint=None):
+    """Initializes the Horovod trainer.
+
+    Args:
+      model: A :class:`opennmt.models.Model` instance to train.
+      optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+      hvd: The global Horovod object.
+      checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
+        not set, no checkpoints will be saved.
+    """
     super().__init__(model, optimizer, checkpoint=checkpoint, is_master=hvd.rank() == 0)
     self._hvd = hvd
 
@@ -297,53 +335,37 @@ class HorovodTrainer(Trainer):
   def num_replicas(self):
     return self._hvd.size()
 
-  def _all_reduce_sum(self, value):
-    return self._hvd.allreduce(value, op=self._hvd.Sum)
-
-  def _steps(self, dataset, accum_steps=1, report_steps=None):
+  def _finalize_dataset(self, dataset):
     if callable(dataset):
       dataset = dataset(tf.distribute.InputContext(
           num_input_pipelines=self._hvd.size(),
           input_pipeline_id=self._hvd.rank(),
           num_replicas_in_sync=self._hvd.size()))
+    return dataset
 
-    # Wrap forward and step with tf.function.
+  def _broadcast_variables(self):
+    self._hvd.broadcast_variables(self._model.variables, root_rank=0)
+    self._hvd.broadcast_variables(self._optimizer.variables(), root_rank=0)
 
-    @tf.function(input_signature=dataset.element_spec)
-    def _forward(source, target):
-      return self._forward(
-          source,
-          target,
-          record_summaries=self._should_record_summaries(report_steps))
-
-    @tf.function
-    def _step():
-      return self._step()
-
-    for i, (source, target) in enumerate(dataset):
-      loss = _forward(source, target)
-      _assert_loss_is_finite(loss)
-      if i == 0 or (i + 1) % accum_steps == 0:
-        _step()
-        if i == 0:
-          self._hvd.broadcast_variables(self._model.variables, root_rank=0)
-          self._hvd.broadcast_variables(self._optimizer.variables(), root_rank=0)
-        yield loss
+  def _all_reduce_sum(self, value):
+    return self._hvd.allreduce(value, op=self._hvd.Sum)
 
 
-class DistributionStrategyTrainer(Trainer):
-  """Trainer based on distribution strategies."""
+class MirroredStrategyTrainer(Trainer):
+  """Trainer based on ``tf.distribute.MirroredStrategy`` for local multi-GPU training."""
 
   def __init__(self, model, optimizer, checkpoint=None, devices=None):
-    """Initializes the trainer.
+    """Initializes the MirroredStrategy trainer.
 
     Args:
-      checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance.
-      devices: List of device strings to use for training.
+      model: A :class:`opennmt.models.Model` instance to train.
+      optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+      checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
+        not set, no checkpoints will be saved.
+      devices: List of device strings to use for training. If not set, all
+        visible GPUs are used.
     """
-    super(DistributionStrategyTrainer, self).__init__(model, optimizer, checkpoint=checkpoint)
-    if not devices:
-      devices = misc.get_devices(count=1)  # Train with 1 device by default.
+    super().__init__(model, optimizer, checkpoint=checkpoint)
     self._strategy = tf.distribute.MirroredStrategy(devices=devices)
     with self._strategy.scope():
       # Create some variables under the strategy scope.
@@ -353,59 +375,24 @@ class DistributionStrategyTrainer(Trainer):
   def num_replicas(self):
     return self._strategy.num_replicas_in_sync
 
-  def _steps(self, dataset, accum_steps=1, report_steps=None):
-    for i, loss in enumerate(self._accumulate_next_gradients(dataset, report_steps=report_steps)):
-      _assert_loss_is_finite(loss)
-      if i == 0 or (i + 1) % accum_steps == 0:
-        self._apply_gradients()
-        yield loss
-
-  def _accumulate_next_gradients(self, dataset, report_steps=None):
-    """Accumulates the gradients from the next element in :obj:`dataset`."""
-
+  def _finalize_dataset(self, dataset):
     # We prefer not to use experimental_distribute_dataset here because it
     # sometimes fails to split the batches (noticed with tokens batch type).
     # We also assume for now that we are training with a single worker
     # otherwise we would need to correctly shard the input dataset.
     dataset_fn = dataset if callable(dataset) else lambda _: dataset
-    distributed_dataset = self._strategy.experimental_distribute_datasets_from_function(
-        dataset_fn)
+    return self._strategy.experimental_distribute_datasets_from_function(dataset_fn)
 
-    # Get the next element within the tf.function for more pipelining.
-    # See: https://github.com/tensorflow/tensorflow/issues/29075#issuecomment-513390242
-    iterator = iter(distributed_dataset)
-
-    @tf.function
-    def _accumulate_next():
-      record_summaries = self._should_record_summaries(report_steps)
-      per_replica_source, per_replica_target = next(iterator)
-      return self._accumulate_gradients(
-          per_replica_source,
-          per_replica_target,
-          record_summaries=record_summaries)
-
-    while True:
-      try:
-        yield _accumulate_next()
-      except tf.errors.OutOfRangeError:
-        break
-
-  def _accumulate_gradients(self,
-                            per_replica_source,
-                            per_replica_target,
-                            record_summaries=False):
-    """Accumulates the gradients (cross-replica)."""
+  def _forward(self, source, target, record_summaries=False):
     per_replica_loss = self._strategy.run(
-        self._forward,
-        args=(per_replica_source, per_replica_target),
+        super()._forward,
+        args=(source, target),
         kwargs=dict(record_summaries=record_summaries))
     # TODO: this reduction could be delayed until _step is called.
     return self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
 
-  @tf.function
-  def _apply_gradients(self):
-    """Applies the gradients (cross-replica)."""
-    self._strategy.run(self._step)
+  def _step(self):
+    self._strategy.run(super()._step)
 
 
 def _report_training_status(step,
@@ -442,10 +429,6 @@ def _report_training_status(step,
       loss)
   tf.summary.scalar("loss", loss, description="Training loss")
   tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
-
-def _assert_loss_is_finite(loss):
-  if tf.math.is_nan(loss):
-    raise RuntimeError("Model diverged with loss = NaN.")
 
 def _summarize_gradients(gradients, should_record):
   # Only compute the gradients global norm when the value is actually recorded.

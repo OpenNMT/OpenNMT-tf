@@ -56,7 +56,7 @@ class TrainingTest(tf.test.TestCase):
   def testEmptyTrainingDataset(self):
     model = _make_seq2seq_model(self.get_temp_dir())
     optimizer = tf.keras.optimizers.SGD(1.0)
-    trainer = training.DistributionStrategyTrainer(model, optimizer)
+    trainer = training.Trainer(model, optimizer)
 
     empty_file = os.path.join(self.get_temp_dir(), "train.txt")
     with open(empty_file, "w"):
