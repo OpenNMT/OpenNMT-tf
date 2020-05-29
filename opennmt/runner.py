@@ -201,10 +201,12 @@ class Runner(object):
         raise ValueError("num_devices (or num_gpus) should be set to 1 when using Horovod")
       trainer = training_util.HorovodTrainer(
           model, optimizer, hvd, checkpoint=checkpoint)
-    else:
+    elif num_devices > 1:
       devices = misc.get_devices(count=num_devices)
-      trainer = training_util.DistributionStrategyTrainer(
+      trainer = training_util.MirroredStrategyTrainer(
           model, optimizer, checkpoint=checkpoint, devices=devices)
+    else:
+      trainer = training_util.Trainer(model, optimizer, checkpoint=checkpoint)
 
     trainer(
         dataset_fn,
