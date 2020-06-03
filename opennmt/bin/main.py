@@ -126,7 +126,7 @@ def main():
       "--export_dir", required=True,
       help="The directory of the exported model.")
   parser_export.add_argument(
-      "--export_format", choices=["saved_model", "ctranslate2"], default="saved_model",
+      "--export_format", choices=exporters.list_exporters(), default="saved_model",
       help="Format of the exported model.")
 
   parser_score = subparsers.add_parser("score", help="Scoring.")

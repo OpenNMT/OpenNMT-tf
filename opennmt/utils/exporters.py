@@ -9,27 +9,6 @@ import tensorflow as tf
 from opennmt.utils import misc
 
 
-def make_exporter(name, **kwargs):
-  """Creates a new exporter.
-
-  Args:
-    name: The exporter name, can be "saved_model", "ctranslate2".
-    **kwargs: Additional arguments to pass to the exporter constructor.
-
-  Returns:
-    A :class:`opennmt.utils.Exporter` instance.
-
-  Raises:
-    ValueError: if :obj:`name` is invalid.
-  """
-  if name == "saved_model":
-    return SavedModelExporter(**kwargs)
-  elif name == "ctranslate2":
-    return CTranslate2Exporter(**kwargs)
-  else:
-    raise ValueError("Invalid exporter name: %s" % name)
-
-
 class Exporter(abc.ABC):
   """Base class for model exporters."""
 
@@ -54,6 +33,33 @@ class Exporter(abc.ABC):
     raise NotImplementedError()
 
 
+_EXPORTERS_REGISTRY = misc.ClassRegistry(base_class=Exporter)
+register_exporter = _EXPORTERS_REGISTRY.register  # pylint: disable=invalid-name
+
+def make_exporter(name, **kwargs):
+  """Creates a new exporter.
+
+  Args:
+    name: The exporter name.
+    **kwargs: Additional arguments to pass to the exporter constructor.
+
+  Returns:
+    A :class:`opennmt.utils.Exporter` instance.
+
+  Raises:
+    ValueError: if :obj:`name` is invalid.
+  """
+  exporter_class = _EXPORTERS_REGISTRY.get(name)
+  if exporter_class is None:
+    raise ValueError("Invalid exporter name: %s" % name)
+  return exporter_class(**kwargs)
+
+def list_exporters():
+  """Lists the name of registered exporters."""
+  return _EXPORTERS_REGISTRY.class_names
+
+
+@register_exporter(name="saved_model")
 class SavedModelExporter(Exporter):
   """SavedModel exporter."""
 
@@ -61,6 +67,7 @@ class SavedModelExporter(Exporter):
     tf.saved_model.save(model, export_dir, signatures=model.serve_function())
 
 
+@register_exporter(name="ctranslate2")
 class CTranslate2Exporter(Exporter):
   """CTranslate2 exporter."""
 
