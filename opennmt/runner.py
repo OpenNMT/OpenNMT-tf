@@ -14,6 +14,7 @@ import numpy as np
 import tensorflow as tf
 
 from opennmt import evaluation
+from opennmt import inference
 from opennmt import models
 from opennmt import training as training_util
 from opennmt.utils import checkpoint as checkpoint_util
@@ -326,7 +327,8 @@ class Runner(object):
 
     Args:
       features_file: The file(s) to infer from.
-      predictions_file: If set, predictions are saved in this file.
+      predictions_file: If set, predictions are saved in this file, otherwise
+        they are printed on the standard output.
       checkpoint_path: Path of a specific checkpoint to predict. If ``None``,
         the latest is used.
       log_time: If ``True``, several time metrics will be printed in the logs at
@@ -342,72 +344,12 @@ class Runner(object):
         infer_config["batch_size"],
         length_bucket_width=infer_config["length_bucket_width"],
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
-
-    if predictions_file:
-      stream = open(predictions_file, encoding="utf-8", mode="w")
-    else:
-      stream = sys.stdout
-
-    infer_fn = tf.function(model.infer, input_signature=(dataset.element_spec,))
-    tf.get_logger().info("Tracing and optimizing the inference graph...")
-    infer_fn.get_concrete_function()  # Trace the function now.
-
-    # Inference might return out-of-order predictions. The OrderRestorer utility is
-    # used to write predictions in their original order.
-    write_fn = lambda prediction: (
-        model.print_prediction(prediction, params=infer_config, stream=stream))
-    index_fn = lambda prediction: prediction.get("index")
-    ordered_writer = misc.OrderRestorer(index_fn, write_fn)
-
-    total_time = 0
-    total_tokens = 0
-    total_examples = 0
-    start_time = time.time()
-
-    # When the inference dataset is bucketized, it can happen that no output is
-    # written in a long time. To avoid confusion and give the impression that
-    # the process is stuck, we ensure that something is logged regularly.
-    max_time_without_output = 10
-    last_output_time = start_time
-
-    for source in dataset:
-      predictions = infer_fn(source)
-      predictions = tf.nest.map_structure(lambda t: t.numpy(), predictions)
-      batch_time = time.time()
-
-      for prediction in misc.extract_batches(predictions):
-        written = ordered_writer.push(prediction)
-        if written:
-          last_output_time = batch_time
-        else:
-          time_without_output = batch_time - last_output_time
-          if time_without_output >= max_time_without_output:
-            tf.get_logger().info(
-                "%d predictions are buffered, but waiting for the prediction of "
-                "line %d to advance the output...",
-                ordered_writer.buffer_size,
-                ordered_writer.next_index + 1)
-            last_output_time = batch_time
-
-      if log_time:
-        batch_size = next(iter(predictions.values())).shape[0]
-        total_examples += batch_size
-        length = predictions.get("length")
-        if length is not None:
-          if len(length.shape) == 2:
-            length = length[:, 0]
-          total_tokens += sum(length)
-
-    if log_time:
-      end_time = time.time()
-      total_time = end_time - start_time
-      tf.get_logger().info("Total prediction time (s): %f", total_time)
-      tf.get_logger().info(
-          "Average prediction time (s): %f", total_time / total_examples)
-      if total_tokens > 0:
-        tf.get_logger().info("Tokens per second: %f", total_tokens / total_time)
-    if predictions_file:
-      stream.close()
+    inference.run_inference_on_dataset(
+        model,
+        dataset,
+        print_params=infer_config,
+        predictions_file=predictions_file,
+        log_time=log_time)
 
   def export(self, export_dir, checkpoint_path=None, exporter=None):
     """Exports a model.
