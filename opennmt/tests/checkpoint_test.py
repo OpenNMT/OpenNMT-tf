@@ -82,6 +82,7 @@ class CheckpointTest(tf.test.TestCase):
         directory, output_dir, dict(model=model, optimizer=optimizer))
     avg_checkpoint = tf.train.latest_checkpoint(output_dir)
     self.assertIsNotNone(avg_checkpoint)
+    self.assertEqual(checkpoint_util.get_step_from_checkpoint_prefix(avg_checkpoint), steps[-1])
     checkpoint.restore(avg_checkpoint)
     self.assertTrue(_all_equal(model.layers[0].kernel, avg_value))
     self.assertTrue(_all_equal(model.layers[0].bias, avg_value))

@@ -77,7 +77,7 @@ class Checkpoint(object):
     latest_checkpoint = self._checkpoint_manager.latest_checkpoint
     if latest_checkpoint is None:
       return None
-    return _get_step_from_checkpoint_prefix(latest_checkpoint)
+    return get_step_from_checkpoint_prefix(latest_checkpoint)
 
   def save(self, step=None):
     """Saves a checkpoint.
@@ -139,7 +139,7 @@ class Checkpoint(object):
     return checkpoint_path
 
 
-def _get_step_from_checkpoint_prefix(prefix):
+def get_step_from_checkpoint_prefix(prefix):
   """Extracts the training step from the checkpoint file prefix."""
   return int(prefix.split("-")[-1])
 
@@ -188,48 +188,70 @@ def average_checkpoints(model_dir,
     ValueError: if a model is not found in :obj:`trackables` or is not already
       built.
     ValueError: if no checkpoints are found in :obj:`model_dir`.
+
+  See Also:
+    :func:`opennmt.utils.average_checkpoints_into_layer`
   """
   if model_dir == output_dir:
     raise ValueError("Model and output directory must be different")
   model = trackables.get(model_key)
   if model is None:
     raise ValueError("%s not found in trackables %s" % (model_key, trackables))
-  if not model.built:
-    raise ValueError("The model should be built before calling this function")
 
-  checkpoint = tf.train.Checkpoint(**trackables)
-  checkpoint_manager = tf.train.CheckpointManager(checkpoint, model_dir, max_to_keep=None)
-
-  checkpoints_path = checkpoint_manager.checkpoints
-  if not checkpoints_path:
+  checkpoint_state = tf.train.get_checkpoint_state(model_dir)
+  if checkpoint_state is None:
     raise ValueError("No checkpoints found in %s" % model_dir)
+  checkpoints_path = checkpoint_state.all_model_checkpoint_paths
   if len(checkpoints_path) > max_count:
     checkpoints_path = checkpoints_path[-max_count:]
-  num_checkpoints = len(checkpoints_path)
-  last_step = _get_step_from_checkpoint_prefix(checkpoints_path[-1])
 
-  # Get a map from variable names in the checkpoint to variables in the model.
-  _, names_to_variables = misc.get_variables_name_mapping(model, root_key=model_key)
+  average_checkpoints_into_layer(checkpoints_path, model, model_key)
 
-  tf.get_logger().info("Averaging %d checkpoints...", num_checkpoints)
-  for i, checkpoint_path in enumerate(reversed(checkpoints_path)):
-    tf.get_logger().info("Reading checkpoint %s...", checkpoint_path)
-    if i == 0:
-      checkpoint.restore(checkpoint_path).assert_existing_objects_matched()
-      for variable in model.variables:
-        variable.assign(variable / num_checkpoints)
-    else:
-      reader = tf.train.load_checkpoint(checkpoint_path)
-      for path in reader.get_variable_to_shape_map().keys():
-        if not path.startswith(model_key) or ".OPTIMIZER_SLOT" in path:
-          continue
-        variable = names_to_variables[path]
-        value = reader.get_tensor(path)
-        variable.assign_add(value / num_checkpoints)
-
+  last_step = get_step_from_checkpoint_prefix(checkpoints_path[-1])
+  checkpoint = tf.train.Checkpoint(**trackables)
   new_checkpoint_manager = tf.train.CheckpointManager(checkpoint, output_dir, max_to_keep=None)
   new_checkpoint_manager.save(checkpoint_number=last_step)
   return output_dir
+
+def average_checkpoints_into_layer(checkpoints, layer, layer_prefix):
+  """Updates the layer weights with their average value in the checkpoints.
+
+  Args:
+    checkpoints: A non empty list of checkpoint paths.
+    layer: A ``tf.keras.layers.Layer`` instance.
+    layer_prefix: The name/scope that prefixes the layer variables names in the
+      checkpoints.
+
+  Raises:
+    ValueError: if :obj:`checkpoints` is empty.
+    ValueError: if :obj:`layer` is not already built.
+
+  See Also:
+    :func:`opennmt.utils.average_checkpoints`
+  """
+  if not checkpoints:
+    raise ValueError("There should be at least one checkpoint")
+  if not layer.built:
+    raise ValueError("The layer should be built before calling this function")
+
+  # Reset the layer variables to 0.
+  for variable in layer.variables:
+    variable.assign(tf.zeros_like(variable))
+
+  # Get a map from variable names in the checkpoint to variables in the layer.
+  _, names_to_variables = misc.get_variables_name_mapping(layer, root_key=layer_prefix)
+
+  num_checkpoints = len(checkpoints)
+  tf.get_logger().info("Averaging %d checkpoints...", num_checkpoints)
+  for checkpoint_path in checkpoints:
+    tf.get_logger().info("Reading checkpoint %s...", checkpoint_path)
+    reader = tf.train.load_checkpoint(checkpoint_path)
+    for path in reader.get_variable_to_shape_map().keys():
+      if not path.startswith(layer_prefix) or ".OPTIMIZER_SLOT" in path:
+        continue
+      variable = names_to_variables[path]
+      value = reader.get_tensor(path)
+      variable.assign_add(value / num_checkpoints)
 
 
 _V1_OPTIM_SCOPE = "optim"
