@@ -58,7 +58,7 @@ def document_module(module, module_path, module_map, output_dir):
     symbol_path = "%s.%s" % (module_path, symbol_name)
     if inspect.isclass(symbol):
       classes.append((symbol, symbol_path))
-    elif inspect.isfunction(symbol):
+    elif inspect.isfunction(symbol) or inspect.ismethod(symbol):
       functions.append(symbol_path)
     elif inspect.ismodule(symbol):
       submodules.append((symbol_path, symbol))
