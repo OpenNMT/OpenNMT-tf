@@ -67,6 +67,15 @@ class SavedModelExporter(Exporter):
     tf.saved_model.save(model, export_dir, signatures=model.serve_function())
 
 
+@register_exporter(name="checkpoint")
+class CheckpointExporter(Exporter):
+  """Checkpoint exporter."""
+
+  def _export_model(self, model, export_dir):
+    checkpoint = tf.train.Checkpoint(model=model)
+    checkpoint.write(os.path.join(export_dir, "ckpt"))
+
+
 @register_exporter(name="ctranslate2")
 class CTranslate2Exporter(Exporter):
   """CTranslate2 exporter."""
