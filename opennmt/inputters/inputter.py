@@ -314,8 +314,26 @@ class ParallelInputter(MultiInputter):
         if type(inputter) is not type(leaves[0]):
           raise ValueError("Each inputter must be of the same type for parameter sharing")
 
+  def _structure(self):
+    """Returns the nested structure that represents this parallel inputter."""
+    return [
+        inputter._structure()  # pylint: disable=protected-access
+        if isinstance(inputter, ParallelInputter) else None
+        for inputter in self.inputters]
+
   def make_dataset(self, data_file, training=None):
-    if not isinstance(data_file, list) or len(data_file) != len(self.inputters):
+    if not isinstance(data_file, list):
+      data_file = [data_file]
+
+    # For evaluation and inference, accept a flat list of data files for nested inputters.
+    # This is needed when nesting can't easily be represented (e.g. on the command line).
+    if not training:
+      try:
+        data_file = tf.nest.pack_sequence_as(self._structure(), tf.nest.flatten(data_file))
+      except ValueError:
+        data_file = []  # This will raise the error below.
+
+    if len(data_file) != len(self.inputters):
       raise ValueError("The number of data files must be the same as the number of inputters")
 
     num_files = -1
