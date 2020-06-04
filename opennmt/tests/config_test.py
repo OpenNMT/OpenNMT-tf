@@ -48,16 +48,21 @@ class ConfigTest(tf.test.TestCase):
     self.assertIsInstance(model, Model)
 
   @parameterized.expand([
-      ("Transformer",),
-      ("TransformerBase",),
+      ("Transformer", False),
+      ("TransformerBase", True),
   ])
-  def testLoadModel(self, model_name):
+  def testLoadModel(self, model_name, as_builder):
+
+    def _check_model(model):
+      if as_builder:
+        self.assertTrue(model, callable)
+        model = model()
+      self.assertIsInstance(model, Model)
+
     model_dir = self.get_temp_dir()
-    model = config.load_model(model_dir, model_name=model_name)
+    _check_model(config.load_model(model_dir, model_name=model_name, as_builder=as_builder))
     self.assertTrue(os.path.exists(os.path.join(model_dir, "model_description.py")))
-    self.assertIsInstance(model, Model)
-    model = config.load_model(model_dir)
-    self.assertIsInstance(model, Model)
+    _check_model(config.load_model(model_dir, as_builder=as_builder))
 
   def testLoadModelDescriptionCompat(self):
     model_dir = self.get_temp_dir()

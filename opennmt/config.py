@@ -40,39 +40,46 @@ def load_model_module(path):
 
   return module
 
-def load_model_from_file(path):
+def load_model_from_file(path, as_builder=False):
   """Loads a model from a configuration file.
 
   Args:
     path: The relative path to the configuration file.
+    as_builder: If ``True``, return a callable building the model on call.
 
   Returns:
-    A :class:`opennmt.models.Model` instance.
+    A :class:`opennmt.models.Model` instance or a callable returning such
+    instance.
   """
   module = load_model_module(path)
-  model = module.model()
+  model = module.model
+  if not as_builder:
+    model = model()
   del sys.path_importer_cache[os.path.dirname(module.__file__)]
   del sys.modules[module.__name__]
   return model
 
-def load_model_from_catalog(name):
+def load_model_from_catalog(name, as_builder=False):
   """Loads a model from the catalog.
 
   Args:
     name: The model name.
+    as_builder: If ``True``, return a callable building the model on call.
 
   Returns:
-    A :class:`opennmt.models.Model` instance.
+    A :class:`opennmt.models.Model` instance or a callable returning such
+    instance.
 
   Raises:
     ValueError: if the model :obj:`name` does not exist in the model catalog.
   """
-  return catalog.get_model_from_catalog(name)
+  return catalog.get_model_from_catalog(name, as_builder=as_builder)
 
 def load_model(model_dir,
                model_file=None,
                model_name=None,
-               serialize_model=True):
+               serialize_model=True,
+               as_builder=False):
   """Loads the model from the catalog or a definition file.
 
   Args:
@@ -83,9 +90,11 @@ def load_model(model_dir,
       Mutually exclusive with :obj:`model_file`.
     serialize_model: Serialize the model definition in the model directory to
       make it optional for future runs.
+    as_builder: If ``True``, return a callable building the model on call.
 
   Returns:
-    A :class:`opennmt.models.Model` instance.
+    A :class:`opennmt.models.Model` instance or a callable returning such
+    instance.
 
   Raises:
     ValueError: if both :obj:`model_file` and :obj:`model_name` are set.
@@ -104,11 +113,11 @@ def load_model(model_dir,
           "dropout.")
 
     if model_file:
-      model = load_model_from_file(model_file)
+      model = load_model_from_file(model_file, as_builder=as_builder)
       if serialize_model:
         tf.io.gfile.copy(model_file, model_description_path, overwrite=True)
     elif model_name:
-      model = load_model_from_catalog(model_name)
+      model = load_model_from_catalog(model_name, as_builder=as_builder)
       if serialize_model:
         with tf.io.gfile.GFile(model_description_path, mode="w") as model_description_file:
           model_description_file.write(
@@ -116,7 +125,7 @@ def load_model(model_dir,
               "model = lambda: models.get_model_from_catalog(\"%s\")\n" % model_name)
   elif tf.io.gfile.exists(model_description_path):
     tf.get_logger().info("Loading model description from %s", model_description_path)
-    model = load_model_from_file(model_description_path)
+    model = load_model_from_file(model_description_path, as_builder=as_builder)
   else:
     raise RuntimeError("A model configuration is required: you probably need to "
                        "set --model or --model_type on the command line.")
