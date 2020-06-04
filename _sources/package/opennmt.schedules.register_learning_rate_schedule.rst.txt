@@ -1,0 +1,4 @@
+opennmt.schedules.register_learning_rate_schedule
+=================================================
+
+.. autofunction:: opennmt.schedules.register_learning_rate_schedule

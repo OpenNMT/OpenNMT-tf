@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.10.0 documentation</title>
+  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.10.1 documentation</title>
   
 
   
@@ -204,14 +204,16 @@
   <span class="sd">&quot;&quot;&quot;Lists the models name registered in the catalog.&quot;&quot;&quot;</span>
   <span class="k">return</span> <span class="n">_CATALOG_MODELS_REGISTRY</span><span class="o">.</span><span class="n">class_names</span>
 
-<div class="viewcode-block" id="get_model_from_catalog"><a class="viewcode-back" href="../../../package/opennmt.models.get_model_from_catalog.html#opennmt.models.get_model_from_catalog">[docs]</a><span class="k">def</span> <span class="nf">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="get_model_from_catalog"><a class="viewcode-back" href="../../../package/opennmt.models.get_model_from_catalog.html#opennmt.models.get_model_from_catalog">[docs]</a><span class="k">def</span> <span class="nf">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Gets a model from the catalog.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    name: The model name in the catalog.</span>
+<span class="sd">    as_builder: If ``True``, return a callable building the model on call.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.models.Model` instance.</span>
+<span class="sd">    A :class:`opennmt.models.Model` instance or a callable returning such</span>
+<span class="sd">    instance.</span>
 
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if the model :obj:`name` does not exist in the catalog.</span>
@@ -219,6 +221,8 @@
   <span class="n">model_class</span> <span class="o">=</span> <span class="n">_CATALOG_MODELS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">model_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist in the model catalog&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">as_builder</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">model_class</span>
   <span class="k">return</span> <span class="n">model_class</span><span class="p">()</span></div>
 
 

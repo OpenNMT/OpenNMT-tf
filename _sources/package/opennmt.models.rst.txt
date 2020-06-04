@@ -35,3 +35,4 @@ Functions
 .. toctree::
 
    opennmt.models.get_model_from_catalog
+   opennmt.models.register_model_in_catalog

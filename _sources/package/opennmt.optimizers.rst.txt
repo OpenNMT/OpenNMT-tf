@@ -9,3 +9,4 @@ Functions
 .. toctree::
 
    opennmt.optimizers.make_optimizer
+   opennmt.optimizers.register_optimizer

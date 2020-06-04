@@ -1,0 +1,4 @@
+opennmt.models.register_model_in_catalog
+========================================
+
+.. autofunction:: opennmt.models.register_model_in_catalog

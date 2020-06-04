@@ -19,3 +19,4 @@ Functions
 .. toctree::
 
    opennmt.schedules.make_learning_rate_schedule
+   opennmt.schedules.register_learning_rate_schedule

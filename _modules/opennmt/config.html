@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.config &mdash; OpenNMT-tf 2.10.0 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.10.1 documentation</title>
   
 
   
@@ -221,39 +221,46 @@
 
   <span class="k">return</span> <span class="n">module</span>
 
-<span class="k">def</span> <span class="nf">load_model_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_model_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Loads a model from a configuration file.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    path: The relative path to the configuration file.</span>
+<span class="sd">    as_builder: If ``True``, return a callable building the model on call.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.models.Model` instance.</span>
+<span class="sd">    A :class:`opennmt.models.Model` instance or a callable returning such</span>
+<span class="sd">    instance.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">module</span> <span class="o">=</span> <span class="n">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-  <span class="n">model</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+  <span class="n">model</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">model</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">as_builder</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">()</span>
   <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)]</span>
   <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
   <span class="k">return</span> <span class="n">model</span>
 
-<span class="k">def</span> <span class="nf">load_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Loads a model from the catalog.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    name: The model name.</span>
+<span class="sd">    as_builder: If ``True``, return a callable building the model on call.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.models.Model` instance.</span>
+<span class="sd">    A :class:`opennmt.models.Model` instance or a callable returning such</span>
+<span class="sd">    instance.</span>
 
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if the model :obj:`name` does not exist in the model catalog.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
 
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../package/opennmt.load_model.html#opennmt.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span>
                <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">serialize_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+               <span class="n">serialize_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Loads the model from the catalog or a definition file.</span>
 
 <span class="sd">  Args:</span>
@@ -264,9 +271,11 @@
 <span class="sd">      Mutually exclusive with :obj:`model_file`.</span>
 <span class="sd">    serialize_model: Serialize the model definition in the model directory to</span>
 <span class="sd">      make it optional for future runs.</span>
+<span class="sd">    as_builder: If ``True``, return a callable building the model on call.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.models.Model` instance.</span>
+<span class="sd">    A :class:`opennmt.models.Model` instance or a callable returning such</span>
+<span class="sd">    instance.</span>
 
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if both :obj:`model_file` and :obj:`model_name` are set.</span>
@@ -285,11 +294,11 @@
           <span class="s2">&quot;dropout.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">model_file</span><span class="p">:</span>
-      <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+      <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">model_name</span><span class="p">:</span>
-      <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+      <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_description_file</span><span class="p">:</span>
           <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
@@ -297,7 +306,7 @@
               <span class="s2">&quot;model = lambda: models.get_model_from_catalog(</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_name</span><span class="p">)</span>
   <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A model configuration is required: you probably need to &quot;</span>
                        <span class="s2">&quot;set --model or --model_type on the command line.&quot;</span><span class="p">)</span>

@@ -18,3 +18,4 @@ Functions
 .. toctree::
 
    opennmt.tokenizers.make_tokenizer
+   opennmt.tokenizers.register_tokenizer

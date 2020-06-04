@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.get_model_from_catalog &mdash; OpenNMT-tf 2.10.0 documentation</title>
+  <title>opennmt.models.get_model_from_catalog &mdash; OpenNMT-tf 2.10.1 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.optimizers module" href="opennmt.optimizers.html" />
+    <link rel="next" title="opennmt.models.register_model_in_catalog" href="opennmt.models.register_model_in_catalog.html" />
     <link rel="prev" title="opennmt.models.TransformerRelative" href="opennmt.models.TransformerRelative.html" /> 
 </head>
 
@@ -210,14 +210,18 @@
 <h1>opennmt.models.get_model_from_catalog<a class="headerlink" href="#opennmt-models-get-model-from-catalog" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.models.get_model_from_catalog">
-<code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">get_model_from_catalog</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/catalog.html#get_model_from_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.get_model_from_catalog" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">get_model_from_catalog</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">as_builder=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/catalog.html#get_model_from_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.get_model_from_catalog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a model from the catalog.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – The model name in the catalog.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The model name in the catalog.</p></li>
+<li><p><strong>as_builder</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return a callable building the model on call.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model" title="opennmt.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance.</p>
+<dd class="field-even"><p>A <a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model" title="opennmt.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance or a callable returning such
+instance.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>ValueError</strong> – if the model <code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code> does not exist in the catalog.</p>
@@ -235,7 +239,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.optimizers.html" class="btn btn-neutral float-right" title="opennmt.optimizers module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.models.register_model_in_catalog.html" class="btn btn-neutral float-right" title="opennmt.models.register_model_in_catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="opennmt.models.TransformerRelative.html" class="btn btn-neutral float-left" title="opennmt.models.TransformerRelative" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

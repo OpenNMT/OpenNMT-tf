@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.load_model &mdash; OpenNMT-tf 2.10.0 documentation</title>
+  <title>opennmt.load_model &mdash; OpenNMT-tf 2.10.1 documentation</title>
   
 
   
@@ -196,7 +196,7 @@
 <h1>opennmt.load_model<a class="headerlink" href="#opennmt-load-model" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.load_model">
-<code class="sig-prename descclassname">opennmt.</code><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">model_dir</em>, <em class="sig-param">model_file=None</em>, <em class="sig-param">model_name=None</em>, <em class="sig-param">serialize_model=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/config.html#load_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.load_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.</code><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">model_dir</em>, <em class="sig-param">model_file=None</em>, <em class="sig-param">model_name=None</em>, <em class="sig-param">serialize_model=True</em>, <em class="sig-param">as_builder=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/config.html#load_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.load_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the model from the catalog or a definition file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -208,10 +208,12 @@ Mutually exclusive with <code class="xref py py-obj docutils literal notranslate
 Mutually exclusive with <code class="xref py py-obj docutils literal notranslate"><span class="pre">model_file</span></code>.</p></li>
 <li><p><strong>serialize_model</strong> – Serialize the model definition in the model directory to
 make it optional for future runs.</p></li>
+<li><p><strong>as_builder</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return a callable building the model on call.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model" title="opennmt.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance.</p>
+<dd class="field-even"><p>A <a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model" title="opennmt.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance or a callable returning such
+instance.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>ValueError</strong> – if both <code class="xref py py-obj docutils literal notranslate"><span class="pre">model_file</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">model_name</span></code> are set.</p>

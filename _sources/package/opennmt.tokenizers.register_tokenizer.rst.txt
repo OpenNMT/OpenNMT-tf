@@ -1,0 +1,4 @@
+opennmt.tokenizers.register_tokenizer
+=====================================
+
+.. autofunction:: opennmt.tokenizers.register_tokenizer

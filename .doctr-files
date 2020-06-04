@@ -163,8 +163,10 @@
 ./_sources/package/opennmt.models.TransformerBigRelative.rst.txt
 ./_sources/package/opennmt.models.TransformerRelative.rst.txt
 ./_sources/package/opennmt.models.get_model_from_catalog.rst.txt
+./_sources/package/opennmt.models.register_model_in_catalog.rst.txt
 ./_sources/package/opennmt.models.rst.txt
 ./_sources/package/opennmt.optimizers.make_optimizer.rst.txt
+./_sources/package/opennmt.optimizers.register_optimizer.rst.txt
 ./_sources/package/opennmt.optimizers.rst.txt
 ./_sources/package/opennmt.rst.txt
 ./_sources/package/opennmt.schedules.CosineAnnealing.rst.txt
@@ -173,12 +175,14 @@
 ./_sources/package/opennmt.schedules.RsqrtDecay.rst.txt
 ./_sources/package/opennmt.schedules.ScheduleWrapper.rst.txt
 ./_sources/package/opennmt.schedules.make_learning_rate_schedule.rst.txt
+./_sources/package/opennmt.schedules.register_learning_rate_schedule.rst.txt
 ./_sources/package/opennmt.schedules.rst.txt
 ./_sources/package/opennmt.tokenizers.CharacterTokenizer.rst.txt
 ./_sources/package/opennmt.tokenizers.OpenNMTTokenizer.rst.txt
 ./_sources/package/opennmt.tokenizers.SpaceTokenizer.rst.txt
 ./_sources/package/opennmt.tokenizers.Tokenizer.rst.txt
 ./_sources/package/opennmt.tokenizers.make_tokenizer.rst.txt
+./_sources/package/opennmt.tokenizers.register_tokenizer.rst.txt
 ./_sources/package/opennmt.tokenizers.rst.txt
 ./_sources/package/opennmt.utils.BLEUScorer.rst.txt
 ./_sources/package/opennmt.utils.BeamSearch.rst.txt
@@ -204,6 +208,7 @@
 ./_sources/package/opennmt.utils.guided_alignment_cost.rst.txt
 ./_sources/package/opennmt.utils.is_v1_checkpoint.rst.txt
 ./_sources/package/opennmt.utils.max_margin_loss.rst.txt
+./_sources/package/opennmt.utils.register_scorer.rst.txt
 ./_sources/package/opennmt.utils.regularization_penalty.rst.txt
 ./_sources/package/opennmt.utils.roll_sequence.rst.txt
 ./_sources/package/opennmt.utils.rst.txt
@@ -396,8 +401,10 @@
 ./package/opennmt.models.TransformerRelative.html
 ./package/opennmt.models.get_model_from_catalog.html
 ./package/opennmt.models.html
+./package/opennmt.models.register_model_in_catalog.html
 ./package/opennmt.optimizers.html
 ./package/opennmt.optimizers.make_optimizer.html
+./package/opennmt.optimizers.register_optimizer.html
 ./package/opennmt.schedules.CosineAnnealing.html
 ./package/opennmt.schedules.NoamDecay.html
 ./package/opennmt.schedules.RNMTPlusDecay.html
@@ -405,12 +412,14 @@
 ./package/opennmt.schedules.ScheduleWrapper.html
 ./package/opennmt.schedules.html
 ./package/opennmt.schedules.make_learning_rate_schedule.html
+./package/opennmt.schedules.register_learning_rate_schedule.html
 ./package/opennmt.tokenizers.CharacterTokenizer.html
 ./package/opennmt.tokenizers.OpenNMTTokenizer.html
 ./package/opennmt.tokenizers.SpaceTokenizer.html
 ./package/opennmt.tokenizers.Tokenizer.html
 ./package/opennmt.tokenizers.html
 ./package/opennmt.tokenizers.make_tokenizer.html
+./package/opennmt.tokenizers.register_tokenizer.html
 ./package/opennmt.utils.BLEUScorer.html
 ./package/opennmt.utils.BeamSearch.html
 ./package/opennmt.utils.BestSampler.html
@@ -436,6 +445,7 @@
 ./package/opennmt.utils.html
 ./package/opennmt.utils.is_v1_checkpoint.html
 ./package/opennmt.utils.max_margin_loss.html
+./package/opennmt.utils.register_scorer.html
 ./package/opennmt.utils.regularization_penalty.html
 ./package/opennmt.utils.roll_sequence.html
 ./py-modindex.html
