@@ -23,14 +23,16 @@ def list_model_names_from_catalog():
   """Lists the models name registered in the catalog."""
   return _CATALOG_MODELS_REGISTRY.class_names
 
-def get_model_from_catalog(name):
+def get_model_from_catalog(name, as_builder=False):
   """Gets a model from the catalog.
 
   Args:
     name: The model name in the catalog.
+    as_builder: If ``True``, return a callable building the model on call.
 
   Returns:
-    A :class:`opennmt.models.Model` instance.
+    A :class:`opennmt.models.Model` instance or a callable returning such
+    instance.
 
   Raises:
     ValueError: if the model :obj:`name` does not exist in the catalog.
@@ -38,6 +40,8 @@ def get_model_from_catalog(name):
   model_class = _CATALOG_MODELS_REGISTRY.get(name)
   if model_class is None:
     raise ValueError("The model '%s' does not exist in the model catalog" % name)
+  if as_builder:
+    return model_class
   return model_class()
 
 

@@ -207,7 +207,8 @@ def main():
       config["model_dir"],
       model_file=args.model,
       model_name=args.model_type,
-      serialize_model=is_master)
+      serialize_model=is_master,
+      as_builder=True)
   runner = Runner(
       model,
       config,
