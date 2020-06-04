@@ -78,9 +78,9 @@ which describes an example of `m` vectors of depth `n` and identified by `KEY`.
 
 See `onmt-ark-to-records -h` for the script usage. It also accepts an optional indexed text file (i.e. with lines prefixed with `KEY`s) to generate aligned source vectors and target texts.
 
-## Parallel inputs
+## Parallel and nested inputs
 
-When using `opennmt.inputters.ParallelInputter`, as many input files as inputters are expected. You have to configure your YAML file accordingly:
+When using `opennmt.inputters.ParallelInputter` to define multi-source inputs, as many input files as inputters are expected. You have to configure your YAML file accordingly:
 
 ```yaml
 data:
@@ -90,7 +90,18 @@ data:
     - train_source_3.txt
 ```
 
-Similarly, when using the `--features_file` command line option of the main script (e.g. for inference or scoring), a list of files must also be provided:
+`ParallelInputter` can also be nested to enable complex inputs combination. In this case, the nested structure should be replicated in the YAML file. The example below represents the configuration for a dual-source model where the first source combines the embeddings of words, POS tags, and case:
+
+```yaml
+data:
+  train_features_file:
+    - - source_1.txt
+      - source_1.txt.pos
+      - source_1.txt.case
+    - source_2.txt
+```
+
+During inference, the same number of input files should be provided. You should pass a **flattened** list of files to the `--features_file` command line option of the main script (e.g. for inference, evaluation, and scoring):
 
 ```bash
 onmt.main [...] infer \

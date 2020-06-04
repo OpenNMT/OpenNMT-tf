@@ -387,6 +387,30 @@ class InputterTest(tf.test.TestCase):
         source_inputters[1].embedding.ref(),
         target_inputter.embedding.ref())
 
+  def testNestedInputtersWithFlatDataFiles(self):
+    inputters = inputter.ParallelInputter(
+        [
+            record_inputter.SequenceRecordInputter(10),
+            record_inputter.SequenceRecordInputter(10),
+        ],
+        reducer=reducer.SumReducer())
+    inputters = inputter.ParallelInputter(
+        [
+            record_inputter.SequenceRecordInputter(10),
+            inputters,
+        ],
+        reducer=reducer.ConcatReducer())
+
+    self.assertListEqual(inputters._structure(), [None, [None, None]])
+
+    empty_file = os.path.join(self.get_temp_dir(), "test.txt")
+    with open(empty_file, "w"):
+      pass
+
+    with self.assertRaises(ValueError):
+      inputters.make_inference_dataset([empty_file, empty_file], batch_size=2)
+    inputters.make_inference_dataset([empty_file, empty_file, empty_file], batch_size=2)
+
   def testExampleInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
