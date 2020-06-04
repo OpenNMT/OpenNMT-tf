@@ -245,7 +245,7 @@ class Runner(object):
     model = self._init_model(config)
     checkpoint = checkpoint_util.Checkpoint.from_config(config, model)
     checkpoint_path = checkpoint.restore(checkpoint_path=checkpoint_path, weights_only=True)
-    step = int(checkpoint_path.split("-")[-1])
+    step = checkpoint_util.get_step_from_checkpoint_prefix(checkpoint_path)
     evaluator = evaluation.Evaluator.from_config(
         model,
         config,
