@@ -54,14 +54,26 @@ class Runner(object):
     """Initializes the runner parameters.
 
     Args:
-      model: A :class:`opennmt.models.Model` instance to run.
+      model: A :class:`opennmt.models.Model` instance to run or a callable that
+        returns such instance.
       config: The run configuration.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
       mixed_precision: Enable mixed precision.
       seed: The random seed to set.
+
+    Raises:
+      TypeError: if :obj:`model` is not a :class:`opennmt.models.Model` instance
+        or a callable.
     """
-    self._model = model
+    if isinstance(model, models.Model):
+      self._model = model
+      self._model_fn = lambda: misc.clone_layer(model)
+    elif callable(model):
+      self._model = model()
+      self._model_fn = model
+    else:
+      raise TypeError("model should be a opennmt.models.Model instance or a callable")
     self._optimizer = None
     self._config = copy.deepcopy(config)
     self._auto_config = auto_config
@@ -118,7 +130,7 @@ class Runner(object):
     return config
 
   def _init_model(self, config):
-    model = misc.clone_layer(self._model)
+    model = self._model_fn()
     model.initialize(config["data"], params=config["params"])
     return model
 

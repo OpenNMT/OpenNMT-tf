@@ -26,7 +26,10 @@ test_data = os.path.join(root_dir, "testdata")
 @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
 class RunnerTest(tf.test.TestCase):
 
-  def _getTransliterationRunner(self, base_config=None, model_version="v2"):
+  def _getTransliterationRunner(self,
+                                base_config=None,
+                                model_version="v2",
+                                pass_model_builder=False):
     model_dir = os.path.join(self.get_temp_dir(), "model")
     shutil.copytree(os.path.join(test_data, "transliteration-aren-v2", model_version), model_dir)
     config = {}
@@ -37,7 +40,7 @@ class RunnerTest(tf.test.TestCase):
     }
     if base_config is not None:
       config = misc.merge_dict(config, base_config)
-    model = load_model(model_dir)
+    model = load_model(model_dir, as_builder=pass_model_builder)
     runner = Runner(model, config)
     return runner
 
@@ -60,7 +63,8 @@ class RunnerTest(tf.test.TestCase):
     en_file = test_util.make_data_file(os.path.join(self.get_temp_dir(), "en.txt"), en)
     return ar_file, en_file
 
-  def testTrain(self):
+  @parameterized.expand([[True], [False]])
+  def testTrain(self, pass_model_builder):
     ar_file, en_file  = self._makeTransliterationData()
     config = {
         "data": {
@@ -78,7 +82,7 @@ class RunnerTest(tf.test.TestCase):
             "max_step": 145002  # Just train for 2 steps.
         }
     }
-    runner = self._getTransliterationRunner(config)
+    runner = self._getTransliterationRunner(config, pass_model_builder=pass_model_builder)
     avg_dir = runner.train()
     self.assertEqual(runner.model_dir, avg_dir)
     self.assertEndsWith(tf.train.latest_checkpoint(avg_dir), "145002")
