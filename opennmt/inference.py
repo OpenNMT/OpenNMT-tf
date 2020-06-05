@@ -8,19 +8,19 @@ import tensorflow as tf
 from opennmt.utils import misc
 
 
-def run_inference_on_dataset(model,
-                             dataset,
-                             print_params=None,
-                             predictions_file=None,
-                             log_time=False):
-  """Runs inference on a dataset.
+def predict_dataset(model,
+                    dataset,
+                    print_params=None,
+                    predictions_file=None,
+                    log_time=False):
+  """Outputs the model predictions for the dataset.
 
   To run inference on strings directly, see
   :meth:`opennmt.models.Model.serve_function`.
 
   Args:
     model: A :class:`opennmt.models.Model` instance.
-    dataset: A ``tf.train.Dataset`` instance.
+    dataset: A ``tf.data.Dataset`` instance outputting features.
     print_params: A dictionary of parameters passed to
       :meth:`opennmt.models.Model.print_prediction`.
     predictions_file: If set, predictions are saved in this file, otherwise they
@@ -55,8 +55,8 @@ def run_inference_on_dataset(model,
   max_time_without_output = 10
   last_output_time = start_time
 
-  for source in dataset:
-    predictions = infer_fn(source)
+  for features in dataset:
+    predictions = infer_fn(features)
     predictions = tf.nest.map_structure(lambda t: t.numpy(), predictions)
     batch_time = time.time()
 
@@ -92,4 +92,34 @@ def run_inference_on_dataset(model,
     if total_tokens > 0:
       tf.get_logger().info("Tokens per second: %f", total_tokens / total_time)
   if predictions_file:
+    stream.close()
+
+def score_dataset(model,
+                  dataset,
+                  print_params=None,
+                  output_file=None):
+  """Outputs the model scores for the dataset.
+
+  Args:
+    model: A :class:`opennmt.models.Model` instance.
+    dataset: A ``tf.data.Dataset`` instance outputting parallel features and
+      labels.
+    print_params: A dictionary of parameters passed to
+      :meth:`opennmt.models.Model.print_score`.
+    output_file: If set, outputs are saved in this file, otherwise they are
+      printed on the standard output.
+  """
+  if output_file:
+    stream = open(output_file, encoding="utf-8", mode="w")
+  else:
+    stream = sys.stdout
+
+  score_fn = tf.function(model.score, input_signature=dataset.element_spec)
+  for features, labels in dataset:
+    results = score_fn(features, labels)
+    results = tf.nest.map_structure(lambda t: t.numpy(), results)
+    for batch in misc.extract_batches(results):
+      model.print_score(batch, params=print_params, stream=stream)
+
+  if output_file:
     stream.close()

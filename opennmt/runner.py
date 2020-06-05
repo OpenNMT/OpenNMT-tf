@@ -356,7 +356,7 @@ class Runner(object):
         infer_config["batch_size"],
         length_bucket_width=infer_config["length_bucket_width"],
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
-    inference.run_inference_on_dataset(
+    inference.predict_dataset(
         model,
         dataset,
         print_params=infer_config,
@@ -399,21 +399,7 @@ class Runner(object):
         predictions_file,
         score_config["batch_size"],
         prefetch_buffer_size=score_config.get("prefetch_buffer_size"))
-
-    if output_file:
-      stream = open(output_file, encoding="utf-8", mode="w")
-    else:
-      stream = sys.stdout
-
-    score_fn = tf.function(model.score, input_signature=dataset.element_spec)
-    for features, labels in dataset:
-      results = score_fn(features, labels)
-      results = tf.nest.map_structure(lambda t: t.numpy(), results)
-      for batch in misc.extract_batches(results):
-        model.print_score(batch, params=score_config, stream=stream)
-
-    if output_file:
-      stream.close()
+    inference.score_dataset(model, dataset, print_params=score_config, output_file=output_file)
 
 
 def _count_batch_accum(batch_size, target_batch_size, num_replicas=1):
