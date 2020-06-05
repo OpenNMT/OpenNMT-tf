@@ -3,6 +3,7 @@ import os
 from setuptools import setup, find_packages
 
 tests_require = [
+    "pylint==2.4.*",
     "parameterized",
     "nose2"
 ]
