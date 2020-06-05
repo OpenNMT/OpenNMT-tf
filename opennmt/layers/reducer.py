@@ -1,6 +1,7 @@
 """Define reducers: objects that merge inputs."""
 
 import abc
+import functools
 
 import tensorflow as tf
 
@@ -139,7 +140,7 @@ class MultiplyReducer(Reducer):
   """A reducer that multiplies the inputs."""
 
   def reduce(self, inputs):
-    return tf.foldl(lambda a, x: a * x, tf.stack(inputs))
+    return functools.reduce(lambda a, x: a * x, inputs)
 
   def reduce_sequence(self, inputs, sequence_lengths):
     padded, combined_length = pad_n_with_identity(inputs, sequence_lengths, identity_values=1)
