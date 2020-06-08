@@ -6,7 +6,10 @@ import six
 
 import opennmt
 
-def document_class(output_dir, class_path, base_path=None):
+def document_class(output_dir,
+                   class_path,
+                   base_path=None,
+                   children_paths=None):
   with open(os.path.join(output_dir, "%s.rst" % class_path), "w") as doc:
     doc.write("%s\n" % class_path)
     doc.write("=" * len(class_path))
@@ -15,7 +18,11 @@ def document_class(output_dir, class_path, base_path=None):
     doc.write("    :members:\n")
     doc.write("    :undoc-members:\n")
     if base_path:
-      doc.write("\n    Inherits from: :class:`%s`\n" % base_path)
+      doc.write("\n    **Inherits from:** :class:`%s`\n" % base_path)
+    if children_paths:
+      doc.write("\n    **Extended by:**\n\n")
+      for path in children_paths:
+        doc.write("    - :class:`%s`\n" % path)
 
 def document_function(output_dir, function_path):
   with open(os.path.join(output_dir, "%s.rst" % function_path), "w") as doc:
@@ -43,6 +50,31 @@ def get_module_map(module, module_path):
     if inspect.ismodule(symbol):
       m.update(get_module_map(symbol, symbol_path))
   return m
+
+def get_first_public_parent(cls):
+  base = cls.__bases__[0]
+  while base.__name__.startswith("_"):  # Skip private parent classes.
+    base = base.__bases__[0]
+  if base is not object and base.__bases__[0] is tuple:  # For namedtuples.
+    base = tuple
+  return base
+
+def annotate_classes(classes):
+  annotations = []
+  child_classes = {}
+  for cls, path in classes:
+    parent = get_first_public_parent(cls)
+    if parent not in child_classes:
+      child_classes[parent] = [cls]
+    else:
+      child_classes[parent].append(cls)
+    annotations.append(dict(
+        cls=cls,
+        path=path,
+        parent=parent))
+  for annotation in annotations:
+    annotation["children"] = child_classes.get(annotation["cls"])
+  return annotations
 
 def document_module(module, module_path, module_map, output_dir):
   if not module_is_public(module):
@@ -86,15 +118,21 @@ def document_module(module, module_path, module_map, output_dir):
       doc.write("Classes\n")
       doc.write("-------\n\n")
       doc.write(".. toctree::\n\n")
-      for cls, class_path in classes:
-        base = cls.__bases__[0]
-        while base.__name__.startswith("_"):  # Skip private parent classes.
-          base = base.__bases__[0]
-        if base is not object and base.__bases__[0] is tuple:  # For namedtuples.
-          base = tuple
+      for class_info in annotate_classes(classes):
+        base = class_info["parent"]
         base_path = module_map.get(base, "%s.%s" % (base.__module__, base.__name__))
+        children_paths = class_info["children"]
+        if children_paths:
+          children_paths = [
+              module_map.get(child, "%s.%s" % (child.__module__, child.__name__))
+              for child in children_paths]
+        class_path = class_info["path"]
         doc.write("   %s\n" % class_path)
-        document_class(output_dir, class_path, base_path=base_path)
+        document_class(
+            output_dir,
+            class_path,
+            base_path=base_path,
+            children_paths=children_paths)
 
     if functions:
       doc.write("Functions\n")
