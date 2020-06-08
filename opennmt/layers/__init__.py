@@ -16,6 +16,7 @@ from opennmt.layers.position import PositionEncoder
 from opennmt.layers.position import SinusoidalPositionEncoder
 
 from opennmt.layers.reducer import ConcatReducer
+from opennmt.layers.reducer import DenseReducer
 from opennmt.layers.reducer import JoinReducer
 from opennmt.layers.reducer import MultiplyReducer
 from opennmt.layers.reducer import Reducer
