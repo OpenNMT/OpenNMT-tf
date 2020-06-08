@@ -73,7 +73,7 @@ def pad_n_with_identity(inputs, sequence_lengths, identity_values=0):
   return padded, max_sequence_length
 
 
-class Reducer(abc.ABC):
+class Reducer(tf.keras.layers.Layer):
   """Base class for reducers."""
 
   def zip_and_reduce(self, x, y):
@@ -97,7 +97,7 @@ class Reducer(abc.ABC):
     reduced = list(map(self, zip(x_flat, y_flat)))
     return tf.nest.pack_sequence_as(x, reduced)
 
-  def __call__(self, inputs, sequence_length=None):
+  def call(self, inputs, sequence_length=None):  # pylint: disable=arguments-differ
     """Reduces all input elements.
 
     Args:
@@ -150,7 +150,15 @@ class MultiplyReducer(Reducer):
 class ConcatReducer(Reducer):
   """A reducer that concatenates the inputs."""
 
-  def __init__(self, axis=-1):
+  def __init__(self, axis=-1, **kwargs):
+    """Initializes the concat reducer.
+
+    Args:
+      axis: Dimension along which to concatenate. This reducer supports
+        concatenating in depth or in time.
+      **kwargs: Additional layer arguments.
+    """
+    super().__init__(**kwargs)
     self.axis = axis
 
   def reduce(self, inputs):
@@ -203,3 +211,23 @@ class JoinReducer(Reducer):
 
   def reduce_sequence(self, inputs, sequence_lengths):
     return self.reduce(inputs), self.reduce(sequence_lengths)
+
+
+class DenseReducer(ConcatReducer):
+  """A reducer that concatenates its inputs in depth and applies a linear transformation."""
+
+  def __init__(self, output_size, activation=None, **kwargs):
+    """Initializes the reducer.
+
+    Args:
+      output_size: The output size of the linear transformation.
+      activation: Activation function (a callable).
+        Set it to ``None`` to maintain a linear activation.
+      **kwargs: Additional layer arguments.
+    """
+    super().__init__(axis=-1, **kwargs)
+    self.dense = tf.keras.layers.Dense(output_size, activation=activation)
+
+  def reduce(self, inputs):
+    inputs = super().reduce(inputs)
+    return self.dense(inputs)

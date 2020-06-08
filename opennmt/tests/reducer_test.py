@@ -289,6 +289,19 @@ class ReducerTest(tf.test.TestCase):
     z = self.evaluate(z)
     self.assertAllEqual(z, expected_z)
 
+  def testDenseReducer(self):
+    inputs = [
+        tf.random.uniform([3, 4]),
+        tf.random.uniform([3, 12]),
+        tf.random.uniform([3, 6]),
+    ]
+    dense_reducer = reducer.DenseReducer(10, activation=tf.nn.relu)
+    output = dense_reducer(inputs)
+    self.assertTrue(dense_reducer.built)
+    self.assertNotEmpty(dense_reducer.variables)
+    self.assertListEqual(output.shape.as_list(), [3, 10])
+    self.assertAllGreaterEqual(output, 0)
+
 
 if __name__ == "__main__":
   tf.test.main()
