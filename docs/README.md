@@ -5,6 +5,7 @@ We currently use [Sphinx](http://www.sphinx-doc.org) to automatically build docu
 ## Install dependencies
 
 ```bash
+pip install -e .
 pip install -r docs/requirements.txt
 ```
 
@@ -12,6 +13,6 @@ pip install -r docs/requirements.txt
 
 ```bash
 rm -rf docs/package
-PYTHONPATH=$PWD python docs/generate-apidoc.py docs/package
-PYTHONPATH=$PWD sphinx-build docs docs/build
+python docs/generate-apidoc.py docs/package
+sphinx-build docs docs/build
 ```
