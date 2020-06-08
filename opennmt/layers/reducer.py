@@ -150,8 +150,15 @@ class MultiplyReducer(Reducer):
 class ConcatReducer(Reducer):
   """A reducer that concatenates the inputs."""
 
-  def __init__(self, axis=-1):
-    super().__init__()
+  def __init__(self, axis=-1, **kwargs):
+    """Initializes the concat reducer.
+
+    Args:
+      axis: Dimension along which to concatenate. This reducer supports
+        concatenating in depth or in time.
+      **kwargs: Additional layer arguments.
+    """
+    super().__init__(**kwargs)
     self.axis = axis
 
   def reduce(self, inputs):
@@ -209,15 +216,16 @@ class JoinReducer(Reducer):
 class DenseReducer(ConcatReducer):
   """A reducer that concatenates its inputs in depth and applies a linear transformation."""
 
-  def __init__(self, output_size, activation=None):
+  def __init__(self, output_size, activation=None, **kwargs):
     """Initializes the reducer.
 
     Args:
       output_size: The output size of the linear transformation.
       activation: Activation function (a callable).
         Set it to ``None`` to maintain a linear activation.
+      **kwargs: Additional layer arguments.
     """
-    super().__init__(axis=-1)
+    super().__init__(axis=-1, **kwargs)
     self.dense = tf.keras.layers.Dense(output_size, activation=activation)
 
   def reduce(self, inputs):
