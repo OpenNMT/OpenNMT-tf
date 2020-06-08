@@ -181,31 +181,49 @@ class Trainer:
     # Wrap forward and step with tf.function.
     # We get the next dataset element within the function for increased efficiency.
 
-    @tf.function
-    def _forward():
-      source, target = next(iterator)
-      return self._forward(
-          source,
-          target,
-          record_summaries=self._should_record_summaries(report_steps))
+    if accum_steps is None or accum_steps == 1:
 
-    @tf.function
-    def _step():
-      return self._step()
+      @tf.function
+      def _forward_and_step():
+        source, target = next(iterator)
+        return self._forward_and_step(
+            source,
+            target,
+            record_summaries=self._should_record_summaries(report_steps, with_accum=False))
 
-    for i in itertools.count():
-      try:
-        loss = _forward()
-      except tf.errors.OutOfRangeError:  # Dataset iterator exhausted.
-        break
-      if tf.math.is_nan(loss):
-        raise RuntimeError("Model diverged with loss = NaN.")
-
-      if i == 0 or (i + 1) % accum_steps == 0:
-        _step()
+      for i in itertools.count():
+        try:
+          loss = _forward_and_step()
+        except tf.errors.OutOfRangeError:  # Dataset iterator exhausted.
+          break
         if i == 0:
           self._broadcast_variables()
         yield loss
+
+    else:
+
+      @tf.function
+      def _forward():
+        source, target = next(iterator)
+        return self._forward(
+            source,
+            target,
+            record_summaries=self._should_record_summaries(report_steps, with_accum=True))
+
+      @tf.function
+      def _step():
+        return self._step()
+
+      for i in itertools.count():
+        try:
+          loss = _forward()
+        except tf.errors.OutOfRangeError:  # Dataset iterator exhausted.
+          break
+        if i == 0 or (i + 1) % accum_steps == 0:
+          _step()
+          if i == 0:
+            self._broadcast_variables()
+          yield loss
 
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
@@ -248,31 +266,51 @@ class Trainer:
           len(self._model.non_trainable_weights))
     return training_loss, reported_loss
 
-  def _should_record_summaries(self, report_steps):
+  def _should_record_summaries(self, report_steps, with_accum=False):
     """Returns a boolean tensor to be used in tf.summary.record_if."""
     if report_steps is None or not self._is_master:
       return False
-    else:
-      return tf.logical_and(
-          tf.equal(self._optimizer.iterations % report_steps, 0),
+    record_summaries = tf.equal(self._optimizer.iterations % report_steps, 0)
+    if with_accum:
+      record_summaries = tf.logical_and(
+          record_summaries,
           tf.equal(self._gradient_accumulator.step, 0))
+    return record_summaries
 
-  def _forward(self, source, target, record_summaries=False):
-    """Forwards a training example and accumulates the gradients."""
+  def _compute_gradients(self, source, target, record_summaries=False):
+    """Computes the gradient of a training example."""
     with tf.summary.record_if(record_summaries):
       training_loss, reported_loss = self._run_model(source, target)
       gradients = self._optimizer.get_gradients(training_loss, self._model.trainable_variables)
-      self._gradient_accumulator(gradients)
       _summarize_gradients(gradients, record_summaries)
-    return reported_loss
+    return reported_loss, gradients
+
+  def _apply_gradients(self, gradients, scale=1):
+    """Applies the gradients."""
+    gradient_scale = scale * self.num_replicas
+    if tf.is_tensor(gradient_scale) or gradient_scale != 1:
+      gradients = [
+          self._all_reduce_sum(gradient / tf.cast(gradient_scale, gradient.dtype))
+          for gradient in gradients]
+    self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
+
+  def _forward_and_step(self, source, target, record_summaries=False):
+    """Forwards a training example and applies the gradients, without accumulation."""
+    loss, gradients = self._compute_gradients(source, target, record_summaries=record_summaries)
+    self._apply_gradients(gradients)
+    return loss
+
+  def _forward(self, source, target, record_summaries=False):
+    """Forwards a training example and accumulates the gradients."""
+    loss, gradients = self._compute_gradients(source, target, record_summaries=record_summaries)
+    self._gradient_accumulator(gradients)
+    return loss
 
   def _step(self):
     """Applies gradients and resets accumulation."""
-    gradient_scale = self._gradient_accumulator.step * self.num_replicas
-    gradients = [
-        self._all_reduce_sum(gradient / tf.cast(gradient_scale, gradient.dtype))
-        for gradient in self._gradient_accumulator.gradients]
-    self._optimizer.apply_gradients(list(zip(gradients, self._model.trainable_variables)))
+    self._apply_gradients(
+        self._gradient_accumulator.gradients,
+        scale=self._gradient_accumulator.step)
     self._gradient_accumulator.reset()
 
   def _update_words_counter(self, name, features):
@@ -382,6 +420,13 @@ class MirroredStrategyTrainer(Trainer):
     # otherwise we would need to correctly shard the input dataset.
     dataset_fn = dataset if callable(dataset) else lambda _: dataset
     return self._strategy.experimental_distribute_datasets_from_function(dataset_fn)
+
+  def _forward_and_step(self, source, target, record_summaries=False):
+    per_replica_loss = self._strategy.run(
+        super()._forward_and_step,
+        args=(source, target),
+        kwargs=dict(record_summaries=record_summaries))
+    return self._strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_loss, None)
 
   def _forward(self, source, target, record_summaries=False):
     per_replica_loss = self._strategy.run(
