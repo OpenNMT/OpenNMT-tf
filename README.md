@@ -2,7 +2,7 @@
 
 # OpenNMT-tf
 
-OpenNMT-tf is a general purpose sequence learning toolkit using TensorFlow 2.0. While neural machine translation is the main target task, it has been designed to more generally support:
+OpenNMT-tf is a general purpose sequence learning toolkit using TensorFlow 2. While neural machine translation is the main target task, it has been designed to more generally support:
 
 * sequence to sequence mapping
 * sequence tagging
@@ -44,13 +44,13 @@ Standard models such as the Transformer are defined in a [model catalog](https:/
 
 *Find more information about model configuration in the [documentation](https://opennmt.net/OpenNMT-tf/model.html).*
 
-### Full TensorFlow 2.0 integration
+### Full TensorFlow 2 integration
 
-OpenNMT-tf is fully integrated in the TensorFlow 2.0 ecosystem:
+OpenNMT-tf is fully integrated in the TensorFlow 2 ecosystem:
 
 * Reusable layers extending [`tf.keras.layers.Layer`](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Layer)
 * Multi-GPU training with [`tf.distribute`](https://www.tensorflow.org/api_docs/python/tf/distribute) and distributed training with [Horovod](https://github.com/horovod/horovod)
-* Mixed precision support via a [graph optimization pass](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite)
+* Mixed precision support via a [graph optimization pass](https://www.tensorflow.org/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite)
 * Visualization with [TensorBoard](https://www.tensorflow.org/tensorboard)
 * `tf.function` graph tracing that can be [exported to a SavedModel](https://opennmt.net/OpenNMT-tf/serving.html) and served with [TensorFlow Serving](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/tensorflow_serving) or [Python](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving/python)
 
