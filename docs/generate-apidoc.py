@@ -112,10 +112,9 @@ def document_module(module, module_path, module_map, output_dir):
         doc.write(".. toctree::\n\n")
         for module_path, module in submodules:
           doc.write("   %s\n" % module_path)
-        doc.write("\n")
 
     if classes:
-      doc.write("Classes\n")
+      doc.write("\nClasses\n")
       doc.write("-------\n\n")
       doc.write(".. toctree::\n\n")
       for class_info in annotate_classes(classes):
@@ -135,7 +134,7 @@ def document_module(module, module_path, module_map, output_dir):
             children_paths=children_paths)
 
     if functions:
-      doc.write("Functions\n")
+      doc.write("\nFunctions\n")
       doc.write("---------\n\n")
       doc.write(".. toctree::\n\n")
       for function_path in functions:
@@ -143,7 +142,7 @@ def document_module(module, module_path, module_map, output_dir):
         document_function(output_dir, function_path)
 
     if constants:
-      doc.write("Constants\n")
+      doc.write("\nConstants\n")
       doc.write("---------\n\n")
       for constant_path in constants:
         doc.write("* %s\n" % constant_path)

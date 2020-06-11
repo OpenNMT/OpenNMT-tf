@@ -28,13 +28,19 @@ By default, `onmt-build-vocab` splits each line on spaces. It is possible to def
 
 ### from SentencePiece training
 
-`onmt-build-vocab` can also prepare a SentencePiece vocabulary and model from raw data. For example the command:
+`onmt-build-vocab` can also prepare a [SentencePiece](https://github.com/google/sentencepiece) vocabulary and model from raw data. For example the command:
 
 ```bash
 onmt-build-vocab --sentencepiece --size 32000 --save_vocab sp train.txt.raw
 ```
 
-will produce the SentencePiece model `sp.model` and the vocabulary `sp.vocab` of size 32,000. Additional SentencePiece [training options](https://github.com/google/sentencepiece/blob/master/src/spm_train_main.cc) can be passed to the `--sentencepiece` argument in the format `option=value`, e.g. `--sentencepiece character_coverage=0.98 num_threads=4`.
+will produce the SentencePiece model `sp.model` and the vocabulary `sp.vocab` of size 32,000. The vocabulary file is saved in the OpenNMT-tf format and can be directly used for training.
+
+Additional SentencePiece [training options](https://github.com/google/sentencepiece/blob/master/src/spm_train_main.cc) can be passed to the `--sentencepiece` argument in the format `option=value`, e.g.:
+
+```bash
+onmt-build-vocab --sentencepiece character_coverage=0.98 num_threads=4 [...]
+```
 
 ## Configuring vocabularies
 
@@ -70,3 +76,5 @@ data:
   source_1_1_vocabulary: src_1_1_vocab.txt
   source_1_2_vocabulary: src_1_2_vocab.txt
 ```
+
+**Note:** If you train a model with shared embeddings, you should still configure all vocabulary parameters but in this case they should simply point to the same vocabulary file.

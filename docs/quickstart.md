@@ -1,21 +1,17 @@
 # Quickstart
 
-This page presents a minimal workflow to get you started in using OpenNMT-tf.
+This page presents a minimal workflow to get you started in using OpenNMT-tf. The goal is **not** to produce a ready-to-use translation model but to familiarize yourself with the main OpenNMT-tf concepts.
 
 ## Step 0: Install OpenNMT-tf
 
-We recommend using [virtualenv](https://virtualenv.pypa.io/en/stable/) to setup and configure the environment for this quickstart:
-
 ```bash
-virtualenv -p /usr/bin/python3 pyenv
-source pyenv/bin/activate
 pip install --upgrade pip
 pip install OpenNMT-tf
 ```
 
 ## Step 1: Prepare the data
 
-To get started, we propose to download a toy English-German dataset for machine translation containing 10k tokenized sentences:
+To get started, we propose to download a toy English-German dataset for machine translation containing 10k **tokenized** sentences:
 
 ```bash
 wget https://s3.amazonaws.com/opennmt-trainingdata/toy-ende.tar.gz
@@ -74,7 +70,7 @@ While this example gave you a quick overview of a typical OpenNMT-tf workflow, i
 
 To go further, here are some pointers:
 
-* Download larger training sets, for example from a [WMT task](http://www.statmt.org/wmt16/translation-task.html)
-* Run existing [training recipes](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts)
+* Download larger training sets, for example from a [WMT machine translation task](http://statmt.org/wmt20/translation-task.html)
+* Tokenize your data with [BPE or SentencePiece](https://github.com/OpenNMT/Tokenizer)
 * Discover the [configuration reference](configuration.md) to tune hyperparameters
 * Explore the other sections to learn about advanced topics
