@@ -6,17 +6,17 @@ Data files are configured in the `data` block of the YAML configuration file (se
 data:
   train_features_file: /data/ende/train.en
   train_labels_file: /data/ende/train.de
-  eval_features_file: /data/ende/valid.en
-  eval_labels_file: /data/ende/valid.en
+  eval_features_file: /data/ende/valid.en  # optional
+  eval_labels_file: /data/ende/valid.de    # optional
 ```
 
 This page documents how to prepare and configure data files for OpenNMT-tf.
 
 ## Terminology
 
-* *features*: the model inputs (a.k.a. *source*)
+* *features*: the model inputs (a.k.a. the *source*)
+* *labels*: the model outputs (a.k.a. the *target*)
 * *inputters*: the input layer of the model that defines how to read element and transform them into vectorized inputs
-* *labels*: the model outputs (a.k.a. *target*)
 
 ## File format
 
@@ -24,7 +24,7 @@ The format of the data files is defined by the `opennmt.inputters.Inputter` modu
 
 ### Text
 
-All `opennmt.inputters.TextInputter` inputters expect a text file as input where:
+All [`opennmt.inputters.TextInputter`](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.TextInputter.html) inputters expect a text file as input where:
 
 * sentences are separated by a **newline**
 * tokens are separated by a **space** (unless a custom tokenizer is set, see [Tokenization](tokenization.md))
@@ -49,8 +49,8 @@ The `opennmt.inputters.SequenceRecordInputter` expects a file with serialized [*
 It is very simple to generate a compatible *TFRecords* file directly from Python:
 
 ```python
-import opennmt as onmt
 import numpy as np
+import opennmt
 
 dataset = [
   np.random.rand(8, 50),
@@ -58,7 +58,7 @@ dataset = [
   np.random.rand(13, 50)
 ]
 
-onmt.inputters.create_sequence_records(dataset, "data.records")
+opennmt.inputters.create_sequence_records(dataset, "data.records")
 ```
 
 This example saves a dataset of 3 random vectors of shape `[time, dim]` into the file `data.records`. It should be easy to adapt for any dataset of 2D vectors.
@@ -80,7 +80,7 @@ See `onmt-ark-to-records -h` for the script usage. It also accepts an optional i
 
 ## Parallel and nested inputs
 
-When using `opennmt.inputters.ParallelInputter` to define multi-source inputs, as many input files as inputters are expected. You have to configure your YAML file accordingly:
+When using [`opennmt.inputters.ParallelInputter`](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html) to define multi-source inputs, as many input files as inputters are expected. You have to configure your YAML file accordingly:
 
 ```yaml
 data:

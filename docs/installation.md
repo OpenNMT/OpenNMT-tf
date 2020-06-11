@@ -20,5 +20,5 @@ pip install OpenNMT-tf
 To confirm that the package is correctly installed, run:
 
 ```bash
-onmt-main -h
+onmt-main -v
 ```

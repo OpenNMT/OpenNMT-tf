@@ -1,6 +1,6 @@
 # Model
 
-OpenNMT-tf can be used to train several types of models, here is a non exhaustive overview of supported models:
+OpenNMT-tf can be used to train several types of models thanks to a modular and extensible design. Here is a non exhaustive overview of supported models:
 
 **Maching translation**
 
@@ -39,9 +39,11 @@ OpenNMT-tf comes with a set of standard models that are defined in the [catalog]
 onmt-main --model_type Transformer [...]
 ```
 
+You can also get the list of predefined models by running `onmt-main -h`.
+
 ## Custom models
 
-OpenNMT-tf can load custom model definitions from external Python files. They should include a callable `model` that returns a [`opennmt.models.Model`](https://opennmt.net/OpenNMT-tf/package/opennmt.models.Model.html) instance, for example:
+If you don't find the model you are looking for in the catalog, OpenNMT-tf can load custom model definitions from external Python files. They should include a callable `model` that returns a [`opennmt.models.Model`](https://opennmt.net/OpenNMT-tf/package/opennmt.models.Model.html) instance. For example, the model definition below extends the [Transformer](https://opennmt.net/OpenNMT-tf/package/opennmt.models.Transformer.html) model to enable embeddings sharing:
 
 ```python
 import opennmt
@@ -73,11 +75,11 @@ onmt-main --model config/models/custom_model.py [...]
 
 This approach offers a high level of modeling freedom without changing the core implementation. Additionally, some public modules are defined to contain other modules and can be used to design complex architectures:
 
-* `opennmt.encoders.ParallelEncoder`
-* `opennmt.encoders.SequentialEncoder`
-* `opennmt.inputters.MixedInputter`
-* `opennmt.inputters.ParallelInputter`
+* [`opennmt.encoders.ParallelEncoder`](https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.ParallelEncoder.html)
+* [`opennmt.encoders.SequentialEncoder`](https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.SequentialEncoder.html)
+* [`opennmt.inputters.MixedInputter`](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.MixedInputter.html)
+* [`opennmt.inputters.ParallelInputter`](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html)
 
 For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).
 
-Some examples are available in the directory [`config/models`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models) in the Git repository.
+Some examples are available in the directory [`config/models`](https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models) of the Git repository.

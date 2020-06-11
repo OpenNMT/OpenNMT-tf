@@ -149,8 +149,9 @@ params:
 
   # (optional) The type of learning rate decay (default: null). See:
   #  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules
-  #  * opennmt/schedules/lr_schedules.py
-  # This value may change the semantics of other decay options. See the documentation or the code.
+  #  * https://opennmt.net/OpenNMT-tf/package/opennmt.schedules.html
+  # This value may change the semantics of other decay options. See the documentation
+  # or the code.
   decay_type: NoamDecay
   # (optional unless decay_type is set) Decay parameters.
   decay_params:
@@ -199,7 +200,8 @@ params:
   # (optional) Define the subword marker. This is useful to apply noise at the
   # word level instead of the subword level (default: ￭).
   decoding_subword_token: ￭
-  # (optional) Whether decoding_subword_token is used as a spacer (as in SentencePiece) or a joiner (as in BPE).
+  # (optional) Whether decoding_subword_token is used as a spacer (as in SentencePiece)
+  # or a joiner (as in BPE).
   # If unspecified, will infer  directly from decoding_subword_token.
   decoding_subword_token_is_spacer: false
   # (optional) Minimum length of decoded sequences, end token excluded (default: 0).
@@ -281,7 +283,8 @@ eval:
 
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
-  # (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.
+  # (optional) Evalutator or list of evaluators that are called on the saved evaluation
+  # predictions.
   # Available evaluators: bleu, rouge
   external_evaluators: bleu
 
@@ -299,7 +302,8 @@ eval:
   early_stopping:
     # (optional) The target metric name (default: "loss").
     metric: bleu
-    # (optional) The metric should improve at least by this much to be considered as an improvement (default: 0)
+    # (optional) The metric should improve at least by this much to be considered
+    # as an improvement (default: 0)
     min_improvement: 0.01
     steps: 4
 
@@ -313,8 +317,8 @@ infer:
   n_best: 1
   # (optional) For compatible models, also output the score (default: false).
   with_scores: false
-  # (optional) For compatible models, also output the alignments (can be: null, hard, soft,
-  # default: null).
+  # (optional) For compatible models, also output the alignments
+  # (can be: null, hard, soft, default: null).
   with_alignments: null
 
   # (optional) The width of the length buckets to select batch candidates from.

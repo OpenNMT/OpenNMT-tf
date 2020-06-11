@@ -26,3 +26,11 @@ By default, OpenNMT-tf continues the training where it left off, including the s
 
 1. In your configuration, set `model_dir` to a new directory to start a new training
 2. On the command line, set `--checkpoint_path` to the checkpoint from where to load the model weights
+
+## How can I restrict the TensorFlow runtime to specific GPU?
+
+Use the [`CUDA_VISIBLE_DEVICES`](https://devblogs.nvidia.com/cuda-pro-tip-control-gpu-visibility-cuda_visible_devices/) environment variable, e.g.:
+
+```
+CUDA_VISIBLE_DEVICES=0,1 onmt-main [...]
+```

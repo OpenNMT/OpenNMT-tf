@@ -1,5 +1,9 @@
 # Training
 
+```bash
+onmt-main train -h
+```
+
 ## Monitoring
 
 OpenNMT-tf uses [TensorBoard](https://www.tensorflow.org/tensorboard) to log information during the training. Simply start `tensorboard` by setting the active log directory, e.g.:
@@ -76,7 +80,7 @@ Note that evaluation and inference will run on a single device.
 
 ## Distributed training with Horovod
 
-The `--horovod` training flag enables distributed training with Horovod:
+The `--horovod` training flag enables distributed training with [Horovod](https://github.com/horovod/horovod):
 
 ```bash
 onmt-main [...] train --horovod
@@ -111,12 +115,12 @@ This is the most common case of retrainings: the training was interrupted but sh
 
 ```bash
 # Start the training.
-onmt-main --model_type NMTSmall --auto_config --config data.yml train
+onmt-main --model_type Transformer --config data.yml --auto_config train
 
 # ... the training is interrupted or stopped ...
 
 # Continue from the latest checkpoint.
-onmt-main --model_type NMTSmall --auto_config --config data.yml train
+onmt-main --model_type Transformer --config data.yml --auto_config train
 ```
 
 **Note:** If the train was stopped because `max_step` was reached, you should first increase this value before continuing.
@@ -125,7 +129,10 @@ onmt-main --model_type NMTSmall --auto_config --config data.yml train
 
 Retraining can also be useful to fine-tune an existing model. For example in machine translation, it is faster to adapt a generic model to a specific domain compared to starting a training from scratch.
 
-OpenNMT-tf offers some features to make this process easier:
+For a basic domain adaptation, we recommend tokenizing your data with a subword segmentation model (such as [SentencePiece](https://github.com/google/sentencepiece)) and simply continue the training on new data.
+
+However, OpenNMT-tf also offers some features that could be useful in more advanced workflows:
 
 * The run type `update_vocab` can be used to change the word vocabularies contained in a checkpoint while keeping learned weights of shared words (e.g. to add a domain terminology)
 * The command line argument `--checkpoint_path` can be used to load the weights of an existing checkpoint while starting from a fresh training state (i.e. with new learning rate schedule and optimizer variables)
+* The parameter `freeze_layers` in the YAML configuration can be used to prevent the adapation of specific layers in the model
