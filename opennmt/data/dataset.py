@@ -474,7 +474,7 @@ def training_pipeline(batch_size,
 
   Args:
     batch_size: The batch size to use.
-    batch_type: The training batching stragety to use: can be "examples" or
+    batch_type: The training batching strategy to use: can be "examples" or
       "tokens".
     batch_multiplier: The batch size multiplier.
     batch_size_multiple: When :obj:`batch_type` is "tokens", ensure that the
