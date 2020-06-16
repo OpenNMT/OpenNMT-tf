@@ -28,6 +28,7 @@ class Evaluator(object):
                features_file,
                labels_file,
                batch_size,
+               length_bucket_width=None,
                scorers=None,
                save_predictions=False,
                early_stopping=None,
@@ -42,6 +43,9 @@ class Evaluator(object):
       features_file: Path to the evaluation features.
       labels_file: Path to the evaluation labels.
       batch_size: The evaluation batch size.
+      length_bucket_width: The width of the length buckets to select batch
+        candidates from (for efficiency). Set ``None`` to not constrain batch
+        formation.
       scorers: A list of scorers, callables taking the path to the reference and
         the hypothesis and return one or more scores.
       save_predictions: Save evaluation predictions to a file. This is ``True``
@@ -99,6 +103,7 @@ class Evaluator(object):
         features_file,
         labels_file,
         batch_size,
+        length_bucket_width=length_bucket_width,
         num_threads=1,
         prefetch_buffer_size=1)
 
@@ -163,6 +168,7 @@ class Evaluator(object):
         features_file or config["data"]["eval_features_file"],
         labels_file or config["data"].get("eval_labels_file"),
         eval_config["batch_size"],
+        length_bucket_width=eval_config.get("length_bucket_width"),
         scorers=scorers,
         save_predictions=eval_config.get("save_eval_predictions", False),
         early_stopping=early_stopping,
@@ -266,6 +272,10 @@ class Evaluator(object):
     if self._save_predictions:
       output_path = os.path.join(self._eval_dir, "predictions.txt.%d" % step)
       output_file = tf.io.gfile.GFile(output_path, "w")
+      write_fn = lambda prediction: (
+          self._model.print_prediction(prediction, stream=output_file))
+      index_fn = lambda prediction: prediction.get("index")
+      ordered_writer = misc.OrderRestorer(index_fn, write_fn)
 
     loss_num = 0
     loss_den = 0
@@ -283,7 +293,7 @@ class Evaluator(object):
       if output_file is not None:
         predictions = {k:v.numpy() for k, v in predictions.items()}
         for prediction in misc.extract_batches(predictions):
-          self._model.print_prediction(prediction, stream=output_file)
+          ordered_writer.push(prediction)
     if loss_den == 0:
       raise RuntimeError("No examples were evaluated")
     loss = loss_num / loss_den

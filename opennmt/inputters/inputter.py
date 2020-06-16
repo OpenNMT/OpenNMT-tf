@@ -524,6 +524,7 @@ class ExampleInputterAdapter:
                               features_file,
                               labels_file,
                               batch_size,
+                              length_bucket_width=None,
                               num_threads=1,
                               prefetch_buffer_size=None):
     """Builds a dataset to be used for evaluation.
@@ -532,6 +533,9 @@ class ExampleInputterAdapter:
       features_file: The evaluation source file.
       labels_file: The evaluation target file.
       batch_size: The batch size to use.
+      length_bucket_width: The width of the length buckets to select batch
+        candidates from (for efficiency). Set ``None`` to not constrain batch
+        formation.
       num_threads: The number of elements processed in parallel.
       prefetch_buffer_size: The number of batches to prefetch asynchronously. If
         ``None``, use an automatically tuned value.
@@ -544,8 +548,10 @@ class ExampleInputterAdapter:
     """
     if labels_file is not None:
       data_files = [features_file, labels_file]
+      length_fn = [self.features_inputter.get_length, self.labels_inputter.get_length]
     else:
       data_files = features_file
+      length_fn = self.get_length
 
     map_fn = lambda *arg: self.make_features(element=misc.item_or_tuple(arg), training=False)
     transform_fns = [lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 1)]
@@ -554,6 +560,8 @@ class ExampleInputterAdapter:
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
         transform_fns=transform_fns,
+        length_bucket_width=length_bucket_width,
+        length_fn=length_fn,
         num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size))
     return dataset
