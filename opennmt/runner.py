@@ -74,6 +74,7 @@ class Runner(object):
       self._model_fn = model
     else:
       raise TypeError("model should be a opennmt.models.Model instance or a callable")
+    tf.get_logger().info("Using model:\n%s", self._model)
     self._optimizer = None
     self._config = copy.deepcopy(config)
     self._auto_config = auto_config

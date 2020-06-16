@@ -6,6 +6,7 @@ import sys
 import functools
 import heapq
 import os
+import io
 
 import numpy as np
 import tensorflow as tf
@@ -216,6 +217,44 @@ def set_dropout(root_layer, dropout):
         value.rate = dropout
       elif "dropout" in attr:
         setattr(layer, attr, dropout)
+
+def describe_layer(layer, name=None):
+  """Returns a PyTorch-style description of the layer, for information or debug."""
+  with io.StringIO() as output:
+    _describe_layer(output, layer, name=name)
+    return output.getvalue()
+
+def _describe_layer(output, layer, name=None, indent=""):
+  if indent:
+    output.write(indent)
+  if name:
+    output.write("(%s): " % name)
+  output.write("%s(" % layer.__class__.__name__)
+  if isinstance(layer, list):
+    children = list(enumerate(layer))
+  else:
+    children = _get_direct_children(layer)
+  if not children:
+    units = getattr(layer, "units", None)
+    if units is not None:
+      output.write("%d" % units)
+  else:
+    output.write("\n")
+    for attr_name, child in children:
+      _describe_layer(output, child, name=str(attr_name), indent=indent + "  ")
+    if indent:
+      output.write(indent)
+  output.write(")\n")
+
+def _get_direct_children(layer):
+  children = []
+  for name, attr in layer.__dict__.items():
+    if name.startswith("_"):
+      continue
+    if (isinstance(attr, tf.Module)
+        or (isinstance(attr, list) and attr and isinstance(attr[0], tf.Module))):
+      children.append((name, attr))
+  return children
 
 def extract_batches(tensors):
   """Returns a generator to iterate on each batch of a Numpy array or dict of

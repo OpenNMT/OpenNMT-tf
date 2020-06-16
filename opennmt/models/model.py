@@ -39,6 +39,10 @@ class Model(tf.keras.layers.Layer):
     """The equivalent CTranslate2 model specification."""
     return None
 
+  def __repr__(self):
+    """Returns a description of the model and its submodules."""
+    return misc.describe_layer(self, name="model")
+
   def auto_config(self, num_replicas=1):
     """Returns automatic configuration values specific to this model.
 
