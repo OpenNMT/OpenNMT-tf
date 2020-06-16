@@ -589,7 +589,7 @@ class ExampleInputterAdapter:
       features_file: The source file or a list of training source files.
       labels_file: The target file or a list of training target files.
       batch_size: The batch size to use.
-      batch_type: The training batching stragety to use: can be "examples" or
+      batch_type: The training batching strategy to use: can be "examples" or
         "tokens".
       batch_multiplier: The batch size multiplier to prepare splitting accross
          replicated graph parts.
