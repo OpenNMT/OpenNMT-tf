@@ -32,10 +32,12 @@ _CONFIG_FALLBACK = {
     },
     "eval": {
         "length_bucket_width": None,
+        "batch_type": "examples",
         "batch_size": 32
     },
     "infer": {
         "length_bucket_width": None,
+        "batch_type": "examples",
         "batch_size": 16
     },
     "score": {
@@ -356,6 +358,7 @@ class Runner(object):
     dataset = model.examples_inputter.make_inference_dataset(
         features_file,
         infer_config["batch_size"],
+        batch_type=infer_config["batch_type"],
         length_bucket_width=infer_config["length_bucket_width"],
         prefetch_buffer_size=infer_config.get("prefetch_buffer_size"))
     inference.predict_dataset(

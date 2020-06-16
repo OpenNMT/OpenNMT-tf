@@ -377,6 +377,8 @@ def batch_sequence_dataset(batch_size,
 
   Raises:
     ValueError: if :obj:`batch_type` is not one of "examples" or "tokens".
+    ValueError: if :obj:`batch_type` is "tokens" but :obj:`length_bucket_width`
+      is not set.
     ValueError: if the number of length functions in :obj:`length_fn` does not
       match the number of parallel elements.
 
@@ -425,6 +427,9 @@ def batch_sequence_dataset(batch_size,
     return tf.cast(tf.maximum(size, required_multiple), tf.int64)
 
   if length_bucket_width is None:
+    if batch_type == "tokens":
+      raise ValueError("Batch type 'tokens' requires length bucketing (the parameter "
+                       "length_bucket_width should be non null)")
     return batch_dataset(batch_size, padded_shapes=padded_shapes)
 
   if batch_type == "examples":
@@ -585,6 +590,7 @@ def training_pipeline(batch_size,
   return _pipeline
 
 def inference_pipeline(batch_size,
+                       batch_type="examples",
                        process_fn=None,
                        transform_fns=None,
                        length_bucket_width=None,
@@ -599,6 +605,7 @@ def inference_pipeline(batch_size,
 
   Args:
     batch_size: The batch size to use.
+    batch_type: The batching strategy to use: can be "examples" or "tokens".
     process_fn: The processing function to apply on each element.
     transform_fns: List of dataset transformation functions (applied after
       :obj:`process_fn` if defined).
@@ -651,6 +658,7 @@ def inference_pipeline(batch_size,
       dataset = dataset.map(_inject_index)
       dataset = dataset.apply(batch_sequence_dataset(
           batch_size,
+          batch_type=batch_type,
           length_bucket_width=length_bucket_width,
           length_fn=length_fn))
     else:

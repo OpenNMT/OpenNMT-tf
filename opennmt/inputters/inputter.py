@@ -81,6 +81,7 @@ class Inputter(tf.keras.layers.Layer):
   def make_inference_dataset(self,
                              features_file,
                              batch_size,
+                             batch_type="examples",
                              length_bucket_width=None,
                              num_threads=1,
                              prefetch_buffer_size=None):
@@ -92,6 +93,7 @@ class Inputter(tf.keras.layers.Layer):
     Args:
       features_file: The test file.
       batch_size: The batch size to use.
+      batch_type: The batching strategy to use: can be "examples" or "tokens".
       length_bucket_width: The width of the length buckets to select batch
         candidates from (for efficiency). Set ``None`` to not constrain batch
         formation.
@@ -118,6 +120,7 @@ class Inputter(tf.keras.layers.Layer):
     dataset = self.make_dataset(features_file, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
+        batch_type=batch_type,
         transform_fns=transform_fns,
         length_bucket_width=length_bucket_width,
         length_fn=self.get_length,
@@ -524,6 +527,7 @@ class ExampleInputterAdapter:
                               features_file,
                               labels_file,
                               batch_size,
+                              batch_type="examples",
                               length_bucket_width=None,
                               num_threads=1,
                               prefetch_buffer_size=None):
@@ -533,6 +537,7 @@ class ExampleInputterAdapter:
       features_file: The evaluation source file.
       labels_file: The evaluation target file.
       batch_size: The batch size to use.
+      batch_type: The batching strategy to use: can be "examples" or "tokens".
       length_bucket_width: The width of the length buckets to select batch
         candidates from (for efficiency). Set ``None`` to not constrain batch
         formation.
@@ -559,6 +564,7 @@ class ExampleInputterAdapter:
     dataset = self.make_dataset(data_files, training=False)
     dataset = dataset.apply(dataset_util.inference_pipeline(
         batch_size,
+        batch_type=batch_type,
         transform_fns=transform_fns,
         length_bucket_width=length_bucket_width,
         length_fn=length_fn,
@@ -693,12 +699,14 @@ class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
   def make_inference_dataset(self,
                              features_file,
                              batch_size,
+                             batch_type="examples",
                              length_bucket_width=None,
                              num_threads=1,
                              prefetch_buffer_size=None):
     return self.features_inputter.make_inference_dataset(
         features_file,
         batch_size,
+        batch_type=batch_type,
         length_bucket_width=length_bucket_width,
         num_threads=num_threads,
         prefetch_buffer_size=prefetch_buffer_size)
