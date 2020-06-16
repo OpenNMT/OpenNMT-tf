@@ -277,6 +277,8 @@ train:
 eval:
   # (optional) The batch size to use (default: 32).
   batch_size: 30
+  # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
+  batch_type: examples
 
   # (optional) Evaluate every this many steps (default: 5000).
   steps: 5000
@@ -315,8 +317,10 @@ eval:
 
 # (optional) Inference options.
 infer:
-  # (optional) The batch size to use (default: 1).
+  # (optional) The batch size to use (default: 16).
   batch_size: 10
+  # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
+  batch_type: examples
 
   # (optional) For compatible models, the number of hypotheses to output (default: 1).
   # This sets the parameter params/num_hypotheses.

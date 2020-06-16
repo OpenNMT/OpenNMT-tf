@@ -28,6 +28,7 @@ class Evaluator(object):
                features_file,
                labels_file,
                batch_size,
+               batch_type="examples",
                length_bucket_width=None,
                scorers=None,
                save_predictions=False,
@@ -43,6 +44,7 @@ class Evaluator(object):
       features_file: Path to the evaluation features.
       labels_file: Path to the evaluation labels.
       batch_size: The evaluation batch size.
+      batch_type: The batching strategy to use: can be "examples" or "tokens".
       length_bucket_width: The width of the length buckets to select batch
         candidates from (for efficiency). Set ``None`` to not constrain batch
         formation.
@@ -103,6 +105,7 @@ class Evaluator(object):
         features_file,
         labels_file,
         batch_size,
+        batch_type=batch_type,
         length_bucket_width=length_bucket_width,
         num_threads=1,
         prefetch_buffer_size=1)
@@ -168,6 +171,7 @@ class Evaluator(object):
         features_file or config["data"]["eval_features_file"],
         labels_file or config["data"].get("eval_labels_file"),
         eval_config["batch_size"],
+        batch_type=eval_config.get("batch_type", "examples"),
         length_bucket_width=eval_config.get("length_bucket_width"),
         scorers=scorers,
         save_predictions=eval_config.get("save_eval_predictions", False),
