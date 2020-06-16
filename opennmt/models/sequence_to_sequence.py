@@ -106,6 +106,9 @@ class SequenceToSequence(model.SequenceGenerator):
             "sample_buffer_size": -1,
             "max_step": 500000
         },
+        "eval": {
+            "length_bucket_width": 5
+        },
         "infer": {
             "batch_size": 32,
             "length_bucket_width": 5

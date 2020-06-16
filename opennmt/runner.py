@@ -31,6 +31,7 @@ _CONFIG_FALLBACK = {
         "save_summary_steps": 100
     },
     "eval": {
+        "length_bucket_width": None,
         "batch_size": 32
     },
     "infer": {

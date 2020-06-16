@@ -622,7 +622,11 @@ def inference_pipeline(batch_size,
   """
 
   def _inject_index(index, x):
-    x["index"] = index
+    if isinstance(x, tuple):
+      features = x[0]
+    else:
+      features = x
+    features["index"] = index
     return x
 
   def _pipeline(dataset):
@@ -634,7 +638,14 @@ def inference_pipeline(batch_size,
     if length_bucket_width is not None and length_bucket_width > 0:
       if length_fn is None:
         raise ValueError("length_fn is required when reordering by length")
-      if not isinstance(_get_output_shapes(dataset), dict):
+      output_shapes = _get_output_shapes(dataset)
+      if isinstance(output_shapes, tuple):
+        num_length_fn = len(length_fn) if isinstance(length_fn, (list, tuple)) else 1
+        if len(output_shapes) != num_length_fn:
+          raise ValueError("The dataset outputs %d parallel features, but got %d "
+                           "length functions" % (len(output_shapes), num_length_fn))
+        output_shapes = output_shapes[0]
+      if not isinstance(output_shapes, dict):
         raise ValueError("Reordering by length expects dataset elements to be Python dicts")
       dataset = dataset.enumerate()
       dataset = dataset.map(_inject_index)

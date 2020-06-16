@@ -288,6 +288,12 @@ eval:
   # Available evaluators: bleu, rouge
   external_evaluators: bleu
 
+  # (optional) The width of the length buckets to select batch candidates from.
+  # If set, the eval data will be sorted by length to increase the translation
+  # efficiency. The predictions will still be outputted in order as they are
+  # available (default: 0).
+  length_bucket_width: 5
+
   # (optional) Export a model when a metric has the best value so far (default: null).
   export_on_best: bleu
   # (optional) Format of the exported model (can be: "saved_model, "ctranslate2",
