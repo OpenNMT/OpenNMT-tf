@@ -116,7 +116,7 @@ class Model(tf.keras.layers.Layer):
       The model predictions.
     """
     _, predictions = self(features)
-    if "index" in features:
+    if isinstance(features, dict) and "index" in features:
       predictions["index"] = features["index"]
     return predictions
 
@@ -131,7 +131,7 @@ class Model(tf.keras.layers.Layer):
       A tuple with the loss and the model predictions.
     """
     outputs, predictions = self(features, labels=labels)
-    if "index" in features:
+    if isinstance(features, dict) and "index" in features:
       predictions["index"] = features["index"]
     loss = self.compute_loss(outputs, labels, training=False)
     return loss, predictions
