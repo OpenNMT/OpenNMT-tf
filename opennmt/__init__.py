@@ -1,6 +1,6 @@
 """OpenNMT module."""
 
-__version__ = "2.10.1"
+__version__ = "2.11.0"
 
 from opennmt.config import convert_to_v2_config
 from opennmt.config import load_config

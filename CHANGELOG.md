@@ -13,6 +13,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [2.11.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.11.0) (2020-06-17)
+
+### New features
+
 * Dump a PyTorch-style description of the model in the logs
 * Support bucketing the evaluation dataset by length for improved efficiency (parameter `length_bucket_width`, usually enabled by default with `--auto_config`)
 * Accept "tokens" batch type for evaluation and inference (parameter `batch_type`)
