@@ -3,6 +3,7 @@ opennmt.encoders module
 
 .. automodule:: opennmt.encoders
 
+
 Classes
 -------
 

@@ -5,4 +5,8 @@ opennmt.models.LanguageModel
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.models.SequenceGenerator`
+    **Inherits from:** :class:`opennmt.models.SequenceGenerator`
+
+    **Extended by:**
+
+    - :class:`opennmt.models.GPT2Small`

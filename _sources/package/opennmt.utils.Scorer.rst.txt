@@ -5,4 +5,12 @@ opennmt.utils.Scorer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`abc.ABC`
+    **Inherits from:** :class:`abc.ABC`
+
+    **Extended by:**
+
+    - :class:`opennmt.utils.BLEUScorer`
+    - :class:`opennmt.utils.PRFScorer`
+    - :class:`opennmt.utils.ROUGEScorer`
+    - :class:`opennmt.utils.TERScorer`
+    - :class:`opennmt.utils.WERScorer`

@@ -5,4 +5,9 @@ opennmt.encoders.SequentialEncoder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.encoders.Encoder`
+    **Inherits from:** :class:`opennmt.encoders.Encoder`
+
+    **Extended by:**
+
+    - :class:`opennmt.encoders.GNMTEncoder`
+    - :class:`opennmt.encoders.RNMTPlusEncoder`

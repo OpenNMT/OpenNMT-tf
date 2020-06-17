@@ -5,4 +5,4 @@ opennmt.decoders.AttentionalRNNDecoder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.decoders.RNNDecoder`
+    **Inherits from:** :class:`opennmt.decoders.RNNDecoder`

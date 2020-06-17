@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -212,7 +212,7 @@
 <dt id="opennmt.inputters.ExampleInputter">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">ExampleInputter</code><span class="sig-paren">(</span><em class="sig-param">features_inputter</em>, <em class="sig-param">labels_inputter</em>, <em class="sig-param">share_parameters=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>An inputter that returns training examples (parallel features and labels).</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter" title="opennmt.inputters.ParallelInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></a></p>
+<p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter" title="opennmt.inputters.ParallelInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.inputters.ExampleInputter.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">features_inputter</em>, <em class="sig-param">labels_inputter</em>, <em class="sig-param">share_parameters=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.__init__" title="Permalink to this definition">¶</a></dt>
@@ -230,7 +230,7 @@
 
 <dl class="method">
 <dt id="opennmt.inputters.ExampleInputter.make_inference_dataset">
-<code class="sig-name descname">make_inference_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_inference_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_inference_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.make_inference_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for inference.</p>
 <p>For evaluation and training datasets, see
 <a class="reference internal" href="#opennmt.inputters.ExampleInputter" title="opennmt.inputters.ExampleInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter</span></code></a>.</p>
@@ -239,6 +239,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>features_file</strong> – The test file.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
+<li><p><strong>batch_type</strong> – The batching strategy to use: can be “examples” or “tokens”.</p></li>
 <li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
 candidates from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch
 formation.</p></li>

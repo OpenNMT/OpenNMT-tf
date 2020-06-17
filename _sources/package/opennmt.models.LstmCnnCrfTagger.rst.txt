@@ -5,4 +5,4 @@ opennmt.models.LstmCnnCrfTagger
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.models.SequenceTagger`
+    **Inherits from:** :class:`opennmt.models.SequenceTagger`

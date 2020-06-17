@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -558,6 +558,8 @@
 
 <span class="sd">  Raises:</span>
 <span class="sd">    ValueError: if :obj:`batch_type` is not one of &quot;examples&quot; or &quot;tokens&quot;.</span>
+<span class="sd">    ValueError: if :obj:`batch_type` is &quot;tokens&quot; but :obj:`length_bucket_width`</span>
+<span class="sd">      is not set.</span>
 <span class="sd">    ValueError: if the number of length functions in :obj:`length_fn` does not</span>
 <span class="sd">      match the number of parallel elements.</span>
 
@@ -606,6 +608,9 @@
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">required_multiple</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">length_bucket_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Batch type &#39;tokens&#39; requires length bucketing (the parameter &quot;</span>
+                       <span class="s2">&quot;length_bucket_width should be non null)&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">padded_shapes</span><span class="o">=</span><span class="n">padded_shapes</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;examples&quot;</span><span class="p">:</span>
@@ -655,7 +660,7 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">    batch_size: The batch size to use.</span>
-<span class="sd">    batch_type: The training batching stragety to use: can be &quot;examples&quot; or</span>
+<span class="sd">    batch_type: The training batching strategy to use: can be &quot;examples&quot; or</span>
 <span class="sd">      &quot;tokens&quot;.</span>
 <span class="sd">    batch_multiplier: The batch size multiplier.</span>
 <span class="sd">    batch_size_multiple: When :obj:`batch_type` is &quot;tokens&quot;, ensure that the</span>
@@ -766,6 +771,7 @@
   <span class="k">return</span> <span class="n">_pipeline</span></div>
 
 <div class="viewcode-block" id="inference_pipeline"><a class="viewcode-back" href="../../../package/opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline">[docs]</a><span class="k">def</span> <span class="nf">inference_pipeline</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span>
+                       <span class="n">batch_type</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
                        <span class="n">process_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">transform_fns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">length_bucket_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -780,6 +786,7 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">    batch_size: The batch size to use.</span>
+<span class="sd">    batch_type: The batching strategy to use: can be &quot;examples&quot; or &quot;tokens&quot;.</span>
 <span class="sd">    process_fn: The processing function to apply on each element.</span>
 <span class="sd">    transform_fns: List of dataset transformation functions (applied after</span>
 <span class="sd">      :obj:`process_fn` if defined).</span>
@@ -803,7 +810,11 @@
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">_inject_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+      <span class="n">features</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">features</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
     <span class="k">return</span> <span class="n">x</span>
 
   <span class="k">def</span> <span class="nf">_pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
@@ -815,12 +826,20 @@
     <span class="k">if</span> <span class="n">length_bucket_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">length_bucket_width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">length_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length_fn is required when reordering by length&quot;</span><span class="p">)</span>
-      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="n">output_shapes</span> <span class="o">=</span> <span class="n">_get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">num_length_fn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">length_fn</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length_fn</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_length_fn</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The dataset outputs </span><span class="si">%d</span><span class="s2"> parallel features, but got </span><span class="si">%d</span><span class="s2"> &quot;</span>
+                           <span class="s2">&quot;length functions&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">),</span> <span class="n">num_length_fn</span><span class="p">))</span>
+        <span class="n">output_shapes</span> <span class="o">=</span> <span class="n">output_shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reordering by length expects dataset elements to be Python dicts&quot;</span><span class="p">)</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">enumerate</span><span class="p">()</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_inject_index</span><span class="p">)</span>
       <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">batch_sequence_dataset</span><span class="p">(</span>
           <span class="n">batch_size</span><span class="p">,</span>
+          <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
           <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
           <span class="n">length_fn</span><span class="o">=</span><span class="n">length_fn</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>

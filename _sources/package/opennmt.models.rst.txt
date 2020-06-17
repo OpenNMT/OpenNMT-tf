@@ -3,6 +3,7 @@ opennmt.models module
 
 .. automodule:: opennmt.models
 
+
 Classes
 -------
 
@@ -29,6 +30,7 @@ Classes
    opennmt.models.TransformerBig
    opennmt.models.TransformerBigRelative
    opennmt.models.TransformerRelative
+
 Functions
 ---------
 

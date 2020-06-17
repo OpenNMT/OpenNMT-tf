@@ -5,4 +5,4 @@ opennmt.layers.RNNCellWrapper
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.layers.LayerWrapper`
+    **Inherits from:** :class:`opennmt.layers.LayerWrapper`

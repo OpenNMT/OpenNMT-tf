@@ -5,4 +5,4 @@ opennmt.inputters.CharConvEmbedder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.inputters.CharEmbedder`
+    **Inherits from:** :class:`opennmt.inputters.CharEmbedder`

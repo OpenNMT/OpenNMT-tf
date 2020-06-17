@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.LayerWrapper &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.layers.LayerWrapper &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -213,7 +213,12 @@
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">LayerWrapper</code><span class="sig-paren">(</span><em class="sig-param">layer</em>, <em class="sig-param">normalize_input=False</em>, <em class="sig-param">normalize_output=False</em>, <em class="sig-param">input_dropout=0</em>, <em class="sig-param">output_dropout=0</em>, <em class="sig-param">residual_connection=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerWrapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Layer wrapper for input/output normalization, input/output dropout and
 residual connection.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.layers.RNNCellWrapper.html#opennmt.layers.RNNCellWrapper" title="opennmt.layers.RNNCellWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.RNNCellWrapper</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper" title="opennmt.layers.TransformerLayerWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.TransformerLayerWrapper</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.layers.LayerWrapper.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">layer</em>, <em class="sig-param">normalize_input=False</em>, <em class="sig-param">normalize_output=False</em>, <em class="sig-param">input_dropout=0</em>, <em class="sig-param">output_dropout=0</em>, <em class="sig-param">residual_connection=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/common.html#LayerWrapper.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.LayerWrapper.__init__" title="Permalink to this definition">¶</a></dt>

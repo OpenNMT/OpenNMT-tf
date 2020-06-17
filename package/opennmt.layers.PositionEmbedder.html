@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.PositionEmbedder &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.layers.PositionEmbedder &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -210,12 +210,12 @@
 <h1>opennmt.layers.PositionEmbedder<a class="headerlink" href="#opennmt-layers-positionembedder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.layers.PositionEmbedder">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">PositionEmbedder</code><span class="sig-paren">(</span><em class="sig-param">maximum_position=128</em>, <em class="sig-param">reducer=&lt;opennmt.layers.reducer.SumReducer object&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEmbedder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">PositionEmbedder</code><span class="sig-paren">(</span><em class="sig-param">maximum_position=128</em>, <em class="sig-param">reducer=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEmbedder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEmbedder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes position with a lookup table.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder" title="opennmt.layers.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.PositionEncoder</span></code></a></p>
+<p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder" title="opennmt.layers.PositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.PositionEncoder</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.layers.PositionEmbedder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">maximum_position=128</em>, <em class="sig-param">reducer=&lt;opennmt.layers.reducer.SumReducer object&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">maximum_position=128</em>, <em class="sig-param">reducer=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEmbedder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEmbedder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the position encoder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -223,7 +223,7 @@
 <li><p><strong>maximum_position</strong> – The maximum position to embed. Positions greater
 than this value will be set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_position</span></code>.</p></li>
 <li><p><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.Reducer.html#opennmt.layers.Reducer" title="opennmt.layers.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.Reducer</span></code></a> to merge inputs and position
-encodings.</p></li>
+encodings. Defaults to <a class="reference internal" href="opennmt.layers.SumReducer.html#opennmt.layers.SumReducer" title="opennmt.layers.SumReducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.SumReducer</span></code></a>.</p></li>
 <li><p><strong>**kwargs</strong> – Additional layer keyword arguments.</p></li>
 </ul>
 </dd>

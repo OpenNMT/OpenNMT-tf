@@ -5,4 +5,4 @@ opennmt.utils.CTranslate2Exporter
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.utils.Exporter`
+    **Inherits from:** :class:`opennmt.utils.Exporter`

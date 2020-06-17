@@ -1,5 +1,9 @@
 # Inference
 
+```bash
+onmt-main infer -h
+```
+
 ## Checkpoints averaging
 
 The `average_checkpoints` run type can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:

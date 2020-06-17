@@ -5,4 +5,10 @@ opennmt.models.Model
     :members:
     :undoc-members:
 
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+
+    **Extended by:**
+
+    - :class:`opennmt.models.SequenceClassifier`
+    - :class:`opennmt.models.SequenceGenerator`
+    - :class:`opennmt.models.SequenceTagger`

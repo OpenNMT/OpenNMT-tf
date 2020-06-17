@@ -5,4 +5,10 @@ opennmt.decoders.Decoder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+
+    **Extended by:**
+
+    - :class:`opennmt.decoders.RNMTPlusDecoder`
+    - :class:`opennmt.decoders.RNNDecoder`
+    - :class:`opennmt.decoders.SelfAttentionDecoder`

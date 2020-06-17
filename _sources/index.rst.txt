@@ -1,7 +1,9 @@
-This portal provides a complete documentation of OpenNMT-tf.
+Welcome to the OpenNMT-tf documentation! The documentation describes how to install, configure, and use the project.
 
-Content
-=======
+If you find a problem with an information presented on this website, please `open an issue on the GitHub repository <https://github.com/OpenNMT/OpenNMT-tf/issues/new>`_.
+
+Index
+=====
 
 .. toctree::
    :caption: Getting started

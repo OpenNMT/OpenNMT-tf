@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.position &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.layers.position &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -192,15 +192,17 @@
 <div class="viewcode-block" id="PositionEncoder"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder">[docs]</a><span class="k">class</span> <span class="nc">PositionEncoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for position encoders.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PositionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PositionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
-<span class="sd">        encodings.</span>
+<span class="sd">        encodings. Defaults to :class:`opennmt.layers.SumReducer`.</span>
 <span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">reducer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">reducer</span> <span class="o">=</span> <span class="n">SumReducer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span></div>
 
 <div class="viewcode-block" id="PositionEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
@@ -239,14 +241,14 @@
 <div class="viewcode-block" id="PositionEmbedder"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder">[docs]</a><span class="k">class</span> <span class="nc">PositionEmbedder</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Encodes position with a lookup table.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PositionEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_position</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">SumReducer</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PositionEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_position</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      maximum_position: The maximum position to embed. Positions greater</span>
 <span class="sd">        than this value will be set to :obj:`maximum_position`.</span>
 <span class="sd">      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
-<span class="sd">        encodings.</span>
+<span class="sd">        encodings. Defaults to :class:`opennmt.layers.SumReducer`.</span>
 <span class="sd">      **kwargs: Additional layer keyword arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">PositionEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>

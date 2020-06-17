@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.Runner &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.Runner &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -197,7 +197,7 @@
 <dt id="opennmt.Runner">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.</code><code class="sig-name descname">Runner</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">config</em>, <em class="sig-param">auto_config=False</em>, <em class="sig-param">mixed_precision=False</em>, <em class="sig-param">seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for running and exporting models.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
 <dl class="method">
 <dt id="opennmt.Runner.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">config</em>, <em class="sig-param">auto_config=False</em>, <em class="sig-param">mixed_precision=False</em>, <em class="sig-param">seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.__init__" title="Permalink to this definition">¶</a></dt>
@@ -315,7 +315,8 @@ returns such instance.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>features_file</strong> – The file(s) to infer from.</p></li>
-<li><p><strong>predictions_file</strong> – If set, predictions are saved in this file.</p></li>
+<li><p><strong>predictions_file</strong> – If set, predictions are saved in this file, otherwise
+they are printed on the standard output.</p></li>
 <li><p><strong>checkpoint_path</strong> – Path of a specific checkpoint to predict. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 the latest is used.</p></li>
 <li><p><strong>log_time</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, several time metrics will be printed in the logs at

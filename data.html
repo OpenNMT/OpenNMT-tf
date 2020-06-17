@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>Data &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -111,7 +111,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#parallel-inputs">Parallel inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parallel-and-nested-inputs">Parallel and nested inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#weighted-inputs">Weighted inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#compressed-data">Compressed data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-location">Data location</a></li>
@@ -202,17 +202,17 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
   <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/train.en</span>
   <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/train.de</span>
-  <span class="nt">eval_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.en</span>
-  <span class="nt">eval_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.en</span>
+  <span class="nt">eval_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.en</span>  <span class="c1"># optional</span>
+  <span class="nt">eval_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.de</span>    <span class="c1"># optional</span>
 </pre></div>
 </div>
 <p>This page documents how to prepare and configure data files for OpenNMT-tf.</p>
 <div class="section" id="terminology">
 <h2>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p><em>features</em>: the model inputs (a.k.a. <em>source</em>)</p></li>
+<li><p><em>features</em>: the model inputs (a.k.a. the <em>source</em>)</p></li>
+<li><p><em>labels</em>: the model outputs (a.k.a. the <em>target</em>)</p></li>
 <li><p><em>inputters</em>: the input layer of the model that defines how to read element and transform them into vectorized inputs</p></li>
-<li><p><em>labels</em>: the model outputs (a.k.a. <em>target</em>)</p></li>
 </ul>
 </div>
 <div class="section" id="file-format">
@@ -220,7 +220,7 @@
 <p>The format of the data files is defined by the <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter</span></code> modules used by your model. OpenNMT-tf currently supports texts and sequence vectors as inputs.</p>
 <div class="section" id="text">
 <h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
-<p>All <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.TextInputter</span></code> inputters expect a text file as input where:</p>
+<p>All <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.TextInputter.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.TextInputter</span></code></a> inputters expect a text file as input where:</p>
 <ul class="simple">
 <li><p>sentences are separated by a <strong>newline</strong></p></li>
 <li><p>tokens are separated by a <strong>space</strong> (unless a custom tokenizer is set, see <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a>)</p></li>
@@ -241,8 +241,8 @@ The name of this site , and program name Title purchased will not be displayed .
 <div class="section" id="via-python">
 <h4>via Python<a class="headerlink" href="#via-python" title="Permalink to this headline">¶</a></h4>
 <p>It is very simple to generate a compatible <em>TFRecords</em> file directly from Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">opennmt</span> <span class="k">as</span> <span class="nn">onmt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">opennmt</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="p">[</span>
   <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
@@ -250,7 +250,7 @@ The name of this site , and program name Title purchased will not be displayed .
   <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="p">]</span>
 
-<span class="n">onmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">create_sequence_records</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;data.records&quot;</span><span class="p">)</span>
+<span class="n">opennmt</span><span class="o">.</span><span class="n">inputters</span><span class="o">.</span><span class="n">create_sequence_records</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;data.records&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example saves a dataset of 3 random vectors of shape <code class="docutils literal notranslate"><span class="pre">[time,</span> <span class="pre">dim]</span></code> into the file <code class="docutils literal notranslate"><span class="pre">data.records</span></code>. It should be easy to adapt for any dataset of 2D vectors.</p>
@@ -269,9 +269,9 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 </div>
 </div>
 </div>
-<div class="section" id="parallel-inputs">
-<h2>Parallel inputs<a class="headerlink" href="#parallel-inputs" title="Permalink to this headline">¶</a></h2>
-<p>When using <code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code>, as many input files as inputters are expected. You have to configure your YAML file accordingly:</p>
+<div class="section" id="parallel-and-nested-inputs">
+<h2>Parallel and nested inputs<a class="headerlink" href="#parallel-and-nested-inputs" title="Permalink to this headline">¶</a></h2>
+<p>When using <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></a> to define multi-source inputs, as many input files as inputters are expected. You have to configure your YAML file accordingly:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
   <span class="nt">train_features_file</span><span class="p">:</span>
     <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_1.records</span>
@@ -279,7 +279,16 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
     <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_3.txt</span>
 </pre></div>
 </div>
-<p>Similarly, when using the <code class="docutils literal notranslate"><span class="pre">--features_file</span></code> command line option of the main script (e.g. for inference or scoring), a list of files must also be provided:</p>
+<p><code class="docutils literal notranslate"><span class="pre">ParallelInputter</span></code> can also be nested to enable complex inputs combination. In this case, the nested structure should be replicated in the YAML file. The example below represents the configuration for a dual-source model where the first source combines the embeddings of words, POS tags, and case:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+  <span class="nt">train_features_file</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_1.txt</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_1.txt.pos</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_1.txt.case</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_2.txt</span>
+</pre></div>
+</div>
+<p>During inference, the same number of input files should be provided. You should pass a <strong>flattened</strong> list of files to the <code class="docutils literal notranslate"><span class="pre">--features_file</span></code> command line option of the main script (e.g. for inference, evaluation, and scoring):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt.main <span class="o">[</span>...<span class="o">]</span> infer <span class="se">\</span>
     --features_file test_source_1.records test_source_2.txt test_source_3.txt
 </pre></div>

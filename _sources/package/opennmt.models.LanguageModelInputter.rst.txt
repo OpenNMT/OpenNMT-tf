@@ -5,4 +5,4 @@ opennmt.models.LanguageModelInputter
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.inputters.WordEmbedder`
+    **Inherits from:** :class:`opennmt.inputters.WordEmbedder`

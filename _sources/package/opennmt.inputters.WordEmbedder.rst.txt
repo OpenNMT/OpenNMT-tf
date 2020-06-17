@@ -5,4 +5,4 @@ opennmt.inputters.WordEmbedder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.inputters.TextInputter`
+    **Inherits from:** :class:`opennmt.inputters.TextInputter`

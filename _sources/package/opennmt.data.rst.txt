@@ -3,6 +3,7 @@ opennmt.data module
 
 .. automodule:: opennmt.data
 
+
 Classes
 -------
 
@@ -15,6 +16,7 @@ Classes
    opennmt.data.WordOmission
    opennmt.data.WordPermutation
    opennmt.data.WordReplacement
+
 Functions
 ---------
 

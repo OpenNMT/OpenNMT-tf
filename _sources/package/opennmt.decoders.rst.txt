@@ -3,6 +3,7 @@ opennmt.decoders module
 
 .. automodule:: opennmt.decoders
 
+
 Classes
 -------
 
@@ -13,6 +14,7 @@ Classes
    opennmt.decoders.RNMTPlusDecoder
    opennmt.decoders.RNNDecoder
    opennmt.decoders.SelfAttentionDecoder
+
 Functions
 ---------
 

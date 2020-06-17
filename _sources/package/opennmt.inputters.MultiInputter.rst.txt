@@ -5,4 +5,9 @@ opennmt.inputters.MultiInputter
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.inputters.Inputter`
+    **Inherits from:** :class:`opennmt.inputters.Inputter`
+
+    **Extended by:**
+
+    - :class:`opennmt.inputters.MixedInputter`
+    - :class:`opennmt.inputters.ParallelInputter`

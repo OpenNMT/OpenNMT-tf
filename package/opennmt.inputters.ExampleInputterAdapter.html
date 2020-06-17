@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.ExampleInputterAdapter &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.inputters.ExampleInputterAdapter &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -212,10 +212,10 @@
 <dt id="opennmt.inputters.ExampleInputterAdapter">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">ExampleInputterAdapter</code><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputterAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputterAdapter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extends an inputter with methods to build evaluation and training datasets.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.object</span></code></p>
 <dl class="method">
 <dt id="opennmt.inputters.ExampleInputterAdapter.make_evaluation_dataset">
-<code class="sig-name descname">make_evaluation_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputterAdapter.make_evaluation_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputterAdapter.make_evaluation_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_evaluation_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">labels_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputterAdapter.make_evaluation_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputterAdapter.make_evaluation_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for evaluation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -223,6 +223,10 @@
 <li><p><strong>features_file</strong> – The evaluation source file.</p></li>
 <li><p><strong>labels_file</strong> – The evaluation target file.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
+<li><p><strong>batch_type</strong> – The batching strategy to use: can be “examples” or “tokens”.</p></li>
+<li><p><strong>length_bucket_width</strong> – The width of the length buckets to select batch
+candidates from (for efficiency). Set <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch
+formation.</p></li>
 <li><p><strong>num_threads</strong> – The number of elements processed in parallel.</p></li>
 <li><p><strong>prefetch_buffer_size</strong> – The number of batches to prefetch asynchronously. If
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, use an automatically tuned value.</p></li>
@@ -256,7 +260,7 @@ pipeline, including:</p>
 <li><p><strong>features_file</strong> – The source file or a list of training source files.</p></li>
 <li><p><strong>labels_file</strong> – The target file or a list of training target files.</p></li>
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
-<li><p><strong>batch_type</strong> – The training batching stragety to use: can be “examples” or
+<li><p><strong>batch_type</strong> – The training batching strategy to use: can be “examples” or
 “tokens”.</p></li>
 <li><p><strong>batch_multiplier</strong> – The batch size multiplier to prepare splitting accross
 replicated graph parts.</p></li>

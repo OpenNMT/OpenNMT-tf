@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.batch_sequence_dataset &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.data.batch_sequence_dataset &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -250,6 +250,8 @@ are automatically inferred from the dataset output shapes.</p></li>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is not one of “examples” or “tokens”.</p></li>
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_type</span></code> is “tokens” but <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_bucket_width</span></code>
+    is not set.</p></li>
 <li><p><strong>ValueError</strong> – if the number of length functions in <code class="xref py py-obj docutils literal notranslate"><span class="pre">length_fn</span></code> does not
     match the number of parallel elements.</p></li>
 </ul>

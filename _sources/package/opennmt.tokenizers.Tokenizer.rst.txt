@@ -5,4 +5,10 @@ opennmt.tokenizers.Tokenizer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`abc.ABC`
+    **Inherits from:** :class:`abc.ABC`
+
+    **Extended by:**
+
+    - :class:`opennmt.tokenizers.CharacterTokenizer`
+    - :class:`opennmt.tokenizers.OpenNMTTokenizer`
+    - :class:`opennmt.tokenizers.SpaceTokenizer`

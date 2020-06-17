@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.ParallelEncoder &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.encoders.ParallelEncoder &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -219,7 +219,7 @@ every encoders. Otherwise, when the input is a Python sequence (e.g. the non
 reduced output of a <a class="reference internal" href="opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter" title="opennmt.inputters.ParallelInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></a>),
 each encoder will encode its corresponding input in the sequence.</p>
 <p>See for example “Multi-Columnn Encoder” in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.encoders.Encoder.html#opennmt.encoders.Encoder" title="opennmt.encoders.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.Encoder</span></code></a></p>
+<p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.encoders.Encoder.html#opennmt.encoders.Encoder" title="opennmt.encoders.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.Encoder</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.encoders.ParallelEncoder.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">encoders</em>, <em class="sig-param">outputs_reducer=None</em>, <em class="sig-param">states_reducer=None</em>, <em class="sig-param">outputs_layer_fn=None</em>, <em class="sig-param">combined_output_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#ParallelEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.ParallelEncoder.__init__" title="Permalink to this definition">¶</a></dt>

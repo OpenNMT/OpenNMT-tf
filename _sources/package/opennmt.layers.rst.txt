@@ -3,6 +3,7 @@ opennmt.layers module
 
 .. automodule:: opennmt.layers
 
+
 Classes
 -------
 
@@ -13,6 +14,7 @@ Classes
    opennmt.layers.CopyBridge
    opennmt.layers.Dense
    opennmt.layers.DenseBridge
+   opennmt.layers.DenseReducer
    opennmt.layers.FeedForwardNetwork
    opennmt.layers.JoinReducer
    opennmt.layers.LSTM
@@ -31,6 +33,7 @@ Classes
    opennmt.layers.SumReducer
    opennmt.layers.TransformerLayerWrapper
    opennmt.layers.ZeroBridge
+
 Functions
 ---------
 

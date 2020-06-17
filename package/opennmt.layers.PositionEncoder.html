@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.PositionEncoder &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.layers.PositionEncoder &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -210,18 +210,23 @@
 <h1>opennmt.layers.PositionEncoder<a class="headerlink" href="#opennmt-layers-positionencoder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.layers.PositionEncoder">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">PositionEncoder</code><span class="sig-paren">(</span><em class="sig-param">reducer=&lt;opennmt.layers.reducer.SumReducer object&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">PositionEncoder</code><span class="sig-paren">(</span><em class="sig-param">reducer=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for position encoders.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder" title="opennmt.layers.PositionEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.PositionEmbedder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.layers.SinusoidalPositionEncoder.html#opennmt.layers.SinusoidalPositionEncoder" title="opennmt.layers.SinusoidalPositionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.SinusoidalPositionEncoder</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.layers.PositionEncoder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">reducer=&lt;opennmt.layers.reducer.SumReducer object&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEncoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">reducer=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/position.html#PositionEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.PositionEncoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the position encoder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>reducer</strong> – A <a class="reference internal" href="opennmt.layers.Reducer.html#opennmt.layers.Reducer" title="opennmt.layers.Reducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.Reducer</span></code></a> to merge inputs and position
-encodings.</p></li>
+encodings. Defaults to <a class="reference internal" href="opennmt.layers.SumReducer.html#opennmt.layers.SumReducer" title="opennmt.layers.SumReducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.SumReducer</span></code></a>.</p></li>
 <li><p><strong>**kwargs</strong> – Additional layer keyword arguments.</p></li>
 </ul>
 </dd>

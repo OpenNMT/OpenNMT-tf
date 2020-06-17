@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.SequentialEncoder &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.encoders.SequentialEncoder &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -213,7 +213,12 @@
 <dd><p>An encoder that executes multiple encoders sequentially with optional
 transition layers.</p>
 <p>See for example “Cascaded Encoder” in <a class="reference external" href="https://arxiv.org/abs/1804.09849">https://arxiv.org/abs/1804.09849</a>.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.encoders.Encoder.html#opennmt.encoders.Encoder" title="opennmt.encoders.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.Encoder</span></code></a></p>
+<p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.encoders.Encoder.html#opennmt.encoders.Encoder" title="opennmt.encoders.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.Encoder</span></code></a></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.encoders.GNMTEncoder.html#opennmt.encoders.GNMTEncoder" title="opennmt.encoders.GNMTEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.GNMTEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.RNMTPlusEncoder.html#opennmt.encoders.RNMTPlusEncoder" title="opennmt.encoders.RNMTPlusEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.RNMTPlusEncoder</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.encoders.SequentialEncoder.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">encoders</em>, <em class="sig-param">states_reducer=&lt;opennmt.layers.reducer.JoinReducer object&gt;</em>, <em class="sig-param">transition_layer_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#SequentialEncoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.SequentialEncoder.__init__" title="Permalink to this definition">¶</a></dt>

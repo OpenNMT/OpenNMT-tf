@@ -5,4 +5,12 @@ opennmt.models.Transformer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.models.SequenceToSequence`
+    **Inherits from:** :class:`opennmt.models.SequenceToSequence`
+
+    **Extended by:**
+
+    - :class:`opennmt.models.TransformerBase`
+    - :class:`opennmt.models.TransformerRelative`
+    - :class:`opennmt.models.TransformerBig`
+    - :class:`opennmt.models.TransformerBigRelative`
+    - :class:`opennmt.models.TransformerRelative`

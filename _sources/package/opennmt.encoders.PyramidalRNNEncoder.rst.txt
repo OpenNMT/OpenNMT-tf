@@ -5,4 +5,4 @@ opennmt.encoders.PyramidalRNNEncoder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.encoders.Encoder`
+    **Inherits from:** :class:`opennmt.encoders.Encoder`

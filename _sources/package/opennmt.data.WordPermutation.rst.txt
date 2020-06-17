@@ -5,4 +5,4 @@ opennmt.data.WordPermutation
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.data.Noise`
+    **Inherits from:** :class:`opennmt.data.Noise`

@@ -3,6 +3,7 @@ opennmt.inputters module
 
 .. automodule:: opennmt.inputters
 
+
 Classes
 -------
 
@@ -20,6 +21,7 @@ Classes
    opennmt.inputters.SequenceRecordInputter
    opennmt.inputters.TextInputter
    opennmt.inputters.WordEmbedder
+
 Functions
 ---------
 

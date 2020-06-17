@@ -5,4 +5,11 @@ opennmt.data.Noise
     :members:
     :undoc-members:
 
-    Inherits from: :class:`abc.ABC`
+    **Inherits from:** :class:`abc.ABC`
+
+    **Extended by:**
+
+    - :class:`opennmt.data.WordDropout`
+    - :class:`opennmt.data.WordOmission`
+    - :class:`opennmt.data.WordPermutation`
+    - :class:`opennmt.data.WordReplacement`

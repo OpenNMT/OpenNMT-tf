@@ -5,4 +5,4 @@ opennmt.models.SequenceToSequenceInputter
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.inputters.ExampleInputter`
+    **Inherits from:** :class:`opennmt.inputters.ExampleInputter`

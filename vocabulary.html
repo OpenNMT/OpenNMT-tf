@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Vocabulary &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>Vocabulary &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -214,11 +214,15 @@
 </div>
 <div class="section" id="from-sentencepiece-training">
 <h3>from SentencePiece training<a class="headerlink" href="#from-sentencepiece-training" title="Permalink to this headline">¶</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> can also prepare a SentencePiece vocabulary and model from raw data. For example the command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> can also prepare a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> vocabulary and model from raw data. For example the command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --sentencepiece --size <span class="m">32000</span> --save_vocab sp train.txt.raw
 </pre></div>
 </div>
-<p>will produce the SentencePiece model <code class="docutils literal notranslate"><span class="pre">sp.model</span></code> and the vocabulary <code class="docutils literal notranslate"><span class="pre">sp.vocab</span></code> of size 32,000. Additional SentencePiece <a class="reference external" href="https://github.com/google/sentencepiece/blob/master/src/spm_train_main.cc">training options</a> can be passed to the <code class="docutils literal notranslate"><span class="pre">--sentencepiece</span></code> argument in the format <code class="docutils literal notranslate"><span class="pre">option=value</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">--sentencepiece</span> <span class="pre">character_coverage=0.98</span> <span class="pre">num_threads=4</span></code>.</p>
+<p>will produce the SentencePiece model <code class="docutils literal notranslate"><span class="pre">sp.model</span></code> and the vocabulary <code class="docutils literal notranslate"><span class="pre">sp.vocab</span></code> of size 32,000. The vocabulary file is saved in the OpenNMT-tf format and can be directly used for training.</p>
+<p>Additional SentencePiece <a class="reference external" href="https://github.com/google/sentencepiece/blob/master/src/spm_train_main.cc">training options</a> can be passed to the <code class="docutils literal notranslate"><span class="pre">--sentencepiece</span></code> argument in the format <code class="docutils literal notranslate"><span class="pre">option=value</span></code>, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --sentencepiece <span class="nv">character_coverage</span><span class="o">=</span><span class="m">0</span>.98 <span class="nv">num_threads</span><span class="o">=</span><span class="m">4</span> <span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="configuring-vocabularies">
@@ -253,6 +257,7 @@
   <span class="nt">source_1_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_2_vocab.txt</span>
 </pre></div>
 </div>
+<p><strong>Note:</strong> If you train a model with shared embeddings, you should still configure all vocabulary parameters but in this case they should simply point to the same vocabulary file.</p>
 </div>
 </div>
 

@@ -5,4 +5,11 @@ opennmt.layers.Reducer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`abc.ABC`
+    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+
+    **Extended by:**
+
+    - :class:`opennmt.layers.ConcatReducer`
+    - :class:`opennmt.layers.JoinReducer`
+    - :class:`opennmt.layers.MultiplyReducer`
+    - :class:`opennmt.layers.SumReducer`

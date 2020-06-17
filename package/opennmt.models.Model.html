@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -212,7 +212,13 @@
 <dt id="opennmt.models.Model">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param">examples_inputter</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for models.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier" title="opennmt.models.SequenceClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceClassifier</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator" title="opennmt.models.SequenceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceGenerator</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger" title="opennmt.models.SequenceTagger"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceTagger</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.models.Model.unsupervised">
 <em class="property">property </em><code class="sig-name descname">unsupervised</code><a class="headerlink" href="#opennmt.models.Model.unsupervised" title="Permalink to this definition">¶</a></dt>
@@ -235,6 +241,12 @@
 <dt id="opennmt.models.Model.ctranslate2_spec">
 <em class="property">property </em><code class="sig-name descname">ctranslate2_spec</code><a class="headerlink" href="#opennmt.models.Model.ctranslate2_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p>The equivalent CTranslate2 model specification.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.Model.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a description of the model and its submodules.</p>
 </dd></dl>
 
 <dl class="method">

@@ -5,4 +5,4 @@ opennmt.utils.BLEUScorer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.utils.Scorer`
+    **Inherits from:** :class:`opennmt.utils.Scorer`

@@ -1,0 +1,4 @@
+opennmt.utils.register_exporter
+===============================
+
+.. autofunction:: opennmt.utils.register_exporter

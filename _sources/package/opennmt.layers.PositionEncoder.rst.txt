@@ -5,4 +5,9 @@ opennmt.layers.PositionEncoder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+
+    **Extended by:**
+
+    - :class:`opennmt.layers.PositionEmbedder`
+    - :class:`opennmt.layers.SinusoidalPositionEncoder`

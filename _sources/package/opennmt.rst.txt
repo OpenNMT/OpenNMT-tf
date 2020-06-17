@@ -25,6 +25,7 @@ Classes
 .. toctree::
 
    opennmt.Runner
+
 Functions
 ---------
 
@@ -33,6 +34,7 @@ Functions
    opennmt.convert_to_v2_config
    opennmt.load_config
    opennmt.load_model
+
 Constants
 ---------
 

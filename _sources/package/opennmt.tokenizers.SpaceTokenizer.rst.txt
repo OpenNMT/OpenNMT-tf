@@ -5,4 +5,4 @@ opennmt.tokenizers.SpaceTokenizer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.tokenizers.Tokenizer`
+    **Inherits from:** :class:`opennmt.tokenizers.Tokenizer`

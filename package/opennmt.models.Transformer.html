@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.Transformer &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.models.Transformer &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -213,7 +213,15 @@
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">Transformer</code><span class="sig-paren">(</span><em class="sig-param">source_inputter</em>, <em class="sig-param">target_inputter</em>, <em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">num_heads</em>, <em class="sig-param">ffn_inner_dim</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">share_embeddings=0</em>, <em class="sig-param">share_encoders=False</em>, <em class="sig-param">maximum_relative_position=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Transformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attention-based sequence-to-sequence model as described in
 <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
-<p>Inherits from: <a class="reference internal" href="opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence" title="opennmt.models.SequenceToSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceToSequence</span></code></a></p>
+<p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence" title="opennmt.models.SequenceToSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceToSequence</span></code></a></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.models.TransformerBase.html#opennmt.models.TransformerBase" title="opennmt.models.TransformerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerBase</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.models.TransformerRelative.html#opennmt.models.TransformerRelative" title="opennmt.models.TransformerRelative"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerRelative</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.models.TransformerBig.html#opennmt.models.TransformerBig" title="opennmt.models.TransformerBig"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerBig</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.models.TransformerBigRelative.html#opennmt.models.TransformerBigRelative" title="opennmt.models.TransformerBigRelative"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerBigRelative</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.models.TransformerRelative.html#opennmt.models.TransformerRelative" title="opennmt.models.TransformerRelative"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerRelative</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.models.Transformer.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">source_inputter</em>, <em class="sig-param">target_inputter</em>, <em class="sig-param">num_layers</em>, <em class="sig-param">num_units</em>, <em class="sig-param">num_heads</em>, <em class="sig-param">ffn_inner_dim</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">share_embeddings=0</em>, <em class="sig-param">share_encoders=False</em>, <em class="sig-param">maximum_relative_position=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Transformer.__init__" title="Permalink to this definition">¶</a></dt>

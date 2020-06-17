@@ -114,6 +114,7 @@
 ./_sources/package/opennmt.layers.CopyBridge.rst.txt
 ./_sources/package/opennmt.layers.Dense.rst.txt
 ./_sources/package/opennmt.layers.DenseBridge.rst.txt
+./_sources/package/opennmt.layers.DenseReducer.rst.txt
 ./_sources/package/opennmt.layers.FeedForwardNetwork.rst.txt
 ./_sources/package/opennmt.layers.JoinReducer.rst.txt
 ./_sources/package/opennmt.layers.LSTM.rst.txt
@@ -201,6 +202,7 @@
 ./_sources/package/opennmt.utils.TERScorer.rst.txt
 ./_sources/package/opennmt.utils.WERScorer.rst.txt
 ./_sources/package/opennmt.utils.average_checkpoints.rst.txt
+./_sources/package/opennmt.utils.average_checkpoints_into_layer.rst.txt
 ./_sources/package/opennmt.utils.cross_entropy_loss.rst.txt
 ./_sources/package/opennmt.utils.cross_entropy_sequence_loss.rst.txt
 ./_sources/package/opennmt.utils.dynamic_decode.rst.txt
@@ -208,6 +210,7 @@
 ./_sources/package/opennmt.utils.guided_alignment_cost.rst.txt
 ./_sources/package/opennmt.utils.is_v1_checkpoint.rst.txt
 ./_sources/package/opennmt.utils.max_margin_loss.rst.txt
+./_sources/package/opennmt.utils.register_exporter.rst.txt
 ./_sources/package/opennmt.utils.register_scorer.rst.txt
 ./_sources/package/opennmt.utils.regularization_penalty.rst.txt
 ./_sources/package/opennmt.utils.roll_sequence.rst.txt
@@ -351,6 +354,7 @@
 ./package/opennmt.layers.CopyBridge.html
 ./package/opennmt.layers.Dense.html
 ./package/opennmt.layers.DenseBridge.html
+./package/opennmt.layers.DenseReducer.html
 ./package/opennmt.layers.FeedForwardNetwork.html
 ./package/opennmt.layers.JoinReducer.html
 ./package/opennmt.layers.LSTM.html
@@ -437,6 +441,7 @@
 ./package/opennmt.utils.TERScorer.html
 ./package/opennmt.utils.WERScorer.html
 ./package/opennmt.utils.average_checkpoints.html
+./package/opennmt.utils.average_checkpoints_into_layer.html
 ./package/opennmt.utils.cross_entropy_loss.html
 ./package/opennmt.utils.cross_entropy_sequence_loss.html
 ./package/opennmt.utils.dynamic_decode.html
@@ -445,6 +450,7 @@
 ./package/opennmt.utils.html
 ./package/opennmt.utils.is_v1_checkpoint.html
 ./package/opennmt.utils.max_margin_loss.html
+./package/opennmt.utils.register_exporter.html
 ./package/opennmt.utils.register_scorer.html
 ./package/opennmt.utils.regularization_penalty.html
 ./package/opennmt.utils.roll_sequence.html

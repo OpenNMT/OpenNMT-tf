@@ -27,7 +27,7 @@ Automatic evaluation during the training can also export models, see [Training](
 
 ### Running a SavedModel
 
-When using an exported model, you need to know the input and output nodes of your model. You can use the [`saved_model_cli`](https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel) script provided by TensorFlow for inspection, e.g.:
+Once a SavedModel is exported, OpenNMT-tf is no longer needed to run it. However, you will need to know the input and output nodes of your model. You can use the [`saved_model_cli`](https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel) script provided by TensorFlow for inspection, e.g.:
 
 ```bash
 saved_model_cli show --dir ~/my-models/ende \
@@ -38,14 +38,11 @@ Some examples using exported models are available in the [`examples/serving`](ht
 
 ### Input preprocessing and tokenization
 
-TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see [Tokenization](tokenization.md) for more details). In this case, these functions should be run outside of the TensorFlow engine, either by the client or a proxy server.
-
-* The OpenNMT-tf [serving example](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving) uses the client approach to implement a simple interactive translation loop
-* The project [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these [instructions](https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844).
+TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see [Tokenization](tokenization.md) for more details). In this case, these functions should be run outside of the TensorFlow runtime, either by the client or a proxy server.
 
 ## CTranslate2
 
-[CTranslate2](https://github.com/OpenNMT/CTranslate2) is an optimized inference engine for OpenNMT models that is typically faster and more customizable than the TensorFlow runtime.
+[CTranslate2](https://github.com/OpenNMT/CTranslate2) is an optimized inference engine for OpenNMT models that is typically faster, lighter, and more customizable than the TensorFlow runtime.
 
 Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf. An additional `export_format` option should be configured to select this export type:
 

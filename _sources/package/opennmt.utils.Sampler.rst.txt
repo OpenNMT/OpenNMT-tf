@@ -5,4 +5,9 @@ opennmt.utils.Sampler
     :members:
     :undoc-members:
 
-    Inherits from: :class:`abc.ABC`
+    **Inherits from:** :class:`abc.ABC`
+
+    **Extended by:**
+
+    - :class:`opennmt.utils.BestSampler`
+    - :class:`opennmt.utils.RandomSampler`

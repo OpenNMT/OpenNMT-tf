@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.Encoder &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.encoders.Encoder &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -211,7 +211,18 @@
 <dt id="opennmt.encoders.Encoder">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.encoders.</code><code class="sig-name descname">Encoder</code><span class="sig-paren">(</span><em class="sig-param">trainable=True</em>, <em class="sig-param">name=None</em>, <em class="sig-param">dtype=None</em>, <em class="sig-param">dynamic=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#Encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.Encoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for encoders.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.encoders.ConvEncoder.html#opennmt.encoders.ConvEncoder" title="opennmt.encoders.ConvEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.ConvEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.LSTMEncoder.html#opennmt.encoders.LSTMEncoder" title="opennmt.encoders.LSTMEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.LSTMEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder" title="opennmt.encoders.MeanEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.MeanEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.ParallelEncoder.html#opennmt.encoders.ParallelEncoder" title="opennmt.encoders.ParallelEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder" title="opennmt.encoders.PyramidalRNNEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.PyramidalRNNEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.RNNEncoder.html#opennmt.encoders.RNNEncoder" title="opennmt.encoders.RNNEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.RNNEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder" title="opennmt.encoders.SelfAttentionEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.SelfAttentionEncoder</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder" title="opennmt.encoders.SequentialEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.encoders.SequentialEncoder</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.encoders.Encoder.build_mask">
 <code class="sig-name descname">build_mask</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">sequence_length=None</em>, <em class="sig-param">dtype=tf.bool</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#Encoder.build_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.Encoder.build_mask" title="Permalink to this definition">¶</a></dt>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.Bridge &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.layers.Bridge &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -212,7 +212,13 @@
 <dt id="opennmt.layers.Bridge">
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">Bridge</code><span class="sig-paren">(</span><em class="sig-param">trainable=True</em>, <em class="sig-param">name=None</em>, <em class="sig-param">dtype=None</em>, <em class="sig-param">dynamic=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.Bridge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for bridges.</p>
-<p>Inherits from: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.layers.CopyBridge.html#opennmt.layers.CopyBridge" title="opennmt.layers.CopyBridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.CopyBridge</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge" title="opennmt.layers.DenseBridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.DenseBridge</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.layers.ZeroBridge.html#opennmt.layers.ZeroBridge" title="opennmt.layers.ZeroBridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.ZeroBridge</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.layers.Bridge.__call__">
 <code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">encoder_state</em>, <em class="sig-param">decoder_zero_state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#Bridge.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.Bridge.__call__" title="Permalink to this definition">¶</a></dt>

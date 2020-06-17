@@ -3,6 +3,7 @@ opennmt.optimizers module
 
 .. automodule:: opennmt.optimizers
 
+
 Functions
 ---------
 

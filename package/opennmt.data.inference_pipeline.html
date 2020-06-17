@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.inference_pipeline &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.data.inference_pipeline &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -210,7 +210,7 @@
 <h1>opennmt.data.inference_pipeline<a class="headerlink" href="#opennmt-data-inference-pipeline" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.data.inference_pipeline">
-<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">inference_pipeline</code><span class="sig-paren">(</span><em class="sig-param">batch_size</em>, <em class="sig-param">process_fn=None</em>, <em class="sig-param">transform_fns=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">length_fn=None</em>, <em class="sig-param">num_threads=None</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#inference_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.inference_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">inference_pipeline</code><span class="sig-paren">(</span><em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">process_fn=None</em>, <em class="sig-param">transform_fns=None</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">length_fn=None</em>, <em class="sig-param">num_threads=None</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#inference_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.inference_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformation that applies dataset operations for inference.</p>
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">inference_pipeline</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
@@ -220,6 +220,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>batch_size</strong> – The batch size to use.</p></li>
+<li><p><strong>batch_type</strong> – The batching strategy to use: can be “examples” or “tokens”.</p></li>
 <li><p><strong>process_fn</strong> – The processing function to apply on each element.</p></li>
 <li><p><strong>transform_fns</strong> – List of dataset transformation functions (applied after
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">process_fn</span></code> if defined).</p></li>

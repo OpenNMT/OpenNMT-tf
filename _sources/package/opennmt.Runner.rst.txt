@@ -5,4 +5,4 @@ opennmt.Runner
     :members:
     :undoc-members:
 
-    Inherits from: :class:`builtins.object`
+    **Inherits from:** :class:`builtins.object`

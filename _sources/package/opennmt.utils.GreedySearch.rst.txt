@@ -5,4 +5,4 @@ opennmt.utils.GreedySearch
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.utils.DecodingStrategy`
+    **Inherits from:** :class:`opennmt.utils.DecodingStrategy`

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -325,8 +325,9 @@
 
   <span class="c1"># (optional) The type of learning rate decay (default: null). See:</span>
   <span class="c1">#  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules</span>
-  <span class="c1">#  * opennmt/schedules/lr_schedules.py</span>
-  <span class="c1"># This value may change the semantics of other decay options. See the documentation or the code.</span>
+  <span class="c1">#  * https://opennmt.net/OpenNMT-tf/package/opennmt.schedules.html</span>
+  <span class="c1"># This value may change the semantics of other decay options. See the documentation</span>
+  <span class="c1"># or the code.</span>
   <span class="nt">decay_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">NoamDecay</span>
   <span class="c1"># (optional unless decay_type is set) Decay parameters.</span>
   <span class="nt">decay_params</span><span class="p">:</span>
@@ -375,7 +376,8 @@
   <span class="c1"># (optional) Define the subword marker. This is useful to apply noise at the</span>
   <span class="c1"># word level instead of the subword level (default: ￭).</span>
   <span class="nt">decoding_subword_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">￭</span>
-  <span class="c1"># (optional) Whether decoding_subword_token is used as a spacer (as in SentencePiece) or a joiner (as in BPE).</span>
+  <span class="c1"># (optional) Whether decoding_subword_token is used as a spacer (as in SentencePiece)</span>
+  <span class="c1"># or a joiner (as in BPE).</span>
   <span class="c1"># If unspecified, will infer  directly from decoding_subword_token.</span>
   <span class="nt">decoding_subword_token_is_spacer</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Minimum length of decoded sequences, end token excluded (default: 0).</span>
@@ -449,19 +451,29 @@
 <span class="nt">eval</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 32).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
+  <span class="c1"># (optional) Batch size is the number of &quot;examples&quot; or &quot;tokens&quot; (default: &quot;examples&quot;).</span>
+  <span class="nt">batch_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">examples</span>
 
   <span class="c1"># (optional) Evaluate every this many steps (default: 5000).</span>
   <span class="nt">steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
 
   <span class="c1"># (optional) Save evaluation predictions in model_dir/eval/.</span>
   <span class="nt">save_eval_predictions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="c1"># (optional) Evalutator or list of evaluators that are called on the saved evaluation predictions.</span>
+  <span class="c1"># (optional) Evalutator or list of evaluators that are called on the saved evaluation</span>
+  <span class="c1"># predictions.</span>
   <span class="c1"># Available evaluators: bleu, rouge</span>
   <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
 
+  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
+  <span class="c1"># If set, the eval data will be sorted by length to increase the translation</span>
+  <span class="c1"># efficiency. The predictions will still be outputted in order as they are</span>
+  <span class="c1"># available (default: 0).</span>
+  <span class="nt">length_bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+
   <span class="c1"># (optional) Export a model when a metric has the best value so far (default: null).</span>
   <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-  <span class="c1"># (optional) Format of the exported model (can be: &quot;saved_model, &quot;ctranslate2&quot;, default: &quot;saved_model&quot;).</span>
+  <span class="c1"># (optional) Format of the exported model (can be: &quot;saved_model, &quot;ctranslate2&quot;,</span>
+  <span class="c1"># &quot;checkpoint&quot;, default: &quot;saved_model&quot;).</span>
   <span class="nt">export_format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">saved_model</span>
   <span class="c1"># (optional) Maximum number of exports to keep on disk (default: 5).</span>
   <span class="nt">max_exports_to_keep</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
@@ -472,22 +484,25 @@
   <span class="nt">early_stopping</span><span class="p">:</span>
     <span class="c1"># (optional) The target metric name (default: &quot;loss&quot;).</span>
     <span class="nt">metric</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-    <span class="c1"># (optional) The metric should improve at least by this much to be considered as an improvement (default: 0)</span>
+    <span class="c1"># (optional) The metric should improve at least by this much to be considered</span>
+    <span class="c1"># as an improvement (default: 0)</span>
     <span class="nt">min_improvement</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.01</span>
     <span class="nt">steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
 
 <span class="c1"># (optional) Inference options.</span>
 <span class="nt">infer</span><span class="p">:</span>
-  <span class="c1"># (optional) The batch size to use (default: 1).</span>
+  <span class="c1"># (optional) The batch size to use (default: 16).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+  <span class="c1"># (optional) Batch size is the number of &quot;examples&quot; or &quot;tokens&quot; (default: &quot;examples&quot;).</span>
+  <span class="nt">batch_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">examples</span>
 
   <span class="c1"># (optional) For compatible models, the number of hypotheses to output (default: 1).</span>
   <span class="c1"># This sets the parameter params/num_hypotheses.</span>
   <span class="nt">n_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) For compatible models, also output the score (default: false).</span>
   <span class="nt">with_scores</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="c1"># (optional) For compatible models, also output the alignments (can be: null, hard, soft,</span>
-  <span class="c1"># default: null).</span>
+  <span class="c1"># (optional) For compatible models, also output the alignments</span>
+  <span class="c1"># (can be: null, hard, soft, default: null).</span>
   <span class="nt">with_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
 
   <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>

@@ -3,6 +3,7 @@ opennmt.schedules module
 
 .. automodule:: opennmt.schedules
 
+
 Classes
 -------
 
@@ -13,6 +14,7 @@ Classes
    opennmt.schedules.RNMTPlusDecay
    opennmt.schedules.RsqrtDecay
    opennmt.schedules.ScheduleWrapper
+
 Functions
 ---------
 

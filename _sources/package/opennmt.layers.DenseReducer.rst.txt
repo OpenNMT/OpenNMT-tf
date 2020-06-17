@@ -1,0 +1,8 @@
+opennmt.layers.DenseReducer
+===========================
+
+.. autoclass:: opennmt.layers.DenseReducer
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.layers.ConcatReducer`

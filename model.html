@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Model &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>Model &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -186,7 +186,7 @@
             
   <div class="section" id="model">
 <h1>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h1>
-<p>OpenNMT-tf can be used to train several types of models, here is a non exhaustive overview of supported models:</p>
+<p>OpenNMT-tf can be used to train several types of models thanks to a modular and extensible design. Here is a non exhaustive overview of supported models:</p>
 <p><strong>Maching translation</strong></p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://arxiv.org/abs/1409.3215">Sequence to Sequence Learning with Neural Networks</a> (Sutskever et al. 2014)</p></li>
@@ -221,10 +221,11 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer <span class="o">[</span>...<span class="o">]</span>
 </pre></div>
 </div>
+<p>You can also get the list of predefined models by running <code class="docutils literal notranslate"><span class="pre">onmt-main</span> <span class="pre">-h</span></code>.</p>
 </div>
 <div class="section" id="custom-models">
 <h2>Custom models<a class="headerlink" href="#custom-models" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf can load custom model definitions from external Python files. They should include a callable <code class="docutils literal notranslate"><span class="pre">model</span></code> that returns a <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.Model.html"><code class="docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance, for example:</p>
+<p>If you don’t find the model you are looking for in the catalog, OpenNMT-tf can load custom model definitions from external Python files. They should include a callable <code class="docutils literal notranslate"><span class="pre">model</span></code> that returns a <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.Model.html"><code class="docutils literal notranslate"><span class="pre">opennmt.models.Model</span></code></a> instance. For example, the model definition below extends the <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.Transformer.html">Transformer</a> model to enable embeddings sharing:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">opennmt</span>
 
 <span class="k">class</span> <span class="nc">MyCustomTransformer</span><span class="p">(</span><span class="n">opennmt</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
@@ -252,13 +253,13 @@
 </div>
 <p>This approach offers a high level of modeling freedom without changing the core implementation. Additionally, some public modules are defined to contain other modules and can be used to design complex architectures:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.SequentialEncoder</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.MixedInputter</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></p></li>
+<li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.ParallelEncoder.html"><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.ParallelEncoder</span></code></a></p></li>
+<li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.encoders.SequentialEncoder.html"><code class="docutils literal notranslate"><span class="pre">opennmt.encoders.SequentialEncoder</span></code></a></p></li>
+<li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.MixedInputter.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.MixedInputter</span></code></a></p></li>
+<li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></a></p></li>
 </ul>
 <p>For example, these container modules can be used to implement multi source inputs, multi modal training, mixed word/character embeddings, and arbitrarily complex encoder architectures (e.g. mixing convolution, RNN, self-attention, etc.).</p>
-<p>Some examples are available in the directory <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models"><code class="docutils literal notranslate"><span class="pre">config/models</span></code></a> in the Git repository.</p>
+<p>Some examples are available in the directory <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/config/models"><code class="docutils literal notranslate"><span class="pre">config/models</span></code></a> of the Git repository.</p>
 </div>
 </div>
 

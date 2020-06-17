@@ -5,4 +5,15 @@ opennmt.encoders.Encoder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+
+    **Extended by:**
+
+    - :class:`opennmt.encoders.ConvEncoder`
+    - :class:`opennmt.encoders.LSTMEncoder`
+    - :class:`opennmt.encoders.MeanEncoder`
+    - :class:`opennmt.encoders.ParallelEncoder`
+    - :class:`opennmt.encoders.PyramidalRNNEncoder`
+    - :class:`opennmt.encoders.RNNEncoder`
+    - :class:`opennmt.encoders.SelfAttentionEncoder`
+    - :class:`opennmt.encoders.SequentialEncoder`

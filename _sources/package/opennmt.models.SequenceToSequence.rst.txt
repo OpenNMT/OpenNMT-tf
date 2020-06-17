@@ -5,4 +5,10 @@ opennmt.models.SequenceToSequence
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.models.SequenceGenerator`
+    **Inherits from:** :class:`opennmt.models.SequenceGenerator`
+
+    **Extended by:**
+
+    - :class:`opennmt.models.ListenAttendSpell`
+    - :class:`opennmt.models.LuongAttention`
+    - :class:`opennmt.models.Transformer`

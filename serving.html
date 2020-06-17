@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -214,7 +214,7 @@
 </div>
 <div class="section" id="running-a-savedmodel">
 <h3>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline">¶</a></h3>
-<p>When using an exported model, you need to know the input and output nodes of your model. You can use the <a class="reference external" href="https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel"><code class="docutils literal notranslate"><span class="pre">saved_model_cli</span></code></a> script provided by TensorFlow for inspection, e.g.:</p>
+<p>Once a SavedModel is exported, OpenNMT-tf is no longer needed to run it. However, you will need to know the input and output nodes of your model. You can use the <a class="reference external" href="https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel"><code class="docutils literal notranslate"><span class="pre">saved_model_cli</span></code></a> script provided by TensorFlow for inspection, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli show --dir ~/my-models/ende <span class="se">\</span>
     --tag_set serve --signature_def serving_default
 </pre></div>
@@ -223,16 +223,12 @@
 </div>
 <div class="section" id="input-preprocessing-and-tokenization">
 <h3>Input preprocessing and tokenization<a class="headerlink" href="#input-preprocessing-and-tokenization" title="Permalink to this headline">¶</a></h3>
-<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a> for more details). In this case, these functions should be run outside of the TensorFlow engine, either by the client or a proxy server.</p>
-<ul class="simple">
-<li><p>The OpenNMT-tf <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving">serving example</a> uses the client approach to implement a simple interactive translation loop</p></li>
-<li><p>The project <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker">nmt-wizard-docker</a> uses the proxy server approach to wrap a TensorFlow Serving instance with a custom processing layer and REST API. Exported OpenNMT-tf models can integrated with this tool by following these <a class="reference external" href="https://github.com/OpenNMT/nmt-wizard-docker/issues/46#issuecomment-456795844">instructions</a>.</p></li>
-</ul>
+<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a> for more details). In this case, these functions should be run outside of the TensorFlow runtime, either by the client or a proxy server.</p>
 </div>
 </div>
 <div class="section" id="ctranslate2">
 <h2>CTranslate2<a class="headerlink" href="#ctranslate2" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2">CTranslate2</a> is an optimized inference engine for OpenNMT models that is typically faster and more customizable than the TensorFlow runtime.</p>
+<p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2">CTranslate2</a> is an optimized inference engine for OpenNMT models that is typically faster, lighter, and more customizable than the TensorFlow runtime.</p>
 <p>Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf. An additional <code class="docutils literal notranslate"><span class="pre">export_format</span></code> option should be configured to select this export type:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> <span class="nb">export</span> --export_dir ~/my-models/ende --export_format ctranslate2
 </pre></div>

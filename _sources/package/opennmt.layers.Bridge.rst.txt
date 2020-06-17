@@ -5,4 +5,10 @@ opennmt.layers.Bridge
     :members:
     :undoc-members:
 
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+
+    **Extended by:**
+
+    - :class:`opennmt.layers.CopyBridge`
+    - :class:`opennmt.layers.DenseBridge`
+    - :class:`opennmt.layers.ZeroBridge`

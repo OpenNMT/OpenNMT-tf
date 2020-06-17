@@ -5,4 +5,10 @@ opennmt.inputters.Inputter
     :members:
     :undoc-members:
 
-    Inherits from: :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+
+    **Extended by:**
+
+    - :class:`opennmt.inputters.MultiInputter`
+    - :class:`opennmt.inputters.SequenceRecordInputter`
+    - :class:`opennmt.inputters.TextInputter`

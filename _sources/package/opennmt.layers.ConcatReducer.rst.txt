@@ -5,4 +5,8 @@ opennmt.layers.ConcatReducer
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.layers.Reducer`
+    **Inherits from:** :class:`opennmt.layers.Reducer`
+
+    **Extended by:**
+
+    - :class:`opennmt.layers.DenseReducer`

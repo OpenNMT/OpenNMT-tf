@@ -5,4 +5,9 @@ opennmt.inputters.CharEmbedder
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.inputters.TextInputter`
+    **Inherits from:** :class:`opennmt.inputters.TextInputter`
+
+    **Extended by:**
+
+    - :class:`opennmt.inputters.CharConvEmbedder`
+    - :class:`opennmt.inputters.CharRNNEmbedder`

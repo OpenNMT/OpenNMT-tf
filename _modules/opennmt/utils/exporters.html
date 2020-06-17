@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -190,27 +190,6 @@
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 
 
-<span class="k">def</span> <span class="nf">make_exporter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Creates a new exporter.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    name: The exporter name, can be &quot;saved_model&quot;, &quot;ctranslate2&quot;.</span>
-<span class="sd">    **kwargs: Additional arguments to pass to the exporter constructor.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.utils.Exporter` instance.</span>
-
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`name` is invalid.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;saved_model&quot;</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">SavedModelExporter</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;ctranslate2&quot;</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">CTranslate2Exporter</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid exporter name: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.Exporter.html#opennmt.utils.Exporter">[docs]</a><span class="k">class</span> <span class="nc">Exporter</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for model exporters.&quot;&quot;&quot;</span>
 
@@ -235,14 +214,51 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="SavedModelExporter"><a class="viewcode-back" href="../../../package/opennmt.utils.SavedModelExporter.html#opennmt.utils.SavedModelExporter">[docs]</a><span class="k">class</span> <span class="nc">SavedModelExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<span class="n">_EXPORTERS_REGISTRY</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">ClassRegistry</span><span class="p">(</span><span class="n">base_class</span><span class="o">=</span><span class="n">Exporter</span><span class="p">)</span>
+<span class="n">register_exporter</span> <span class="o">=</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">register</span>  <span class="c1"># pylint: disable=invalid-name</span>
+
+<span class="k">def</span> <span class="nf">make_exporter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates a new exporter.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    name: The exporter name.</span>
+<span class="sd">    **kwargs: Additional arguments to pass to the exporter constructor.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A :class:`opennmt.utils.Exporter` instance.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`name` is invalid.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">exporter_class</span> <span class="o">=</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">exporter_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid exporter name: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">exporter_class</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">list_exporters</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Lists the name of registered exporters.&quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">class_names</span>
+
+
+<div class="viewcode-block" id="SavedModelExporter"><a class="viewcode-back" href="../../../package/opennmt.utils.SavedModelExporter.html#opennmt.utils.SavedModelExporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;saved_model&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SavedModelExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;SavedModel exporter.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">signatures</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">serve_function</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="CTranslate2Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter">[docs]</a><span class="k">class</span> <span class="nc">CTranslate2Exporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CheckpointExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Checkpoint exporter.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">checkpoint</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;ckpt&quot;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="CTranslate2Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CTranslate2Exporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;CTranslate2 exporter.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CTranslate2Exporter.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

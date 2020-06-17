@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -258,7 +258,7 @@
     <span class="n">latest_checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint_manager</span><span class="o">.</span><span class="n">latest_checkpoint</span>
     <span class="k">if</span> <span class="n">latest_checkpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">_get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">latest_checkpoint</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">latest_checkpoint</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Saves a checkpoint.</span>
@@ -320,7 +320,7 @@
     <span class="k">return</span> <span class="n">checkpoint_path</span>
 
 
-<span class="k">def</span> <span class="nf">_get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Extracts the training step from the checkpoint file prefix.&quot;&quot;&quot;</span>
   <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
@@ -369,48 +369,70 @@
 <span class="sd">    ValueError: if a model is not found in :obj:`trackables` or is not already</span>
 <span class="sd">      built.</span>
 <span class="sd">    ValueError: if no checkpoints are found in :obj:`model_dir`.</span>
+
+<span class="sd">  See Also:</span>
+<span class="sd">    :func:`opennmt.utils.average_checkpoints_into_layer`</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">model_dir</span> <span class="o">==</span> <span class="n">output_dir</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model and output directory must be different&quot;</span><span class="p">)</span>
   <span class="n">model</span> <span class="o">=</span> <span class="n">trackables</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not found in trackables </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="n">trackables</span><span class="p">))</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model should be built before calling this function&quot;</span><span class="p">)</span>
 
-  <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="o">**</span><span class="n">trackables</span><span class="p">)</span>
-  <span class="n">checkpoint_manager</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">CheckpointManager</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">max_to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-  <span class="n">checkpoints_path</span> <span class="o">=</span> <span class="n">checkpoint_manager</span><span class="o">.</span><span class="n">checkpoints</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">checkpoints_path</span><span class="p">:</span>
+  <span class="n">checkpoint_state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_checkpoint_state</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">checkpoint_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No checkpoints found in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_dir</span><span class="p">)</span>
+  <span class="n">checkpoints_path</span> <span class="o">=</span> <span class="n">checkpoint_state</span><span class="o">.</span><span class="n">all_model_checkpoint_paths</span>
   <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_count</span><span class="p">:</span>
     <span class="n">checkpoints_path</span> <span class="o">=</span> <span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="n">max_count</span><span class="p">:]</span>
-  <span class="n">num_checkpoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">)</span>
-  <span class="n">last_step</span> <span class="o">=</span> <span class="n">_get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-  <span class="c1"># Get a map from variable names in the checkpoint to variables in the model.</span>
-  <span class="n">_</span><span class="p">,</span> <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>
+  <span class="n">average_checkpoints_into_layer</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">model_key</span><span class="p">)</span>
 
-  <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Averaging </span><span class="si">%d</span><span class="s2"> checkpoints...&quot;</span><span class="p">,</span> <span class="n">num_checkpoints</span><span class="p">)</span>
-  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">checkpoint_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">)):</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading checkpoint </span><span class="si">%s</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span><span class="o">.</span><span class="n">assert_existing_objects_matched</span><span class="p">()</span>
-      <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-        <span class="n">variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">variable</span> <span class="o">/</span> <span class="n">num_checkpoints</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">reader</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
-      <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_variable_to_shape_map</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">model_key</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.OPTIMIZER_SLOT&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
-          <span class="k">continue</span>
-        <span class="n">variable</span> <span class="o">=</span> <span class="n">names_to_variables</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">variable</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">num_checkpoints</span><span class="p">)</span>
-
+  <span class="n">last_step</span> <span class="o">=</span> <span class="n">get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">checkpoints_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+  <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="o">**</span><span class="n">trackables</span><span class="p">)</span>
   <span class="n">new_checkpoint_manager</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">CheckpointManager</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">max_to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
   <span class="n">new_checkpoint_manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">checkpoint_number</span><span class="o">=</span><span class="n">last_step</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">output_dir</span></div>
+
+<div class="viewcode-block" id="average_checkpoints_into_layer"><a class="viewcode-back" href="../../../package/opennmt.utils.average_checkpoints_into_layer.html#opennmt.utils.average_checkpoints_into_layer">[docs]</a><span class="k">def</span> <span class="nf">average_checkpoints_into_layer</span><span class="p">(</span><span class="n">checkpoints</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">layer_prefix</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Updates the layer weights with their average value in the checkpoints.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    checkpoints: A non empty list of checkpoint paths.</span>
+<span class="sd">    layer: A ``tf.keras.layers.Layer`` instance.</span>
+<span class="sd">    layer_prefix: The name/scope that prefixes the layer variables names in the</span>
+<span class="sd">      checkpoints.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError: if :obj:`checkpoints` is empty.</span>
+<span class="sd">    ValueError: if :obj:`layer` is not already built.</span>
+
+<span class="sd">  See Also:</span>
+<span class="sd">    :func:`opennmt.utils.average_checkpoints`</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">checkpoints</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There should be at least one checkpoint&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">layer</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The layer should be built before calling this function&quot;</span><span class="p">)</span>
+
+  <span class="c1"># Reset the layer variables to 0.</span>
+  <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+    <span class="n">variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">variable</span><span class="p">))</span>
+
+  <span class="c1"># Get a map from variable names in the checkpoint to variables in the layer.</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">layer_prefix</span><span class="p">)</span>
+
+  <span class="n">num_checkpoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoints</span><span class="p">)</span>
+  <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Averaging </span><span class="si">%d</span><span class="s2"> checkpoints...&quot;</span><span class="p">,</span> <span class="n">num_checkpoints</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">checkpoint_path</span> <span class="ow">in</span> <span class="n">checkpoints</span><span class="p">:</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading checkpoint </span><span class="si">%s</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">)</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_variable_to_shape_map</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">layer_prefix</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.OPTIMIZER_SLOT&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+        <span class="k">continue</span>
+      <span class="n">variable</span> <span class="o">=</span> <span class="n">names_to_variables</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+      <span class="n">value</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+      <span class="n">variable</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">num_checkpoints</span><span class="p">)</span></div>
 
 
 <span class="n">_V1_OPTIM_SCOPE</span> <span class="o">=</span> <span class="s2">&quot;optim&quot;</span>

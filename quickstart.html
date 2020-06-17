@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; OpenNMT-tf 2.10.1 documentation</title>
+  <title>Quickstart &mdash; OpenNMT-tf 2.11.0 documentation</title>
   
 
   
@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="Content" href="index.html" /> 
+    <link rel="prev" title="Index" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.10
+                2.11
               </div>
             
           
@@ -189,20 +189,17 @@
             
   <div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<p>This page presents a minimal workflow to get you started in using OpenNMT-tf.</p>
+<p>This page presents a minimal workflow to get you started in using OpenNMT-tf. The goal is <strong>not</strong> to produce a ready-to-use translation model but to familiarize yourself with the main OpenNMT-tf concepts.</p>
 <div class="section" id="step-0-install-opennmt-tf">
 <h2>Step 0: Install OpenNMT-tf<a class="headerlink" href="#step-0-install-opennmt-tf" title="Permalink to this headline">¶</a></h2>
-<p>We recommend using <a class="reference external" href="https://virtualenv.pypa.io/en/stable/">virtualenv</a> to setup and configure the environment for this quickstart:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>virtualenv -p /usr/bin/python3 pyenv
-<span class="nb">source</span> pyenv/bin/activate
-pip install --upgrade pip
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade pip
 pip install OpenNMT-tf
 </pre></div>
 </div>
 </div>
 <div class="section" id="step-1-prepare-the-data">
 <h2>Step 1: Prepare the data<a class="headerlink" href="#step-1-prepare-the-data" title="Permalink to this headline">¶</a></h2>
-<p>To get started, we propose to download a toy English-German dataset for machine translation containing 10k tokenized sentences:</p>
+<p>To get started, we propose to download a toy English-German dataset for machine translation containing 10k <strong>tokenized</strong> sentences:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://s3.amazonaws.com/opennmt-trainingdata/toy-ende.tar.gz
 tar xf toy-ende.tar.gz
 <span class="nb">cd</span> toy-ende
@@ -250,8 +247,8 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 <p>While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset is too small for this task.</p>
 <p>To go further, here are some pointers:</p>
 <ul class="simple">
-<li><p>Download larger training sets, for example from a <a class="reference external" href="http://www.statmt.org/wmt16/translation-task.html">WMT task</a></p></li>
-<li><p>Run existing <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts">training recipes</a></p></li>
+<li><p>Download larger training sets, for example from a <a class="reference external" href="http://statmt.org/wmt20/translation-task.html">WMT machine translation task</a></p></li>
+<li><p>Tokenize your data with <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">BPE or SentencePiece</a></p></li>
 <li><p>Discover the <a class="reference internal" href="configuration.html"><span class="doc">configuration reference</span></a> to tune hyperparameters</p></li>
 <li><p>Explore the other sections to learn about advanced topics</p></li>
 </ul>
@@ -269,7 +266,7 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
         <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Content" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Index" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -5,4 +5,4 @@ opennmt.layers.CopyBridge
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.layers.Bridge`
+    **Inherits from:** :class:`opennmt.layers.Bridge`

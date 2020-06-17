@@ -5,4 +5,4 @@ opennmt.layers.LayerNorm
     :members:
     :undoc-members:
 
-    Inherits from: :class:`tensorflow.python.keras.layers.normalization.LayerNormalization`
+    **Inherits from:** :class:`tensorflow.python.keras.layers.normalization.LayerNormalization`

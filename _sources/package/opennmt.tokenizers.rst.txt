@@ -3,6 +3,7 @@ opennmt.tokenizers module
 
 .. automodule:: opennmt.tokenizers
 
+
 Classes
 -------
 
@@ -12,6 +13,7 @@ Classes
    opennmt.tokenizers.OpenNMTTokenizer
    opennmt.tokenizers.SpaceTokenizer
    opennmt.tokenizers.Tokenizer
+
 Functions
 ---------
 

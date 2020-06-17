@@ -3,6 +3,7 @@ opennmt.utils module
 
 .. automodule:: opennmt.utils
 
+
 Classes
 -------
 
@@ -24,12 +25,14 @@ Classes
    opennmt.utils.Scorer
    opennmt.utils.TERScorer
    opennmt.utils.WERScorer
+
 Functions
 ---------
 
 .. toctree::
 
    opennmt.utils.average_checkpoints
+   opennmt.utils.average_checkpoints_into_layer
    opennmt.utils.cross_entropy_loss
    opennmt.utils.cross_entropy_sequence_loss
    opennmt.utils.dynamic_decode
@@ -37,6 +40,7 @@ Functions
    opennmt.utils.guided_alignment_cost
    opennmt.utils.is_v1_checkpoint
    opennmt.utils.max_margin_loss
+   opennmt.utils.register_exporter
    opennmt.utils.register_scorer
    opennmt.utils.regularization_penalty
    opennmt.utils.roll_sequence

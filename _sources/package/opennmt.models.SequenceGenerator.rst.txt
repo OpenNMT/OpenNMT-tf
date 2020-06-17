@@ -5,4 +5,9 @@ opennmt.models.SequenceGenerator
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.models.Model`
+    **Inherits from:** :class:`opennmt.models.Model`
+
+    **Extended by:**
+
+    - :class:`opennmt.models.LanguageModel`
+    - :class:`opennmt.models.SequenceToSequence`

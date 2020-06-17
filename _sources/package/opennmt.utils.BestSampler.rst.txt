@@ -5,4 +5,4 @@ opennmt.utils.BestSampler
     :members:
     :undoc-members:
 
-    Inherits from: :class:`opennmt.utils.Sampler`
+    **Inherits from:** :class:`opennmt.utils.Sampler`
