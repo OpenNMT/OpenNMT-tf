@@ -40,7 +40,7 @@ class Evaluator(object):
     """Initializes the evaluator.
 
     Args:
-      model: A :class:`opennmt.models.model.Model` to evaluate.
+      model: A :class:`opennmt.models.Model` to evaluate.
       features_file: Path to the evaluation features.
       labels_file: Path to the evaluation labels.
       batch_size: The evaluation batch size.
@@ -138,7 +138,7 @@ class Evaluator(object):
     """Creates an evaluator from the configuration.
 
     Args:
-      model: A :class:`opennmt.models.model.Model` to evaluate.
+      model: A :class:`opennmt.models.Model` to evaluate.
       config: The global user configuration.
       features_file: Optional input features file to evaluate. If not set, will
         load ``eval_features_file`` from the data configuration.
@@ -149,10 +149,14 @@ class Evaluator(object):
       A :class:`opennmt.evaluation.Evaluator` instance.
 
     Raises:
-      ValueError: if one of :obj:`features_file` and :obj:`labels_file` is set
-        but not the other.
+      ValueError: for supervised models, if one of :obj:`features_file` and
+        :obj:`labels_file` is set but not the other.
+      ValueError: for unsupervised models, if :obj:`labels_file` is set.
     """
-    if (features_file is None) != (labels_file is None):
+    if model.unsupervised:
+      if labels_file is not None:
+        raise ValueError("labels_file can not be set when evaluating unsupervised models")
+    elif (features_file is None) != (labels_file is None):
       raise ValueError("features_file and labels_file should be both set for evaluation")
     eval_config = config["eval"]
     scorers = eval_config.get("external_evaluators")
