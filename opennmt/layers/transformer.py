@@ -272,8 +272,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
           keys_length,
           self.maximum_relative_position,
           with_cache=bool(cache))
-      relative_repr_keys = tf.gather(self.relative_position_keys, relative_pos)
-      relative_repr_values = tf.gather(self.relative_position_values, relative_pos)
+      relative_repr_keys = tf.nn.embedding_lookup(self.relative_position_keys, relative_pos)
+      relative_repr_values = tf.nn.embedding_lookup(self.relative_position_values, relative_pos)
     else:
       relative_repr_keys = None
       relative_repr_values = None
