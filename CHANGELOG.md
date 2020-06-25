@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.11.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.11.1) (2020-06-25)
+
+### Fixes and improvements
+
+* Fix undefined gradient shape error in relative MultiHeadAttention
+* Do not require `--labels_file` argument when evaluating language models
+
 ## [2.11.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.11.0) (2020-06-17)
 
 ### New features
