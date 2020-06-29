@@ -119,7 +119,15 @@ class Tokenizer(abc.ABC):
       return self._detokenize(tokens, sequence_length)
 
   def _detokenize(self, tokens, sequence_length):
-    if tf.is_tensor(tokens):
+    if isinstance(tokens, tf.RaggedTensor):
+      rank = len(tokens.shape)
+      if rank == 1:
+        return self._detokenize_tensor(tokens.values)
+      elif rank == 2:
+        return self._detokenize_ragged_tensor(tokens)
+      else:
+        raise ValueError("Unsupported RaggedTensor rank %d for detokenization" % rank)
+    elif tf.is_tensor(tokens):
       rank = len(tokens.shape)
       if rank == 1:
         return self._detokenize_tensor(tokens)
@@ -129,14 +137,6 @@ class Tokenizer(abc.ABC):
         return self._detokenize_batch_tensor(tokens, sequence_length)
       else:
         raise ValueError("Unsupported tensor rank %d for detokenization" % rank)
-    elif isinstance(tokens, tf.RaggedTensor):
-      rank = len(tokens.shape)
-      if rank == 1:
-        return self._detokenize_tensor(tokens.values)
-      elif rank == 2:
-        return self._detokenize_ragged_tensor(tokens)
-      else:
-        raise ValueError("Unsupported RaggedTensor rank %d for detokenization" % rank)
     elif isinstance(tokens, list) and tokens and isinstance(tokens[0], list):
       return list(map(self.detokenize, tokens))
     else:
