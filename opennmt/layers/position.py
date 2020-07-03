@@ -99,7 +99,7 @@ class SinusoidalPositionEncoder(PositionEncoder):
 
     log_timescale_increment = math.log(10000) / (depth / 2 - 1)
     inv_timescales = tf.exp(tf.range(depth / 2, dtype=tf.float32) * -log_timescale_increment)
-    inv_timescales = tf.reshape(tf.tile(inv_timescales, [batch_size]), [batch_size, -1])
+    inv_timescales = tf.reshape(tf.tile(inv_timescales, [batch_size]), [batch_size, depth // 2])
     scaled_time = tf.expand_dims(positions, -1) * tf.expand_dims(inv_timescales, 1)
     encoding = tf.concat([tf.sin(scaled_time), tf.cos(scaled_time)], axis=2)
     return tf.cast(encoding, self.dtype)
