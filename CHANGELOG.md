@@ -5,7 +5,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 * command line options
 * configuration files
 * checkpoints of non experimental models
-* classes and functions documented on the online documentation and directly accessible from the top-level `opennmt` package
+* classes and functions documented on the [online documentation](https://opennmt.net/OpenNMT-tf/package/opennmt.html) and directly accessible from the top-level `opennmt` package
 
 ---
 
