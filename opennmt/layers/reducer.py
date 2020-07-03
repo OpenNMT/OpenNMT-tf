@@ -129,6 +129,10 @@ class SumReducer(Reducer):
   """A reducer that sums the inputs."""
 
   def reduce(self, inputs):
+    if len(inputs) == 1:
+      return inputs[0]
+    if len(inputs) == 2:
+      return inputs[0] + inputs[1]
     return tf.add_n(inputs)
 
   def reduce_sequence(self, inputs, sequence_lengths):
