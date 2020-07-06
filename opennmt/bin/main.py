@@ -45,13 +45,15 @@ def _prefix_paths(prefix, paths):
     for i, path in enumerate(paths):
       paths[i] = _prefix_paths(prefix, path)
     return paths
-  else:
+  elif isinstance(paths, str):
     path = paths
     new_path = os.path.join(prefix, path)
     if tf.io.gfile.exists(new_path):
       return new_path
     else:
       return path
+  else:
+    return paths
 
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
