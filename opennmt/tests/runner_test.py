@@ -5,7 +5,7 @@ import os
 import unittest
 import shutil
 
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
 
 import tensorflow as tf
 
@@ -22,9 +22,25 @@ test_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.join(test_dir, "..", "..")
 test_data = os.path.join(root_dir, "testdata")
 
+def _get_test_class_name(cls, num, params_dict):
+  eager = params_dict.get("run_functions_eagerly")
+  name = cls.__name__
+  if eager:
+    name = "%s_eager" % name
+  return name
 
 @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
+@parameterized_class(
+    ["run_functions_eagerly"], [[True]],  # There is always one non parameterized instance.
+    class_name_func=_get_test_class_name)
 class RunnerTest(tf.test.TestCase):
+
+  def setUp(self):
+    if hasattr(self, "run_functions_eagerly"):
+      tf.config.experimental_run_functions_eagerly(self.run_functions_eagerly)
+
+  def tearDown(self):
+    tf.config.experimental_run_functions_eagerly(False)
 
   def _getTransliterationRunner(self,
                                 base_config=None,
