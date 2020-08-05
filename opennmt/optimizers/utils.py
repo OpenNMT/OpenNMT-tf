@@ -112,7 +112,7 @@ class GradientAccumulator(object):
           len(self._gradients), len(gradients)))
 
     for accum_gradient, gradient in zip(self._gradients, gradients):
-      accum_gradient.assign_add(gradient)
+      accum_gradient.assign_add(gradient, read_value=False)
     self._accum_steps.assign_add(1)
 
   def reset(self):
@@ -121,4 +121,4 @@ class GradientAccumulator(object):
       return
     self._accum_steps.assign(0)
     for gradient in self._gradients:
-      gradient.assign(tf.zeros(gradient.shape, dtype=gradient.dtype))
+      gradient.assign(tf.zeros(gradient.shape, dtype=gradient.dtype), read_value=False)
