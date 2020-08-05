@@ -89,6 +89,8 @@ def main():
                             "an appropriate number)."))
   parser.add_argument("--mixed_precision", default=False, action="store_true",
                       help="Enable mixed precision.")
+  parser.add_argument("--eager_execution", default=False, action="store_true",
+                      help="Enable TensorFlow eager execution.")
 
   subparsers = parser.add_subparsers(help="Run type.", dest="run_type")
   subparsers.required = True
@@ -176,6 +178,9 @@ def main():
   _set_log_level(getattr(logging, args.log_level))
   tf.config.threading.set_intra_op_parallelism_threads(args.intra_op_parallelism_threads)
   tf.config.threading.set_inter_op_parallelism_threads(args.inter_op_parallelism_threads)
+
+  if args.eager_execution:
+    tf.config.experimental_run_functions_eagerly(True)
 
   gpus = tf.config.list_physical_devices(device_type="GPU")
   if hasattr(args, "horovod") and args.horovod:

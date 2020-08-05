@@ -280,8 +280,13 @@ class Trainer:
   def _compute_gradients(self, source, target, record_summaries=False):
     """Computes the gradient of a training example."""
     with tf.summary.record_if(record_summaries):
-      training_loss, reported_loss = self._run_model(source, target)
-      gradients = self._optimizer.get_gradients(training_loss, self._model.trainable_variables)
+      if tf.executing_eagerly():
+        with tf.GradientTape() as tape:
+          training_loss, reported_loss = self._run_model(source, target)
+        gradients = tape.gradient(training_loss, self._model.trainable_variables)
+      else:
+        training_loss, reported_loss = self._run_model(source, target)
+        gradients = self._optimizer.get_gradients(training_loss, self._model.trainable_variables)
       _summarize_gradients(gradients, record_summaries)
     return reported_loss, gradients
 
