@@ -15,6 +15,9 @@ class OpenNMTTokenizer(tokenizer.Tokenizer):
   """Uses the OpenNMT tokenizer."""
 
   def __init__(self, **kwargs):
+    case_feature = kwargs.get("case_feature")
+    if case_feature:
+      raise ValueError("case_feature is not supported with OpenNMT-tf")
     kwargs.setdefault("mode", "conservative")
     self._config = kwargs
     self._tokenizer = pyonmttok.Tokenizer(**kwargs)

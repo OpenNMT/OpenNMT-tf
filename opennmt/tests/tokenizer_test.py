@@ -123,8 +123,13 @@ class TokenizerTest(tf.test.TestCase):
     self.assertAllEqual(self.evaluate(tokens), [b"Hello", b"world", b"!"])
 
   def testOpenNMTTokenizerArguments(self):
+    with self.assertRaises(ValueError):
+      tokenizers.OpenNMTTokenizer(case_feature=True)
     tokenizer = tokenizers.OpenNMTTokenizer(
-        mode="aggressive", spacer_annotate=True, spacer_new=True)
+        mode="aggressive",
+        spacer_annotate=True,
+        spacer_new=True,
+        case_feature=False)
     self._testTokenizer(tokenizer, ["Hello World-s"], [["Hello", "▁", "World", "-", "s"]])
 
   def testOpenNMTTokenizerAssets(self):
