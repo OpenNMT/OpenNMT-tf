@@ -18,6 +18,7 @@ matrix:
         - nose2 -v
         - pylint opennmt/
       after_success:
+        - bash <(curl -s https://codecov.io/bash)
         - |
               if [[ -n $TRAVIS_TAG ]]; then
                   python setup.py sdist bdist_wheel --universal
