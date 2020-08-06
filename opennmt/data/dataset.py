@@ -667,39 +667,3 @@ def inference_pipeline(batch_size,
     return dataset
 
   return _pipeline
-
-def function_on_next(dataset, as_numpy=False):
-  """Decorator to run a ``tf.function`` on each dataset element.
-
-  The motivation for this construct is to get the next element within the
-  ``tf.function`` for increased efficiency.
-
-  Args:
-    dataset: The dataset to iterate.
-    as_numpy: If ``True``, call `.numpy()` on each output tensors.
-
-  Returns:
-    A function decorator. The decorated function is transformed into a callable
-    that returns a generator over its outputs.
-  """
-
-  def decorator(func):
-    def _fun():
-      iterator = iter(dataset)
-
-      @tf.function
-      def _tf_fun():
-        return func(lambda: next(iterator))
-
-      while True:
-        try:
-          outputs = _tf_fun()
-          if as_numpy:
-            outputs = tf.nest.map_structure(lambda x: x.numpy(), outputs)
-          yield outputs
-        except tf.errors.OutOfRangeError:
-          break
-
-    return _fun
-
-  return decorator

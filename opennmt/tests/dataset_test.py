@@ -208,22 +208,6 @@ class DatasetTest(tf.test.TestCase):
     _check_element(elements[2], [5, 3], [2, 6])
     _check_element(elements[3], [9], [7])
 
-  def testFunctionOnNext(self):
-    dataset = tf.data.Dataset.range(5)
-
-    @dataset_util.function_on_next(dataset)
-    def _identity(next_fn):
-      return tf.identity(next_fn())
-
-    def _check_one_pass():
-      values = list(_identity())
-      self.assertEqual(len(values), 5)
-      for i, value in enumerate(values):
-        self.assertEqual(value, i)
-
-    _check_one_pass()
-    _check_one_pass()  # The function could be called again.
-
 
 if __name__ == "__main__":
   tf.test.main()
