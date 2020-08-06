@@ -168,6 +168,8 @@ class InputterTest(tf.test.TestCase):
     if shapes is not None:
       self._checkFeatures(features, shapes)
       self._checkFeatures(eager_features, shapes)
+    keep = inputter.keep_for_training(features)
+    self.assertIs(keep.dtype, tf.bool)
     inputs = inputter(features, training=True)
     if not isinstance(inputter, inputters.ExampleInputter):
       self._testServing(inputter)
