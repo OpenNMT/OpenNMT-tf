@@ -160,11 +160,14 @@ class InputterTest(tf.test.TestCase):
     if data_config is not None:
       inputter.initialize(data_config)
     dataset = inputter.make_dataset(data_file)
+    eager_features = inputter.make_features(iter(dataset).next(), training=True)
+    eager_features = tf.nest.map_structure(lambda t: tf.expand_dims(t, 0), eager_features)
     dataset = dataset.map(lambda *arg: inputter.make_features(item_or_tuple(arg), training=True))
     dataset = dataset.apply(dataset_util.batch_dataset(1))
     features = iter(dataset).next()
     if shapes is not None:
       self._checkFeatures(features, shapes)
+      self._checkFeatures(eager_features, shapes)
     inputs = inputter(features, training=True)
     if not isinstance(inputter, inputters.ExampleInputter):
       self._testServing(inputter)
