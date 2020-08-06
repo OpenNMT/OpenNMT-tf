@@ -11,3 +11,5 @@ omit =
     */bin*
     */tests*
     */__init__.py
+exclude_lines =
+    raise NotImplementedError
