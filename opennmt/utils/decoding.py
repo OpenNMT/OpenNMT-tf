@@ -6,12 +6,13 @@ import collections
 import tensorflow as tf
 import tensorflow_addons as tfa
 
+from opennmt import constants
+from opennmt.utils import misc
+
+
 # We prefer using pure TensorFlow ops instead of Addons custom ops, which are not readily
 # available in TensorFlow builds (e.g. TensorFlow Serving).
 tfa.options.TF_ADDONS_PY_OPS = True
-
-from opennmt import constants
-from opennmt.utils import misc
 
 
 class Sampler(abc.ABC):

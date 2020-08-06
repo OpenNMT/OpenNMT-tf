@@ -73,7 +73,7 @@ def get_primary_variable(variable):
   """If :obj:`variable` is distributed, returns the primary component."""
   # TODO: use a public API to get the primary variable.
   if isinstance(variable, tf.distribute.DistributedValues):
-    return variable._primary
+    return variable._primary  # pylint: disable=protected-access
   return variable
 
 def print_as_bytes(text, stream=None):
