@@ -29,6 +29,18 @@ class ScorersTest(tf.test.TestCase):
     self.assertIn("rouge-2", score)
     self.assertAlmostEqual(1.0, score["rouge-1"])
 
+  def testWERScorer(self):
+    refs = ["Hello world !", "How is it going ?"]
+    scorer = scorers.WERScorer()
+    score = self._run_scorer(scorer, refs, refs)
+    self.assertEqual(score, 0)
+
+  def testTERScorer(self):
+    refs = ["Hello world !", "How is it going ?"]
+    scorer = scorers.TERScorer()
+    score = self._run_scorer(scorer, refs, refs)
+    self.assertEqual(score, 0)
+
   def testPRFScorer(self):
     scorer = scorers.PRFScorer()
     score = self._run_scorer(scorer, refs=["TAG O TAG O O TAG TAG"], hyps=["TAG O O O TAG TAG O"])
