@@ -37,7 +37,7 @@ class TrainingTest(tf.test.TestCase):
 
   @test_util.run_with_two_cpu_devices
   def testMovingAverageDistributionStrategy(self):
-    devices = tf.config.experimental.list_logical_devices(device_type="CPU")
+    devices = tf.config.list_logical_devices(device_type="CPU")
     strategy = tf.distribute.MirroredStrategy(devices=devices)
 
     with strategy.scope():

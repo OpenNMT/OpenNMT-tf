@@ -292,9 +292,13 @@ class ModelTest(tf.test.TestCase):
     # Test that serving features can be forwarded into the model.
     _, _, data_config = self._makeToyEnDeData()
     model, params = _seq2seq_model()
+    params["beam_width"] = 4
     model.initialize(data_config, params=params)
     function = model.serve_function()
-    function.get_concrete_function()
+    concrete_function = function.get_concrete_function()
+    # Check that we don't use the GatherTree custom op from Addons.
+    op_types = set(op.type for op in concrete_function.graph.get_operations())
+    self.assertNotIn("Addons>GatherTree", op_types)
 
   @parameterized.expand([
       [tf.estimator.ModeKeys.TRAIN],

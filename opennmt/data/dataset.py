@@ -98,7 +98,7 @@ def get_dataset_size(dataset, batch_size=5000):
   Returns:
     The dataset size or ``None`` if the dataset is infinite.
   """
-  if tf.data.experimental.cardinality(dataset) == tf.data.experimental.INFINITE_CARDINALITY:
+  if dataset.cardinality() == tf.data.INFINITE_CARDINALITY:
     return None
   if batch_size is not None:
     dataset = dataset.batch(batch_size)
@@ -225,7 +225,7 @@ def make_cardinality_multiple_of(divisor):
 
   def _transform(dataset):
     # Nothing to do for infinite datasets.
-    if tf.data.experimental.cardinality(dataset) == tf.data.experimental.INFINITE_CARDINALITY:
+    if dataset.cardinality() == tf.data.INFINITE_CARDINALITY:
       return dataset
 
     # Concatenate extra batches with a flag.

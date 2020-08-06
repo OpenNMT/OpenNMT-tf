@@ -37,10 +37,10 @@ class RunnerTest(tf.test.TestCase):
 
   def setUp(self):
     if hasattr(self, "run_functions_eagerly"):
-      tf.config.experimental_run_functions_eagerly(self.run_functions_eagerly)
+      tf.config.run_functions_eagerly(self.run_functions_eagerly)
 
   def tearDown(self):
-    tf.config.experimental_run_functions_eagerly(False)
+    tf.config.run_functions_eagerly(False)
 
   def _getTransliterationRunner(self,
                                 base_config=None,

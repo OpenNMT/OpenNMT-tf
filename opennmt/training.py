@@ -39,7 +39,7 @@ class Trainer:
     mixed_precision_enabled = graph_optimizer_options.get("auto_mixed_precision")
     if (mixed_precision_enabled
         and not isinstance(optimizer, tf.keras.mixed_precision.experimental.LossScaleOptimizer)):
-      optimizer = _LossScaleOptimizer(optimizer, "dynamic")
+      optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(optimizer, "dynamic")
     self._optimizer = optimizer
 
   @property
@@ -540,27 +540,3 @@ class MovingAverage(object):
     yield
     for previous_value, variable in zip(previous_values, self._variables):
       variable.assign(previous_value)
-
-
-class _LossScaleOptimizer(tf.keras.mixed_precision.experimental.LossScaleOptimizer):
-  # TODO: Remove this wrapper when this fix is released:
-  # https://github.com/tensorflow/tensorflow/commit/d1dd08dd2807ac80a4508686618419826463374b
-
-  def get_unscaled_gradients(self, grads):
-    loss_scale_reciprocal = 1. / self._loss_scale()
-    return [
-        _multiply_gradient(g, loss_scale_reciprocal) if g is not None else None
-        for g in grads
-    ]
-
-
-def _multiply_gradient(gradient, scale):
-  """Multiply a (possibly sparse) gradient by the given scale factor."""
-  scale = tf.cast(scale, gradient.dtype)
-  if isinstance(gradient, tf.IndexedSlices):
-    return tf.IndexedSlices(
-        gradient.values * scale,
-        gradient.indices,
-        dense_shape=gradient.dense_shape)
-  else:
-    return gradient * scale

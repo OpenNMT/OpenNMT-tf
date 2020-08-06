@@ -72,10 +72,8 @@ def get_variable_name(variable, root, model_key="model"):
 def get_primary_variable(variable):
   """If :obj:`variable` is distributed, returns the primary component."""
   # TODO: use a public API to get the primary variable.
-  for attribute_name in ("primary", "_primary"):
-    attribute = getattr(variable, attribute_name, None)
-    if attribute is not None:
-      return attribute
+  if isinstance(variable, tf.distribute.DistributedValues):
+    return variable._primary
   return variable
 
 def print_as_bytes(text, stream=None):

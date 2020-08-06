@@ -69,6 +69,4 @@ For example, take a look at the OpenNMT-tf integration in the project [nmt-wizar
 
 The Docker image [`opennmt/tensorflow-serving`](https://hub.docker.com/r/opennmt/tensorflow-serving) includes additional TensorFlow ops used by OpenNMT-tf. For example, beam search decoding uses the op [`Addons>GatherTree`](https://github.com/tensorflow/addons/blob/master/tensorflow_addons/custom_ops/seq2seq/cc/ops/beam_search_ops.cc) which is not available in standard TensorFlow Serving.
 
-This custom image is considered temporary. The concerned ops are expected to be included in an official or community-supported build of TensorFlow Serving in the future.
-
-See the `docker/` directory for more details.
+**Models exported with OpenNMT-tf 2.12 and above no longer use this custom op and do not require a custom TensorFlow Serving image.**
