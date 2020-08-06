@@ -239,7 +239,7 @@ class RunnerTest(tf.test.TestCase):
     runner = self._getTransliterationRunner(config, model_version)
     ar_file, _ = self._makeTransliterationData()
     en_file = os.path.join(self.get_temp_dir(), "output.txt")
-    runner.infer(ar_file, predictions_file=en_file)
+    runner.infer(ar_file, predictions_file=en_file, log_time=True)
     self.assertTrue(os.path.exists(en_file))
     with open(en_file) as f:
       lines = f.readlines()
