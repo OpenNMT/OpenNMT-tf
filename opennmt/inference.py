@@ -34,8 +34,9 @@ def predict_dataset(model,
     stream = sys.stdout
 
   infer_fn = tf.function(model.infer, input_signature=(dataset.element_spec,))
-  tf.get_logger().info("Tracing and optimizing the inference graph...")
-  infer_fn.get_concrete_function()  # Trace the function now.
+  if not tf.config.functions_run_eagerly():
+    tf.get_logger().info("Tracing and optimizing the inference graph...")
+    infer_fn.get_concrete_function()  # Trace the function now.
 
   # Inference might return out-of-order predictions. The OrderRestorer utility is
   # used to write predictions in their original order.

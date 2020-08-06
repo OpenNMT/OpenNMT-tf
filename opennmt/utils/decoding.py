@@ -333,6 +333,9 @@ class BeamSearch(DecodingStrategy):
     state = _reorder_state(state, beam_indices, reorder_flags=self._state_reorder_flags)
     return word_ids, cum_log_probs, finished, state, tuple(extra_vars)
 
+  # We prefer using the pure TensorFlow variant of gather_tree instead of the custom op,
+  # which is not readily available in TensorFlow builds (e.g. TensorFlow Serving).
+  @misc.disable_tfa_custom_ops
   def _finalize(self, outputs, end_id, extra_vars, attention=None):
     parent_ids = extra_vars[0]
     sequence_lengths = extra_vars[1]

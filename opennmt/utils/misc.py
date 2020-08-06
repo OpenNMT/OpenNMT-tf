@@ -10,6 +10,7 @@ import io
 
 import numpy as np
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 from tensorflow.python.training.tracking import graph_view
 
@@ -72,10 +73,8 @@ def get_variable_name(variable, root, model_key="model"):
 def get_primary_variable(variable):
   """If :obj:`variable` is distributed, returns the primary component."""
   # TODO: use a public API to get the primary variable.
-  for attribute_name in ("primary", "_primary"):
-    attribute = getattr(variable, attribute_name, None)
-    if attribute is not None:
-      return attribute
+  if isinstance(variable, tf.distribute.DistributedValues):
+    return variable._primary  # pylint: disable=protected-access
   return variable
 
 def print_as_bytes(text, stream=None):
@@ -333,6 +332,18 @@ def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
             tensor_proto.SerializeToString(), tf.as_dtype(tensor_proto.dtype))
         summaries[event.step][value.tag] = tf.get_static_value(tensor)
   return list(sorted(summaries.items(), key=lambda x: x[0]))
+
+def disable_tfa_custom_ops(func):
+  """A decorator that disables TensorFlow Addons custom ops in a function."""
+
+  def _wrapper(*args, **kwargs):
+    previous_value = tfa.options.TF_ADDONS_PY_OPS
+    tfa.options.TF_ADDONS_PY_OPS = True
+    outputs = func(*args, **kwargs)
+    tfa.options.TF_ADDONS_PY_OPS = previous_value
+    return outputs
+
+  return _wrapper
 
 class OrderRestorer(object):
   """Helper class to restore out-of-order elements in order."""

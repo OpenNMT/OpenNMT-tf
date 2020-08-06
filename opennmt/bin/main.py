@@ -180,7 +180,7 @@ def main():
   tf.config.threading.set_inter_op_parallelism_threads(args.inter_op_parallelism_threads)
 
   if args.eager_execution:
-    tf.config.experimental_run_functions_eagerly(True)
+    tf.config.run_functions_eagerly(True)
 
   gpus = tf.config.list_physical_devices(device_type="GPU")
   if hasattr(args, "horovod") and args.horovod:
@@ -189,7 +189,7 @@ def main():
     is_master = hvd.rank() == 0
     if gpus:
       local_gpu = gpus[hvd.local_rank()]
-      tf.config.experimental.set_visible_devices(local_gpu, device_type="GPU")
+      tf.config.set_visible_devices(local_gpu, device_type="GPU")
       gpus = [local_gpu]
   else:
     hvd = None
