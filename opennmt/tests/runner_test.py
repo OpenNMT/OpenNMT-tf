@@ -95,6 +95,7 @@ class RunnerTest(tf.test.TestCase):
             "batch_size": 10,
             "average_last_checkpoints": 4,
             "save_checkpoints_steps": 1,
+            "save_summary_steps": 1,
             "max_step": 145002  # Just train for 2 steps.
         }
     }
