@@ -30,11 +30,12 @@ Do you think a feature is missing or would be a great addition to the project? P
 In any cases, your new code **must**:
 
 * pass the existing tests
+* pass the [`pylint`](https://www.pylint.org/) code checker (we use the TensorFlow Python coding style with relaxed line length)
 
 and **should**:
 
-* pass the [`pylint`](https://www.pylint.org/) code checker (we use the TensorFlow Python coding style with relaxed line length)
 * add new tests
+* increase the [code coverage](https://codecov.io/gh/OpenNMT/OpenNMT-tf)
 * update the [documentation](docs/README.md)
 
 ## Testing
