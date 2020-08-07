@@ -108,11 +108,10 @@ class DecodingStrategy(abc.ABC):
       return GreedySearch()
 
   @abc.abstractmethod
-  def _initialize(self, batch_size, start_ids, attention_size=None):
+  def initialize(self, start_ids, attention_size=None):
     """Initializes the strategy.
 
     Args:
-      batch_size: The batch size.
       start_ids: The start decoding ids.
       attention_size: If known, the size of the attention vectors (i.e. the
         maximum source length).
@@ -123,20 +122,20 @@ class DecodingStrategy(abc.ABC):
       - The (possibly transformed) start decoding ids.
       - The tensor of finished flags.
       - Initial log probabilities per batch.
-      - A sequence of additional tensors used during the decoding.
+      - An dictionary of additional tensors used during the decoding.
     """
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _step(self,
-            step,
-            sampler,
-            log_probs,
-            cum_log_probs,
-            finished,
-            state,
-            extra_vars,
-            attention=None):
+  def step(self,
+           step,
+           sampler,
+           log_probs,
+           cum_log_probs,
+           finished,
+           state=None,
+           attention=None,
+           **kwargs):
     """Updates the strategy state.
 
     Args:
@@ -146,8 +145,8 @@ class DecodingStrategy(abc.ABC):
       cum_log_probs: The cumulated log probabilities per batch.
       finished: The current finished flags.
       state: The decoder state.
-      extra_vars: Additional tensors from this decoding strategy.
       attention: The attention vector for the current step.
+      **kwargs: Additional tensors used by this decoding strategy.
 
     Returns:
       A tuple containing,
@@ -155,20 +154,20 @@ class DecodingStrategy(abc.ABC):
       - The predicted word ids.
       - The new cumulated log probabilities.
       - The updated finished flags.
-      - The update decoder state.
-      - Additional tensors from this decoding strategy.
+      - The updated decoder state.
+      - A dictionary with additional tensors used by this decoding strategy.
     """
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _finalize(self, outputs, end_id, extra_vars, attention=None):
+  def finalize(self, outputs, end_id, attention=None, **kwargs):
     """Finalize the predictions.
 
     Args:
       outputs: The array of sampled ids.
       end_id: The end token id.
-      extra_vars: Additional tensors from this decoding strategy.
       attention: The array of attention outputs.
+      **kwargs: Additional tensors used by this decoding strategy.
 
     Returns:
       A tuple containing,
@@ -183,27 +182,28 @@ class DecodingStrategy(abc.ABC):
 class GreedySearch(DecodingStrategy):
   """A basic greedy search strategy."""
 
-  def _initialize(self, batch_size, start_ids, attention_size=None):
+  def initialize(self, start_ids, attention_size=None):
+    batch_size = tf.shape(start_ids)[0]
     finished = tf.zeros([batch_size], dtype=tf.bool)
     initial_log_probs = tf.zeros([batch_size], dtype=tf.float32)
-    return start_ids, finished, initial_log_probs, []
+    return start_ids, finished, initial_log_probs, {}
 
-  def _step(self,
-            step,
-            sampler,
-            log_probs,
-            cum_log_probs,
-            finished,
-            state,
-            extra_vars,
-            attention=None):
+  def step(self,
+           step,
+           sampler,
+           log_probs,
+           cum_log_probs,
+           finished,
+           state=None,
+           attention=None,
+           **kwargs):
     sample_ids, sample_log_probs = sampler(log_probs)
     sample_ids = tf.reshape(sample_ids, [-1])
     sample_log_probs = tf.reshape(sample_log_probs, [-1])
     cum_log_probs += sample_log_probs
-    return sample_ids, cum_log_probs, finished, state, extra_vars
+    return sample_ids, cum_log_probs, finished, state, kwargs
 
-  def _finalize(self, outputs, end_id, extra_vars, attention=None):
+  def finalize(self, outputs, end_id, attention=None, **kwargs):
     ids = tf.transpose(outputs.stack())
     ids = tf.expand_dims(ids, 1)
     lengths = _lengths_from_ids(ids, end_id)
@@ -239,20 +239,21 @@ class BeamSearch(DecodingStrategy):
     """
     self._state_reorder_flags = state_reorder_flags
 
-  def _initialize(self, batch_size, start_ids, attention_size=None):
+  def initialize(self, start_ids, attention_size=None):
+    batch_size = tf.shape(start_ids)[0]
     start_ids = tfa.seq2seq.tile_batch(start_ids, self.beam_size)
     finished = tf.zeros([batch_size * self.beam_size], dtype=tf.bool)
     # Give all probability to first beam for the first iteration.
     initial_log_probs = tf.tile([0.] + [-float("inf")] * (self.beam_size - 1), [batch_size])
-    parent_ids = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
-    sequence_lengths = tf.zeros([batch_size * self.beam_size], dtype=tf.int32)
-    extra_vars = [parent_ids, sequence_lengths]
+    extra_vars = {
+        "parent_ids": tf.TensorArray(tf.int32, size=0, dynamic_size=True),
+        "sequence_lengths": tf.zeros([batch_size * self.beam_size], dtype=tf.int32)
+    }
     if self.coverage_penalty != 0:
       if attention_size is None:
         raise ValueError("The attention size should be known to support coverage penalty")
-      accumulated_attention = tf.zeros([batch_size * self.beam_size, attention_size])
-      extra_vars.append(accumulated_attention)
-    return start_ids, finished, initial_log_probs, tuple(extra_vars)
+      extra_vars["accumulated_attention"] = tf.zeros([batch_size * self.beam_size, attention_size])
+    return start_ids, finished, initial_log_probs, extra_vars
 
   def _get_scores(self, log_probs, sequence_lengths, finished, accumulated_attention=None):
     scores = log_probs
@@ -273,17 +274,17 @@ class BeamSearch(DecodingStrategy):
       scores += self.coverage_penalty * tf.expand_dims(coverage_penalty, 1)
     return scores
 
-  def _step(self,
-            step,
-            sampler,
-            log_probs,
-            cum_log_probs,
-            finished,
-            state,
-            extra_vars,
-            attention=None):
-    parent_ids = extra_vars[0]
-    sequence_lengths = extra_vars[1]
+  def step(self,
+           step,
+           sampler,
+           log_probs,
+           cum_log_probs,
+           finished,
+           state=None,
+           attention=None,
+           **kwargs):
+    parent_ids = kwargs["parent_ids"]
+    sequence_lengths = kwargs["sequence_lengths"]
 
     if self.coverage_penalty != 0:
       if attention is None:
@@ -291,7 +292,7 @@ class BeamSearch(DecodingStrategy):
                          "return an attention vector")
       not_finished = tf.math.logical_not(finished)
       attention *= tf.expand_dims(tf.cast(not_finished, attention.dtype), 1)
-      accumulated_attention = extra_vars[2] + attention
+      accumulated_attention = kwargs["accumulated_attention"] + attention
     else:
       accumulated_attention = None
 
@@ -326,19 +327,22 @@ class BeamSearch(DecodingStrategy):
     finished = tf.gather(finished, beam_indices)
     sequence_lengths = tf.gather(sequence_lengths, beam_indices)
     parent_ids = parent_ids.write(step, beam_ids)
-    extra_vars = [parent_ids, sequence_lengths]
+    extra_vars = {
+        "parent_ids": parent_ids,
+        "sequence_lengths": sequence_lengths,
+    }
     if accumulated_attention is not None:
-      accumulated_attention = tf.gather(accumulated_attention, beam_indices)
-      extra_vars.append(accumulated_attention)
-    state = _reorder_state(state, beam_indices, reorder_flags=self._state_reorder_flags)
-    return word_ids, cum_log_probs, finished, state, tuple(extra_vars)
+      extra_vars["accumulated_attention"] = tf.gather(accumulated_attention, beam_indices)
+    if state is not None:
+      state = _reorder_state(state, beam_indices, reorder_flags=self._state_reorder_flags)
+    return word_ids, cum_log_probs, finished, state, extra_vars
 
   # We prefer using the pure TensorFlow variant of gather_tree instead of the custom op,
   # which is not readily available in TensorFlow builds (e.g. TensorFlow Serving).
   @misc.disable_tfa_custom_ops
-  def _finalize(self, outputs, end_id, extra_vars, attention=None):
-    parent_ids = extra_vars[0]
-    sequence_lengths = extra_vars[1]
+  def finalize(self, outputs, end_id, attention=None, **kwargs):
+    parent_ids = kwargs["parent_ids"]
+    sequence_lengths = kwargs["sequence_lengths"]
     maximum_lengths = tf.reduce_max(tf.reshape(sequence_lengths, [-1, self.beam_size]), axis=-1)
     max_time = outputs.size()
     array_shape = [max_time, -1, self.beam_size]
@@ -436,15 +440,15 @@ def dynamic_decode(symbols_to_logits_fn,
 
     # Run one decoding strategy step.
     output, next_cum_log_probs, finished, state, extra_vars = (
-        decoding_strategy._step(  # pylint: disable=protected-access
+        decoding_strategy.step(
             step,
             sampler,
             log_probs,
             cum_log_probs,
             finished,
-            state,
-            extra_vars,
-            attention=attn))
+            state=state,
+            attention=attn,
+            **extra_vars))
 
     # Update loop vars.
     if attention_history:
@@ -457,12 +461,10 @@ def dynamic_decode(symbols_to_logits_fn,
     return step + 1, finished, state, output, outputs, attention, cum_log_probs, extra_vars
 
   start_ids = tf.convert_to_tensor(start_ids)
-  batch_size = tf.shape(start_ids)[0]
   ids_dtype = start_ids.dtype
   start_ids = tf.cast(start_ids, tf.int32)
   start_ids, finished, initial_log_probs, extra_vars = (
-      decoding_strategy._initialize(  # pylint: disable=protected-access
-          batch_size, start_ids, attention_size=attention_size))
+      decoding_strategy.initialize(start_ids, attention_size=attention_size))
   step = tf.constant(0, dtype=tf.int32)
   outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
   attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
@@ -491,14 +493,14 @@ def dynamic_decode(symbols_to_logits_fn,
       parallel_iterations=1,
       maximum_iterations=maximum_iterations)
 
-  ids, attention, lengths = decoding_strategy._finalize(  # pylint: disable=protected-access
+  ids, attention, lengths = decoding_strategy.finalize(
       outputs,
       end_id,
-      extra_vars,
-      attention=attention if attention_history else None)
+      attention=attention if attention_history else None,
+      **extra_vars)
   if attention is not None:
     attention = attention[:, :, :-1]  # Ignore attention for </s>.
-  log_probs = tf.reshape(log_probs, [batch_size, decoding_strategy.num_hypotheses])
+  log_probs = tf.reshape(log_probs, [-1, decoding_strategy.num_hypotheses])
   ids = tf.cast(ids, ids_dtype)
   return DecodingResult(
       ids=ids,
