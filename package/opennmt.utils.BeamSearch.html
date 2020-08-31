@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.BeamSearch &mdash; OpenNMT-tf 2.11.1 documentation</title>
+  <title>opennmt.utils.BeamSearch &mdash; OpenNMT-tf 2.12.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.11
+                2.12
               </div>
             
           
@@ -233,6 +233,67 @@
 <em class="property">property </em><code class="sig-name descname">num_hypotheses</code><a class="headerlink" href="#opennmt.utils.BeamSearch.num_hypotheses" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of hypotheses returned by this strategy.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.BeamSearch.initialize">
+<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">start_ids</em>, <em class="sig-param">attention_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.BeamSearch.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_ids</strong> – The start decoding ids.</p></li>
+<li><p><strong>attention_size</strong> – If known, the size of the attention vectors (i.e. the
+maximum source length).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The (possibly transformed) start decoding ids.</p></li>
+<li><p>The tensor of finished flags.</p></li>
+<li><p>Initial log probabilities per batch.</p></li>
+<li><p>An dictionary of additional tensors used during the decoding.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.BeamSearch.step">
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">step</em>, <em class="sig-param">sampler</em>, <em class="sig-param">log_probs</em>, <em class="sig-param">cum_log_probs</em>, <em class="sig-param">finished</em>, <em class="sig-param">state=None</em>, <em class="sig-param">attention=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.BeamSearch.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the strategy state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> – The current decoding step.</p></li>
+<li><p><strong>sampler</strong> – The sampler that produces predictions.</p></li>
+<li><p><strong>log_probs</strong> – The model log probabilities.</p></li>
+<li><p><strong>cum_log_probs</strong> – The cumulated log probabilities per batch.</p></li>
+<li><p><strong>finished</strong> – The current finished flags.</p></li>
+<li><p><strong>state</strong> – The decoder state.</p></li>
+<li><p><strong>attention</strong> – The attention vector for the current step.</p></li>
+<li><p><strong>**kwargs</strong> – Additional tensors used by this decoding strategy.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The predicted word ids.</p></li>
+<li><p>The new cumulated log probabilities.</p></li>
+<li><p>The updated finished flags.</p></li>
+<li><p>The updated decoder state.</p></li>
+<li><p>A dictionary with additional tensors used by this decoding strategy.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.utils.BeamSearch.finalize">
+<code class="sig-name descname">finalize</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#opennmt.utils.BeamSearch.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

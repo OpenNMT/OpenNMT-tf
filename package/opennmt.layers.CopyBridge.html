@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.CopyBridge &mdash; OpenNMT-tf 2.11.1 documentation</title>
+  <title>opennmt.layers.CopyBridge &mdash; OpenNMT-tf 2.12.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.11
+                2.12
               </div>
             
           
@@ -217,11 +217,15 @@
 <dt id="opennmt.layers.CopyBridge.call">
 <code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">states</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#CopyBridge.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.CopyBridge.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is where the layer’s logic lives.</p>
+<p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
+from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
+layers as additional arguments. Whereas <cite>tf.keras</cite> has <cite>compute_mask()</cite>
+method to support masking.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inputs</strong> – Input tensor, or list/tuple of input tensors.</p></li>
-<li><p><strong>**kwargs</strong> – Additional keyword arguments.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments. Currently unused.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

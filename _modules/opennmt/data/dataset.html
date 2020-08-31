@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.11.1 documentation</title>
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.12.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.11
+                2.12
               </div>
             
           
@@ -279,7 +279,7 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    The dataset size or ``None`` if the dataset is infinite.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">cardinality</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">INFINITE_CARDINALITY</span><span class="p">:</span>
+  <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">cardinality</span><span class="p">()</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">INFINITE_CARDINALITY</span><span class="p">:</span>
     <span class="k">return</span> <span class="kc">None</span>
   <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
@@ -406,7 +406,7 @@
 
   <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
     <span class="c1"># Nothing to do for infinite datasets.</span>
-    <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">cardinality</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">INFINITE_CARDINALITY</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">cardinality</span><span class="p">()</span> <span class="o">==</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">INFINITE_CARDINALITY</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">dataset</span>
 
     <span class="c1"># Concatenate extra batches with a flag.</span>
@@ -848,42 +848,6 @@
     <span class="k">return</span> <span class="n">dataset</span>
 
   <span class="k">return</span> <span class="n">_pipeline</span></div>
-
-<span class="k">def</span> <span class="nf">function_on_next</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">as_numpy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Decorator to run a ``tf.function`` on each dataset element.</span>
-
-<span class="sd">  The motivation for this construct is to get the next element within the</span>
-<span class="sd">  ``tf.function`` for increased efficiency.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    dataset: The dataset to iterate.</span>
-<span class="sd">    as_numpy: If ``True``, call `.numpy()` on each output tensors.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    A function decorator. The decorated function is transformed into a callable</span>
-<span class="sd">    that returns a generator over its outputs.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">_fun</span><span class="p">():</span>
-      <span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-
-      <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
-      <span class="k">def</span> <span class="nf">_tf_fun</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">))</span>
-
-      <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-          <span class="n">outputs</span> <span class="o">=</span> <span class="n">_tf_fun</span><span class="p">()</span>
-          <span class="k">if</span> <span class="n">as_numpy</span><span class="p">:</span>
-            <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">outputs</span><span class="p">)</span>
-          <span class="k">yield</span> <span class="n">outputs</span>
-        <span class="k">except</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">OutOfRangeError</span><span class="p">:</span>
-          <span class="k">break</span>
-
-    <span class="k">return</span> <span class="n">_fun</span>
-
-  <span class="k">return</span> <span class="n">decorator</span>
 </pre></div>
 
            </div>

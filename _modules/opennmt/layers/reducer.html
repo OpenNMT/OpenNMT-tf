@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.reducer &mdash; OpenNMT-tf 2.11.1 documentation</title>
+  <title>opennmt.layers.reducer &mdash; OpenNMT-tf 2.12.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.11
+                2.12
               </div>
             
           
@@ -310,6 +310,10 @@
   <span class="sd">&quot;&quot;&quot;A reducer that sums the inputs.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SumReducer.reduce"><a class="viewcode-back" href="../../../package/opennmt.layers.SumReducer.html#opennmt.layers.SumReducer.reduce">[docs]</a>  <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SumReducer.reduce_sequence"><a class="viewcode-back" href="../../../package/opennmt.layers.SumReducer.html#opennmt.layers.SumReducer.reduce_sequence">[docs]</a>  <span class="k">def</span> <span class="nf">reduce_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_lengths</span><span class="p">):</span>

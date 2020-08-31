@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.11.1 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.12.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.11
+                2.12
               </div>
             
           
@@ -288,12 +288,11 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">GreedySearch</span><span class="p">()</span></div>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DecodingStrategy.initialize"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.initialize">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the strategy.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      batch_size: The batch size.</span>
 <span class="sd">      start_ids: The start decoding ids.</span>
 <span class="sd">      attention_size: If known, the size of the attention vectors (i.e. the</span>
 <span class="sd">        maximum source length).</span>
@@ -304,20 +303,20 @@
 <span class="sd">      - The (possibly transformed) start decoding ids.</span>
 <span class="sd">      - The tensor of finished flags.</span>
 <span class="sd">      - Initial log probabilities per batch.</span>
-<span class="sd">      - A sequence of additional tensors used during the decoding.</span>
+<span class="sd">      - An dictionary of additional tensors used during the decoding.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">step</span><span class="p">,</span>
-            <span class="n">sampler</span><span class="p">,</span>
-            <span class="n">log_probs</span><span class="p">,</span>
-            <span class="n">cum_log_probs</span><span class="p">,</span>
-            <span class="n">finished</span><span class="p">,</span>
-            <span class="n">state</span><span class="p">,</span>
-            <span class="n">extra_vars</span><span class="p">,</span>
-            <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DecodingStrategy.step"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.step">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+           <span class="n">step</span><span class="p">,</span>
+           <span class="n">sampler</span><span class="p">,</span>
+           <span class="n">log_probs</span><span class="p">,</span>
+           <span class="n">cum_log_probs</span><span class="p">,</span>
+           <span class="n">finished</span><span class="p">,</span>
+           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Updates the strategy state.</span>
 
 <span class="sd">    Args:</span>
@@ -327,8 +326,8 @@
 <span class="sd">      cum_log_probs: The cumulated log probabilities per batch.</span>
 <span class="sd">      finished: The current finished flags.</span>
 <span class="sd">      state: The decoder state.</span>
-<span class="sd">      extra_vars: Additional tensors from this decoding strategy.</span>
 <span class="sd">      attention: The attention vector for the current step.</span>
+<span class="sd">      **kwargs: Additional tensors used by this decoding strategy.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple containing,</span>
@@ -336,20 +335,20 @@
 <span class="sd">      - The predicted word ids.</span>
 <span class="sd">      - The new cumulated log probabilities.</span>
 <span class="sd">      - The updated finished flags.</span>
-<span class="sd">      - The update decoder state.</span>
-<span class="sd">      - Additional tensors from this decoding strategy.</span>
+<span class="sd">      - The updated decoder state.</span>
+<span class="sd">      - A dictionary with additional tensors used by this decoding strategy.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">extra_vars</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DecodingStrategy.finalize"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.finalize">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+  <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Finalize the predictions.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      outputs: The array of sampled ids.</span>
 <span class="sd">      end_id: The end token id.</span>
-<span class="sd">      extra_vars: Additional tensors from this decoding strategy.</span>
 <span class="sd">      attention: The array of attention outputs.</span>
+<span class="sd">      **kwargs: Additional tensors used by this decoding strategy.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple containing,</span>
@@ -358,40 +357,41 @@
 <span class="sd">      - The final attention history of shape [B, H, T, S].</span>
 <span class="sd">      - The final sequence lengths of shape [B, H].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="GreedySearch"><a class="viewcode-back" href="../../../package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch">[docs]</a><span class="k">class</span> <span class="nc">GreedySearch</span><span class="p">(</span><span class="n">DecodingStrategy</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A basic greedy search strategy.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="GreedySearch.initialize"><a class="viewcode-back" href="../../../package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">start_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
     <span class="n">initial_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">initial_log_probs</span><span class="p">,</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">initial_log_probs</span><span class="p">,</span> <span class="p">{}</span></div>
 
-  <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">step</span><span class="p">,</span>
-            <span class="n">sampler</span><span class="p">,</span>
-            <span class="n">log_probs</span><span class="p">,</span>
-            <span class="n">cum_log_probs</span><span class="p">,</span>
-            <span class="n">finished</span><span class="p">,</span>
-            <span class="n">state</span><span class="p">,</span>
-            <span class="n">extra_vars</span><span class="p">,</span>
-            <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="GreedySearch.step"><a class="viewcode-back" href="../../../package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch.step">[docs]</a>  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+           <span class="n">step</span><span class="p">,</span>
+           <span class="n">sampler</span><span class="p">,</span>
+           <span class="n">log_probs</span><span class="p">,</span>
+           <span class="n">cum_log_probs</span><span class="p">,</span>
+           <span class="n">finished</span><span class="p">,</span>
+           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">sample_ids</span><span class="p">,</span> <span class="n">sample_log_probs</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">log_probs</span><span class="p">)</span>
     <span class="n">sample_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sample_ids</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">sample_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sample_log_probs</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">cum_log_probs</span> <span class="o">+=</span> <span class="n">sample_log_probs</span>
-    <span class="k">return</span> <span class="n">sample_ids</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">extra_vars</span>
+    <span class="k">return</span> <span class="n">sample_ids</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">kwargs</span></div>
 
-  <span class="k">def</span> <span class="nf">_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">extra_vars</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="GreedySearch.finalize"><a class="viewcode-back" href="../../../package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch.finalize">[docs]</a>  <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">stack</span><span class="p">())</span>
     <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">_lengths_from_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">end_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">attention</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
       <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span></div>
+    <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span></div></div>
 
 
 <div class="viewcode-block" id="BeamSearch"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch">[docs]</a><span class="k">class</span> <span class="nc">BeamSearch</span><span class="p">(</span><span class="n">DecodingStrategy</span><span class="p">):</span>
@@ -420,20 +420,21 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span> <span class="o">=</span> <span class="n">state_reorder_flags</span>
 
-  <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BeamSearch.initialize"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">start_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">start_ids</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">start_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">)</span>
     <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
     <span class="c1"># Give all probability to first beam for the first iteration.</span>
     <span class="n">initial_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="mf">0.</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">])</span>
-    <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-    <span class="n">extra_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">parent_ids</span><span class="p">,</span> <span class="n">sequence_lengths</span><span class="p">]</span>
+    <span class="n">extra_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;parent_ids&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="s2">&quot;sequence_lengths&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="p">}</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_penalty</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">attention_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The attention size should be known to support coverage penalty&quot;</span><span class="p">)</span>
-      <span class="n">accumulated_attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">,</span> <span class="n">attention_size</span><span class="p">])</span>
-      <span class="n">extra_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accumulated_attention</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">initial_log_probs</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extra_vars</span><span class="p">)</span>
+      <span class="n">extra_vars</span><span class="p">[</span><span class="s2">&quot;accumulated_attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">,</span> <span class="n">attention_size</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">initial_log_probs</span><span class="p">,</span> <span class="n">extra_vars</span></div>
 
   <span class="k">def</span> <span class="nf">_get_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">sequence_lengths</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">accumulated_attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">scores</span> <span class="o">=</span> <span class="n">log_probs</span>
@@ -454,17 +455,17 @@
       <span class="n">scores</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_penalty</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">coverage_penalty</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">scores</span>
 
-  <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">step</span><span class="p">,</span>
-            <span class="n">sampler</span><span class="p">,</span>
-            <span class="n">log_probs</span><span class="p">,</span>
-            <span class="n">cum_log_probs</span><span class="p">,</span>
-            <span class="n">finished</span><span class="p">,</span>
-            <span class="n">state</span><span class="p">,</span>
-            <span class="n">extra_vars</span><span class="p">,</span>
-            <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">extra_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">extra_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<div class="viewcode-block" id="BeamSearch.step"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.step">[docs]</a>  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+           <span class="n">step</span><span class="p">,</span>
+           <span class="n">sampler</span><span class="p">,</span>
+           <span class="n">log_probs</span><span class="p">,</span>
+           <span class="n">cum_log_probs</span><span class="p">,</span>
+           <span class="n">finished</span><span class="p">,</span>
+           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;parent_ids&quot;</span><span class="p">]</span>
+    <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sequence_lengths&quot;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_penalty</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -472,7 +473,7 @@
                          <span class="s2">&quot;return an attention vector&quot;</span><span class="p">)</span>
       <span class="n">not_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">finished</span><span class="p">)</span>
       <span class="n">attention</span> <span class="o">*=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">not_finished</span><span class="p">,</span> <span class="n">attention</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-      <span class="n">accumulated_attention</span> <span class="o">=</span> <span class="n">extra_vars</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">attention</span>
+      <span class="n">accumulated_attention</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;accumulated_attention&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">attention</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">accumulated_attention</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -507,16 +508,22 @@
     <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">)</span>
     <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">sequence_lengths</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">)</span>
     <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">parent_ids</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">beam_ids</span><span class="p">)</span>
-    <span class="n">extra_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">parent_ids</span><span class="p">,</span> <span class="n">sequence_lengths</span><span class="p">]</span>
+    <span class="n">extra_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;parent_ids&quot;</span><span class="p">:</span> <span class="n">parent_ids</span><span class="p">,</span>
+        <span class="s2">&quot;sequence_lengths&quot;</span><span class="p">:</span> <span class="n">sequence_lengths</span><span class="p">,</span>
+    <span class="p">}</span>
     <span class="k">if</span> <span class="n">accumulated_attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">accumulated_attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">accumulated_attention</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">)</span>
-      <span class="n">extra_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accumulated_attention</span><span class="p">)</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="n">_reorder_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">,</span> <span class="n">reorder_flags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">word_ids</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extra_vars</span><span class="p">)</span>
+      <span class="n">extra_vars</span><span class="p">[</span><span class="s2">&quot;accumulated_attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">accumulated_attention</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">state</span> <span class="o">=</span> <span class="n">_reorder_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">beam_indices</span><span class="p">,</span> <span class="n">reorder_flags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">word_ids</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">extra_vars</span></div>
 
-  <span class="k">def</span> <span class="nf">_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">extra_vars</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">extra_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">extra_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="c1"># We prefer using the pure TensorFlow variant of gather_tree instead of the custom op,</span>
+  <span class="c1"># which is not readily available in TensorFlow builds (e.g. TensorFlow Serving).</span>
+  <span class="nd">@misc</span><span class="o">.</span><span class="n">disable_tfa_custom_ops</span>
+  <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;parent_ids&quot;</span><span class="p">]</span>
+    <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sequence_lengths&quot;</span><span class="p">]</span>
     <span class="n">maximum_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_lengths</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">max_time</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
     <span class="n">array_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_time</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">]</span>
@@ -614,15 +621,15 @@
 
     <span class="c1"># Run one decoding strategy step.</span>
     <span class="n">output</span><span class="p">,</span> <span class="n">next_cum_log_probs</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">extra_vars</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">_step</span><span class="p">(</span>  <span class="c1"># pylint: disable=protected-access</span>
+        <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
             <span class="n">step</span><span class="p">,</span>
             <span class="n">sampler</span><span class="p">,</span>
             <span class="n">log_probs</span><span class="p">,</span>
             <span class="n">cum_log_probs</span><span class="p">,</span>
             <span class="n">finished</span><span class="p">,</span>
-            <span class="n">state</span><span class="p">,</span>
-            <span class="n">extra_vars</span><span class="p">,</span>
-            <span class="n">attention</span><span class="o">=</span><span class="n">attn</span><span class="p">))</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">attention</span><span class="o">=</span><span class="n">attn</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">extra_vars</span><span class="p">))</span>
 
     <span class="c1"># Update loop vars.</span>
     <span class="k">if</span> <span class="n">attention_history</span><span class="p">:</span>
@@ -635,12 +642,10 @@
     <span class="k">return</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">extra_vars</span>
 
   <span class="n">start_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">start_ids</span><span class="p">)</span>
-  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">start_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
   <span class="n">ids_dtype</span> <span class="o">=</span> <span class="n">start_ids</span><span class="o">.</span><span class="n">dtype</span>
   <span class="n">start_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">start_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
   <span class="n">start_ids</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">initial_log_probs</span><span class="p">,</span> <span class="n">extra_vars</span> <span class="o">=</span> <span class="p">(</span>
-      <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span>  <span class="c1"># pylint: disable=protected-access</span>
-          <span class="n">batch_size</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="n">attention_size</span><span class="p">))</span>
+      <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="n">attention_size</span><span class="p">))</span>
   <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
   <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
   <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -669,14 +674,14 @@
       <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
       <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">)</span>
 
-  <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">_finalize</span><span class="p">(</span>  <span class="c1"># pylint: disable=protected-access</span>
+  <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span>
       <span class="n">outputs</span><span class="p">,</span>
       <span class="n">end_id</span><span class="p">,</span>
-      <span class="n">extra_vars</span><span class="p">,</span>
-      <span class="n">attention</span><span class="o">=</span><span class="n">attention</span> <span class="k">if</span> <span class="n">attention_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+      <span class="n">attention</span><span class="o">=</span><span class="n">attention</span> <span class="k">if</span> <span class="n">attention_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+      <span class="o">**</span><span class="n">extra_vars</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Ignore attention for &lt;/s&gt;.</span>
-  <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">num_hypotheses</span><span class="p">])</span>
+  <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">num_hypotheses</span><span class="p">])</span>
   <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">ids_dtype</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">DecodingResult</span><span class="p">(</span>
       <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
