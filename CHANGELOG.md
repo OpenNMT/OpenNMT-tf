@@ -13,6 +13,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [2.12.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.12.0) (2020-08-31)
+
+### New features
+
 * Update to TensorFlow 2.3 and TensorFlow Addons 0.11
 * Support running `onmt-main` with eager execution for development or debugging (see `--eager_execution` command line argument)
 
