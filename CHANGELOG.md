@@ -13,7 +13,14 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+* Update to TensorFlow 2.3 and TensorFlow Addons 0.11
+* Support running `onmt-main` with eager execution for development or debugging (see `--eager_execution` command line argument)
+
 ### Fixes and improvements
+
+* Fix `--data_dir` prefix when the `data` block contains non string values
+* Replace usage of the custom op `Addons>GatherTree` in beam search with a pure TensorFlow implementation to make model export and serving easier
+* Raise an error when enabling `case_feature` for tokenization (unsupported in OpenNMT-tf)
 
 ## [2.11.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.11.1) (2020-06-25)
 
