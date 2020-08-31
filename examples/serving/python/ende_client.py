@@ -2,9 +2,6 @@ import argparse
 import os
 
 import tensorflow as tf
-import tensorflow_addons as tfa
-tfa.register_all()  # Register custom ops.
-
 import pyonmttok
 
 
