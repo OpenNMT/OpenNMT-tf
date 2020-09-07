@@ -532,7 +532,6 @@ class MovingAverage(object):
     Returns:
       A context manager.
     """
-    # TODO: Do we want to shadow the values on all replicas?
     previous_values = []
     for variable in self._variables:
       previous_values.append(variable.value())
