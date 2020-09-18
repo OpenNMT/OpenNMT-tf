@@ -115,6 +115,10 @@ class RunnerTest(tf.test.TestCase):
     with open(en_file) as f:
       self.assertEqual(next(f).strip(), "a t z m o n")
 
+    # Continue the training without updating max_step
+    with self.assertRaises(RuntimeError, match="max_step"):
+      runner.train()
+
   @test_util.run_with_two_cpu_devices
   def testTrainDistribute(self):
     ar_file, en_file  = self._makeTransliterationData()
