@@ -73,11 +73,13 @@ class Trainer:
         https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage.
     """
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
-      tf.get_logger().warning("Model already reached max_step = %d. Exiting.", max_step)
-      return
+      raise RuntimeError("The training already reached max_step (%d). If you "
+                         "want to continue the training, you should increase the "
+                         "max_step value in the training parameters." % max_step)
     if evaluator is not None and evaluator.should_stop():
-      tf.get_logger().warning("Early stopping conditions are already met. Exiting.")
-      return
+      raise RuntimeError("The early stopping conditions are already met. If you "
+                         "want to continue the training, you should update your "
+                         "early stopping parameters.")
 
     self._gradient_accumulator.reset()
     self._words_counters.clear()
