@@ -423,8 +423,6 @@ class MirroredStrategyTrainer(Trainer):
   def _finalize_dataset(self, dataset):
     # We prefer not to use experimental_distribute_dataset here because it
     # sometimes fails to split the batches (noticed with tokens batch type).
-    # We also assume for now that we are training with a single worker
-    # otherwise we would need to correctly shard the input dataset.
     dataset_fn = dataset if callable(dataset) else lambda _: dataset
     return self._strategy.experimental_distribute_datasets_from_function(dataset_fn)
 
