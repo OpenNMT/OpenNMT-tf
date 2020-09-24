@@ -92,7 +92,8 @@ class Trainer:
       moving_average = None
       last_report_step = iterations.numpy()
       last_report_time = time.time()
-      for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
+      for i, loss in enumerate(
+          self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps)):
         if tf.math.is_nan(loss):
           raise RuntimeError("Model diverged with loss = NaN.")
 
@@ -106,7 +107,12 @@ class Trainer:
             moving_average.update()
 
         step = iterations.numpy()
-        if step % report_steps == 0:
+        if i < 2:
+          # Ignore first 2 iterations in throughput reporting.
+          _ = self._get_words_counters()
+          last_report_step = step
+          last_report_time = time.time()
+        elif step % report_steps == 0:
           words_counters = self._get_words_counters()
           if self._is_master:
             _report_training_status(
