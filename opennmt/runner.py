@@ -13,6 +13,7 @@ import yaml
 import numpy as np
 import tensorflow as tf
 
+from opennmt import __version__
 from opennmt import evaluation
 from opennmt import inference
 from opennmt import models
@@ -77,6 +78,7 @@ class Runner(object):
       self._model_fn = model
     else:
       raise TypeError("model should be a opennmt.models.Model instance or a callable")
+    tf.get_logger().info("Using OpenNMT-tf version %s", __version__)
     tf.get_logger().info("Using model:\n%s", self._model)
     self._optimizer = None
     self._config = copy.deepcopy(config)
