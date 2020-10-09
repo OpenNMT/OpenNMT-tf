@@ -247,7 +247,7 @@ def random_shard(shard_size, dataset_size):
   Example:
 
     >>> dataset = tf.data.Dataset.range(6)
-    >>> dataset = dataset.apply(opennmt.data.random_shard(2, 6)
+    >>> dataset = dataset.apply(opennmt.data.random_shard(2, 6))
     >>> list(dataset.as_numpy_iterator())
     [0, 1, 4, 5, 2, 3]
 
