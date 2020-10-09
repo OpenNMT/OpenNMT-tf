@@ -13,13 +13,13 @@ import yaml
 import numpy as np
 import tensorflow as tf
 
-from opennmt import __version__
 from opennmt import evaluation
 from opennmt import inference
 from opennmt import models
 from opennmt import training as training_util
 from opennmt.utils import checkpoint as checkpoint_util
 from opennmt.utils import misc
+from opennmt.version import __version__
 
 
 # These options require a value but we can fallback to a default one.

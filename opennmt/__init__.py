@@ -1,7 +1,5 @@
 """OpenNMT module."""
 
-__version__ = "2.12.1"
-
 from opennmt.config import convert_to_v2_config
 from opennmt.config import load_config
 from opennmt.config import load_model
@@ -15,3 +13,5 @@ from opennmt.constants import START_OF_SENTENCE_TOKEN
 from opennmt.constants import UNKNOWN_TOKEN
 
 from opennmt.runner import Runner
+
+from opennmt.version import __version__
