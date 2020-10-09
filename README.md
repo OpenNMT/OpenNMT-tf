@@ -130,7 +130,7 @@ For example, the `Runner` class can be used to train and evaluate models with fe
 import opennmt
 
 config = {
-    "model_dir": "/data/wmt-ende/checkpoints/,
+    "model_dir": "/data/wmt-ende/checkpoints/",
     "data": {
         "source_vocabulary": "/data/wmt-ende/joint-vocab.txt",
         "target_vocabulary": "/data/wmt-ende/joint-vocab.txt",
