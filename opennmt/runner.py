@@ -19,6 +19,7 @@ from opennmt import models
 from opennmt import training as training_util
 from opennmt.utils import checkpoint as checkpoint_util
 from opennmt.utils import misc
+from opennmt.version import __version__
 
 
 # These options require a value but we can fallback to a default one.
@@ -77,6 +78,7 @@ class Runner(object):
       self._model_fn = model
     else:
       raise TypeError("model should be a opennmt.models.Model instance or a callable")
+    tf.get_logger().info("Using OpenNMT-tf version %s", __version__)
     tf.get_logger().info("Using model:\n%s", self._model)
     self._optimizer = None
     self._config = copy.deepcopy(config)

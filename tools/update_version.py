@@ -6,15 +6,15 @@ import re
 
 
 SRC_DIR = "."
-ROOT_INIT = "%s/opennmt/__init__.py" % SRC_DIR
+VERSION_FILE = "%s/opennmt/version.py" % SRC_DIR
 SETUP_PY = "%s/setup.py" % SRC_DIR
 DOCS_CONF = "%s/docs/conf.py" % SRC_DIR
 CHANGELOG = "%s/CHANGELOG.md" % SRC_DIR
 
 
 def get_current_version():
-  with open(ROOT_INIT, "r") as init_file:
-    for line in init_file:
+  with open(VERSION_FILE, "r") as version_file:
+    for line in version_file:
       version_match = re.search('^__version__ = "(.+)"', line)
       if version_match:
         return version_match.group(1)
@@ -46,7 +46,7 @@ def main():
 
   replace_string_in_file('__version__ = "%s"' % current_version,
                          '__version__ = "%s"' % new_version,
-                         ROOT_INIT)
+                         VERSION_FILE)
   replace_string_in_file('version="%s"' % current_version,
                          'version="%s"' % new_version,
                          SETUP_PY)
