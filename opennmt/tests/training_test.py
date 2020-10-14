@@ -66,6 +66,52 @@ class TrainingTest(tf.test.TestCase):
     with self.assertRaisesRegex(RuntimeError, "No training steps"):
       trainer(dataset)
 
+  def testTrainingStats(self):
+    model = _make_seq2seq_model(self.get_temp_dir())
+    optimizer = tf.keras.optimizers.SGD(1.0)
+    stats = training.TrainingStats(model, optimizer, warmup_steps=2)
+
+    def _step(source_length, target_length, step, loss):
+      source_features = {"length": source_length}
+      target_features = {"length": target_length}
+      stats.update_on_example(source_features, target_features)
+      stats.update_on_step(step, loss)
+
+    _step(24, 23, 5, 9.8)
+    _step(10, 8, 10, 9.6)
+
+    summary = stats.get_last_summary()
+    self.assertEqual(summary["learning_rate"], 1.0)
+    self.assertEqual(summary["step"], 10)
+    self.assertEqual(summary["loss"], 9.6)
+
+    # Throughput values are ignored in the 2 first steps.
+    self.assertEqual(summary["steps_per_sec"], 0)
+    self.assertEqual(summary["words_per_sec"]["source"], 0)
+    self.assertEqual(summary["words_per_sec"]["target"], 0)
+
+    _step(14, 21, 15, 9.4)
+
+    summary = stats.get_last_summary()
+    self.assertNotEqual(summary["steps_per_sec"], 0)
+    self.assertNotEqual(summary["words_per_sec"]["source"], 0)
+    self.assertNotEqual(summary["words_per_sec"]["target"], 0)
+
+    stats.log()
+
+    # log() should reset accumulated values.
+    summary = stats.get_last_summary()
+    self.assertEqual(summary["steps_per_sec"], 0)
+    self.assertEqual(summary["words_per_sec"]["source"], 0)
+    self.assertEqual(summary["words_per_sec"]["target"], 0)
+
+    summary = stats.get_global_summary()
+    self.assertEqual(summary["last_learning_rate"], 1.0)
+    self.assertEqual(summary["last_step"], 15)
+    self.assertEqual(summary["last_loss"], 9.4)
+    self.assertEqual(summary["average_loss"], 9.6)
+    self.assertEqual(summary["num_steps"], 3)
+
 
 if __name__ == "__main__":
   tf.test.main()

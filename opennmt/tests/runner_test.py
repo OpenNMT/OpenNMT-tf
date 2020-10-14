@@ -100,8 +100,9 @@ class RunnerTest(tf.test.TestCase):
         }
     }
     runner = self._getTransliterationRunner(config, pass_model_builder=pass_model_builder)
-    avg_dir = runner.train()
+    avg_dir, summary = runner.train(return_summary=True)
     self.assertEqual(runner.model_dir, avg_dir)
+    self.assertIsInstance(summary, dict)
     self.assertEndsWith(tf.train.latest_checkpoint(avg_dir), "145002")
     self.assertLen(tf.train.get_checkpoint_state(avg_dir).all_model_checkpoint_paths, 1)
     model_dir = os.path.dirname(avg_dir)
