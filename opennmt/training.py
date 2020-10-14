@@ -30,7 +30,7 @@ class Trainer:
       self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
     else:
       self._summary_writer = tf.summary.create_noop_writer()
-    self._words_counters = {}
+    self._training_stats = None
     self._gradient_accumulator = optimizer_util.GradientAccumulator()
 
     if optimizer is None:
@@ -71,6 +71,9 @@ class Trainer:
       moving_average_decay: If set, maintain an exponential moving average of the model
         variables using this decay value (usually close to 1, e.g. 0.9999). See
         https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage.
+
+    Returns:
+      A dictionary with various training statistics.
     """
     if max_step is not None and self._optimizer.iterations.numpy() >= max_step:
       raise RuntimeError("The training already reached max_step (%d). If you "
@@ -82,18 +85,16 @@ class Trainer:
                          "early stopping parameters.")
 
     self._gradient_accumulator.reset()
-    self._words_counters.clear()
 
     with self._summary_writer.as_default():
+      self._training_stats = TrainingStats(
+          self._model, self._optimizer, reduce_fn=self._all_reduce_sum)
       iterations = self._optimizer.iterations
       tf.summary.experimental.set_step(iterations)
 
       step = None
       moving_average = None
-      last_report_step = iterations.numpy()
-      last_report_time = time.time()
-      for i, loss in enumerate(
-          self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps)):
+      for loss in self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps):
         if tf.math.is_nan(loss):
           raise RuntimeError("Model diverged with loss = NaN.")
 
@@ -107,23 +108,9 @@ class Trainer:
             moving_average.update()
 
         step = iterations.numpy()
-        if i < 2:
-          # Ignore first 2 iterations in throughput reporting.
-          _ = self._get_words_counters()
-          last_report_step = step
-          last_report_time = time.time()
-        elif step % report_steps == 0:
-          words_counters = self._get_words_counters()
-          if self._is_master:
-            _report_training_status(
-                step,
-                loss,
-                self._optimizer.learning_rate,
-                words_counters,
-                last_report_step,
-                last_report_time)
-            last_report_step = step
-            last_report_time = time.time()
+        self._training_stats.update_on_step(step, loss.numpy())
+        if step % report_steps == 0:
+          self._training_stats.log(self._is_master)
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step, moving_average=moving_average)
         if eval_steps is not None and step % eval_steps == 0:
@@ -139,8 +126,10 @@ class Trainer:
                            "training file is empty or all examples were filtered out. "
                            "For the latter, verify that the maximum_*_length values are "
                            "consistent with your data.")
+      summary = self._training_stats.get_global_summary()
       self._save_checkpoint(step, moving_average=moving_average)
       self._evaluate(evaluator, step, moving_average=moving_average)
+      return summary
 
   def _save_checkpoint(self, step, moving_average=None):
     """Saves a checkpoint for step."""
@@ -260,9 +249,7 @@ class Trainer:
       training_loss, reported_loss = loss, loss
     training_loss = self._model.regularize_loss(
         training_loss, variables=self._model.trainable_variables)
-    self._update_words_counter("source", source)
-    if not self._model.unsupervised:
-      self._update_words_counter("target", target)
+    self._training_stats.update_on_example(source, target)
     if first_call and self._is_master:
       if self._checkpoint is not None:
         self._model.visualize(self._checkpoint.model_dir)
@@ -325,37 +312,6 @@ class Trainer:
         self._gradient_accumulator.gradients,
         scale=self._gradient_accumulator.step)
     self._gradient_accumulator.reset()
-
-  def _update_words_counter(self, name, features):
-    """Accumulates number of source and target tokens to report throughput."""
-    length = features.get("length")
-    if length is None:
-      return
-    num_words = tf.reduce_sum(length)
-    counter = self._words_counters.get(name)
-    if counter is None:
-      counter = tf.Variable(
-          tf.constant(0, dtype=tf.int64),
-          trainable=False,
-          synchronization=tf.VariableSynchronization.ON_READ,
-          aggregation=tf.VariableAggregation.SUM)
-      self._words_counters[name] = counter
-    counter.assign_add(tf.cast(num_words, tf.int64))
-
-  @tf.function
-  def _get_words_counters(self):
-    """Returns the accumulated words counters and resets them.
-
-    This is used to report the words per second in the training logs.
-
-    Returns:
-      A dictionary mapping a counter name to a Python value.
-    """
-    counters = {}
-    for name, counter in self._words_counters.items():
-      counters[name] = self._all_reduce_sum(counter.read_value())
-      counter.assign(tf.constant(0, dtype=tf.int64))
-    return counters
 
   def _broadcast_variables(self):
     """Broadcasts variables to other replicas, if required."""
@@ -451,41 +407,6 @@ class MirroredStrategyTrainer(Trainer):
     self._strategy.run(super()._step)
 
 
-def _report_training_status(step,
-                            loss,
-                            learning_rate,
-                            words_counters,
-                            last_report_step,
-                            last_report_time):
-  elapsed_time = time.time() - last_report_time
-
-  steps_per_sec = (step - last_report_step) / elapsed_time
-  tf.summary.scalar("steps_per_sec", steps_per_sec, description="Training steps per second")
-  steps_per_sec_fmt = "steps/s = %0.2f" % steps_per_sec
-
-  words_per_sec_fmt = []
-  for name, counter in words_counters.items():
-    avg = int(counter.numpy() / elapsed_time)
-    tf.summary.scalar(
-        "words_per_sec/%s" % name,
-        avg,
-        description="%s words per second" % name.capitalize())
-    words_per_sec_fmt.append("%s words/s = %d" % (name, avg))
-
-  if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
-    learning_rate = learning_rate(step)
-  elif isinstance(learning_rate, tf.Variable):
-    learning_rate = learning_rate.value()
-
-  tf.get_logger().info(
-      "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
-      step,
-      ", ".join([steps_per_sec_fmt] + list(sorted(words_per_sec_fmt))),
-      learning_rate,
-      loss)
-  tf.summary.scalar("loss", loss, description="Training loss")
-  tf.summary.scalar("optim/learning_rate", learning_rate, description="Learning rate")
-
 def _summarize_gradients(gradients, should_record):
   # Only compute the gradients global norm when the value is actually recorded.
   if isinstance(should_record, bool) and not should_record:
@@ -545,3 +466,176 @@ class MovingAverage(object):
     yield
     for previous_value, variable in zip(previous_values, self._variables):
       variable.assign(previous_value)
+
+
+class TrainingStats:
+  """Aggregate and summarize training statistics."""
+
+  def __init__(self, model, optimizer, reduce_fn=None, warmup_steps=2):
+    """Initializes the statistics.
+
+    Args:
+      model: The model.
+      optimizer: The optimizer.
+      reduce_fn: In case of distributed training, a function to sum reduce
+        distributed values.
+      warmup_steps: Throughput values are ignored for this many steps at the
+        start of the training.
+    """
+    self._model = model
+    self._optimizer = optimizer
+    self._reduce_fn = reduce_fn
+    self._warmup_steps = warmup_steps
+    self._words_counters = {}
+    self._num_updates = 0
+    self._average_loss = 0
+    self._last_loss = None
+    self._last_step = optimizer.iterations.numpy()
+    self._last_logged_step = self._last_step
+    self._last_logged_time = time.time()
+
+  def update_on_example(self, source, target):
+    """Updates the training statistics on a new training example.
+
+    This may be called within a tf.function.
+
+    Args:
+      source: A dictionary of source features.
+      tagret: A dictionary of target features.
+    """
+    self._update_words_counter("source", source)
+    if not self._model.unsupervised:
+      self._update_words_counter("target", target)
+
+  def update_on_step(self, step, loss):
+    """Updates the training statistics on a new training step.
+
+    Args:
+      step: The current training step.
+      loss: The loss for this step.
+    """
+    self._last_step = step
+    self._last_loss = loss
+    self._average_loss = (self._average_loss * self._num_updates + loss) / (self._num_updates + 1)
+
+    if self._num_updates < self._warmup_steps:
+      self._reset_accumulation()
+    self._num_updates += 1
+
+  def get_last_summary(self):
+    """Returns a summary of the training since the last log.
+
+    Returns:
+      A dictionary containing various statistics.
+    """
+    elapsed_time = time.time() - self._last_logged_time
+    return {
+        "learning_rate": self._get_learning_rate(),
+        "loss": self._last_loss,
+        "step": self._last_step,
+        "steps_per_sec": (self._last_step - self._last_logged_step) / elapsed_time,
+        "words_per_sec": {
+            name:int(value.numpy() / elapsed_time)
+            for name, value in self._get_words_counters().items()},
+    }
+
+  def get_global_summary(self):
+    """Returns a summary of the training since the beginning.
+
+    Returns:
+      A dictionary containing various statistics.
+    """
+    return {
+        "average_loss": self._average_loss,
+        "last_learning_rate": self._get_learning_rate(),
+        "last_loss": self._last_loss,
+        "last_step": self._last_step,
+        "num_steps": self._num_updates,
+    }
+
+  def log(self, is_master=True):
+    """Logs the last training statistics.
+
+    Args:
+      is_master: Whether this process is the master worker or not.
+    """
+
+    # Only the master should log the training statistics but we build the
+    # summary on all workers since it may reduce distributed values.
+    summary = self.get_last_summary()
+    self._reset_accumulation()
+
+    if not is_master:
+      return
+
+    tf.summary.scalar(
+        "steps_per_sec", summary["steps_per_sec"], description="Training steps per second")
+    steps_per_sec_fmt = "steps/s = %0.2f" % summary["steps_per_sec"]
+
+    words_per_sec_fmt = []
+    for name, avg in summary["words_per_sec"].items():
+      tf.summary.scalar(
+          "words_per_sec/%s" % name,
+          avg,
+          description="%s words per second" % name.capitalize())
+      words_per_sec_fmt.append("%s words/s = %d" % (name, avg))
+
+    tf.get_logger().info(
+        "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
+        summary["step"],
+        ", ".join([steps_per_sec_fmt] + list(sorted(words_per_sec_fmt))),
+        summary["learning_rate"],
+        summary["loss"])
+    tf.summary.scalar("loss", summary["loss"], description="Training loss")
+    tf.summary.scalar("optim/learning_rate", summary["learning_rate"], description="Learning rate")
+
+  def _reset_accumulation(self):
+    """Resets the accumulated values since the last log."""
+    self._reset_words_counters()
+    self._last_logged_step = self._last_step
+    self._last_logged_time = time.time()
+
+  def _get_learning_rate(self):
+    learning_rate = self._optimizer.learning_rate
+    if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
+      learning_rate = learning_rate(self._last_step)
+    elif isinstance(learning_rate, tf.Variable):
+      learning_rate = learning_rate.value()
+    return learning_rate
+
+  def _update_words_counter(self, name, features):
+    """Accumulates the number of source and target tokens to report throughput."""
+    length = features.get("length")
+    if length is None:
+      return
+    num_words = tf.reduce_sum(length)
+    counter = self._words_counters.get(name)
+    if counter is None:
+      counter = tf.Variable(
+          tf.constant(0, dtype=tf.int64),
+          trainable=False,
+          synchronization=tf.VariableSynchronization.ON_READ,
+          aggregation=tf.VariableAggregation.SUM)
+      self._words_counters[name] = counter
+    counter.assign_add(tf.cast(num_words, tf.int64))
+
+  @tf.function
+  def _get_words_counters(self):
+    """Returns the accumulated words counters.
+
+    Returns:
+      A dictionary mapping a counter name to a value.
+    """
+    counters = {}
+    for name, counter in self._words_counters.items():
+      counter = counter.read_value()
+      if self._reduce_fn is not None:
+        counter = self._reduce_fn(counter)
+      counters[name] = counter
+    return counters
+
+  @tf.function
+  def _reset_words_counters(self):
+    """Resets the accumulated words counters."""
+    for counter in self._words_counters.values():
+      counter.assign(tf.constant(0, dtype=tf.int64))

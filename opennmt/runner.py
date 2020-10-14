@@ -140,7 +140,12 @@ class Runner(object):
     model.initialize(config["data"], params=config["params"])
     return model
 
-  def train(self, num_devices=1, with_eval=False, checkpoint_path=None, hvd=None):
+  def train(self,
+            num_devices=1,
+            with_eval=False,
+            checkpoint_path=None,
+            hvd=None,
+            return_summary=False):
     """Runs the training loop.
 
     Args:
@@ -148,9 +153,11 @@ class Runner(object):
       with_eval: Enable evaluation during training.
       checkpoint_path: The checkpoint path to load the model weights from it.
       hvd: Optional Horovod module.
+      return_summary: Return a summary of the training from this function.
 
     Returns:
-      The path to the final model directory.
+      The path to the final model directory and, if :obj:`return_summary` is set,
+      a dictionary with various training statistics.
     """
     if hvd is None:
       num_replicas = num_devices
@@ -227,7 +234,7 @@ class Runner(object):
     else:
       trainer = training_util.Trainer(model, optimizer, checkpoint=checkpoint)
 
-    trainer(
+    summary = trainer(
         dataset_fn,
         max_step=train_config.get("max_step"),
         accum_steps=accum_steps,
@@ -237,14 +244,19 @@ class Runner(object):
         eval_steps=eval_config.get("steps", 5000),
         moving_average_decay=train_config.get("moving_average_decay"))
 
-    if checkpoint is None:
-      return None
     average_last_checkpoints = train_config.get("average_last_checkpoints", 0)
-    if average_last_checkpoints > 0:
-      return self.average_checkpoints(
+    if checkpoint is None:
+      output_dir = None
+    elif average_last_checkpoints > 0:
+      output_dir = self.average_checkpoints(
           os.path.join(checkpoint.model_dir, "avg"),
           max_count=average_last_checkpoints)
-    return checkpoint.model_dir
+    else:
+      output_dir = checkpoint.model_dir
+
+    if return_summary:
+      return output_dir, summary
+    return output_dir
 
   def evaluate(self, features_file=None, labels_file=None, checkpoint_path=None):
     """Runs evaluation.
