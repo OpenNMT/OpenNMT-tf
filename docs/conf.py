@@ -3,6 +3,7 @@
 
 import os
 import sys
+import opennmt
 
 
 # General information about the project.
@@ -10,8 +11,8 @@ project = "OpenNMT-tf"
 author = "OpenNMT"
 language = "en"
 
-version = "2.12"  # The short X.Y version.
-release = "2.12.1"  # The full version, including alpha/beta/rc tags.
+release = opennmt.__version__  # The full version, including alpha/beta/rc tags.
+version = ".".join(release.split(".")[:2])  # The short X.Y version.
 
 extensions = [
     "recommonmark",
