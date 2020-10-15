@@ -1,6 +1,6 @@
 # Vocabulary
 
-For text inputs, vocabulary files should be provided in the data configuration. A vocabulary file is a simple text file with **one token per line**. It shoud starts with these 3 special tokens:
+For text inputs, vocabulary files should be provided in the data configuration. A vocabulary file is a simple text file with **one token per line**. It should start with these 3 special tokens:
 
 ```text
 <blank>
