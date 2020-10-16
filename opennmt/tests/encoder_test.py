@@ -22,6 +22,21 @@ class DenseEncoder(encoders.Encoder):
 
 class EncoderTest(tf.test.TestCase):
 
+  def testRaggedInput(self):
+    ragged_tensor = tf.ragged.constant([[1, 2, 3], [4], [5, 6]])
+    test_case = self
+
+    class _Encoder(encoders.Encoder):
+      def call(self, inputs, sequence_length=None, training=None):
+        test_case.assertAllEqual(inputs, [[1, 2, 3], [4, 0, 0], [5, 6, 0]])
+        test_case.assertAllEqual(sequence_length, [3, 1, 2])
+        test_case.assertTrue(training)
+        return inputs + 1, None, sequence_length
+
+    ragged_output, _ = _Encoder()(ragged_tensor, training=True)
+    self.assertIsInstance(ragged_output, tf.RaggedTensor)
+    self.assertAllEqual(ragged_output, [[2, 3, 4], [5], [6, 7]])
+
   def testMeanEncoder(self):
     inputs = tf.concat([tf.ones([1, 5, 1]), 2*tf.ones([1, 5, 1])], 0)
     length = tf.constant([2, 4], dtype=tf.int32)
