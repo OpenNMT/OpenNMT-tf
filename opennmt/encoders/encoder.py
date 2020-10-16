@@ -31,6 +31,34 @@ class Encoder(tf.keras.layers.Layer):
     """
     raise NotImplementedError()
 
+  def __call__(self, inputs, sequence_length=None, **kwargs):  # pylint: disable=arguments-differ
+    """Encodes an input sequence.
+
+    Args:
+      inputs: A 3D ``tf.Tensor`` or ``tf.RaggedTensor``.
+      sequence_length: A 1D ``tf.Tensor`` (optional if :obj:`inputs` is a
+        ``tf.RaggedTensor``).
+      training: Run the encoder in training mode.
+
+    Returns:
+      If :obj:`inputs` is a ``tf.Tensor``, the encoder returns a tuple
+      ``(outputs, state, sequence_length)``. If :obj:`inputs` is a
+      ``tf.RaggedTensor``, the encoder returns a tuple ``(outputs, state)``,
+      where ``outputs`` is a ``tf.RaggedTensor``.
+    """
+    if isinstance(inputs, tf.RaggedTensor):
+      is_ragged = True
+      inputs, sequence_length = inputs.to_tensor(), inputs.row_lengths()
+    else:
+      is_ragged = False
+    outputs, state, sequence_length = super().__call__(
+        inputs, sequence_length=sequence_length, **kwargs)
+    if is_ragged:
+      outputs = tf.RaggedTensor.from_tensor(outputs, lengths=sequence_length)
+      return outputs, state
+    else:
+      return outputs, state, sequence_length
+
 
 class SequentialEncoder(Encoder):
   """An encoder that executes multiple encoders sequentially with optional
