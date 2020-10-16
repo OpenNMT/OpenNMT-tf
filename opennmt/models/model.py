@@ -282,9 +282,7 @@ class Model(tf.keras.layers.Layer):
     _ = self(features, labels=labels, training=True, step=0)
 
     if optimizer is not None:
-      _ = optimizer.iterations
-      optimizer._create_hypers()  # pylint: disable=protected-access
-      optimizer._create_slots(self.trainable_variables)  # pylint: disable=protected-access
+      optimizer._create_all_weights(self.trainable_variables)  # pylint: disable=protected-access
 
   def transfer_weights(self, new_model, new_optimizer=None, optimizer=None, ignore_weights=None):
     """Transfers weights (and optionally optimizer slots) from this model to
