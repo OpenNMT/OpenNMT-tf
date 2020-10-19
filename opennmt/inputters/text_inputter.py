@@ -248,6 +248,11 @@ class TextInputter(Inputter):
     self.noiser = None
     self.in_place_noise = False
     self.noise_probability = None
+    self.vocabulary_file = None
+    self.vocabulary_size = None
+    self.tokens_to_ids = None
+    self.ids_to_tokens = None
+    self.tokenizer = None
 
   def initialize(self, data_config, asset_prefix=""):
     self.vocabulary_file = _get_field(
@@ -280,6 +285,7 @@ class TextInputter(Inputter):
     self.noise_probability = probability
 
   def export_assets(self, asset_dir, asset_prefix=""):
+    self._assert_is_initialized()
     return self.tokenizer.export_assets(asset_dir, asset_prefix=asset_prefix)
 
   def make_dataset(self, data_file, training=None):
@@ -292,6 +298,7 @@ class TextInputter(Inputter):
 
   def make_features(self, element=None, features=None, training=None):
     """Tokenizes raw text."""
+    self._assert_is_initialized()
     if features is None:
       features = {}
     if "tokens" in features:
@@ -322,6 +329,7 @@ class TextInputter(Inputter):
     return features
 
   def input_signature(self):
+    self._assert_is_initialized()
     if self.tokenizer.in_graph:
       return {
           "text": tf.TensorSpec([None], tf.string)
@@ -331,6 +339,11 @@ class TextInputter(Inputter):
           "tokens": tf.TensorSpec([None, None], tf.string),
           "length": tf.TensorSpec([None], tf.int32)
       }
+
+  def _assert_is_initialized(self):
+    if self.tokenizer is None:
+      raise RuntimeError("The input layer is not initialized. You should initialize "
+                         "the model by calling model.initialize(data_config).")
 
 
 class WordEmbedder(TextInputter):
