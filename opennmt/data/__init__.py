@@ -23,3 +23,4 @@ from opennmt.data.text import tokens_to_chars
 from opennmt.data.text import tokens_to_words
 
 from opennmt.data.vocab import Vocab
+from opennmt.data.vocab import create_lookup_tables
