@@ -303,6 +303,13 @@ class InputterTest(tf.test.TestCase):
     self.assertAllEqual([1, 1], transformed[0][0])
     self.assertAllEqual([2, 2], transformed[0][1])
 
+  def testWordEmbedderMissingInitialization(self):
+    embedder = text_inputter.WordEmbedder()
+    with self.assertRaisesRegex(RuntimeError, "initialize"):
+      embedder.input_signature()
+    with self.assertRaisesRegex(RuntimeError, "initialize"):
+      embedder.make_features("Hello world !")
+
   def testCharConvEmbedder(self):
     vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
     data_file = self._makeTextFile("data.txt", ["hello world !"])
