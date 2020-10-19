@@ -3,6 +3,8 @@
 import tensorflow as tf
 import numpy as np
 
+from opennmt import constants
+
 
 class Vocab(object):
   """Vocabulary class.
@@ -219,6 +221,54 @@ class Vocab(object):
       self.add("averyunlikelytoken%d" % i)
       i += 1
 
+
+def create_lookup_tables(vocabulary_path, num_oov_buckets=1, as_asset=True, unk_token=None):
+  """Creates TensorFlow lookup tables from a vocabulary file.
+
+  Args:
+    vocabulary_path: Path to the vocabulary file.
+    num_oov_buckets: Number of out-of-vocabulary buckets.
+    as_asset: If ``True``, the vocabulary file will be added as a graph asset.
+      Otherwise, the content of the vocabulary will be embedded in the graph.
+    unk_token: The out-of-vocabulary token. Defaults to ``<unk>``.
+
+  Returns:
+    A tuple containing,
+
+    - The final vocabulary size.
+    - The ``tf.lookup`` table mapping tokens to ids.
+    - The ``tf.lookup`` table mapping ids to tokens.
+  """
+  if unk_token is None:
+    unk_token = constants.UNKNOWN_TOKEN
+  vocabulary = Vocab.from_file(vocabulary_path)
+  vocabulary_size = len(vocabulary)
+  if as_asset:
+    tokens_to_ids_initializer = tf.lookup.TextFileInitializer(
+        vocabulary_path,
+        tf.string,
+        tf.lookup.TextFileIndex.WHOLE_LINE,
+        tf.int64,
+        tf.lookup.TextFileIndex.LINE_NUMBER,
+        vocab_size=vocabulary_size)
+    ids_to_tokens_initializer = tf.lookup.TextFileInitializer(
+        vocabulary_path,
+        tf.int64,
+        tf.lookup.TextFileIndex.LINE_NUMBER,
+        tf.string,
+        tf.lookup.TextFileIndex.WHOLE_LINE,
+        vocab_size=vocabulary_size)
+  else:
+    tokens = tf.constant(vocabulary.words, dtype=tf.string)
+    ids = tf.constant(list(range(vocabulary_size)), dtype=tf.int64)
+    tokens_to_ids_initializer = tf.lookup.KeyValueTensorInitializer(tokens, ids)
+    ids_to_tokens_initializer = tf.lookup.KeyValueTensorInitializer(ids, tokens)
+  if num_oov_buckets > 0:
+    tokens_to_ids = tf.lookup.StaticVocabularyTable(tokens_to_ids_initializer, num_oov_buckets)
+  else:
+    tokens_to_ids = tf.lookup.StaticHashTable(tokens_to_ids_initializer, 0)
+  ids_to_tokens = tf.lookup.StaticHashTable(ids_to_tokens_initializer, unk_token)
+  return vocabulary_size + num_oov_buckets, tokens_to_ids, ids_to_tokens
 
 def get_mapping(current_vocab_path, new_vocab_path, mode="replace"):
   """Maps vocabulary new indices to old ones. -1 means that the entry is new."""

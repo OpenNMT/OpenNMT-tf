@@ -13,7 +13,7 @@ from google.protobuf import text_format
 from opennmt import constants, tokenizers
 from opennmt.data import dataset as dataset_util
 from opennmt.data import text
-from opennmt.data.vocab import Vocab
+from opennmt.data import vocab
 from opennmt.inputters.inputter import Inputter
 from opennmt.layers import common
 from opennmt.utils import misc
@@ -208,36 +208,6 @@ def _get_field(config, key, prefix=None, default=None, required=False):
     raise ValueError("Missing field '%s' in the data configuration" % key)
   return value
 
-def _create_vocabulary_tables(vocabulary_file, num_oov_buckets, as_asset=True):
-  vocabulary = Vocab.from_file(vocabulary_file)
-  vocabulary_size = len(vocabulary)
-  if as_asset:
-    tokens_to_ids_initializer = tf.lookup.TextFileInitializer(
-        vocabulary_file,
-        tf.string,
-        tf.lookup.TextFileIndex.WHOLE_LINE,
-        tf.int64,
-        tf.lookup.TextFileIndex.LINE_NUMBER,
-        vocab_size=vocabulary_size)
-    ids_to_tokens_initializer = tf.lookup.TextFileInitializer(
-        vocabulary_file,
-        tf.int64,
-        tf.lookup.TextFileIndex.LINE_NUMBER,
-        tf.string,
-        tf.lookup.TextFileIndex.WHOLE_LINE,
-        vocab_size=vocabulary_size)
-  else:
-    tokens = tf.constant(vocabulary.words, dtype=tf.string)
-    ids = tf.constant(list(range(vocabulary_size)), dtype=tf.int64)
-    tokens_to_ids_initializer = tf.lookup.KeyValueTensorInitializer(tokens, ids)
-    ids_to_tokens_initializer = tf.lookup.KeyValueTensorInitializer(ids, tokens)
-  if num_oov_buckets > 0:
-    tokens_to_ids = tf.lookup.StaticVocabularyTable(tokens_to_ids_initializer, num_oov_buckets)
-  else:
-    tokens_to_ids = tf.lookup.StaticHashTable(tokens_to_ids_initializer, 0)
-  ids_to_tokens = tf.lookup.StaticHashTable(ids_to_tokens_initializer, constants.UNKNOWN_TOKEN)
-  return vocabulary_size + num_oov_buckets, tokens_to_ids, ids_to_tokens
-
 
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
@@ -252,7 +222,7 @@ class TextInputter(Inputter):
   def initialize(self, data_config, asset_prefix=""):
     self.vocabulary_file = _get_field(
         data_config, "vocabulary", prefix=asset_prefix, required=True)
-    self.vocabulary_size, self.tokens_to_ids, self.ids_to_tokens = _create_vocabulary_tables(
+    self.vocabulary_size, self.tokens_to_ids, self.ids_to_tokens = vocab.create_lookup_tables(
         self.vocabulary_file,
         self.num_oov_buckets,
         as_asset=data_config.get("export_vocabulary_assets", True))
